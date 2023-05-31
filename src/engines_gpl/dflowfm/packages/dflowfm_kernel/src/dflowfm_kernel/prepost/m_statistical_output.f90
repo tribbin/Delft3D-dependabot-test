@@ -219,6 +219,9 @@ contains
    
       type(t_output_variable_set),    intent(inout)   :: output_set    !> output set that items need to be added to
       type(t_output_quantity_config_set), intent(in)  :: output_config !> output config for which an output set is needed.
+      
+      integer :: i
+      
       if (jahisbal > 0) then
          call add_stat_output_item(output_set, output_config%statout(IDX_HIS_VOLTOT                     ),voltot(1:1)                                   )
          call add_stat_output_item(output_set, output_config%statout(IDX_HIS_STOR                       ),voltot(2:2)                                   )
@@ -261,14 +264,20 @@ contains
          call add_stat_output_item(output_set, output_config%statout(IDX_HIS_EVAP_ICEPT                 ),voltot(39:39)                                  )
          call add_stat_output_item(output_set, output_config%statout(IDX_HIS_PRECIP_GROUND              ),voltot(40:40)                                  )
       endif
-      !if (jahissourcesink > 0 .and. numsrc > 0) then
-      !   call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SOURCE_SINK_PRESCRIBED_DISCHARGE                          )
-      !   call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SOURCE_SINK_PRESCRIBED_SALINITY_INCREMENT                 )
-      !   call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SOURCE_SINK_PRESCRIBED_TEMPERATURE_INCREMENT              )
-      !   call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SOURCE_SINK_CURRENT_DISCHARGE                             )
-      !   call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SOURCE_SINK_CUMULATIVE_VOLUME                ),vsrccum         )
-      !   call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SOURCE_SINK_DISCHARGE_AVERAGE                             )
-      !endif
+      if (jahissourcesink > 0 .and. numsrc > 0) then
+         call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SOURCE_SINK_PRESCRIBED_DISCHARGE), qstss(1:(numconst+1)*numsrc:(numconst+1)))
+         i = 1
+         if (isalt > 0) then
+            i = i + 1
+            call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SOURCE_SINK_PRESCRIBED_SALINITY_INCREMENT),   qstss(i:(numconst+1)*numsrc:(numconst+i)))
+         endif
+         if (itemp > 0) then
+            call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SOURCE_SINK_PRESCRIBED_TEMPERATURE_INCREMENT),qstss(i:(numconst+1)*numsrc:(numconst+i)))
+         endif
+         call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SOURCE_SINK_CURRENT_DISCHARGE),qsrc)
+         call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SOURCE_SINK_CUMULATIVE_VOLUME),vsrccum)
+         call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SOURCE_SINK_DISCHARGE_AVERAGE),qsrcavg)
+      endif
       !call add_stat_output_item(output_set, output_config%statout(IDX_HIS_GENERAL_STRUCTURE_DISCHARGE                               )
       !call add_stat_output_item(output_set, output_config%statout(IDX_HIS_GENERAL_STRUCTURE_CREST_LEVEL                             )
       !call add_stat_output_item(output_set, output_config%statout(IDX_HIS_GENERAL_STRUCTURE_GATE_LOWER_EDGE_LEVEL                   )
@@ -611,7 +620,7 @@ contains
    subroutine add_stat_output_item(output_set, output_config, data_pointer)
    
       type(t_output_variable_set), intent(inout) :: output_set             !> output set that items need to be added to
-      type(t_output_quantity_config), pointer, intent(in) :: output_config          !> output quantity config linked to output item
+      type(t_output_quantity_config), pointer, intent(in) :: output_config !> output quantity config linked to output item
       double precision, pointer, dimension(:), intent(in) :: data_pointer  !> pointer to output quantity data
       
       type(t_output_variable_item) :: item !> new item to be added

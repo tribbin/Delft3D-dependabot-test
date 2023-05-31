@@ -439,7 +439,7 @@
  integer                           :: numvalssrc        !< nr of point constituents
  integer                           :: msrc = 0          !< maximal number of points that polylines contains for all sources/sinks
  integer, allocatable              :: ksrc(:,:)         !< index array, 1=nodenr sink, 2 =kbsin , 3=ktsin, 4 = nodenr source, 5 =kbsor , 6=ktsor
- double precision, allocatable     :: qsrc(:)           !< cell influx (m3/s) if negative: outflux
+ double precision, target, allocatable     :: qsrc(:)           !< cell influx (m3/s) if negative: outflux
  double precision, allocatable     :: sasrc(:)          !< q*salinity    (ppt) (m3/s)  if ksrc 3,4 == 0, else delta salinity
  double precision, allocatable     :: tmsrc(:)          !< q*temperature (degC) (m3/s) if ksrc 3,4 == 0, else delta temperature
  double precision, allocatable     :: ccsrc(:,:)        !< dimension (numvalssrc,numsrc), keeps sasrc, tmsrc etc
@@ -455,9 +455,9 @@
  integer, allocatable, target      :: kdss (:)          !< helper for multiple_uni_discharge_salinity_temperature
  double precision, allocatable, target :: qstss(:)      !< array to catch multiple_uni_discharge_salinity_temperature
  character(len=255), allocatable   :: srcname(:)        !< sources/sinks name (numsrc)
- double precision, allocatable     :: vsrccum(:)        !< cumulative volume at each source/sink from Tstart to now
+ double precision, target, allocatable     :: vsrccum(:)        !< cumulative volume at each source/sink from Tstart to now
  double precision, allocatable     :: vsrccum_pre(:)    !< cumulative volume at each source/sink from Tstart to the previous His-output time
- double precision, allocatable     :: qsrcavg(:)        !< average discharge in the past his-interval at each source/sink
+ double precision, target, allocatable     :: qsrcavg(:)        !< average discharge in the past his-interval at each source/sink
  double precision, allocatable     :: xsrc(:,:)         !< x-coordinates of source/sink
  double precision, allocatable     :: ysrc(:,:)         !< y-coordinates of source/sink
  integer, allocatable              :: nxsrc(:)          !< mx nr of points in xsrc, ysrc
