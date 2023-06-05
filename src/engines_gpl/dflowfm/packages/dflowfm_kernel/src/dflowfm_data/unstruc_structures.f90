@@ -93,7 +93,7 @@ integer :: jaoldstr !< tmp backwards comp: we cannot mix structures from EXT and
  double precision, dimension(:,:), allocatable, target :: valweirgen   !< Array for weir, (1:NUMVALS_WEIRGEN,:), the first index include 1:NUMVALS_COMMON (see definitation at top),
                                                                !< and extra varaibles have indices: IVAL_S1ONCREST, IVAL_CRESTL, IVAL_CRESTW, IVAL_STATE,
                                                                !<                                   IVAL_FORCEDIF, NUMVALS_WEIRGEN is the counter
- double precision, dimension(:,:), allocatable :: valorifgen   !< Array for orifice, (1:NUMVALS_ORIFGEN,:), the first index include 1:NUMVALS_COMMON (see definitation at top),
+ double precision, dimension(:,:), allocatable, target :: valorifgen   !< Array for orifice, (1:NUMVALS_ORIFGEN,:), the first index include 1:NUMVALS_COMMON (see definitation at top),
                                                                !< and extra varaibles have indices: IVAL_S1ONCREST, IVAL_CRESTL, IVAL_CRESTW, IVAL_STATE,
                                                                !<                                   IVAL_FORCEDIF, IVAL_OPENW, IVAL_EDGEL, IVAL_OPENH, the last one NUMVALS_ORIFGEN is the counter
  ! Bridge, extra variables:
@@ -102,7 +102,7 @@ integer :: jaoldstr !< tmp backwards comp: we cannot mix structures from EXT and
  integer, parameter :: IVAL_BLACTUAL     = NUMVALS_COMMON+3                   !< Index of actual bed level (crest)
  integer, parameter :: NUMEXTVALS_BRIDGE = 3                                  !< Number of extra variables for bridge
  integer, parameter :: NUMVALS_BRIDGE    = NUMVALS_COMMON + NUMEXTVALS_BRIDGE !< Total number of variables for bridge
- double precision, dimension(:,:), allocatable :: valbridge                   !< Array for bridge(1:NUMVALS_BRIDGE,:), the first dimension of this array contains
+ double precision, dimension(:,:), allocatable, target :: valbridge                   !< Array for bridge(1:NUMVALS_BRIDGE,:), the first dimension of this array contains
                                                                               !< NUMVALS_COMMON common variables (see definitation at top) and NUMEXTVALS_BRIDGE extra variables here.
 
  ! Dambreak, extra variables:
@@ -122,7 +122,7 @@ integer :: jaoldstr !< tmp backwards comp: we cannot mix structures from EXT and
  integer, parameter :: IVAL_CL_OPENH   = NUMVALS_COMMON + 4                  !< Index of culvert gate opening height
  integer, parameter :: NUMEXTVALS_CULVERT = 4                                !< Number of extra variables for culvertt
  integer, parameter :: NUMVALS_CULVERT = NUMVALS_COMMON + NUMEXTVALS_CULVERT !< Total number of variables for culvert
- double precision, dimension(:,:), allocatable :: valculvert                 !< Array for culvert(1:NUMVALS_CULVERT,:), the first dimension of this array contains
+ double precision, dimension(:,:), allocatable, target :: valculvert                 !< Array for culvert(1:NUMVALS_CULVERT,:), the first dimension of this array contains
                                                                              !< NUMVALS_COMMON common variables (see definitation at top) and above extra variables.
 
  ! Univeral weir, extra variables:
