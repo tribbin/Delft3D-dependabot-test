@@ -20,6 +20,17 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
+      module m_dlwq03
+      use m_read_hydfile
+      use m_opt1
+      use m_opt0
+      use m_grid
+
+
+      implicit none
+
+      contains
+
 
       subroutine dlwq03 ( lun    , lchar  , filtype, nrftot , nrharm ,
      &                    ivflag , dtflg1 , iwidth , dtflg3 , vrsion ,
@@ -51,8 +62,8 @@
 !       Subroutines called: grid    read grid structures
 !                           opt0    read constant/time-variable block
 !                           opt1    get & open ( include ) file
-!                           dhopnf  open file
-!                           DHKMRK  get an attribute from an attribute integer
+!                           open_waq_files  open file
+!                           evaluate_waq_attribute  get an attribute from an attribute integer
 !                           srstop  stop with error code
 !                           check   end of block
 
@@ -61,9 +72,10 @@
 !                           LUN( 6) = unit intermediate file (grid)
 !                           LUN( 7) = unit intermediate file (volumes)
 
+      use m_check
       use m_srstop
-      use m_dhopnf
-      use m_dhkmrk
+      use m_open_waq_files
+      use m_evaluate_waq_attribute
       use grids        !   for the storage of contraction grids
       use rd_token     !   for the reading of tokens
       use partmem      !   for PARTicle tracking
@@ -337,7 +349,7 @@
                         enddo
                      enddo
                      if ( nx*ny .gt. 0 ) then
-                        call dhopnf  ( lun(6), lchar(6), 6    , 1   , ierr2 )
+                        call open_waq_files  ( lun(6), lchar(6), 6    , 1   , ierr2 )
                         write ( lun(6) ) pgrid
                         close ( lun(6) )
                      else
@@ -388,7 +400,7 @@
      &               .false. )
          if ( ierr2  .gt. 0 ) goto 240
          if ( ikopt1 .eq. 0 ) then                             !   binary file
-            call dhopnf  ( lun(40) , lchar(40) , 40 , 2 , ierr2 )
+            call open_waq_files  ( lun(40) , lchar(40) , 40 , 2 , ierr2 )
             read  ( lun(40) , end=250 , err=260 ) ( iread(j), j=1, noseg )
             close ( lun(40) )
          else
@@ -479,7 +491,7 @@
             ikmerge(iknm1) = 1
             iknmrk = 10**(iknm1-1)
             do iseg = 1 , noseg
-               call DHKMRK( iknm2, iread(iseg), ivalk )
+               call evaluate_waq_attribute( iknm2, iread(iseg), ivalk )
                iamerge(iseg) = iamerge(iseg) + iknmrk*ivalk
             enddo
    10    continue
@@ -777,3 +789,5 @@
 
       end subroutine check_volume_time
       end
+
+      end module m_dlwq03

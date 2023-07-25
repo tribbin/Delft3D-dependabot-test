@@ -266,6 +266,7 @@ type t_unc_mapids
    integer :: id_rho(MAX_ID_VAR)      = -1 !< Variable ID for
    integer :: id_sa1(MAX_ID_VAR)      = -1 !< Variable ID for
    integer :: id_tem1(MAX_ID_VAR)     = -1 !< Variable ID for
+   integer :: id_nrfld(MAX_ID_VAR)    = -1 !< Variable ID for
    integer, dimension(:,:), allocatable :: id_const !< Variable ID for (3, NUM_CONST) constituents (on 1D, 2D, 3D grid parts resp.)
    integer, dimension(:,:), allocatable :: id_wqb !< Variable ID for (3, numwqbots) water quality bottom variables output (on 2D grid only)
    integer, dimension(:,:), allocatable :: id_wqb3d !< Variable ID for (3, numwqbots) water quality bottom variables output (on 3D grid only)
@@ -2961,7 +2962,7 @@ subroutine unc_write_rst_filepointer(irstfile, tim)
         id_czs, id_E, id_thetamean, &
         id_sigmwav,  &
         id_tsalbnd, id_zsalbnd, id_ttembnd, id_ztembnd, id_tsedbnd, id_zsedbnd, &
-        id_morbl, id_bodsed, id_msed, id_thlyr, id_lyrfrac, id_sedtotdim, id_sedsusdim, id_nlyrdim, &
+        id_morbl, id_bodsed, id_msed, id_thlyr, id_lyrfrac, id_mfluff, id_sedtotdim, id_sedsusdim, id_nlyrdim, &
         id_netelemmaxnodedim, id_netnodedim, id_flowlinkptsdim, id_netelemdim, id_netlinkdim, id_netlinkptsdim, &
         id_flowelemdomain, id_flowelemglobalnr, id_flowlink, id_netelemnode, id_netlink,&
         id_flowelemxzw, id_flowelemyzw, id_flowlinkxu, id_flowlinkyu,&
@@ -3508,8 +3509,17 @@ subroutine unc_write_rst_filepointer(irstfile, tim)
          ierr = nf90_put_att(irstfile, id_thlyr ,  'long_name'    , 'Thickness of a layer of the bed in flow cell center')
          ierr = nf90_put_att(irstfile, id_thlyr ,  'units'        , 'm')
        end select
-    end if
 
+       ! Fluff layers
+       if (stmpar%morpar%flufflyr%iflufflyr>0 .and. stmpar%lsedsus>0) then
+          ierr = nf90_def_var(irstfile, 'mfluff' , nf90_double, (/id_sedsusdim, id_flowelemdim, id_timedim /) , id_mfluff)
+          ierr = nf90_put_att(irstfile, id_mfluff ,  'coordinates'  , 'FlowElem_xcc FlowElem_ycc')
+          ierr = nf90_put_att(irstfile, id_mfluff ,  'long_name'    , 'Sediment mass in fluff layer')
+          ierr = nf90_put_att(irstfile, id_mfluff ,  'units'        , 'kg m-2 ')
+       end if
+
+    end if    
+    
     ! Old morphology
     ! Definition and attributes of flow data on centres: sediment concentation and erodable layer thickness
     if (jased > 0 .and. .not.stm_included) then
@@ -4389,6 +4399,13 @@ subroutine unc_write_rst_filepointer(irstfile, tim)
           ierr = nf90_put_var(irstfile, id_thlyr, stmpar%morlyr%state%thlyr(:,1:ndxi), (/ 1, 1, itim /), (/ stmpar%morlyr%settings%nlyr, ndxi, 1 /))
           ierr = nf90_put_var(irstfile, id_lyrfrac, frac(1:ndxi, :, :), (/ 1, 1, 1, itim /), (/ ndxi, stmpar%morlyr%settings%nlyr, stmpar%lsedtot, 1 /))
        end select
+       
+       !mfluff
+       if (stmpar%morpar%flufflyr%iflufflyr>0 .and. stmpar%lsedsus>0) then
+            do l = 1, stmpar%lsedsus
+               ierr = nf90_put_var(irstfile, id_mfluff, stmpar%morpar%flufflyr%mfluff(l,1:ndxi), (/ l, 1, itim /), (/ 1, ndxi, 1 /))
+            end do   
+       end if 
     end if
 
     ! Write the data: sediment Herman
@@ -4941,6 +4958,7 @@ subroutine unc_write_map_filepointer_ugrid(mapids, tim, jabndnd) ! wrimap
    integer :: Ltx, nlaybL, nrlayLx
    integer :: iLocS ! Either UNC_LOC_S or UNC_LOC_S3D, depending on whether layers are present.
    integer :: iLocU ! Either UNC_LOC_U or UNC_LOC_U3D, depending on whether layers are present.
+   integer :: isrc, kbot_, ktop_, nk, nkbot, nktop
    double precision, dimension(:), allocatable :: windx, windy, toutput, rks, wa
    double precision :: zwu0
    character( len = 4 ) :: str
@@ -5975,6 +5993,12 @@ subroutine unc_write_map_filepointer_ugrid(mapids, tim, jabndnd) ! wrimap
             ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_s1Gradient, nf90_double, UNC_LOC_U, 'water_level_gradient', '', 'Water level gradient at each 1D flow link', '1', which_meshdim = 1, jabndnd=jabndnd_)
          end if
       end if
+      if (jamapNearField > 0) then
+         ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_nrfld, nf90_double, UNC_LOC_S3D, 'nrfld', 'nearfield_discharges', 'Nearfield related discharges', 'm3 s-1', jabndnd=jabndnd_)
+      end if
+      !
+      ! END OF DEFINITION PART
+      !
       ierr = nf90_enddef(mapids%ncid)
       if (ierr == NF90_EVARSIZE .and. unc_cmode /= NF90_NETCDF4) then
          call mess(LEVEL_ERROR, 'Error while writing map file. Probably model grid is too large for classic NetCDF format. Try setting [output] NcFormat = 4 in your MDU.')
@@ -7483,6 +7507,45 @@ if (jamapsed > 0 .and. jased > 0 .and. stm_included) then
       if (jamapS1Gradient > 0) then
          ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_s1Gradient, UNC_LOC_U, s1Gradient, jabndnd=jabndnd_)
       end if
+   end if
+   !
+   ! Nearfield
+   !
+   if (jamapNearField == 1) then
+      call realloc(work1d, ndkx, keepExisting = .false., fill = 0.0d0)
+      do isrc= numsrc-numsrc_nf+1, numsrc
+         !
+         ! Sinks
+         n = ksrc(1,isrc)
+         if (n /= 0) then
+            call getkbotktop(n,kbot_,ktop_)
+            nkbot = kbot_
+            nktop = ktop_
+            do nk = kbot_, ktop_
+               if (zws(nk) < zsrc (1,isrc)) nkbot = nk
+               if (zws(nk) < zsrc2(1,isrc)) nktop = nk
+            enddo
+            do nk = nkbot, nktop
+               work1d(nk) = work1d(nk) - qstss((1+numconst)*(isrc-1)+1) / real(nktop-nkbot+1,hp)
+            enddo
+         end if
+         !
+         ! Sources
+         n = ksrc(4,isrc)
+         if (n /= 0) then
+            call getkbotktop(n,kbot_,ktop_)
+            nkbot = kbot_
+            nktop = ktop_
+            do nk = kbot_, ktop_
+               if (zws(nk) < zsrc (2,isrc)) nkbot = nk
+               if (zws(nk) < zsrc2(2,isrc)) nktop = nk
+            enddo
+            do nk = nkbot, nktop
+               work1d(nk) = work1d(nk) + qstss((1+numconst)*(isrc-1)+1) / real(nktop-nkbot+1,hp)
+            enddo
+         end if
+      end do
+      ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_nrfld, UNC_LOC_S3D, work1d, jabndnd=jabndnd_)
    end if
    if (timon) call timstop (handle_extra(73))
    if (timon) call timstop (handle_extra(70))
@@ -13163,9 +13226,9 @@ subroutine unc_read_map_or_rst(filename, ierr)
                       kloc = kk
                    end if
                    call getkbotktop(kloc, kb, kt)
-                   ! TODO: UNST-976, incorrect for Z-layers:
+                   ! generally constituents get filled in the transport() loop. For initial restart file this has not happened yet so the value gets assigned twice
                    constituents(iconst,kb:kt) = tmpvar(1:kt-kb+1,kk)
-                   !sed(i,kb:kt) = tmpvar(1:kt-kb+1,kk)
+                   sed(i,kb:kt) = tmpvar(1:kt-kb+1,kk)
                 enddo
              else
                 ierr = nf90_get_var(imapfile, id_sf1(i), tmpvar(1,1:um%ndxi_own), start = (/ kstart, it_read/), count = (/ndxi,1/))
@@ -13175,8 +13238,9 @@ subroutine unc_read_map_or_rst(filename, ierr)
                    else
                       kloc = kk
                    end if
-                   constituents(iconst, kloc) = tmpvar(1,kk)
-                   !sed(i, kloc) = tmpvar(1,kk)
+                   ! generally constituents get filled in the transport() loop. For initial restart file this has not happened yet so the value gets assigned twice
+                   constituents(iconst, kloc) = tmpvar(1,kk)   
+                   sed(i, kloc) = tmpvar(1,kk)
                 end do
              endif
              call check_error(ierr, const_names(iconst))
@@ -13196,21 +13260,24 @@ subroutine unc_read_map_or_rst(filename, ierr)
 
        ! mfluff
        if (stmpar%morpar%flufflyr%iflufflyr>0 .and. stmpar%lsedsus>0 .and. sedsus_read == stmpar%lsedsus) then
-          if (allocated(tmpvar))     deallocate(tmpvar)
-          if (allocated(rst_mfluff)) deallocate(rst_mfluff)
-          allocate(tmpvar(sedsus_read, ndxi))
-          allocate(rst_mfluff(stmpar%lsedsus, ndxi))
           ierr = nf90_inq_varid(imapfile, 'mfluff', id_mfluff)
-          ierr = nf90_get_var(imapfile, id_mfluff, tmpvar(1:sedsus_read, 1:um%ndxi_own), start = (/ 1, kstart, it_read/), count = (/sedsus_read, ndxi,1/))
-          do kk = 1, ndxi
-             if (um%jamergedmap == 1) then
-                kloc = um%inode_own(kk)
-             else
-                kloc = kk
-             end if
-             rst_mfluff(:, kloc) = tmpvar(:,kk)
-          end do
-          call check_error(ierr, 'mfluff')
+          if (ierr == nf90_noerr) then
+             if (allocated(tmpvar))     deallocate(tmpvar)
+             if (allocated(rst_mfluff)) deallocate(rst_mfluff)
+             allocate(tmpvar(sedsus_read, ndxi))
+             allocate(rst_mfluff(stmpar%lsedsus, ndxi))
+             ierr = nf90_get_var(imapfile, id_mfluff, tmpvar(1:sedsus_read, 1:um%ndxi_own), start = (/ 1, kstart, it_read/), count = (/sedsus_read, ndxi,1/))
+             do kk = 1, ndxi
+                if (um%jamergedmap == 1) then
+                   kloc = um%inode_own(kk)
+                else
+                   kloc = kk
+                end if
+                rst_mfluff(:, kloc) = tmpvar(:,kk)
+             end do
+             call check_error(ierr, 'mfluff')
+             stmpar%morpar%flufflyr%mfluff(:,1:ndxi) = rst_mfluff(:,1:ndxi)
+          endif
        end if
 
        ! Bed composition

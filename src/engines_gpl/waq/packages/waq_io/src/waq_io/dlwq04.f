@@ -20,6 +20,20 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
+      module m_dlwq04
+      use m_scale
+      use m_pointi
+      use m_opt2
+      use m_opt1
+      use m_opt0
+      use m_dmpare
+      use m_dlwq0f
+
+
+      implicit none
+
+      contains
+
 
       subroutine dlwq04 ( lun     , lchar   , filtype , nrftot  , nrharm  ,
      &                    ilflag  , dtflg1  , iwidth  , intsrt  , dtflg3  ,
@@ -53,7 +67,7 @@
 !                            OPT2
 !                            SCALE
 !                            CHECK
-!                            DHOPNF
+!                            open_waq_files
 !                            RDTOK1 tokenized data reading
 
 !       Logical units      : LUN(27) = unit stripped DELWAQ input file
@@ -69,9 +83,11 @@
 !                            LUN(12) = unit intermediate file (velocities)
 !                            LUN(13) = unit intermediate file (lengths)
 
+      use m_check
+      use m_bound
       use m_zoek
       use m_srstop
-      use m_dhopnf
+      use m_open_waq_files
       use Grids        !   for the storage of contraction grids
       use rd_token     !   for the reading of tokens
       use pointr_mod
@@ -139,7 +155,7 @@
 !     Locals
 
       integer  ( 4)   nosss     !  number of volumes inclusive of bed volumes
-      logical         volume    !  if true, computed volumes
+      integer         volume    !  if true, computed volumes
       logical         disper    !  if true, dispersion
       real     ( 4)   adummy    !  real zero
       integer  ( 4)   idummy    !  integer zero
@@ -175,7 +191,7 @@
 
       nosss  = noseg + nseg2
       iposr  = 0
-      volume = .false.
+      volume = 0
       adummy = 0.0
       idummy = 0
       ifact  = 1
@@ -587,36 +603,36 @@
       write ( lun(2) ) idummy , ( adummy , k = 1,3 )
       write ( lun(2) ) idummy , ( adummy , k = 1,3 )
 
-      call dhopnf  ( lun(8) , lchar(8) , 8      , 1     , ierr2 )
+      call open_waq_files  ( lun(8) , lchar(8) , 8      , 1     , ierr2 )
       if ( ierr2 .ne. 0 ) goto 100
       if ( noq1 .gt. 0 ) write( lun(8) )( ipnt(:,i) , i =       1, noq1  )
       if ( noq2 .gt. 0 ) write( lun(8) )( ipnt(:,i) , i = noq1 +1, noq12 )
       if ( noq3 .gt. 0 ) write( lun(8) )( ipnt(:,i) , i = noq12+1, noq   )
       close ( lun(8) )
 
-      call dhopnf  ( lun( 9) , lchar( 9) , 9      , 1     , ierr2 )
+      call open_waq_files  ( lun( 9) , lchar( 9) , 9      , 1     , ierr2 )
       if ( ierr2 .ne. 0 ) goto 100
       write ( lun( 9) ) idummy, ( rwork(1,i), ( adummy, k=1,nodisp-1 ) , i=1,noq )
       close ( lun( 9) )
 
-      call dhopnf  ( lun(10) , lchar(10) , 10     , 1     , ierr2 )
+      call open_waq_files  ( lun(10) , lchar(10) , 10     , 1     , ierr2 )
       if ( ierr2 .ne. 0 ) goto 100
       write ( lun(10) ) idummy, ( rwork(2,i) , i=1,noq )
       close ( lun(10) )
 
-      call dhopnf  ( lun(11) , lchar(11) , 11     , 1     , ierr2 )
+      call open_waq_files  ( lun(11) , lchar(11) , 11     , 1     , ierr2 )
       if ( ierr2 .ne. 0 ) goto 100
       write ( lun(11) ) idummy, ( rwork(3,i) , i=1,noq )
       close ( lun(11) )
 
       if ( novelo .gt. 0 ) then
-         call dhopnf  ( lun(12) , lchar(12) , 12     , 1     , ierr2 )
+         call open_waq_files  ( lun(12) , lchar(12) , 12     , 1     , ierr2 )
          if ( ierr2 .ne. 0 ) goto 100
          write ( lun(12) ) idummy,( (adummy,k=1,novelo) , i=1,noq)
          close ( lun(12) )
       endif
 
-      call dhopnf  ( lun(13) , lchar(13) , 13     , 1     , ierr2 )
+      call open_waq_files  ( lun(13) , lchar(13) , 13     , 1     , ierr2 )
       if ( ierr2 .ne. 0 ) goto 100
       write ( lun(13) ) idummy,(rwork(4,i),rwork(5,i), i=1,noq )
       close ( lun(13) )
@@ -718,3 +734,5 @@
  3010 format ( //,' Number of layers in the model:', I5)
 
       end
+
+      end module m_dlwq04

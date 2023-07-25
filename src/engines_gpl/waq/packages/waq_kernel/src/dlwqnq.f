@@ -20,6 +20,21 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
+      module m_dlwqnq
+      use m_zercum
+      use m_setset
+      use m_proint
+      use m_proces
+      use m_hsurf
+      use m_dlwq_mt3d
+      use m_dlwqtr
+      use m_dlwqt0
+
+
+      implicit none
+
+      contains
+
 
       subroutine dlwqnq ( a     , j     , c     , lun   , lchar  ,
      &                    action, dlwqd , gridps)
@@ -66,13 +81,24 @@
 !               Some timer by someone:
 !                          CPU_TIME, Fortran timer routine
 
+      use m_dlwqo2
+      use m_dlwqf8
+      use m_dlwqce
+      use m_dlwqb3
+      use m_dlwq41
+      use m_dlwq18
+      use m_dlwq17
+      use m_dlwq16a
+      use m_dlwq15
+      use m_dlwq14
+      use m_dlwq13
+      use m_delpar01
       use m_move
       use m_fileutils
       use grids
       use timers
       use delwaq2_data
       use m_openda_exchange_items, only : get_openda_buffer
-      use report_progress
       use waqmem          ! module with the more recently added arrays
       use m_actions
       use m_sysn          ! System characteristics
@@ -91,7 +117,7 @@
       real     ( 4), intent(inout) :: a    (*)          !< System total real array space
       integer  ( 4), intent(inout) :: j    (*)          !< System total integer array space
       character*(*), intent(inout) :: c    (*)          !< System total character array space
-      integer  ( 4), intent(in   ) :: lun  (*)          !< array with unit numbers
+      integer  ( 4), intent(inout) :: lun  (*)          !< array with unit numbers
       character*(*), intent(in   ) :: lchar(*)          !< array with file names
       integer  ( 4), intent(in   ) :: action            !< type of action to perform
       type(delwaq_data)   , target :: dlwqd             !< delwaq data structure
@@ -102,7 +128,7 @@
 
       LOGICAL         IMFLAG , IDFLAG , IHFLAG
       LOGICAL         LREWIN
-      REAL            RDUMMY
+      REAL            RDUMMY(0)
       INTEGER         NSTEP
       INTEGER         IBND
       INTEGER         ISYS
@@ -161,8 +187,6 @@
           NOWARN   = 0
           IF ( ILFLAG .EQ. 0 ) LLENG = ILENG+2
 
-          call initialise_progress( dlwqd%progress, nstep, lchar(44) )
-
 !          Initialize second volume array with the first one
 
           nosss  = noseg + nseg2
@@ -185,7 +209,6 @@
 
       IF ( ACTION == ACTION_SINGLESTEP ) THEN
           call dlwqdata_restore(dlwqd)
-          call apply_operations( dlwqd )
       ENDIF
 
       if ( timon ) call timstrt ( "dlwqn1", ithandl )
@@ -242,7 +265,7 @@
      &                 idt      , a(iderv) , ndmpar   , nproc    , nflux    ,
      &                 j(iipms) , j(insva) , j(iimod) , j(iiflu) , j(iipss) ,
      &                 a(iflux) , a(iflxd) , a(istoc) , ibflag   , ipbloo   ,
-     &                 ipchar   , ioffbl   , ioffch   , a(imass) , nosys    ,
+     &                 ioffbl   ,  a(imass) , nosys    ,
      &                 itfact   , a(imas2) , iaflag   , intopt   , a(iflxi) ,
      &                 j(ixpnt) , iknmkv   , noq1     , noq2     , noq3     ,
      &                 noq4     , ndspn    , j(idpnw) , a(idnew) , nodisp   ,
@@ -257,12 +280,6 @@
      &                 c(iprna) , intsrt   ,
      &                 j(iprvpt), j(iprdon), nrref    , j(ipror) , nodef    ,
      &                 surface  , lun(19)  )
-
-!        communicate boundaries (for domain decomposition)
-
-         call dlwq_boundio ( lun(19)  , notot    , nosys    , nosss    , nobnd    ,
-     &                       c(isnam) , c(ibnid) , j(ibpnt) , a(iconc) , a(ibset) ,
-     &                       lchar(19))
 
 !          set new boundaries
 
@@ -316,7 +333,6 @@
      &                    a(idmpq), a(idmps), noraai  , imflag  , ihflag  ,
      &                    a(itrra), ibflag  , nowst   , a(iwdmp))
          endif
-         call write_progress( dlwqd%progress )
 
 !          simulation done ?
 
@@ -449,3 +465,5 @@
 
       RETURN
       END SUBROUTINE
+
+      end module m_dlwqnq

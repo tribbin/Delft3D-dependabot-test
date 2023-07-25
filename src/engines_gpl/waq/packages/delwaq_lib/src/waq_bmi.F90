@@ -26,6 +26,8 @@
 #endif
 
 module bmi
+  use m_delwaq2_main
+  use m_delwaq1
   use m_getidentification
   use iso_c_binding
   implicit none
@@ -198,7 +200,7 @@ subroutine get_attribute(c_att_name, c_att_value) bind(C, name="get_attribute")
     case ('model_name')
        att_value = component_name
     case ('version')
-       att_value = version_suffix
+       att_value = major_minor_buildnr
     case ('author_name')
        att_value = company
     case default

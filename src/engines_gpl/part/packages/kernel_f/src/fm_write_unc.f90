@@ -1,3 +1,9 @@
+module m_fm_write_unc
+
+implicit none
+
+contains
+
 !----- AGPL --------------------------------------------------------------------
 !
 !  Copyright (C)  Stichting Deltares, 2017-2023.
@@ -451,7 +457,7 @@ subroutine unc_addglobalatts(ncid)
 
    ierr = nf90_put_att(ncid, nf90_global,  'institution', trim(company))
    ierr = nf90_put_att(ncid, nf90_global,  'references', trim(company_url))
-   ierr = nf90_put_att(ncid, nf90_global,  'source', version_full)
+   ierr = nf90_put_att(ncid, nf90_global,  'source', major_minor_buildnr)
 
    call date_and_time(cdate, ctime, czone)
    ierr = nf90_put_att(ncid, nf90_global,  'history', &
@@ -545,3 +551,5 @@ subroutine comp_concentration(h, nconst, iconst, c)
    if ( timon ) call timstop ( ithndl )
 
 end subroutine comp_concentration
+
+end module m_fm_write_unc

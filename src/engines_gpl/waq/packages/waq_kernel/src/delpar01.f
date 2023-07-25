@@ -20,6 +20,22 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
+      module m_delpar01
+      use m_wrttrk
+      use m_write_part_restart_file
+      use m_partvs
+      use m_part17
+      use m_part15
+      use m_part11
+      use m_dlwqbl
+      use m_par2waq
+      use m_oil2waq
+
+
+      implicit none
+
+      contains
+
       subroutine delpar01 ( itime   , noseg   , nolay   , noq     , nosys   ,
      &                      notot   , dwqvol  , surface , dwqflo  , syname  ,
      &                      nosfun  , sfname  , segfun  , amass   , conc    ,
@@ -30,7 +46,6 @@
       use partmem      !   for PARTicle tracking
       use timers
       use parths_mod                 ! explicit interface
-!      use rdhydr_mod                 ! explicit interface
       use partwq_mod                 ! explicit interface
       use oildsp_mod                 ! explicit interface
       use part03_mod                 ! explicit interface
@@ -47,6 +62,7 @@
       use m_part_regular
       use larvae_mod
       use abm_mod
+      use m_densty
 
       implicit none
 
@@ -94,7 +110,6 @@
       integer(ip) nosubud
       integer(ip) iseg, i, i2, ipart
       real   (rp) depmin
-      real(sp) :: densty  ! AddedDana
       logical     update
       integer     iniday
       integer  :: lures
@@ -419,7 +434,8 @@
 !           write actual particle tracks (file #16)
          if (itime.eq.(itstrtp+idelt*itrakc-idelt)) then
             call wrttrk ( lunut   , fout     , fnamep(16), itrakc   , nopart  ,
-     &                    npmax    , xa       , ya       , za       , xyztrk  )
+     &                    npmax    , xa       , ya       , za       , xyztrk  ,
+     &                    nosubs , wpart  , track                    ) 
             itrakc = itrakc + itraki
          endif
       endif
@@ -480,3 +496,5 @@
  1020 format( '  Time ', i4.4 ,'D-', i2.2 ,'H-', i2.2 ,'M-', i2.2 ,'S.',' Stop time ',
      &          i4.4 ,'D-', i2.2 ,'H-', i2.2 ,'M-', i2.2 ,'S.', i11,' part. (of',i11,')')
       end
+
+      end module m_delpar01

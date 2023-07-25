@@ -20,6 +20,27 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
+      module m_delpar00
+      use m_wrttrk
+      use m_plotgr
+      use m_part08
+      use m_part06
+      use m_part01
+      use m_inipart_asc
+      use m_inipart
+      use m_part11
+      use m_report_date_time
+      use m_rdpart
+      use m_rdlgri
+      use m_rdfnam
+      use m_rdccol
+      use m_getdps
+
+
+      implicit none
+
+      contains
+
 
       subroutine delpar00 ( mdpfile, noseg  , noq    , dwqvol , dwqflo ,
      &                      nosfun , sfname , segfun )
@@ -211,12 +232,13 @@
      &                za       , locdep   , dpsp      , layt    , mmaxp    ,
      &                tcktot   )
         call wrttrk ( lunut    , fout     , fnamep(16), itrakc  , nopart   ,
-     &                npmax    , xa       , ya        , za      , xyztrk      )
+     &                npmax    , xa       , ya        , za      , xyztrk   ,
+     &                nosubs , wpart  , track                    )
       endif
       oil    = modtyp == model_oil
       if ( ini_opt .eq. 1 .and. oil ) then
          call inipart( lgrid   , lgrid2  , nmaxp   , mmaxp   , xb      ,
-     &   yb      , nopart  , nosubs  , substi(1)  , ini_file,
+     &                  yb      , nopart  , nosubs  , substi(1)  , ini_file,
      &                  xpol    , ypol    , npolmax , wpart   , xpart   ,
      &                  ypart   , zpart   , npart   , mpart   , kpart   ,
      &                  iptime  , npmax   , nrowsmax, lunut   )
@@ -330,7 +352,8 @@
      &                    za       , locdep   , dpsp      , layt    , mmaxp    ,
      &                    tcktot   )
             call wrttrk ( lunut    , fout     , fnamep(16), itrakc  , nopart   ,
-     &                    npmax    , xa       , ya        , za      , xyztrk   )
+     &                    npmax    , xa       , ya        , za      , xyztrk   ,
+     &                    nosubs , wpart  , track                    )
             itrakc = itrakc + itraki
          endif
          call exit_alloc ( i2 )
@@ -339,3 +362,5 @@
       if ( timon ) call timstop ( ithandl )
       return
       end
+
+      end module m_delpar00

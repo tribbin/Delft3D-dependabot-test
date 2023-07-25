@@ -48,7 +48,7 @@
  use unstruc_files, only: mdia
  use unstruc_netcdf
  use MessageHandling
- use m_flowparameters, only: jawave, jatrt, jacali, jacreep, jatransportmodule, flowWithoutWaves, jasedtrails, jajre, modind
+ use m_flowparameters, only: jawave, jatrt, jacali, jacreep, flowWithoutWaves, jasedtrails, jajre, modind
  use dfm_error
  use m_fm_wq_processes, only: jawaqproc
  use m_vegetation
@@ -56,6 +56,7 @@
  use m_integralstats, is_is_numndvals=>is_numndvals
  use m_xbeach_data, only: bccreated
  use m_oned_functions
+ use m_nearfield, only: reset_nearfieldData
  use m_alloc
  use m_bedform
  use m_fm_update_crosssections, only: fm_update_mor_width_area, fm_update_mor_width_mean_bedlevel
@@ -69,6 +70,7 @@
  use m_sedtrails_stats, only: default_sedtrails_stats, alloc_sedtrails_stats
  use unstruc_display, only : ntek, jaGUI
  use m_debug
+ use m_flow_flowinit
  
  !
  ! To raise floating-point invalid, divide-by-zero, and overflow exceptions:
@@ -78,7 +80,6 @@
  implicit none
 
  integer              :: istat, L, ierr
- integer, external    :: flow_flowinit
  integer, external    :: init_openmp
  integer, external    :: set_model_boundingbox
  !
@@ -116,6 +117,8 @@
  call resetflow()
 
  call reset_waq()
+
+ call reset_nearfieldData()
 
  call timstop(handle_extra(1)) ! End basic steps
 
@@ -408,7 +411,7 @@
  call timstrt('Trachy update       ', handle_extra(30)) ! trachy update
  if (jatrt == 1) then
     call flow_trachyupdate()                         ! Perform a trachy update step to correctly set initial field quantities
- endif                                               ! Generally flow_trachyupdate() is called from flow_setexternalforcings()
+ endif                                               ! Generally flow_trachyupdate() is called from set_external_forcings()
  call timstop(handle_extra(30)) ! end trachy update
 
  call timstrt('Set friction values for MOR        ', handle_extra(31)) ! set fcru mor

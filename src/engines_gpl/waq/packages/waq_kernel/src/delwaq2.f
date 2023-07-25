@@ -26,12 +26,37 @@
 !       A, J and C are now pointers to arrays
 !
       MODULE DELWAQ2
+      use m_dlwqnq
+      use m_dlwqnp
+      use m_dlwqno
+      use m_dlwqnm
+      use m_dlwqnj
+      use m_dlwqni
+      use m_dlwqnh
+      use m_dlwqng
+      use m_dlwqnf
+      use m_dlwqne
+      use m_dlwqnd
+      use m_dlwqnc
+      use m_dlwqnb
+      use m_dlwqna
+      use m_dlwqn9
+      use m_dlwqn8
+      use m_dlwqn7
+      use m_dlwqn6
+      use m_dlwqn5
+      use m_dlwqn4
+      use m_dlwqn3
+      use m_dlwqn3
+      use m_dlwqn2
+      use m_dlwqn1
+      use m_dlwqn0
       use m_startup_screen
       use m_srstop
       use m_monsys
       use m_gkwini
       use m_getcom
-      use m_dhopnf
+      use m_open_waq_files
 
 
       CONTAINS
@@ -91,7 +116,7 @@
 !                          DLWQNI, 18th    integration procedure
 !                          DLWQNJ, 19+20   integration procedure
 !                          SRSTOP, stops execution
-!                          DHOPNF, opens files
+!                          open_waq_files, opens files
 !
 !     PARAMETERS    :
 !
@@ -107,7 +132,6 @@
 !     INIT    LOGICAL  1       if T boot the system if F no initialisation
 !     ACTION  INTEGER  1       indication of the action to be performed
 !
-      USE waq_Dio_plt_rw
       use grids
       USE DLWQI0_MOD
       USE Timers
@@ -163,19 +187,11 @@
       CHARACTER*(LCHMAX), SAVE :: RUNID
       LOGICAL, SAVE            :: INIT2        = .TRUE. ! To suppress the start-up screen
 
-!     Common to define external communications in SOBEK
-!     OLCFWQ             Flag indicating ONLINE running of CF and WQ
-!     SRWACT             Flag indicating active data exchange with SRW
-!     RTCACT             Flag indicating output for RTC
-
-      character*(lchmax)       :: inifil, dioconfig
       logical                  :: lfound
       integer                  :: idummy, ierr2
       real                     :: rdummy
       CHARACTER                :: cdummy
       CHARACTER*2              :: C2
-      LOGICAL                  :: OLCFWQ, SRWACT, RTCACT
-      COMMON /COMMUN/             OLCFWQ, SRWACT, RTCACT
 !
       integer(4), save         :: ithndl = 0
 !
@@ -219,7 +235,7 @@
 !
 !        the file does exist, so continue processing
 !
-         CALL DHOPNF ( LUNIN , LCHAR(1), 1     , 2     , IERR  )
+         CALL open_waq_files ( LUNIN , LCHAR(1), 1     , 2     , IERR  )
          IF ( IERR .GT. 0 ) GOTO 999
          READ  ( LUNIN )   IN
          READ  ( LUNIN )   II
@@ -233,60 +249,9 @@
          close(lunin)
 
 
-         CALL DHOPNF ( LUN(19) , LCHAR(19) , 19    , 1    , IERRD  )
+         CALL open_waq_files ( LUN(19) , LCHAR(19) , 19    , 1    , IERRD  )
          CALL SETMLU ( LUN(19) )
 
-!      Initialise communication options SOBEK
-
-         OLCFWQ = .FALSE.
-         SRWACT = .FALSE.
-         RTCACT = .FALSE.
-         LCHAR(44) = ' '
-         LUN(44)   = LUN(43) + 1
-
-         call getcom ( '-i'  , 3    , lfound, idummy, rdummy,
-     +                 inifil, ierr2)
-         if ( lfound ) then
-            if ( ierr2.ne. 0 ) then
-               inifil = ' '
-            endif
-         else
-            inifil = 'delwaq.ini'
-         endif
-         open(newunit=lunin,file=inifil,status='old',err=123)
-         write(lun(19),*) ' Using options from ini file : ',trim(inifil)
-         call gkwini(lunin,'SimulationOptions','OnLineWQ',c2)
-         if ( c2 .eq. '-1' ) then
-            olcfwq = .true.
-            write(lun(19),*) ' online coupling with FLOW module activated'
-         endif
-         call gkwini(lunin,'SimulationOptions','OutputRTC',c2)
-         if ( c2 .eq. '-1' ) then
-            rtcact = .true.
-            write(lun(19),*) ' RTC coupling activated'
-         endif
-         call gkwini(lunin,'SimulationOptions','SRW',c2)
-         if ( c2 .eq. '-1' ) then
-            srwact = .true.
-            write(lun(19),*) ' SRW coupling activated'
-         endif
-         call gkwini(lunin,'General','DIOConfigFile',dioconfig)
-         call gkwini(lunin,'General','ProgressFile',lchar(44))
-         close (lunin)
- 123        continue
-
-       ! initialise DIO
-
-            IF ( OLCFWQ .OR. SRWACT .OR. RTCACT ) THEN
-               if ( dioconfig .ne. ' ' ) then
-                  write(lun(19),*) ' Using DelftIO ini file : ',trim(dioconfig)
-                  CALL waq_DioInit(dioconfig)
-               else
-                  write(lun(19),*) ' Using default DelftIO ini file'
-                  CALL waq_DioInit()
-               endif
-            ENDIF
-!
 !           Show startup screen
 !
             IF ( INIT2 ) THEN
@@ -319,10 +284,6 @@
          WRITE ( * , * )
          WRITE ( * , * ) ' INTEGRATION ROUTINE =', intsrt
 
-      ENDIF
-!     SOBEK external communications ONLY implemented in scheme 10!
-      IF ( OLCFWQ .OR. SRWACT .OR. RTCACT ) THEN
-          IF ( INTSRT .NE. 10 .AND. (INTSRT .NE. 15 .AND. INTSRT .NE. 19) ) GOTO 991
       ENDIF
 
 !

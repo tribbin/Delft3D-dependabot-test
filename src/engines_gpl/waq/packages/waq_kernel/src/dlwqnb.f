@@ -20,6 +20,22 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
+      module m_dlwqnb
+      use m_zercum
+      use m_setset
+      use m_proint
+      use m_proces
+      use m_hsurf
+      use m_dlwq_mt3d
+      use m_dlwqtr
+      use m_dlwqt0
+      use m_dlwqo2
+
+
+      implicit none
+
+      contains
+
 
       subroutine dlwqnb ( a     , j     , c     , lun   , lchar  ,
      &                    action, dlwqd , gridps)
@@ -64,7 +80,7 @@
 !                          DLWQB8, restores conc array
 !                          MOVE,   copies one array to another
 !                          PROINT, integration of fluxes
-!                          DHOPNF, opens files
+!                          open_waq_files, opens files
 !                          ZERCUM, zero's the cummulative array's
 !
 !     PARAMETERS    :
@@ -79,13 +95,29 @@
 !
 !     Declaration of arguments
 !
+      use m_dlwqce
+      use m_dlwqb9
+      use m_dlwqb8
+      use m_dlwqb7
+      use m_dlwqb6
+      use m_dlwqb5
+      use m_dlwqb4
+      use m_dlwqb3
+      use m_dlwqb2
+      use m_dlwqb1
+      use m_dlwq41
+      use m_dlwq17
+      use m_dlwq15
+      use m_dlwq14
+      use m_dlwq13
+      use m_delpar01
+      use m_delmat
       use m_move
       use m_fileutils
       use grids
       use timers
       use delwaq2_data
       use m_openda_exchange_items, only : get_openda_buffer
-      use report_progress
       use waqmem          ! module with the more recently added arrays
       use m_actions
       use m_sysn          ! System characteristics
@@ -110,13 +142,6 @@
       type(GridPointerColl)          :: GridPs               ! collection of all grid definitions
 
 
-!     Common to define external communications in SOBEK
-!     OLCFWQ             Flag indicating ONLINE running of CF and WQ
-!     SRWACT             Flag indicating active data exchange with SRW
-!     RTCACT             Flag indicating output for RTC
-
-      LOGICAL            OLCFWQ, SRWACT, RTCACT
-      COMMON /COMMUN/    OLCFWQ, SRWACT, RTCACT
 !
 !     Local declarations
 !
@@ -186,7 +211,6 @@
 
           UPDATR = .TRUE.
 
-          call initialise_progress( dlwqd%progress, nstep, lchar(44) )
 !
 !          initialize second volume array with the first one
 !
@@ -209,7 +233,6 @@
 
       IF ( ACTION == ACTION_SINGLESTEP ) THEN
           call dlwqdata_restore(dlwqd)
-          call apply_operations( dlwqd )
       ENDIF
 
       if ( timon ) call timstrt ( "dlwqnb", ithandl )
@@ -267,7 +290,7 @@
      &                 idt      , a(iderv) , ndmpar   , nproc    , nflux    ,
      &                 j(iipms) , j(insva) , j(iimod) , j(iiflu) , j(iipss) ,
      &                 a(iflux) , a(iflxd) , a(istoc) , ibflag   , ipbloo   ,
-     &                 ipchar   , ioffbl   , ioffch   , a(imass) , nosys    ,
+     &                 ioffbl   ,  a(imass) , nosys    ,
      &                 itfact   , a(imas2) , iaflag   , intopt   , a(iflxi) ,
      &                 j(ixpnt) , iknmkv   , noq1     , noq2     , noq3     ,
      &                 noq4     , ndspn    , j(idpnw) , a(idnew) , nodisp   ,
@@ -282,12 +305,6 @@
      &                 c(iprna) , intsrt   ,
      &                 j(iprvpt), j(iprdon), nrref    , j(ipror) , nodef    ,
      &                 surface  , lun(19)  )
-
-!        communicate boundaries (for domain decomposition)
-
-         call dlwq_boundio ( lun(19)  , notot    , nosys    , nosss    , nobnd    ,
-     &                       c(isnam) , c(ibnid) , j(ibpnt) , a(iconc) , a(ibset) ,
-     &                       lchar(19))
 
 !          set new boundaries
 
@@ -341,7 +358,6 @@
      &                    a(idmpq), a(idmps), noraai  , imflag  , ihflag  ,
      &                    a(itrra), ibflag  , nowst   , a(iwdmp))
          endif
-         call write_progress( dlwqd%progress )
 
 !          simulation done ?
 
@@ -503,44 +519,15 @@
      +                 A(IFLXI), J(ISDMP), J(IPDMP), NTDMPQ  )
       ENDIF
 
-      IF ( RTCACT )
-!     Interface to RTC (i)
-     Jcall RTCSHL (ITIME, A, J, C)
-
-      IF ( SRWACT )
-!     Interface to SRW (i)
-     JCALL SRWSHL (ITIME, A, J, C)
-
-      IF ( OLCFWQ ) THEN
-!     Synchronizing with CF(i) for on-line mode outside SRW only
-          call putpcf('WQtoCF','DataWQtoCF')
-!     Synchronizing with CF(i+1) for on-line mode outside SRW only
-!     ONLY if this is NOT the last time step!!!!!!!!!!!!!
-          IF ( ITIME+IDT .LT. ITSTOP ) then
-              call getpcf('CFtoWQ','DataCFtoWQ')
-              LAATST = 0
-          ELSE
-              LAATST = -1
-          ENDIF
-      ENDIF
-!
-!          new time values, volumes excluded
-!
-      IF ( OLCFWQ .OR. SRWACT ) THEN
-!     Note: time step (i+1) of WQINT!
-          call putpev ('WQtoWQI','DataWQtoWQI',LAATST)
-          call GETPER ('WQItoWQ','DataWQItoWQ')
-      ENDIF
-
-         call dlwqt0 ( lun      , itime    , itimel   , a(iharm) , a(ifarr) ,
-     &                 j(inrha) , j(inrh2) , j(inrft) , idt      , a(ivol)  ,
-     &                 a(idiff) , a(iarea) , a(iflow) , a(ivelo) , a(ileng) ,
-     &                 a(iwste) , a(ibset) , a(icons) , a(iparm) , a(ifunc) ,
-     &                 a(isfun) , j(ibulk) , lchar    , c(ilunt) , ftype    ,
-     &                 intsrt   , isflag   , ifflag   , ivflag   , ilflag   ,
-     &                 update   , j(iktim) , j(iknmr) , j(inisp) , a(inrsp) ,
-     &                 j(intyp) , j(iwork) , .false.  , ldummy   , rdummy   ,
-     &                 .false.  , gridps   , dlwqd    )
+      call dlwqt0 ( lun      , itime    , itimel   , a(iharm) , a(ifarr) ,
+     &              j(inrha) , j(inrh2) , j(inrft) , idt      , a(ivol)  ,
+     &              a(idiff) , a(iarea) , a(iflow) , a(ivelo) , a(ileng) ,
+     &              a(iwste) , a(ibset) , a(icons) , a(iparm) , a(ifunc) ,
+     &              a(isfun) , j(ibulk) , lchar    , c(ilunt) , ftype    ,
+     &              intsrt   , isflag   , ifflag   , ivflag   , ilflag   ,
+     &              update   , j(iktim) , j(iknmr) , j(inisp) , a(inrsp) ,
+     &              j(intyp) , j(iwork) , .false.  , ldummy   , rdummy   ,
+     &              .false.   , gridps   , dlwqd    )
       if ( update ) updatr = .true.
 
 !          end of time loop
@@ -573,3 +560,5 @@
 
       RETURN
       END SUBROUTINE
+
+      end module m_dlwqnb

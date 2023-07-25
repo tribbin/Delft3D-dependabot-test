@@ -1,5 +1,5 @@
 # default build directories
-bin/**
+bin*/**
 build_*/**
 install_*/**
 
@@ -8,6 +8,9 @@ install_*/**
 
 # files extensions to exclude
 *.i90
+*.i
+*.mod
+*__genmod.f*
 
 # folders to exclude
 /src/**/obj/**

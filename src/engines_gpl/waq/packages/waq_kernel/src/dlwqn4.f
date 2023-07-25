@@ -20,6 +20,21 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
+      module m_dlwqn4
+      use m_zercum
+      use m_setset
+      use m_proint
+      use m_proces
+      use m_hsurf
+      use m_dlwqtr
+      use m_dlwqt0
+      use m_dlwqo2
+
+
+      implicit none
+
+      contains
+
 
       subroutine dlwqn4 ( a     , j     , c     , lun   , lchar  ,
      &                    action, dlwqd , gridps)
@@ -56,7 +71,7 @@
 !                          DLWQT0, update other time functions
 !                          DLWQ46, makes mass balance impicit step
 !                          PROINT, integration of fluxes
-!                          DHOPNF, opens files
+!                          open_waq_files, opens files
 !                          SRSTOP, stops execution
 !                          ZERCUM, zero's the cummulative array's
 !
@@ -72,6 +87,20 @@
 !
 !     Declaration of arguments
 !
+      use m_dlwqf8
+      use m_dlwqce
+      use m_dlwqb3
+      use m_dlwq46
+      use m_dlwq44
+      use m_dlwq43
+      use m_dlwq42
+      use m_dlwq41
+      use m_dlwq40
+      use m_dlwq17
+      use m_dlwq15
+      use m_dlwq14
+      use m_dlwq13
+      use m_delpar01
       use m_srstop
       use m_move
       use m_fileutils
@@ -80,7 +109,6 @@
       use delwaq2_data
       use m_openda_exchange_items, only : get_openda_buffer
       use waqmem          ! module with the more recently added arrays
-      use report_progress
       use m_actions
       use m_sysn          ! System characteristics
       use m_sysi          ! Timer characteristics
@@ -88,7 +116,7 @@
       use m_sysj          ! Pointers in integer array workspace
       use m_sysc          ! Pointers in character array workspace
       use m_dlwqdata_save_restore
-      
+
       implicit none
 
 
@@ -164,7 +192,6 @@
           NOQTT  = NOQ + NOQ4
           inwtyp = intyp + nobnd
 
-          call initialise_progress( dlwqd%progress, nstep, lchar(44) )
 !
 !          initialize second volume array with the first one
 !
@@ -187,7 +214,6 @@
 
       IF ( ACTION == ACTION_SINGLESTEP ) THEN
           call dlwqdata_restore(dlwqd)
-          call apply_operations( dlwqd )
       ENDIF
 
       if ( timon ) call timstrt ( "dlwqn4", ithandl )
@@ -280,7 +306,7 @@
      &                 idt      , a(iderv) , ndmpar   , nproc    , nflux    ,
      &                 j(iipms) , j(insva) , j(iimod) , j(iiflu) , j(iipss) ,
      &                 a(iflux) , a(iflxd) , a(istoc) , ibflag   , ipbloo   ,
-     &                 ipchar   , ioffbl   , ioffch   , a(imass) , nosys    ,
+     &                 ioffbl   ,  a(imass) , nosys    ,
      &                 itfact   , a(imas2) , iaflag   , intopt   , a(iflxi) ,
      &                 j(ixpnt) , iknmkv   , noq1     , noq2     , noq3     ,
      &                 noq4     , ndspn    , j(idpnw) , a(idnew) , nodisp   ,
@@ -295,12 +321,6 @@
      &                 c(iprna) , intsrt   ,
      &                 j(iprvpt), j(iprdon), nrref    , j(ipror) , nodef    ,
      &                 surface  , lun(19)  )
-
-!        communicate boundaries
-
-         call dlwq_boundio ( lun(19)  , notot    , nosys    , nosss    , nobnd    ,
-     &                       c(isnam) , c(ibnid) , j(ibpnt) , a(iconc) , a(ibset) ,
-     &                       lchar(19))
 
 !        set new boundaries
 
@@ -325,7 +345,7 @@
      +              A(ICONC), A(ICONS), A(IPARM), A(IFUNC), A(ISFUN),
      +              A(IVOL) , NOCONS  , NOFUN   , IDT     , NOUTP   ,
      +              LCHAR   , LUN     , J(IIOUT), J(IIOPO), A(IRIOB),
-     +              C(IOSNM), C(IOUNI), C(IODSC), C(ISSNM), C(ISUNI), C(ISDSC), 
+     +              C(IOSNM), C(IOUNI), C(IODSC), C(ISSNM), C(ISUNI), C(ISDSC),
      +              C(IONAM), NX      , NY      , J(IGRID), C(IEDIT),
      +              NOSYS   , A(IBOUN), J(ILP)  , A(IMASS), A(IMAS2),
      +              A(ISMAS), NFLUX   , A(IFLXI), ISFLAG  , IAFLAG  ,
@@ -353,7 +373,6 @@
      &                    a(idmpq), a(idmps), noraai  , imflag  , ihflag  ,
      &                    a(itrra), ibflag  , nowst   , a(iwdmp))
          endif
-         call write_progress( dlwqd%progress )
 
 !          simulation done ?
 
@@ -437,7 +456,6 @@
      &                 idt     , a(iderv), iaflag  , a(imas2))
 
 !          new time values, volumes excluded
-
          call dlwqt0 ( lun      , itime    , itimel   , a(iharm) , a(ifarr) ,
      &                 j(inrha) , j(inrh2) , j(inrft) , idt      , a(ivol)  ,
      &                 a(idiff) , a(iarea) , a(iflow) , a(ivelo) , a(ileng) ,
@@ -446,7 +464,7 @@
      &                 intsrt   , isflag   , ifflag   , ivflag   , ilflag   ,
      &                 ldumm2   , j(iktim) , j(iknmr) , j(inisp) , a(inrsp) ,
      &                 j(intyp) , j(iwork) , .false.  , ldummy   , rdummy   ,
-     &                 .false.  , gridps   , dlwqd    )
+     &                 .false.   , gridps   , dlwqd    )
 
 !          update the necessary arrays
 
@@ -506,3 +524,5 @@
 
       RETURN
       END SUBROUTINE
+
+      end module m_dlwqn4
