@@ -23,8 +23,10 @@
    
 module QSCallBack
    abstract interface
+      !< function pointer to be called by update_source_data when advanced operations are required and the data to be
+      !< written to the his/map file cannot be a pointer but must be calculated and stored every timestep.
       subroutine QS_callbackiface(datapointer)
-         double precision, pointer, dimension(:), intent(inout) :: datapointer !grid number
+         double precision, pointer, dimension(:), intent(inout) :: datapointer !< pointer to function in-output data
       end subroutine QS_callbackiface
    end interface
 end module QSCallBack
@@ -78,16 +80,16 @@ private
       double precision                          :: timestep_sum         !< sum of timesteps (for moving average/ average calculation)
       
       double precision, pointer, dimension(:)   :: timesteps            !< array of timesteps belonging to samples in samples array
-      procedure(QS_callbackiface), nopass, pointer      :: function_pointer => NULL()          !< function pointer for operation that needs to be performed on the source_input 
+      procedure(QS_callbackiface), nopass, pointer      :: function_pointer => NULL()          !< function pointer for operation that needs to be performed to produce source_input 
       
    end type t_output_variable_item
    
    !> Derived type to store the cross-section set
    type, public :: t_output_variable_set
-      integer                                                :: size = 0                  !< 
-      integer                                                :: growsby = 200             !< 
-      integer                                                :: count= 0                  !< 
-      type(t_output_variable_item), pointer, dimension(:)    :: statout                   !< 
+      integer                                                :: size = 0      !< size of output variable set
+      integer                                                :: growsby = 200 !< increment of output variable set
+      integer                                                :: count= 0      !< count of items in output variable set
+      type(t_output_variable_item), pointer, dimension(:)    :: statout       !< pointer to array of output variable items
    end type t_output_variable_set
 
 contains
@@ -154,11 +156,11 @@ contains
    !> adds a new sample, and its timestep to the samples array. Only needed for moving average calculation.
    elemental subroutine add_statistical_output_sample(i,timestep)
 
-      type(t_output_variable_item), intent(inout) :: i         !< statistical output item to update
+      type(t_output_variable_item), intent(inout) :: item      !< statistical output item to update
       double precision, intent(in)                :: timestep  !< this is usually dts
 
-      i%timesteps(i%current_step) = timestep
-      i%samples(:,i%current_step) = i%source_input
+      i%timesteps(item%current_step) = timestep
+      i%samples(:,item%current_step) = i%source_input
 
    end subroutine add_statistical_output_sample
 
@@ -218,7 +220,7 @@ contains
 
    end subroutine finalize_SO_AVERAGE
 
-   ! every output interval the stat_output needs to be reset.
+   !> every output interval the stat_output needs to be reset.
    subroutine reset_statistical_output(i)
 
       type(t_output_variable_item), intent(inout) :: i !< statistical output item to reset
@@ -239,13 +241,14 @@ contains
 
    end subroutine reset_statistical_output
    
+   !> create a new output item and add it to the output set according to output quantity config
    subroutine add_stat_output_item(output_set, output_config, data_pointer, function_pointer)
    use QSCallBack
    
       type(t_output_variable_set), intent(inout) :: output_set             !> output set that items need to be added to
       type(t_output_quantity_config), pointer, intent(in) :: output_config !> output quantity config linked to output item
       double precision, pointer, dimension(:), intent(in) :: data_pointer  !> pointer to output quantity data
-      procedure(QS_callbackiface), optional, pointer, intent(in) :: function_pointer
+      procedure(QS_callbackiface), optional, pointer, intent(in) :: function_pointer !< optional pointer to function that will produce source_input data
       
       type(t_output_variable_item) :: item !> new item to be added
       
@@ -255,7 +258,7 @@ contains
       endif
       
       item%output_config => output_config
-      item%operation_id = set_operation_id(output_config)
+      item%operation_id = set_operation_type(output_config)
       item%source_input => data_pointer
       if (present(function_pointer)) then
          item%function_pointer => function_pointer
@@ -265,24 +268,24 @@ contains
       
    end subroutine add_stat_output_item
    
-   integer function set_operation_id(output_config)
+   integer function set_operation_type(output_config)
    use string_module, only: str_tolower
    
       type(t_output_quantity_config), intent(in) :: output_config          !> output quantity config linked to output item
       
-      set_operation_id = -1
+      set_operation_type = -1
       
       if      (trim(str_tolower(output_config%input_value)) == 'current' ) then
-         set_operation_id = SO_CURRENT
+         set_operation_type = SO_CURRENT
       else if (trim(str_tolower(output_config%input_value)) == 'average' ) then
-         set_operation_id = SO_AVERAGE
+         set_operation_type = SO_AVERAGE
       else if (trim(str_tolower(output_config%input_value)) == 'max' ) then
-         set_operation_id = SO_MAX
+         set_operation_type = SO_MAX
       else if (trim(str_tolower(output_config%input_value)) == 'min' ) then
-         set_operation_id = SO_MIN
+         set_operation_type = SO_MIN
       endif
          
-   end function set_operation_id
+   end function set_operation_type
       
    !> For every item in output_set, allocate arrays depending on operation id
    subroutine initialize_statistical_output(output_set)
@@ -453,8 +456,8 @@ contains
       endif
       if (jahisgate > 0 .and. ngategen > 0) then
          call add_stat_output_item(output_set, output_config%statout(IDX_HIS_GATEGEN_DISCHARGE            ),valgategen(IVAL_DIS,:)                                 )
-         !call add_stat_output_item(output_set, output_config%statout(IDX_HIS_GATEGEN_CREST_LEVEL          ),valgategen(IVAL_GATE_SILLH,:)                           )
-         !call add_stat_output_item(output_set, output_config%statout(IDX_HIS_GATEGEN_CREST_WIDTH          ),valgategen(IVAL_GATE_EDGEL,:)                           )
+         call add_stat_output_item(output_set, output_config%statout(IDX_HIS_GATEGEN_CREST_LEVEL          ),valgategen(IVAL_GATE_SILLH,:)                           )
+         call add_stat_output_item(output_set, output_config%statout(IDX_HIS_GATEGEN_CREST_WIDTH          ),valgategen(IVAL_WIDTH,:)                           )
          call add_stat_output_item(output_set, output_config%statout(IDX_HIS_GATEGEN_GATE_LOWER_EDGE_LEVEL),valgategen(IVAL_GATE_EDGEL,:)                           )
          call add_stat_output_item(output_set, output_config%statout(IDX_HIS_GATEGEN_FLOW_THROUGH_HEIGHT  ),valgategen(IVAL_GATE_FLOWH,:)                           )
          call add_stat_output_item(output_set, output_config%statout(IDX_HIS_GATEGEN_GATE_OPENING_WIDTH   ),valgategen(IVAL_GATE_OPENW,:)                                )
@@ -511,7 +514,6 @@ contains
          call add_stat_output_item(output_set, output_config%statout(IDX_HIS_CULVERT_FLOW_AREA            ),valculvert(IVAL_AREA       ,1:network%sts%numCulverts)            )
          call add_stat_output_item(output_set, output_config%statout(IDX_HIS_CULVERT_VELOCITY             ),valculvert(IVAL_VEL        ,1:network%sts%numCulverts)            )
          call add_stat_output_item(output_set, output_config%statout(IDX_HIS_CULVERT_STATE                ),valculvert(IVAL_CL_STATE   ,1:network%sts%numCulverts)            )
-         !call add_stat_output_item(output_set, output_config%statout(IDX_HIS_CULVERT_CREST_WIDTH          ),            )
       endif
       if (jahisdambreak > 0 .and. ndambreak > 0) then
          call add_stat_output_item(output_set, output_config%statout(IDX_HIS_DAMBREAK_S1UP                        ),valdambreak(IVAL_S1UP,1:ndambreak)      )
@@ -692,7 +694,7 @@ contains
       endif
       if (ncrs > 0 .and. NUMCONST_MDU > 0) then
          function_pointer => aggregate_constituent_data
-         call add_stat_output_item(output_set, output_config%statout(IDX_HIS_CONSTITUENTS),temp_pointer,function_pointer                                 )
+         call add_stat_output_item(output_set, output_config%statout(IDX_HIS_CONSTITUENTS),NULL(),function_pointer                                 )
       endif
       
       if (jahislateral > 0 .and. numlatsg > 0) then

@@ -15,27 +15,29 @@ private
    type(t_output_variable_set), allocatable, public :: out_variable_set_map
    type(t_output_variable_set), allocatable, public :: out_variable_set_clm
    
-   double precision, dimension(:), allocatable, target, public :: constituent_data !> actual constituent data we plan to write
+   double precision, dimension(:), allocatable, target, public :: constit_crs_obs_data !< constituent data on observation cross sections to be written
    
-   public default_fm_statistical_output, aggregate_constituent_data
+   public default_fm_statistical_output, aggregate_constit_crs_obs_data
 
    contains
    
-   subroutine aggregate_constituent_data(data_pointer)
+   !< aggregate constituent observation crossection data, read from the data pointer and written to mudule array.
+   !< Routine moved from unc_write_his.
+   subroutine aggregate_constit_crs_obs_data(data_pointer)
    use m_monitoring_crosssections
    use m_transport, only: ISED1, NUMCONST_MDU, ISEDN
    use m_sediment, only: sedtot2sedsus, stmpar
-   double precision, pointer, dimension(:), intent(inout) :: data_pointer  !> pointer to output quantity data
+   double precision, pointer, dimension(:), intent(inout) :: data_pointer  !< pointer to constit_crs_obs_data
 
    integer :: i, IP, num, l
    double precision :: rhol
    
    if (ncrs > 0) then
-      if (.not. allocated(constituent_data)) then
-         allocate(constituent_data(NUMCONST_MDU*ncrs))
+      if (.not. allocated(constit_crs_obs_data)) then
+         allocate(constit_crs_obs_data(NUMCONST_MDU*ncrs))
       endif
       if (.not. associated(data_pointer))then
-         data_pointer => constituent_data
+         data_pointer => constit_crs_obs_data
       endif
       
       do i=1,ncrs
@@ -52,9 +54,9 @@ private
                case (2)
                   rhol = stmpar%sedpar%rhosol(l)
                end select
-               constituent_data((num-1)*NUMCONST_MDU+i) = crs(i)%sumvalcur(IP)/rhol
+               constit_crs_obs_data((i-1)*NUMCONST_MDU+num) = crs(i)%sumvalcur(IP)/rhol
             else
-               constituent_data((num-1)*NUMCONST_MDU+i) = crs(i)%sumvalcur(IP)
+               constit_crs_obs_data((i-1)*NUMCONST_MDU+num) = crs(i)%sumvalcur(IP)
             endif
          end do
       enddo
@@ -443,9 +445,6 @@ private
       call addoutval(out_quan_conf_his, IDX_HIS_CULVERT_DISCHARGE,                                  &
                      'Wrihis_structure_culvert', 'culvert_discharge', 'Discharge through culvert', '',                     &
                      'm3 s-1', UNC_LOC_CULVERT, 'Write culvert parameters to his file')
-      call addoutval(out_quan_conf_his, IDX_HIS_CULVERT_CREST_LEVEL,                                &
-                     'Wrihis_structure_culvert', 'culvert_crest_level', 'Crest level of culvert', '',                     &
-                     'm', UNC_LOC_CULVERT)
       call addoutval(out_quan_conf_his, IDX_HIS_CULVERT_GATE_LOWER_EDGE_LEVEL,                      &
                      'Wrihis_structure_culvert', 'culvert_gate_lower_edge_level', 'Gate lower edge level of culvert', '',                     &
                      'm', UNC_LOC_CULVERT)
@@ -668,9 +667,6 @@ private
                      'Wrihis_waves', 'hwav', 'Significant wave height',                                          &
                      'sea_surface_wave_significant_wave_height', 'm', UNC_LOC_STATION,              &
                      'Write wave data to his file')
-      call addoutval(out_quan_conf_his, IDX_HIS_HWAV_SIG,                                           &
-                     'Wrihis_waves', 'hwav', 'Root mean square wave height based on wave energy',                &
-                     'sea_surface_wave_rms_height', 'm',  	            UNC_LOC_STATION)
       call addoutval(out_quan_conf_his, IDX_HIS_TWAV,                                               &
                      'Wrihis_waves', 'twav', 'Wave period',                                                      &
                      'sea_surface_wave_period', 's', UNC_LOC_STATION)
