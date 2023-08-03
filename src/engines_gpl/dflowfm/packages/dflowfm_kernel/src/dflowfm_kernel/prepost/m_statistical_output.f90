@@ -21,21 +21,21 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
    
-module QSCallBack
+module m_function_pointer
    abstract interface
       !< function pointer to be called by update_source_data when advanced operations are required and the data to be
       !< written to the his/map file cannot be a pointer but must be calculated and stored every timestep.
-      subroutine QS_callbackiface(datapointer)
+      subroutine function_ptr_interface(datapointer)
          double precision, pointer, dimension(:), intent(inout) :: datapointer !< pointer to function in-output data
-      end subroutine QS_callbackiface
+      end subroutine function_ptr_interface
    end interface
-end module QSCallBack
+end module m_function_pointer
    
 !> This module implements the statistical output in D-Flow FM.
 module m_statistical_output
    use MessageHandling
    use m_output_config
-   use QsCallBack
+   use m_function_pointer
    
 private
 
@@ -80,7 +80,7 @@ private
       double precision                          :: timestep_sum         !< sum of timesteps (for moving average/ average calculation)
       
       double precision, pointer, dimension(:)   :: timesteps            !< array of timesteps belonging to samples in samples array
-      procedure(QS_callbackiface), nopass, pointer      :: function_pointer => NULL()          !< function pointer for operation that needs to be performed to produce source_input 
+      procedure(function_ptr_interface), nopass, pointer      :: function_pointer => NULL()          !< function pointer for operation that needs to be performed to produce source_input 
       
    end type t_output_variable_item
    
@@ -243,12 +243,12 @@ contains
    
    !> create a new output item and add it to the output set according to output quantity config
    subroutine add_stat_output_item(output_set, output_config, data_pointer, function_pointer)
-   use QSCallBack
+   use m_function_pointer
    
       type(t_output_variable_set), intent(inout) :: output_set             !> output set that items need to be added to
       type(t_output_quantity_config), pointer, intent(in) :: output_config !> output quantity config linked to output item
       double precision, pointer, dimension(:), intent(in) :: data_pointer  !> pointer to output quantity data
-      procedure(QS_callbackiface), optional, pointer, intent(in) :: function_pointer !< optional pointer to function that will produce source_input data
+      procedure(function_ptr_interface), optional, pointer, intent(in) :: function_pointer !< optional pointer to function that will produce source_input data
       
       type(t_output_variable_item) :: item !> new item to be added
       
@@ -339,7 +339,7 @@ contains
       type(t_output_variable_set),    intent(inout)   :: output_set    !> output set that items need to be added to
       type(t_output_quantity_config_set), intent(in)  :: output_config !> output config for which an output set is needed.
       double precision, pointer, dimension(:) :: temp_pointer
-      procedure(QS_callbackiface),  pointer :: function_pointer => NULL()
+      procedure(function_ptr_interface),  pointer :: function_pointer => NULL()
       
       integer :: i, ntot
       
