@@ -1641,6 +1641,16 @@ private
             call add_stat_output_item(output_set, output_config%statout(IDX_HIS_SALINITY   ),valobs(IPNT_SA1,:)                                )
          endif
       endif
+
+      if (jatem > 0 .and. jahistem > 0) then
+         if (kmx > 0) then
+            call c_f_pointer (c_loc(valobs(IPNT_TEM1:IPNT_TEM1+kmx,1:ntot)), temp_pointer, [kmx*ntot])
+            call add_stat_output_item(output_set, output_config%statout(IDX_HIS_TEMPERATURE),temp_pointer)
+         else
+            call add_stat_output_item(output_set, output_config%statout(IDX_HIS_TEMPERATURE),valobs(IPNT_TEM1,:))
+         endif
+      end if
+
       if( (jasal > 0 .or. jatem > 0 .or. jased > 0 )  .and. jahisrho > 0) then
          if (kmx>0) then
             call c_f_pointer (c_loc(valobs(IPNT_RHOP:IPNT_RHOP+kmx,1:ntot)), temp_pointer, [kmx*ntot])
