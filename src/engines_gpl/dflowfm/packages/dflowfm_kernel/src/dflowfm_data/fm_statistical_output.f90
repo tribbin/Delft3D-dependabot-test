@@ -21,8 +21,7 @@ private
 
    contains
    
-   !< aggregate constituent observation crossection data, read from the data pointer and written to mudule array.
-   !< Routine moved from unc_write_his.
+   !> Aggregate constituent observation crossection data from crs()% value arrays into statistical_output data array.
    subroutine aggregate_constit_crs_obs_data(data_pointer)
    use m_monitoring_crosssections
    use m_transport, only: ISED1, NUMCONST_MDU, ISEDN
@@ -1312,7 +1311,7 @@ private
    use m_structures
    use m_observations
    use m_sediment, only: stm_included
-   use m_function_pointer
+   use m_statistical_callback
    use m_transport, only: numconst, isalt, itemp, numconst_mdu
    use m_longculverts, only: nlongculverts
    USE m_monitoring_crosssections, only: ncrs
@@ -1321,7 +1320,7 @@ private
       type(t_output_variable_set),    intent(inout)   :: output_set    !> output set that items need to be added to
       type(t_output_quantity_config_set), intent(in)  :: output_config !> output config for which an output set is needed.
       double precision, pointer, dimension(:) :: temp_pointer
-      procedure(function_ptr_interface),  pointer :: function_pointer => NULL()
+      procedure(process_data_double_interface),  pointer :: function_pointer => NULL()
       
       integer :: i, ntot
       

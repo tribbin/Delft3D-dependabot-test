@@ -21,21 +21,21 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
    
-module m_function_pointer
+module m_statistical_callback
    abstract interface
-      !< function pointer to be called by update_source_data when advanced operations are required and the data to be
-      !< written to the his/map file cannot be a pointer but must be calculated and stored every timestep.
-      subroutine function_ptr_interface(datapointer)
+      !> function pointer to be called by update_source_data when advanced operations are required and the data to be
+      !! written to the his/map file cannot be a pointer but must be calculated and stored every timestep.
+      subroutine process_data_double_interface(datapointer)
          double precision, pointer, dimension(:), intent(inout) :: datapointer !< pointer to function in-output data
-      end subroutine function_ptr_interface
+      end subroutine process_data_double_interface
    end interface
-end module m_function_pointer
+end module m_statistical_callback
    
 !> This module implements the statistical output in D-Flow FM.
 module m_statistical_output
    use MessageHandling
    use m_output_config
-   use m_function_pointer
+   use m_statistical_callback
    
    implicit none
    
@@ -82,7 +82,7 @@ private
       double precision                          :: timestep_sum         !< sum of timesteps (for moving average/ average calculation)
       
       double precision, pointer, dimension(:)   :: timesteps            !< array of timesteps belonging to samples in samples array
-      procedure(function_ptr_interface), nopass, pointer      :: function_pointer => NULL()          !< function pointer for operation that needs to be performed to produce source_input 
+      procedure(process_data_double_interface), nopass, pointer      :: source_input_function_pointer => null()          !< function pointer for operation that needs to be performed to produce source_input 
       
    end type t_output_variable_item
    
@@ -166,7 +166,7 @@ contains
 
    end subroutine add_statistical_output_sample
 
-   ! some variables without a pointer need a separate subroutine call to update their source_data array
+   !> Update the variables that need a separate subroutine call to update their source_input array
    subroutine update_source_data(output_set)
    type(t_output_variable_set),    intent(inout)   :: output_set    !> output set that we wish to update
    type(t_output_variable_item), pointer  :: item
@@ -175,17 +175,16 @@ contains
    
    do j = 1, output_set%count
       item => output_set%statout(j)
-      if (associated(item%function_pointer)) then
-         call item%function_pointer(item%source_input)
+      if (associated(item%source_input_function_pointer)) then
+         call item%source_input_function_pointer(item%source_input)
       endif
    enddo
    
    end subroutine update_source_data
    
-   !> updates a stat_output_item using the stat_input array, depending on the operation_type
-   !  stat_input is filled elsewhere and can be a moving average or a pointer to an input variable.
-   elemental subroutine update_statistical_output(item,dts)
-      
+   !> Updates the stat_output of an item using the stat_input array, depending on the operation_type.
+   !! stat_input is filled elsewhere and can be a moving average or a pointer to an input variable.
+   elemental subroutine update_statistical_output(item, dts)
       type(t_output_variable_item), intent(inout) :: item   !< statistical output item to update
       double precision,             intent(in)    :: dts    !< current timestep
    
@@ -211,10 +210,11 @@ contains
 
    end subroutine update_statistical_output
 
-   !> in case average is requested, a division is required before the average can be written
+   !> Perform the final time interval averaging on an item,
+   !! after all values haven been summed up in %stat_output.
    subroutine finalize_SO_AVERAGE(item) 
 
-      type(t_output_variable_item), intent(inout) :: item !> stat output item to finalize
+      type(t_output_variable_item), intent(inout) :: item !< The item to be processed. Will be double-checked on its operation type.
 
       if (item%operation_type == SO_AVERAGE) then 
          item%stat_output = item%stat_output/item%timestep_sum
@@ -222,11 +222,10 @@ contains
 
    end subroutine finalize_SO_AVERAGE
 
-   !> every output interval the stat_output needs to be reset.
+   !> Reset an item's stat_output array, to be called after every output interval.
    subroutine reset_statistical_output(item)
+      type(t_output_variable_item), intent(inout) :: item !< Statistical output item to reset
 
-      type(t_output_variable_item), intent(inout) :: item !< statistical output item to reset
-      
       select case (item%operation_type)
       case (SO_CURRENT)
          continue
@@ -243,14 +242,14 @@ contains
 
    end subroutine reset_statistical_output
    
-   !> create a new output item and add it to the output set according to output quantity config
-   subroutine add_stat_output_item(output_set, output_config, data_pointer, function_pointer)
-   use m_function_pointer
+   !> Create a new output item and add it to the output set according to output quantity config
+   subroutine add_stat_output_item(output_set, output_config, data_pointer, source_input_function_pointer)
+   use m_statistical_callback
    
       type(t_output_variable_set), intent(inout) :: output_set             !< Output set that item will be added to
       type(t_output_quantity_config), pointer, intent(in) :: output_config !< Output quantity config linked to this output item
       double precision, pointer, dimension(:), intent(in) :: data_pointer  !< Pointer to output quantity data ("source input")
-      procedure(function_ptr_interface), optional, pointer, intent(in) :: function_pointer !< (optional) Function pointer for producing/processing the source data, if no direct data_pointer is available
+      procedure(process_data_double_interface), optional, pointer, intent(in) :: source_input_function_pointer !< (optional) Function pointer for producing/processing the source data, if no direct data_pointer is available
       
       type(t_output_variable_item) :: item !> new item to be added
       
@@ -262,8 +261,8 @@ contains
       item%output_config => output_config
       item%operation_type = set_operation_type(output_config)
       item%source_input => data_pointer
-      if (present(function_pointer)) then
-         item%function_pointer => function_pointer
+      if (present(source_input_function_pointer)) then
+         item%source_input_function_pointer => source_input_function_pointer
       endif
       
       output_set%statout(output_set%count) = item
@@ -289,7 +288,7 @@ contains
          
    end function set_operation_type
       
-   !> For every item in output_set, allocate arrays depending on operation id
+   !> For every item in output_set, allocate arrays depending on its operation_type.
    subroutine initialize_statistical_output(output_set)
    
       type(t_output_variable_set), intent(inout) :: output_set !> output set that needs to be initialized
@@ -301,8 +300,8 @@ contains
       do j = 1, output_set%count
          item => output_set%statout(j)
          input_size = size(item%source_input)
-         if (associated(item%function_pointer)) then
-            call item%function_pointer(item%source_input)
+         if (associated(item%source_input_function_pointer)) then
+            call item%source_input_function_pointer(item%source_input)
          endif
 
          select case (item%operation_type)
