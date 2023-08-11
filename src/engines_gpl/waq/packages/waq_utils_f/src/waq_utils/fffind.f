@@ -91,13 +91,13 @@
       ENDIF
       IDATE    = IYEAR1*10000+IMONTH1*100+IDAY1
       ITIME    = IHOUR1*10000+IMIN1*100+ISEC1
-      REFTIM   = julian_v2 ( IDATE , ITIME )
+      REFTIM   = julian_with_leapyears ( IDATE , ITIME )
       IDATE    = IYEAR2*10000+IMONTH2*100+IDAY2
       ITIME    = IHOUR2*10000+IMIN2*100+ISEC2
-      STARTTIM = julian_v2 ( IDATE , ITIME )
+      STARTTIM = julian_with_leapyears ( IDATE , ITIME )
       IDATE    = IYEAR3*10000+IMONTH3*100+IDAY3
       ITIME    = IHOUR3*10000+IMIN3*100+ISEC3
-      STOPTIM  = julian_v2 ( IDATE , ITIME )
+      STOPTIM  = julian_with_leapyears ( IDATE , ITIME )
       IT4      = IYEAR4*31536000+IMONTH4*2592000+IDAY4*86400+
      *           IHOUR4*3600+IMIN4*60+ISEC4
       AFACT    = ISFACT/864.0D+02

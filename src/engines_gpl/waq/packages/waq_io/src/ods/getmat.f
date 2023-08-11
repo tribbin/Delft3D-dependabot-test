@@ -120,7 +120,7 @@
       endif
       IDATE  = IYEAR*10000+IMONTH*100+IDAY
       ITIME  = IHOUR*10000+IMINUT*100+ISECND
-      OTIME  = julian_v2 ( IDATE , ITIME )
+      OTIME  = julian_with_leapyears ( IDATE , ITIME )
       SECOND = ISFACT/864.00D+02
 !
 !         Standard ODS processing
@@ -250,7 +250,7 @@
       endif
       IDATE  = IYEAR*10000+IMONTH*100+IDAY
       ITIME  = IHOUR*10000+IMINUT*100+ISECND
-      OTIME  = julian_v2 ( IDATE , ITIME )
+      OTIME  = julian_with_leapyears ( IDATE , ITIME )
       SECOND = ISFACT/864.00D+02
 !
 !         Standard ODS processing

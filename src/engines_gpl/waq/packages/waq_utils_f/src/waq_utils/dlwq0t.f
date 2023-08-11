@@ -120,7 +120,7 @@
       read ( chulp(18:19) , '(i2)' ) isecnd
       idate  = iyear*10000+imonth*100+iday
       itime  = ihour*10000+iminut*100+isecnd
-      otim2  = julian_v2 ( idate , itime )
+      otim2  = julian_with_leapyears ( idate , itime )
       afact  = dlwq0t_isfact/864.0d+02
       if ( dlwq0t_isfact .lt. 0 ) afact = -1.0d+00/dlwq0t_isfact/864.0d+02     ! this should support
                                                                  ! time steps < 1 second

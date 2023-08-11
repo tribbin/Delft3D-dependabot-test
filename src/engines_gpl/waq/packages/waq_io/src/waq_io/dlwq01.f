@@ -179,7 +179,7 @@
          read ( runid2(31:38) , '(i8)' ) isfact
          idate  = iyear*10000+imonth*100+iday
          itime  = ihour*10000+iminut*100+isecnd
-         otime  = julian_v2 ( idate , itime )
+         otime  = julian_with_leapyears ( idate , itime )
          if ( isfact .gt. 0 ) then
             write ( lunut  , 2050 )  isfact
          else

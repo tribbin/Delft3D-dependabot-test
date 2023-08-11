@@ -78,7 +78,6 @@
       integer       isec    ! second of delayed reference time
       real(8)       dummy   ! second in double precision (not used)
       integer(4) :: ithndl = 0
-!      DOUBLE PRECISION :: JULIAN_v2
       if (timon) call timstrt( "read_time_delay", ithndl )
 
 !     tell what you are doing here
@@ -141,7 +140,7 @@
 
 !     compute the Julian time of the result
 
-      deltim = JULIAN_v2 ( idate , itime )
+      deltim = julian_with_leapyears ( idate , itime )
 
 !       write meaningfull message to check procedure
 

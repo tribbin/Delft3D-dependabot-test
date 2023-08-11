@@ -35,7 +35,7 @@ module time_module
    ! NONE
    !!--declarations----------------------------------------------------------------
    use precision_basics, only : hp
-   ! import m_monsys for the JULIAN_v2 function 
+   ! import m_monsys for the julian_with_leapyears function 
    use m_monsys
    implicit none
 
@@ -55,7 +55,7 @@ module time_module
    public :: split_date_time
    public :: CalendarYearMonthDayToJulianDateNumber
    public :: offset_modified_jd
-   public :: julian, gregor, julian_v2  ! public only for testing in test_time_module.f90
+   public :: julian, gregor, julian_with_leapyears  ! public only for testing in test_time_module.f90
    public :: datetimestring_to_seconds
    public :: seconds_to_datetimestring
 
@@ -1324,7 +1324,7 @@ module time_module
           ( IHOUR  .LT.     0 ) .OR. ( IHOUR  .GT. 24 ) .OR. &
           ( IMIN   .LT.     0 ) .OR. ( IMIN   .GT. 60 ) .OR. &
           ( ISEC   .LT.     0 ) .OR. ( ISEC   .GT. 60 )) THEN
-         JULIAN_v2 = -1.0
+         julian_with_leapyears = -1.0
          WRITE(LINE,'(A33,I8,''-'',I6)') 'ERROR in JULIAN interpreting time:',IDATE,ITIME
          CALL MONSYS(LINE,1)
          GOTO 999
@@ -1336,10 +1336,10 @@ module time_module
                 INT ( 3.0 * INT ( ( IYEAR + 4900.0 + TEMP1 ) / 100.0 ) / 4.0 )
          TEMP1  = FLOAT ( IHOUR ) * 3600.0 + &
                   FLOAT ( IMIN  ) *   60.0 + FLOAT ( ISEC  ) - 43200.0
-         JULIAN_v2 = TEMP2 + ( TEMP1 / 86400.0 )
+         julian_with_leapyears = TEMP2 + ( TEMP1 / 86400.0 )
       ENDIF
   999 RETURN
-      END FUNCTION JULIAN_v2
+      END FUNCTION julian_with_leapyears
 
       SUBROUTINE GREGOR ( JULIAN, IYEAR , IMONTH, IDAY  , IHOUR , &
                         IMIN  , ISEC  , DSEC)
