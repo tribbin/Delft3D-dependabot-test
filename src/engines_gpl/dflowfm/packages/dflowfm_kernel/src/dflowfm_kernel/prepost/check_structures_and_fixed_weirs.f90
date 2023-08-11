@@ -38,8 +38,6 @@ subroutine check_structures_and_fixed_weirs()
    use unstruc_messages
    implicit none
 
-  ! character(len=128)                 :: msg
-
    integer, dimension(:), allocatable :: links_used_by_structures
    integer, dimension(:), allocatable :: links_used_by_weirs
 
