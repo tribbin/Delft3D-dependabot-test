@@ -25,6 +25,10 @@ module m_statistical_callback
    abstract interface
       !> function pointer to be called by update_source_data when advanced operations are required and the data to be
       !! written to the his/map file cannot be a pointer but must be calculated and stored every timestep.
+      !!
+      !! NOTE: these callback functions are also called once during init_statistical_output();
+      !!       if %source_input must be allocated, that is the time to do it once, and should never
+      !!       be reallocated after that.
       subroutine process_data_double_interface(datapointer)
          double precision, pointer, dimension(:), intent(inout) :: datapointer !< pointer to function in-output data
       end subroutine process_data_double_interface
@@ -382,10 +386,13 @@ contains
       
       do j = 1, output_set%count
          item => output_set%statout(j)
+
+         ! First "init" call to callback functions, such that %source_input is allocated
+         if (associated(item%source_input_function_pointer)) then
+            call item%source_input_function_pointer(item%source_input)
+         endif
+
          input_size = size(item%source_input)
-         
-         !call set_statistical_output_pointer(i,success)
-         !success = .true.
 
          select case (item%operation_type)
          case (SO_CURRENT)
