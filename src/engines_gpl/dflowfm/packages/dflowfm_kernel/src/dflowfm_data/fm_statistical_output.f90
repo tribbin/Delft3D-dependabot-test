@@ -21,7 +21,7 @@ private
 
    contains
    
-   !> Aggregate constituent observation crossection data from crs()% value arrays into statistical_output data array.
+   !> Aggregate constituent observation crossection data from crs()% value arrays into source_input data array.
    subroutine aggregate_constit_crs_obs_data(data_pointer)
    use m_monitoring_crosssections
    use m_transport, only: ISED1, NUMCONST_MDU, ISEDN
@@ -61,7 +61,7 @@ private
       enddo
    endif
 
-   end subroutine
+   end subroutine aggregate_constit_crs_obs_data
 
    !> Set all possible statistical quantity items in the quantity configuration sets.
    subroutine default_fm_statistical_output()
