@@ -1335,6 +1335,13 @@ subroutine traparams(iform     ,name      ,nparreq   ,nparopt   ,parkeyw   , &
        parkeyw(7) = 'WSettle'
        parkeyw(8) = 'Porosity'
        parkeyw(9) = 'TWave'
+       nparopt    = 3
+       parkeyw(10) = 'FacA'
+       pardef(10) = 0.0_fp
+       parkeyw(11) = 'FacU'
+       pardef(11) = 0.0_fp
+       parkeyw(12) = 'EpsSL'
+       pardef(12) = 0.0_fp
     !elseif (iform == 6) then
     !   name       = 'Bailard'
     !   nparreq    = 10
