@@ -362,111 +362,6 @@ subroutine unc_write_his(tim)            ! wrihis
             ierr = sgeom_def_geometry_variables(ihisfile, crs_geom_container_name, 'cross section', 'line', nNodeTot, id_crsdim, &
                id_crsgeom_node_count, id_crsgeom_node_coordx, id_crsgeom_node_coordy)
 
-            ierr = nf90_def_var(ihisfile, 'cross_section_discharge',     nf90_double, (/ id_crsdim, id_timedim /), id_varQ)
-            ierr = nf90_put_att(ihisfile, id_varQ,    'units', 'm3 s-1')
-            ierr = nf90_put_att(ihisfile, id_varQ,    'coordinates', 'cross_section_name')
-            ierr = nf90_put_att(ihisfile, id_varQ, 'geometry', crs_geom_container_name)
-            ierr = nf90_def_var(ihisfile, 'cross_section_cumulative_discharge', nf90_double, (/ id_crsdim, id_timedim /), id_varQint)
-            ierr = nf90_put_att(ihisfile, id_varQint, 'units', 'm3')
-            ierr = nf90_put_att(ihisfile, id_varQint, 'coordinates', 'cross_section_name')
-            ierr = nf90_put_att(ihisfile, id_varQint, 'geometry', crs_geom_container_name)
-            !ierr = nf90_def_var(ihisfile, 'cross_section_discharge_avg', nf90_double, (/ id_crsdim, id_timedim /), id_varQavg)
-            !ierr = nf90_put_att(ihisfile, id_varQavg, 'units', 'm3 s-1')
-            !ierr = nf90_put_att(ihisfile, id_varQavg, 'coordinates', 'cross_section_name')
-
-            ierr = nf90_def_var(ihisfile, 'cross_section_area',     nf90_double, (/ id_crsdim, id_timedim /), id_varAu)
-            ierr = nf90_put_att(ihisfile, id_varAu,    'units', 'm2')
-            ierr = nf90_put_att(ihisfile, id_varAu,    'coordinates', 'cross_section_name')
-            ierr = nf90_put_att(ihisfile, id_varAu, 'geometry', crs_geom_container_name)
-            !ierr = nf90_def_var(ihisfile, 'cross_section_area_avg', nf90_double, (/ id_crsdim, id_timedim /), id_varAuavg)
-            !ierr = nf90_put_att(ihisfile, id_varAuavg, 'units', 'm2')
-            !ierr = nf90_put_att(ihisfile, id_varAuavg, 'coordinates', 'cross_section_name')
-
-            ierr = nf90_def_var(ihisfile, 'cross_section_velocity',     nf90_double, (/ id_crsdim, id_timedim /), id_varu)
-            ierr = nf90_put_att(ihisfile, id_varu,    'units', 'm s-1')
-            ierr = nf90_put_att(ihisfile, id_varu,    'coordinates', 'cross_section_name')
-            ierr = nf90_put_att(ihisfile, id_varu, 'geometry', crs_geom_container_name)
-            ! Disable writing cross_section_velocity_avg (see UNST-1148), because in a parallel run, it is impossible to compute
-            ! summation of area (denominator) at each computational time step in a cheap way, i.e. without communication between
-            ! partitions. @see subroutines: sumvalueOnCrossSections, updateValuesOnCrossSections
-            !ierr = nf90_def_var(ihisfile, 'cross_section_velocity_avg', nf90_double, (/ id_crsdim, id_timedim /), id_varuavg)
-            !ierr = nf90_put_att(ihisfile, id_varuavg, 'units', 'm s-1')
-            !ierr = nf90_put_att(ihisfile, id_varuavg, 'coordinates', 'cross_section_name')
-
-               do num = 1,NUMCONST_MDU
-                  tmpstr = const_names(num)
-                  ! Forbidden chars in NetCDF names: space, /, and more.
-                  call replace_char(tmpstr,32,95)
-                  call replace_char(tmpstr,47,95)
-                  ierr = nf90_def_var(ihisfile, 'cross_section_cumulative_'//trim(tmpstr), nf90_double, (/ id_crsdim, id_timedim /), id_const_cum(num))
-                  ierr = nf90_put_att(ihisfile, id_const_cum(num), 'long_name', 'cumulative flux (based on upwind flow cell) for '//trim(tmpstr)//'.')
-         
-                  ierr = nf90_def_var(ihisfile, 'cross_section_'//trim(tmpstr), nf90_double, (/ id_crsdim, id_timedim /), id_const(num))
-                  ierr = nf90_put_att(ihisfile, id_const(num), 'long_name', 'flux (based on upwind flow cell) for '//trim(tmpstr)//'.')
-         
-                  if (num >= ISED1 .and. num <= ISEDN) then    ! if the constituent is sediment
-                     select case(stmpar%morpar%moroutput%transptype)
-                     case (0)
-                        tmpstr = 'kg'
-                     case (1, 2)
-                        tmpstr = 'm3'
-                     end select
-                  else
-                     if (const_units(num) /= ' ') then
-                        tmpstr = trim(const_units(num)) // ' m3'
-                     else
-                        tmpstr = '-'
-                     endif
-                  endif
-                  ierr = nf90_put_att(ihisfile, id_const_cum(num), 'units', tmpstr)
-                  ierr = nf90_put_att(ihisfile, id_const_cum(num), 'coordinates', 'cross_section_name')
-                  ierr = nf90_put_att(ihisfile, id_const_cum(num), 'geometry', crs_geom_container_name)
-         
-                  if (num >= ISED1 .and. num <= ISEDN) then    ! if the constituent is sediment
-                     select case(stmpar%morpar%moroutput%transptype)
-                     case (0)
-                        tmpstr = 'kg/s'
-                     case (1, 2)
-                        tmpstr = 'm3/s'
-                     end select
-                  else
-                     if (const_units(num) /= ' ') then
-                        tmpstr = trim(const_units(num)) // ' m3/s'
-                     else
-                        tmpstr = '-'
-                     endif
-                  endif
-                  ierr = nf90_put_att(ihisfile, id_const(num), 'units', tmpstr)
-                  ierr = nf90_put_att(ihisfile, id_const(num), 'coordinates', 'cross_section_name')
-                  ierr = nf90_put_att(ihisfile, id_const(num), 'geometry', crs_geom_container_name)
-               enddo
-            endif
-         
-            if( jased == 4 .and. stmpar%lsedtot > 0 ) then
-               ierr = nf90_def_var(ihisfile, 'cross_section_bedload_sediment_transport', nf90_double, (/ id_crsdim, id_timedim /), id_sedbtrans)
-               ierr = nf90_put_att(ihisfile, id_sedbtrans, 'long_name', 'cumulative bed load sediment transport')
-               ierr = nf90_put_att(ihisfile, id_sedbtrans, 'units', 'kg')
-               ierr = nf90_put_att(ihisfile, id_sedbtrans, 'coordinates', 'cross_section_name')
-               ierr = nf90_put_att(ihisfile, id_sedbtrans, 'geometry', crs_geom_container_name)
-               if( stmpar%lsedsus > 0 ) then
-                  ierr = nf90_def_var(ihisfile, 'cross_section_suspended_sediment_transport', nf90_double, (/ id_crsdim, id_timedim /), id_sedstrans)
-                  ierr = nf90_put_att(ihisfile, id_sedstrans, 'long_name', 'cumulative suspended load sediment transport')
-                  ierr = nf90_put_att(ihisfile, id_sedstrans, 'units', 'kg')
-                  ierr = nf90_put_att(ihisfile, id_sedstrans, 'coordinates', 'cross_section_name')
-                  ierr = nf90_put_att(ihisfile, id_sedstrans, 'geometry', crs_geom_container_name)
-               endif
-               if (.not. allocated(id_sedbtransfrac)) then
-                  allocate(id_sedbtransfrac(stmpar%lsedtot))
-                  id_sedbtransfrac = 0
-               endif
-               do lsed = 1,stmpar%lsedtot    ! Making bedload on crosssections per fraction
-                  ierr = nf90_def_var(ihisfile, 'cross_section_bedload_sediment_transport_'//trim(stmpar%sedpar%namsed(lsed)), nf90_double, (/ id_crsdim, id_timedim /), id_sedbtransfrac(lsed))
-                  ierr = nf90_put_att(ihisfile, id_sedbtransfrac(lsed), 'long_name', 'cumulative bed load sediment transport per fraction')
-                  ierr = nf90_put_att(ihisfile, id_sedbtransfrac(lsed), 'units', 'kg')
-                  ierr = nf90_put_att(ihisfile, id_sedbtransfrac(lsed), 'coordinates', 'cross_section_name')
-                  ierr = nf90_put_att(ihisfile, id_sedbtransfrac(lsed), 'geometry', crs_geom_container_name)
-               enddo
-         
             endif
         
 
@@ -714,6 +609,7 @@ subroutine unc_write_his(tim)            ! wrihis
             id_var => out_variable_set_his%statout(ivar)%id_var
                
             if (config%location_specifier /= UNC_LOC_STATION &
+                  .and. config%location_specifier /= UNC_LOC_OBSCRS &
                   .and. config%location_specifier /= UNC_LOC_GLOBAL &
                   .and. config%location_specifier /= UNC_LOC_SOSI &
                   .and. config%location_specifier /= UNC_LOC_RUG &
@@ -731,7 +627,7 @@ subroutine unc_write_his(tim)            ! wrihis
                   .and. config%location_specifier /= UNC_LOC_LONGCULVERT &
                   .and. config%location_specifier /= UNC_LOC_LATERAL &
             ) then
-               call mess(LEVEL_DEBUG, 'unc_write_his: skipping item '//trim(config%name)//', because it''s not on a station/global/genstru.')
+               call mess(LEVEL_DEBUG, 'unc_write_his: skipping item '//trim(config%name)//', because it''s not on a known output location.')
                cycle
             end if
 
@@ -794,6 +690,8 @@ subroutine unc_write_his(tim)            ! wrihis
                call definencvar(ihisfile, id_var, config%nc_type, (/ id_latdim,         id_timedim /), 2, var_name, var_long_name, config%unit, 'lat_id', fillVal=dmiss, attset=config%additional_attributes)
             case (UNC_LOC_STATION)
                call definencvar(ihisfile, id_var, config%nc_type, (/ id_statdim, id_timedim /), 2, var_name, var_long_name, config%unit, statcoordstring, fillVal=dmiss, add_gridmapping = .true., attset=config%additional_attributes)
+            case (UNC_LOC_OBSCRS)
+               call definencvar(ihisfile, id_var, config%nc_type, (/ id_crsdim, id_timedim /), 2, var_name, var_long_name, config%unit, 'cross_section_name', fillVal=dmiss, attset=config%additional_attributes)
             case (UNC_LOC_GLOBAL)
                if (timon) call timstrt ( "unc_write_his DEF bal", handle_extra(59))
                call definencvar(ihisfile, id_var, config%nc_type, (/ id_timedim /), 1, var_name, var_long_name, config%unit, "", fillVal=dmiss, attset=config%additional_attributes)
@@ -1089,6 +987,7 @@ subroutine unc_write_his(tim)            ! wrihis
       id_var => out_variable_set_his%statout(ivar)%id_var
                
       if (config%location_specifier /= UNC_LOC_STATION &
+            .and. config%location_specifier /= UNC_LOC_OBSCRS &
             .and. config%location_specifier /= UNC_LOC_GLOBAL &
             .and. config%location_specifier /= UNC_LOC_SOSI &
             .and. config%location_specifier /= UNC_LOC_RUG &
@@ -1106,12 +1005,13 @@ subroutine unc_write_his(tim)            ! wrihis
             .and. config%location_specifier /= UNC_LOC_LONGCULVERT &
             .and. config%location_specifier /= UNC_LOC_LATERAL &
             ) then
-         call mess(LEVEL_DEBUG, 'unc_write_his: skipping item '//trim(config%name)//', because it''s not on a station/global/genstru/uniweir.')
+         call mess(LEVEL_DEBUG, 'unc_write_his: skipping item '//trim(config%name)//', because it''s not on a known statistical output location.')
          cycle
       end if
 
       select case(config%location_specifier)
       case (UNC_LOC_STATION, &
+         UNC_LOC_OBSCRS, &
          UNC_LOC_SOSI, &
          UNC_LOC_RUG, &
          UNC_LOC_GENSTRU, &
@@ -1128,7 +1028,7 @@ subroutine unc_write_his(tim)            ! wrihis
          UNC_LOC_LONGCULVERT, &
          UNC_LOC_LATERAL &
          )
-         ierr = nf90_put_var(ihisfile, id_var,   out_variable_set_his%statout(ivar)%stat_output,    start = (/ 1, it_his /)) ! , count = (/ ngenstru, 1 /)
+         ierr = nf90_put_var(ihisfile, id_var,   out_variable_set_his%statout(ivar)%stat_output,    start = (/ 1, it_his /))
       case (UNC_LOC_GLOBAL)
          if (timon) call timstrt('unc_write_his IDX data', handle_extra(67))
          ierr = nf90_put_var(ihisfile, id_var, out_variable_set_his%statout(ivar)%stat_output,  start=(/ it_his /))
@@ -1536,61 +1436,6 @@ subroutine unc_write_his(tim)            ! wrihis
     endif
     endif !(ntot > 0 .and. .false.)
 
-    !
-    ! Cross sections
-    if (ncrs > 0) then
-       do i=1,ncrs
-          ! Discharges Q
-          ierr = nf90_put_var(ihisfile, id_varQ,    crs(i)%sumvalcur(IPNT_Q1C), (/ i, it_his /))
-          ierr = nf90_put_var(ihisfile, id_varQint, crs(i)%sumvalcum(IPNT_Q1C), (/ i, it_his /))
-!          ierr = nf90_put_var(ihisfile, id_varQavg, crs(i)%sumvalavg(IPNT_Q1C), (/ i, it_his /))
-
-          ! Cross sectional areas A*u
-          ierr = nf90_put_var(ihisfile, id_varAu,    crs(i)%sumvalcur(IPNT_AUC), (/ i, it_his /))
-!          ierr = nf90_put_var(ihisfile, id_varAuavg, crs(i)%sumvalavg(IPNT_AUC), (/ i, it_his /))
-
-          ! Average velocity Q/Au
-          ierr = nf90_put_var(ihisfile, id_varu,    crs(i)%sumvalcur(IPNT_U1A), (/ i, it_his /))
-!          ierr = nf90_put_var(ihisfile, id_varuavg, crs(i)%sumvalavg(IPNT_U1A), (/ i, it_his /))
-
-             IP = IPNT_HUA
-             do num = 1,NUMCONST_MDU
-                IP = IP + 1
-                if (num >= ISED1 .and. num <= ISEDN) then
-                   l = sedtot2sedsus(num-ISED1+1)
-                   select case(stmpar%morpar%moroutput%transptype)
-                   case (0)
-                      rhol = 1d0
-                   case (1)
-                      rhol = stmpar%sedpar%cdryb(l)
-                   case (2)
-                      rhol = stmpar%sedpar%rhosol(l)
-                   end select
-                   toutput_cum = crs(i)%sumvalcum(IP)/rhol
-                   toutput_cur = crs(i)%sumvalcur(IP)/rhol
-                else
-                  toutput_cum = crs(i)%sumvalcum(IP)
-                  toutput_cur = crs(i)%sumvalcur(IP)
-                endif
-                ierr = nf90_put_var(ihisfile, id_const_cum(num), toutput_cum, (/ i, it_his /))
-                ierr = nf90_put_var(ihisfile, id_const(num),     toutput_cur, (/ i, it_his /))
-             end do
-     
-          if( jased == 4 .and. stmpar%lsedtot > 0 ) then
-             IP = IPNT_HUA + NUMCONST_MDU + 1
-             ierr = nf90_put_var(ihisfile, id_sedbtrans, crs(i)%sumvalcum(IP), (/ i, it_his /))
-             if( stmpar%lsedsus > 0 ) then
-                IP = IP + 1
-                ierr = nf90_put_var(ihisfile, id_sedstrans, crs(i)%sumvalcum(IP), (/ i, it_his /))
-             endif
-             do lsed = 1,stmpar%lsedtot    ! Making bedload on crosssections per fraction
-                IP = IP + 1
-                ierr = nf90_put_var(ihisfile, id_sedbtransfrac(lsed), crs(i)%sumvalcum(IP), (/ i, it_his /))
-             enddo
-          endif
-       end do
-    end if
-!    if (timon) call timstop(handle_extra(57))
 
     if (timon) call timstrt('unc_write_his RUG', handle_extra(65))
 

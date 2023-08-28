@@ -43,9 +43,10 @@ private
    integer, parameter, public :: UNC_LOC_UNIWEIR   = 32   !< Data location: his file universal weir data
    integer, parameter, public :: UNC_LOC_CMPSTRU   = 33   !< Data location: his file compound structure data
    integer, parameter, public :: UNC_LOC_LONGCULVERT = 34 !< Data location: his file long culvert data
-   integer, parameter, public :: UNC_LOC_STATION     = 35 !< Data location: his file monitoring station data
-   integer, parameter, public :: UNC_LOC_LATERAL     = 36 !< Data location: his file lateral locations data
-   integer, parameter, public :: UNC_LOC_RUG      = 37 !< Data location: his file run-up gauge data
+   integer, parameter, public :: UNC_LOC_STATION     = 35 !< Data location: his file observation station data
+   integer, parameter, public :: UNC_LOC_OBSCRS      = 36 !< Data location: his file observation cross section data
+   integer, parameter, public :: UNC_LOC_LATERAL     = 37 !< Data location: his file lateral locations data
+   integer, parameter, public :: UNC_LOC_RUG         = 38 !< Data location: his file run-up gauge data
    
    !> indexes for output variables 
    integer, public :: IDX_HIS_VOLTOT
@@ -279,7 +280,17 @@ private
    integer, public :: IDX_HIS_WS
    integer, public :: IDX_HIS_SEDDIF
 
-   integer, public :: IDX_HIS_CONSTITUENTS
+   integer, public :: IDX_HIS_OBSCRS_DISCHARGE
+   integer, public :: IDX_HIS_OBSCRS_DISCHARGE_CUM
+   integer, public :: IDX_HIS_OBSCRS_AREA
+   integer, public :: IDX_HIS_OBSCRS_VELOCITY
+   integer, public :: IDX_HIS_OBSCRS_CONST_ABSTRACT
+   integer, public :: IDX_HIS_OBSCRS_CONST_1
+   integer, public :: IDX_HIS_OBSCRS_CONST_N
+   integer, public :: IDX_HIS_OBSCRS_SED_BTRANSPORT
+   integer, public :: IDX_HIS_OBSCRS_SED_STRANSPORT
+   integer, public :: IDX_HIS_OBSCRS_SED_BTRANSPORT_1
+   integer, public :: IDX_HIS_OBSCRS_SED_BTRANSPORT_N
 
    integer, public :: IDX_HIS_LATERAL_PRESCRIBED_DISCHARGE_INSTANTANEOUS
    integer, public :: IDX_HIS_LATERAL_PRESCRIBED_DISCHARGE_AVERAGE
