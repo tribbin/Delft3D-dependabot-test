@@ -53,7 +53,7 @@ endif(UNIX)
 option(ENABLE_CODE_COVERAGE "Enable the code and profiling coverage" OFF)
 if(ENABLE_CODE_COVERAGE)
     message("Code coverage and profiling analysis is enabled")
-    set(CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} ${codecov_flag} ${profiling_flag})
+    set(CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} ${codecov_flag} ${profiling_flag} ${srcrootdir_code_cov}$)
 endif(ENABLE_CODE_COVERAGE)
 
 # Set available build configurations for the .sln file

@@ -1,5 +1,6 @@
 # Set Intel compiler specific flags:
 enable_language (Fortran)
+set(src_root_dir ${CMAKE_SOURCE_DIR}/..)
 
 if (WIN32)
     message(STATUS "Setting global Intel Fortran compiler flags in Windows")
@@ -31,6 +32,8 @@ if (WIN32)
     
     set(codecov_flag                          /Qcov-gen)
     set(profiling_flag                        /Qprof-gen:srcpos)
+    set(srcrootdir_code_cov                   /Qprof-src-root ${src_root_dir})
+    
 
     if (CMAKE_GENERATOR MATCHES "Visual Studio") # for visual studio
         # To prevent Visual Studio compilation failures when trying to write the manifest file
