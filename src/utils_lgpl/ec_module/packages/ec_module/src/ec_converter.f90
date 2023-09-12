@@ -2822,8 +2822,13 @@ module m_ec_converter
                                 if ( ia(j+1) > ia(j) ) then
                                     do ipt = ia(j),ia(j+1)-1
                                         amplitude = sourceT1Field%arr1d(ipt)
-                                        phase0 = sourceItem%hframe%phases(ja(ipt), j) * PI/180.0 
-                                        sourceT0Field%arr1d(ipt) = amplitude * dcos(omega * delta_t - phase0)
+                                        phase0 = sourceItem%hframe%phases(ja(ipt), j) 
+                                        if ( comparereal(amplitude, sourceMissing, .true.)==0 .or. &
+                                              comparereal(phase0, sourceMissing, .true.)==0 ) then
+                                            sourceT0Field%arr1d(ipt) = sourceMissing
+                                        else
+                                            sourceT0Field%arr1d(ipt) = amplitude * dcos(omega * delta_t - phase0 * PI/180.0)
+                                        end if
                                     end do
                                 end if
                             end do
@@ -2836,8 +2841,13 @@ module m_ec_converter
                                         do ii = 0,1
                                             ipt = (mp-1+ii) * n_cols + np-1+jj
                                             amplitude = sourceT1Field%arr1d(ipt)
-                                            phase0 = sourceItem%hframe%phases(mp+ii, np+jj) * PI/180.0
-                                            sourceT0Field%arr1d(ipt) = amplitude * dcos(omega * delta_t - phase0)
+                                            phase0 = sourceItem%hframe%phases(mp+ii, np+jj)
+                                             if ( comparereal(amplitude, sourceMissing, .true.)==0 .or. &
+                                                  comparereal(phase0, sourceMissing, .true.)==0 ) then
+                                                sourceT0Field%arr1d(ipt) = sourceMissing
+                                            else
+                                                sourceT0Field%arr1d(ipt) = amplitude * dcos(omega * delta_t - phase0 * PI/180.0)
+                                            end if
                                         end do
                                     end do
                                 end if
