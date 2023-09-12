@@ -188,6 +188,14 @@
    !
    qb_out = 0d0; width_out = 0d0; sb_in = 0d0; sb_dir = -1
    BranInIDLn = 0
+   
+   e_ssn  = 0d0
+   
+   !======================================================================
+   !======================================================================
+   !======================================================================
+   !START CUT 
+   
    !
    !   Calculate suspended sediment transport correction vector (for SAND)
    !   Note: uses GLM velocities, consistent with DIFU
@@ -203,7 +211,7 @@
    !
    e_scrn = 0d0
    e_scrt = 0d0
-   e_ssn  = 0d0
+   
    !
    ! calculate corrections
    !
@@ -388,6 +396,12 @@
       !end if
    endif           ! sus /= 0.0
 
+!======================================================================
+!======================================================================
+!======================================================================
+!END CUT 
+   
+   !calculation of total face-normal suspended transport
    do ll = 1, lsed
       j = lstart + ll   ! constituent index
       do L=1,lnx
@@ -401,6 +415,7 @@
          e_ssn(L, ll)  = e_ssn(L, ll) + e_scrn(L, ll)  ! bottom layer correction
       enddo
    enddo
+   
    !
    ! Add equilibrium berm slope adjustment
    if (bermslopetransport) then
@@ -419,6 +434,14 @@
       aval=.true.
       call fm_adjust_bedload(e_sbcn, e_sbct, aval)
    endif
+   
+!======================================================================
+!======================================================================
+!======================================================================
+!BEGIN CUT
+   
+!consider moving it after all the calls to `fm_adjust_bedload`
+   
    !
    ! Determine incoming discharge and transport at nodes
    !
@@ -580,6 +603,11 @@
 
    enddo    ! Fractions
 
+!======================================================================
+!======================================================================
+!======================================================================
+!END CUT 
+   
    !
    ! Bed-slope and sediment availability effects for
    ! wave-related bed load transport
@@ -621,20 +649,15 @@
    !    EROSED CODE MOVED UNTIL THIS POINT ------------------------------------
 
    !
-   ! make sure that the transport layer thickness is known
-   ! if the bed composition computations have started or
-   ! if dredging is active
-   !
-   if (((time1 >= tstart_user + tcmp * tfac) .and. cmpupd) .or. dad_included) then
-      !
-      ! Determine new thickness of transport layer
-      !
-      call compthick()
-   endif
-   !
-   ! if the bed composition computations have started ...
+   ! if bed composition computations have started
    !
    if (time1 >= tstart_user + tcmp * tfac) then   ! tmor/tcmp in tunit since start of computations, time1 in seconds since reference date
+       
+!======================================================================
+!======================================================================
+!======================================================================
+!BEGIN CUT 
+       
       !
       ! Bed boundary conditions: transport condition
       ! JRE+BJ To check: bedload condition now based in taucur only distribution, waves necessary? Probably not considering use cases...
@@ -762,6 +785,17 @@
             enddo    ! ib (boundary point)
          endif       ! icond = 4 or 5 (boundary with transport condition)
       enddo          ! jb (open boundary)
+      
+!======================================================================
+!======================================================================
+!======================================================================
+!END CUT 
+      
+!======================================================================
+!======================================================================
+!======================================================================
+!BEING CUT 
+      
       !
       ! Update quantity of bottom sediment
       !
@@ -921,13 +955,27 @@
             dbodsd(l, nm) = dbodsd(l, nm) + dsdnm
          enddo    ! nm
       enddo       ! l
+
       !
       if (bedchangemesscount > bedchangemessmax) then
          write (mdia,'(12x,a,i0,a)') 'Bed change messages skipped (more than ',bedchangemessmax,')'
          write (mdia,'(12x,2(a,i0))') 'Total number of Bed change messages for timestep ', int(dnt), ' : ',bedchangemesscount
       endif
+      
+!======================================================================
+!======================================================================
+!======================================================================
+!END CUT 
+      
+
       !
       call fluff_burial(stmpar%morpar%flufflyr, dbodsd, lsed, lsedtot, 1, ndxi, dts, morfac)
+      
+!======================================================================
+!======================================================================
+!======================================================================
+!BEGIN CUT 
+      
       !
       ! Re-distribute erosion near dry and shallow points to allow erosion
       ! of dry banks
@@ -1028,9 +1076,25 @@
          endif       ! totdbodsd < 0.0
       enddo          ! nm
 
+!======================================================================
+!======================================================================
+!======================================================================
+!END CUT 
+      
+
+      
+!
+      
+      !check whether it is really needed to update ghosts here. Should be applied before `dbodsd` is used
       if ( jampi.gt.0 ) then
          call update_ghosts(ITYPE_Sall, lsedtot, Ndx, dbodsd, ierror)
       end if
+      
+!======================================================================
+!======================================================================
+!======================================================================
+!BEGIN CUT 
+      
       !
       ! Modifications for running parallel conditions (mormerge)
       !
@@ -1067,11 +1131,21 @@
             enddo
             mergebodsed = 0d0
          endif
-      else
+      else !=======================================
+!move down (else->endif) 
+!`kcsmor` in 1119 out.
+!think what do we want when we have morphopol different in different runs. 
+          
          do ll = 1, lsedtot
             dbodsd(ll,:) = dbodsd(ll,:)*kcsmor
          end do
       endif
+      
+!======================================================================
+!======================================================================
+!======================================================================
+!END CUT 
+      
       !
       call reconstructsedtransports()   ! reconstruct cell centre transports for morstats and cumulative st output
       call collectcumultransports()     ! Always needed, written on last timestep of simulation
@@ -1089,6 +1163,8 @@
          enddo
       endif
       !
+!======================================================================
+!check why this can not be moved before the frist if (cmpupd) or after the last if (cmpupd)
       if (stmpar%morpar%moroutput%morstats .and. ti_sed>0d0) then
          call morstats(dbodsd, hs_mor, ucxq_mor, ucyq_mor, sbcx, sbcy, sbwx, sbwy, sscx, sscy, sswx, sswy)
       endif
@@ -1096,6 +1172,10 @@
       ! Apply erosion and sedimentation to bookkeeping system
       !
       if (cmpupd) then
+         !
+         ! Determine new thickness of transport layer
+         !
+         call compthick()
          !
          ! Update layers and obtain the depth change
          !
@@ -1139,6 +1219,10 @@
             enddo
          enddo
       endif
+!======================================================================
+!======================================================================
+!======================================================================
+!BEGIN CUT 
       !
       ! Bed boundary conditions
       !
@@ -1249,6 +1333,12 @@
             end select
          enddo ! ib (boundary point)
       enddo    ! jb (open boundary)
+      
+!======================================================================
+!======================================================================
+!======================================================================
+!END CUT 
+      
    else
       !
       ! if morphological computations haven't started yet
@@ -1292,6 +1382,12 @@
             end do
          end if
       end do
+      
+!======================================================================
+!======================================================================
+!======================================================================
+!BEGIN CUT 
+      
       !
       ! JRE+BJ: Update concentrations in water column to conserve mass because of bottom update
       ! This needs to happen in work array sed, not constituents, because of copying back and forth later on
@@ -1360,6 +1456,12 @@
          endif
          !
       endif
+      
+!======================================================================
+!======================================================================
+!======================================================================
+!END CUT 
+      
       !
       do nm = 1, ndx
          ! note: if kcs(nm)=0 then blchg(nm)=0.0
@@ -1412,7 +1514,7 @@
             bl(nm) = bl(nm) + blchg(nm)          ! update bed level
          enddo
       endif
-   endif
+   endif !bedupd
    !
    if (istat == 0) deallocate(qb_out, stat = istat)
    if (istat == 0) deallocate(width_out, stat = istat)
