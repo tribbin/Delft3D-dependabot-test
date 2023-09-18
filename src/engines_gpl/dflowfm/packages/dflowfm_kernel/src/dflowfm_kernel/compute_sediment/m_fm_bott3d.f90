@@ -729,9 +729,7 @@ public :: fm_bott3d
    type(t_nodefraction)                 , pointer :: pFrac
    type(t_noderelation)                 , pointer :: pNodRel
    type(t_node)                         , pointer :: pnod
-   
-
-   
+    
    !!
    !! Allocate and initialize
    !!
@@ -988,8 +986,6 @@ public :: fm_bott3d
    type (handletype)                    , pointer :: bcmfile
    type (bedbndtype)     , dimension(:) , pointer :: morbnd
    
-
-   
    !!
    !! Allocate and initialize
    !!
@@ -1009,133 +1005,133 @@ public :: fm_bott3d
    
    nto    = nopenbndsect
 
-      !
-      ! Bed boundary conditions: transport condition
-      ! JRE+BJ To check: bedload condition now based in taucur only distribution, waves necessary? Probably not considering use cases...
-      !
-      do jb = 1, nto                                ! no of open bnd sections
-         icond = morbnd(jb)%icond
-         if (icond == 4 .or. icond == 5) then
+   !
+   ! Bed boundary conditions: transport condition
+   ! JRE+BJ To check: bedload condition now based in taucur only distribution, waves necessary? Probably not considering use cases...
+   !
+   do jb = 1, nto                                ! no of open bnd sections
+      icond = morbnd(jb)%icond
+      if (icond == 4 .or. icond == 5) then
+         !
+         ! Open boundary with transport boundary condition:
+         ! Get data from table file
+         !
+         call gettabledata(bcmfile  , morbnd(jb)%ibcmt(1) , &
+            & morbnd(jb)%ibcmt(2) , morbnd(jb)%ibcmt(3) , &
+            & morbnd(jb)%ibcmt(4) , bc_mor_array        , &
+            & timhr      ,julrefdat  , msg        )
+         !
+         ! Prepare loop over boundary points
+         !
+         tausum2(1) = 0d0
+         do ib = 1, morbnd(jb)%npnt
+            lm = morbnd(jb)%lm(ib)
+            k2 = morbnd(jb)%nxmx(ib)
+            if (jampi == 1) then
+               if (.not. (idomain(k2) == my_rank)) cycle    ! internal cells at boundary are in the same domain as the link
+            endif
+            if( u1(lm) < 0.0d0 ) cycle
+            call gettau(k2,taucurc,czc,jawaveswartdelwaq_local)
+            tausum2(1) = tausum2(1) + taucurc**2            ! sum of the shear stress squared
+         enddo                                              ! the distribution of bedload is scaled with square stress
+         ! for avoiding instability on BC resulting from uniform bedload
+         ! in combination with non-uniform cells.
+         li = 0
+         do l = 1, lsedtot
+            sbsum = 0d0
             !
-            ! Open boundary with transport boundary condition:
-            ! Get data from table file
+            ! bed load transport only for fractions with bedload component
             !
-            call gettabledata(bcmfile  , morbnd(jb)%ibcmt(1) , &
-               & morbnd(jb)%ibcmt(2) , morbnd(jb)%ibcmt(3) , &
-               & morbnd(jb)%ibcmt(4) , bc_mor_array        , &
-               & timhr      ,julrefdat  , msg        )
+            if (.not. has_bedload(tratyp(l))) cycle
+            li = li + 1
             !
-            ! Prepare loop over boundary points
-            !
-            tausum2(1) = 0d0
             do ib = 1, morbnd(jb)%npnt
                lm = morbnd(jb)%lm(ib)
                k2 = morbnd(jb)%nxmx(ib)
                if (jampi == 1) then
-                  if (.not. (idomain(k2) == my_rank)) cycle    ! internal cells at boundary are in the same domain as the link
+                  if (.not. (idomain(k2) == my_rank)) cycle
                endif
-               if( u1(lm) < 0.0d0 ) cycle
-               call gettau(k2,taucurc,czc,jawaveswartdelwaq_local)
-               tausum2(1) = tausum2(1) + taucurc**2            ! sum of the shear stress squared
-            enddo                                              ! the distribution of bedload is scaled with square stress
-            ! for avoiding instability on BC resulting from uniform bedload
-            ! in combination with non-uniform cells.
-            li = 0
+               sbsum = sbsum + bc_mor_array(li) * wu_mor(lm)  ! sum the total bedload flux throughout boundary
+            enddo
+            bc_sed_distribution(li) = sbsum
+         enddo
+
+         ! do MPI reduce step for bc_sed_distribution and tausum2
+         if (jampi == 1) then
+            call reduce_sum(1, tausum2)
+            call reduce_sum(lsedtot, bc_sed_distribution)
+         endif
+
+         do ib = 1, morbnd(jb)%npnt
+            alfa_dist   = morbnd(jb)%alfa_dist(ib)
+            alfa_mag    = morbnd(jb)%alfa_mag(ib)
+            !                idir_scalar = morbnd(jb)%idir(ib)
+            nm          = morbnd(jb)%nm(ib)
+            nxmx        = morbnd(jb)%nxmx(ib)
+            lm          = morbnd(jb)%lm(ib)
+            !
+            ! If the computed transport is directed outward, do not
+            ! impose the transport rate (at outflow boundaries the
+            ! "free bed level boundary" condition is imposed. This
+            ! check is carried out for each individual boundary point.
+            !
+            ! Detect the case based on the value of nxmx.
+            !
+            if( u1(lm) < 0.0d0 ) cycle              ! check based on depth averaged velocity value
+            !
+            ! The velocity/transport points to the left and top are part
+            ! of this cell. nxmx contains by default the index of the
+            ! neighbouring grid cell, so that has to be corrected. This
+            ! correction is only carried out locally since we need the
+            ! unchanged nxmx value further down for the bed level updating
+            !
+            li      = 0
+            lsedbed = lsedtot - nmudfrac
             do l = 1, lsedtot
-               sbsum = 0d0
                !
                ! bed load transport only for fractions with bedload component
                !
                if (.not. has_bedload(tratyp(l))) cycle
                li = li + 1
                !
-               do ib = 1, morbnd(jb)%npnt
-                  lm = morbnd(jb)%lm(ib)
-                  k2 = morbnd(jb)%nxmx(ib)
-                  if (jampi == 1) then
-                     if (.not. (idomain(k2) == my_rank)) cycle
-                  endif
-                  sbsum = sbsum + bc_mor_array(li) * wu_mor(lm)  ! sum the total bedload flux throughout boundary
-               enddo
-               bc_sed_distribution(li) = sbsum
-            enddo
-
-            ! do MPI reduce step for bc_sed_distribution and tausum2
-            if (jampi == 1) then
-               call reduce_sum(1, tausum2)
-               call reduce_sum(lsedtot, bc_sed_distribution)
-            endif
-
-            do ib = 1, morbnd(jb)%npnt
-               alfa_dist   = morbnd(jb)%alfa_dist(ib)
-               alfa_mag    = morbnd(jb)%alfa_mag(ib)
-               !                idir_scalar = morbnd(jb)%idir(ib)
-               nm          = morbnd(jb)%nm(ib)
-               nxmx        = morbnd(jb)%nxmx(ib)
-               lm          = morbnd(jb)%lm(ib)
-               !
-               ! If the computed transport is directed outward, do not
-               ! impose the transport rate (at outflow boundaries the
-               ! "free bed level boundary" condition is imposed. This
-               ! check is carried out for each individual boundary point.
-               !
-               ! Detect the case based on the value of nxmx.
-               !
-               if( u1(lm) < 0.0d0 ) cycle              ! check based on depth averaged velocity value
-               !
-               ! The velocity/transport points to the left and top are part
-               ! of this cell. nxmx contains by default the index of the
-               ! neighbouring grid cell, so that has to be corrected. This
-               ! correction is only carried out locally since we need the
-               ! unchanged nxmx value further down for the bed level updating
-               !
-               li      = 0
-               lsedbed = lsedtot - nmudfrac
-               do l = 1, lsedtot
-                  !
-                  ! bed load transport only for fractions with bedload component
-                  !
-                  if (.not. has_bedload(tratyp(l))) cycle
-                  li = li + 1
-                  !
-                  if (morbnd(jb)%ibcmt(3) == lsedbed) then
-                     !rate = bc_mor_array(li)
-                     call gettau( ln(2,lm), taucurc, czc, jawaveswartdelwaq_local )
-                     !if ( tausum2(1) > 0d0 ) then
-                     if ( tausum2(1) > 0d0 .and. wu_mor(lm)>0d0) then    ! fix cutcell
-                        rate = bc_sed_distribution(li) * taucurc**2 / wu_mor(lm) / tausum2(1)
-                     else
-                        rate = bc_mor_array(li)
-                     endif
-                  elseif (morbnd(jb)%ibcmt(3) == 2*lsedbed) then
-                     rate = bc_mor_array(li) + &
-                        & alfa_dist * (bc_mor_array(li+lsedbed)-bc_mor_array(li))
-                  endif
-                  rate = alfa_mag * rate
-                  !
-                  if (icond == 4) then
-                     !
-                     ! transport including pores
-                     !
-                     rate = rate*cdryb(l)
+               if (morbnd(jb)%ibcmt(3) == lsedbed) then
+                  !rate = bc_mor_array(li)
+                  call gettau( ln(2,lm), taucurc, czc, jawaveswartdelwaq_local )
+                  !if ( tausum2(1) > 0d0 ) then
+                  if ( tausum2(1) > 0d0 .and. wu_mor(lm)>0d0) then    ! fix cutcell
+                     rate = bc_sed_distribution(li) * taucurc**2 / wu_mor(lm) / tausum2(1)
                   else
-                     !
-                     ! transport excluding pores
-                     !
-                     rate = rate*rhosol(l)
+                     rate = bc_mor_array(li)
                   endif
+               elseif (morbnd(jb)%ibcmt(3) == 2*lsedbed) then
+                  rate = bc_mor_array(li) + &
+                     & alfa_dist * (bc_mor_array(li+lsedbed)-bc_mor_array(li))
+               endif
+               rate = alfa_mag * rate
+               !
+               if (icond == 4) then
                   !
-                  ! impose boundary condition
+                  ! transport including pores
                   !
-                  !                   if (idir_scalar == 1) then
-                  e_sbn(lm, l) = rate
-                  !                   else
-                  !                      sbvv(nxmx, l) = rate
-                  !                   endif
-               enddo ! l (sediment fraction)
-            enddo    ! ib (boundary point)
-         endif       ! icond = 4 or 5 (boundary with transport condition)
-      enddo          ! jb (open boundary)
+                  rate = rate*cdryb(l)
+               else
+                  !
+                  ! transport excluding pores
+                  !
+                  rate = rate*rhosol(l)
+               endif
+               !
+               ! impose boundary condition
+               !
+               !                   if (idir_scalar == 1) then
+               e_sbn(lm, l) = rate
+               !                   else
+               !                      sbvv(nxmx, l) = rate
+               !                   endif
+            enddo ! l (sediment fraction)
+         enddo    ! ib (boundary point)
+      endif       ! icond = 4 or 5 (boundary with transport condition)
+   enddo          ! jb (open boundary)
 
    end subroutine fm_bed_boundary_conditions
 
@@ -1188,10 +1184,6 @@ public :: fm_bott3d
    double precision                            :: h1
    double precision                            :: sumflux
    double precision                            :: thick1
-      
-   !!
-   !! Allocate and initialize
-   !!
          
    !!
    !! Execute
@@ -1401,11 +1393,7 @@ public :: fm_bott3d
    double precision                            :: thet
    double precision                            :: totdbodsd
    double precision                            :: totfixfrac
-      
-   !!
-   !! Allocate and initialize
-   !!
-         
+
    !!
    !! Execute
    !!
@@ -1544,11 +1532,7 @@ public :: fm_bott3d
    
    !integer
    integer                                     :: ll, nm, ii
-      
-   !!
-   !! Allocate and initialize
-   !!
-         
+     
    !!
    !! Execute
    !!
@@ -1627,9 +1611,6 @@ public :: fm_bott3d
    !!
    !! Local variables
    !!
-      
-   !logical
-   !logical                                     :: jamerge
    
    !integer
    integer                                     :: nto, jb, ib, nm, nxmx, lm
@@ -1774,52 +1755,30 @@ public :: fm_bott3d
    !< Update concentrations in water column to conserve mass because of bottom update
    !! This needs to happen in work array sed, not constituents, because of copying back and forth later on
    subroutine fm_update_concentrations_after_bed_level_update()
+   
    !!
    !! Declarations
    !!
    
-   !use Messagehandling
-   !use message_module, only: writemessages, write_error
-   !use morphology_data_module, only: bedbndtype
-   !use table_handles , only: handletype, gettabledata
    use m_transport, only: constituents, itra1, itran, isalt
    use m_sediment, only: stmpar, botcrit
    use m_sediment, m_sediment_sed=>sed 
    use m_flow, only: kmx, hs
    use m_flowparameters, only: epshs, jasal
-   !use m_flowtimes, only: julrefdat
-   !use m_flowgeom , only: bl
    use m_fm_erosed, only: blchg
    
    implicit none
-
-   !!
-   !! I/O
-   !!
-   
-   !double precision,                intent(in) :: dtmor
-   !double precision,                intent(in) :: timhr
    
    !!
    !! Local variables
    !!
-      
-   !logical
-   !logical                                     :: jamerge
-   
+         
    !integer
    integer                                     :: k, ndx, ll, kb, kt, kk, itrac
       
    !double 
    double precision                            :: hsk
    double precision                            :: ddp
-   !double precision                            :: rate
-   
-   !characters
-   !character(len=256)                             :: msg
-   
-   !pointer
-   !double precision , allocatable, pointer :: m_sediment_sed 
    
    !!
    !! Allocate and initialize
@@ -1831,7 +1790,6 @@ public :: fm_bott3d
    !! Execute
    !!
    
-   !
    if (kmx==0) then
       do k = 1, ndx
          hsk = hs(k)
@@ -1843,19 +1801,19 @@ public :: fm_bott3d
          ddp = hsk/max(hsk-blchg(k),botcrit)
          do ll = 1, stmpar%lsedsus
             m_sediment_sed(ll,k) = m_sediment_sed(ll,k) * ddp
-         enddo
+         enddo !ll
          !
          if (jasal>0) then
             constituents(isalt,k) =  constituents(isalt,k) * ddp
-         endif
+         endif !jasal>0
          !
          if (ITRA1>0) then
             do itrac=ITRA1,ITRAN
                constituents(itrac,k) = constituents(itrac,k)*ddp
             enddo
-         endif
-      enddo
-   else
+         endif !ITRA1>0
+      enddo !k
+   else !kmx==0
       do ll = 1, stmpar%lsedsus       ! works for sigma only
          do k=1,ndx
             hsk = hs(k)
@@ -1865,9 +1823,9 @@ public :: fm_bott3d
             call getkbotktop(k,kb,kt)
             do kk=kb,kt
                m_sediment_sed(ll,kk) = m_sediment_sed(ll,kk) * ddp
-            enddo
-         enddo
-      enddo
+            enddo !kk
+         enddo !k
+      enddo !ll
       !
       if (jasal>0) then
          do k=1,ndx
@@ -1877,9 +1835,9 @@ public :: fm_bott3d
             call getkbotktop(k,kb,kt)
             do kk=kb,kt
                constituents(isalt,kk) = constituents(isalt,kk) * hsk / max(hsk - blchg(k), botcrit)
-            enddo
-         enddo
-      endif
+            enddo !kk
+         enddo !k
+      endif !jasal>0
       !
       if (ITRA1>0) then
          do itrac=ITRA1,ITRAN
@@ -1890,12 +1848,12 @@ public :: fm_bott3d
                call getkbotktop(k,kb,kt)
                do kk=kb,kt
                   constituents(itrac,kk) = constituents(itrac,kk)*hsk / max(hsk - blchg(k), botcrit)
-               enddo
-            enddo
-         enddo
-      endif
+               enddo !kk
+            enddo !k
+         enddo !itrac
+      endif !ITRA1>0
       !
-   endif
+   endif !kmx==0
 
    end subroutine fm_update_concentrations_after_bed_level_update
    
