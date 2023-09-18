@@ -235,7 +235,7 @@ public :: fm_bott3d
    !
    if (time1 >= tstart_user + tcmp * tfac) then   ! tmor/tcmp in tunit since start of computations, time1 in seconds since reference date
        
-       call fm_bed_boundary_conditions()
+       call fm_bed_boundary_conditions(timhr)
        
        call fm_change_in_sediment_thickness(dtmor)
 
@@ -324,126 +324,7 @@ public :: fm_bott3d
          enddo
       endif
       
-      call fm_apply_bed_boundary_conditions
-!======================================================================
-!======================================================================
-!======================================================================
-!BEGIN CUT 
-      !
-      ! Bed boundary conditions
-      !
-      nto = size(morbnd,1)
-      do jb = 1, nto
-         icond = morbnd(jb)%icond
-         !
-         ! In case of an open boundary with bed level condition
-         ! described by time series: get data from table file
-         !
-         if (icond == 2 .or. icond == 3 .or. icond == 6 .or. icond == 7) then
-            call gettabledata(bcmfile  , morbnd(jb)%ibcmt(1)    , &
-               & morbnd(jb)%ibcmt(2) , morbnd(jb)%ibcmt(3)    , &
-               & morbnd(jb)%ibcmt(4) , bc_mor_array           , &
-               & timhr      ,julrefdat  , msg)
-            if (msg /= ' ') then
-               call setmessage(LEVEL_FATAL, msg)
-               return
-            endif
-         endif
-         !
-         ! Prepare loop over boundary points
-         !
-         do ib = 1, morbnd(jb)%npnt
-            alfa_dist   = morbnd(jb)%alfa_dist(ib)
-            alfa_mag    = morbnd(jb)%alfa_mag(ib)**2   !!!!
-            !             idir_scalar = morbnd(jb)%idir(ib)
-            nm          = morbnd(jb)%nm(ib)
-            nxmx        = morbnd(jb)%nxmx(ib)
-            lm          = morbnd(jb)%lm(ib)
-            !
-            !
-            ! Bed change in open boundary point
-            ! Any boundary condition is changed into a "free bed level
-            ! boundary" if the computed transport is directed outward.
-            !
-            ! Detect the case based on the value of nxmx. In case of a
-            ! diagonal water level boundary, there will be two separate
-            ! entries in the morbnd structure. The sum of alfa_mag(ib)**2
-            ! will be equal to 1.
-            !
-            icond = morbnd(jb)%icond
-            if (u1(lm)<0d0) icond = 0         ! to do: 3d
-            !
-            select case(icond)
-            case (0,4,5)
-               !
-               ! outflow or free boundary (0)
-               ! or prescribed transport with pores (4)
-               ! or prescribed transport without pores (5)
-               !
-               blchg(nm) = blchg(nm) + blchg(nxmx) * alfa_mag
-            case (1)
-               !
-               ! fixed bed level: no update
-               !
-               ! blchg(nm) = blchg(nm) + 0.0 * alfa_mag
-            case (2)
-               !
-               ! prescribed depth
-               ! temporarily store "bed levels" in variable "rate"
-               !
-               if (morbnd(jb)%ibcmt(3) == 1) then
-                  rate = bc_mor_array(1)
-               elseif (morbnd(jb)%ibcmt(3) == 2) then
-                  rate = bc_mor_array(1) + &
-                     & alfa_dist * (bc_mor_array(2)-bc_mor_array(1))
-               endif
-               !
-               blchg(nm) = blchg(nm) + (real(-bl(nm),fp)-rate) * alfa_mag
-            case (3)
-               !
-               ! prescribed depth change rate
-               !
-               if (morbnd(jb)%ibcmt(3) == 1) then
-                  rate = bc_mor_array(1)
-               elseif (morbnd(jb)%ibcmt(3) == 2) then
-                  rate = bc_mor_array(1) + &
-                     & alfa_dist * (bc_mor_array(2)-bc_mor_array(1))
-               endif
-               !
-               blchg(nm) = blchg(nm) - rate * alfa_mag * dtmor
-            case (6)
-               !
-               ! prescribed bed level
-               ! temporarily store "bed levels" in variable "rate"
-               !
-               if (morbnd(jb)%ibcmt(3) == 1) then
-                  rate = bc_mor_array(1)
-               elseif (morbnd(jb)%ibcmt(3) == 2) then
-                  rate = bc_mor_array(1) + &
-                     & alfa_dist * (bc_mor_array(2)-bc_mor_array(1))
-               endif
-               !
-               blchg(nm) = blchg(nm) + (real(-bl(nm),fp)+rate) * alfa_mag
-            case (7)
-               !
-               ! prescribed bed level change rate
-               !
-               if (morbnd(jb)%ibcmt(3) == 1) then
-                  rate = bc_mor_array(1)
-               elseif (morbnd(jb)%ibcmt(3) == 2) then
-                  rate = bc_mor_array(1) + &
-                     & alfa_dist * (bc_mor_array(2)-bc_mor_array(1))
-               endif
-               !
-               blchg(nm) = blchg(nm) + rate * alfa_mag * dtmor
-            end select
-         enddo ! ib (boundary point)
-      enddo    ! jb (open boundary)
-      
-!======================================================================
-!======================================================================
-!======================================================================
-!END CUT 
+      call fm_apply_bed_boundary_condition(dtmor,timhr)
       
    else
       !
@@ -1127,7 +1008,7 @@ public :: fm_bott3d
    end subroutine apply_nodal_point_relation
 
    !> Apply morphodynamic boundary condition on bed level
-   subroutine fm_bed_boundary_conditions()
+   subroutine fm_bed_boundary_conditions(timhr)
    
    !!
    !! Declarations
@@ -1148,6 +1029,12 @@ public :: fm_bott3d
    use m_flowexternalforcings, only: nopenbndsect
    
    implicit none
+
+   !!
+   !! I/O
+   !!
+   
+   double precision,                intent(in) :: timhr
    
    !!
    !! Local variables
@@ -1163,7 +1050,6 @@ public :: fm_bott3d
 
    !double precision
    double precision                            :: tausum2(1)
-   double precision                            :: timhr
    double precision                            :: alfa_dist
    double precision                            :: alfa_mag
    double precision                            :: sbsum
@@ -1200,7 +1086,7 @@ public :: fm_bott3d
    endif
    
    nto    = nopenbndsect
-   timhr = time1 / 3600.0d0
+
       !
       ! Bed boundary conditions: transport condition
       ! JRE+BJ To check: bedload condition now based in taucur only distribution, waves necessary? Probably not considering use cases...
@@ -1789,5 +1675,178 @@ public :: fm_bott3d
    end do
    
    end subroutine fm_consider_mormerge
+
+   !> Apply bed boundary condition
+   subroutine fm_apply_bed_boundary_condition(dtmor,timhr)
+   
+   !!
+   !! Declarations
+   !!
+   
+   use Messagehandling
+   use message_module, only: writemessages, write_error
+   use morphology_data_module, only: bedbndtype
+   use table_handles , only: handletype, gettabledata
+   use m_sediment, only: stmpar
+   use m_flow, only: u1
+   use m_flowtimes, only: julrefdat
+   use m_flowgeom , only: bl
+   use m_fm_erosed, only: blchg, bc_mor_array
+   
+   implicit none
+
+   !!
+   !! I/O
+   !!
+   
+   double precision,                intent(in) :: dtmor
+   double precision,                intent(in) :: timhr
+   
+   !!
+   !! Local variables
+   !!
+      
+   !logical
+   !logical                                     :: jamerge
+   
+   !integer
+   integer                                     :: nto, jb, ib, nm, nxmx, lm
+   integer                                     :: icond
+      
+   !double 
+   double precision                            :: alfa_dist
+   double precision                            :: alfa_mag
+   double precision                            :: rate
+   
+   !characters
+   character(len=256)                             :: msg
+   
+   !structures
+   type (handletype)                    , pointer :: bcmfile
+   type (bedbndtype)     , dimension(:) , pointer :: morbnd
+   
+   !!
+   !! Allocate and initialize
+   !!
+     
+   bcmfile             => stmpar%morpar%bcmfile
+   morbnd              => stmpar%morpar%morbnd
+   
+   !!
+   !! Execute
+   !!
+   
+   !
+   ! Bed boundary conditions
+   !
+   nto = size(morbnd,1)
+   do jb = 1, nto
+      icond = morbnd(jb)%icond
+      !
+      ! In case of an open boundary with bed level condition
+      ! described by time series: get data from table file
+      !
+      if (icond == 2 .or. icond == 3 .or. icond == 6 .or. icond == 7) then
+         call gettabledata(bcmfile  , morbnd(jb)%ibcmt(1)    , &
+            & morbnd(jb)%ibcmt(2) , morbnd(jb)%ibcmt(3)    , &
+            & morbnd(jb)%ibcmt(4) , bc_mor_array           , &
+            & timhr      ,julrefdat  , msg)
+         if (msg /= ' ') then
+            call setmessage(LEVEL_FATAL, msg)
+            return
+         endif
+      endif
+      !
+      ! Prepare loop over boundary points
+      !
+      do ib = 1, morbnd(jb)%npnt
+         alfa_dist   = morbnd(jb)%alfa_dist(ib)
+         alfa_mag    = morbnd(jb)%alfa_mag(ib)**2   !!!!
+         !             idir_scalar = morbnd(jb)%idir(ib)
+         nm          = morbnd(jb)%nm(ib)
+         nxmx        = morbnd(jb)%nxmx(ib)
+         lm          = morbnd(jb)%lm(ib)
+         !
+         !
+         ! Bed change in open boundary point
+         ! Any boundary condition is changed into a "free bed level
+         ! boundary" if the computed transport is directed outward.
+         !
+         ! Detect the case based on the value of nxmx. In case of a
+         ! diagonal water level boundary, there will be two separate
+         ! entries in the morbnd structure. The sum of alfa_mag(ib)**2
+         ! will be equal to 1.
+         !
+         icond = morbnd(jb)%icond
+         if (u1(lm)<0d0) icond = 0         ! to do: 3d
+         !
+         select case(icond)
+         case (0,4,5)
+            !
+            ! outflow or free boundary (0)
+            ! or prescribed transport with pores (4)
+            ! or prescribed transport without pores (5)
+            !
+            blchg(nm) = blchg(nm) + blchg(nxmx) * alfa_mag
+         case (1)
+            !
+            ! fixed bed level: no update
+            !
+            ! blchg(nm) = blchg(nm) + 0.0 * alfa_mag
+         case (2)
+            !
+            ! prescribed depth
+            ! temporarily store "bed levels" in variable "rate"
+            !
+            if (morbnd(jb)%ibcmt(3) == 1) then
+               rate = bc_mor_array(1)
+            elseif (morbnd(jb)%ibcmt(3) == 2) then
+               rate = bc_mor_array(1) + &
+                  & alfa_dist * (bc_mor_array(2)-bc_mor_array(1))
+            endif
+            !
+            blchg(nm) = blchg(nm) + (real(-bl(nm),fp)-rate) * alfa_mag
+         case (3)
+            !
+            ! prescribed depth change rate
+            !
+            if (morbnd(jb)%ibcmt(3) == 1) then
+               rate = bc_mor_array(1)
+            elseif (morbnd(jb)%ibcmt(3) == 2) then
+               rate = bc_mor_array(1) + &
+                  & alfa_dist * (bc_mor_array(2)-bc_mor_array(1))
+            endif
+            !
+            blchg(nm) = blchg(nm) - rate * alfa_mag * dtmor
+         case (6)
+            !
+            ! prescribed bed level
+            ! temporarily store "bed levels" in variable "rate"
+            !
+            if (morbnd(jb)%ibcmt(3) == 1) then
+               rate = bc_mor_array(1)
+            elseif (morbnd(jb)%ibcmt(3) == 2) then
+               rate = bc_mor_array(1) + &
+                  & alfa_dist * (bc_mor_array(2)-bc_mor_array(1))
+            endif
+            !
+            blchg(nm) = blchg(nm) + (real(-bl(nm),fp)+rate) * alfa_mag
+         case (7)
+            !
+            ! prescribed bed level change rate
+            !
+            if (morbnd(jb)%ibcmt(3) == 1) then
+               rate = bc_mor_array(1)
+            elseif (morbnd(jb)%ibcmt(3) == 2) then
+               rate = bc_mor_array(1) + &
+                  & alfa_dist * (bc_mor_array(2)-bc_mor_array(1))
+            endif
+            !
+            blchg(nm) = blchg(nm) + rate * alfa_mag * dtmor
+         end select
+      enddo ! ib (boundary point)
+   enddo    ! jb (open boundary)
+
+   end subroutine fm_apply_bed_boundary_condition
    
 end module m_fm_bott3d
