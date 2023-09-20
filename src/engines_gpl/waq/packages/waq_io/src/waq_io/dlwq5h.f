@@ -23,11 +23,11 @@
       module m_dlwq5h
 
       implicit none
-
+      
       contains
 
 
-      SUBROUTINE DLWQ5H ( LUNUT  , IAR    , ITMNR  , NOITM  , IDMNR  ,
+      SUBROUTINE compact_usefor_list ( LUNUT  , IAR    , ITMNR  , NOITM  , IDMNR  ,
      *                    NODIM  , IORDER , CNAMES , IOFFI  , IOFFC  ,
      *                             IODS   , IOFFD  , I      , ICNT   )
 !
@@ -74,13 +74,15 @@
       integer    :: I1, I3, I4, I5
       integer    :: lunut, I, icnt, ioffc, iorder, ntt, idmnr, nitm, nodim
       integer    :: itmnr, noitm, I2, iar, ioffd, ishft, ioffi, iods
-      if (timon) call timstrt( "dlwq5h", ithndl )
+      
+      
+      if (timon) call timstrt( "compact_usefor_list", ithndl )
 !
 !       Write message
 !
       WRITE ( LUNUT ,   *  )
       WRITE ( LUNUT , 1010 ) I+ICNT, CNAMES(I+IOFFC)
-      IF ( IORDER .EQ. 1 ) THEN ! items first
+      IF ( IORDER == 1 ) THEN ! items first
           NTT  = IDMNR
           NITM = NODIM
       ELSE ! subst first
@@ -91,35 +93,35 @@
 !       Look backwards
 !
       I4 = 0
-      DO 10 I1 = I,1,-1
+      DO I1 = I,1,-1
          I2 = IAR(I1+IOFFC)
-         IF ( I2 .GT. -100000 ) GOTO 20
-   10 CONTINUE
+         IF ( I2 > -100000 ) EXIT
+      END DO
 !
 !       Additional messages for this sequence
 !
-      I4 = 0
-   20 IF ( I2 .LE. 0 .AND. I2 .GT. -100000 ) THEN
+!      I4 = 0
+      IF ( I2 <= 0 .AND. I2 > -100000 ) THEN
 !       Try to find the reference
-         DO 25 I3 = 1 , I
+         DO I3 = 1 , I
             I5 = IAR(I3+IOFFC)
-            IF ( I5 .GT. 0 ) I4 = IAR(I3+IOFFC)
-            IF ( I5 .LE. 0 .AND. I5 .GT. -100000 ) I4 = I4 + 1
-   25    CONTINUE
+            IF ( I5 > 0 )   I4 = IAR(I3+IOFFC)
+            IF ( I5 <= 0 .AND. I5 > -100000 )   I4 = I4 + 1
+         END DO
          CHULP = CNAMES(I4+IOFFD)
-         IF ( CNAMES(I+IOFFC) .NE. CHULP ) THEN
-            IF ( IORDER .EQ. 2 ) THEN
+         IF ( CNAMES(I+IOFFC) /= CHULP ) THEN
+            IF ( IORDER == 2 ) THEN
                WRITE (LUNUT,1030) I4,CHULP
             ELSE
                WRITE (LUNUT,1040) I4,CHULP
             ENDIF
          ENDIF
       ENDIF
-      IF ( I2 .GT. 0 .AND. I2 .LT.  100000 ) THEN
+      IF ( I2 > 0 .AND. I2 <  100000 ) THEN
          I4 = I2
          CHULP = CNAMES( I2+IOFFD)
          IF ( CNAMES(I+IOFFC) .NE. CHULP ) THEN
-            IF ( IORDER .EQ. 2 ) THEN
+            IF ( IORDER == 2 ) THEN
                WRITE (LUNUT,1030)  I2,CHULP
             ELSE
                WRITE (LUNUT,1040)  I2,CHULP
@@ -128,53 +130,50 @@
       ENDIF
       I2 = I4
 !
-!       Determine the shift in locations
-!
+!     Determine the shift in locations
       ISHFT = 1
-      DO 30 I4 = I1+1,NITM
+      DO I4 = I1+1,NITM
          I3 = IAR(I4+IOFFC)
-         IF ( I3 .GT. -1000000 ) GOTO 40
+         IF ( I3 > -1000000 ) EXIT
          ISHFT = ISHFT + 1
-   30 CONTINUE
+      END DO
 !
-!      Shift the third array heap
-!
-   40 DO 50 I4 = I1, NITM
+!     Shift the third array heap
+      DO I4 = I1, NITM
          IAR   (I4+IOFFI) = IAR(I4+IOFFI+ISHFT)
-   50 CONTINUE
+      END DO
 !
-!      Shift the second array heap
-!
-      DO 60 I4 = I1, NITM*2+IODS
+!     Shift the second array heap
+      DO I4 = I1, NITM*2+IODS
          IAR   (I4+IOFFC) = IAR   (I4+IOFFC+ISHFT)
          CNAMES(I4+IOFFC) = CNAMES(I4+IOFFC+ISHFT)
-   60 CONTINUE
+      END DO
       NITM  = NITM  - ISHFT
       IOFFI = IOFFI - ISHFT
       IOFFC = IOFFC - 1
       IOFFI = IOFFI - 1
       ICNT  = ICNT  + ISHFT
 !
-!      Shift the base array heap
-!
-      DO 70 I5 = I2+IOFFD , NTT+IOFFD+NITM*2+IODS
+!     Shift the base array heap
+      DO I5 = I2+IOFFD , NTT+IOFFD+NITM*2+IODS
          IAR   (I5) = IAR   (I5+1)
          CNAMES(I5) = CNAMES(I5+1)
-   70 CONTINUE
+      END DO
 !
 !      Renumber the second array heap
 !
-      DO 80 I4 = I1 , NITM
-         IF ( IAR(I4+IOFFC) .GT. I2 ) IAR(I4+IOFFC) = IAR(I4+IOFFC) -1
-   80 CONTINUE
+      DO I4 = I1 , NITM
+         IF ( IAR(I4+IOFFC) > I2 ) THEN
+             IAR(I4+IOFFC) = IAR(I4+IOFFC) -1
+         END IF
+      END DO
 !
 !      Update totals
 !
-      IF ( IORDER .EQ. 1 .OR.  IODS .GT. 0 ) THEN
+      IF ( IORDER == 1 .OR.  IODS > 0 ) THEN
          IDMNR = IDMNR-1
          NODIM = NODIM-ISHFT
-      ENDIF
-      IF ( IORDER .EQ. 2 .AND. IODS .EQ. 0 ) THEN
+      ELSE IF ( IORDER == 2 .AND. IODS == 0 ) THEN
          ITMNR = ITMNR-1
          NOITM = NOITM-ISHFT
       ENDIF
@@ -186,6 +185,6 @@
  1030 FORMAT ( ' ERROR: Item number: ',I3,' also not resolved: ',A)
  1040 FORMAT ( ' ERROR: Substance  : ',I3,' also not resolved: ',A)
 !
-      END
+      END subroutine compact_usefor_list
 
       end module m_dlwq5h

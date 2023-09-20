@@ -301,7 +301,7 @@
             IAR(K5+K) = I
             GOTO 60
          ENDIF
-         CALL DLWQ5H ( LUNUT  , IAR    , ITMNR  , NOITM  , IDMNR  ,
+         CALL compact_usefor_list ( LUNUT  , IAR    , ITMNR  , NOITM  , IDMNR  ,
      *                 NODIM  , IORDER , CAR    , K5     , IOFFB  ,
      *                          NSHFT  , IOFFD  , K      , ICNT   )
          ierr = 1
