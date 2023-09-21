@@ -127,62 +127,60 @@
      *              START_IN_LINE  , NPOS   , CHULP  , IHULP  , RHULP  ,
      *                                         ITYPE  , ERROR_IDX   )
 !          A read error has occurred
-      IF ( ERROR_IDX  .NE. 0 ) goto 9999 !exit subroutine
+      IF ( ERROR_IDX  .NE. 0 ) GOTO 9999 !exit subroutine
 
 !          No error, a string has arrived
       IF ( ITYPE .EQ. 1 ) THEN
          ! get time (ihulp) from string (CHULP)
-          CALL DLWQ0T ( CHULP , ihulp, .FALSE., .FALSE., ERROR_IDX )
+         CALL DLWQ0T ( CHULP , ihulp, .FALSE., .FALSE., ERROR_IDX )
          IF ( ERROR_IDX .EQ. 0 ) THEN
             ERROR_IDX = -2
             IF ( FIRST ) THEN
-               goto 9999  !exit subroutine
+               GOTO 9999  !exit subroutine
             ELSE
                GOTO 50
             ENDIF
          ENDIF
          IF ( FIRST ) THEN
             FIRST = .FALSE.
-            DO 10 I = 1 , COUNT_NAMES
+            DO I = 1 , COUNT_NAMES
                I_ARRAY(I+OFFSET_I_ARRAY) = 0
-   10       CONTINUE
+            END DO
             NOCOL = 0
             WRITE ( LUNUT ,   *  )
          ENDIF
          NOCOL = NOCOL + 1
          STRNG = 'NOT used'
-         DO 30 I = 1 , COUNT_NAMES
+         DO I = 1 , COUNT_NAMES
             CALL ZOEK(CHULP,1,NAMES_TO_CHECK(OFFSET_NAMES+I),20,IFOUND)
             IF ( IFOUND .GE. 1 ) THEN
                STRNG = 'used'
                I_ARRAY(I+OFFSET_I_ARRAY) = NOCOL
             ENDIF
-   30    CONTINUE
-   40    WRITE ( LUNUT , 1000 ) NOCOL, CHULP, STRNG
+         END DO
+         WRITE ( LUNUT , 1000 ) NOCOL, CHULP, STRNG
          GOTO 20  ! Read loop
       ELSE
          IF ( ITYPE .EQ. 2 ) THEN
             CALL CNVTIM ( ihulp  , ITFACT, DTFLG1 , DTFLG3 )
          ENDIF
          ERROR_IDX = -1
-         IF ( FIRST ) goto 9999
+         IF ( FIRST ) GOTO 9999
       ENDIF
 !
 !       Is everything resolved ?
 !
    50 ICNT = 0
       IODS = 0
-      DO  70 I = 1 , COUNT_NAMES
+      DO I = 1 , COUNT_NAMES
          K = I - ICNT
-         write (LUNUT,*) "**NAMES_TO_CHECK(OFFSET_NAMES + K )**", NAMES_TO_CHECK(OFFSET_NAMES + K), "****"
-         write (LUNUT,*) "**I_ARRAY(OFFSET_I_ARRAY + K)**", I_ARRAY(OFFSET_I_ARRAY + K), "****"
          IF ( (NAMES_TO_CHECK(OFFSET_NAMES + K) == '&$&$SYSTEM_NAME&$&$!')
-     *       .OR.  (I_ARRAY(OFFSET_I_ARRAY + K) > 0) ) CONTINUE
+     *       .OR.  (I_ARRAY(OFFSET_I_ARRAY + K) > 0) ) CYCLE
          CALL compact_usefor_list ( LUNUT  , I_ARRAY    , COUNT_ITEMS_ASSIGN  , COUNT_ITEMS_COMP_RULE  , COUNT_SUBS_ASSIGN  ,
      *                 COUNT_SUBS_COMP_RULE  , INDEX_FIRST , NAMES_TO_CHECK , OFFSET_I_ARRAY  , OFFSET_NAMES  ,
      *                          IODS   , OFFSET_COMMON  , K      , ICNT   )
          ERROR_IDX = 2
-   70 CONTINUE
+      END DO
 !
  9999 if (timon) call timstop( ithndl )
       ! RETURN
