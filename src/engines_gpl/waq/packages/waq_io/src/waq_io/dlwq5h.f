@@ -161,7 +161,6 @@
       END DO
 !
 !      Renumber the second array heap
-!
       DO I4 = I1 , NITM
          IF ( IAR(I4+IOFFC) > I2 ) THEN
              IAR(I4+IOFFC) = IAR(I4+IOFFC) -1
@@ -169,7 +168,6 @@
       END DO
 !
 !      Update totals
-!
       IF ( IORDER == 1 .OR.  IODS > 0 ) THEN
          IDMNR = IDMNR-1
          NODIM = NODIM-ISHFT

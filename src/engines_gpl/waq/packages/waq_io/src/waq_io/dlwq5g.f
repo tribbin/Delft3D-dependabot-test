@@ -93,7 +93,7 @@
       CHARACTER*(*) LCH   (LSTACK) , CHULP , NAMES_TO_CHECK(*)
       CHARACTER     CCHAR*1 , STRNG*8
       DIMENSION     I_ARRAY(*) , ILUN( LSTACK )
-      LOGICAL       DTFLG1 , DTFLG3 , FIRST
+      LOGICAL       DTFLG1 , DTFLG3 , FIRST, MUST_READ_MORE
       integer ( 8)  ihulp8
       integer(4) :: ithndl = 0
       integer    :: I, COUNT_ITEMS_COMP_RULE, COUNT_SUBS_ASSIGN, COUNT_SUBS_COMP_RULE, INDEX_FIRST, OFFSET_NAMES, OFFSET_COMMON, notim
@@ -122,68 +122,79 @@
 !     Read loop
 !
       FIRST = .TRUE.
-   20 ITYPE = 0
-      CALL RDTOK1 ( LUNUT  , ILUN   , LCH    , LSTACK , CCHAR  ,
-     *              START_IN_LINE  , NPOS   , CHULP  , IHULP  , RHULP  ,
-     *                                         ITYPE  , ERROR_IDX   )
-!          A read error has occurred
-      IF ( ERROR_IDX  .NE. 0 ) GOTO 9999 !exit subroutine
-
-!          No error, a string has arrived
-      IF ( ITYPE .EQ. 1 ) THEN
-         ! get time (ihulp) from string (CHULP)
-         CALL DLWQ0T ( CHULP , ihulp, .FALSE., .FALSE., ERROR_IDX )
-         IF ( ERROR_IDX .EQ. 0 ) THEN
-            ERROR_IDX = -2
-            IF ( FIRST ) THEN
-               GOTO 9999  !exit subroutine
-            ELSE
-               GOTO 50
-            ENDIF
-         ENDIF
-         IF ( FIRST ) THEN
-            FIRST = .FALSE.
-            DO I = 1 , COUNT_NAMES
-               I_ARRAY(I+OFFSET_I_ARRAY) = 0
-            END DO
-            NOCOL = 0
-            WRITE ( LUNUT ,   *  )
-         ENDIF
-         NOCOL = NOCOL + 1
-         STRNG = 'NOT used'
-         DO I = 1 , COUNT_NAMES
-            CALL ZOEK(CHULP,1,NAMES_TO_CHECK(OFFSET_NAMES+I),20,IFOUND)
-            IF ( IFOUND .GE. 1 ) THEN
-               STRNG = 'used'
-               I_ARRAY(I+OFFSET_I_ARRAY) = NOCOL
-            ENDIF
-         END DO
-         WRITE ( LUNUT , 1000 ) NOCOL, CHULP, STRNG
-         GOTO 20  ! Read loop
-      ELSE
-         IF ( ITYPE .EQ. 2 ) THEN
-            CALL CNVTIM ( ihulp  , ITFACT, DTFLG1 , DTFLG3 )
-         ENDIF
-         ERROR_IDX = -1
-         IF ( FIRST ) GOTO 9999
-      ENDIF
+      MUST_READ_MORE = .TRUE.
+      DO WHILE (MUST_READ_MORE)
+          ITYPE = 0
+          CALL RDTOK1 ( LUNUT, ILUN, LCH, LSTACK, CCHAR,
+     *              START_IN_LINE, NPOS, CHULP, IHULP, RHULP,
+     *              ITYPE  , ERROR_IDX)
+         
+          IF ( ERROR_IDX  .NE. 0 ) THEN ! Error occurred when reading
+              if (timon) call timstop( ithndl )
+              RETURN !exit subroutine
+          END IF
+         
+!         No error
+          IF ( ITYPE .EQ. 1 ) THEN ! A string has arrived
+             ! get time (ihulp) from string (CHULP)
+             CALL DLWQ0T ( CHULP , ihulp, .FALSE., .FALSE., ERROR_IDX )
+             IF ( ERROR_IDX .EQ. 0 ) THEN
+                ERROR_IDX = -2
+                IF ( FIRST ) THEN
+                   if (timon) call timstop( ithndl )
+                   RETURN  !exit subroutine
+                ELSE
+                   EXIT !GOTO 50
+                ENDIF
+             ENDIF
+             IF ( FIRST ) THEN
+                FIRST = .FALSE.
+                DO I = 1 , COUNT_NAMES
+                   I_ARRAY(OFFSET_I_ARRAY + I) = 0
+                END DO
+                NOCOL = 0
+                WRITE ( LUNUT ,   *  )
+             ENDIF
+             NOCOL = NOCOL + 1
+             STRNG = 'NOT used'
+             DO I = 1 , COUNT_NAMES
+                CALL ZOEK(CHULP,1,NAMES_TO_CHECK(OFFSET_NAMES+I),20,IFOUND)
+                IF ( IFOUND .GE. 1 ) THEN
+                   STRNG = 'used'
+                   I_ARRAY(I+OFFSET_I_ARRAY) = NOCOL
+                ENDIF
+             END DO
+             WRITE ( LUNUT , 1000 ) NOCOL, CHULP, STRNG
+             !GOTO 20  ! Read loop
+          ELSE
+             IF ( ITYPE .EQ. 2 ) THEN ! An integer has arrived
+                CALL CNVTIM ( ihulp  , ITFACT, DTFLG1 , DTFLG3 )
+             ENDIF
+             ERROR_IDX = -1
+             MUST_READ_MORE = .FALSE.
+             IF ( FIRST ) THEN
+                 if (timon) call timstop( ithndl )
+                 RETURN !exit subroutine
+             END IF
+          ENDIF
+      END DO
 !
 !       Is everything resolved ?
 !
-   50 ICNT = 0
+      ICNT = 0
       IODS = 0
-      DO I = 1 , COUNT_NAMES
+      DO I = 1, COUNT_NAMES
          K = I - ICNT
-         IF ( (NAMES_TO_CHECK(OFFSET_NAMES + K) == '&$&$SYSTEM_NAME&$&$!')
-     *       .OR.  (I_ARRAY(OFFSET_I_ARRAY + K) > 0) ) CYCLE
-         CALL compact_usefor_list ( LUNUT  , I_ARRAY    , COUNT_ITEMS_ASSIGN  , COUNT_ITEMS_COMP_RULE  , COUNT_SUBS_ASSIGN  ,
-     *                 COUNT_SUBS_COMP_RULE  , INDEX_FIRST , NAMES_TO_CHECK , OFFSET_I_ARRAY  , OFFSET_NAMES  ,
-     *                          IODS   , OFFSET_COMMON  , K      , ICNT   )
-         ERROR_IDX = 2
+         IF ( (NAMES_TO_CHECK(OFFSET_NAMES + K) /= '&$&$SYSTEM_NAME&$&$!')
+     *       .AND.  (I_ARRAY(OFFSET_I_ARRAY + K) <= 0) ) THEN
+            CALL compact_usefor_list(LUNUT, I_ARRAY, COUNT_ITEMS_ASSIGN,
+     *                COUNT_ITEMS_COMP_RULE, COUNT_SUBS_ASSIGN,
+     *                COUNT_SUBS_COMP_RULE, INDEX_FIRST, NAMES_TO_CHECK,
+     *                OFFSET_I_ARRAY, OFFSET_NAMES,
+     *                IODS, OFFSET_COMMON, K, ICNT)
+            ERROR_IDX = 2
+         END IF
       END DO
-!
- 9999 if (timon) call timstop( ithndl )
-      ! RETURN
 !
  1000 FORMAT ( ' Column:',I3,' contains: ',A40,' Status: ',A8)
 !
