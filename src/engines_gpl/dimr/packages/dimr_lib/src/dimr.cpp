@@ -36,6 +36,7 @@
 #define DIMR_LIB
 #include <string>
 #include <iostream>
+#include <set>
 
 using namespace std;
 
@@ -845,7 +846,7 @@ void Dimr::runParallelUpdate(dimr_control_block* cb, double tStep) {
                                 // Wanda will drop the value in "transfer" on calling dllGetVar
                                 if (thisCoupler->sourceComponent->onThisRank) {
                                     getAddress(thisCoupler->items[k].sourceName, thisCoupler->sourceComponent->type, thisCoupler->sourceComponent->dllGetVar, &(thisCoupler->items[k].sourceVarPtr),
-                                        thisCoupler->sourceComponent->processes, thisCoupler->sourceComponent->numProcesses, &transfer);
+                                        thisCoupler->sourceComponent->processes, thisCoupler->sourceComponent->numProcesses, transfer);
                                 }
                                 // Use sourceVarPtr to fill "transfer" and sent it to all ranks, 
                                 // resulting in transferValuePtr pointing to the correct value on all ranks
@@ -979,7 +980,7 @@ void Dimr::receive(const char* name,
                     {
                         double transfer = -999000.0;
                         //here we get the address (e.g. weir levels)
-                        getAddress(name, compType, dllGetVar, &targetVarPtr, processes, nProc, &transfer);
+                        getAddress(name, compType, dllGetVar, &targetVarPtr, processes, nProc, transfer);
                     }
 
                     //  }
@@ -1038,7 +1039,7 @@ void Dimr::receive_ptr(const char * name,
 	{
         double transfer = -999000.0;
         //here we get the address (e.g. weir levels)
-		getAddress(name, compType, dllGetVar, &targetVarPtr, processes, nProc, &transfer);
+		getAddress(name, compType, dllGetVar, &targetVarPtr, processes, nProc, transfer);
 		}
 
 	// Now targetVarPtr must be defined
@@ -1064,9 +1065,13 @@ void Dimr::getAddress(
     double** sourceVarPtr,
     int* processes,
     int          nProc,
-    double* transfer)
+    double& transfer)
 {
     log->Write(ALL, my_rank, "Dimr::getAddress (%s)", name);
+
+    // These components only return a new pointer to a copy of the double value, so call it each time.
+    std::set<int> second_component_set = { COMP_TYPE_DEFAULT_BMI, COMP_TYPE_RTC, COMP_TYPE_FLOW1D, COMP_TYPE_FLOW1D2D, COMP_TYPE_FM };
+
     // The order is important: first catch the Wanda case:
     // Otherwise the "else if" part might be executed When "*sourceVarPtr==NULL" and "compType==COMP_TYPE_WANDA"
     if (compType == COMP_TYPE_WANDA) {
@@ -1076,18 +1081,10 @@ void Dimr::getAddress(
         // Wanda does not use pointers to internal structures:
         // - Use the DIMR-transfer array
         // - Note the added * in the dllGetVar call, when comparing with the dllGetVar call below
-        *sourceVarPtr = transfer;
+        *sourceVarPtr = &transfer;
         (dllGetVar)(name, (void**)(*sourceVarPtr));
-        log->Write(ALL, my_rank, "Dimr::getAddress:WANDA_GET: (%20.10f)", transfer);
     }
-    else if (compType == COMP_TYPE_DEFAULT_BMI ||
-        compType == COMP_TYPE_RTC ||
-        // compType == COMP_TYPE_RR ||
-        compType == COMP_TYPE_FLOW1D ||
-        compType == COMP_TYPE_FLOW1D2D ||
-        compType == COMP_TYPE_FM || // NOTE: pending new feature of specifying get_var by value/by reference, we now always get the new pointer from dflowfm (needed for UNST-1713).
-        *sourceVarPtr == NULL) {
-        // These components only return a new pointer to a copy of the double value, so call it each time.
+    else if (second_component_set.find(compType) != second_component_set.end() || *sourceVarPtr == NULL) {
         // sourceVarPtr=NULL: getVar not yet called for this parameter, probably because "send" is being called
         //                    via the toplevel "get_var"
         if (dllGetVar == NULL) {
