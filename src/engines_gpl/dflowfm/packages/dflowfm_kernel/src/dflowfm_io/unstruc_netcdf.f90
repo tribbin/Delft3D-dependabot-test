@@ -17376,6 +17376,12 @@ function write_array_with_dmiss_for_dry_cells_into_netcdf_file(ncid, id_tsp, id_
    integer                                         :: cell
    double precision, allocatable                   :: temp_array(:)
 
+   if ( .not. allocated(kfs) ) then
+       call mess(LEVEL_INFO, 'Dry cells are not "removed" in a map file due to the current implementation. Please contact DFM developers.')
+       ierr = unc_put_var_map(ncid, id_tsp, id_var, data_location, array, jabndnd=jabndnd)
+       return
+   end if
+      
    if ( size(array) /= size(kfs) ) then
        call mess(LEVEL_INFO, 'Dry cells are not "removed" in a map file due to the current implementation. Please contact DFM developers.')
        ierr = unc_put_var_map(ncid, id_tsp, id_var, data_location, array, jabndnd=jabndnd)
