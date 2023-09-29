@@ -1,5 +1,5 @@
 # create_library
-# Creates a library of a certain module with the assumption that all the Fortran source files are located within /src.
+# Creates a library of a certain module
 #
 # Argument
 # library_name : The name of the library to create.
@@ -13,6 +13,13 @@ function(create_library library_name source_group_name source_directory)
 endfunction()
 
 
+# create_library_recursive
+# Creates a library of a certain module by finding the source files recursively in a given source_directory.
+#
+# Argument
+# library_name : The name of the library to create.
+# source_group_name : The name of the root folder to group the source files in.
+# source_directory: directory where the source files exist.
 function(create_library_recursive library_name source_group_name source_directory)
     get_fortran_source_files_recusive(${source_directory} source)
     add_library(${library_name} ${source})
