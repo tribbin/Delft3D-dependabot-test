@@ -21,7 +21,7 @@ endfunction()
 # source_group_name : The name of the root folder to group the source files in.
 # source_directory: directory where the source files exist.
 function(create_library_recursive library_name source_group_name source_directory)
-    get_fortran_source_files_recusive(${source_directory} source)
+    get_fortran_source_files_recursive(${source_directory} source)
     add_library(${library_name} ${source})
     # Create the folder structure in visual studio ide
     source_group(TREE ${source_group_name} FILES ${source})
@@ -66,7 +66,7 @@ function(get_fortran_source_files source_directory source_files)
     set(${source_files} ${source} PARENT_SCOPE)
 endfunction()
 
-# get_fortran_source_files_recusive
+# get_fortran_source_files_recursive
 # Gathers Fortran *.f or *.f90 files from a given directory recurcivly.
 #
 # Argument
@@ -74,7 +74,7 @@ endfunction()
 #
 # Return
 # source_files : The source files that were gathered.
-function(get_fortran_source_files_recusive source_directory source_files)
+function(get_fortran_source_files_recursive source_directory source_files)
     file(GLOB_RECURSE source ${source_directory} *.f90
                         ${source_directory} *.F90
                         ${source_directory} *.for
