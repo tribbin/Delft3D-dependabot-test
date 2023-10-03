@@ -340,11 +340,6 @@ public :: fm_bott3d
    !! Execute
    !!
 
-   !e_scrn(:) = 0d0
-   !e_scrt(:) = 0d0
-   
-   !2DO: why these do not work?
-   !"the number of 
    e_scrn(:,:) = 0d0
    e_scrt(:,:) = 0d0
    
