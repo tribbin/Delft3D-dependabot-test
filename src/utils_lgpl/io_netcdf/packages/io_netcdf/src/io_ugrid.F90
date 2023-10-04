@@ -1028,7 +1028,7 @@ function ug_write_mesh_struct(ncid, meshids, networkids, crs, meshgeom, nnodeids
    ierr = ug_write_mesh_arrays(ncid, meshids, meshgeom%meshName, meshgeom%dim, UG_LOC_ALL2D, meshgeom%numNode, meshgeom%numEdge, meshgeom%numFace, meshgeom%maxNumFaceNodes, &
                                meshgeom%edge_nodes, meshgeom%face_nodes, meshgeom%edge_faces, meshgeom%face_edges, meshgeom%face_links, meshgeom%nodex, meshgeom%nodey, & ! meshgeom%nodez, &
                                meshgeom%edgex, meshgeom%edgey, meshgeom%facex, meshgeom%facey, &
-                               crs, -999, -999d0, meshgeom%start_index, meshgeom%numlayer, meshgeom%layertype, meshgeom%layer_zs, meshgeom%interface_zs, &
+                               crs, -999, -999d0, meshgeom%start_index, meshgeom%numLayer, meshgeom%layertype, meshgeom%layer_zs, meshgeom%interface_zs, &
                                networkids, network1dname, meshgeom%nnodex, meshgeom%nnodey, nnodeids, nnodelongnames, &
                                meshgeom%nedge_nodes(1,:), meshgeom%nedge_nodes(2,:), nbranchids, nbranchlongnames, meshgeom%nbranchlengths, meshgeom%nbranchgeometrynodes, meshgeom%nbranches, &
                                meshgeom%ngeopointx, meshgeom%ngeopointy, meshgeom%ngeometry, &
@@ -1144,7 +1144,7 @@ function ug_write_mesh_arrays(ncid, meshids, meshName, dim, dataLocs, numNode, n
       if (layerType == LAYERTYPE_OCEAN_SIGMA_Z .and. present(nsigma_opt)) then
          nsigma = nsigma_opt
       else if (layerType == LAYERTYPE_OCEANSIGMA) then
-         ! Code below depends on correctly set nsigma. For plain sigma layering: nsigma==numlayer.
+         ! Code below depends on correctly set nsigma. For plain sigma layering: nsigma==numLayer.
          nsigma = numLayer
       end if
    end if
@@ -1394,6 +1394,8 @@ function ug_write_mesh_arrays(ncid, meshids, meshName, dim, dataLocs, numNode, n
          ierr = nf90_put_att(ncid, meshids%varids(mid_interfacesigma), 'standard_name', 'ocean_sigma_coordinate')
          ierr = nf90_put_att(ncid, meshids%varids(mid_layersigma),     'long_name',     'Sigma coordinate of layer centres')
          ierr = nf90_put_att(ncid, meshids%varids(mid_interfacesigma), 'long_name',     'Sigma coordinate of layer interfaces')
+         ierr = nf90_put_att(ncid, meshids%varids(mid_layersigma),     '_FillValue',    dmiss)
+         ierr = nf90_put_att(ncid, meshids%varids(mid_interfacesigma), '_FillValue',    dmiss)
          ! See http://cfconventions.org/cf-conventions/cf-conventions.html#dimensionless-vertical-coordinate
          ! and http://cfconventions.org/cf-conventions/cf-conventions.html#_ocean_sigma_coordinate for info about formula_terms attribute for sigma coordinates.
 
@@ -1418,6 +1420,8 @@ function ug_write_mesh_arrays(ncid, meshids, meshName, dim, dataLocs, numNode, n
          ierr = nf90_put_att(ncid, meshids%varids(mid_interfacez), 'long_name',     'Vertical coordinate of layer interfaces')
          ierr = nf90_put_att(ncid, meshids%varids(mid_layerz),     'units',         'm')
          ierr = nf90_put_att(ncid, meshids%varids(mid_interfacez), 'units',         'm')
+         ierr = nf90_put_att(ncid, meshids%varids(mid_layerz),     '_FillValue',    dmiss)
+         ierr = nf90_put_att(ncid, meshids%varids(mid_interfacez), '_FillValue',    dmiss)
       endif
       if (layertype == LAYERTYPE_OCEAN_SIGMA_Z) then
          ! See http://cfconventions.org/cf-conventions/cf-conventions.html#_ocean_sigma_over_z_coordinate
@@ -1702,29 +1706,29 @@ function ug_write_mesh_arrays(ncid, meshids, meshName, dim, dataLocs, numNode, n
          if (associated(layer_zs)) then
             if (meshids%varids(mid_layerzs) > 0) then
                ierr = nf90_put_var(ncid, meshids%varids(mid_layerzs), layer_zs(1:numLayer-nsigma), start = (/ 1 /))
-               ierr = nf90_put_var(ncid, meshids%varids(mid_layerzs), layer_zs(numLayer-nsigma+1:numlayer)*depth_c, start=(/numlayer-nsigma+1/))
+               ierr = nf90_put_var(ncid, meshids%varids(mid_layerzs), layer_zs(numLayer-nsigma+1:numLayer)*depth_c, start=(/numLayer-nsigma+1/))
             endif
             if (meshids%varids(mid_layerz) > 0) then
                ierr = nf90_put_var(ncid, meshids%varids(mid_layerz),  layer_zs(1:numLayer-nsigma))
             endif
             if (meshids%varids(mid_layersigma) > 0) then
-               ierr = nf90_put_var(ncid, meshids%varids(mid_layersigma), layer_zs(numLayer-nsigma+1:numlayer),start=(/numlayer-nsigma+1/))
+               ierr = nf90_put_var(ncid, meshids%varids(mid_layersigma), layer_zs(numLayer-nsigma+1:numLayer), start=(/numLayer-nsigma+1/))
             endif
          endif ! layer_zs
 
          if (associated(interface_zs)) then
             if (meshids%varids(mid_interfacezs) > 0) then
                ! Combined z-sigma variable
-               ierr = nf90_put_var(ncid, meshids%varids(mid_interfacezs), interface_zs(1:numLayer + 1-nsigma), start = (/ 1 /))
-               ierr = nf90_put_var(ncid, meshids%varids(mid_interfacezs), interface_zs(numLayer + 2-nsigma:numlayer+1)*depth_c, start=(/numLayer + 2-nsigma/))
+               ierr = nf90_put_var(ncid, meshids%varids(mid_interfacezs), interface_zs(1:numLayer-nsigma+1), start = (/ 1 /))
+               ierr = nf90_put_var(ncid, meshids%varids(mid_interfacezs), interface_zs(numLayer-nsigma+2:numLayer+1)*depth_c, start=(/numLayer-nsigma+2/))
             endif
             if (meshids%varids(mid_interfacez) > 0) then
                ! Z-layers (also partly, when in combined ocean_sigma_z)
-               ierr = nf90_put_var(ncid, meshids%varids(mid_interfacez), interface_zs(1:numLayer + 1-nsigma))
+               ierr = nf90_put_var(ncid, meshids%varids(mid_interfacez),  interface_zs(1:numLayer-nsigma+1))
             endif
             if (meshids%varids(mid_interfacesigma) > 0) then
                ! sigma-layers (also partly, when in combined ocean_sigma_z)
-               ierr = nf90_put_var(ncid, meshids%varids(mid_interfacesigma), interface_zs(numLayer + 2-nsigma:numlayer+1),start=(/numLayer + 2-nsigma/))
+               ierr = nf90_put_var(ncid, meshids%varids(mid_interfacesigma), interface_zs(numLayer-nsigma+1:numLayer+1), start=(/numLayer-nsigma+1/))
             endif
          endif ! interface_zs
       endif ! numLayer
