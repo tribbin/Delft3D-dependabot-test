@@ -8,6 +8,7 @@ set(dflowfm_lib_module ${engines_gpl_path}/dflowfm/packages/dflowfm_lib)
 
 # Waq
 set(waq_module_path "${engines_gpl_path}/waq/packages")
+set(waq_initialization_module "${waq_module_path}/waq_initialization")
 set(waq_utils_c_module "${waq_module_path}/waq_utils_c")
 set(waq_utils_f_module "${waq_module_path}/waq_utils_f")
 set(waq_netcdf_module "${waq_module_path}/waq_netcdf")
@@ -23,7 +24,6 @@ set(delwaq_lib_module "${waq_module_path}/delwaq_lib")
 set(delwaq1_module "${waq_module_path}/delwaq1")
 set(delwaq2_module "${waq_module_path}/delwaq2")
 set(delwaq_lib_tests_module "${waq_module_path}/delwaq_lib_tests")
-set(waq_delftio_module "${waq_module_path}/waq_delftio/packages/waq_delftio")
 
 # Waves
 set(wave_module_path "${engines_gpl_path}/wave/packages")
