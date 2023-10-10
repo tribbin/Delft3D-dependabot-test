@@ -350,8 +350,6 @@ public :: fm_bott3d
                !
                ! Determine aks
                !
-               !                call dfexchg( fluxu(:,:,ll) ,1, kmax, dfloat, nm_pos, gdp)
-               !                call dfexchg( fluxv(:,:,ll) ,1, kmax, dfloat, nm_pos, gdp)
                do Lx = 1, lnx
                   if (wu_mor(Lx)==0d0) cycle
                   ac1 = acL(Lx)
