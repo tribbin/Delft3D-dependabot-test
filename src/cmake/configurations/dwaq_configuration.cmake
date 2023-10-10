@@ -1,6 +1,10 @@
 #
 # WAQ
 #=============
+if(NOT TARGET waq_definition)
+    add_subdirectory(${checkout_src_root}/${waq_definition_module} waq_definition)
+endif()
+
 if(NOT TARGET waq_plugin_wasteload)
     add_subdirectory(${checkout_src_root}/${waq_plugin_wasteload_module} waq_plugin_wasteload)
 endif()
