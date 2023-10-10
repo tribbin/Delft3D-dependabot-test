@@ -1753,10 +1753,7 @@ dimr_coupler* Dimr::getCoupler(const char* coupName) {
 //------------------------------------------------------------------------------
 // Search for a named coupler in the list of couplers
 bool Dimr::IsCouplerItemTypePTR(int couplerItem) {
-    if (couplerItem == ITEM_TYPE_PTR)
-        return true;
-    else
-        return false;
+    return couplerItem == ITEM_TYPE_PTR;
 }
 
 
