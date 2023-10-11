@@ -394,16 +394,16 @@ subroutine set_wave_parameters()
          end if
          
          ! In MPI case, partition ghost cells are filled properly already, open boundaires are not
-         call fill_open_boundary_cells_with_innner_values(nbndu, kbndu)
+         call fill_open_boundary_cells_with_inner_values(nbndu, kbndu)
          !
          ! waterlevels
-         call fill_open_boundary_cells_with_innner_values(nbndz, kbndz)
+         call fill_open_boundary_cells_with_inner_values(nbndz, kbndz)
          !
          !  normal-velocity boundaries
-         call fill_open_boundary_cells_with_innner_values(nbndn, kbndn)
+         call fill_open_boundary_cells_with_inner_values(nbndn, kbndn)
          !
          !  tangential-velocity boundaries
-         call fill_open_boundary_cells_with_innner_values(nbndt, kbndt)
+         call fill_open_boundary_cells_with_inner_values(nbndt, kbndt)
       end if
 
       if (jawave>0) then
