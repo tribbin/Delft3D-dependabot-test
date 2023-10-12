@@ -1728,9 +1728,8 @@ function ug_write_mesh_arrays(ncid, meshids, meshName, dim, dataLocs, numNode, n
             endif
             if (meshids%varids(mid_interfacesigma) > 0) then
                if (numLayer .eq. nsigma) then ! only sigma-layers
-                  ierr = nf90_put_var(ncid, meshids%varids(mid_interfacesigma), interface_zs(numLayer-nsigma+1:numLayer+1), start=(/numLayer-nsigma+1/))
+                  ierr = nf90_put_var(ncid, meshids%varids(mid_interfacesigma), interface_zs(1:numLayer+1), start=(/ 1 /))
                else ! sigma-layers (also partly, when in combined ocean_sigma_z)
-                  ierr = nf90_put_var(ncid, meshids%varids(mid_interfacesigma), -1d0, start=(/numLayer-nsigma+1/))
                   ierr = nf90_put_var(ncid, meshids%varids(mid_interfacesigma), interface_zs(numLayer-nsigma+2:numLayer+1), start=(/numLayer-nsigma+2/))
                endif
             endif
