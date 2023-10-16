@@ -40,7 +40,9 @@ set(oss_dependencies deltares_common
                      waq_kernel
                      waq_process
                      waq_utils_c
-                     waq_utils_f)
+                     waq_utils_f
+                     waq_definition
+                     )
 
 if(UNIX)
     target_link_libraries(${executable_name}

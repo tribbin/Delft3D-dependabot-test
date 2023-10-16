@@ -31,7 +31,9 @@ set(oss_dependencies deltares_common
                      waq_process
                      waq_validation
                      waq_utils_c
-                     waq_utils_f)
+                     waq_utils_f
+                     waq_definition
+                     )
 
 oss_include_libraries(${library_name} oss_dependencies)
 

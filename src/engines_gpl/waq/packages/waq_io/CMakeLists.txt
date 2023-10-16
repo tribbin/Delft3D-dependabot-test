@@ -20,7 +20,9 @@ set(oss_dependencies deltares_common
                      waq_netcdf
                      waq_validation
                      waq_utils_c
-                     waq_utils_f)
+                     waq_utils_f
+                     waq_definition
+                     )
 
 target_link_libraries(${library_name} ${oss_dependencies})
 oss_include_libraries(${library_name} oss_dependencies)

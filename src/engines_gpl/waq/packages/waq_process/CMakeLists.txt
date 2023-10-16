@@ -9,7 +9,9 @@ set(oss_dependencies deltares_common
                      solvesaphe
                      waq_data
                      waq_utils_c
-                     waq_utils_f)
+                     waq_utils_f
+                     waq_definition
+                     )
 
 oss_include_libraries(${library_name} oss_dependencies)
 target_link_libraries(${library_name} ${oss_dependencies})

@@ -32,7 +32,9 @@ set(oss_dependencies deltares_common
                      deltares_common_c
                      waq_process
                      waq_utils_c
-                     waq_utils_f)
+                     waq_utils_f
+                     waq_definition
+                     )
 
 set(oss_dependencies ${oss_dependencies})
 oss_include_libraries(${library_name} oss_dependencies)
