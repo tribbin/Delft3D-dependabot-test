@@ -50,6 +50,10 @@ if(NOT TARGET waq_process)
     add_subdirectory(${checkout_src_root}/${waq_process_module} waq_process)
 endif()
 
+if(NOT TARGET waq_hyd_data)
+    add_subdirectory(${checkout_src_root}/${waq_hyd_data_module} waq_hyd_data)
+endif()
+
 if(NOT TARGET wq_processes)
     add_subdirectory(${checkout_src_root}/${wq_processes_module} wq_processes)
 endif()
