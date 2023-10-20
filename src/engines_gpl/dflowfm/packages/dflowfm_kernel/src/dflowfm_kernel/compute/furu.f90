@@ -135,7 +135,7 @@
 
           cu    = gdxi*teta(L)
           du    = dti*u0(L) - adve(L) + gdxi*slopec
-          if (jaPure1D == 4) then
+          if (jaPure1D == 4) then 
               ds    = s0(k2) + ds1u(2,L) - s0(k1) - ds1u(1,L)
           else
               ds    = s0(k2) - s0(k1)
