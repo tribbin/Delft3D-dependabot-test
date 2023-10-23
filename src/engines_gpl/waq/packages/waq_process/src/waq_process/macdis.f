@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_macdis
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -41,58 +43,58 @@
 !
 !     Type    Name         I/O Description
 !
-      REAL(4) PMSA(*)     !I/O Process Manager System Array, window of routine to process library
-      REAL(4) FL(*)       ! O  Array of fluxes made by this process in mass/volume/time
-      INTEGER IPOINT(14)  ! I  Array of pointers in PMSA to get and store the data
-      INTEGER INCREM(14)  ! I  Increments in IPOINT for segment loop, 0=constant, 1=spatially varying
-      INTEGER NOSEG       ! I  Number of computational elements in the whole model schematisation
-      INTEGER NOFLUX      ! I  Number of fluxes, increment in the FL array
-      INTEGER IEXPNT(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      INTEGER IKNMRK(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      INTEGER NOQ1        ! I  Nr of exchanges in 1st direction, only horizontal dir if irregular mesh
-      INTEGER NOQ2        ! I  Nr of exchanges in 2nd direction, NOQ1+NOQ2 gives hor. dir. reg. grid
-      INTEGER NOQ3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      INTEGER NOQ4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
-      INTEGER IPNT(14)    !    Local work array for the pointering
-      INTEGER ISEG        !    Local loop counter for computational element loop
+      REAL(kind=sp) :: PMSA(*)      !I/O Process Manager System Array, window of routine to process library
+      REAL(kind=sp) :: FL(*)        ! O  Array of fluxes made by this process in mass/volume/time
+      INTEGER(kind=int_32) :: IPOINT(14)   ! I  Array of pointers in PMSA to get and store the data
+      INTEGER(kind=int_32) :: INCREM(14)   ! I  Increments in IPOINT for segment loop, 0=constant, 1=spatially varying
+      INTEGER(kind=int_32) :: NOSEG        ! I  Number of computational elements in the whole model schematisation
+      INTEGER(kind=int_32) :: NOFLUX       ! I  Number of fluxes, increment in the FL array
+      INTEGER(kind=int_32) :: IEXPNT(4,*)  ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      INTEGER(kind=int_32) :: IKNMRK(*)    ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      INTEGER(kind=int_32) :: NOQ1         ! I  Nr of exchanges in 1st direction, only horizontal dir if irregular mesh
+      INTEGER(kind=int_32) :: NOQ2         ! I  Nr of exchanges in 2nd direction, NOQ1+NOQ2 gives hor. dir. reg. grid
+      INTEGER(kind=int_32) :: NOQ3         ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      INTEGER(kind=int_32) :: NOQ4         ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      INTEGER(kind=int_32) :: IPNT(14)     !    Local work array for the pointering
+      INTEGER(kind=int_32) :: ISEG         !    Local loop counter for computational element loop
 !*******************************************************************************
 !
 !     Type    Name         I/O Description                                        Unit
 !
-      REAL(4) Surf        ! I  surface of segment                            (m2)
-      REAL(4) Depth       ! I  depth of segment                               (m)
-      REAL(4) TotalDepth  ! I  total depth water column                       (m)
-      REAL(4) LocalDepth  ! I  depth from water surface to bottom of segment  (m)
-      REAL(4) SM          ! I  macrophyte submerged                       (gC/m2)
-      REAL(4) smmax       ! I  Maximum biomass macrophyte submerged       (gC/m2)
-      REAL(4) SwDisSM     ! I  macrophyt distr. function (1: lin, 2:Exp)      (-)
-      REAL(4) Hmax        ! I  Maxmimum Length Macrophytes                    (m)
-      REAL(4) Ffac        ! I  Form factor lin: F = M(mean)/(M/Hmax)          (-)
-      REAL(4) BmLaySM     ! O  Biomass Layer macrophyt submerged 01       (gC/m2)
-      REAL(4) Hact        ! O  Actual Length Macrophytes                      (m)
-      REAL(4) Z2          !    Height Bottom Segment from Bottom              (m)
-      REAL(4) Z1          !    Height Top Segment from Bottom                 (m)
-      REAL(4) Z2a         !    Height Bottom Segment from Bottom              (m)
-      REAL(4) Z1a         !    Height Top Segment from Bottom                 (m)
-      REAL(4) Hactd       !    Actual Length Macrophytes - relative to top    (-)
-      REAL(4) Z2ad        !    Height Bottom Segment from Bottom - relative   (-)
-      REAL(4) Z1ad        !    Height Top Segment from Bottom - relative      (-)
-      REAL(4) absHmax     !    Absolute maxmimum Length Macrophytes           (m)
-      INTEGER IKMRK1
-      INTEGER IKMRK2
-      REAL(4) FrBmLay     !    Fraction BM per layer                          (-)
-      REAL(4) Zm          !    Watersurface to top Macropyte                  (-)
-      REAL(4) A           !    Lineair factor A (Ax + B)                      (-)
-      REAL(4) B           !    Lineair factor B (Ax + B)                      (-)
-      REAL(4) OriginalDepth
-c     INTEGER IQ          !    Loop counter
+      REAL(kind=sp) :: Surf         ! I  surface of segment                            (m2)
+      REAL(kind=sp) :: Depth        ! I  depth of segment                               (m)
+      REAL(kind=sp) :: TotalDepth   ! I  total depth water column                       (m)
+      REAL(kind=sp) :: LocalDepth   ! I  depth from water surface to bottom of segment  (m)
+      REAL(kind=sp) :: SM           ! I  macrophyte submerged                       (gC/m2)
+      REAL(kind=sp) :: smmax        ! I  Maximum biomass macrophyte submerged       (gC/m2)
+      REAL(kind=sp) :: SwDisSM      ! I  macrophyt distr. function (1: lin, 2:Exp)      (-)
+      REAL(kind=sp) :: Hmax         ! I  Maxmimum Length Macrophytes                    (m)
+      REAL(kind=sp) :: Ffac         ! I  Form factor lin: F = M(mean)/(M/Hmax)          (-)
+      REAL(kind=sp) :: BmLaySM      ! O  Biomass Layer macrophyt submerged 01       (gC/m2)
+      REAL(kind=sp) :: Hact         ! O  Actual Length Macrophytes                      (m)
+      REAL(kind=sp) :: Z2           !    Height Bottom Segment from Bottom              (m)
+      REAL(kind=sp) :: Z1           !    Height Top Segment from Bottom                 (m)
+      REAL(kind=sp) :: Z2a          !    Height Bottom Segment from Bottom              (m)
+      REAL(kind=sp) :: Z1a          !    Height Top Segment from Bottom                 (m)
+      REAL(kind=sp) :: Hactd        !    Actual Length Macrophytes - relative to top    (-)
+      REAL(kind=sp) :: Z2ad         !    Height Bottom Segment from Bottom - relative   (-)
+      REAL(kind=sp) :: Z1ad         !    Height Top Segment from Bottom - relative      (-)
+      REAL(kind=sp) :: absHmax      !    Absolute maxmimum Length Macrophytes           (m)
+      INTEGER(kind=int_32) :: IKMRK1
+      INTEGER IKMRK2 
+      REAL(kind=sp) :: FrBmLay      !    Fraction BM per layer                          (-)
+      REAL(kind=sp) :: Zm           !    Watersurface to top Macropyte                  (-)
+      REAL(kind=sp) :: A            !    Lineair factor A (Ax + B)                      (-)
+      REAL(kind=sp) :: B            !    Lineair factor B (Ax + B)                      (-)
+      REAL(kind=sp) :: OriginalDepth
+c     INTEGER IQ           !    Loop counter
 c     INTEGER Ifrom       !    From Segment
 c     INTEGER Ito         !    From Segment
 c     LOGICAL First
 
-      INTEGER :: LUNREP
+      INTEGER(kind=int_32) ::  LUNREP
 
-      INTEGER IBotSeg     ! Bottom Segment for Macrophyte
+      INTEGER IBotSeg      ! Bottom Segment for Macrophyte
 !     INTEGER ITopSeg     ! Top    Segment for Macrophyte
 !*******************************************************************************
 
@@ -156,7 +158,7 @@ c     LOGICAL First
 
 !              Check Ffac: 0,1 or 2
 
-               If (Ffac  .LT.  0 .OR. Ffac . GT. 2) Then
+               If (Ffac  .LT.  0 .OR. Ffac .GT. 2) Then
                   call getmlu( lunrep )
                   write (lunrep,*) 'MACDIS: Illegal option for Macrophyte form factor - should be between 0 and 2'
                   write (lunrep,*) '   Value now: ', ffac
@@ -173,7 +175,7 @@ c     LOGICAL First
                If (Zm .GT. Z2) Then
                   BmLaySM = 0
 !                 Macropyhte is completely in segment:
-               Elseif (Zm . LT. Z1 ) Then
+               Elseif (Zm .LT. Z1 ) Then
                   BmLaySM = (A/2)  * (Z2**2 -Z1**2) + B * (Z2 -Z1)
 !                 Macropyhte is partialy in segment: TIP !!!!
                Else
@@ -202,7 +204,7 @@ c     LOGICAL First
                If (Hact .LT. Z1a) Then
                   BmLaySM = 0
 !              Macrophyte is completely in segment:
-               Elseif (Hact . GT. Z2a) Then
+               Elseif (Hact .GT. Z2a) Then
                   BmLaySM = A * ( (exp(Ffac * Z2ad) - exp(Ffac * Z1ad)) / Ffac - (Z2ad - Z1ad) )
 !              Macrophyte is partially in segment: TIP !!!
                Else

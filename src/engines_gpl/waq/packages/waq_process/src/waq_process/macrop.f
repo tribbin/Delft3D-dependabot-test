@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_macrop
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -40,172 +42,172 @@
 !
 !     Type    Name         I/O Description
 !
-      REAL(4) PMSA(*)     !I/O Process Manager System Array, window of routine to process library
-      REAL(4) FL(*)       ! O  Array of fluxes made by this process in mass/volume/time
-      INTEGER IPOINT(66)   ! I  Array of pointers in PMSA to get and store the data
-      INTEGER INCREM(66)   ! I  Increments in IPOINT for segment loop, 0=constant, 1=spatially varying
-      INTEGER NOSEG       ! I  Number of computational elements in the whole model schematisation
-      INTEGER NOFLUX      ! I  Number of fluxes, increment in the FL array
-      INTEGER IEXPNT(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      INTEGER IKNMRK(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      INTEGER NOQ1        ! I  Nr of exchanges in 1st direction, only horizontal dir if irregular mesh
-      INTEGER NOQ2        ! I  Nr of exchanges in 2nd direction, NOQ1+NOQ2 gives hor. dir. reg. grid
-      INTEGER NOQ3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      INTEGER NOQ4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
-      INTEGER IPNT( 66)   !    Local work array for the pointering
-      INTEGER ISEG        !    Local loop counter for computational element loop
+      REAL(kind=sp) ::PMSA(*)     !I/O Process Manager System Array, window of routine to process library
+      REAL(kind=sp) ::FL(*)       ! O  Array of fluxes made by this process in mass/volume/time
+      INTEGER(kind=int_32) ::IPOINT(66)   ! I  Array of pointers in PMSA to get and store the data
+      INTEGER(kind=int_32) ::INCREM(66)   ! I  Increments in IPOINT for segment loop, 0=constant, 1=spatially varying
+      INTEGER(kind=int_32) ::NOSEG       ! I  Number of computational elements in the whole model schematisation
+      INTEGER(kind=int_32) ::NOFLUX      ! I  Number of fluxes, increment in the FL array
+      INTEGER(kind=int_32) ::IEXPNT(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      INTEGER(kind=int_32) ::IKNMRK(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      INTEGER(kind=int_32) ::NOQ1        ! I  Nr of exchanges in 1st direction, only horizontal dir if irregular mesh
+      INTEGER(kind=int_32) ::NOQ2        ! I  Nr of exchanges in 2nd direction, NOQ1+NOQ2 gives hor. dir. reg. grid
+      INTEGER(kind=int_32) ::NOQ3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      INTEGER(kind=int_32) ::NOQ4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      INTEGER(kind=int_32) ::IPNT( 66)   !    Local work array for the pointering
+      INTEGER(kind=int_32) ::ISEG        !    Local loop counter for computational element loop
 !
 !*******************************************************************************
 !
 !     Type    Name         I/O Description                                        Unit
 !
-      REAL(4) EM01        ! I  macrophyt emerged 01                               (gC)
-      REAL(4) SM01        ! I  macrophyt submerged 01                             (gC)
-      REAL(4) RH01        ! I  macrophyt rhizome 01                               (gC)
-      REAL(4) NRH01       ! I  nitrogen content macrophyt rhizome 01              (gN)
-      REAL(4) PRH01       ! I  phosphorus content macrophyt rhizome 01            (gP)
-      REAL(4) MaxEM01     ! I  maximum biomass for macrophyt emerged 01           (gC)
-      REAL(4) MaxSM01     ! I  maximum biomass for macrophyt submerged 01         (gC)
-      REAL(4) PPmaxEM01   ! I  potential growth rate macrophyt emerged 01         (1/d)
-      REAL(4) PPmaxSM01   ! I  potential growth rate macrophyt submerged 01       (1/d)
-      REAL(4) EM01thresh  ! I  threshold biomass EM01 in growth                   (gC/m2)
-      REAL(4) SM01thresh  ! I  threshold biomass SM01 in growth                   (gC/m2)
-      REAL(4) RH01min     ! I  minimal biomass RH01                               (gC/m2)
-      REAL(4) NRH01min    ! I  minimal NRH01                                      (gN/m2)
-      REAL(4) PRH01min    ! I  minimal PRH01                                      (gP/m2)
-      REAL(4) NH4crEM01   ! I  critical NH4 conc. macrophyt emerged 01            (gN/m3)
-      REAL(4) NO3crEM01   ! I  critical NO3 conc. macrophyt emerged 01            (gN/m3)
-      REAL(4) PO4crEM01   ! I  critical PO4 conc. macrophyt emerged 01            (gN/m3)
-      REAL(4) CO2crSM01   ! I  critical CO2 conc. macrophyt submerged 01          (g/m3)
-      REAL(4) NH4         ! I  Ammonium (NH4)                                     (gN/m3)
-      REAL(4) NO3         ! I  Nitrate (NO3)                                      (gN/m3)
-      REAL(4) PO4         ! I  Ortho-Phosphate (PO4)                              (gP/m3)
-      REAL(4) LimNutSm01  ! I  nutrient (N,P,C) limitation                        (-)
-      REAL(4) LimRadSM01  ! I  radiation limitation function SM01 <0-1>           (-)
-      REAL(4) MinDLEM01   ! I  minimal daylength for growth EM01                  (d)
-      REAL(4) OptDLEM01   ! I  daylength for growth saturation EM01               (d)
-      REAL(4) MinDLSM01   ! I  minimal daylength for growth EM01                  (d)
-      REAL(4) OptDLSM01   ! I  daylength for growth saturation EM01               (d)
-      REAL(4) DayL        ! I  daylength <0-1>                                    (d)
-      REAL(4) TcritEM01   ! I  critical temperature for growth EM01               (oC)
-      REAL(4) TcPMxEM01   ! I  temperature coefficient for growth EM01            (-)
-      REAL(4) TcritSM01   ! I  critical temperature for growth SM01               (oC)
-      REAL(4) TcPMxSM01   ! I  temperature coefficient for growth SM01            (-)
-      REAL(4) Temp        ! I  ambient water temperature                          (oC)
-      REAL(4) K1DecaEM01  ! I  first order autumn decay rate EM01                 (1/d)
-      REAL(4) TcDecaEM01  ! I  temperature coefficient for decay EM01             (-)
-      REAL(4) K1DecaSM01  ! I  first order autumn decay rate SM01                 (1/d)
-      REAL(4) TcDecaSM01  ! I  temperature coefficient for decay SM01             (-)
-      REAL(4) FrEMtoRH01  ! I  fraction EM that becomes RH01                      (-)
-      REAL(4) FrSMtoRH01  ! I  fraction SM that becomes RH01                      (-)
-      REAL(4) NCRatEM01   ! I  N:C ratio EM01                                     (gN/gC)
-      REAL(4) PCRatEM01   ! I  P:C ratio EM01                                     (gP/gC)
-      REAL(4) NCRatSM01   ! I  N:C ratio SM01                                     (gN/gC)
-      REAL(4) PCRatSM01   ! I  P:C ratio SM01                                     (gP/gC)
-      REAL(4) NCRatRH01   ! I  N:C ratio RH01                                     (gN/gC)
-      REAL(4) PCRatRH01   ! I  P:C ratio RH01                                     (gP/gC)
-      REAL(4) FrPOC1EM01  ! I  fraction of decay EM01 that becomes POC1           (-)
-      REAL(4) FrPOC2EM01  ! I  fraction of decay EM01 that becomes POC2           (-)
-      REAL(4) FrPOC3EM01  ! I  fraction of decay EM01 that becomes POC3           (-)
-      REAL(4) FrPOC1SM01  ! I  fraction of decay SM01 that becomes POC1           (-)
-      REAL(4) FrPOC2SM01  ! I  fraction of decay SM01 that becomes POC2           (-)
-      REAL(4) FrPOC3SM01  ! I  fraction of decay SM01 that becomes POC3           (-)
-      REAL(4) Surf        ! I  horizontal surface area of a DELWAQ segment        (m2)
-      REAL(4) DELT        ! I  timestep for processes                             (d)
-      REAL(4) Depth       ! I  depth of segment                                   (m)
-      REAL(4) EM01M2      ! O  emerged macrophyt 1 per square metre               (gC/m2)
-      REAL(4) SM01M2      ! O  submerged macrophyt 1 per square metre             (gC/m2)
-      REAL(4) RH01M2      ! O  rhizome macrophyt 1 per square metre               (gC/m2)
-      REAL(4) LimNH4EM01  ! O  NH4 limitation function for EM01 <0-1>             (-)
-      REAL(4) LimNO3EM01  ! O  NO3 limitation function for EM01 <0-1>             (-)
-      REAL(4) LimPO4EM01  ! O  PO4 limitation function for EM01 <0-1>             (-)
-      REAL(4) LimNutEM01  ! O  nutrient limitation function for EM01 <0-1>        (-)
-      REAL(4) LimCO2SM01  ! O  CO2 limitation function for SM01 <0-1>             (-)
-      REAL(4) LimDLEM01   ! O  daylength limitation function for EM01 <0-1>       (-)
-      REAL(4) LimDLSM01   ! O  daylength limitation function for SM01 <0-1>       (-)
-      REAL(4) LimTEM01    ! O  temperature limitation function for EM01 <0-1>     (-)
-      REAL(4) LimTSM01    ! O  temperature limitation function for SM01 <0-1>     (-)
-      REAL(4) dGrowEM01   ! F  growth of EM01 species                             (gC/m3/d)
-      REAL(4) dGrowSM01   ! F  growth of SM01 species                             (gC/m3/d)
-      REAL(4) dDecayEM01  ! F  decay of EM01 species                              (gC/m3/d)
-      REAL(4) dDecaySM01  ! F  decay of SM01 species                              (gC/m3/d)
-      REAL(4) dCtEMtRH01  ! F  translocation of C from EM to RH01                 (gC/m3/d)
-      REAL(4) dCtSMtRH01  ! F  translocation of C from SM to RH01                 (gC/m3/d)
-      REAL(4) dCtRHtEM01  ! F  translocation of C from RH to EM01                 (gC/m3/d)
-      REAL(4) dCtRHtSM01  ! F  translocation of C from RH to SM01                 (gC/m3/d)
-      REAL(4) dNtEMtRH01  ! F  translocation of N from EM to RH01                 (gN/m3/d)
-      REAL(4) dNtSMtRH01  ! F  translocation of N from SM to RH01                 (gN/m3/d)
-      REAL(4) dNtRHtEM01  ! F  translocation of N from RH to EM01                 (gN/m3/d)
-      REAL(4) dNtRHtSM01  ! F  translocation of N from RH to SM01                 (gN/m3/d)
-      REAL(4) dPtEMtRH01  ! F  translocation of P from EM to RH01                 (gP/m3/d)
-      REAL(4) dPtSMtRH01  ! F  translocation of P from SM to RH01                 (gP/m3/d)
-      REAL(4) dPtRHtEM01  ! F  translocation of P from RH to EM01                 (gP/m3/d)
-      REAL(4) dPtRHtSM01  ! F  translocation of P from RH to SM01                 (gP/m3/d)
-      REAL(4) dNH4upEM01  ! F  NH4 uptake by EM01                                 (gN/m3/d)
-      REAL(4) dNO3upEM01  ! F  NO3 uptake by EM01                                 (gN/m3/d)
-      REAL(4) dPO4upEM01  ! F  PO4 uptake by EM01                                 (gP/m3/d)
-      REAL(4) dNupSM01    ! F  uptake flux nitrogen SM01                          (gN/m3/d)
-      REAL(4) dPupSM01    ! F  uptake flux phosphorus SM01                        (gP/m3/d)
-      REAL(4) dPrPOC1M01  ! F  POC1 production macrophyt 1                        (gC/m3/d)
-      REAL(4) dPrPOC2M01  ! F  POC2 production macrophyt 1                        (gC/m3/d)
-      REAL(4) dPrPOC3M01  ! F  POC3 production macrophyt 1                        (gC/m3/d)
-      REAL(4) dPrPON1M01  ! F  PON1 production macrophyt 1                        (gN/m3/d)
-      REAL(4) dPrPON2M01  ! F  PON2 production macrophyt 1                        (gN/m3/d)
-      REAL(4) dPrPON3M01  ! F  PON3 production macrophyt 1                        (gN/m3/d)
-      REAL(4) dPrPOP1M01  ! F  POP1 production macrophyt 1                        (gP/m3/d)
-      REAL(4) dPrPOP2M01  ! F  POP2 production macrophyt 1                        (gP/m3/d)
-      REAL(4) dPrPOP3M01  ! F  POP3 production macrophyt 1                        (gP/m3/d)
-      REAL(4) dSM01OXY    ! F  oxygen production SM01                             (gO/m3/d)
-      REAL(4) dSM01CO2    ! F  CO2 uptake SM01                                    (gO/m3/d)
-      INTEGER IdGrowEM01  !    Pointer to the growth of EM01 species
-      INTEGER IdGrowSM01  !    Pointer to the growth of SM01 species
-      INTEGER IdDecayEM01 !    Pointer to the decay of EM01 species
-      INTEGER IdDecaySM01 !    Pointer to the decay of SM01 species
-      INTEGER IdCtEMtRH01 !    Pointer to the translocation of C from EM to RH01
-      INTEGER IdCtSMtRH01 !    Pointer to the translocation of C from SM to RH01
-      INTEGER IdCtRHtEM01 !    Pointer to the translocation of C from RH to EM01
-      INTEGER IdCtRHtSM01 !    Pointer to the translocation of C from RH to SM01
-      INTEGER IdNtEMtRH01 !    Pointer to the translocation of N from EM to RH01
-      INTEGER IdNtSMtRH01 !    Pointer to the translocation of N from SM to RH01
-      INTEGER IdNtRHtEM01 !    Pointer to the translocation of N from RH to EM01
-      INTEGER IdNtRHtSM01 !    Pointer to the translocation of N from RH to SM01
-      INTEGER IdPtEMtRH01 !    Pointer to the translocation of P from EM to RH01
-      INTEGER IdPtSMtRH01 !    Pointer to the translocation of P from SM to RH01
-      INTEGER IdPtRHtEM01 !    Pointer to the translocation of P from RH to EM01
-      INTEGER IdPtRHtSM01 !    Pointer to the translocation of P from RH to SM01
-      INTEGER IdNH4upEM01 !    Pointer to the NH4 uptake by EM01
-      INTEGER IdNO3upEM01 !    Pointer to the NO3 uptake by EM01
-      INTEGER IdPO4upEM01 !    Pointer to the PO4 uptake by EM01
-      INTEGER IdNupSM01   !    Pointer to the uptake flux nitrogen SM01
-      INTEGER IdPupSM01   !    Pointer to the uptake flux phosphorus SM01
-      INTEGER IdPrPOC1M01 !    Pointer to the POC1 production macrophyt 1
-      INTEGER IdPrPOC2M01 !    Pointer to the POC2 production macrophyt 1
-      INTEGER IdPrPOC3M01 !    Pointer to the POC3 production macrophyt 1
-      INTEGER IdPrPON1M01 !    Pointer to the PON1 production macrophyt 1
-      INTEGER IdPrPON2M01 !    Pointer to the PON2 production macrophyt 1
-      INTEGER IdPrPON3M01 !    Pointer to the PON3 production macrophyt 1
-      INTEGER IdPrPOP1M01 !    Pointer to the POP1 production macrophyt 1
-      INTEGER IdPrPOP2M01 !    Pointer to the POP2 production macrophyt 1
-      INTEGER IdPrPOP3M01 !    Pointer to the POP3 production macrophyt 1
-      INTEGER IdSM01OXY   !    Pointer to the oxygen production SM01
-      INTEGER IdSM01CO2   !    Pointer to the CO2 uptake SM01
+      REAL(kind=sp) ::EM01        ! I  macrophyt emerged 01                               (gC)
+      REAL(kind=sp) ::SM01        ! I  macrophyt submerged 01                             (gC)
+      REAL(kind=sp) ::RH01        ! I  macrophyt rhizome 01                               (gC)
+      REAL(kind=sp) ::NRH01       ! I  nitrogen content macrophyt rhizome 01              (gN)
+      REAL(kind=sp) ::PRH01       ! I  phosphorus content macrophyt rhizome 01            (gP)
+      REAL(kind=sp) ::MaxEM01     ! I  maximum biomass for macrophyt emerged 01           (gC)
+      REAL(kind=sp) ::MaxSM01     ! I  maximum biomass for macrophyt submerged 01         (gC)
+      REAL(kind=sp) ::PPmaxEM01   ! I  potential growth rate macrophyt emerged 01         (1/d)
+      REAL(kind=sp) ::PPmaxSM01   ! I  potential growth rate macrophyt submerged 01       (1/d)
+      REAL(kind=sp) ::EM01thresh  ! I  threshold biomass EM01 in growth                   (gC/m2)
+      REAL(kind=sp) ::SM01thresh  ! I  threshold biomass SM01 in growth                   (gC/m2)
+      REAL(kind=sp) ::RH01min     ! I  minimal biomass RH01                               (gC/m2)
+      REAL(kind=sp) ::NRH01min    ! I  minimal NRH01                                      (gN/m2)
+      REAL(kind=sp) ::PRH01min    ! I  minimal PRH01                                      (gP/m2)
+      REAL(kind=sp) ::NH4crEM01   ! I  critical NH4 conc. macrophyt emerged 01            (gN/m3)
+      REAL(kind=sp) ::NO3crEM01   ! I  critical NO3 conc. macrophyt emerged 01            (gN/m3)
+      REAL(kind=sp) ::PO4crEM01   ! I  critical PO4 conc. macrophyt emerged 01            (gN/m3)
+      REAL(kind=sp) ::CO2crSM01   ! I  critical CO2 conc. macrophyt submerged 01          (g/m3)
+      REAL(kind=sp) ::NH4         ! I  Ammonium (NH4)                                     (gN/m3)
+      REAL(kind=sp) ::NO3         ! I  Nitrate (NO3)                                      (gN/m3)
+      REAL(kind=sp) ::PO4         ! I  Ortho-Phosphate (PO4)                              (gP/m3)
+      REAL(kind=sp) ::LimNutSm01  ! I  nutrient (N,P,C) limitation                        (-)
+      REAL(kind=sp) ::LimRadSM01  ! I  radiation limitation function SM01 <0-1>           (-)
+      REAL(kind=sp) ::MinDLEM01   ! I  minimal daylength for growth EM01                  (d)
+      REAL(kind=sp) ::OptDLEM01   ! I  daylength for growth saturation EM01               (d)
+      REAL(kind=sp) ::MinDLSM01   ! I  minimal daylength for growth EM01                  (d)
+      REAL(kind=sp) ::OptDLSM01   ! I  daylength for growth saturation EM01               (d)
+      REAL(kind=sp) ::DayL        ! I  daylength <0-1>                                    (d)
+      REAL(kind=sp) ::TcritEM01   ! I  critical temperature for growth EM01               (oC)
+      REAL(kind=sp) ::TcPMxEM01   ! I  temperature coefficient for growth EM01            (-)
+      REAL(kind=sp) ::TcritSM01   ! I  critical temperature for growth SM01               (oC)
+      REAL(kind=sp) ::TcPMxSM01   ! I  temperature coefficient for growth SM01            (-)
+      REAL(kind=sp) ::Temp        ! I  ambient water temperature                          (oC)
+      REAL(kind=sp) ::K1DecaEM01  ! I  first order autumn decay rate EM01                 (1/d)
+      REAL(kind=sp) ::TcDecaEM01  ! I  temperature coefficient for decay EM01             (-)
+      REAL(kind=sp) ::K1DecaSM01  ! I  first order autumn decay rate SM01                 (1/d)
+      REAL(kind=sp) ::TcDecaSM01  ! I  temperature coefficient for decay SM01             (-)
+      REAL(kind=sp) ::FrEMtoRH01  ! I  fraction EM that becomes RH01                      (-)
+      REAL(kind=sp) ::FrSMtoRH01  ! I  fraction SM that becomes RH01                      (-)
+      REAL(kind=sp) ::NCRatEM01   ! I  N:C ratio EM01                                     (gN/gC)
+      REAL(kind=sp) ::PCRatEM01   ! I  P:C ratio EM01                                     (gP/gC)
+      REAL(kind=sp) ::NCRatSM01   ! I  N:C ratio SM01                                     (gN/gC)
+      REAL(kind=sp) ::PCRatSM01   ! I  P:C ratio SM01                                     (gP/gC)
+      REAL(kind=sp) ::NCRatRH01   ! I  N:C ratio RH01                                     (gN/gC)
+      REAL(kind=sp) ::PCRatRH01   ! I  P:C ratio RH01                                     (gP/gC)
+      REAL(kind=sp) ::FrPOC1EM01  ! I  fraction of decay EM01 that becomes POC1           (-)
+      REAL(kind=sp) ::FrPOC2EM01  ! I  fraction of decay EM01 that becomes POC2           (-)
+      REAL(kind=sp) ::FrPOC3EM01  ! I  fraction of decay EM01 that becomes POC3           (-)
+      REAL(kind=sp) ::FrPOC1SM01  ! I  fraction of decay SM01 that becomes POC1           (-)
+      REAL(kind=sp) ::FrPOC2SM01  ! I  fraction of decay SM01 that becomes POC2           (-)
+      REAL(kind=sp) ::FrPOC3SM01  ! I  fraction of decay SM01 that becomes POC3           (-)
+      REAL(kind=sp) ::Surf        ! I  horizontal surface area of a DELWAQ segment        (m2)
+      REAL(kind=sp) ::DELT        ! I  timestep for processes                             (d)
+      REAL(kind=sp) ::Depth       ! I  depth of segment                                   (m)
+      REAL(kind=sp) ::EM01M2      ! O  emerged macrophyt 1 per square metre               (gC/m2)
+      REAL(kind=sp) ::SM01M2      ! O  submerged macrophyt 1 per square metre             (gC/m2)
+      REAL(kind=sp) ::RH01M2      ! O  rhizome macrophyt 1 per square metre               (gC/m2)
+      REAL(kind=sp) ::LimNH4EM01  ! O  NH4 limitation function for EM01 <0-1>             (-)
+      REAL(kind=sp) ::LimNO3EM01  ! O  NO3 limitation function for EM01 <0-1>             (-)
+      REAL(kind=sp) ::LimPO4EM01  ! O  PO4 limitation function for EM01 <0-1>             (-)
+      REAL(kind=sp) ::LimNutEM01  ! O  nutrient limitation function for EM01 <0-1>        (-)
+      REAL(kind=sp) ::LimCO2SM01  ! O  CO2 limitation function for SM01 <0-1>             (-)
+      REAL(kind=sp) ::LimDLEM01   ! O  daylength limitation function for EM01 <0-1>       (-)
+      REAL(kind=sp) ::LimDLSM01   ! O  daylength limitation function for SM01 <0-1>       (-)
+      REAL(kind=sp) ::LimTEM01    ! O  temperature limitation function for EM01 <0-1>     (-)
+      REAL(kind=sp) ::LimTSM01    ! O  temperature limitation function for SM01 <0-1>     (-)
+      REAL(kind=sp) ::dGrowEM01   ! F  growth of EM01 species                             (gC/m3/d)
+      REAL(kind=sp) ::dGrowSM01   ! F  growth of SM01 species                             (gC/m3/d)
+      REAL(kind=sp) ::dDecayEM01  ! F  decay of EM01 species                              (gC/m3/d)
+      REAL(kind=sp) ::dDecaySM01  ! F  decay of SM01 species                              (gC/m3/d)
+      REAL(kind=sp) ::dCtEMtRH01  ! F  translocation of C from EM to RH01                 (gC/m3/d)
+      REAL(kind=sp) ::dCtSMtRH01  ! F  translocation of C from SM to RH01                 (gC/m3/d)
+      REAL(kind=sp) ::dCtRHtEM01  ! F  translocation of C from RH to EM01                 (gC/m3/d)
+      REAL(kind=sp) ::dCtRHtSM01  ! F  translocation of C from RH to SM01                 (gC/m3/d)
+      REAL(kind=sp) ::dNtEMtRH01  ! F  translocation of N from EM to RH01                 (gN/m3/d)
+      REAL(kind=sp) ::dNtSMtRH01  ! F  translocation of N from SM to RH01                 (gN/m3/d)
+      REAL(kind=sp) ::dNtRHtEM01  ! F  translocation of N from RH to EM01                 (gN/m3/d)
+      REAL(kind=sp) ::dNtRHtSM01  ! F  translocation of N from RH to SM01                 (gN/m3/d)
+      REAL(kind=sp) ::dPtEMtRH01  ! F  translocation of P from EM to RH01                 (gP/m3/d)
+      REAL(kind=sp) ::dPtSMtRH01  ! F  translocation of P from SM to RH01                 (gP/m3/d)
+      REAL(kind=sp) ::dPtRHtEM01  ! F  translocation of P from RH to EM01                 (gP/m3/d)
+      REAL(kind=sp) ::dPtRHtSM01  ! F  translocation of P from RH to SM01                 (gP/m3/d)
+      REAL(kind=sp) ::dNH4upEM01  ! F  NH4 uptake by EM01                                 (gN/m3/d)
+      REAL(kind=sp) ::dNO3upEM01  ! F  NO3 uptake by EM01                                 (gN/m3/d)
+      REAL(kind=sp) ::dPO4upEM01  ! F  PO4 uptake by EM01                                 (gP/m3/d)
+      REAL(kind=sp) ::dNupSM01    ! F  uptake flux nitrogen SM01                          (gN/m3/d)
+      REAL(kind=sp) ::dPupSM01    ! F  uptake flux phosphorus SM01                        (gP/m3/d)
+      REAL(kind=sp) ::dPrPOC1M01  ! F  POC1 production macrophyt 1                        (gC/m3/d)
+      REAL(kind=sp) ::dPrPOC2M01  ! F  POC2 production macrophyt 1                        (gC/m3/d)
+      REAL(kind=sp) ::dPrPOC3M01  ! F  POC3 production macrophyt 1                        (gC/m3/d)
+      REAL(kind=sp) ::dPrPON1M01  ! F  PON1 production macrophyt 1                        (gN/m3/d)
+      REAL(kind=sp) ::dPrPON2M01  ! F  PON2 production macrophyt 1                        (gN/m3/d)
+      REAL(kind=sp) ::dPrPON3M01  ! F  PON3 production macrophyt 1                        (gN/m3/d)
+      REAL(kind=sp) ::dPrPOP1M01  ! F  POP1 production macrophyt 1                        (gP/m3/d)
+      REAL(kind=sp) ::dPrPOP2M01  ! F  POP2 production macrophyt 1                        (gP/m3/d)
+      REAL(kind=sp) ::dPrPOP3M01  ! F  POP3 production macrophyt 1                        (gP/m3/d)
+      REAL(kind=sp) ::dSM01OXY    ! F  oxygen production SM01                             (gO/m3/d)
+      REAL(kind=sp) ::dSM01CO2    ! F  CO2 uptake SM01                                    (gO/m3/d)
+      INTEGER(kind=int_32) ::IdGrowEM01  !    Pointer to the growth of EM01 species
+      INTEGER(kind=int_32) ::IdGrowSM01  !    Pointer to the growth of SM01 species
+      INTEGER(kind=int_32) ::IdDecayEM01 !    Pointer to the decay of EM01 species
+      INTEGER(kind=int_32) ::IdDecaySM01 !    Pointer to the decay of SM01 species
+      INTEGER(kind=int_32) ::IdCtEMtRH01 !    Pointer to the translocation of C from EM to RH01
+      INTEGER(kind=int_32) ::IdCtSMtRH01 !    Pointer to the translocation of C from SM to RH01
+      INTEGER(kind=int_32) ::IdCtRHtEM01 !    Pointer to the translocation of C from RH to EM01
+      INTEGER(kind=int_32) ::IdCtRHtSM01 !    Pointer to the translocation of C from RH to SM01
+      INTEGER(kind=int_32) ::IdNtEMtRH01 !    Pointer to the translocation of N from EM to RH01
+      INTEGER(kind=int_32) ::IdNtSMtRH01 !    Pointer to the translocation of N from SM to RH01
+      INTEGER(kind=int_32) ::IdNtRHtEM01 !    Pointer to the translocation of N from RH to EM01
+      INTEGER(kind=int_32) ::IdNtRHtSM01 !    Pointer to the translocation of N from RH to SM01
+      INTEGER(kind=int_32) ::IdPtEMtRH01 !    Pointer to the translocation of P from EM to RH01
+      INTEGER(kind=int_32) ::IdPtSMtRH01 !    Pointer to the translocation of P from SM to RH01
+      INTEGER(kind=int_32) ::IdPtRHtEM01 !    Pointer to the translocation of P from RH to EM01
+      INTEGER(kind=int_32) ::IdPtRHtSM01 !    Pointer to the translocation of P from RH to SM01
+      INTEGER(kind=int_32) ::IdNH4upEM01 !    Pointer to the NH4 uptake by EM01
+      INTEGER(kind=int_32) ::IdNO3upEM01 !    Pointer to the NO3 uptake by EM01
+      INTEGER(kind=int_32) ::IdPO4upEM01 !    Pointer to the PO4 uptake by EM01
+      INTEGER(kind=int_32) ::IdNupSM01   !    Pointer to the uptake flux nitrogen SM01
+      INTEGER(kind=int_32) ::IdPupSM01   !    Pointer to the uptake flux phosphorus SM01
+      INTEGER(kind=int_32) ::IdPrPOC1M01 !    Pointer to the POC1 production macrophyt 1
+      INTEGER(kind=int_32) ::IdPrPOC2M01 !    Pointer to the POC2 production macrophyt 1
+      INTEGER(kind=int_32) ::IdPrPOC3M01 !    Pointer to the POC3 production macrophyt 1
+      INTEGER(kind=int_32) ::IdPrPON1M01 !    Pointer to the PON1 production macrophyt 1
+      INTEGER(kind=int_32) ::IdPrPON2M01 !    Pointer to the PON2 production macrophyt 1
+      INTEGER(kind=int_32) ::IdPrPON3M01 !    Pointer to the PON3 production macrophyt 1
+      INTEGER(kind=int_32) ::IdPrPOP1M01 !    Pointer to the POP1 production macrophyt 1
+      INTEGER(kind=int_32) ::IdPrPOP2M01 !    Pointer to the POP2 production macrophyt 1
+      INTEGER(kind=int_32) ::IdPrPOP3M01 !    Pointer to the POP3 production macrophyt 1
+      INTEGER(kind=int_32) ::IdSM01OXY   !    Pointer to the oxygen production SM01
+      INTEGER(kind=int_32) ::IdSM01CO2   !    Pointer to the CO2 uptake SM01
 
-      REAL    NRH01M2     !    N contents RH01 (gN/m2)
-      REAL    PRH01M2     !    N contents RH01 (gN/m2)
-      REAL    EM01Grow    !    grow rate EM01 (gC/m2/d)
-      REAL    SM01Grow    !    grow rate SM01 (gC/m2/d)
-      REAL    CUPTAKE     !    total C uptake
-      REAL    NUPTAKE     !    total N uptake
-      REAL    PUPTAKE     !    total P uptake
-      REAL    FRNH4EM01   !    fraction uptake NH4
-      REAL    FRNO3EM01   !    fraction uptake NO3
-      REAL    SUMFR       !    sum of the fractions - for normalization
-      INTEGER IKMRK1
-      INTEGER IKMRK2
-      REAL    FACTORE, FACTORS
+      REAL(kind=sp) ::NRH01M2     !    N contents RH01 (gN/m2)
+      REAL(kind=sp) ::PRH01M2     !    N contents RH01 (gN/m2)
+      REAL(kind=sp) ::EM01Grow    !    grow rate EM01 (gC/m2/d)
+      REAL(kind=sp) ::SM01Grow    !    grow rate SM01 (gC/m2/d)
+      REAL(kind=sp) ::CUPTAKE     !    total C uptake
+      REAL(kind=sp) ::NUPTAKE     !    total N uptake
+      REAL(kind=sp) ::PUPTAKE     !    total P uptake
+      REAL(kind=sp) ::FRNH4EM01   !    fraction uptake NH4
+      REAL(kind=sp) ::FRNO3EM01   !    fraction uptake NO3
+      REAL(kind=sp) ::SUMFR       !    sum of the fractions - for normalization
+      INTEGER(kind=int_32) ::IKMRK1
+      INTEGER(kind=int_32) ::IKMRK2
+      REAL(kind=sp) ::FACTORE, FACTORS
 
-      INTEGER       :: LUNREP
-      INTEGER, SAVE :: NR_MSG = 0
+      INTEGER(kind=int_32) ::LUNREP
+      INTEGER(kind=int_32), SAVE  ::NR_MSG = 0
 
 !
 !*******************************************************************************

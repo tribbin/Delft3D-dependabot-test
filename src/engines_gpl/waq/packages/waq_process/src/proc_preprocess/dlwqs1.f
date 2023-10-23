@@ -21,6 +21,7 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_dlwqs1
+      use m_waq_type_definitions
       use m_setqtl
       use m_setprc
       use m_setgeo
@@ -67,59 +68,59 @@
 
 !     kind           function         name                Descriptipon
 
-      integer  ( 4), intent(in   ) :: lunrep            !< unit nr of output report file
-      integer  ( 4), intent(in   ) :: npos              !< significant line length of input file
+      integer(kind=int_32), intent(in   )  ::lunrep            !< unit nr of output report file
+      integer(kind=int_32), intent(in   )  ::npos              !< significant line length of input file
       character( 1), intent(in   ) :: cchar             !< comment character
-      integer  ( 4), intent(inout) :: ilun (*)          !< unitnumber include stack
+      integer(kind=int_32), intent(inout)  ::ilun (*)          !< unitnumber include stack
       character( *), intent(inout) :: lch  (*)          !< filename include stack for input
-      integer  ( 4), intent(in   ) :: lstack            !< include file stack size
-      integer  ( 4), intent(  out) :: ioutpt            !< flag for more or less output
+      integer(kind=int_32), intent(in   )  ::lstack            !< include file stack size
+      integer(kind=int_32), intent(  out)  ::ioutpt            !< flag for more or less output
       logical      , intent(in   ) :: dtflg1            !< 'date'-format 1st timescale
       logical      , intent(in   ) :: dtflg3            !< 'date'-format (F;ddmmhhss,T;yydddhh)
       type(ProcesPropColl)         :: StatProcesDef     !< the statistical proces definition
       type(ItemPropColl)           :: AllItems          !< all items of the proces system
-      integer      , intent(inout) :: noinfo            !< count of informative message
-      integer  ( 4), intent(inout) :: nowarn            !< cumulative warning count
-      integer  ( 4), intent(inout) :: ierr              !< cumulative error   count
+      integer(kind=int_32), intent(inout)  ::noinfo            !< count of informative message
+      integer(kind=int_32), intent(inout)  ::nowarn            !< cumulative warning count
+      integer(kind=int_32), intent(inout)  ::ierr              !< cumulative error   count
 
       type(ProcesProp)      :: aProcesProp         ! one statistical proces definition
 
-      INTEGER     , POINTER :: STA_NO_IN(:)
-      INTEGER     , POINTER :: STA_NO_OUT(:)
-      INTEGER     , POINTER :: STA_SWITR(:)
+      INTEGER(kind=int_32) , POINTER :: STA_NO_IN(:)
+      INTEGER(kind=int_32) , POINTER :: STA_NO_OUT(:)
+      INTEGER(kind=int_32) , POINTER :: STA_SWITR(:)
       CHARACTER*20, POINTER :: STA_IN_NAM(:)
       CHARACTER*50, POINTER :: STA_IN_TXT(:)
-      REAL        , POINTER :: STA_IN_DEF(:)
+      REAL(kind=sp) , POINTER :: STA_IN_DEF(:)
       CHARACTER*20, POINTER :: STA_OUT_NAM(:)
       CHARACTER*50, POINTER :: STA_OUT_TXT(:)
       CHARACTER*10, POINTER :: STA_MODNAM(:)
 !
-      INTEGER       NKEY  , IPOSR , NSPROC
+      INTEGER(kind=int_32) ::NKEY  , IPOSR , NSPROC
       CHARACTER*20, POINTER :: KEYNAM(:)
       CHARACTER*20, POINTER :: KEYVAL(:)
       CHARACTER*20, ALLOCATABLE :: KEYNAM2(:)
       CHARACTER*20, ALLOCATABLE :: KEYVAL2(:)
-      INTEGER     , POINTER :: NOKEY(:)
+      INTEGER(kind=int_32) , POINTER :: NOKEY(:)
 !
-      INTEGER       NPERIOD
+      INTEGER(kind=int_32) ::NPERIOD
       CHARACTER*20, POINTER :: PERNAM(:)
       CHARACTER*20, POINTER :: PERSFX(:)
-      INTEGER     , POINTER :: PSTART(:)
-      INTEGER     , POINTER :: PSTOP(:)
+      INTEGER(kind=int_32) , POINTER :: PSTART(:)
+      INTEGER(kind=int_32) , POINTER :: PSTOP(:)
 !
-      INTEGER       NSVAI , NSVAO , ISWITR
+      INTEGER(kind=int_32) ::NSVAI , NSVAO , ISWITR
       CHARACTER*20, POINTER :: VAINAM(:)
       CHARACTER*50, POINTER :: VAITXT(:)
-      REAL        , POINTER :: VAIDEF(:)
+      REAL(kind=sp) , POINTER :: VAIDEF(:)
       CHARACTER*20, POINTER :: VAONAM(:)
       CHARACTER*50, POINTER :: VAOTXT(:)
 !
-      INTEGER       IKSTAT, ISTAT , IKEY   , IFOUND, IERR_ALLOC,
+      INTEGER(kind=int_32) ::IKSTAT, ISTAT , IKEY   , IFOUND, IERR_ALLOC,
      +              NOSTAT, ISPROC, IPERIOD, IRET  , IHULP1    ,
      +              IHULP2
       CHARACTER*20  KEY
       CHARACTER*4   CH4
-      integer(4) :: ithndl = 0
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "dlwqs1", ithndl )
 !
       WRITE(LUNREP,2000)

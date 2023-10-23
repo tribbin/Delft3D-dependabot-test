@@ -21,6 +21,7 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_blprim
+      use m_waq_type_definitions
       use m_dynrun
       use m_bvect
 
@@ -58,89 +59,89 @@
 !
 !     Name    Type  Length   I/O  Description
 !
-      real(4)    biomas(nuspec)   ! Biomass (gC/m3)
-      real(4)    cnh4             ! Concentration NH4 (gN/m3)
-      real(4)    cno3             ! Concentration NO3 (gN/m3)
-      real(4)    cpo4             ! Concentration PO4 (gP/m3)
-      real(4)    csio             ! Concentration SIO (gSi/m3)
-      real(4)    cdetn            ! Concentration DetN (gN/m3)
-      real(4)    cdetp            ! Concentration DetP (gP/m3)
-      real(4)    cco2             ! Concentration CO2 (g/m3)
-      real(4)    ctic             ! Concentration TIC (gC/m3)
-      real(4)    flmora(nuspec)   ! Mortality fluxes (gC/m3/d)
-      real(4)    fldetn(4)        ! Detritus production (g/m3/d)
-      real(4)    tstepi           ! Time step (d)
-      real(4)    extot            ! Total extinction (1/m)
-      real(4)    exalg            ! Extinction from living algae (1/m)
-      real(4)    temp             ! Temperature (deg.C)
-      real(4)    rad              ! Radiation (J/cm2/week)
-      real(4)    depth            ! Depth (m)
-      real(4)    dayl             ! Length of light period (h)
-      integer    id               ! Week number (1 to 52)
-      integer    nset             ! Counter
-      real(4)    deat4            ! ??
-      real(4)    totnut(4)        ! Total C,N,P,Si in algae (g/m3)
-      real(4)    chltot           ! Total chlorophyl in algae (mgChl/m3)
-      real(4)    flprpa(nuspec)   ! Primary production fluxes (gC/m3/d)
-      real(4)    fluptn(10)       ! Uptake fluxes (g/m3/d)
-      real(4)    faclim(6)        ! Limiting factors (-)
-      real(4)    uptnit           ! Nitrogen uptake per day
-      real(4)    fracam           ! Fraction NH4 of N uptake
-      real(4)    fbod5            ! BOD5/BODinf in algae
-      real(4)    ratgro(nuecog)   ! Effective growth rate per group (1/day)
-      real(4)    ratmor(nuecog)   ! Effective mortality per group (1/day)
-      real(4)    algdm            ! Dry matter in algae (gDM/m3)
-      integer    iseg             ! Segment number
-      real(4)    cgroup(nuecog)   ! Group biomass
+      real(kind=sp) ::biomas(nuspec)   ! Biomass (gC/m3)
+      real(kind=sp) ::cnh4             ! Concentration NH4 (gN/m3)
+      real(kind=sp) ::cno3             ! Concentration NO3 (gN/m3)
+      real(kind=sp) ::cpo4             ! Concentration PO4 (gP/m3)
+      real(kind=sp) ::csio             ! Concentration SIO (gSi/m3)
+      real(kind=sp) ::cdetn            ! Concentration DetN (gN/m3)
+      real(kind=sp) ::cdetp            ! Concentration DetP (gP/m3)
+      real(kind=sp) ::cco2             ! Concentration CO2 (g/m3)
+      real(kind=sp) ::ctic             ! Concentration TIC (gC/m3)
+      real(kind=sp) ::flmora(nuspec)   ! Mortality fluxes (gC/m3/d)
+      real(kind=sp) ::fldetn(4)        ! Detritus production (g/m3/d)
+      real(kind=sp) ::tstepi           ! Time step (d)
+      real(kind=sp) ::extot            ! Total extinction (1/m)
+      real(kind=sp) ::exalg            ! Extinction from living algae (1/m)
+      real(kind=sp) ::temp             ! Temperature (deg.C)
+      real(kind=sp) ::rad              ! Radiation (J/cm2/week)
+      real(kind=sp) ::depth            ! Depth (m)
+      real(kind=sp) ::dayl             ! Length of light period (h)
+      integer(kind=int_32) ::id               ! Week number (1 to 52)
+      integer(kind=int_32) ::nset             ! Counter
+      real(kind=sp) ::deat4            ! ??
+      real(kind=sp) ::totnut(4)        ! Total C,N,P,Si in algae (g/m3)
+      real(kind=sp) ::chltot           ! Total chlorophyl in algae (mgChl/m3)
+      real(kind=sp) ::flprpa(nuspec)   ! Primary production fluxes (gC/m3/d)
+      real(kind=sp) ::fluptn(10)       ! Uptake fluxes (g/m3/d)
+      real(kind=sp) ::faclim(6)        ! Limiting factors (-)
+      real(kind=sp) ::uptnit           ! Nitrogen uptake per day
+      real(kind=sp) ::fracam           ! Fraction NH4 of N uptake
+      real(kind=sp) ::fbod5            ! BOD5/BODinf in algae
+      real(kind=sp) ::ratgro(nuecog)   ! Effective growth rate per group (1/day)
+      real(kind=sp) ::ratmor(nuecog)   ! Effective mortality per group (1/day)
+      real(kind=sp) ::algdm            ! Dry matter in algae (gDM/m3)
+      integer(kind=int_32) ::iseg             ! Segment number
+      real(kind=sp) ::cgroup(nuecog)   ! Group biomass
       logical    lmixo            ! FLAG mixotrophy
       logical    lfixn            ! FLAG N fixation
       logical    lcarb            ! FLAG C limitation
-      integer    noutlim          ! dimension of OUTLIM
-      real(4)    outlim(noutlim)  ! limiting factors (extended)
-      integer    nunucom          ! max nr of nutrient constraints in DELWAQ output
-      integer    nuecogm          ! max nr of algae groups in DELWAQ in/out
-      integer    con2out(nunucom) ! mapping of actual nutrient constraints to DELWAQ output
-      integer    swblsa           ! switch for BLOOM stand alone option
+      integer(kind=int_32) ::noutlim          ! dimension of OUTLIM
+      real(kind=sp) ::outlim(noutlim)  ! limiting factors (extended)
+      integer(kind=int_32) ::nunucom          ! max nr of nutrient constraints in DELWAQ output
+      integer(kind=int_32) ::nuecogm          ! max nr of algae groups in DELWAQ in/out
+      integer(kind=int_32) ::con2out(nunucom) ! mapping of actual nutrient constraints to DELWAQ output
+      integer(kind=int_32) ::swblsa           ! switch for BLOOM stand alone option
 
-      integer    nutcon(nunucom)  ! Nutrients involved in active nutrient constraints
-      integer    flxcon(nunucom)  ! Uptake fluxes involved in active nutrient constraints
-      real(4)    TotNin           ! Total nitrogen for BLOOM stand alone        (g/m3)
-      real(4)    TotPin           ! Total phosphorous for BLOOM stand alone     (g/m3)
-      real(4)    TotSIin          ! Total silicium for BLOOM stand alone        (g/m3)
+      integer(kind=int_32) ::nutcon(nunucom)  ! Nutrients involved in active nutrient constraints
+      integer(kind=int_32) ::flxcon(nunucom)  ! Uptake fluxes involved in active nutrient constraints
+      real(kind=sp) ::TotNin           ! Total nitrogen for BLOOM stand alone        (g/m3)
+      real(kind=sp) ::TotPin           ! Total phosphorous for BLOOM stand alone     (g/m3)
+      real(kind=sp) ::TotSIin          ! Total silicium for BLOOM stand alone        (g/m3)
 
 !     Local variables
-      real(4)    cmort            ! Additional mortality flux (gDW/m3/d)
-      real(8)    x(mt)            ! Remaining after mortality (gDW/m3)
-      real(8)    xj               ! Biomass per group (gDW/m3)
-      integer    i                !
-      integer    i2               !
-      integer    ihulp            !
-      integer    inuco            !
-      integer    j                !
-      integer    k                !
-      integer    ierror           ! Present number of mass errors
-      real(8)    extot8           ! Real*8 version of input parameter
-      real(8)    exbac8           ! ..
-      real(8)    temp8            ! ..
-      real(8)    rad8             ! ..
-      real(8)    depth8           ! ..
-      real(8)    dayl8            ! ..
-      real(8)    extlim           ! ??
-      real(8)    deat             ! ??
-      real(8)    totchl           ! Real*8 version of output parameter
-      real(8)    totdry           ! Real*8 version of output parameter
-      real(8)    totcar           ! Real*8 version of output parameter
-      real(4)    uptake           ! Nitrogen uptake (gN/m3/d)
-      real(4)    frmixx           ! Fraction of mixotrophy in production
+      real(kind=sp) ::cmort            ! Additional mortality flux (gDW/m3/d)
+      real(kind=dp) ::x(mt)            ! Remaining after mortality (gDW/m3)
+      real(kind=dp) ::xj               ! Biomass per group (gDW/m3)
+      integer(kind=int_32) ::i                !
+      integer(kind=int_32) ::i2               !
+      integer(kind=int_32) ::ihulp            !
+      integer(kind=int_32) ::inuco            !
+      integer(kind=int_32) ::j                !
+      integer(kind=int_32) ::k                !
+      integer(kind=int_32) ::ierror           ! Present number of mass errors
+      real(kind=dp) ::extot8           ! Real(kind=dp) ::version of input parameter
+      real(kind=dp) ::exbac8           ! ..
+      real(kind=dp) ::temp8            ! ..
+      real(kind=dp) ::rad8             ! ..
+      real(kind=dp) ::depth8           ! ..
+      real(kind=dp) ::dayl8            ! ..
+      real(kind=dp) ::extlim           ! ??
+      real(kind=dp) ::deat             ! ??
+      real(kind=dp) ::totchl           ! Real(kind=dp) ::version of output parameter
+      real(kind=dp) ::totdry           ! Real(kind=dp) ::version of output parameter
+      real(kind=dp) ::totcar           ! Real(kind=dp) ::version of output parameter
+      real(kind=sp) ::uptake           ! Nitrogen uptake (gN/m3/d)
+      real(kind=sp) ::frmixx           ! Fraction of mixotrophy in production
 
-      real(8)    auto(3)
-      real(8)    autnut
-      real(4)    frmixn
-      real(4)    frmixp
-      real(4)    frmix
+      real(kind=dp) ::auto(3)
+      real(kind=dp) ::autnut
+      real(kind=sp) ::frmixn
+      real(kind=sp) ::frmixp
+      real(kind=sp) ::frmix
 
-      real(8), parameter ::  fixinf=1.0d+03
-      integer,parameter  ::  merror=100           ! Maximum number of mass errors
+      real(kind=dp), parameter  ::fixinf=1.0d+03
+      integer(kind=int_32),parameter   ::merror=100           ! Maximum number of mass errors
 
       save ierror
       data ierror /0/
@@ -403,10 +404,10 @@
 
       implicit none
 
-      integer noutlim,nunucom,nuecogm
-      integer con2out(nunucom)
-      real(4) outlim(noutlim)
-      integer ii,icon,iconout
+      integer(kind=int_32) ::noutlim,nunucom,nuecogm
+      integer(kind=int_32) ::con2out(nunucom)
+      real(kind=sp) ::outlim(noutlim)
+      integer(kind=int_32) ::ii,icon,iconout
 !
 !     ISPLIM  holds a list of actually limiting constraint numbers.
 !             The constraint nrs are dependent of actual NUNUCO (nr of nutrient constraints)

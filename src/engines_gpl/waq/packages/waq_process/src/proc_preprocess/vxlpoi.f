@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_vxlpoi
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -48,21 +50,21 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     NOCONS  INTEGER       1     INPUT   Number of constants used
-!     NOFUN   INTEGER       1     INPUT   Number of functions ( user )
-!     NODISP  INTEGER       1     INPUT   Number of dispersion array's
-!     NOVELO  INTEGER       1     INPUT   Number of velocity array's
+!     NOCONS  INTEGER(kind=int_32) ::1     INPUT   Number of constants used
+!     NOFUN   INTEGER(kind=int_32) ::1     INPUT   Number of functions ( user )
+!     NODISP  INTEGER(kind=int_32) ::1     INPUT   Number of dispersion array's
+!     NOVELO  INTEGER(kind=int_32) ::1     INPUT   Number of velocity array's
 !     CONAME  CHAR*20   NOCONS    INPUT   Constant names
 !     FUNAME  CHAR*20   NOFUN     INPUT   Function names
 !     DINAME  CHAR*20   NODISP    INPUT   Dispersion names
 !     VENAME  CHAR*20   NOVELO    INPUT   Velocity names
 !     VALNAM  CHAR*20       1     INPUT   Name of variable in question
-!     IVALIP  INTEGER       1     OUTPUT  Pointer in delwaq array
+!     IVALIP  INTEGER(kind=int_32) ::1     OUTPUT  Pointer in delwaq array
 !     LINE    CHAR*(*)      1     OUTPUT  Report line
 !
       use timers       !   performance timers
 
-      INTEGER       NOCONS , NOFUN  , NODISP , NOVELO , IVALIP
+      INTEGER(kind=int_32) ::NOCONS , NOFUN  , NODISP , NOVELO , IVALIP
       CHARACTER*(*) VALNAM, LINE
       CHARACTER*(*)            FUNAME(*),
      +              DINAME(*), VENAME(*)
@@ -70,12 +72,12 @@
 !
 !     Local
 !
-      integer, PARAMETER  :: NOPREF=4
+      integer(kind=int_32), PARAMETER   ::NOPREF=4
       CHARACTER*10 PREDEF(NOPREF)
 
-      INTEGER       ICO, IDSP, IVEL, IFUN
+      INTEGER(kind=int_32) ::ICO, IDSP, IVEL, IFUN
 
-      integer(4) :: ithndl = 0
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "vxlpoi", ithndl )
 !
       PREDEF(1) = 'FLOW'

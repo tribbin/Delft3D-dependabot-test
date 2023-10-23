@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_varoxy
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -49,21 +51,21 @@
 !     Name     Type   Library
 !     ------   -----  ------------
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER  LUNREP
+      INTEGER(kind=int_32) ::LUNREP
 
-      INTEGER  IP1 , IP2 , IP3 , IP4 , IP5 , IP6 , IP7 , IP8 , IP9 ,
+      INTEGER(kind=int_32) ::IP1 , IP2 , IP3 , IP4 , IP5 , IP6 , IP7 , IP8 , IP9 ,
      J         IP10, IP11, IP12, I, IFLUX, ISEG
-      REAL     TIMSIM, DELTAT, TIMNUL, T1MXPP, T2MXPP, DAYLEN, FPPTOT,
+      REAL(kind=sp) ::TIMSIM, DELTAT, TIMNUL, T1MXPP, T2MXPP, DAYLEN, FPPTOT,
      J         FRESPI, DEPTHW, T1    , T2    , PPMAX , TRISE ,
      J         TSET  , TOTAL , V1    , V2
-      REAL     INTEGR(0:12*24), PPLAST, RELAST, DAYLLAST
+      REAL(kind=sp) ::INTEGR(0:12*24), PPLAST, RELAST, DAYLLAST
       SAVE     PPLAST, RELAST, DAYLLAST, INTEGR
       DATA     PPLAST, RELAST, DAYLLAST /-999.,-999.,-999./
-      INTEGER  NR_MES
+      INTEGER(kind=int_32) ::NR_MES
       SAVE     NR_MES
       DATA     NR_MES / 0 /
 

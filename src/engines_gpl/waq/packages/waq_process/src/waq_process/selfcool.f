@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_selfcool
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -38,36 +40,36 @@
       IMPLICIT NONE
 
 !     arguments
-      REAL               :: PMSA(*)            ! in/out input-output array space to be adressed with IPOINT/INCREM
-      REAL               :: FL(*)              ! in/out flux array
-      INTEGER            :: IPOINT(*)          ! in     start index input-output parameters in the PMSA array (segment or exchange number 1)
-      INTEGER            :: INCREM(*)          ! in     increment for each segment-exchange for the input-output parameters in the PMSA array
-      INTEGER            :: NOSEG              ! in     number of segments
-      INTEGER            :: NOFLUX             ! in     total number of fluxes (increment in FL array)
-      INTEGER            :: IEXPNT(4,*)        ! in     exchange pointer table
-      INTEGER            :: IKNMRK(*)          ! in     segment features array
-      INTEGER            :: NOQ1               ! in     number of exchanges in first direction
-      INTEGER            :: NOQ2               ! in     number of exchanges in second direction
-      INTEGER            :: NOQ3               ! in     number of exchanges in third direction
-      INTEGER            :: NOQ4               ! in     number of exchanges in fourth direction
+      REAL(kind=sp) ::PMSA(*)            ! in/out input-output array space to be adressed with IPOINT/INCREM
+      REAL(kind=sp) ::FL(*)              ! in/out flux array
+      INTEGER(kind=int_32) ::IPOINT(*)          ! in     start index input-output parameters in the PMSA array (segment or exchange number 1)
+      INTEGER(kind=int_32) ::INCREM(*)          ! in     increment for each segment-exchange for the input-output parameters in the PMSA array
+      INTEGER(kind=int_32) ::NOSEG              ! in     number of segments
+      INTEGER(kind=int_32) ::NOFLUX             ! in     total number of fluxes (increment in FL array)
+      INTEGER(kind=int_32) ::IEXPNT(4,*)        ! in     exchange pointer table
+      INTEGER(kind=int_32) ::IKNMRK(*)          ! in     segment features array
+      INTEGER(kind=int_32) ::NOQ1               ! in     number of exchanges in first direction
+      INTEGER(kind=int_32) ::NOQ2               ! in     number of exchanges in second direction
+      INTEGER(kind=int_32) ::NOQ3               ! in     number of exchanges in third direction
+      INTEGER(kind=int_32) ::NOQ4               ! in     number of exchanges in fourth direction
 
 !     from PMSA array
 !                                                                                                     
-      REAL                :: SurTemp            ! I  natural temperature                                (oC)        1             
-      REAL                :: HtTot              ! I  Total heat flux                                    (W/m2)      2           
-      REAL                :: HtTot2             ! I  Total heat flux for Temp+1                         (W/m2)      3           
-      REAL                :: SelfCool           ! O  Self Cooling                                       [W/deg/m2]  4 
-      REAL                :: DELT              ! I  DELWAQ process time step                           [d]         5
-      REAL                :: Cp        
-      REAL                :: Rho0      
-      REAL                :: RhoWat
-      REAL                :: Temp      
-      REAL                :: Depth      
-      REAL                :: HeatFlux           ! 1      excess temperature flux                           [oC/d]
+      REAL(kind=sp) ::SurTemp            ! I  natural temperature                                (oC)        1             
+      REAL(kind=sp) ::HtTot              ! I  Total heat flux                                    (W/m2)      2           
+      REAL(kind=sp) ::HtTot2             ! I  Total heat flux for Temp+1                         (W/m2)      3           
+      REAL(kind=sp) ::SelfCool           ! O  Self Cooling                                       [W/deg/m2]  4 
+      REAL(kind=sp) ::DELT              ! I  DELWAQ process time step                           [d]         5
+      REAL(kind=sp) ::Cp        
+      REAL(kind=sp) ::Rho0      
+      REAL(kind=sp) ::RhoWat
+      REAL(kind=sp) ::Temp      
+      REAL(kind=sp) ::Depth      
+      REAL(kind=sp) ::HeatFlux           ! 1      excess temperature flux                           [oC/d]
     
 !                                                                                                     
-      INTEGER  IP1 ,IP2 ,IP3 ,IP4, IP5,IP6, IP7, IP8, IP9
-      INTEGER  IFLUX , ISEG  , IKMRK1, IKMRK2
+      INTEGER(kind=int_32) ::IP1 ,IP2 ,IP3 ,IP4, IP5,IP6, IP7, IP8, IP9
+      INTEGER(kind=int_32) ::IFLUX , ISEG  , IKMRK1, IKMRK2
 
       IP1  = IPOINT(1 )
       IP2  = IPOINT(2 )

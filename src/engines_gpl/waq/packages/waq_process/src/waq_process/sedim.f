@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_sedim
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -68,13 +70,13 @@
       IMPLICIT REAL    (A-H,J-Z)
       IMPLICIT INTEGER (I)
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      REAL     MINDEP, MINDE2, DEPTH , DEPTH2
+      REAL(kind=sp) ::MINDEP, MINDE2, DEPTH , DEPTH2
 
-      REAL     PSEDMIN
+      REAL(kind=sp) ::PSEDMIN
 
       IP1  = IPOINT( 1)
       IP2  = IPOINT( 2)

@@ -1,4 +1,6 @@
       module m_inverm
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -26,15 +28,15 @@ C     N          ORDER OF MATRIX A, NUMBER OF UNKNOWNS/EQUATIONS       C
 C     M          NUMBER OF RHS-VECTORS                                 C
 C     NMAX       RANGE OF FIRST INDEX IN A AND B MATRICES              C
 C                (CONCERNS FORTRAN DECLARATION (NMAX,*)                C
-C     IH         INTEGER WORK-ARRAY, LENGTH N                          C
-C     WORK       REAL    WORK-ARRAY, LENGTH N                          C
+C     IH         INTEGER(kind=int_32) ::WORK-ARRAY, LENGTH N                          C
+C     WORK       REAL(kind=sp) ::WORK-ARRAY, LENGTH N                          C
 C     IER        ERROR SWITCH =  0 : NO ERRORS DETECTED                C
 C                             = -1 : SINGULARITY IN MATRIX A DETECTED  C
 C                                                                      C
 C----------------------------------------------------------------------C
       SUBROUTINE INVERM (A,B,N,M,NMAX,IH,WORK,IER)
       IMPLICIT REAL*8  (A-H,O-Z)
-      IMPLICIT INTEGER (i,j,m,n)      
+      IMPLICIT INTEGER (i,j,m,n)
       
       DIMENSION A(NMAX,*),B(NMAX,*),IH(*),WORK(*)
       IER = 0

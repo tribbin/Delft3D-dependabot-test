@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_add_sumfrc
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -40,24 +42,24 @@
 
       ! declaration of arguments
 
-      integer                   :: lunrep          ! report file
+      integer(kind=int_32) ::lunrep          ! report file
       type(procespropcoll)      :: procesdef       ! the process definition
       type(itempropcoll)        :: allitems        ! all items of the proces system
       type(sfracsprop)          :: sfracs          ! substance fraction properties
-      integer                   :: no_act          ! number of active processes
+      integer(kind=int_32) ::no_act          ! number of active processes
       character(len=*)          :: actlst(*)       ! active processes names
-      integer                   :: nbpr            ! number of processes
+      integer(kind=int_32) ::nbpr            ! number of processes
 
       ! local decalarations
 
       type(procesprop)          :: proc            ! one process definition
       type(itemprop)            :: item            ! one item
-      integer                   :: isys            ! loop counter substances
-      integer                   :: iret            ! index in collection
-      integer                   :: ifrac           ! fraction number
+      integer(kind=int_32) ::isys            ! loop counter substances
+      integer(kind=int_32) ::iret            ! index in collection
+      integer(kind=int_32) ::ifrac           ! fraction number
       character(len=3)          :: suffix          ! suffix
-      integer                   :: ierr_alloc      ! error indication
-      integer(4) :: ithndl = 0
+      integer(kind=int_32) ::ierr_alloc      ! error indication
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "add_sumfrc", ithndl )
 
       ! loop over the substances with fractions

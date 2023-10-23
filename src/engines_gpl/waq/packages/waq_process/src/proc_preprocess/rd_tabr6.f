@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_rd_tabr6
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -53,7 +55,7 @@
 !     NO_STOC      INT            0       number of rows in table r3
 !     R6_FID       CHA*10 NO_STOC 0       flux identification
 !     R6_SID       CHA*10 NO_STOC 0       substance identification
-!     R6_SCAL      REAL   NO_STOC 0       scale factor
+!     R6_SCAL      REAL(kind=sp) ::NO_STOC 0       scale factor
 !     LUNREP       INT    1       I       Unit number report file
 !     IERROR       INT    1       O       Error
 !
@@ -65,28 +67,28 @@
 !
 !     declaration of arguments
 !
-      INTEGER       NO_STOC_MAX , NO_STOC     ,
+      INTEGER(kind=int_32) ::NO_STOC_MAX , NO_STOC     ,
      +              LUNREP      , IERROR
-      INTEGER       DEFFDS
+      INTEGER(kind=int_32) ::DEFFDS
       CHARACTER*10  R6_FID      (NO_STOC_MAX)
       CHARACTER*10  R6_SID      (NO_STOC_MAX)
-      REAL          R6_SCAL(NO_STOC_MAX)
+      REAL(kind=sp) ::R6_SCAL(NO_STOC_MAX)
 !
 !     Local variables
 !
 !     GRPNAM  CHAR*16     1       LOCAL   group name (table)
-!     NELEMS  INTEGER     1       LOCAL   number of elements in group (=cell)
+!     NELEMS  INTEGER(kind=int_32) ::1       LOCAL   number of elements in group (=cell)
 !     ELMNMS  CHAR*16  NELEMS     LOCAL   name of elements on file
 !     ELMTPS  CHAR*16  NELEMS     LOCAL   type of elements
-!     ELMDMS  INTEGER  6,NELEMS   LOCAL   dimension of elements
-!     NBYTSG  INTEGER  NELEMS     LOCAL   length of elements (bytes)
+!     ELMDMS  INTEGER(kind=int_32) ::6,NELEMS   LOCAL   dimension of elements
+!     NBYTSG  INTEGER(kind=int_32) ::NELEMS     LOCAL   length of elements (bytes)
 !
-      INTEGER       NELEMS
+      INTEGER(kind=int_32) ::NELEMS
       PARAMETER   ( NELEMS = 4 )
 !
-      INTEGER       I               , IELM          ,
+      INTEGER(kind=int_32) ::I               , IELM          ,
      +              BUFLEN
-      INTEGER       ELMDMS(2,NELEMS), NBYTSG(NELEMS),
+      INTEGER(kind=int_32) ::ELMDMS(2,NELEMS), NBYTSG(NELEMS),
      +              UINDEX(3)
       CHARACTER*16  GRPNAM
       CHARACTER*16  ELMNMS(NELEMS)  , ELMTPS(NELEMS)
@@ -94,7 +96,7 @@
 !
 !     External NEFIS Functions
 !
-      INTEGER   GETELS
+      INTEGER(kind=int_32) ::GETELS
      +         ,GETELT
       EXTERNAL  GETELS
      +         ,GETELT

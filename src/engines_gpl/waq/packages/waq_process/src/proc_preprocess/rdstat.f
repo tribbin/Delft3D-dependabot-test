@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_rdstat
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -49,27 +51,27 @@
 !
 !     NAME    KIND     LENGTH      FUNCT.  DESCRIPTION
 !     ---------------------------------------------------------
-!     IPOSR   INTEGER  1           IN/OUT  position on input record
-!     NPOS    INTEGER  1           INPUT   length of input record
+!     IPOSR   INTEGER(kind=int_32) ::1           IN/OUT  position on input record
+!     NPOS    INTEGER(kind=int_32) ::1           INPUT   length of input record
 !     CCHAR   CHAR*1   1           INPUT   comment character
-!     VERSION REAL     1           INPUT   program version number
-!     ILUN    INTEGER  LSTACK      IN/OUT  unit number stack
+!     VERSION REAL(kind=sp) ::1           INPUT   program version number
+!     ILUN    INTEGER(kind=int_32) ::LSTACK      IN/OUT  unit number stack
 !     LCH     CHAR*(*) LSTACK      IN/OUT  Filename stack
-!     LSTACK  INTEGER  1           INPUT   size of the stack
-!     IOUTPT  INTEGER  1           INPUT   output file option
+!     LSTACK  INTEGER(kind=int_32) ::1           INPUT   size of the stack
+!     IOUTPT  INTEGER(kind=int_32) ::1           INPUT   output file option
 !     DTFLG1  LOGICAL  1           INPUT   'date'-format 1st timescale
 !     DTFLG3  LOGICAL  1           INPUT   'date'-format (F;ddmmhhss,T;yydddhh)
-!     IERR    INTEGER  1           IN/OUT  Cumulative error count
-!     NOSTAT  INTEGER  1           OUTPUT  number of statistical processes
-!     NKEY    INTEGER  1           OUTPUT  total number of keywords
-!     NOKEY   INTEGER  NOSTAT      OUTPUT  number of keywords per stat. proc.
+!     IERR    INTEGER(kind=int_32) ::1           IN/OUT  Cumulative error count
+!     NOSTAT  INTEGER(kind=int_32) ::1           OUTPUT  number of statistical processes
+!     NKEY    INTEGER(kind=int_32) ::1           OUTPUT  total number of keywords
+!     NOKEY   INTEGER(kind=int_32) ::NOSTAT      OUTPUT  number of keywords per stat. proc.
 !     KEYNAM  CHAR*20  NKEY        OUTPUT  names of the keywords read
 !     KEYVAL  CHAR*20  NKEY        OUTPUT  values of the keywords
-!     NPERIOD INTEGER  1           OUTPUT  number of periods
+!     NPERIOD INTEGER(kind=int_32) ::1           OUTPUT  number of periods
 !     PERNAM  CHAR*20  NPERIOD     OUTPUT  period name
 !     PERSFX  CHAR*20  NPERIOD     OUTPUT  period suffix
-!     PSTART  INTEGER  NPERIOD     OUTPUT  period start
-!     PSTOP   INTEGER  NPERIOD     OUTPUT  period stop
+!     PSTART  INTEGER(kind=int_32) ::NPERIOD     OUTPUT  period start
+!     PSTOP   INTEGER(kind=int_32) ::NPERIOD     OUTPUT  period stop
 !
       use m_zoek
       use timers       !   performance timers
@@ -78,24 +80,24 @@
 
       IMPLICIT NONE
 !
-      INTEGER       LUNREP , IPOSR  , NPOS   , LSTACK , IOUTPT ,
+      INTEGER(kind=int_32) ::LUNREP , IPOSR  , NPOS   , LSTACK , IOUTPT ,
      +              IERR   , NOSTAT , NKEY
       LOGICAL       DTFLG1 , DTFLG3
-      INTEGER       ILUN(*)
+      INTEGER(kind=int_32) ::ILUN(*)
       CHARACTER*(*) LCH  (*)
       CHARACTER*1   CCHAR
       CHARACTER*20, POINTER :: KEYNAM(:)
       CHARACTER*20, POINTER :: KEYVAL(:)
-      INTEGER     , POINTER :: NOKEY(:)
-      INTEGER       NPERIOD
+      INTEGER(kind=int_32) , POINTER :: NOKEY(:)
+      INTEGER(kind=int_32) ::NPERIOD
       CHARACTER*20, POINTER :: PERNAM(:)
       CHARACTER*20, POINTER :: PERSFX(:)
-      INTEGER     , POINTER :: PSTART(:)
-      INTEGER     , POINTER :: PSTOP(:)
+      INTEGER(kind=int_32) , POINTER :: PSTART(:)
+      INTEGER(kind=int_32) , POINTER :: PSTOP(:)
 !
 !     Local
 !
-      INTEGER       NPKEY  , NKEYPER, NKEYPAR, IPAR
+      INTEGER(kind=int_32) ::NPKEY  , NKEYPER, NKEYPAR, IPAR
       PARAMETER   ( NPKEY = 4 )
       PARAMETER   ( NKEYPER = 4 )
       PARAMETER   ( NKEYPAR = 3 )
@@ -104,12 +106,12 @@
       CHARACTER*20  KEYPAR(NKEYPAR)
       CHARACTER*20  KNAM   , CDUMMY
       CHARACTER*20  KVAL
-      REAL          ADUMMY
-      INTEGER       IDUMMY , IERR2  , IKEY  , ITYPE  , MAXKEY ,
+      REAL(kind=sp) ::ADUMMY
+      INTEGER(kind=int_32) ::IDUMMY , IERR2  , IKEY  , ITYPE  , MAXKEY ,
      +              MAXSTAT, VERSTAT, MINSTAT, IKEY2 , ITSTRT ,
      +              ITSTOP , MPERIOD, IKEY3
-      integer       istart, istop
-      integer(4) :: ithndl = 0
+      integer(kind=int_32) ::istart, istop
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "rdstat", ithndl )
 !
       NOSTAT = 0
@@ -131,7 +133,7 @@
       KEYS(3) = 'PERIOD'
       KEYS(4) = 'OUTPUT-OPERATION'
 !
-      KEYPAR(1) = 'real-parameter'
+      KEYPAR(1) = 'real(kind=sp) ::-parameter'
       KEYPAR(2) = 'time-parameter'
       KEYPAR(3) = 'logical-parameter'
 
@@ -303,12 +305,12 @@
 !
   300       CONTINUE
 !
-!           check if it a parameter with extra key word real-parameter, time-parameter, logical-parameter, ?integer-parameter
+!           check if it a parameter with extra key word real(kind=sp) ::-parameter, time-parameter, logical-parameter, ?integer(kind=int_32) ::-parameter
 !
             CALL ZOEK (KNAM,3,KEYPAR,20,IPAR)
             IF ( IPAR .GT. 0 ) THEN
 !
-!              get real KNAM
+!              get real(kind=sp) ::KNAM
 !
                ITYPE = 0
                CALL RDTOK1 ( LUNREP , ILUN   , LCH    , LSTACK , CCHAR ,

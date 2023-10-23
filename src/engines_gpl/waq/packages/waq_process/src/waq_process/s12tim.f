@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_s12tim
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -40,40 +42,40 @@
 
       implicit none
 
-      real     pmsa  ( * ) , fl    (*)
-      integer  ipoint(34) , increm(34) , noseg , noflux,
+      real(kind=sp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_32) ::ipoint(34) , increm(34) , noseg , noflux,
      +         iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
      
      
-      integer  ip(34), iflux, iseg, ikmrk2
-      real     fracs1, scals1, fracs2, scals2, fress1, fress2,
+      integer(kind=int_32) ::ip(34), iflux, iseg, ikmrk2
+      real(kind=sp) ::fracs1, scals1, fracs2, scals2, fress1, fress2,
      j         fburs1, fburs2, fdigs1, fdigs2, swds1 , swds2 , 
      j         depth , switch, fracs3, scals3, b1, b2, d1, d2, r1, r2
-      integer :: iswres
-      integer :: isw_zf
-      real    :: dms1
-      real    :: dms2
-      real    :: zres
-      real    :: vres
-      real    :: tau
-      real    :: tcrrs1
-      real    :: tcrrs2
-      real    :: delt
-      real    :: mindep
-      real    :: press1
-      real    :: press2
-      real    :: flres1
-      real    :: flres2
-      real    :: rfdms1
-      real    :: mrdms1
-      real    :: delts2
-      real    :: rfdms2
-      real    :: mrdms2
-      real    :: fracs1_res
-      real    :: scals1_res
-      real    :: fracs2_res
-      real    :: scals2_res
-      integer :: lunrep
+      integer(kind=int_32) ::iswres
+      integer(kind=int_32) ::isw_zf
+      real(kind=sp) ::dms1
+      real(kind=sp) ::dms2
+      real(kind=sp) ::zres
+      real(kind=sp) ::vres
+      real(kind=sp) ::tau
+      real(kind=sp) ::tcrrs1
+      real(kind=sp) ::tcrrs2
+      real(kind=sp) ::delt
+      real(kind=sp) ::mindep
+      real(kind=sp) ::press1
+      real(kind=sp) ::press2
+      real(kind=sp) ::flres1
+      real(kind=sp) ::flres2
+      real(kind=sp) ::rfdms1
+      real(kind=sp) ::mrdms1
+      real(kind=sp) ::delts2
+      real(kind=sp) ::rfdms2
+      real(kind=sp) ::mrdms2
+      real(kind=sp) ::fracs1_res
+      real(kind=sp) ::scals1_res
+      real(kind=sp) ::fracs2_res
+      real(kind=sp) ::scals2_res
+      integer(kind=int_32) ::lunrep
 
       ip  = ipoint
 !

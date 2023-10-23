@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_radmac
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -40,31 +42,31 @@
 !
 !     Type    Name         I/O Description
 !
-      REAL(4) PMSA(*)     !I/O Process Manager System Array, window of routine to process library
-      REAL(4) FL(*)       ! O  Array of fluxes made by this process in mass/volume/time
-      INTEGER IPOINT( 9 ) ! I  Array of pointers in PMSA to get and store the data
-      INTEGER INCREM( 9 ) ! I  Increments in IPOINT for segment loop, 0=constant, 1=spatially varying
-      INTEGER NOSEG       ! I  Number of computational elements in the whole model schematisation
-      INTEGER NOFLUX      ! I  Number of fluxes, increment in the FL array
-      INTEGER IEXPNT      ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      INTEGER IKNMRK(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      INTEGER NOQ1        ! I  Nr of exchanges in 1st direction, only horizontal dir if irregular mesh
-      INTEGER NOQ2        ! I  Nr of exchanges in 2nd direction, NOQ1+NOQ2 gives hor. dir. reg. grid
-      INTEGER NOQ3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      INTEGER NOQ4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
-      INTEGER IPNT( 9 )   !    Local work array for the pointering
-      INTEGER ISEG        !    Local loop counter for computational element loop
+      REAL(kind=sp) ::PMSA(*)     !I/O Process Manager System Array, window of routine to process library
+      REAL(kind=sp) ::FL(*)       ! O  Array of fluxes made by this process in mass/volume/time
+      INTEGER(kind=int_32) ::IPOINT( 9 ) ! I  Array of pointers in PMSA to get and store the data
+      INTEGER(kind=int_32) ::INCREM( 9 ) ! I  Increments in IPOINT for segment loop, 0=constant, 1=spatially varying
+      INTEGER(kind=int_32) ::NOSEG       ! I  Number of computational elements in the whole model schematisation
+      INTEGER(kind=int_32) ::NOFLUX      ! I  Number of fluxes, increment in the FL array
+      INTEGER(kind=int_32) ::IEXPNT      ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      INTEGER(kind=int_32) ::IKNMRK(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      INTEGER(kind=int_32) ::NOQ1        ! I  Nr of exchanges in 1st direction, only horizontal dir if irregular mesh
+      INTEGER(kind=int_32) ::NOQ2        ! I  Nr of exchanges in 2nd direction, NOQ1+NOQ2 gives hor. dir. reg. grid
+      INTEGER(kind=int_32) ::NOQ3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      INTEGER(kind=int_32) ::NOQ4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      INTEGER(kind=int_32) ::IPNT( 9 )   !    Local work array for the pointering
+      INTEGER(kind=int_32) ::ISEG        !    Local loop counter for computational element loop
 !
 !*******************************************************************************
 !
 !     Type    Name         I/O Description                                        Unit
 !
-      REAL(4) ACTRAD, SATRAD, FRAD, RADTOP, HACT, TOTDEP, LOCDEP, DEPTH,
+      REAL(kind=sp) ::ACTRAD, SATRAD, FRAD, RADTOP, HACT, TOTDEP, LOCDEP, DEPTH,
      J        EXT, ZM, Z1, DZ
-      INTEGER IKMRK1, IKMRK2, ITOPSEG
+      INTEGER(kind=int_32) ::IKMRK1, IKMRK2, ITOPSEG
 
-      INTEGER       :: LUNREP
-      INTEGER, SAVE :: NR_MSG = 0
+      INTEGER(kind=int_32) ::LUNREP
+      INTEGER(kind=int_32), SAVE  ::NR_MSG = 0
 
 !*******************************************************************************
 !

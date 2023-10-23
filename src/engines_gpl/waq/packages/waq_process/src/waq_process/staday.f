@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_staday
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -69,23 +71,23 @@
 
       IMPLICIT NONE
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
-      INTEGER  IP1   , IP2   , IP3   , IP4   , IP5   ,
+      INTEGER(kind=int_32) ::IP1   , IP2   , IP3   , IP4   , IP5   ,
      +         IP6   , IP7   , IP8   , IP9   , IP10  ,
      +         IP11  , IP12  ,
      +         IN1   , IN2   , IN3   , IN4   , IN5   ,
      +         IN6   , IN7   , IN8   , IN9   , IN10  ,
      +         IN11  , IN12
-      INTEGER  IKMRK , ISEG
-      INTEGER  IACTION
-      INTEGER  ATTRIB
-      REAL     TINIT , PERIOD, TIME  , DELT  , TCOUNT
+      INTEGER(kind=int_32) ::IKMRK , ISEG
+      INTEGER(kind=int_32) ::IACTION
+      INTEGER(kind=int_32) ::ATTRIB
+      REAL(kind=sp) ::TINIT , PERIOD, TIME  , DELT  , TCOUNT
 
-      INTEGER, PARAMETER :: MAXWARN = 50
-      INTEGER, SAVE      :: NOWARN  = 0
+      INTEGER(kind=int_32), PARAMETER  ::MAXWARN = 50
+      INTEGER(kind=int_32), SAVE       ::NOWARN  = 0
 
       IP1 = IPOINT(1)
       IP2 = IPOINT(2)

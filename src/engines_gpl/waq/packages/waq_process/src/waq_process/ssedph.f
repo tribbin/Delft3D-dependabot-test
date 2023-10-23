@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_ssedph
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -51,19 +53,19 @@
 
       IMPLICIT REAL (A-H,J-Z)
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER  IFLUX , ISEG  , IKMRK1, IKMRK2, IN    , IP    , IP2   ,
+      INTEGER(kind=int_32) ::IFLUX , ISEG  , IKMRK1, IKMRK2, IN    , IP    , IP2   ,
      J         IALG  , IQ    , IVAN  , INAAR , IKMRKN, IKMRKV
-      REAL     DEPTH , SEDCAR, SEDDM , SEDNIT, SEDPHO, SEDSIL, SEDSPE,
+      REAL(kind=sp) ::DEPTH , SEDCAR, SEDDM , SEDNIT, SEDPHO, SEDSIL, SEDSPE,
      J         CTODRY, NCRAT , PCRAT , SCRAT , TOTFLX, TOTCON, CONSPE,
      J         VELSPE
 !
 !     Local
 !
-      INTEGER  NALG
+      INTEGER(kind=int_32) ::NALG
 !
       NALG  = NINT(PMSA(IPOINT(1)))
       IFLUX = 0

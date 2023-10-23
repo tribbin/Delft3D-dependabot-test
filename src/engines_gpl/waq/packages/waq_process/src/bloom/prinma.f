@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_prinma
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -39,8 +41,8 @@
 
       implicit none
 
-      real(8)   :: x(mx), biopos, bio2, total
-      integer   :: int, j, k, k2, l1, l2, ni, nin
+      real(kind=dp) ::x(mx), biopos, bio2, total
+      integer(kind=int_32) ::int, j, k, k2, l1, l2, ni, nin
 
 !  Print maximum solution on unit outdbg
       write (outdbg,10)

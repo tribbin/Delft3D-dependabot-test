@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_totdep
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -56,30 +58,30 @@
 
       IMPLICIT NONE
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      REAL               :: DEPTH              ! 1  in  depth of segment                                     (m)
-      REAL               :: SURF               ! 2  in horizontal surface area                              (m2)
-      REAL               :: TOTALDEPTH         ! 3  out total depth water column                             (m)
-      REAL               :: LOCALDEPTH         ! 4  out depth from water surface to bottom of segment        (m)
-      REAL               :: LOCSEDDEPT         ! 5  out Sediment layer depth to bottom of segment            (m)
-      REAL               :: TOTSEDDEPT         ! 2  out Sediment layer depth to bottom of sediment column    (m)
+      REAL(kind=sp) ::DEPTH              ! 1  in  depth of segment                                     (m)
+      REAL(kind=sp) ::SURF               ! 2  in horizontal surface area                              (m2)
+      REAL(kind=sp) ::TOTALDEPTH         ! 3  out total depth water column                             (m)
+      REAL(kind=sp) ::LOCALDEPTH         ! 4  out depth from water surface to bottom of segment        (m)
+      REAL(kind=sp) ::LOCSEDDEPT         ! 5  out Sediment layer depth to bottom of segment            (m)
+      REAL(kind=sp) ::TOTSEDDEPT         ! 2  out Sediment layer depth to bottom of sediment column    (m)
 
-      INTEGER  IP1   , IP2   , IP3   , IP4   , IP5
-      INTEGER  IN1   , IN2   , IN3   , IN4   , IN5
-      INTEGER  IKMRK , ISEG  , IFROM , ITO
-      INTEGER            :: IK                 ! loop counter bottom columns
-      INTEGER            :: IQ                 ! loop counter exchanges
-      INTEGER            :: IWA1               ! index first water exchange
-      INTEGER            :: IWA2               ! index last water exchange
-      INTEGER            :: ITOP               ! index first bottom exhange
-      INTEGER            :: IBOT               ! index last bottom exhange
-      INTEGER            :: IBODEM             ! segment number bottom segment
-      INTEGER            :: IWATER             ! segment number water segment
-      REAL               :: CUMTOTDEPTH        ! cummulative in averaging totaldepth
-      REAL               :: TOTSURF            ! cummulative surf in averaging totaldepth
+      INTEGER(kind=int_32) ::IP1   , IP2   , IP3   , IP4   , IP5
+      INTEGER(kind=int_32) ::IN1   , IN2   , IN3   , IN4   , IN5
+      INTEGER(kind=int_32) ::IKMRK , ISEG  , IFROM , ITO
+      INTEGER(kind=int_32) ::IK                 ! loop counter bottom columns
+      INTEGER(kind=int_32) ::IQ                 ! loop counter exchanges
+      INTEGER(kind=int_32) ::IWA1               ! index first water exchange
+      INTEGER(kind=int_32) ::IWA2               ! index last water exchange
+      INTEGER(kind=int_32) ::ITOP               ! index first bottom exhange
+      INTEGER(kind=int_32) ::IBOT               ! index last bottom exhange
+      INTEGER(kind=int_32) ::IBODEM             ! segment number bottom segment
+      INTEGER(kind=int_32) ::IWATER             ! segment number water segment
+      REAL(kind=sp) ::CUMTOTDEPTH        ! cummulative in averaging totaldepth
+      REAL(kind=sp) ::TOTSURF            ! cummulative surf in averaging totaldepth
 
 
 !     initialise bottom if necessary

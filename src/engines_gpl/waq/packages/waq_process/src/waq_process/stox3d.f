@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_stox3d
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -37,22 +39,22 @@
 !
 !     declaration of arguments
 !
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
 !     i/o from PMSA array
 !
-      REAL     SPARAM                      ! process parameter on segment
-      REAL     FACTOR                      ! scaling factor
-      REAL     QPARAM                      ! process parameter on segment
+      REAL(kind=sp) ::SPARAM                      ! process parameter on segment
+      REAL(kind=sp) ::FACTOR                      ! scaling factor
+      REAL(kind=sp) ::QPARAM                      ! process parameter on segment
 !
 !     local declarations
 !
-      INTEGER  IP1, IP2, IP3               ! index pointers in PMSA array
-      INTEGER  IN1, IN2, IN3               ! increments in PMSA array
-      INTEGER  IQ                          ! loop counter exchanges
-      INTEGER  IFROM                       ! number from-segment
+      INTEGER(kind=int_32) ::IP1, IP2, IP3               ! index pointers in PMSA array
+      INTEGER(kind=int_32) ::IN1, IN2, IN3               ! increments in PMSA array
+      INTEGER(kind=int_32) ::IQ                          ! loop counter exchanges
+      INTEGER(kind=int_32) ::IFROM                       ! number from-segment
 !
       IP1  = IPOINT( 1)
       IP2  = IPOINT( 2)

@@ -21,6 +21,7 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_effave
+      use m_waq_type_definitions
       use m_get_effi
 
 
@@ -47,17 +48,17 @@
 !     ------   -----  ------------
 
       implicit none
-      real     pmsa  ( * ) , fl    (*)
-      integer  ipoint( 92) , increm( 92) , noseg , noflux,
+      real(kind=sp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_32) ::ipoint( 92) , increm( 92) , noseg , noflux,
      +         iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 
-      integer  ip( 92)
-      real     delt, efftalg, limralg, rstep
-      integer  navera
-      integer  iseg, iflux, igro
-      integer  nspe       ! number of bloom algae species
+      integer(kind=int_32) ::ip( 92)
+      real(kind=sp) ::delt, efftalg, limralg, rstep
+      integer(kind=int_32) ::navera
+      integer(kind=int_32) ::iseg, iflux, igro
+      integer(kind=int_32) ::nspe       ! number of bloom algae species
 
-      integer, save  ::  istep = 0
+      integer(kind=int_32), save   ::istep = 0
 
 !     this is in a module/include, so we might put a flag if it was read of not.
 !     this should be a 'proto-proces', and thus needs to be added to the BLOOM.SPE

@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_waqmeteo
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -51,10 +53,10 @@
 !     Name     Type   Library
 !     ------   -----  ------------
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
-      INTEGER   MAXSTA,MAXVAR, IP , NP, ISEG, i
+      INTEGER(kind=int_32) ::MAXSTA,MAXVAR, IP , NP, ISEG, i
 !
 !     aantal meteo stations
 !
@@ -70,16 +72,16 @@
       PARAMETER (NP=5)
 
 
-      real, DIMENSION(MAXSTA) :: RAD, VWIND, DIR, HUM,
+      real(kind=sp), DIMENSION(MAXSTA)  ::RAD, VWIND, DIR, HUM,
      +                           TEMP, PRES, SUN
 
-      real, DIMENSION(MAXSTA) :: X, Y
+      real(kind=sp), DIMENSION(MAXSTA)  ::X, Y
 
       DIMENSION IP((MAXSTA+1)* MAXVAR +  MAXSTA*2 + NP)
-      real, DIMENSION(MAXSTA) :: DIST, WFAC
+      real(kind=sp), DIMENSION(MAXSTA)  ::DIST, WFAC
 
-      integer icalcsw, inear
-      real scale, nostat, xseg, yseg, sum, sum2, min
+      integer(kind=int_32) ::icalcsw, inear
+      real(kind=sp) ::scale, nostat, xseg, yseg, sum, sum2, min
 
       DO 10 I=1, (MAXSTA + 1)  * MAXVAR +  MAXSTA*2 + NP
         IP(I) = IPOINT(I)

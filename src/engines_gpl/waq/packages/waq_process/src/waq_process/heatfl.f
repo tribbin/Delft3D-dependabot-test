@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_heatfl
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -96,24 +98,24 @@
       use m_evaluate_waq_attribute
       USE PHYSICALCONSTS, ONLY : CtoKelvin
       IMPLICIT NONE
-      REAL     PMSA  ( * ) , FL  (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL  (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4,
      +         ISEG, IFLUX, IKMRK2
-      INTEGER  IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10,
+      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10,
      +         IP11, IP12, IP13, IP14, IP15, IP16, IP17, IP18, IP19,
      +         IP20, IP21, IP22, IP23, IP24, IP25, IP26, IP27, IP28,
      +         IP29, IP30, IP31, IP32, IP33, IP34, IP35, IP36, IP37,
      +         IP38, IP39, IP40
-      INTEGER  ISWTEMP, ISWEMIS
-      REAL     Qsw, Fsw, Pvap, TempAt, SBC, Fa, EWater,
+      INTEGER(kind=int_32) ::ISWTEMP, ISWEMIS
+      REAL(kind=sp) ::Qsw, Fsw, Pvap, TempAt, SBC, Fa, EWater,
      j         TempWa, RhoWat, CWindA, CWindB, CWindC, VWindm, K,
      j         PvapWa, Cpa, Patm, Qsn, Cloud, Emiss, Qa, Qan, Qbr, C,
      j         HTVap, Fwind, Ql, Beta, Qsg, Qt, Qrb, Tref,
      j         dTemp, cp, DEPTH, RelHum, Psvap, Hm, Ha, Vevap, Fwind2,
      j         VWinda, DeltaT, HtVRef, RhoRef, Rho0, MODTEMP, mindeptht
-      REAL, PARAMETER :: sCtoKelvin = real(CtoKelvin)
-      INTEGER  LUNREP
+      REAL(kind=sp), PARAMETER  ::sCtoKelvin = real(CtoKelvin)
+      INTEGER(kind=int_32) ::LUNREP
 
       IP1   = IPOINT( 1)
       IP2   = IPOINT( 2)

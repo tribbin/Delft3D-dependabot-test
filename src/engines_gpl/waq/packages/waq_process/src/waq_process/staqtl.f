@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_staqtl
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -67,30 +69,30 @@
 
       IMPLICIT NONE
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
-      INTEGER  IP1   , IP2   , IP3   , IP4   , IP5   ,
+      INTEGER(kind=int_32) ::IP1   , IP2   , IP3   , IP4   , IP5   ,
      +         IP6   , IP7   , IP8   , IP9   , IP10  ,
      +         IP11  , IP    ,
      +         IN1   , IN2   , IN3   , IN4   , IN5   ,
      +         IN6   , IN7   , IN8   , IN9   , IN10  ,
      +         IN11
-      INTEGER  ISEG
-      INTEGER  IB    , IPBUCK, IPTCNT, LUNREP, IACTION, ATTRIB
+      INTEGER(kind=int_32) ::ISEG
+      INTEGER(kind=int_32) ::IB    , IPBUCK, IPTCNT, LUNREP, IACTION, ATTRIB
 
-      INTEGER  NOBUCK
-      INTEGER  MAXBCK
+      INTEGER(kind=int_32) ::NOBUCK
+      INTEGER(kind=int_32) ::MAXBCK
       PARAMETER ( MAXBCK = 101 )
-      INTEGER  IBUCK(MAXBCK), INCBCK(MAXBCK)
-      REAL     BCKLIM(MAXBCK)
-      REAL     BMIN  , BMAX  , BDIFF , BSUM
-      REAL     PQUANT
-      REAL     TSTART, TSTOP , TIME  , DELT  , TCOUNT
+      INTEGER(kind=int_32) ::IBUCK(MAXBCK), INCBCK(MAXBCK)
+      REAL(kind=sp) ::BCKLIM(MAXBCK)
+      REAL(kind=sp) ::BMIN  , BMAX  , BDIFF , BSUM
+      REAL(kind=sp) ::PQUANT
+      REAL(kind=sp) ::TSTART, TSTOP , TIME  , DELT  , TCOUNT
 
-      INTEGER, PARAMETER :: MAXWARN = 50
-      INTEGER, SAVE      :: NOWARN  = 0
+      INTEGER(kind=int_32), PARAMETER  ::MAXWARN = 50
+      INTEGER(kind=int_32), SAVE       ::NOWARN  = 0
 
       IP1 = IPOINT(1)
       IP2 = IPOINT(2)

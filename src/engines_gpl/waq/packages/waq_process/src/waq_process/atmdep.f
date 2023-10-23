@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_atmdep
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -43,7 +45,7 @@
 !
 ! Name    T   L I/O   Description                                    Units
 ! ----    --- -  -    -------------------                            -----
-! ZFL     REAL        Zero'th oreder flux         M/m3/s
+! ZFL     REAL(kind=sp) ::Zero'th oreder flux         M/m3/s
 ! DEPTH   R*4 1 I     depth                                          [m]
 ! SW1                 load option 0=all, 1=top, 2=bottom segments    (-)
 ! SW2                 maximise withdrawel to mass 0=no, 1=yes        (-)
@@ -54,12 +56,12 @@
 !     Name     Type   Library
 !     ------   -----  ------------
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
-      integer  IP1, IP2, IP3, IP4, IP5, IP6, IFLUX, ISEG, IKMRK1,
+      integer(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IFLUX, ISEG, IKMRK1,
      +         IKMRK2, ISW1, ISW2
-      real     zfl, depth, conc, delt  
+      real(kind=sp) ::zfl, depth, conc, delt  
 
       IP1  = IPOINT( 1)
       IP2  = IPOINT( 2)

@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_sulfox
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -69,18 +71,18 @@
 !
       IMPLICIT NONE
 !
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
-      INTEGER  IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9
-      INTEGER  IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9
-      INTEGER  IFLUX  , ISEG   , ILUMON
+      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9
+      INTEGER(kind=int_32) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9
+      INTEGER(kind=int_32) ::IFLUX  , ISEG   , ILUMON
 !
-      REAL     CSUD   , COX
-      REAL     K0OXI  , KOXI   , COXC
-      REAL     POROS  , KTOXI  , TEMP   , TEMPC  , TEMP20
-      REAL     DELT   , FLUXOX
+      REAL(kind=sp) ::CSUD   , COX
+      REAL(kind=sp) ::K0OXI  , KOXI   , COXC
+      REAL(kind=sp) ::POROS  , KTOXI  , TEMP   , TEMPC  , TEMP20
+      REAL(kind=sp) ::DELT   , FLUXOX
       LOGICAL  FIRST
       SAVE     FIRST
       DATA     FIRST /.TRUE./

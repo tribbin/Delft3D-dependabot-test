@@ -21,6 +21,7 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_setday
+      use m_waq_type_definitions
       USE ProcesSet
 
       implicit none
@@ -50,14 +51,14 @@
 !
 !     NAME    KIND      LENGTH  FUNCT.  DESCRIPTION
 !     ----    -----     ------  ------- -----------
-!     LUNREP  INTEGER        1  INPUT   unit number report file
-!     NOKEY   INTEGER        1  INPUT   number of keywords for this process
+!     LUNREP  INTEGER(kind=int_32) ::1  INPUT   unit number report file
+!     NOKEY   INTEGER(kind=int_32) ::1  INPUT   number of keywords for this process
 !     KEYNAM  CHAR*20    NOKEY  INPUT   keyword name
 !     KEYVAL  CHAR*20    NOKEY  INPUT   keyword value
 !     aProcesProp               OUTPUT  properties for this proces
 !     AllItems                  INPUT   all items known to the proces system
-!     IERR    INTEGER        1  IN/OUT  cummulative error count
-!     NOWARN  INTEGER        1  IN/OUT  cummulative warning count
+!     IERR    INTEGER(kind=int_32) ::1  IN/OUT  cummulative error count
+!     NOWARN  INTEGER(kind=int_32) ::1  IN/OUT  cummulative warning count
 !
       use m_zoek
       use m_srstop
@@ -71,7 +72,7 @@
 !
 !     Declaration of arguments
 !
-      INTEGER       LUNREP, NOKEY , IPROC , IERR  , NOWARN, item_ind
+      INTEGER(kind=int_32) ::LUNREP, NOKEY , IPROC , IERR  , NOWARN, item_ind
       LOGICAL       DTFLG1 , DTFLG3
       CHARACTER*20  KEYNAM(NOKEY), KEYVAL(NOKEY)
       type(ProcesProp)      :: aProcesProp         ! output statistical proces definition
@@ -79,14 +80,14 @@
 !
 !     Local declarations
 !
-      INTEGER       IERR_ALLOC, IKEY  , ISLEN     , IERR2 , IRET
-      integer       istart , iperiod
-      INTEGER,      ALLOCATABLE :: ISUSED(:)
+      INTEGER(kind=int_32) ::IERR_ALLOC, IKEY  , ISLEN     , IERR2 , IRET
+      integer(kind=int_32) ::istart , iperiod
+      INTEGER(kind=int_32),      ALLOCATABLE  ::ISUSED(:)
       CHARACTER*20  KEY       , SUFFIX  , NAME, item_name
       CHARACTER*50  item_desc
-      REAL          PERIOD, default_value 
+      REAL(kind=sp) ::PERIOD, default_value 
       type(ItemProp)        :: aItemProp            ! one item
-      integer(4) :: ithndl = 0
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "setday", ithndl )
 !
 !     init
@@ -430,9 +431,9 @@
          TYPE(ProcesProp), INTENT(OUT) :: process_prop ! output statistical proces definition
          CHARACTER(LEN=20), INTENT(IN) :: item_name
          CHARACTER(LEN=50), INTENT(IN) :: item_desc
-         INTEGER, INTENT(IN) :: item_ind, item_type
-         INTEGER :: iret
-         REAL, INTENT(IN) :: default_value 
+         INTEGER(kind=int_32), INTENT(IN)  ::item_ind, item_type
+         INTEGER(kind=int_32) ::iret
+         REAL(kind=sp), INTENT(IN)  ::default_value 
 
          item_prop%name    = item_name
          item_prop%default = default_value

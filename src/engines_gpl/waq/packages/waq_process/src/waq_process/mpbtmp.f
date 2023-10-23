@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_mpbtmp
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -44,36 +46,36 @@ C***********************************************************************
 
 C     arguments
 
-      REAL               :: PMSA(*)            ! in/out input-output array space to be adressed with IPOINT/INCREM
-      REAL               :: FL(*)              ! in/out flux array
-      INTEGER            :: IPOINT(*)          ! in     start index input-output parameters in the PMSA array (segment or exchange number 1)
-      INTEGER            :: INCREM(*)          ! in     increment for each segment-exchange for the input-output parameters in the PMSA array
-      INTEGER            :: NOSEG              ! in     number of segments
-      INTEGER            :: NOFLUX             ! in     total number of fluxes (increment in FL array)
-      INTEGER            :: IEXPNT(4,*)        ! in     exchange pointer table
-      INTEGER            :: IKNMRK(*)          ! in     segment features array
-      INTEGER            :: NOQ1               ! in     number of exchanges in first direction
-      INTEGER            :: NOQ2               ! in     number of exchanges in second direction
-      INTEGER            :: NOQ3               ! in     number of exchanges in third direction
-      INTEGER            :: NOQ4               ! in     number of exchanges in fourth direction
+      REAL(kind=sp) ::PMSA(*)            ! in/out input-output array space to be adressed with IPOINT/INCREM
+      REAL(kind=sp) ::FL(*)              ! in/out flux array
+      INTEGER(kind=int_32) ::IPOINT(*)          ! in     start index input-output parameters in the PMSA array (segment or exchange number 1)
+      INTEGER(kind=int_32) ::INCREM(*)          ! in     increment for each segment-exchange for the input-output parameters in the PMSA array
+      INTEGER(kind=int_32) ::NOSEG              ! in     number of segments
+      INTEGER(kind=int_32) ::NOFLUX             ! in     total number of fluxes (increment in FL array)
+      INTEGER(kind=int_32) ::IEXPNT(4,*)        ! in     exchange pointer table
+      INTEGER(kind=int_32) ::IKNMRK(*)          ! in     segment features array
+      INTEGER(kind=int_32) ::NOQ1               ! in     number of exchanges in first direction
+      INTEGER(kind=int_32) ::NOQ2               ! in     number of exchanges in second direction
+      INTEGER(kind=int_32) ::NOQ3               ! in     number of exchanges in third direction
+      INTEGER(kind=int_32) ::NOQ4               ! in     number of exchanges in fourth direction
 
 C     from PMSA array
 
-      REAL               :: TEMP               !  1 in  , ambient water temperature                     (oC)
-      REAL               :: KTGP               !  2 in  , MPB1 temperature coefficient gross production  (-)
-      INTEGER            :: ITIME              !  3 in  , DELWAQ time                                  (scu)
-      INTEGER            :: IDT                !  4 in  , DELWAQ timestep                              (scu)
-      INTEGER            :: ITSTRT             !  5 in  , DELWAQ start time                            (scu)
-      INTEGER            :: AUXSYS             !  6 in  , ratio between days and system clock        (scu/d)
-      REAL               :: FTMP               !  7 i/o , MPB temperature function                       (-)
-      REAL               :: WS                 !  8 i/o , workspace MPB temperature function             (-)
+      REAL(kind=sp) ::TEMP               !  1 in  , ambient water temperature                     (oC)
+      REAL(kind=sp) ::KTGP               !  2 in  , MPB1 temperature coefficient gross production  (-)
+      INTEGER(kind=int_32) ::ITIME              !  3 in  , DELWAQ time                                  (scu)
+      INTEGER(kind=int_32) ::IDT                !  4 in  , DELWAQ timestep                              (scu)
+      INTEGER(kind=int_32) ::ITSTRT             !  5 in  , DELWAQ start time                            (scu)
+      INTEGER(kind=int_32) ::AUXSYS             !  6 in  , ratio between days and system clock        (scu/d)
+      REAL(kind=sp) ::FTMP               !  7 i/o , MPB temperature function                       (-)
+      REAL(kind=sp) ::WS                 !  8 i/o , workspace MPB temperature function             (-)
 
 C     local decalrations
 
-      INTEGER            :: ISEG               ! loop counter segment loop
-      INTEGER, parameter :: NO_POINTER = 10    ! number of input output variables in PMSA array
-      INTEGER            :: IP(NO_POINTER)     ! index pointer in PMSA array updated for each segment
-      REAL               :: FTMP_NOW           ! actual MPB temperature function                         (-)
+      INTEGER(kind=int_32) ::ISEG               ! loop counter segment loop
+      INTEGER(kind=int_32), parameter  ::NO_POINTER = 10    ! number of input output variables in PMSA array
+      INTEGER(kind=int_32) ::IP(NO_POINTER)     ! index pointer in PMSA array updated for each segment
+      REAL(kind=sp) ::FTMP_NOW           ! actual MPB temperature function                         (-)
 
 C     initialise pointers for PMSA and FL array
 

@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_refl
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -55,16 +57,16 @@
 !     ------   -----  ------------
 
       implicit none
-      real     pmsa  ( * ) , fl    (*)
-      integer  ipoint( * ) , increm(*) , noseg , noflux,
+      real(kind=sp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_32) ::ipoint( * ) , increm(*) , noseg , noflux,
      +         iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 
-      integer ip1,ip2,ip3,ip4,ip5
-      integer in1,in2,in3,in4,in5
-      real    time, tref, auxsys
-      real    latitudeg, daynr, daynrrefl, reflec
+      integer(kind=int_32) ::ip1,ip2,ip3,ip4,ip5
+      integer(kind=int_32) ::in1,in2,in3,in4,in5
+      real(kind=sp) ::time, tref, auxsys
+      real(kind=sp) ::latitudeg, daynr, daynrrefl, reflec
       logical varflg
-      integer weeknr , iseg
+      integer(kind=int_32) ::weeknr , iseg
 
       in1  = increm( 1)
       in2  = increm( 2)

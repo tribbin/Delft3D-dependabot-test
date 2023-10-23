@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_intoou
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -44,70 +46,70 @@
       ! declaration of arguments
 
       type(procespropcoll)      :: procesdef       ! all processes
-      integer                   :: nproc           ! number of processes (active)
-      integer                   :: nflux           ! number of fluxes
-      integer                   :: nsvar(*)        ! number of variables
+      integer(kind=int_32) ::nproc           ! number of processes (active)
+      integer(kind=int_32) ::nflux           ! number of fluxes
+      integer(kind=int_32) ::nsvar(*)        ! number of variables
       character(len=*)          :: pronam(*)       ! routine name
-      integer                   :: iflux(*)        ! index in flux array
-      integer                   :: ipmsa(*)        ! index in pmsa array
-      integer                   :: ipssa(*)        ! index in ssa  array
-      integer                   :: nipmsa          ! length pmsa array
-      integer                   :: ioff            ! offset in pointer for segment items
-      integer                   :: ioffx           ! offset in pointer for exchange items
-      integer                   :: nocons          ! number of constants
-      integer                   :: nopa            ! number of parameters
-      integer                   :: nofun           ! number of functions
-      integer                   :: nosfun          ! number of segment functions
-      integer                   :: notot           ! number of substances
-      integer                   :: nodisp          ! number of dispersions
-      integer                   :: novelo          ! number of velocities
-      integer                   :: nodef           ! number of default
-      integer                   :: noloc           ! number of local values
-      integer                   :: ndspx           ! number of dispersions
-      integer                   :: nvelx           ! number of velocities
-      integer                   :: nlocx           ! number of local values on exchanges
-      integer                   :: nopred          ! number of predfined values
-      integer                   :: prvvar(*)       ! variable pointer
-      integer                   :: prvtyp(*)       ! type of variable
-      integer                   :: novar           ! number of variables
-      integer                   :: progrd(*)       ! process grid
-      integer                   :: prondt(*)       ! process ndt
+      integer(kind=int_32) ::iflux(*)        ! index in flux array
+      integer(kind=int_32) ::ipmsa(*)        ! index in pmsa array
+      integer(kind=int_32) ::ipssa(*)        ! index in ssa  array
+      integer(kind=int_32) ::nipmsa          ! length pmsa array
+      integer(kind=int_32) ::ioff            ! offset in pointer for segment items
+      integer(kind=int_32) ::ioffx           ! offset in pointer for exchange items
+      integer(kind=int_32) ::nocons          ! number of constants
+      integer(kind=int_32) ::nopa            ! number of parameters
+      integer(kind=int_32) ::nofun           ! number of functions
+      integer(kind=int_32) ::nosfun          ! number of segment functions
+      integer(kind=int_32) ::notot           ! number of substances
+      integer(kind=int_32) ::nodisp          ! number of dispersions
+      integer(kind=int_32) ::novelo          ! number of velocities
+      integer(kind=int_32) ::nodef           ! number of default
+      integer(kind=int_32) ::noloc           ! number of local values
+      integer(kind=int_32) ::ndspx           ! number of dispersions
+      integer(kind=int_32) ::nvelx           ! number of velocities
+      integer(kind=int_32) ::nlocx           ! number of local values on exchanges
+      integer(kind=int_32) ::nopred          ! number of predfined values
+      integer(kind=int_32) ::prvvar(*)       ! variable pointer
+      integer(kind=int_32) ::prvtyp(*)       ! type of variable
+      integer(kind=int_32) ::novar           ! number of variables
+      integer(kind=int_32) ::progrd(*)       ! process grid
+      integer(kind=int_32) ::prondt(*)       ! process ndt
 
       ! local decalarations
 
-      integer                   :: nproctot        ! number of processes
-      integer                   :: iproc           ! loop counter processes
-      integer                   :: iproc_act       ! index active processes
+      integer(kind=int_32) ::nproctot        ! number of processes
+      integer(kind=int_32) ::iproc           ! loop counter processes
+      integer(kind=int_32) ::iproc_act       ! index active processes
       type(procesprop), pointer :: proc            ! process description
-      integer                   :: i_input         ! index input item
-      integer                   :: ioutput         ! index output item
-      integer                   :: ibfl            ! index flux
-      integer                   :: itel            ! counter
-      integer                   :: itel0           ! counter
-      integer                   :: itel1           ! counter
+      integer(kind=int_32) ::i_input         ! index input item
+      integer(kind=int_32) ::ioutput         ! index output item
+      integer(kind=int_32) ::ibfl            ! index flux
+      integer(kind=int_32) ::itel            ! counter
+      integer(kind=int_32) ::itel0           ! counter
+      integer(kind=int_32) ::itel1           ! counter
       character(len=80)         :: line            ! output buffer
-      integer                   :: ivvol           ! pointer index to array
-      integer                   :: ivare           ! pointer index to array
-      integer                   :: ivflo           ! pointer index to array
-      integer                   :: ivlen           ! pointer index to array
-      integer                   :: ivcns           ! pointer index to array
-      integer                   :: ivpar           ! pointer index to array
-      integer                   :: ivfun           ! pointer index to array
-      integer                   :: ivsfu           ! pointer index to array
-      integer                   :: ivcnc           ! pointer index to array
-      integer                   :: ivmas           ! pointer index to array
-      integer                   :: ivder           ! pointer index to array
-      integer                   :: ivdsp           ! pointer index to array
-      integer                   :: ivvel           ! pointer index to array
-      integer                   :: ivdef           ! pointer index to array
-      integer                   :: ivloc           ! pointer index to array
-      integer                   :: ivdsx           ! pointer index to array
-      integer                   :: ivvlx           ! pointer index to array
-      integer                   :: ivlcx           ! pointer index to array
-      integer                   :: ivflx           ! pointer index to array
-      integer                   :: ioffx2          ! pointer index to array
-      integer                   :: nfluxx          ! second counter nflux
-      integer(4) :: ithndl = 0
+      integer(kind=int_32) ::ivvol           ! pointer index to array
+      integer(kind=int_32) ::ivare           ! pointer index to array
+      integer(kind=int_32) ::ivflo           ! pointer index to array
+      integer(kind=int_32) ::ivlen           ! pointer index to array
+      integer(kind=int_32) ::ivcns           ! pointer index to array
+      integer(kind=int_32) ::ivpar           ! pointer index to array
+      integer(kind=int_32) ::ivfun           ! pointer index to array
+      integer(kind=int_32) ::ivsfu           ! pointer index to array
+      integer(kind=int_32) ::ivcnc           ! pointer index to array
+      integer(kind=int_32) ::ivmas           ! pointer index to array
+      integer(kind=int_32) ::ivder           ! pointer index to array
+      integer(kind=int_32) ::ivdsp           ! pointer index to array
+      integer(kind=int_32) ::ivvel           ! pointer index to array
+      integer(kind=int_32) ::ivdef           ! pointer index to array
+      integer(kind=int_32) ::ivloc           ! pointer index to array
+      integer(kind=int_32) ::ivdsx           ! pointer index to array
+      integer(kind=int_32) ::ivvlx           ! pointer index to array
+      integer(kind=int_32) ::ivlcx           ! pointer index to array
+      integer(kind=int_32) ::ivflx           ! pointer index to array
+      integer(kind=int_32) ::ioffx2          ! pointer index to array
+      integer(kind=int_32) ::nfluxx          ! second counter nflux
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "intoou", ithndl )
 
       ! first calculate nproc, nflux
@@ -259,16 +261,16 @@
      +                    nopred)
 
       use timers       !   performance timers
-      integer nocons, nopa , nofun, nosfun, notot, nodisp, novelo, nodef,
+      integer(kind=int_32) ::nocons, nopa , nofun, nosfun, notot, nodisp, novelo, nodef,
      +        noloc , ndspx, nvelx, nlocx , nflux, nopred
       
-      integer(4) :: ithndl = 0
-      integer ipin, ivar
+      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_32) ::ipin, ivar
       
 !     local
-      integer ivvol, ivare, ivflo, ivlen, ivcns, ivpar, ivfun
-      integer ivsfu, ivcnc, ivmas, ivder, ivdsp, ivvel, ivdef
-      integer ivloc, ivdsx, ivvlx, ivlcx, ivflx, ip   , ioff
+      integer(kind=int_32) ::ivvol, ivare, ivflo, ivlen, ivcns, ivpar, ivfun
+      integer(kind=int_32) ::ivsfu, ivcnc, ivmas, ivder, ivdsp, ivvel, ivdef
+      integer(kind=int_32) ::ivloc, ivdsx, ivvlx, ivlcx, ivflx, ip   , ioff
       
       if (timon) call timstrt( "ip2var", ithndl )
 

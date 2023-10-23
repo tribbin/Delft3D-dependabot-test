@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_setgr2
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -45,26 +47,26 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     NOGRID  INTEGER       1     INPUT   Number of grids
-!     NOTOTG  INTEGER       1     INPUT   Number of substances for this grid
-!     GRDREF  INTEGER    NOGRID   INPUT   Reference grid number
-!     PROSYS  INTEGER    NOTOTG   INPUT   Substance numbers for this process
-!     GRPATH  INTEGER    NOGRID   LOCAL   Reference path to base grid
-!     IPGRID  INTEGER       1     OUTPUT  Grid number set for this process
+!     NOGRID  INTEGER(kind=int_32) ::1     INPUT   Number of grids
+!     NOTOTG  INTEGER(kind=int_32) ::1     INPUT   Number of substances for this grid
+!     GRDREF  INTEGER(kind=int_32) ::NOGRID   INPUT   Reference grid number
+!     PROSYS  INTEGER(kind=int_32) ::NOTOTG   INPUT   Substance numbers for this process
+!     GRPATH  INTEGER(kind=int_32) ::NOGRID   LOCAL   Reference path to base grid
+!     IPGRID  INTEGER(kind=int_32) ::1     OUTPUT  Grid number set for this process
 !
 !     Declaration of arguments
 !
       use timers       !   performance timers
 
-      INTEGER             NOGRID, NOTOTG, IPGRID
-      INTEGER             GRDREF(NOGRID), PROSYS(NOTOTG),
+      INTEGER(kind=int_32) ::NOGRID, NOTOTG, IPGRID
+      INTEGER(kind=int_32) ::GRDREF(NOGRID), PROSYS(NOTOTG),
      +                    GRPATH(NOGRID)
 !
 !     Local declarations
 !
-      INTEGER             NPATH , IPATH , IGRID , IGSYS , NCHECK
+      INTEGER(kind=int_32) ::NPATH , IPATH , IGRID , IGSYS , NCHECK
       
-      integer(4) :: ithndl = 0
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "setgr2", ithndl )
 !
 !     Check number of substances for this grid

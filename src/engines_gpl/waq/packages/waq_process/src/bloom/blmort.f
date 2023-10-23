@@ -21,6 +21,7 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_blmort
+      use m_waq_type_definitions
       use m_natmor
 
 
@@ -39,33 +40,33 @@
 
       implicit none
 
-      real(4)    biomas(*)  ! Biomass (gC/m3)
-      real(4)    temp       ! Temperature (deg.C)
-      real(4)    faut(*)    ! Fraction autolysis (-)
-      real(4)    fdet(*)    ! Fraction detritus (-)
-      real(4)    flautn(*)  ! Nutrient autolysis fluxes (g/m3/d)
-      real(4)    fldetn(*)  ! Detritus production fluxes (g/m3/d)
-      real(4)    flooxn(*)  ! OOX production fluxes (g/m3/d)
-      real(4)    flmora(*)  ! Algae mortality fluxes (gC/m3/d)
-      real(4)    deat4      ! ??$Check necessity to transfer$
-      real(4)    tstepi     ! Time step (d)
+      real(kind=sp) ::biomas(*)  ! Biomass (gC/m3)
+      real(kind=sp) ::temp       ! Temperature (deg.C)
+      real(kind=sp) ::faut(*)    ! Fraction autolysis (-)
+      real(kind=sp) ::fdet(*)    ! Fraction detritus (-)
+      real(kind=sp) ::flautn(*)  ! Nutrient autolysis fluxes (g/m3/d)
+      real(kind=sp) ::fldetn(*)  ! Detritus production fluxes (g/m3/d)
+      real(kind=sp) ::flooxn(*)  ! OOX production fluxes (g/m3/d)
+      real(kind=sp) ::flmora(*)  ! Algae mortality fluxes (gC/m3/d)
+      real(kind=sp) ::deat4      ! ??$Check necessity to transfer$
+      real(kind=sp) ::tstepi     ! Time step (d)
       logical    lmixo      ! Flag mixotrophy
       logical    lfixn      ! Flag N-fixation
       logical    lcarb      ! Flag carbon limitation
-      integer    nutcon(*)  ! Nutrients involved in active nutrient constraints
-      integer    flxcon(*)  ! Uptake fluxes involved in active nutrient constraints
+      integer(kind=int_32) ::nutcon(*)  ! Nutrients involved in active nutrient constraints
+      integer(kind=int_32) ::flxcon(*)  ! Uptake fluxes involved in active nutrient constraints
 
 !     Local variables
 
-      real(8)    temp8      ! Temperature (deg.C)
-      real(8)    deat       ! ??
-      real(8)    foox       ! Fraction other organic
-      real(4)    cphyt      ! Biomass (gC/m3)
-      real(4)    cmort      ! Mortality flux (gC/m3/d)
-      real(4)    cmorta     ! Autolysis flux (gC/m3/d)
-      real(4)    cmortd     ! Detritus prod. (gC/m3/d)
-      real(4)    cmorto     ! OOx production (gC/m3/d)
-      integer    i, j, k    ! Counters
+      real(kind=dp) ::temp8      ! Temperature (deg.C)
+      real(kind=dp) ::deat       ! ??
+      real(kind=dp) ::foox       ! Fraction other organic
+      real(kind=sp) ::cphyt      ! Biomass (gC/m3)
+      real(kind=sp) ::cmort      ! Mortality flux (gC/m3/d)
+      real(kind=sp) ::cmorta     ! Autolysis flux (gC/m3/d)
+      real(kind=sp) ::cmortd     ! Detritus prod. (gC/m3/d)
+      real(kind=sp) ::cmorto     ! OOx production (gC/m3/d)
+      integer(kind=int_32) ::i, j, k    ! Counters
 
 !  Zero fluxes
       do j = 1,4

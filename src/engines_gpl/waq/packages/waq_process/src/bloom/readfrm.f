@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_readfrm
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -43,7 +45,7 @@
 
       character*60 aline
 
-      integer      :: i, ioff, j
+      integer(kind=int_32) ::i, ioff, j
 
 
 !  Read data for the integrated photosynthetic efficiency curves.

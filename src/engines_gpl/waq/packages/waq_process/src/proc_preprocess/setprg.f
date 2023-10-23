@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_setprg
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -45,43 +47,43 @@
       ! declaration of arguments
 
       type(procespropcoll)      :: procesdef       ! all processes
-      integer                   :: nogrid          ! number of grids
-      integer                   :: notot           ! number of substances
-      integer                   :: grdref(nogrid)  ! reference grid number
-      integer                   :: sysgrd(notot)   ! grid number substances
-      integer                   :: sysndt(notot)   ! timestep multiplier substances
+      integer(kind=int_32) ::nogrid          ! number of grids
+      integer(kind=int_32) ::notot           ! number of substances
+      integer(kind=int_32) ::grdref(nogrid)  ! reference grid number
+      integer(kind=int_32) ::sysgrd(notot)   ! grid number substances
+      integer(kind=int_32) ::sysndt(notot)   ! timestep multiplier substances
 
       ! local decalarations
 
-      integer                   :: nproc           ! number of processes
-      integer                   :: iproc           ! loop counter processes
-      integer                   :: iproc2          ! loop counter processes
+      integer(kind=int_32) ::nproc           ! number of processes
+      integer(kind=int_32) ::iproc           ! loop counter processes
+      integer(kind=int_32) ::iproc2          ! loop counter processes
       type(procesprop), pointer :: proc            ! process description
       type(procesprop), pointer :: proc2           ! process description
-      integer                   :: isys            ! index substance
-      integer                   :: i               ! loop index
-      integer                   :: ipgrid          ! index grid
-      integer                   :: istochi         ! index stochi
-      integer                   :: i_input         ! index input
-      integer                   :: ioutput         ! index output
-      integer                   :: imnoag          ! index routine
-      integer                   :: nmnoag          ! number of routines whic may not be aggregated
-      integer, parameter        :: mxnoag = 1000   ! dimension for local array
+      integer(kind=int_32) ::isys            ! index substance
+      integer(kind=int_32) ::i               ! loop index
+      integer(kind=int_32) ::ipgrid          ! index grid
+      integer(kind=int_32) ::istochi         ! index stochi
+      integer(kind=int_32) ::i_input         ! index input
+      integer(kind=int_32) ::ioutput         ! index output
+      integer(kind=int_32) ::imnoag          ! index routine
+      integer(kind=int_32) ::nmnoag          ! number of routines whic may not be aggregated
+      integer(kind=int_32), parameter         ::mxnoag = 1000   ! dimension for local array
       character(len=10)         :: monoag(mxnoag)  ! list of routines which may not be aggregated
-      integer                   :: maxwrk          ! dimension for local array
-      integer                   :: nototg          !
-      integer                   :: maxndt          ! max timestep multiplier
-      integer                   :: ndt             ! timestep multiplier
-      integer                   :: nndt            ! number of ndt
+      integer(kind=int_32) ::maxwrk          ! dimension for local array
+      integer(kind=int_32) ::nototg          !
+      integer(kind=int_32) ::maxndt          ! max timestep multiplier
+      integer(kind=int_32) ::ndt             ! timestep multiplier
+      integer(kind=int_32) ::nndt            ! number of ndt
       character(len=20)         :: valnam          ! name
-      integer, allocatable      :: grpath(:)       !
-      integer, pointer          :: grdwrk(:)       !
+      integer(kind=int_32), allocatable       ::grpath(:)       !
+      integer(kind=int_32) , pointer          :: grdwrk(:)       !
       logical                   :: lexi
       logical                   :: l_exchange      ! in or output on exchanges
-      integer, allocatable      :: isysto(:)       ! temp, copy of the substances in the fluxstochi
-      integer                   :: lun
-      integer                   :: ierr
-      integer(4) :: ithndl = 0
+      integer(kind=int_32), allocatable       ::isysto(:)       ! temp, copy of the substances in the fluxstochi
+      integer(kind=int_32) ::lun
+      integer(kind=int_32) ::ierr
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "setprg", ithndl )
 
       allocate(grpath(nogrid))

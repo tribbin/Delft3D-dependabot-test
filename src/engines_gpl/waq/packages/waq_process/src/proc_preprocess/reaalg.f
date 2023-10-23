@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_reaalg
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -40,22 +42,22 @@
 
       implicit none
       
-      integer       lunrep, lunblm
-      real          verspe                     ! version number of bloom.spe-file
-      integer       maxtyp, maxcof
-      integer       notyp , nocof , nogrp , noutgrp, nouttyp
+      integer(kind=int_32) ::lunrep, lunblm
+      real(kind=sp) ::verspe                     ! version number of bloom.spe-file
+      integer(kind=int_32) ::maxtyp, maxcof
+      integer(kind=int_32) ::notyp , nocof , nogrp , noutgrp, nouttyp
       character*10  alggrp(maxtyp), algtyp(maxtyp)
       character*5   abrgrp(maxtyp), abrtyp(maxtyp)
       character*80  algdsc(maxtyp)
       character*10  cofnam(maxcof)
-      real          algcof(maxcof,maxtyp)
+      real(kind=sp) ::algcof(maxcof,maxtyp)
       character*10  outgrp(maxtyp), outtyp(maxtyp)
-      integer       noprot , nopralg
+      integer(kind=int_32) ::noprot , nopralg
       character*10  namprot(maxtyp), nampact(maxtyp),
      +              nampralg(maxtyp)
       character*80  cdummy(5)
-      integer       i, iatyp
-      integer(4) :: ithndl = 0
+      integer(kind=int_32) ::i, iatyp
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "reaalg", ithndl )
 !
       read(lunblm,*,err=900) notyp

@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_sulfpr
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -72,18 +74,18 @@
 !
       IMPLICIT NONE
 !
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
-      INTEGER  IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10
-      INTEGER  IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9, IN10
-      INTEGER  IFLUX  , ISEG
+      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10
+      INTEGER(kind=int_32) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9, IN10
+      INTEGER(kind=int_32) ::IFLUX  , ISEG
 !
-      REAL     CSP    , CSD
-      REAL     KDIS   , KPRC   , CSDE   , KTDIS  , KTPRC
-      REAL     POROS  , TEMP   , TEMPCD , TEMPCP , TEMP20
-      REAL     DELT   , FLUXPR , FLUXDS
+      REAL(kind=sp) ::CSP    , CSD
+      REAL(kind=sp) ::KDIS   , KPRC   , CSDE   , KTDIS  , KTPRC
+      REAL(kind=sp) ::POROS  , TEMP   , TEMPCD , TEMPCP , TEMP20
+      REAL(kind=sp) ::DELT   , FLUXPR , FLUXDS
 !
       IN1  = INCREM( 1)
       IN2  = INCREM( 2)

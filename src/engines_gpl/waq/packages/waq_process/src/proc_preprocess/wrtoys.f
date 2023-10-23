@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_wrtoys
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -44,26 +46,26 @@
       implicit none
 
       character(len=*)    , intent(in   ) :: lchar(*)               !< filenames
-      integer             , intent(in   ) :: lun(*)                 !< unit numbers
-      integer             , intent(in   ) :: notot                  !< number of substances
+      integer(kind=int_32), intent(in   )  ::lun(*)                 !< unit numbers
+      integer(kind=int_32), intent(in   )  ::notot                  !< number of substances
       character(len=20)   , intent(in   ) :: syname(*)              !< substance names
-      integer             , intent(in   ) :: noutp                  !< total number of output files
-      integer             , intent(in   ) :: ioutps(7,*)            !< (old) output structure
+      integer(kind=int_32), intent(in   )  ::noutp                  !< total number of output files
+      integer(kind=int_32), intent(in   )  ::ioutps(7,*)            !< (old) output structure
       type(outputcoll)    , intent(in   ) :: outputs                !< output structure
 
       ! local
 
-      integer                             :: isys
-      integer                             :: ivar
-      integer                             :: ioffv
+      integer(kind=int_32) ::isys
+      integer(kind=int_32) ::ivar
+      integer(kind=int_32) ::ioffv
       character*255                       :: filpst
       character*255                       :: filstu
-      integer                             :: lunwrk
-      integer                             :: nrvar
-      integer                             :: indx
-      integer                             :: indx2
-      integer                             :: ilen
-      integer(4)                :: ithndl = 0        ! handle for performance timer
+      integer(kind=int_32) ::lunwrk
+      integer(kind=int_32) ::nrvar
+      integer(kind=int_32) ::indx
+      integer(kind=int_32) ::indx2
+      integer(kind=int_32) ::ilen
+      integer(kind=int_32) ::ithndl = 0        ! handle for performance timer
       if (timon) call timstrt( "wrtoys", ithndl )
 !
       lunwrk = 81

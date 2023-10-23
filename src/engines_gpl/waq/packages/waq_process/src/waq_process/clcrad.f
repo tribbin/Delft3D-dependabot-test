@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_clcrad
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -45,55 +47,55 @@
 
 !     arguments
 
-      REAL               :: PMSA(*)            ! in/out input-output array space to be adressed with IPOINT/INCREM
-      REAL               :: FL(*)              ! in/out flux array
-      INTEGER            :: IPOINT(*)          ! in     start index input-output parameters in the PMSA array (segment or exchange number 1)
-      INTEGER            :: INCREM(*)          ! in     increment for each segment-exchange for the input-output parameters in the PMSA array
-      INTEGER            :: NOSEG              ! in     number of segments
-      INTEGER            :: NOFLUX             ! in     total number of fluxes (increment in FL array)
-      INTEGER            :: IEXPNT(4,*)        ! in     exchange pointer table
-      INTEGER            :: IKNMRK(*)          ! in     segment features array
-      INTEGER            :: NOQ1               ! in     number of exchanges in first direction
-      INTEGER            :: NOQ2               ! in     number of exchanges in second direction
-      INTEGER            :: NOQ3               ! in     number of exchanges in third direction
-      INTEGER            :: NOQ4               ! in     number of exchanges in fourth direction
+      REAL(kind=sp) ::PMSA(*)            ! in/out input-output array space to be adressed with IPOINT/INCREM
+      REAL(kind=sp) ::FL(*)              ! in/out flux array
+      INTEGER(kind=int_32) ::IPOINT(*)          ! in     start index input-output parameters in the PMSA array (segment or exchange number 1)
+      INTEGER(kind=int_32) ::INCREM(*)          ! in     increment for each segment-exchange for the input-output parameters in the PMSA array
+      INTEGER(kind=int_32) ::NOSEG              ! in     number of segments
+      INTEGER(kind=int_32) ::NOFLUX             ! in     total number of fluxes (increment in FL array)
+      INTEGER(kind=int_32) ::IEXPNT(4,*)        ! in     exchange pointer table
+      INTEGER(kind=int_32) ::IKNMRK(*)          ! in     segment features array
+      INTEGER(kind=int_32) ::NOQ1               ! in     number of exchanges in first direction
+      INTEGER(kind=int_32) ::NOQ2               ! in     number of exchanges in second direction
+      INTEGER(kind=int_32) ::NOQ3               ! in     number of exchanges in third direction
+      INTEGER(kind=int_32) ::NOQ4               ! in     number of exchanges in fourth direction
 
 !     from PMSA array
 
-      REAL               :: EXTVL              ! 1  in  total extinction coefficient visible light   (1/m)
-      REAL               :: DEPTH              ! 2  in  depth of segment                               (m)
-      REAL               :: RADSURF            ! 3  in  irradiation at the water surface            (W/m2)
-      REAL               :: A_ENH              ! 4  in  enhancement factor in radiation calculation    (-)
-      REAL               :: SURF               ! 5  in  horizontal surface                            (m2)
-      INTEGER            :: SWEMERSION         ! 6  in  switch indicating submersion(0) or emersion (1)(-)
-      REAL               :: RADBOT             ! 7  loc/out 9 irradiation at the segment lower-boundary   (W/m2)
+      REAL(kind=sp) ::EXTVL              ! 1  in  total extinction coefficient visible light   (1/m)
+      REAL(kind=sp) ::DEPTH              ! 2  in  depth of segment                               (m)
+      REAL(kind=sp) ::RADSURF            ! 3  in  irradiation at the water surface            (W/m2)
+      REAL(kind=sp) ::A_ENH              ! 4  in  enhancement factor in radiation calculation    (-)
+      REAL(kind=sp) ::SURF               ! 5  in  horizontal surface                            (m2)
+      INTEGER(kind=int_32) ::SWEMERSION         ! 6  in  switch indicating submersion(0) or emersion (1)(-)
+      REAL(kind=sp) ::RADBOT             ! 7  loc/out 9 irradiation at the segment lower-boundary   (W/m2)
 
 !     local decalrations
 
-      INTEGER            :: IP1,IP2,IP3,IP4,IP5,IP6,IP7,IP8,IP9,IP10
-      INTEGER            :: IP11 ! index pointers in PMSA array
-      INTEGER            :: IN1,IN2,IN3,IN4,IN5,IN6,IN7,IN8,IN9,IN10
-      INTEGER            :: IN11 ! increments in PMSA array
-      INTEGER            :: LUNREP         ! report file
-      INTEGER            :: ISEG           ! loop counter segment loop
-      INTEGER            :: IKMRK1         ! first feature inactive(0)-active(1)-bottom(2) segment
-      INTEGER            :: IK1VN          ! first feature inactive(0)-active(1)-bottom(2) VAN segment
-      INTEGER            :: IK1NR          ! first feature inactive(0)-active(1)-bottom(2) NAAR segment
-      INTEGER            :: IK2VN          ! second feature 2D(0)-surface(1)-middle(2)-bottom(3) VAN segment
-      INTEGER            :: IK2NR          ! second feature 2D(0)-surface(1)-middle(2)-bottom(3) NAAR segment
-      INTEGER            :: IK             ! loop counter bottom columns
-      INTEGER            :: IQ             ! loop counter exchanges
-      INTEGER            :: IVAN           ! segment number from
-      INTEGER            :: INAAR          ! segment number to
-      INTEGER            :: IWA1           ! index first water exchange
-      INTEGER            :: IWA2           ! index last water exchange
-      INTEGER            :: ITOP           ! index first bottom exhange
-      INTEGER            :: IBOT           ! index last bottom exhange
-      INTEGER            :: IWATER         ! segment number water segment
-      INTEGER            :: IBODEM         ! segment number bottom segment
-      REAL               :: RADTOP         ! radiation at top
-      REAL               :: TOTSURF        ! cummulated surface area
-      REAL               :: REFLEC         ! Reflected fraction of incident sunlight
+      INTEGER(kind=int_32) ::IP1,IP2,IP3,IP4,IP5,IP6,IP7,IP8,IP9,IP10
+      INTEGER(kind=int_32) ::IP11 ! index pointers in PMSA array
+      INTEGER(kind=int_32) ::IN1,IN2,IN3,IN4,IN5,IN6,IN7,IN8,IN9,IN10
+      INTEGER(kind=int_32) ::IN11 ! increments in PMSA array
+      INTEGER(kind=int_32) ::LUNREP         ! report file
+      INTEGER(kind=int_32) ::ISEG           ! loop counter segment loop
+      INTEGER(kind=int_32) ::IKMRK1         ! first feature inactive(0)-active(1)-bottom(2) segment
+      INTEGER(kind=int_32) ::IK1VN          ! first feature inactive(0)-active(1)-bottom(2) VAN segment
+      INTEGER(kind=int_32) ::IK1NR          ! first feature inactive(0)-active(1)-bottom(2) NAAR segment
+      INTEGER(kind=int_32) ::IK2VN          ! second feature 2D(0)-surface(1)-middle(2)-bottom(3) VAN segment
+      INTEGER(kind=int_32) ::IK2NR          ! second feature 2D(0)-surface(1)-middle(2)-bottom(3) NAAR segment
+      INTEGER(kind=int_32) ::IK             ! loop counter bottom columns
+      INTEGER(kind=int_32) ::IQ             ! loop counter exchanges
+      INTEGER(kind=int_32) ::IVAN           ! segment number from
+      INTEGER(kind=int_32) ::INAAR          ! segment number to
+      INTEGER(kind=int_32) ::IWA1           ! index first water exchange
+      INTEGER(kind=int_32) ::IWA2           ! index last water exchange
+      INTEGER(kind=int_32) ::ITOP           ! index first bottom exhange
+      INTEGER(kind=int_32) ::IBOT           ! index last bottom exhange
+      INTEGER(kind=int_32) ::IWATER         ! segment number water segment
+      INTEGER(kind=int_32) ::IBODEM         ! segment number bottom segment
+      REAL(kind=sp) ::RADTOP         ! radiation at top
+      REAL(kind=sp) ::TOTSURF        ! cummulated surface area
+      REAL(kind=sp) ::REFLEC         ! Reflected fraction of incident sunlight
 
 
       IP1  = IPOINT(1)

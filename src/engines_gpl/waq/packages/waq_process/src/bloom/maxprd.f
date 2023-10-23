@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_maxprd
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -41,8 +43,8 @@
 
       implicit none
 
-      real*8  :: t
-      integer :: i, k
+      real(kind=dp) ::t
+      integer(kind=int_32) ::i, k
       
 !  Calculate respiration rate constants.
 !  Calculate the maximum gross growth rate per day as a linear or

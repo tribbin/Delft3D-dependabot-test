@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_dhnoseg
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -43,12 +45,12 @@
 !
 !     name    kind     length     funct.  description
 !     ----    -----    ------     ------- -----------
-!     pnoseg  integer       1     output  copy of the noseg from sysn
+!     pnoseg  integer(kind=int_32) ::1     output  copy of the noseg from sysn
 !
 !     declarations
       use m_sysn          ! System characteristics
 !
-      integer       pnoseg
+      integer(kind=int_32) ::pnoseg
 
       pnoseg = noseg
 
@@ -72,13 +74,13 @@
 !
 !     name     kind     length     funct.  description
 !     ----     -----    ------     ------- -----------
-!     nosegfm  integer        1     input   number of water segments (!)
-!     kmx      integer        1     input   number of layers
+!     nosegfm  integer(kind=int_32) ::1     input   number of water segments (!)
+!     kmx      integer(kind=int_32) ::1     input   number of layers
 !
 !     declarations
       use m_sysn          ! System characteristics
 !
-      integer       pnoseg, kmx, nosegfm
+      integer(kind=int_32) ::pnoseg, kmx, nosegfm
 
 
       noseg = nosegfm

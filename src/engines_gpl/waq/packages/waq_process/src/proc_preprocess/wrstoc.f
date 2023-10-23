@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_wrstoc
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -43,44 +45,44 @@
       ! declaration of arguments
 
       type(procespropcoll)      :: procesdef       ! all processes
-      integer                   :: luout           ! stochi file
-      integer                   :: notot           ! number of substances
+      integer(kind=int_32) ::luout           ! stochi file
+      integer(kind=int_32) ::notot           ! number of substances
       character(len=*)          :: syname(notot)   ! name of substances
-      real                      :: stoch2(notot,*) ! delwaq stochi array
-      integer                   :: noutp           ! number of output variables
-      integer                   :: ioutps(7,noutp) ! output structure
+      real(kind=sp) ::stoch2(notot,*) ! delwaq stochi array
+      integer(kind=int_32) ::noutp           ! number of output variables
+      integer(kind=int_32) ::ioutps(7,noutp) ! output structure
       type(outputcoll)          :: outputs         ! output structure
-      integer                   :: ndmpar          ! number of stations
-      integer                   :: nbufmx          ! max buffer
-      integer                   :: intopt          ! integration option
+      integer(kind=int_32) ::ndmpar          ! number of stations
+      integer(kind=int_32) ::nbufmx          ! max buffer
+      integer(kind=int_32) ::intopt          ! integration option
 
       character(len=80)         :: line            ! output buffer
-      integer                   :: noflx           ! number of fluxes
-      integer                   :: nproctot        ! number of processes
-      integer                   :: iproc           ! index process
+      integer(kind=int_32) ::noflx           ! number of fluxes
+      integer(kind=int_32) ::nproctot        ! number of processes
+      integer(kind=int_32) ::iproc           ! index process
       type(procesprop), pointer :: proc            ! process description
-      integer                   :: i               ! loop counter
-      integer                   :: j               ! loop counter
-      integer                   :: niflx           ! number of fluxes
-      integer                   :: nflx            ! number of fluxes
-      integer                   :: iflx            ! index flux
-      integer                   :: iflux           ! index flux
-      integer                   :: istochi         ! index flux
-      integer                   :: isys            ! index substance
-      real                      :: scale           ! stochi factor
+      integer(kind=int_32) ::i               ! loop counter
+      integer(kind=int_32) ::j               ! loop counter
+      integer(kind=int_32) ::niflx           ! number of fluxes
+      integer(kind=int_32) ::nflx            ! number of fluxes
+      integer(kind=int_32) ::iflx            ! index flux
+      integer(kind=int_32) ::iflux           ! index flux
+      integer(kind=int_32) ::istochi         ! index flux
+      integer(kind=int_32) ::isys            ! index substance
+      real(kind=sp) ::scale           ! stochi factor
       character(len=20)         :: flxnam          ! output buffer
-      integer                   :: nrvar           ! counter
-      integer                   :: nrvarn          ! counter
-      integer                   :: nrvaro          ! counter
-      integer                   :: ioutp           ! index output variable
-      integer                   :: ivar            ! index output variable
-      integer                   :: isrtou          ! type of output
-      integer                   :: nobalt          ! number of balances
-      integer                   :: nocel           ! number of cells
-      integer                   :: nbufou          ! buffer used
+      integer(kind=int_32) ::nrvar           ! counter
+      integer(kind=int_32) ::nrvarn          ! counter
+      integer(kind=int_32) ::nrvaro          ! counter
+      integer(kind=int_32) ::ioutp           ! index output variable
+      integer(kind=int_32) ::ivar            ! index output variable
+      integer(kind=int_32) ::isrtou          ! type of output
+      integer(kind=int_32) ::nobalt          ! number of balances
+      integer(kind=int_32) ::nocel           ! number of cells
+      integer(kind=int_32) ::nbufou          ! buffer used
       type(outputcoll)          :: outputl         ! local output structure
-      integer                   :: nrvarm          ! size of local output structure
-      integer(4)                :: ithndl = 0        ! handle for performance timer
+      integer(kind=int_32) ::nrvarm          ! size of local output structure
+      integer(kind=int_32) ::ithndl = 0        ! handle for performance timer
       if (timon) call timstrt( "wrstoc", ithndl )
 
       ! calculate noflx

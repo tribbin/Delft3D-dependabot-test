@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_bacmrt
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -69,13 +71,13 @@
 
       IMPLICIT NONE
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
-      INTEGER  IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10,
+      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10,
      &         IP11, IP12, IP13
-      INTEGER  IFLUX, ISEG
-      REAL     BACT, RCMRT, TCMRT, TEMP, CRTEMP, CL, RAD, CFRAD,
+      INTEGER(kind=int_32) ::IFLUX, ISEG
+      REAL(kind=sp) ::BACT, RCMRT, TCMRT, TEMP, CRTEMP, CL, RAD, CFRAD,
      &         EXTVL, DEPTH, SPMRTZ, TEMP20, TEMPF, MRTRAD, MORT
 
 

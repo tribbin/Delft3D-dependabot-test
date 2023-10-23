@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_attout
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -51,14 +53,14 @@
 
       implicit none
 
-      real     pmsa  ( * ) , fl    (*)
-      integer  ipoint(2)   , increm(2) , noseg , noflux
-      integer  iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
+      real(kind=sp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_32) ::ipoint(2)   , increm(2) , noseg , noflux
+      integer(kind=int_32) ::iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 
-      integer  ip (2)
-      integer  iseg
-      integer  idx
-      integer  attrib
+      integer(kind=int_32) ::ip (2)
+      integer(kind=int_32) ::iseg
+      integer(kind=int_32) ::idx
+      integer(kind=int_32) ::attrib
 
       ip = ipoint
 

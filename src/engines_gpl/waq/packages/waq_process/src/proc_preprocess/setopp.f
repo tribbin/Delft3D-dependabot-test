@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_setopp
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -42,17 +44,17 @@
 
       type(procespropcoll)      :: procesdef       !< all processes
       type(outputcoll)          :: outputs         !< output structure
-      integer                   :: ioff            !< offset to process output in waq data space
+      integer(kind=int_32) ::ioff            !< offset to process output in waq data space
 
       ! local decalarations
 
-      integer                   :: nproc           ! number of processes
-      integer                   :: iproc           ! loop counter processes
+      integer(kind=int_32) ::nproc           ! number of processes
+      integer(kind=int_32) ::iproc           ! loop counter processes
       type(procesprop), pointer :: proc            ! process description
       character(len=100)        :: line            ! line buffer for output
-      integer                   :: ioutput         ! index output item
-      integer                   :: iou             ! loop counter output variable
-      integer(4)                :: ithndl = 0      ! handle for performance timer
+      integer(kind=int_32) ::ioutput         ! index output item
+      integer(kind=int_32) ::iou             ! loop counter output variable
+      integer(kind=int_32) ::ithndl = 0      ! handle for performance timer
       if (timon) call timstrt( "setopp", ithndl )
 
       ! set process on if output is requested and input ok

@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_radalg
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -50,20 +52,20 @@
 
 !     Type    Name         I/O Description
 
-      real(4) pmsa(*)     !I/O Process Manager System Array, window of routine to process library
-      real(4) fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
-      integer ipoint(  6) ! I  Array of pointers in pmsa to get and store the data
-      integer increm(  6) ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer noseg       ! I  Number of computational elements in the whole model schematisation
-      integer noflux      ! I  Number of fluxes, increment in the fl array
-      integer iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      integer iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      integer noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
-      integer noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
-      integer ipnt(  6)   !    Local work array for the pointering
-      integer iseg        !    Local loop counter for computational element loop
+      real(kind=sp) ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
+      real(kind=sp) ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
+      integer(kind=int_32) ::ipoint(  6) ! I  Array of pointers in pmsa to get and store the data
+      integer(kind=int_32) ::increm(  6) ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_32) ::noseg       ! I  Number of computational elements in the whole model schematisation
+      integer(kind=int_32) ::noflux      ! I  Number of fluxes, increment in the fl array
+      integer(kind=int_32) ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      integer(kind=int_32) ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      integer(kind=int_32) ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
+      integer(kind=int_32) ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_32) ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_32) ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      integer(kind=int_32) ::ipnt(  6)   !    Local work array for the pointering
+      integer(kind=int_32) ::iseg        !    Local loop counter for computational element loop
 
 !***********************************************************************
 !
@@ -84,17 +86,17 @@
 
 !     Type    Name         I/O Description                                         Unit
 
-      real(4) Depth       ! I  depth of segment                                    (m)
-      real(4) Rad         ! I  irradiation at the segment upper-boundary           (W/m2)
-      real(4) RadSat      ! I  total radiation growth saturation for this species  (W/m2)
-      real(4) ExtVl       ! I  total extinction coefficient visible light          (1/m)
-      real(4) TFGro       ! I  temperature function growth of this species <0-1>   (-)
-      real(4) LimRad      ! O  radiation limitation function of this species <0-1> (-)
+      real(kind=sp) ::Depth       ! I  depth of segment                                    (m)
+      real(kind=sp) ::Rad         ! I  irradiation at the segment upper-boundary           (W/m2)
+      real(kind=sp) ::RadSat      ! I  total radiation growth saturation for this species  (W/m2)
+      real(kind=sp) ::ExtVl       ! I  total extinction coefficient visible light          (1/m)
+      real(kind=sp) ::TFGro       ! I  temperature function growth of this species <0-1>   (-)
+      real(kind=sp) ::LimRad      ! O  radiation limitation function of this species <0-1> (-)
       logical LgtOpt      !    False if RadSat, Frad and LnFrad are equal for all cells
-      real(4) Frad        !    Saturation fraction: < 1.0 is under-saturation      (-)
-      real(4) LnFrad      !    natural logarithm of Frad                           (-)
-      real(4) ExtDpt      !    product of extinction and depth                     (-)
-      real(4) RadBot      !    radiation at the bottom of the cell                 (-)
+      real(kind=sp) ::Frad        !    Saturation fraction: < 1.0 is under-saturation      (-)
+      real(kind=sp) ::LnFrad      !    natural logarithm of Frad                           (-)
+      real(kind=sp) ::ExtDpt      !    product of extinction and depth                     (-)
+      real(kind=sp) ::RadBot      !    radiation at the bottom of the cell                 (-)
 
       ipnt        = ipoint
 

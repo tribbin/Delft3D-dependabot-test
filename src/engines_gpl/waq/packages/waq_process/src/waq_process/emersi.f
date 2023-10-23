@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_emersi
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -49,48 +51,48 @@
 
       ! arguments
 
-      real               :: pmsa(*)            ! in/out input-output array space to be adressed with ipoint/increm
-      real               :: fl(*)              ! in/out flux array
-      integer            :: ipoint(*)          ! in     start index input-output parameters in the pmsa array (segment or exchange number 1)
-      integer            :: increm(*)          ! in     increment for each segment-exchange for the input-output parameters in the pmsa array
-      integer            :: noseg              ! in     number of segments
-      integer            :: noflux             ! in     total number of fluxes (increment in fl array)
-      integer            :: iexpnt(4,*)        ! in     exchange pointer table
-      integer            :: iknmrk(*)          ! in     segment features array
-      integer            :: noq1               ! in     number of exchanges in first direction
-      integer            :: noq2               ! in     number of exchanges in second direction
-      integer            :: noq3               ! in     number of exchanges in third direction
-      integer            :: noq4               ! in     number of exchanges in fourth direction
+      real(kind=sp) ::pmsa(*)            ! in/out input-output array space to be adressed with ipoint/increm
+      real(kind=sp) ::fl(*)              ! in/out flux array
+      integer(kind=int_32) ::ipoint(*)          ! in     start index input-output parameters in the pmsa array (segment or exchange number 1)
+      integer(kind=int_32) ::increm(*)          ! in     increment for each segment-exchange for the input-output parameters in the pmsa array
+      integer(kind=int_32) ::noseg              ! in     number of segments
+      integer(kind=int_32) ::noflux             ! in     total number of fluxes (increment in fl array)
+      integer(kind=int_32) ::iexpnt(4,*)        ! in     exchange pointer table
+      integer(kind=int_32) ::iknmrk(*)          ! in     segment features array
+      integer(kind=int_32) ::noq1               ! in     number of exchanges in first direction
+      integer(kind=int_32) ::noq2               ! in     number of exchanges in second direction
+      integer(kind=int_32) ::noq3               ! in     number of exchanges in third direction
+      integer(kind=int_32) ::noq4               ! in     number of exchanges in fourth direction
 
       ! from pmsa array
 
-      real               :: depth              ! 1  in  total depth of the water column
-      real               :: zthreshold         ! 2  in  depth threshold for emersion (drying)
-      integer            :: swemersion         ! 3  out switch indicating submersion(0) or emersion (1)
+      real(kind=sp) ::depth              ! 1  in  total depth of the water column
+      real(kind=sp) ::zthreshold         ! 2  in  depth threshold for emersion (drying)
+      integer(kind=int_32) ::swemersion         ! 3  out switch indicating submersion(0) or emersion (1)
 
       ! local decalrations
 
-      integer                      :: ip1            ! index pointer in pmsa array
-      integer                      :: ip2            ! index pointer in pmsa array
-      integer                      :: ip3            ! index pointer in pmsa array
-      integer                      :: in3            ! increment in pmsa array
-      integer                      :: nosegw         ! number of water segments
-      integer                      :: nosegl         ! number of segments per layer
-      integer                      :: nolay          ! number of layers
-      integer                      :: iseg           ! loop counter segment loop
-      integer                      :: iseg_down      ! underlying segment
-      integer                      :: ikmrk1         ! first feature inactive/active/bottom
-      integer                      :: ikmrk2         ! second feature surf+bottom(0)-surf(1)-mid(2)-bottom(3) segment
-      integer                      :: ik             ! bottom column index
-      integer                      :: iq             ! exchange loop counter
-      integer                      :: iwa1           ! first water-sediment exchange in sediment column
-      integer                      :: iwa2           ! last water-sediment exchange in sediment column
-      integer                      :: itop           ! first sediment-sediment exchange in sediment column
-      integer                      :: ibot           ! last sediment-sediment exchange in sediment column
-      integer                      :: iwater         ! water segment number
-      integer                      :: sw_water       ! emersion switch for the water segment
-      integer                      :: ibodem         ! bottom segment number
-      integer, save                :: opemersion = 2 ! option emersion 1 = all, 2 = one, 3 = average
+      integer(kind=int_32) ::ip1            ! index pointer in pmsa array
+      integer(kind=int_32) ::ip2            ! index pointer in pmsa array
+      integer(kind=int_32) ::ip3            ! index pointer in pmsa array
+      integer(kind=int_32) ::in3            ! increment in pmsa array
+      integer(kind=int_32) ::nosegw         ! number of water segments
+      integer(kind=int_32) ::nosegl         ! number of segments per layer
+      integer(kind=int_32) ::nolay          ! number of layers
+      integer(kind=int_32) ::iseg           ! loop counter segment loop
+      integer(kind=int_32) ::iseg_down      ! underlying segment
+      integer(kind=int_32) ::ikmrk1         ! first feature inactive/active/bottom
+      integer(kind=int_32) ::ikmrk2         ! second feature surf+bottom(0)-surf(1)-mid(2)-bottom(3) segment
+      integer(kind=int_32) ::ik             ! bottom column index
+      integer(kind=int_32) ::iq             ! exchange loop counter
+      integer(kind=int_32) ::iwa1           ! first water-sediment exchange in sediment column
+      integer(kind=int_32) ::iwa2           ! last water-sediment exchange in sediment column
+      integer(kind=int_32) ::itop           ! first sediment-sediment exchange in sediment column
+      integer(kind=int_32) ::ibot           ! last sediment-sediment exchange in sediment column
+      integer(kind=int_32) ::iwater         ! water segment number
+      integer(kind=int_32) ::sw_water       ! emersion switch for the water segment
+      integer(kind=int_32) ::ibodem         ! bottom segment number
+      integer(kind=int_32), save                 ::opemersion = 2 ! option emersion 1 = all, 2 = one, 3 = average
 
       ! initialise bottom if necessary
 

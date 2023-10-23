@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_calchz
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -56,15 +58,15 @@
 !     Name     Type   Library
 !     ------   -----  ------------
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
 !     Local declarations, constants in source
 !
-      REAL     ROUGH  , DEPTH , TOTDEP,    CHZ, ONESIX,
+      REAL(kind=sp) ::ROUGH  , DEPTH , TOTDEP,    CHZ, ONESIX,
      +         MANCOF
-      INTEGER  IP1    , IP2   , IP3   , IKMRK2,
+      INTEGER(kind=int_32) ::IP1    , IP2   , IP3   , IKMRK2,
      +         ICHZTP , IP4   , IP5   , IP6   , ISEG
 
 
@@ -83,7 +85,7 @@
 ! 0-inactive cell  1-active cell
        CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
        IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
-! place in layers   0-depth integerated (2D) 1-top 2-between 3-bottom
+! place in layers   0-depth integer(kind=int_32) ::ated (2D) 1-top 2-between 3-bottom
 !
 
         ROUGH   =      PMSA(IP1 )

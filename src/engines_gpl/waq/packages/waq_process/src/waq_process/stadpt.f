@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_stadpt
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -60,23 +62,23 @@
 
       implicit none
 
-      real     pmsa  ( * ) , fl    (*)
-      integer  ipoint( * ) , increm(*) , noseg , noflux
-      integer  iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
+      real(kind=sp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_32) ::ipoint( * ) , increm(*) , noseg , noflux
+      integer(kind=int_32) ::iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 !
-      integer  ip1   , ip2   , ip3   , ip4   , ip5
-      integer  in1   , in2   , in3   , in4   , in5
-      integer  ikmrk
-      real     volume
+      integer(kind=int_32) ::ip1   , ip2   , ip3   , ip4   , ip5
+      integer(kind=int_32) ::in1   , in2   , in3   , in4   , in5
+      integer(kind=int_32) ::ikmrk
+      real(kind=sp) ::volume
 
 !     work arrays
-      real, allocatable :: cdepsum(:)
-      real, allocatable :: vdepsum(:)
-      real, allocatable :: cdepavg(:)
-      real, allocatable :: cdepmax(:)
-      real, allocatable :: cdepmin(:)
+      real(kind=sp), allocatable  ::cdepsum(:)
+      real(kind=sp), allocatable  ::vdepsum(:)
+      real(kind=sp), allocatable  ::cdepavg(:)
+      real(kind=sp), allocatable  ::cdepmax(:)
+      real(kind=sp), allocatable  ::cdepmin(:)
       
-      integer           :: iseg, ifrom, ito, ik1from, ik1to, iq
+      integer(kind=int_32) ::iseg, ifrom, ito, ik1from, ik1to, iq
 
       ip1 = ipoint(1)
       ip2 = ipoint(2)

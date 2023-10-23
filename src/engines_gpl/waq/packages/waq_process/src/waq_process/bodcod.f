@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_bodcod
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -107,14 +109,14 @@
       IMPLICIT REAL (A-H,J-Z)
       IMPLICIT INTEGER (I)
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER  LUNREP
+      INTEGER(kind=int_32) ::LUNREP
 
       LOGICAL  TFACT,AFACT
-      REAL     RAT5N , BODN  , BDNPHY, AMCCF , BDNPOC
+      REAL(kind=sp) ::RAT5N , BODN  , BDNPHY, AMCCF , BDNPOC
 
       IN1  = INCREM( 1)
       IN2  = INCREM( 2)

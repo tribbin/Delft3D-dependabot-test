@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_dhnolay
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -43,12 +45,12 @@
 !
 !     name    kind     length     funct.  description
 !     ----    -----    ------     ------- -----------
-!     pnolay  integer       1     output  copy of the nolay from sysn
+!     pnolay  integer(kind=int_32) ::1     output  copy of the nolay from sysn
 !
 !     declarations
 !
       use m_sysn          ! System characteristics
-      integer       pnolay
+      integer(kind=int_32) ::pnolay
 !
 !     common  /  sysn   /   system characteristics
 !

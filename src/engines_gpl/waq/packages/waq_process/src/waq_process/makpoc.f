@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_makpoc
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -56,17 +58,17 @@
 
       IMPLICIT NONE
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, ISEG
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX, LUNREP,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, ISEG
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX, LUNREP,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
 !     Local
 !
-      REAL     IM1   , IM2   , IM3
-      REAL     FRC1  , FRC2  , FRC3
-      REAL     OCPOM
-      REAL     poc, POC1  , POC2  , POC3
+      REAL(kind=sp) ::IM1   , IM2   , IM3
+      REAL(kind=sp) ::FRC1  , FRC2  , FRC3
+      REAL(kind=sp) ::OCPOM
+      REAL(kind=sp) ::poc, POC1  , POC2  , POC3
 !
       IP1  = IPOINT( 1)
       IP2  = IPOINT( 2)

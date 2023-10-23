@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_temper
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -39,71 +41,71 @@
 
 !     arguments
 
-      REAL               :: PMSA(*)            ! in/out input-output array space to be adressed with IPOINT/INCREM
-      REAL               :: FL(*)              ! in/out flux array
-      INTEGER            :: IPOINT(*)          ! in     start index input-output parameters in the PMSA array (segment or exchange number 1)
-      INTEGER            :: INCREM(*)          ! in     increment for each segment-exchange for the input-output parameters in the PMSA array
-      INTEGER            :: NOSEG              ! in     number of segments
-      INTEGER            :: NOFLUX             ! in     total number of fluxes (increment in FL array)
-      INTEGER            :: IEXPNT(4,*)        ! in     exchange pointer table
-      INTEGER            :: IKNMRK(*)          ! in     segment features array
-      INTEGER            :: NOQ1               ! in     number of exchanges in first direction
-      INTEGER            :: NOQ2               ! in     number of exchanges in second direction
-      INTEGER            :: NOQ3               ! in     number of exchanges in third direction
-      INTEGER            :: NOQ4               ! in     number of exchanges in fourth direction
+      REAL(kind=sp) ::PMSA(*)            ! in/out input-output array space to be adressed with IPOINT/INCREM
+      REAL(kind=sp) ::FL(*)              ! in/out flux array
+      INTEGER(kind=int_32) ::IPOINT(*)          ! in     start index input-output parameters in the PMSA array (segment or exchange number 1)
+      INTEGER(kind=int_32) ::INCREM(*)          ! in     increment for each segment-exchange for the input-output parameters in the PMSA array
+      INTEGER(kind=int_32) ::NOSEG              ! in     number of segments
+      INTEGER(kind=int_32) ::NOFLUX             ! in     total number of fluxes (increment in FL array)
+      INTEGER(kind=int_32) ::IEXPNT(4,*)        ! in     exchange pointer table
+      INTEGER(kind=int_32) ::IKNMRK(*)          ! in     segment features array
+      INTEGER(kind=int_32) ::NOQ1               ! in     number of exchanges in first direction
+      INTEGER(kind=int_32) ::NOQ2               ! in     number of exchanges in second direction
+      INTEGER(kind=int_32) ::NOQ3               ! in     number of exchanges in third direction
+      INTEGER(kind=int_32) ::NOQ4               ! in     number of exchanges in fourth direction
 
 !     from PMSA array
 
-      REAL               :: MTEMP              ! 1  in  Modelled temperature                                [oC]
-      REAL               :: TMPNAT             ! 2  in  natural temperature of ambient water                [oC]
-      REAL               :: DEPTH              ! 3  in  actual depth of the water column                     [m]
-      REAL               :: VWIND              ! 4  in  wind speed at 10 m above surface                   [m/s]
-      REAL               :: CP                 ! 5  in  specific heat (default 4183.0)                 [J/kg/oC]
-      REAL               :: DELT               ! 6  in  DELWAQ process time step                             [d]
-      INTEGER            :: ISWTMP             ! 7  in  DELWAQ process time step                             [d]
-      REAL               :: FACTRC             ! 8  in  Factor on rate constant                              [d]
-      REAL               :: ZEROFL             ! 9  in  Zeroth-order flux                                 [oC/d]
-      INTEGER            :: SWTEMPDF           !10  in  switch temperature increase on tidal flats           (-)
-      INTEGER            :: SWEMERSION         !11  in  switch indicating submersion(0) or emersion(1)       (-)
-      REAL               :: LOCSEDDEPT         !12  in  Sediment layer depth to bottom of segment            (m)
-      REAL               :: THSEDDT            !13  in  thickness sed. layer subjected to temp. change       (m)
-      REAL               :: RAD                !14  in  actual irradiance over the day                    (W/m2)
-      REAL               :: RADMAX             !15  in  maximal irradiance                                (W/m2)
-      REAL               :: RTRADMAX           !16  in  max. rate temp. increase tidal flats              (oC/d)
-      REAL               :: DELTRADMAX         !17  in  max. temp. increase tidal flats radiation           (oC)
-      REAL               :: DELTEV             !18  in  temperature decrease evaporation tidal flats        (oC)
-      REAL               :: DELTRAD            !19  i/o temperature increase previous step                  (oC)
-      REAL               :: WEXCH              !20  out Rate constant for surplus temperature exchange       [d]
-      REAL               :: TTEMP              !21  out Total temperature                                   [oC]
-      REAL               :: ETEMP              !22  out EXCESS! temperature                                 [oC]
+      REAL(kind=sp) ::MTEMP              ! 1  in  Modelled temperature                                [oC]
+      REAL(kind=sp) ::TMPNAT             ! 2  in  natural temperature of ambient water                [oC]
+      REAL(kind=sp) ::DEPTH              ! 3  in  actual depth of the water column                     [m]
+      REAL(kind=sp) ::VWIND              ! 4  in  wind speed at 10 m above surface                   [m/s]
+      REAL(kind=sp) ::CP                 ! 5  in  specific heat (default 4183.0)                 [J/kg/oC]
+      REAL(kind=sp) ::DELT               ! 6  in  DELWAQ process time step                             [d]
+      INTEGER(kind=int_32) ::ISWTMP             ! 7  in  DELWAQ process time step                             [d]
+      REAL(kind=sp) ::FACTRC             ! 8  in  Factor on rate constant                              [d]
+      REAL(kind=sp) ::ZEROFL             ! 9  in  Zeroth-order flux                                 [oC/d]
+      INTEGER(kind=int_32) ::SWTEMPDF           !10  in  switch temperature increase on tidal flats           (-)
+      INTEGER(kind=int_32) ::SWEMERSION         !11  in  switch indicating submersion(0) or emersion(1)       (-)
+      REAL(kind=sp) ::LOCSEDDEPT         !12  in  Sediment layer depth to bottom of segment            (m)
+      REAL(kind=sp) ::THSEDDT            !13  in  thickness sed. layer subjected to temp. change       (m)
+      REAL(kind=sp) ::RAD                !14  in  actual irradiance over the day                    (W/m2)
+      REAL(kind=sp) ::RADMAX             !15  in  maximal irradiance                                (W/m2)
+      REAL(kind=sp) ::RTRADMAX           !16  in  max. rate temp. increase tidal flats              (oC/d)
+      REAL(kind=sp) ::DELTRADMAX         !17  in  max. temp. increase tidal flats radiation           (oC)
+      REAL(kind=sp) ::DELTEV             !18  in  temperature decrease evaporation tidal flats        (oC)
+      REAL(kind=sp) ::DELTRAD            !19  i/o temperature increase previous step                  (oC)
+      REAL(kind=sp) ::WEXCH              !20  out Rate constant for surplus temperature exchange       [d]
+      REAL(kind=sp) ::TTEMP              !21  out Total temperature                                   [oC]
+      REAL(kind=sp) ::ETEMP              !22  out EXCESS! temperature                                 [oC]
 
 !     fluxes
 
-      REAL               :: WFLUX              ! 1      excess temperature flux                           [oC/d]
+      REAL(kind=sp) ::WFLUX              ! 1      excess temperature flux                           [oC/d]
 
 !     local decalrations
 
-      REAL, PARAMETER    :: P1 = 0.00158       ! coefficient in heat exchange
-      REAL, PARAMETER    :: P2 = 0.018         ! coefficient in heat exchange
-      REAL, PARAMETER    :: P3 = 1.12          ! coefficient in heat exchange
-      REAL, PARAMETER    :: P4 = 0.049         ! coefficient in heat exchange
-      REAL, PARAMETER    :: P5 = 4.48          ! coefficient in heat exchange
-      REAL, PARAMETER    :: P6 = 2.05          ! coefficient in heat exchange
-      REAL, PARAMETER    :: P7 = 3.5           ! coefficient in heat exchange
-      REAL, PARAMETER    :: C1 = 1000.0        ! coefficient in density of water
-      REAL, PARAMETER    :: C2 = 0.088         ! coefficient in density of water
-      REAL, PARAMETER    :: C3 = 86400.        ! conversion, seconds in one day
-      REAL               :: RHOW               ! density of the water                                    [kg/m3]
-      REAL               :: HCAPAC             ! Heat capacity of water                                [J/m3/oC]
-      REAL               :: FWIND              ! wind factor in heat exchange
-      REAL               :: TREQ               ! equilibrium temperature increse due to solar radiation     [oC]
-      REAL               :: RTRAD              ! rate of temperature increase due to solar radiation      [oC/d]
+      REAL(kind=sp), PARAMETER     ::P1 = 0.00158       ! coefficient in heat exchange
+      REAL(kind=sp), PARAMETER     ::P2 = 0.018         ! coefficient in heat exchange
+      REAL(kind=sp), PARAMETER     ::P3 = 1.12          ! coefficient in heat exchange
+      REAL(kind=sp), PARAMETER     ::P4 = 0.049         ! coefficient in heat exchange
+      REAL(kind=sp), PARAMETER     ::P5 = 4.48          ! coefficient in heat exchange
+      REAL(kind=sp), PARAMETER     ::P6 = 2.05          ! coefficient in heat exchange
+      REAL(kind=sp), PARAMETER     ::P7 = 3.5           ! coefficient in heat exchange
+      REAL(kind=sp), PARAMETER     ::C1 = 1000.0        ! coefficient in density of water
+      REAL(kind=sp), PARAMETER     ::C2 = 0.088         ! coefficient in density of water
+      REAL(kind=sp), PARAMETER     ::C3 = 86400.        ! conversion, seconds in one day
+      REAL(kind=sp) ::RHOW               ! density of the water                                    [kg/m3]
+      REAL(kind=sp) ::HCAPAC             ! Heat capacity of water                                [J/m3/oC]
+      REAL(kind=sp) ::FWIND              ! wind factor in heat exchange
+      REAL(kind=sp) ::TREQ               ! equilibrium temperature increse due to solar radiation     [oC]
+      REAL(kind=sp) ::RTRAD              ! rate of temperature increase due to solar radiation      [oC/d]
 
 
-      INTEGER  IP1 ,IP2 ,IP3 ,IP4 ,IP5 ,IP6 ,IP7 ,IP8 ,IP9 ,IP10,
+      INTEGER(kind=int_32) ::IP1 ,IP2 ,IP3 ,IP4 ,IP5 ,IP6 ,IP7 ,IP8 ,IP9 ,IP10,
      J         IP11,IP12,IP13,IP14,IP15,IP16,IP17,IP18,IP19,IP20,
      J         IP21,IP22,IP23
-      INTEGER  IFLUX , ISEG  , IKMRK2
+      INTEGER(kind=int_32) ::IFLUX , ISEG  , IKMRK2
 
       IP1  = IPOINT(1 )
       IP2  = IPOINT(2 )

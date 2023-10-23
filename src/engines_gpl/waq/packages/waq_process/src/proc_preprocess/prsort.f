@@ -21,6 +21,7 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_prsort
+      use m_waq_type_definitions
       use m_valpoi
 
 
@@ -44,37 +45,37 @@
 
       ! decalaration of arguments
 
-      integer                   :: lurep           ! unit number report file
+      integer(kind=int_32) ::lurep           ! unit number report file
       type(ProcesPropColl)      :: ProcesDef       ! all processes
-      integer                   :: notot           ! number of substances
-      integer                   :: nopa            ! number of parameters
-      integer                   :: nosfun          ! number of segment functions
+      integer(kind=int_32) ::notot           ! number of substances
+      integer(kind=int_32) ::nopa            ! number of parameters
+      integer(kind=int_32) ::nosfun          ! number of segment functions
       character(len=*)          :: syname(*)       ! substance name
-      integer                   :: nocons          ! number of constants
-      integer                   :: nofun           ! number of functions
+      integer(kind=int_32) ::nocons          ! number of constants
+      integer(kind=int_32) ::nofun           ! number of functions
       type(t_dlwq_item)   , intent(inout) :: constants       !< delwaq constants list
       character(len=*)          :: paname(*)       ! parameter names
       character(len=*)          :: funame(*)       ! function names
       character(len=*)          :: sfname(*)       ! segment function names
-      integer                   :: nowarn          ! number of warnings
+      integer(kind=int_32) ::nowarn          ! number of warnings
 
       ! local declaration
 
       type(ProcesProp)          :: aProces         ! array with proces properties
-      integer                   :: iproc
-      integer                   :: iproc1
-      integer                   :: iproc2
-      integer                   :: nproc
-      integer                   :: i_in, i_out
-      integer                   :: i_flx
-      integer                   :: ifound
-      integer                   :: new_rank
-      integer                   :: i_lowest_rank
-      integer                   :: nloop
+      integer(kind=int_32) ::iproc
+      integer(kind=int_32) ::iproc1
+      integer(kind=int_32) ::iproc2
+      integer(kind=int_32) ::nproc
+      integer(kind=int_32) ::i_in, i_out
+      integer(kind=int_32) ::i_flx
+      integer(kind=int_32) ::ifound
+      integer(kind=int_32) ::new_rank
+      integer(kind=int_32) ::i_lowest_rank
+      integer(kind=int_32) ::nloop
       character(len=20)         :: valnam
-      integer                   :: ivalip
+      integer(kind=int_32) ::ivalip
       character(len=100)        :: line
-      integer(4) :: ithndl = 0
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "prsort", ithndl )
 
       ! loop over the processes

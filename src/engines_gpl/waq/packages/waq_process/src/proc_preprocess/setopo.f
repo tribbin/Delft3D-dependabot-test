@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_setopo
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -43,24 +45,24 @@
 
       type(procespropcoll)      :: procesdef       ! all processes
       type(outputcoll)          :: outputs         ! output structure
-      integer                   :: iloc            ! offset to local array
-      integer                   :: idef            ! offset to default array
-      integer                   :: iflx            ! offset to flux array
-      integer                   :: nowarn          ! number of warnings
+      integer(kind=int_32) ::iloc            ! offset to local array
+      integer(kind=int_32) ::idef            ! offset to default array
+      integer(kind=int_32) ::iflx            ! offset to flux array
+      integer(kind=int_32) ::nowarn          ! number of warnings
 
       ! local decalarations
 
-      integer                   :: nproc           ! number of processes
-      integer                   :: iproc           ! loop counter processes
+      integer(kind=int_32) ::nproc           ! number of processes
+      integer(kind=int_32) ::iproc           ! loop counter processes
       type(procesprop), pointer :: proc            ! process description
       character(len=100)        :: line            ! line buffer for output
-      integer                   :: ioutput         ! index output item
-      integer                   :: i_input         ! index input item
-      integer                   :: indx            ! index
-      integer                   :: iou             ! loop counter output variable
-      integer                   :: iou2            ! loop counter output variable
+      integer(kind=int_32) ::ioutput         ! index output item
+      integer(kind=int_32) ::i_input         ! index input item
+      integer(kind=int_32) ::indx            ! index
+      integer(kind=int_32) ::iou             ! loop counter output variable
+      integer(kind=int_32) ::iou2            ! loop counter output variable
       character(len=20)         :: predef(3)       ! predefined names
-      integer(4)                :: ithndl = 0      ! handle for performance timer
+      integer(kind=int_32) ::ithndl = 0      ! handle for performance timer
       if (timon) call timstrt( "setopo", ithndl )
 
       predef(1) = 'volume'

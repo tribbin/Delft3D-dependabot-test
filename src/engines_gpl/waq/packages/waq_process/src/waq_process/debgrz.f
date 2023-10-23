@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_debgrz
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -147,20 +149,20 @@
 
       IMPLICIT  NONE
 
-      REAL     :: PMSA  (*)  , FL  (*)
-      INTEGER  :: IPOINT(*)  , INCREM(*), NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  (*)  , FL  (*)
+      INTEGER(kind=int_32) ::IPOINT(*)  , INCREM(*), NOSEG , NOFLUX,
      +            IEXPNT(4,*), IKNMRK(*), IKMRK2, IPODIM, NOQ1,NOQ2,NOQ3,NOQ4
 
-      INTEGER, PARAMETER :: NO_POINTER = 349 +21 ! number of input output variables in PMSA array =56+3*ntotnut+7*(nfood-2)+21 output vars
-      INTEGER            :: IP(NO_POINTER)       ! index pointer in PMSA array updated for each segment
+      INTEGER(kind=int_32), PARAMETER  ::NO_POINTER = 349 +21 ! number of input output variables in PMSA array =56+3*ntotnut+7*(nfood-2)+21 output vars
+      INTEGER(kind=int_32) ::IP(NO_POINTER)       ! index pointer in PMSA array updated for each segment
 
-      INTEGER  :: I,IFOOD,IFLUX,ISEG,IKMRK1
-      INTEGER  :: NFOOD = 40 +2        ! 30 BLOOM algae + 2 DYNAMO algae + 8 dummy food sources + DetCS1 + Detritus = 40+2
-      INTEGER  :: NTOTNUT = 4          ! Carbon, Nitrogen, Phosphorus and Silica
-      INTEGER  :: BENTHS
+      INTEGER(kind=int_32) ::I,IFOOD,IFLUX,ISEG,IKMRK1
+      INTEGER(kind=int_32) ::NFOOD = 40 +2        ! 30 BLOOM algae + 2 DYNAMO algae + 8 dummy food sources + DetCS1 + Detritus = 40+2
+      INTEGER(kind=int_32) ::NTOTNUT = 4          ! Carbon, Nitrogen, Phosphorus and Silica
+      INTEGER(kind=int_32) ::BENTHS
 !
 ! From PMSA array
-      REAL     :: DELT , Volume, temp, TotalDepth, Depth, TIM, GEM,
+      REAL(kind=sp) ::DELT , Volume, temp, TotalDepth, Depth, TIM, GEM,
      +            Length_ini, Vtot, Etot, Rtot, Dens_ini, E_L3,
      +            rMor_ref, cMor, rHrv_ref, cHrv, TC, TN, TP, TSi,
      +            Ta, Tal, Tah, Th, Tl,  Vb, Vp, shape, Dummy,
@@ -169,15 +171,15 @@
      +            conv_J_gC, conv_cm3_gC, conv_gWW_gC, conv_gAFDW_gC
      +
 
-      REAL     ::  CFOOD   (42),  CCFOOD (42),  Pref   (42),
+      REAL(kind=sp) ::CFOOD   (42),  CCFOOD (42),  Pref   (42),
      +             NCFOOD  (42),  PCFOOD (42),  SICFOOD(42),
      +             dFil    (42),  FFFOOD (42)
-      INTEGER  ::  BENFOOD (42),  SwitchV1
-      INTEGER  ::  lunrep
+      INTEGER(kind=int_32) ::BENFOOD (42),  SwitchV1
+      INTEGER(kind=int_32) ::lunrep
 
-      REAL     ::  POM(4), DETRIT(4), DETS1(4), DETBIO(4)
+      REAL(kind=sp) ::POM(4), DETRIT(4), DETS1(4), DETBIO(4)
 
-      REAL     ::  Area, Dens_m2, Dens,
+      REAL(kind=sp) ::Area, Dens_m2, Dens,
      +             E_scaled, V, E, R, V_m2, E_m2, R_m2,
      +             Food, dDef, dNDef, dPDef, dSiDef,
      +             dMor, dNMor, dPMor, Pra, rMor, rHrv,
@@ -190,7 +192,7 @@
      +             Pa, Pc, Pr, Pg, Pm, Prj, Pjj, Pja, Pv,
      +             Vd, Length, Onethird, kappa_G, kT, minFood
 
-      REAL ::      Cin, Cuit, Cbal, Nin, Nuit, Pin, Puit,
+      REAL(kind=sp) ::Cin, Cuit, Cbal, Nin, Nuit, Pin, Puit,
      +             Siin, Siuit, Nbal, Pbal, Sibal,
      +             Dens_out, WW_ind, Biomass, TotBiomass,
      +             AFDW, TotAFDW, WW, TotWW,

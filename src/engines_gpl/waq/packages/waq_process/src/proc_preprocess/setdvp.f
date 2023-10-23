@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_setdvp
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -42,24 +44,24 @@
 
       ! declaration of arguments
 
-      integer, intent(in)       :: nodisp             ! number of dispersions from input
-      integer, intent(in)       :: idpnt(nosys)       ! pointers to dispersion array
-      integer, intent(inout)    :: ndspn              ! number of new dispersion array
-      integer, intent(inout)    :: idpnw(nosys)       ! pointers to dispersion array
-      integer, intent(in)       :: nosys              ! number of active substances
-      integer, intent(in)       :: ndspx              ! number of dispersions from the processes
-      real   , intent(in)       :: dsto(nosys,ndspx)  ! dispersion stochi factors
+      integer(kind=int_32), intent(in)        ::nodisp             ! number of dispersions from input
+      integer(kind=int_32), intent(in)        ::idpnt(nosys)       ! pointers to dispersion array
+      integer(kind=int_32), intent(inout)     ::ndspn              ! number of new dispersion array
+      integer(kind=int_32), intent(inout)     ::idpnw(nosys)       ! pointers to dispersion array
+      integer(kind=int_32), intent(in)        ::nosys              ! number of active substances
+      integer(kind=int_32), intent(in)        ::ndspx              ! number of dispersions from the processes
+      real(kind=sp), intent(in)        ::dsto(nosys,ndspx)  ! dispersion stochi factors
 
       ! local declarations
 
-      real, allocatable         :: dsto_new(:,:)      ! stochi factors for the new dispersion array, to check if it is unique
-      integer                   :: isys               ! index substances
+      real(kind=sp), allocatable          ::dsto_new(:,:)      ! stochi factors for the new dispersion array, to check if it is unique
+      integer(kind=int_32) ::isys               ! index substances
       logical                   :: found              ! true if a matching new dispersion is found
       logical                   :: dsto_equal         ! true if the stochi factors of a new dispersion match
-      integer                   :: i_dspn             ! index new dispersion
-      integer                   :: idisp              ! index dispersion
-      integer                   :: idspx              ! index dispersion from processes
-      integer(4) :: ithndl = 0
+      integer(kind=int_32) ::i_dspn             ! index new dispersion
+      integer(kind=int_32) ::idisp              ! index dispersion
+      integer(kind=int_32) ::idspx              ! index dispersion from processes
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "setdvp", ithndl )
 
       ! only action if there are already new dispersions, we will reset the number of new dispersions ndspn

@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_setgrd
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -45,27 +47,27 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     NOGRID  INTEGER       1     INPUT   Number of grids
-!     NOTOT   INTEGER       1     INPUT   Number of substances
-!     NOTOTG  INTEGER       1     INPUT   Number of substances for this grid
-!     GRDREF  INTEGER    NOGRID   INPUT   Reference grid number
-!     SYSGRD  INTEGER    NOTOT    INPUT   Grid number substance
-!     PROSYS  INTEGER    NOTOTG   INPUT   Substance numbers for this process
-!     GRPATH  INTEGER    NOGRID   LOCAL   Reference path to base grid
-!     IPGRID  INTEGER       1     OUTPUT  Grid number set for this process
+!     NOGRID  INTEGER(kind=int_32) ::1     INPUT   Number of grids
+!     NOTOT   INTEGER(kind=int_32) ::1     INPUT   Number of substances
+!     NOTOTG  INTEGER(kind=int_32) ::1     INPUT   Number of substances for this grid
+!     GRDREF  INTEGER(kind=int_32) ::NOGRID   INPUT   Reference grid number
+!     SYSGRD  INTEGER(kind=int_32) ::NOTOT    INPUT   Grid number substance
+!     PROSYS  INTEGER(kind=int_32) ::NOTOTG   INPUT   Substance numbers for this process
+!     GRPATH  INTEGER(kind=int_32) ::NOGRID   LOCAL   Reference path to base grid
+!     IPGRID  INTEGER(kind=int_32) ::1     OUTPUT  Grid number set for this process
 !
 !     Declaration of arguments
 !
       use timers       !   performance timers
 
-      INTEGER             NOGRID, NOTOT , NOTOTG, IPGRID
-      INTEGER             GRDREF(NOGRID), SYSGRD(NOTOT) ,
+      INTEGER(kind=int_32) ::NOGRID, NOTOT , NOTOTG, IPGRID
+      INTEGER(kind=int_32) ::GRDREF(NOGRID), SYSGRD(NOTOT) ,
      +                    PROSYS(NOTOTG), GRPATH(NOGRID)
 !
 !     Local declarations
 !
-      INTEGER             NPATH , IPATH , IGRID, isys, isys1, igsys, ncheck
-      integer(4) :: ithndl = 0
+      INTEGER(kind=int_32) ::NPATH , IPATH , IGRID, isys, isys1, igsys, ncheck
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "setgrd", ithndl )
 !
 !     Check number of substances for this grid

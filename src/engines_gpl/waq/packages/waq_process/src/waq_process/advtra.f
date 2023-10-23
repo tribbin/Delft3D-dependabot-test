@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_advtra
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -43,48 +45,48 @@
 !     Name     Type   Library
 !     ------   -----  ------------
 
-!     IMPLICIT REAL (A-H,J-Z)
+!     IMPLICIT REAL(kind=sp) ::(A-H,J-Z)
 !
 ! Name    T   L I/O   Description                                    Units
 ! ----    --- -  -    -------------------                            -----
 ! Coll Struct 1  O    Structure with collection of bottom collumn info
 !                  Contains:
 !    type(BotColmn), pointer :: set(:)  ! array with info for all bottom collumns
-!    integer                 :: maxsize ! maximum size of the current array
-!    integer                 :: cursize ! filled up to this size
+!    integer(kind=int_32) ::maxsize ! maximum size of the current array
+!    integer(kind=int_32) ::cursize ! filled up to this size
 ! BotColm Struct 1   O  Structure with bottom collumn info
 !                  Contains:
-!    integer :: fstwatsed  ! first water sediment exchange number
-!    integer :: lstwatsed  ! last  water sediment exchange number
-!    integer :: topsedsed  ! first within collumn exchange number
-!    integer :: botsedsed  ! last exchange of collumn to deeper bnd
+!    integer(kind=int_32) ::fstwatsed  ! first water sediment exchange number
+!    integer(kind=int_32) ::lstwatsed  ! last  water sediment exchange number
+!    integer(kind=int_32) ::topsedsed  ! first within collumn exchange number
+!    integer(kind=int_32) ::botsedsed  ! last exchange of collumn to deeper bnd
 !
       use m_evaluate_waq_attribute
       USE BottomSet     !  Module with derived types and add function
 
 !     type ( BotColmnColl ) :: Coll  <= is defined in the module
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
 !     Locals
 
-      INTEGER  IWA1  , IWA2  , ITOP  , IBOT  , IOFFSE, IQ    , ISEG  ,
+      INTEGER(kind=int_32) ::IWA1  , IWA2  , ITOP  , IBOT  , IOFFSE, IQ    , ISEG  ,
      J         IKMRK1, IK
-      REAL     TOTSED, SW    , VBUR  , DELT  , SEEP  , PORACT
-      INTEGER  IPDM  , IPSFLX, IPZRES, IPVBUR, IPTAU , IPTCRR, IPSURF,
+      REAL(kind=sp) ::TOTSED, SW    , VBUR  , DELT  , SEEP  , PORACT
+      INTEGER(kind=int_32) ::IPDM  , IPSFLX, IPZRES, IPVBUR, IPTAU , IPTCRR, IPSURF,
      J         IPDEPT, IPMDEP, IPACTH, IPMNTH, IPMXTH, IPSW  , IPDELT,
      J         IPRFLX, IPPRES, IPTFLX, IPBFLX, IPRVEL, IPSVEL, IPBVEL,
      J         IPRVOL, IPSVOL, IPBVOL, IPPORI, IPPORA,
      J         IPDVOL, IPDVEL, IPSEEP
-      INTEGER  INDM  , INSFLX, INZRES, INVBUR, INTAU , INTCRR, INSURF,
+      INTEGER(kind=int_32) ::INDM  , INSFLX, INZRES, INVBUR, INTAU , INTCRR, INSURF,
      J         INDEPT, INMDEP, INACTH, INMNTH, INMXTH, INSW  , INDELT,
      J         INRFLX, INPRES, INTFLX, INBFLX, INRVEL, INSVEL, INBVEL,
      J         INRVOL, INSVOL, INBVOL, INPORI, INPORA,
      J         INDVOL, INDVEL, INSEEP
 
-      integer  IPSWRE, IPALPH, IPCFLX, INSWRE, INALPH, INCFLX
+      integer(kind=int_32) ::IPSWRE, IPALPH, IPCFLX, INSWRE, INALPH, INCFLX
 !     Include column structure
 !     we define a double column structure, one for downward,
 !     and one for upward transport
@@ -337,7 +339,7 @@
 ! IBOT    I*4    1   I  last  exchange number sediment collumn
 ! IEXPNT  I*4 4,NOQT I  exchange pointers
 ! SW      R*4    1   I  Switch, > 0.5 then computation changes volume
-! PMSA    R*4    *  I/O real input output array whole process system
+! PMSA    R*4    *  I/O real(kind=sp) ::input output array whole process system
 ! IPACTH  I*4    1   I  Pointer in PMSA where actual layer thickness
 ! INACTH  I*4    1   I  Increment of IPACTH in the PMSA array
 ! IPMXTH  I*4    1   I  Pointer in PMSA where maximum layer thickness
@@ -361,18 +363,18 @@
 ! TOTSED  R*4    1   O  Summed sedimentation flux
 !
 !
-      INTEGER    ITOP  , IBOT  ,
+      INTEGER(kind=int_32) ::ITOP  , IBOT  ,
      J           IPACTH, INACTH, IPMXTH, INMXTH, IPMNTH, INMNTH,
      J           IPDM  , INDM  , IPBFLX, INBFLX,
      J           IPBVEL, INBVEL, IPBVOL, INBVOL,
      J           IPPORA, INPORA, IPPORI, INPORI
-      REAL       TOTSED, SW    , VBUR  , DELT  , PMSA(*)
-      INTEGER    IEXPNT( 4,* )
+      REAL(kind=sp) ::TOTSED, SW    , VBUR  , DELT  , PMSA(*)
+      INTEGER(kind=int_32) ::IEXPNT( 4,* )
 
 !     Local variables
 
-      INTEGER    IQ    , IBODEM
-      REAL       TOTBUR, ACTH  , MAXTH , DM    , MINTH ,
+      INTEGER(kind=int_32) ::IQ    , IBODEM
+      REAL(kind=sp) ::TOTBUR, ACTH  , MAXTH , DM    , MINTH ,
      J           PORACT, PORINP, CORBUR, MXRCOR
       PARAMETER (MXRCOR = 1.0)
 !JVB  PARAMETER (MXRCOR = 0.5)
@@ -469,7 +471,7 @@
 ! IWA2    I*4    1   I  first exchange number water bottom exchange
 ! IEXPNT  I*4 4,NOQT I  exchange pointers
 ! SW      R*4    1   I  Switch, > 0.5 then computation changes volume
-! PMSA    R*4    *  I/O real input output array whole process system
+! PMSA    R*4    *  I/O real(kind=sp) ::input output array whole process system
 ! ITOP    I*4    1   I  first exchange number sediment collumn
 ! IBOT    I*4    1   I  last  exchange number sediment collumn
 ! IPSURF  I*4    1   I  Pointer in PMSA where
@@ -505,24 +507,24 @@
 ! INCFLX  I*4    1   I  Increment of IPPRES in the PMSA array
 !
 !
-      INTEGER    IWA1  , IWA2  , IPZRES, INZRES, IPTAU , INTAU ,
+      INTEGER(kind=int_32) ::IWA1  , IWA2  , IPZRES, INZRES, IPTAU , INTAU ,
      J           IPDEPT, INDEPT, IPMDEP, INMDEP, ITOP  , IBOT  , IPACTH,
      J           INACTH, IPMNTH, INMNTH, IPTCRR, INTCRR, IPDM  , INDM  ,
      J           IPSURF, INSURF, IPPRES, INPRES, IPRFLX, INRFLX,
      J           IPRVEL, INRVEL, IPTFLX, INTFLX, IPRVOL, INRVOL,
      J           IPSWRE, INSWRE, IPALPH, INALPH, IPCFLX, INCFLX
-      INTEGER    IEXPNT( 4,* )
-      REAL       PMSA(*), DELT , SW
+      INTEGER(kind=int_32) ::IEXPNT( 4,* )
+      REAL(kind=sp) ::PMSA(*), DELT , SW
 
 !     Local variables
 
-      INTEGER    IWATER, IQ    , IQ2   , IBODEM, IBODE2, IQ3
+      INTEGER(kind=int_32) ::IWATER, IQ    , IQ2   , IBODEM, IBODE2, IQ3
       LOGICAL    GONE
-      REAL       ZRES  , DEPTH , MINDEP, TAU   , ACTH  , MINTH ,
+      REAL(kind=sp) ::ZRES  , DEPTH , MINDEP, TAU   , ACTH  , MINTH ,
      J           FLRES , PRES  , TCRR  , RESTH , RESMX , SURFW ,
      J           SURFB , ZRESLE, VELRES, DM    , DMTOP
       LOGICAL    SW_PARTHENIADES
-      real       TIME_LEFT, ALPHA
+      real(kind=sp) ::TIME_LEFT, ALPHA
 
 !     Resuspension submodel for DELWAQ-G, equals Restra, bug fixed ZRESLE
 !     AM (august 2018) ZRESLE is not actually used
@@ -704,7 +706,7 @@
 ! IQ2     I*4    1   I  last  exchange number water bottom exchange
 ! IEXPNT  I*4 4,NOQT I  exchange pointers
 ! SW      R*4    1   I  Switch, > 0.5 then computation changed volume
-! PMSA    R*4    *  I/O real input output array whole process system
+! PMSA    R*4    *  I/O real(kind=sp) ::input output array whole process system
 ! IPSFLX  I*4    1   I  Pointer in PMSA where flows start
 ! INSFLX  I*4    1   I  Increment of IPSFLX in the PMSA array
 ! IPDM    I*4    1   I  Pointer in PMSA where dry matter mass starts
@@ -718,16 +720,16 @@
 !        IPSFLX and IPDM   point in the SEGMENT  space
 !
 !
-      INTEGER    IQ1   , IQ2   ,
+      INTEGER(kind=int_32) ::IQ1   , IQ2   ,
      J           IPSFLX, INSFLX, IPDM  , INDM  ,
      J           IPSVEL, INSVEL, IPSVOL, INSVOL
-      INTEGER    IEXPNT( 4,* )
-      REAL       SW    , TOTSED, PMSA(*)
+      INTEGER(kind=int_32) ::IEXPNT( 4,* )
+      REAL(kind=sp) ::SW    , TOTSED, PMSA(*)
 
 !     Local variables
 
-      INTEGER    IQ    , IVAN  , INAAR
-      REAL       SEDFLX, DM    , DVOL
+      INTEGER(kind=int_32) ::IQ    , IVAN  , INAAR
+      REAL(kind=sp) ::SEDFLX, DM    , DVOL
 
       TOTSED = 0.0
 !     Loop over bodem-water uitwisselingen voor huidige kolom
@@ -791,14 +793,14 @@
 ! Coll    Struct 1   O  Structure with collection of bottom collumn info
 !                  Contains:
 !    type(BotColmn), pointer :: set(:)  ! array with info for all bottom collumns
-!    integer                 :: maxsize ! maximum size of the current array
-!    integer                 :: cursize ! filled up to this size
+!    integer(kind=int_32) ::maxsize ! maximum size of the current array
+!    integer(kind=int_32) ::cursize ! filled up to this size
 ! BotColm Struct 1   O  Structure with bottom collumn info
 !                  Contains:
-!    integer :: fstwatsed  ! first water sediment exchange number
-!    integer :: lstwatsed  ! last  water sediment exchange number
-!    integer :: topsedsed  ! first within collumn exchange number
-!    integer :: botsedsed  ! last exchange of collumn to deeper bnd
+!    integer(kind=int_32) ::fstwatsed  ! first water sediment exchange number
+!    integer(kind=int_32) ::lstwatsed  ! last  water sediment exchange number
+!    integer(kind=int_32) ::topsedsed  ! first within collumn exchange number
+!    integer(kind=int_32) ::botsedsed  ! last exchange of collumn to deeper bnd
 !
       use m_srstop
       use m_monsys
@@ -808,16 +810,16 @@
 !     type ( BotColmnColl ) :: Coll  <= is defined in the module
       type ( BotColmn )     :: set   !  makes code more readable
 
-      INTEGER  IEXPNT(4,*), IKNMRK(*), NOQ1, NOQ2, NOQ3, NOQ4
+      INTEGER(kind=int_32) ::IEXPNT(4,*), IKNMRK(*), NOQ1, NOQ2, NOQ3, NOQ4
 
 !     Local variables
 
       LOGICAL          KOLOM
       logical, save :: FIRST
-      INTEGER  IK    , IQ    , ivan  , inaar , ikmrkv, ikmrkn,
+      INTEGER(kind=int_32) ::IK    , IQ    , ivan  , inaar , ikmrkv, ikmrkn,
      j         lenkol , nkolom, ist, iw1, iw2, isb
       DATA FIRST / .true. /
-      INTEGER lunrep, errorcode
+      INTEGER(kind=int_32) ::lunrep, errorcode
 
       call getmlu(lunrep)
       errorcode = 0
@@ -921,17 +923,17 @@
      +                    IPBFLX, INBFLX, IPBVEL, INBVEL, IPPORA,
      +                    INPORA, IPPORI, INPORI )
 !
-      INTEGER    ITOP  , IBOT  , IPACTH, INACTH,
+      INTEGER(kind=int_32) ::ITOP  , IBOT  , IPACTH, INACTH,
      +           IPDM  , INDM  , IPBFLX, INBFLX,
      +           IPBVEL, INBVEL, IPPORA, INPORA,
      +           IPPORI, INPORI
-      REAL       DELT  , PMSA(*)
-      INTEGER    IEXPNT( 4,* )
+      REAL(kind=sp) ::DELT  , PMSA(*)
+      INTEGER(kind=int_32) ::IEXPNT( 4,* )
 
 !     Local variables
 
-      INTEGER    IQ    , IBODEM
-      REAL       ACTH  , DM    , PORACT, PORINP, CORDIG,
+      INTEGER(kind=int_32) ::IQ    , IBODEM
+      REAL(kind=sp) ::ACTH  , DM    , PORACT, PORINP, CORDIG,
      +           MXRCOR
       PARAMETER (MXRCOR = 1.0)
 !JVB  PARAMETER (MXRCOR = 0.5)

@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_outbo2
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -45,39 +47,39 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     NOUTP   INTEGER       1     INPUT   Number of processes in def file
-!     IOUTPS  INTEGER   7,NOUTP   INPUT   output structure
-!     NOSEG   INTEGER       1     INPUT   Number of segments
-!     NODUMP  INTEGER       1     INPUT   Number of monitoring points
-!     NX      INTEGER       1     INPUT   Length of dump grid
-!     NY      INTEGER       1     INPUT   Width of dump grid
-!     NRVART  INTEGER       1     OUTPUT  Total number of output variables
-!     NBUFMX  INTEGER       1     OUTPUT  Length of output buffer needed
-!     NDMPAR  INTEGER       1     INPUT   number of dump areas
-!     NOTOT   INTEGER       1     INPUT   Number of substances
-!     NCBUFM  INTEGER       1     IN/OUT  Length of character buffer
-!     NORAAI  INTEGER       1     INPUT   number of raaien
+!     NOUTP   INTEGER(kind=int_32) ::1     INPUT   Number of processes in def file
+!     IOUTPS  INTEGER(kind=int_32) ::7,NOUTP   INPUT   output structure
+!     NOSEG   INTEGER(kind=int_32) ::1     INPUT   Number of segments
+!     NODUMP  INTEGER(kind=int_32) ::1     INPUT   Number of monitoring points
+!     NX      INTEGER(kind=int_32) ::1     INPUT   Length of dump grid
+!     NY      INTEGER(kind=int_32) ::1     INPUT   Width of dump grid
+!     NRVART  INTEGER(kind=int_32) ::1     OUTPUT  Total number of output variables
+!     NBUFMX  INTEGER(kind=int_32) ::1     OUTPUT  Length of output buffer needed
+!     NDMPAR  INTEGER(kind=int_32) ::1     INPUT   number of dump areas
+!     NOTOT   INTEGER(kind=int_32) ::1     INPUT   Number of substances
+!     NCBUFM  INTEGER(kind=int_32) ::1     IN/OUT  Length of character buffer
+!     NORAAI  INTEGER(kind=int_32) ::1     INPUT   number of raaien
 !
 !     Declaration of arguments
 !
       use timers       !   performance timers
       use output
 
-      INTEGER     NOUTP , NOSEG , NODUMP, NX    , NY    ,
+      INTEGER(kind=int_32) ::NOUTP , NOSEG , NODUMP, NX    , NY    ,
      +            NRVART, NBUFMX, NDMPAR, NOTOT , NCBUFM,
      +            NORAAI
-      INTEGER     IOUTPS(7,NOUTP)
+      INTEGER(kind=int_32) ::IOUTPS(7,NOUTP)
 !
 !     Local
 !
-      integer, PARAMETER :: IGSEG = 1
-      integer, PARAMETER :: IGMON = 2 
-      integer, PARAMETER :: IGGRD = 3
-      integer, PARAMETER :: IGSUB = 4 
+      integer(kind=int_32), PARAMETER  ::IGSEG = 1
+      integer(kind=int_32), PARAMETER  ::IGMON = 2 
+      integer(kind=int_32), PARAMETER  ::IGGRD = 3
+      integer(kind=int_32), PARAMETER  ::IGSUB = 4 
       
-      INTEGER     IGRID , NOCEL , NBUFOU, ISRTO
-      integer(4) :: ithndl = 0
-      integer iout, nrvar, ncbufo
+      INTEGER(kind=int_32) ::IGRID , NOCEL , NBUFOU, ISRTO
+      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_32) ::iout, nrvar, ncbufo
       
       if (timon) call timstrt( "outbo2", ithndl )
 !
@@ -122,7 +124,7 @@
          ELSEIF ( ISRTO .EQ. IMO3 ) THEN
 !
 !           On subarea's substances also in buffer, only the
-!           first half of the nrvar are real output vars.
+!           first half of the nrvar are real(kind=sp) ::output vars.
 !           substance names and output names in char buffer.
 !
             NBUFOU = NOCEL * ( NOTOT + NRVAR/2 )
@@ -130,7 +132,7 @@
          ELSEIF ( ISRTO .EQ. IHI3 ) THEN
 !
 !           On subarea's substances also in buffer, only the
-!           first half of the nrvar are real output vars.
+!           first half of the nrvar are real(kind=sp) ::output vars.
 !           substance names and output names in char buffer.
 !           also output for raaien
 !
@@ -140,7 +142,7 @@
 !
 !           NEFIS file, extra array with length NOCEL needed
 !           On subarea's substances also in buffer, only the
-!           first half of the nrvar are real output vars.
+!           first half of the nrvar are real(kind=sp) ::output vars.
 !           substance names and output names in char buffer.
 !           also output for raaien
 !
@@ -149,14 +151,14 @@
          ELSEIF ( ISRTO .EQ. IMO4 .OR. ISRTO .EQ. IHI4 ) THEN
 !
 !           On subarea's only the first half of the nrvar are
-!           real output vars.
+!           real(kind=sp) ::output vars.
 !
             NBUFOU = NOCEL * ( NRVAR/2 )
          ELSEIF ( ISRTO .EQ. IHN4 ) THEN
 !
 !           NEFIS file, extra array with length NOCEL needed
 !           On subarea's only the first half of the nrvar are
-!           real output vars.
+!           real(kind=sp) ::output vars.
 !
             NBUFOU = NOCEL * ( NRVAR/2 + 1 )
          ELSE

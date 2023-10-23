@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_add_atrfrc
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -41,23 +43,23 @@
 
       ! decalaration of arguments
 
-      integer                   :: lunrep          ! report file
+      integer(kind=int_32) ::lunrep          ! report file
       type(procespropcoll)      :: procesdef       ! the process definition
       type(sfracsprop)          :: sfracs          ! substance fraction properties
 
       ! local declaration
 
       type(procesprop), pointer :: proc              ! single process
-      integer                   :: nproc             ! number of processes
-      integer                   :: iproc             ! loop counter processes
+      integer(kind=int_32) ::nproc             ! number of processes
+      integer(kind=int_32) ::iproc             ! loop counter processes
       logical                   :: lfound            ! command line argument found
-      integer                   :: idummy            ! dummy
-      real                      :: rdummy            ! dummy
+      integer(kind=int_32) ::idummy            ! dummy
+      real(kind=sp) ::rdummy            ! dummy
       character(len=256)        :: patrfil           ! process attributes file
-      integer                   :: lun_patr          ! unit number
+      integer(kind=int_32) ::lun_patr          ! unit number
       character(len=256)        :: type              ! sfrac_type from file
-      integer                   :: ierr              ! ierr
-      integer(4) :: ithndl = 0
+      integer(kind=int_32) ::ierr              ! ierr
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "add_atrfrc", ithndl )
 
       call getcom ( '-sfrac', 3    , lfound, idummy, rdummy, patrfil, ierr)

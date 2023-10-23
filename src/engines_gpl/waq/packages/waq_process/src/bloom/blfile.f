@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_blfile
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -34,10 +36,10 @@
 
       implicit none
 
-      integer        lunrep       ! Report file for error messages
+      integer(kind=int_32) ::lunrep       ! Report file for error messages
 
       character(256) filnam       ! File name with extention
-      integer        iost         ! I/O-status
+      integer(kind=int_32) ::iost         ! I/O-status
 
 !  Open statement for BLOOM II input files.
       filnam = trim(runnam)//'.frm'

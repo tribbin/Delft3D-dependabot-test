@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_sedomv
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -56,10 +58,10 @@
       IMPLICIT REAL    (A-H,J-Z)
       IMPLICIT INTEGER (I)
 
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
-      integer  iq, iseg
+      integer(kind=int_32) ::iq, iseg
 
       IP1  = IPOINT( 1)
       IP2  = IPOINT( 2)

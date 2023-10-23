@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_add_dspfrc
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -40,7 +42,7 @@
 
       ! decalaration of arguments
 
-      integer                   :: lunrep          ! report file
+      integer(kind=int_32) ::lunrep          ! report file
       type(procespropcoll)      :: procesdef       ! the process definition
       type(sfracsprop)          :: sfracs          ! substance fraction properties
 
@@ -49,19 +51,19 @@
       type(stochiprop), pointer :: new_dispstochi(:) ! list with added stochies
       type(stochiprop), pointer :: new_velostochi(:) ! list with added stochies
       type(procesprop), pointer :: proc              ! single process
-      integer                   :: nproc             ! number of processes
-      integer                   :: iproc             ! loop counter processes
-      integer                   :: isfrac            ! index substance fractions
-      integer                   :: nfrac             ! number fractions in substance fraction
+      integer(kind=int_32) ::nproc             ! number of processes
+      integer(kind=int_32) ::iproc             ! loop counter processes
+      integer(kind=int_32) ::isfrac            ! index substance fractions
+      integer(kind=int_32) ::nfrac             ! number fractions in substance fraction
       character(len=20)         :: basnam            ! base name substance fractions
-      integer                   :: nstochi           ! number of original stochies
-      integer                   :: istochi           ! index stochi
-      integer                   :: n_velo_stochi     ! number of original stochies
-      integer                   :: ifrac             ! fraction number
+      integer(kind=int_32) ::nstochi           ! number of original stochies
+      integer(kind=int_32) ::istochi           ! index stochi
+      integer(kind=int_32) ::n_velo_stochi     ! number of original stochies
+      integer(kind=int_32) ::ifrac             ! fraction number
       character(len=3)          :: suffix            ! suffix
-      integer                   :: indx              ! index in list
-      integer                   :: ierr_alloc        ! error indication
-      integer(4) :: ithndl = 0
+      integer(kind=int_32) ::indx              ! index in list
+      integer(kind=int_32) ::ierr_alloc        ! error indication
+      integer(kind=int_32) ::ithndl = 0
       if (timon) call timstrt( "add_dspfrc", ithndl )
 
       ! loop over the processes

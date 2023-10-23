@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_dayl
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -54,21 +56,21 @@
 !     ------   -----  ------------
 
       implicit none
-      real     pmsa  ( * ) , fl    (*)
-      integer  ipoint( * ) , increm(*) , noseg , noflux,
+      real(kind=sp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_32) ::ipoint( * ) , increm(*) , noseg , noflux,
      +         iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 
-      integer ip1,ip2,ip3,ip4,ip5
-      integer in1,in2,in3,in4,in5
-      real    time, tref, auxsys
-      real    daynr
+      integer(kind=int_32) ::ip1,ip2,ip3,ip4,ip5
+      integer(kind=int_32) ::in1,in2,in3,in4,in5
+      real(kind=sp) ::time, tref, auxsys
+      real(kind=sp) ::daynr
       double precision latitu, declin, temp, daylength
       double precision sin50m, e     , pi
       parameter ( sin50m = -1.454389765d-2 )
       parameter ( e  = 1.721420632d-2 )
       parameter ( pi = 3.141592654d0)
       logical  varflg
-      integer  iseg
+      integer(kind=int_32) ::iseg
 
       in1  = increm( 1)
       in2  = increm( 2)

@@ -21,6 +21,8 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
       module m_methox
+      use m_waq_type_definitions
+
 
       implicit none
 
@@ -86,29 +88,29 @@
 !
       IMPLICIT NONE
 !
-      REAL     PMSA  ( * ) , FL    (*)
-      INTEGER  IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
-      INTEGER  IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10,
+      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10,
      +         IP11, IP12, IP13, IP14, IP15, IP16, IP17, IP18, IP19, IP20,
      +         IP21, IP22, IP23, IP24, IP25
-      INTEGER  IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9, IN10,
+      INTEGER(kind=int_32) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9, IN10,
      +         IN11, IN12, IN13, IN14, IN15, IN16, IN17, IN18, IN19, IN20,
      +         IN21, IN22, IN23, IN24, IN25
-      INTEGER  IFLUX  , ISEG  , ILUMON
+      INTEGER(kind=int_32) ::IFLUX  , ISEG  , ILUMON
 !
-      REAL     CCH4   , COX    , CSU
-      REAL     K0OXI1 , K0OXI2 , KOXI1  , KOXI2  , KSCH4  , KSOX   ,
+      REAL(kind=sp) ::CCH4   , COX    , CSU
+      REAL(kind=sp) ::K0OXI1 , K0OXI2 , KOXI1  , KOXI2  , KSCH4  , KSOX   ,
      +         KSSU   , COXC   , CSUC   , CHFUNC , OXFUNC , SUFUNC ,
      +         LIFUNC
-      REAL     POROS  , CRTEMP , KTOXI1 , KTOXI2 , TEMP   , TEMPC  ,
+      REAL(kind=sp) ::POROS  , CRTEMP , KTOXI1 , KTOXI2 , TEMP   , TEMPC  ,
      +         TEMP20 , KSRADFR, KSRADSH
-      REAL     DELT, RAD, RADINH
-      REAL     COX_RATIO
-      REAL     CSU_RATIO
-      REAL     FLCOX
-      REAL     FLCSU
+      REAL(kind=sp) ::DELT, RAD, RADINH
+      REAL(kind=sp) ::COX_RATIO
+      REAL(kind=sp) ::CSU_RATIO
+      REAL(kind=sp) ::FLCOX
+      REAL(kind=sp) ::FLCSU
       LOGICAL  FIRST
       SAVE     FIRST
       DATA     FIRST /.TRUE./
