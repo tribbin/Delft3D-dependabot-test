@@ -562,9 +562,13 @@ class TestSetRunner(ABC):
                                 #config.path,
                             )
                         )
-                        self.__download_file(
-                            location, remote_path, localPath, input_description, logger
-                        )
+
+                        handler_type = ResolveHandler.detect(remote_path, logger, location.credentials)
+
+                        if handler_type == HandlerType.MINIO:
+                            self.__SetupVersionForDownload(config, location)
+
+                        self.__download_file(location, remote_path, localPath, input_description, logger)
 
                         if location.type == PathType.INPUT:
                             config.absolute_test_case_path = localPath
@@ -584,6 +588,10 @@ class TestSetRunner(ABC):
                     else:
                         logger.error(error_message)
                         raise TestBenchError("Unable to download testcase " + str(e))
+
+    def __SetupVersionForDownload(self, config, location):
+        if location.version is None and config.version is not None:
+            location.version = config.version
 
     def __download_file(
         self,
