@@ -837,6 +837,8 @@ subroutine calculate_wind_stresses(time_in_seconds, iresult)
       call setwindstress()
    end if
 
+   iresult = DFM_NOERR
+
 end subroutine calculate_wind_stresses
 
 end module m_external_forcings
