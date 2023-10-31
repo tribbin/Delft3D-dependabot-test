@@ -2815,7 +2815,7 @@ module m_ec_converter
                         n_phase_rows = sourceElementSet%n_rows
                         n_phase_cols = sourceElementSet%n_cols
                         omega = 2.0*PI/sourceItem%hframe%ec_period
-                        delta_t = (timesteps - sourceItem%tframe%ec_refdate) * 86400.0_hp  !< convert to seconds.
+                        delta_t = (timesteps - sourceItem%tframe%ec_refdate) * 86400.0_hp  !< convert to seconds since refdate.
                         if ( issparse == 1 ) then
                             ! do sparse things
                             do j = 1, n_rows

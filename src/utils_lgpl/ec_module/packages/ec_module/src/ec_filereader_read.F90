@@ -23,8 +23,8 @@
 !  are registered trademarks of Stichting Deltares, and remain the property of
 !  Stichting Deltares. All rights reserved.
 
-!  
-!  
+!
+!
 
 !> This module contains the read methods for the meteo files.
 !! @author stef.hummel@deltares.nl
@@ -60,7 +60,7 @@ module m_ec_filereader_read
    public :: ecNetcdfGetTimeIndexByTime
    public :: ecArcinfoAndT3dReadBlock
    public :: ecCurviReadBlock
-   
+
    public :: ecNetcdfReadVariable
    public :: ecNetcdfReadBlock
    public :: ecQhtableReadAll
@@ -666,14 +666,14 @@ module m_ec_filereader_read
 
       ! =======================================================================
       !> Given the time, find the index of the time dimension in a netCDF filereader
-      
+
       function ecNetcdfGetTimeIndexByTime(fileReaderPtr, time_mjd) result(ndx)
          integer                      :: ndx           !< read into Field T0 or T1 (0,1).
          type(tEcFileReader), pointer :: fileReaderPtr !< intent(in)
          real(hp), intent(in)         :: time_mjd
          ndx = ecSupportMJDToTimeIndex(fileReaderPtr%tframe, time_mjd)
       end function ecNetcdfGetTimeIndexByTime
-      
+
       ! =======================================================================
 
 
@@ -703,11 +703,11 @@ module m_ec_filereader_read
          integer                                 :: nrow, row0, row1
          integer                                 :: nlay
          integer                                 :: Ndatasize
-         
+
          integer                                 :: issparse   ! data in CRS format (1) or not (0)
          integer, dimension(:), pointer          :: ia         ! CRS sparsity pattern, startpointers
          integer, dimension(:), pointer          :: ja         ! CRS sparsity pattern, column numbers
-         
+
          integer                                 :: n_cols, n_rows
 
          !
@@ -764,13 +764,13 @@ module m_ec_filereader_read
             nrow = row1 - row0 + 1
             ncol = col1 - col0 + 1
             nlay = item%elementSetPtr%n_layers
-            
+
             Ndatasize = ncol*nrow
-            
+
             n_cols = item%elementSetPtr%n_cols
             n_rows = item%elementSetPtr%n_rows
             issparse = 0
-            
+
             if ( fieldPtr%issparse == 1 ) then
                ia => fieldPtr%ia
                ja => fieldPtr%ja
@@ -827,7 +827,7 @@ module m_ec_filereader_read
                          return
                      endif
                   else
-                     if (item%elementSetPtr%n_layers == 0) then 
+                     if (item%elementSetPtr%n_layers == 0) then
                         if (item%elementSetPtr%ofType == elmSetType_samples) then
                            ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/col0, timesndx/), count=(/ncol, 1/))
                         else
@@ -910,11 +910,11 @@ module m_ec_filereader_read
          character(len=20)                       :: cnumber2         !< idem
          integer                                 :: nlay
          integer                                 :: Ndatasize
-         
+
          integer                                 :: issparse   ! data in CRS format (1) or not (0)
          integer, dimension(:), pointer          :: ia         ! CRS sparsity pattern, startpointers
          integer, dimension(:), pointer          :: ja         ! CRS sparsity pattern, column numbers
-         
+
          integer                                 :: n_cols, n_rows
 
          !
@@ -951,7 +951,7 @@ module m_ec_filereader_read
          nlay = item%elementSetPtr%n_layers
 
          issparse = 0
-            
+
          if ( fieldPtr%issparse == 1 ) then
             ia => fieldPtr%ia
             ja => fieldPtr%ja
@@ -998,11 +998,16 @@ module m_ec_filereader_read
             end if
 
             if (item%elementSetPtr%nCoordinates > 0) then
-               if ( issparse == 1 ) then
-                  call setECMessage("ERROR: ec_filereader_read::ecNetcdfReadVariable: Sparse variables not supported!");
-                  return
+               if (issparse == 1) then
+                  call read_data_sparse(fileReaderPtr%fileHandle, varid, n_cols, n_rows, item%elementSetPtr%n_layers, &
+                                        1, fileReaderPtr%relndx, ia, ja, Ndatasize, fieldPtr%arr1dPtr, ierror)
+                   if (ecSupportNetcdfCheckError(ierror, 'Error reading quantity '//trim(item%quantityptr%name)//' from sparse data. ', fileReaderPtr%filename)) then
+                      valid_field = .true.
+                   else
+                      return
+                   endif
                else
-                  if (item%elementSetPtr%n_layers == 0) then 
+                  if (item%elementSetPtr%n_layers == 0) then
                      if (item%elementSetPtr%ofType == elmSetType_samples) then
                         ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/1/), count=(/n_cols/))
                      else
@@ -2166,7 +2171,7 @@ module m_ec_filereader_read
          type(tEcFileReader),pointer     :: fileReaderPtr
 
          integer                        :: fmask
-         integer                        :: iostat 
+         integer                        :: iostat
          character(len=:), allocatable  :: rec
          logical                        :: jamaskinit
          integer                        :: i
@@ -2185,18 +2190,18 @@ module m_ec_filereader_read
 
          jamaskinit = .false.
          iostat = 0
-         i = 0 
-         do while(iostat==0) 
+         i = 0
+         do while(iostat==0)
             call GetLine(fmask, rec, iostat)
             if (len_trim(rec)==0) cycle
             if (iostat/=0) cycle
             rec = adjustl(rec)
             call str_upper(rec)
             if (index('%*!#',rec(1:1))+index('//',rec(1:2)) > 0 ) cycle
-            if (index(rec,'=')>0) then 
-               if (index(rec,'N_COLS')>0) then 
+            if (index(rec,'=')>0) then
+               if (index(rec,'N_COLS')>0) then
                    read(rec(index(rec,'=')+1:len_trim(rec)),*,iostat=iostat) mask%mrange
-               elseif (index(rec,'N_ROWS')>0) then 
+               elseif (index(rec,'N_ROWS')>0) then
                    read(rec(index(rec,'=')+1:len_trim(rec)),*,iostat=iostat) mask%nrange
                elseif (index(rec,'XLL')>0) then
                    read(rec(index(rec,'=')+1:len_trim(rec)),*,iostat=iostat) mask%mmin
@@ -2214,7 +2219,7 @@ module m_ec_filereader_read
                       return
                    endif
                 endif
-                i = i + 1 
+                i = i + 1
                 ! NB. Mask is stored in a 1D-array (n_rows*n_cols) row-by-row from the last row to the first,
                 !     identically to the curvi and arcinfo data, so that data 1d-array matches the mask array elementwise
                 read(rec,*,iostat=iostat) mask%msk((mask%nrange-i)*mask%mrange+1:(mask%nrange-i+1)*mask%mrange)
@@ -2243,15 +2248,15 @@ module m_ec_filereader_read
           if (commentpos>0) reclen = min(reclen,commentpos-1)
           rec=rec(1:reclen)
        end subroutine strip_comment
-       
+
 !     read data and store in CRS format
       subroutine read_data_sparse(filehandle, varid, n_cols, n_rows, n_layers, timesndx, relndx, ia, ja, Ndatasize, arr1d, ierror)
          use netcdf
          use netcdf_utils, only: ncu_get_att
          use io_ugrid
-         
+
          implicit none
-         
+
          integer,                        intent(in)    :: filehandle  !< filehandle
          integer,                        intent(in)    :: varid       !< variable id
          integer,                        intent(in)    :: n_cols      !< number of columns in input
