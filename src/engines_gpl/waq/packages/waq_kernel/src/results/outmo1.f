@@ -47,23 +47,23 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     IOUT    INTEGER(kind=int_32) ::1         INPUT   unit number output file
-!     IDUMP   INTEGER(kind=int_32) ::NODUMP    INPUT   segment numbers for dump
-!     ARRA    REAL(kind=sp) ::*         INPUT   values to be printed
+!     IOUT    INTEGER(kind=int_wp) ::1         INPUT   unit number output file
+!     IDUMP   INTEGER(kind=int_wp) ::NODUMP    INPUT   segment numbers for dump
+!     ARRA    REAL(kind=real_wp) ::*         INPUT   values to be printed
 !     VNAME   CHAR*40   1         INPUT   name of printed value
 !     DNAME   CHAR*20   NODUMP    INPUT   names of monitoring stations
-!     NODUMP  INTEGER(kind=int_32) ::1         INPUT   amount of dump segments
-!     ID      INTEGER(kind=int_32) ::1         INPUT   index first system in this block
-!     NEND    INTEGER(kind=int_32) ::1         INPUT   index last system in this block
-!     NOTOT   INTEGER(kind=int_32) ::1         INPUT   total number of systems
+!     NODUMP  INTEGER(kind=int_wp) ::1         INPUT   amount of dump segments
+!     ID      INTEGER(kind=int_wp) ::1         INPUT   index first system in this block
+!     NEND    INTEGER(kind=int_wp) ::1         INPUT   index last system in this block
+!     NOTOT   INTEGER(kind=int_wp) ::1         INPUT   total number of systems
 !
 !     Declaration of arguments
 !
       use timers
 
-      INTEGER(kind=int_32) ::IOUT  , NODUMP, ID    , NEND  , NOTOT
-      INTEGER(kind=int_32) ::IDUMP(*)
-      REAL(kind=sp) ::ARRA(NOTOT,*)
+      INTEGER(kind=int_wp) ::IOUT  , NODUMP, ID    , NEND  , NOTOT
+      INTEGER(kind=int_wp) ::IDUMP(*)
+      REAL(kind=real_wp) ::ARRA(NOTOT,*)
       CHARACTER*40 VNAME
       CHARACTER*20 DNAME(*)
 !
@@ -71,8 +71,8 @@
 !
       CHARACTER*1  SPACE
       DATA         SPACE / ' ' /
-      integer(kind=int_32) ::i, k, iseg
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::i, k, iseg
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "outmo1", ithandl )
 !
       WRITE (IOUT,2060) VNAME

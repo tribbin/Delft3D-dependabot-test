@@ -50,23 +50,23 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     NOTOT   INTEGER(kind=int_32) ::1     INPUT   Total number of substances
-!     NOPA    INTEGER(kind=int_32) ::1     INPUT   Number of parameters
-!     NOSFUN  INTEGER(kind=int_32) ::1     INPUT   Number of segment functions
+!     NOTOT   INTEGER(kind=int_wp) ::1     INPUT   Total number of substances
+!     NOPA    INTEGER(kind=int_wp) ::1     INPUT   Number of parameters
+!     NOSFUN  INTEGER(kind=int_wp) ::1     INPUT   Number of segment functions
 !     SYNAME  CHAR*20    NOTOT    INPUT   names of systems
-!     NOCONS  INTEGER(kind=int_32) ::1     INPUT   Number of constants used
-!     NOFUN   INTEGER(kind=int_32) ::1     INPUT   Number of functions ( user )
+!     NOCONS  INTEGER(kind=int_wp) ::1     INPUT   Number of constants used
+!     NOFUN   INTEGER(kind=int_wp) ::1     INPUT   Number of functions ( user )
 !     CONAME  CHAR*20   NOCONS    INPUT   Constant names
 !     PANAME  CHAR*20   NOPA      INPUT   Parameter names
 !     FUNAME  CHAR*20   NOFUN     INPUT   Function names
 !     SFNAME  CHAR*20   NOSFUN    INPUT   Segment function names
 !     VALNAM  CHAR*20       1     INPUT   Name of variable in question
-!     IVALIP  INTEGER(kind=int_32) ::1     OUTPUT  Pointer in SSA.
+!     IVALIP  INTEGER(kind=int_wp) ::1     OUTPUT  Pointer in SSA.
 !     LINE    CHAR*(*)      1     OUTPUT  Report line
 !
       use timers       !   performance timers
 
-      INTEGER(kind=int_32) ::NOTOT , NOPA  , NOSFUN, NOCONS, NOFUN ,
+      INTEGER(kind=int_wp) ::NOTOT , NOPA  , NOSFUN, NOCONS, NOFUN ,
      +              IVALIP
       CHARACTER*(*) VALNAM, LINE
       CHARACTER*(*) SYNAME(*),
@@ -76,11 +76,11 @@
 !
 !     Local
 !
-      INTEGER(kind=int_32) ::NZOEK, ISYS, ISFUN, IPA, IFUN, ICO
+      INTEGER(kind=int_wp) ::NZOEK, ISYS, ISFUN, IPA, IFUN, ICO
       PARAMETER   ( NZOEK = 20 )
-      integer(kind=int_32), PARAMETER   ::NOPRED = 6
+      integer(kind=int_wp), PARAMETER   ::NOPRED = 6
       CHARACTER(NZOEK) PREDEF(NOPRED)
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "valpoi", ithndl )
 !
       PREDEF(1) = 'VOLUME'

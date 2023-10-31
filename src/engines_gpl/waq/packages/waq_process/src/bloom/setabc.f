@@ -49,7 +49,7 @@
 
       real(kind=dp) ::xinit(*),pmax20(mt),tcorr(mt),sdmixn(mt)
       real(kind=dp) ::csol, dsol, dep, extb, exttot, t
-      integer(kind=int_32) ::k, j, nset, idrem, idprev,  imprev
+      integer(kind=int_wp) ::k, j, nset, idrem, idprev,  imprev
       
 !
 !  If this is the first time through the subroutine,

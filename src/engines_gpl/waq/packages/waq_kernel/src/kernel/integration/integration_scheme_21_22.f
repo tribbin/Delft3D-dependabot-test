@@ -125,8 +125,8 @@
       use m_actions
       use m_sysn          ! System characteristics
       use m_sysi          ! Timer characteristics
-      use m_sysa          ! Pointers in real(kind=sp) ::array workspace
-      use m_sysj          ! Pointers in integer(kind=int_32) ::array workspace
+      use m_sysa          ! Pointers in real(kind=real_wp) ::array workspace
+      use m_sysj          ! Pointers in integer(kind=int_wp) ::array workspace
       use m_sysc          ! Pointers in character array workspace
       use m_dlwqdata_save_restore
 
@@ -136,9 +136,9 @@
 !     Declaration of arguments
 
       type(waq_data_buffer), target :: buffer      !< System total array space
-      integer(kind=int_32) ::lun   (*)  !< file unit numbers
+      integer(kind=int_wp) ::lun   (*)  !< file unit numbers
       character(*)                :: lchar (*)  !< file names
-      integer(kind=int_32) ::action     !< handle to stepwise call
+      integer(kind=int_wp) ::action     !< handle to stepwise call
       type(delwaq_data), target   :: dlwqd      !< data structure stepwize call
       type(GridPointerColl)       :: GridPs     !< collection of all grid definitions
 
@@ -146,30 +146,30 @@
 
 ! local declarations
 
-      real(kind=sp) ::rdummy(1)
+      real(kind=real_wp) ::rdummy(1)
       logical         imflag , idflag , ihflag
       logical         update , lrewin
       logical         timon_old
-      integer(kind=int_32) ::laatst
+      integer(kind=int_wp) ::laatst
 
       logical         antidiffusion
-      INTEGER(kind=int_32) ::sindex
+      INTEGER(kind=int_wp) ::sindex
 
-      integer(kind=int_32), save  ::ithand1 = 0 ! Leave local
+      integer(kind=int_wp), save  ::ithand1 = 0 ! Leave local
 
-      integer(kind=int_32) ::isys
-      integer(kind=int_32) ::nstep
+      integer(kind=int_wp) ::isys
+      integer(kind=int_wp) ::nstep
 
-      integer(kind=int_32) ::noth
-      integer(kind=int_32) ::ith
+      integer(kind=int_wp) ::noth
+      integer(kind=int_wp) ::ith
 
-      integer(kind=int_32) ::ibnd
+      integer(kind=int_wp) ::ibnd
 
 !       Variables specific to this method: leave them SAVEd
 
-      integer(kind=int_32), save           ::ioptpc
-      integer(kind=int_32), save           ::iter
-      integer(kind=int_32), save           ::iscale
+      integer(kind=int_wp), save           ::ioptpc
+      integer(kind=int_wp), save           ::iter
+      integer(kind=int_wp), save           ::iscale
 
       associate ( a => buffer%rbuf, j => buffer%ibuf, c => buffer%chbuf )
 
@@ -194,7 +194,7 @@
 !     solution method (gmres).
 !     with such an iterative method, systems with multiple rhs cannot be solved
 !     (simultaneously). so we loop over the substances and solve each system
-!     individually. so rhs can be reduced to an real(kind=sp) ::array of size noseg+nobnd.
+!     individually. so rhs can be reduced to an real(kind=real_wp) ::array of size noseg+nobnd.
 !
 !     possible improvements:
 !

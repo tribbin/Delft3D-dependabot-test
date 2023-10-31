@@ -56,9 +56,9 @@
 ! 3.  All constraints with only zero A coefficients. (i.e. growth
 !     constraints of species not permitted).
 
-      integer(kind=int_32) ::lsc(ia),lsctmp(ia),iopt(4),irs(3),lib(mx),libtmp(mx),libbas(mx),nonuni(mt)
-      integer(kind=int_32) ::i, j, j1, k, l
-      integer(kind=int_32) ::index, ier, inow, numuni, nsolve, nustmp, nurtmp, nsolv
+      integer(kind=int_wp) ::lsc(ia),lsctmp(ia),iopt(4),irs(3),lib(mx),libtmp(mx),libbas(mx),nonuni(mt)
+      integer(kind=int_wp) ::i, j, j1, k, l
+      integer(kind=int_wp) ::index, ier, inow, numuni, nsolve, nustmp, nurtmp, nsolv
       real(kind=dp) ::atmp(ia,mt)
       real(kind=dp) ::btmp(ia)
       real(kind=dp) ::ctmp(mt)

@@ -44,12 +44,12 @@ use m_get_filepath_and_pathlen
 
 !   declaration of arguments
 
-    integer(kind=int_32)               , intent(in) ::lunout       !< unit number for reporting
+    integer(kind=int_wp)               , intent(in) ::lunout       !< unit number for reporting
     character(len=*)      , intent(in)       :: hydfile      !< name of the hyd-file to read
     character(len=*)      , intent(inout)    :: lchar(*)     !< filenames
-    integer(kind=int_32)            , intent(out)      :: noseg        !< number of segments
-    integer(kind=int_32)   , dimension(*), intent(out) :: nexch        !< number of exchanges
-    integer(kind=int_32)               , intent(out) ::ierr         !< error code
+    integer(kind=int_wp)            , intent(out)      :: noseg        !< number of segments
+    integer(kind=int_wp)   , dimension(*), intent(out) :: nexch        !< number of exchanges
+    integer(kind=int_wp)               , intent(out) ::ierr         !< error code
 
 !   local variables
 
@@ -57,10 +57,10 @@ use m_get_filepath_and_pathlen
     character(len=400)                    :: path
     character(len=20)                     :: cdummy
     character(len=20), dimension(10)      :: keyword
-    integer(kind=int_32),           dimension(10) ::fileno
-    integer(kind=int_32)                                ::i, ierr2, lunin, idxlga, idxgeom, pathlen
+    integer(kind=int_wp),           dimension(10) ::fileno
+    integer(kind=int_wp)                                ::i, ierr2, lunin, idxlga, idxgeom, pathlen
 
-    integer(kind=int_32)                                ::nx, ny, nosegl, nolay, noq1, noq2, noq3
+    integer(kind=int_wp)                                ::nx, ny, nosegl, nolay, noq1, noq2, noq3
     character(len=4)                      :: identifier
     character(len=len(lchar))             :: grid_file
 

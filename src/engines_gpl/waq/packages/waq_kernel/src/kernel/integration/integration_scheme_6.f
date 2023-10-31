@@ -76,10 +76,10 @@
 !
 !     NAME    KIND     LENGTH   FUNC.  DESCRIPTION
 !     ---------------------------------------------------------
-!     A       REAL(kind=sp) ::*      LOCAL  real(kind=sp) ::workspace array
-!     J       INTEGER(kind=int_32) ::*      LOCAL  integer(kind=int_32) ::workspace array
+!     A       REAL(kind=real_wp) ::*      LOCAL  real(kind=real_wp) ::workspace array
+!     J       INTEGER(kind=int_wp) ::*      LOCAL  integer(kind=int_wp) ::workspace array
 !     C       CHARACTER  *      LOCAL  character workspace array
-!     LUN     INTEGER(kind=int_32) ::*      INPUT  array with unit numbers
+!     LUN     INTEGER(kind=int_wp) ::*      INPUT  array with unit numbers
 !     LCHAR   CHARACTER  *      INPUT  filenames
 !
 !     Declaration of arguments
@@ -106,8 +106,8 @@
       use m_actions
       use m_sysn          ! System characteristics
       use m_sysi          ! Timer characteristics
-      use m_sysa          ! Pointers in real(kind=sp) ::array workspace
-      use m_sysj          ! Pointers in integer(kind=int_32) ::array workspace
+      use m_sysa          ! Pointers in real(kind=real_wp) ::array workspace
+      use m_sysj          ! Pointers in integer(kind=int_wp) ::array workspace
       use m_sysc          ! Pointers in character array workspace
 
       implicit none
@@ -116,9 +116,9 @@
 !     Declaration of arguments
 !
       type(waq_data_buffer), target :: buffer      !< System total array space
-      INTEGER(kind=int_32), DIMENSION(*)        ::LUN
+      INTEGER(kind=int_wp), DIMENSION(*)        ::LUN
       CHARACTER*(*), DIMENSION(*) :: LCHAR
-      INTEGER(kind=int_32) ::ACTION
+      INTEGER(kind=int_wp) ::ACTION
       TYPE(DELWAQ_DATA)           :: DLWQD
       type(GridPointerColl)       :: GridPs               ! collection off all grid definitions
 
@@ -129,20 +129,20 @@
       LOGICAL         IMFLAG , IDFLAG , IHFLAG
       LOGICAL         LDUMMY , LSTREC , LREWIN
 
-      INTEGER(kind=int_32) ::ITIME
-      INTEGER(kind=int_32) ::ITIMEL
-      INTEGER(kind=int_32) ::IAFLAG
-      INTEGER(kind=int_32) ::IBFLAG
-      INTEGER(kind=int_32) ::ISYS
-      INTEGER(kind=int_32) ::ICSYS
-      INTEGER(kind=int_32) ::NSYS
-      INTEGER(kind=int_32) ::INWTYP
-      INTEGER(kind=int_32) ::I
-      INTEGER(kind=int_32) ::NOSSS
-      INTEGER(kind=int_32) ::NOQTT
-      INTEGER(kind=int_32) ::sindex
+      INTEGER(kind=int_wp) ::ITIME
+      INTEGER(kind=int_wp) ::ITIMEL
+      INTEGER(kind=int_wp) ::IAFLAG
+      INTEGER(kind=int_wp) ::IBFLAG
+      INTEGER(kind=int_wp) ::ISYS
+      INTEGER(kind=int_wp) ::ICSYS
+      INTEGER(kind=int_wp) ::NSYS
+      INTEGER(kind=int_wp) ::INWTYP
+      INTEGER(kind=int_wp) ::I
+      INTEGER(kind=int_wp) ::NOSSS
+      INTEGER(kind=int_wp) ::NOQTT
+      INTEGER(kind=int_wp) ::sindex
 
-      integer(kind=int_32) ::ithandl
+      integer(kind=int_wp) ::ithandl
 
       associate ( a => buffer%rbuf, j => buffer%ibuf, c => buffer%chbuf )
       !

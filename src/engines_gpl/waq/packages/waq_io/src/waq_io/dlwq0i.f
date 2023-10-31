@@ -76,13 +76,13 @@
 !     kind           function         name                Descriptipon
 
       character*(*), intent(in   ) :: keynam            !< string to test
-      integer(kind=int_32), intent(inout) ::  intopt             !< integration option
-      integer(kind=int_32), intent(in   ) ::  lunut              !< unit number report file
-      integer(kind=int_32), intent(  out) ::  ierr2              !< 0 if keyword found
+      integer(kind=int_wp), intent(inout) ::  intopt             !< integration option
+      integer(kind=int_wp), intent(in   ) ::  lunut              !< unit number report file
+      integer(kind=int_wp), intent(  out) ::  ierr2              !< 0 if keyword found
 
 !     local
 
-      integer(kind=int_32), parameter ::   nokey = 19 
+      integer(kind=int_wp), parameter ::   nokey = 19
       character*(40)  lockey
       character*(40), save ::  keywords(nokey)
       character*(40), save ::  defkeys(nokey)
@@ -106,8 +106,8 @@
      &                'BAL_SUPPRESSTIME          ' , 'SCHEME15_STRUCTURED       ' ,
      &                'NO-ANTIDIFFUSION          ' , 'x xxxxxxxxxxxxxxxxxxxxxxxx' ,
      &                'SCHEME24_VERTICAL_UPWIND  ' /
-      integer(kind=int_32) :: ikey                 ! number of the found key
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) :: ikey                 ! number of the found key
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "dlwq0i", ithndl )
 
 !     watch out BTEST, IBSET en IBCLR start counting at 0, so IKEY-1 should be used

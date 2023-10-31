@@ -53,14 +53,14 @@
 
       ! decalaration of arguments
 
-      integer(kind=int_32), intent(in   )  ::lurep             !< unit number report file
+      integer(kind=int_wp), intent(in   )  ::lurep             !< unit number report file
       type(old_item_coll)          :: old_items         !< old_items table
-      integer(kind=int_32), intent(in   )  ::notot             !< Number of systems
-      integer(kind=int_32), intent(in   )  ::nopa              !< Number of parameters
-      integer(kind=int_32), intent(in   )  ::nofun             !< Number of functions ( user )
-      integer(kind=int_32), intent(in   )  ::nosfun            !< Number of segment functions
-      integer(kind=int_32), intent(in   )  ::nodisp            !< Number of dispersion array's
-      integer(kind=int_32), intent(in   )  ::novelo            !< Number of velocity array's
+      integer(kind=int_wp), intent(in   )  ::notot             !< Number of systems
+      integer(kind=int_wp), intent(in   )  ::nopa              !< Number of parameters
+      integer(kind=int_wp), intent(in   )  ::nofun             !< Number of functions ( user )
+      integer(kind=int_wp), intent(in   )  ::nosfun            !< Number of segment functions
+      integer(kind=int_wp), intent(in   )  ::nodisp            !< Number of dispersion array's
+      integer(kind=int_wp), intent(in   )  ::novelo            !< Number of velocity array's
       character(20), intent(inout) :: syname(notot)     !< Systems names
       character(20), intent(inout) :: paname(nopa)      !< Parameter names
       character(20), intent(inout) :: funame(nofun )    !< Function names
@@ -71,14 +71,14 @@
 
       ! local declaration
 
-      integer(kind=int_32) ::i                 ! loop counter old items
-      integer(kind=int_32) ::n_old_items       ! number of records in old items table
+      integer(kind=int_wp) ::i                 ! loop counter old items
+      integer(kind=int_wp) ::n_old_items       ! number of records in old items table
       character(len=20)         :: name20            ! name
-      integer(kind=int_32) ::ifound            ! index in array
-      integer(kind=int_32) ::nocons            ! number of constants
-      real(kind=sp) ::range             ! range in range check
-      integer(kind=int_32) ::ierr2             ! error indicator
-      integer(kind=int_32) ::ithndl = 0        ! handle for performance timer
+      integer(kind=int_wp) ::ifound            ! index in array
+      integer(kind=int_wp) ::nocons            ! number of constants
+      real(kind=real_wp) ::range             ! range in range check
+      integer(kind=int_wp) ::ierr2             ! error indicator
+      integer(kind=int_wp) ::ithndl = 0        ! handle for performance timer
       if (timon) call timstrt( "set_old_items", ithndl )
 
       write (lurep,'(a)') '# scanning input for old process definitions'

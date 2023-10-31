@@ -48,7 +48,7 @@
 !
 !     FUNCTION            : Fills output buffer OUTVAL on sub grid.
 !
-!     SUBROUTINES CALLED  : ZERO  , zero's a real(kind=sp) ::array
+!     SUBROUTINES CALLED  : ZERO  , zero's a real(kind=real_wp) ::array
 !
 !     FILES               : -
 !
@@ -56,41 +56,41 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     OUTVAL  REAL(kind=sp) ::NCOUT+NRVAR,* OUTPUT  Values for vars on output grid
-!     IOPOIN  INTEGER(kind=int_32) ::*     INPUT   Pointers to arrays for vars
-!     NRVAR   INTEGER(kind=int_32) ::1     INPUT   Number of extra output vars
-!     NOCONS  INTEGER(kind=int_32) ::1     INPUT   Number of constants used
-!     NOPA    INTEGER(kind=int_32) ::1     INPUT   Number of parameters
-!     NOFUN   INTEGER(kind=int_32) ::1     INPUT   Number of functions ( user )
-!     NOSFUN  INTEGER(kind=int_32) ::1     INPUT   Number of segment functions
-!     NOTOT   INTEGER(kind=int_32) ::1     INPUT   Total number of substances
-!     CONC    REAL(kind=sp) ::NOTOT,NOSEG  INPUT   Model concentrations
-!     SEGFUN  REAL(kind=sp) ::NOSEG,NOSFUN INPUT   Segment functions at ITIME
-!     FUNC    REAL(kind=sp) ::*     INPUT   Model functions at ITIME
-!     PARAM   REAL(kind=sp) ::NOPA,NOSEG  INPUT   Model parameters
-!     CONS    REAL(kind=sp) ::*     INPUT   Model constants
-!     IDT     INTEGER(kind=int_32) ::1     INPUT   Simulation timestep
-!     ITIME   INTEGER(kind=int_32) ::1     INPUT   Time in system clock units
-!     VOLUME  REAL(kind=sp) ::NOSEG     INPUT   Segment volumes
-!     NOSEG   INTEGER(kind=int_32) ::1     INPUT   Nr. of computational elements
-!     NOSYS   INTEGER(kind=int_32) ::1     INPUT   Number of active substances
-!     NDMPAR  INTEGER(kind=int_32) ::1     INPUT   number of dump locations
-!     IPDMP   INTEGER(kind=int_32) ::*     INPUT   pointer structure dump area's
-!     BOUND   REAL(kind=sp) ::NOTOT*?    INPUT   boundary      values
-!     NOLOC   INTEGER(kind=int_32) ::1     INPUT   Number of variables in PROLOC
-!     PARAM   REAL(kind=sp) ::NOLOC,NOSEG  INPUT   Parameters local in PROCES system
-!     NODEF   INTEGER(kind=int_32) ::1     INPUT   Number of used defaults
-!     DEFAUL  REAL(kind=sp) ::*     INPUT   Default proces parameters
-!     NCOUT   INTEGER(kind=int_32) ::1     INPUT   number of conc in output
-!     NTDMPQ  INTEGER(kind=int_32) ::1     INPUT   total number exchanges in dump area
+!     OUTVAL  REAL(kind=real_wp) ::NCOUT+NRVAR,* OUTPUT  Values for vars on output grid
+!     IOPOIN  INTEGER(kind=int_wp) ::*     INPUT   Pointers to arrays for vars
+!     NRVAR   INTEGER(kind=int_wp) ::1     INPUT   Number of extra output vars
+!     NOCONS  INTEGER(kind=int_wp) ::1     INPUT   Number of constants used
+!     NOPA    INTEGER(kind=int_wp) ::1     INPUT   Number of parameters
+!     NOFUN   INTEGER(kind=int_wp) ::1     INPUT   Number of functions ( user )
+!     NOSFUN  INTEGER(kind=int_wp) ::1     INPUT   Number of segment functions
+!     NOTOT   INTEGER(kind=int_wp) ::1     INPUT   Total number of substances
+!     CONC    REAL(kind=real_wp) ::NOTOT,NOSEG  INPUT   Model concentrations
+!     SEGFUN  REAL(kind=real_wp) ::NOSEG,NOSFUN INPUT   Segment functions at ITIME
+!     FUNC    REAL(kind=real_wp) ::*     INPUT   Model functions at ITIME
+!     PARAM   REAL(kind=real_wp) ::NOPA,NOSEG  INPUT   Model parameters
+!     CONS    REAL(kind=real_wp) ::*     INPUT   Model constants
+!     IDT     INTEGER(kind=int_wp) ::1     INPUT   Simulation timestep
+!     ITIME   INTEGER(kind=int_wp) ::1     INPUT   Time in system clock units
+!     VOLUME  REAL(kind=real_wp) ::NOSEG     INPUT   Segment volumes
+!     NOSEG   INTEGER(kind=int_wp) ::1     INPUT   Nr. of computational elements
+!     NOSYS   INTEGER(kind=int_wp) ::1     INPUT   Number of active substances
+!     NDMPAR  INTEGER(kind=int_wp) ::1     INPUT   number of dump locations
+!     IPDMP   INTEGER(kind=int_wp) ::*     INPUT   pointer structure dump area's
+!     BOUND   REAL(kind=real_wp) ::NOTOT*?    INPUT   boundary      values
+!     NOLOC   INTEGER(kind=int_wp) ::1     INPUT   Number of variables in PROLOC
+!     PARAM   REAL(kind=real_wp) ::NOLOC,NOSEG  INPUT   Parameters local in PROCES system
+!     NODEF   INTEGER(kind=int_wp) ::1     INPUT   Number of used defaults
+!     DEFAUL  REAL(kind=real_wp) ::*     INPUT   Default proces parameters
+!     NCOUT   INTEGER(kind=int_wp) ::1     INPUT   number of conc in output
+!     NTDMPQ  INTEGER(kind=int_wp) ::1     INPUT   total number exchanges in dump area
 !
 !     Declaration of arguments
 !
-      integer(kind=int_32) ::nrvar , nocons, nopa  , nofun , nosfun,
+      integer(kind=int_wp) ::nrvar , nocons, nopa  , nofun , nosfun,
      +           notot , idt   , itime , noseg , nosys ,
      +           ndmpar, noloc , nodef , ncout , ntdmpq
-      integer(kind=int_32) ::iopoin(*)      , ipdmp(*)
-      real(kind=sp) ::outval(*)      , conc(notot,*),
+      integer(kind=int_wp) ::iopoin(*)      , ipdmp(*)
+      real(kind=real_wp) ::outval(*)      , conc(notot,*),
      +           segfun(noseg,nosfun), func(*) ,
      +           param (nopa ,noseg ), cons(*) ,
      +           volume(*)      , bound(*)     ,
@@ -101,17 +101,17 @@
 !
 !     Local
 !
-      real(kind=sp), parameter     ::rmiss = -999.
-      integer(kind=int_32), parameter  ::nopred= 6     
-      integer(kind=int_32) ::iopa  , iofunc, iosfun, ioconc, ioloc ,
+      real(kind=real_wp), parameter     ::rmiss = -999.
+      integer(kind=int_wp), parameter  ::nopred= 6
+      integer(kind=int_wp) ::iopa  , iofunc, iosfun, ioconc, ioloc ,
      +            iodef , ip    , ip1   , ip2   , itel2 ,
      +            isys  , ivar  , idump , isc   , iseg  ,
      +            nsc   , iofdmp, iocons, iip   , iidump,
      +            indx 
-      integer(kind=int_32) ::ifun   ! index in function arrays
-      real(kind=sp) ::hlpvar, hlpcum, valcum, valvar, srf, cumsrf
+      integer(kind=int_wp) ::ifun   ! index in function arrays
+      real(kind=real_wp) ::hlpvar, hlpcum, valcum, valvar, srf, cumsrf
       logical     parm
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "fiosub", ithandl )
 !
 !     Pointer offsets

@@ -52,52 +52,52 @@
       ! declaration of arguments
 
       type(procespropcoll)      :: procesdef       ! all processes
-      integer(kind=int_32) ::notot           ! number of substances
+      integer(kind=int_wp) ::notot           ! number of substances
       character(len=*)          :: syname(*)       ! substance name
-      integer(kind=int_32) ::nocons          ! number of constants
+      integer(kind=int_wp) ::nocons          ! number of constants
       type(t_dlwq_item)   , intent(inout) :: constants       !< delwaq constants list
-      integer(kind=int_32) ::nopa            ! number of parameters
+      integer(kind=int_wp) ::nopa            ! number of parameters
       character(len=*)          :: paname(*)       ! parameter names
-      integer(kind=int_32) ::nofun           ! number of functions
+      integer(kind=int_wp) ::nofun           ! number of functions
       character(len=*)          :: funame(*)       ! function names
-      integer(kind=int_32) ::nosfun          ! number of segment functions
+      integer(kind=int_wp) ::nosfun          ! number of segment functions
       character(len=*)          :: sfname(*)       ! segment function names
-      integer(kind=int_32) ::nodisp          ! number of dispersions
+      integer(kind=int_wp) ::nodisp          ! number of dispersions
       character(len=*)          :: diname(*)       ! dispersion names
-      integer(kind=int_32) ::novelo          ! number of velocities
+      integer(kind=int_wp) ::novelo          ! number of velocities
       character(len=*)          :: vename(*)       ! velocity names
-      integer(kind=int_32) ::noq3            ! number of exhcanges in third direction
+      integer(kind=int_wp) ::noq3            ! number of exhcanges in third direction
       logical                   :: laswi           ! active only switch
-      integer(kind=int_32) ::no_act          ! number of active processes
+      integer(kind=int_wp) ::no_act          ! number of active processes
       character(len=*)          :: actlst(*)       ! active processes names
-      integer(kind=int_32) ::noinfo          ! number of informative messages
-      integer(kind=int_32) ::nowarn          ! number of warnings
-      integer(kind=int_32) ::nerror          ! number of errors
+      integer(kind=int_wp) ::noinfo          ! number of informative messages
+      integer(kind=int_wp) ::nowarn          ! number of warnings
+      integer(kind=int_wp) ::nerror          ! number of errors
 
       ! local decalarations
 
-      integer(kind=int_32) ::nproc           ! number of processes
-      integer(kind=int_32) ::iproc           ! loop counter processes
-      integer(kind=int_32) ::iproc2          ! second loop counter processes
+      integer(kind=int_wp) ::nproc           ! number of processes
+      integer(kind=int_wp) ::iproc           ! loop counter processes
+      integer(kind=int_wp) ::iproc2          ! second loop counter processes
       type(procesprop), pointer :: proc1           ! process description
       type(procesprop), pointer :: proc2           ! description second process
-      integer(kind=int_32) ::ivalip          ! index variable in pmsa
+      integer(kind=int_wp) ::ivalip          ! index variable in pmsa
       character(len=20)         :: valnam          ! variable name
       character(len=50)         :: valtxt          ! variable description
-      integer(kind=int_32) ::iflux           ! index flux
-      integer(kind=int_32) ::i_input         ! index input item
-      integer(kind=int_32) ::ioutput         ! index output item
-      integer(kind=int_32) ::iact            ! index in active list
-      integer(kind=int_32) ::imolev          ! monitoring level
+      integer(kind=int_wp) ::iflux           ! index flux
+      integer(kind=int_wp) ::i_input         ! index input item
+      integer(kind=int_wp) ::ioutput         ! index output item
+      integer(kind=int_wp) ::iact            ! index in active list
+      integer(kind=int_wp) ::imolev          ! monitoring level
       character(len=100)        :: line            ! line buffer for output
-      integer(kind=int_32), parameter         ::mismax = 50     ! maximum number of missing variables per process
-      integer(kind=int_32) ::nmis            ! actual number of missing variables
-      integer(kind=int_32) ::imis            ! index number of missing variables
+      integer(kind=int_wp), parameter         ::mismax = 50     ! maximum number of missing variables per process
+      integer(kind=int_wp) ::nmis            ! actual number of missing variables
+      integer(kind=int_wp) ::imis            ! index number of missing variables
       character(len=20)         :: misnam(mismax)  ! name missing variables
       character(len=50)         :: mistxt(mismax)  ! description missing variables
       logical                   :: iok             ! indicates if its ok
-      integer(kind=int_32) ::i_star                ! index of * in name
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::i_star                ! index of * in name
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "makbar", ithndl )
 
       write ( line , '(a)' ) '# Determining which processes can be switched on'

@@ -51,25 +51,25 @@
 
 !     kind           function         name                   description
 
-      real(kind=sp), intent(inout)  ::deriv (notot,noseg)  !< Derivatives to be scaled
-      integer(kind=int_32), intent(in   )  ::notot                !< Total number of substances
-      integer(kind=int_32), intent(in   )  ::noseg                !< Number of computational volumes
-      integer(kind=int_32), intent(in   )  ::itfact               !< Factor between process and transport clock
-      real(kind=sp), intent(inout)  ::amass2(notot,5)      !< Mass balance array
-      integer(kind=int_32), intent(in   )  ::idt                  !< Integration time step size
-      integer(kind=int_32), intent(in   )  ::iaflag               !< if 1 then accumulation
-      real(kind=sp), intent(inout)  ::dmps  (notot,*)      !< Integrated fluxes if intopt > 7
-      integer(kind=int_32), intent(in   )  ::intopt               !< Integration suboptions
-      integer(kind=int_32), intent(in   )  ::isdmp (noseg)        !< Pointer dumped segments
+      real(kind=real_wp), intent(inout)  ::deriv (notot,noseg)  !< Derivatives to be scaled
+      integer(kind=int_wp), intent(in   )  ::notot                !< Total number of substances
+      integer(kind=int_wp), intent(in   )  ::noseg                !< Number of computational volumes
+      integer(kind=int_wp), intent(in   )  ::itfact               !< Factor between process and transport clock
+      real(kind=real_wp), intent(inout)  ::amass2(notot,5)      !< Mass balance array
+      integer(kind=int_wp), intent(in   )  ::idt                  !< Integration time step size
+      integer(kind=int_wp), intent(in   )  ::iaflag               !< if 1 then accumulation
+      real(kind=real_wp), intent(inout)  ::dmps  (notot,*)      !< Integrated fluxes if intopt > 7
+      integer(kind=int_wp), intent(in   )  ::intopt               !< Integration suboptions
+      integer(kind=int_wp), intent(in   )  ::isdmp (noseg)        !< Pointer dumped segments
 
 !     Local variables
 
-      real(kind=sp) ::atfac           ! helpvariable 1.0/itfact
-      real(kind=sp) ::dtfac           ! helpvariable idt
-      integer(kind=int_32) ::iseg            ! loop variable
-      integer(kind=int_32) ::ip              ! help variable
+      real(kind=real_wp) ::atfac           ! helpvariable 1.0/itfact
+      real(kind=real_wp) ::dtfac           ! helpvariable idt
+      integer(kind=int_wp) ::iseg            ! loop variable
+      integer(kind=int_wp) ::ip              ! help variable
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwq14", ithandl )
 
 !         loop accross deriv

@@ -56,12 +56,12 @@
 !
 !     Declaration of arguments
 !
-      INTEGER(kind=int_32) ::EXTPOS, EXTLEN
+      INTEGER(kind=int_wp) ::EXTPOS, EXTLEN
       CHARACTER*(*) FILNAM, FILEXT
 !
 !     Local declaration
 !
-      INTEGER(kind=int_32) ::LENNAM, ICH_LAST, ICH
+      INTEGER(kind=int_wp) ::LENNAM, ICH_LAST, ICH
       CHARACTER     DIRSEP_DOS, DIRSEP_UX
 !
       DIRSEP_DOS = CHAR(92)

@@ -34,7 +34,7 @@
       use m_monsys
 
       CHARACTER*(*) NAME
-      INTEGER(kind=int_32) ::LUNREP
+      INTEGER(kind=int_wp) ::LUNREP
 
       CALL GETMLU(LUNREP)
       WRITE (LUNREP,*) ' Coefficient ',NAME,' = 0'

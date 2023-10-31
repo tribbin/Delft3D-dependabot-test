@@ -41,35 +41,35 @@ contains
 !
 !     Type    Name         I/O Description
 !
-      real(kind=sp)  ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
-      real(kind=sp)  ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
-      integer(kind=int_32)  ::ipoint( 20) ! I  Array of pointers in pmsa to get and store the data
-      integer(kind=int_32)  ::increm( 20) ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer(kind=int_32)  ::noseg       ! I  Number of computational elements in the whole model schematisation
-      integer(kind=int_32)  ::noflux      ! I  Number of fluxes, increment in the fl array
-      integer(kind=int_32)  ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      integer(kind=int_32)  ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      integer(kind=int_32)  ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
-      integer(kind=int_32)  ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer(kind=int_32)  ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer(kind=int_32)  ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
-      integer(kind=int_32)  ::ipnt( 20)   ! L  Local work array for the pointering
-      integer(kind=int_32)  ::i           ! L  Local general loop counter
-      integer(kind=int_32)  ::iseg        ! L  Local loop counter for computational element loop
-      integer(kind=int_32)  ::iq          ! L  Local loop counter for exchanges loop
-      integer(kind=int_32)  ::ifrom       ! L  Local help variable 'from' comp. elem.
-      integer(kind=int_32)  ::ito         ! L  Local help variable 'to'   comp. elem.
-      integer(kind=int_32)  ::ispnt       ! L  Local help variable segment of an exchange
-      integer(kind=int_32)  ::ikmrkv      ! L  Local help variable feature 'from' comp. elem.
-      integer(kind=int_32)  ::ikmrkt      ! L  Local help variable feature 'to'   comp. elem.
-      integer(kind=int_32)  ::ikmrk1      ! L  Local help variable feature
-      real(kind=sp)  ::pi, radcf   ! L  pi and  its conversion to radians
-      real(kind=sp)  ::x, y        ! L  helpvariables for the direction of velocities
-      real(kind=sp)  ::u, u2       ! L  helpvariables for summation of velocities
-      integer(kind=int_32)  ::icalsw      ! L  computational switch
-      integer(kind=int_32)  ::iavgsw      ! L  averaging switch
-      integer(kind=int_32)  ::ip1, ip2, ip3, ip4, ip8, ip10, ip11
-      integer(kind=int_32)  ::in1, in2, in3, in4, in8, in10, in11
+      real(kind=real_wp)  ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
+      real(kind=real_wp)  ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
+      integer(kind=int_wp)  ::ipoint( 20) ! I  Array of pointers in pmsa to get and store the data
+      integer(kind=int_wp)  ::increm( 20) ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_wp)  ::noseg       ! I  Number of computational elements in the whole model schematisation
+      integer(kind=int_wp)  ::noflux      ! I  Number of fluxes, increment in the fl array
+      integer(kind=int_wp)  ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      integer(kind=int_wp)  ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      integer(kind=int_wp)  ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
+      integer(kind=int_wp)  ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_wp)  ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_wp)  ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      integer(kind=int_wp)  ::ipnt( 20)   ! L  Local work array for the pointering
+      integer(kind=int_wp)  ::i           ! L  Local general loop counter
+      integer(kind=int_wp)  ::iseg        ! L  Local loop counter for computational element loop
+      integer(kind=int_wp)  ::iq          ! L  Local loop counter for exchanges loop
+      integer(kind=int_wp)  ::ifrom       ! L  Local help variable 'from' comp. elem.
+      integer(kind=int_wp)  ::ito         ! L  Local help variable 'to'   comp. elem.
+      integer(kind=int_wp)  ::ispnt       ! L  Local help variable segment of an exchange
+      integer(kind=int_wp)  ::ikmrkv      ! L  Local help variable feature 'from' comp. elem.
+      integer(kind=int_wp)  ::ikmrkt      ! L  Local help variable feature 'to'   comp. elem.
+      integer(kind=int_wp)  ::ikmrk1      ! L  Local help variable feature
+      real(kind=real_wp)  ::pi, radcf   ! L  pi and  its conversion to radians
+      real(kind=real_wp)  ::x, y        ! L  helpvariables for the direction of velocities
+      real(kind=real_wp)  ::u, u2       ! L  helpvariables for summation of velocities
+      integer(kind=int_wp)  ::icalsw      ! L  computational switch
+      integer(kind=int_wp)  ::iavgsw      ! L  averaging switch
+      integer(kind=int_wp)  ::ip1, ip2, ip3, ip4, ip8, ip10, ip11
+      integer(kind=int_wp)  ::in1, in2, in3, in4, in8, in10, in11
 !
       parameter ( pi = 3.1415926,  radcf = pi / 180.)
 !
@@ -77,20 +77,20 @@ contains
 !
 !     Type    Name         I/O Description                                        Unit
 !
-      real(kind=sp)  ::MaxVeloc    ! I  maximum horizontal flow velocity                   (m/s)
-      real(kind=sp)  ::Orient_1    ! I  orientation of main positive flow direction        (degrees)
-      real(kind=sp)  ::Orient_2    ! I  orientation of secondary positive flow direct      (degrees)
-      real(kind=sp)  ::SWCalcVelo  ! I  switch (1=lin avg, 2=Flow avg, 3=Area avg)         (-)
-      real(kind=sp)  ::SWAvgVelo   ! I  switch (1=Pythagoras, 2=Min, 3=Max)                (-)
-      real(kind=sp)  ::Area        ! I  exchange area                                      (m2)
-      real(kind=sp)  ::Flow        ! I  flow rate                                          (m3/s)
-      real(kind=sp)  ::Velocity    ! O  horizontal flow velocity                           (m/s)
-      real(kind=sp)  ::FlowDir     ! O  flow direction relative to North                   (degrees)
-      real(kind=sp)  ::Veloc1      ! O  horizontal flow velocity first direction           (m/s)
-      real(kind=sp)  ::Veloc2      ! O  horizontal flow velocity second direction          (m/s)
-      real(kind=sp)  ::FlowSeg     ! O  horizontal flow averaged over two directions       (m3/s)
-      real(kind=sp)  ::FlowSeg1    ! O  horizontal flow first direction                    (m3/s)
-      real(kind=sp)  ::FlowSeg2    ! O  horizontal flow second direction                   (m3/s)
+      real(kind=real_wp)  ::MaxVeloc    ! I  maximum horizontal flow velocity                   (m/s)
+      real(kind=real_wp)  ::Orient_1    ! I  orientation of main positive flow direction        (degrees)
+      real(kind=real_wp)  ::Orient_2    ! I  orientation of secondary positive flow direct      (degrees)
+      real(kind=real_wp)  ::SWCalcVelo  ! I  switch (1=lin avg, 2=Flow avg, 3=Area avg)         (-)
+      real(kind=real_wp)  ::SWAvgVelo   ! I  switch (1=Pythagoras, 2=Min, 3=Max)                (-)
+      real(kind=real_wp)  ::Area        ! I  exchange area                                      (m2)
+      real(kind=real_wp)  ::Flow        ! I  flow rate                                          (m3/s)
+      real(kind=real_wp)  ::Velocity    ! O  horizontal flow velocity                           (m/s)
+      real(kind=real_wp)  ::FlowDir     ! O  flow direction relative to North                   (degrees)
+      real(kind=real_wp)  ::Veloc1      ! O  horizontal flow velocity first direction           (m/s)
+      real(kind=real_wp)  ::Veloc2      ! O  horizontal flow velocity second direction          (m/s)
+      real(kind=real_wp)  ::FlowSeg     ! O  horizontal flow averaged over two directions       (m3/s)
+      real(kind=real_wp)  ::FlowSeg1    ! O  horizontal flow first direction                    (m3/s)
+      real(kind=real_wp)  ::FlowSeg2    ! O  horizontal flow second direction                   (m3/s)
       !
 !*******************************************************************************
 !

@@ -49,17 +49,17 @@
 
       ! arguments
 
-      integer(kind=int_32), intent(in   )  ::lunrep                 !< report file
+      integer(kind=int_wp), intent(in   )  ::lunrep                 !< report file
       logical           , intent(inout) :: laswi                  !< active processes only switch
       character(len=*)  , intent(in   ) :: config                 !< requested configuration
-      integer(kind=int_32), intent(in   )  ::no_act                 !< number of activated processes
+      integer(kind=int_wp), intent(in   )  ::no_act                 !< number of activated processes
       character(len=*)  , intent(in   ) :: actlst(*)              !< list of activated processes
       type(itempropcoll)                :: allitems               !< all items known
       type(procespropcoll)              :: procesdef              !< the proces definition
-      integer(kind=int_32), intent(inout)  ::noinfo                 !< cummulative information count
-      integer(kind=int_32), intent(inout)  ::nowarn                 !< cummulative warning count
+      integer(kind=int_wp), intent(inout)  ::noinfo                 !< cummulative information count
+      integer(kind=int_wp), intent(inout)  ::nowarn                 !< cummulative warning count
       type(old_item_coll)               :: old_items              !< old_items table
-      integer(kind=int_32), intent(  out)  ::ierror                 !< error indicator
+      integer(kind=int_wp), intent(  out)  ::ierror                 !< error indicator
 !
 !     Common declarations
 !
@@ -78,27 +78,27 @@
       type(StochiPropColl)  :: VeloStochi          ! one collection of Stochis
       type(StochiPropColl)  :: DispStochi          ! one collection of Stochis
 !
-      INTEGER(kind=int_32) ::                                       IPROC , IOFFSE,
+      INTEGER(kind=int_wp) ::                                       IPROC , IOFFSE,
      +               NAANTA, IINPU , IITEM , JNDEX , IOUTP ,
      +               IOFFS2, NAANT2, IDISP , IVELO , IOUTF ,
      +               ISTOC , IFLUX , IPRCNF, IGET  , IACT  ,
      +               ILIC  , IC
-      INTEGER(kind=int_32) ::iret
-      REAL(kind=sp) ::ACTDEF
+      INTEGER(kind=int_wp) ::iret
+      REAL(kind=real_wp) ::ACTDEF
       LOGICAL        SWITUI, SWIT2D
       CHARACTER*80   LINE
-      integer(kind=int_32), allocatable  ::itemidx(:)          ! index in the aleady existing item collection from the statistics
-      integer(kind=int_32) ::ierr_alloc
-      integer(kind=int_32) ::indx
-      integer(kind=int_32) ::i
-      integer(kind=int_32) ::ifound
-      integer(kind=int_32), allocatable  ::actuse(:)           ! activated processes status indicator
-      integer(kind=int_32) ::iitem2              ! temporary index item
+      integer(kind=int_wp), allocatable  ::itemidx(:)          ! index in the aleady existing item collection from the statistics
+      integer(kind=int_wp) ::ierr_alloc
+      integer(kind=int_wp) ::indx
+      integer(kind=int_wp) ::i
+      integer(kind=int_wp) ::ifound
+      integer(kind=int_wp), allocatable  ::actuse(:)           ! activated processes status indicator
+      integer(kind=int_wp) ::iitem2              ! temporary index item
 !
 !     license stuff
 !
-      integer(kind=int_32) ::iconf
-      integer(kind=int_32) ::ithndl = 0      ! handle for performance timer
+      integer(kind=int_wp) ::iconf
+      integer(kind=int_wp) ::ithndl = 0      ! handle for performance timer
       if (timon) call timstrt( "prprop", ithndl )
 !
 !     Some init

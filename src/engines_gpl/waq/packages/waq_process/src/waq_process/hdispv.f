@@ -42,40 +42,40 @@
 !
 !     type    name         i/o description
 !
-      real(kind=sp) ::pmsa(*)     !i/o process manager system array, window of routine to process library
-      real(kind=sp) ::fl(*)       ! o  array of fluxes made by this process in mass/volume/time
-      integer(kind=int_32) ::ipoint( 12) ! i  array of pointers in pmsa to get and store the data
-      integer(kind=int_32) ::increm( 12) ! i  increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer(kind=int_32) ::noseg       ! i  number of computational elements in the whole model schematisation
-      integer(kind=int_32) ::noflux      ! i  number of fluxes, increment in the fl array
-      integer(kind=int_32) ::iexpnt(4,*) ! i  from, to, from-1 and to+1 segment numbers of the exchange surfaces
-      integer(kind=int_32) ::iknmrk(*)   ! i  active-inactive, surface-water-bottom, see manual for use
-      integer(kind=int_32) ::noq1        ! i  nr of exchanges in 1st direction, only horizontal dir if irregular mesh
-      integer(kind=int_32) ::noq2        ! i  nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer(kind=int_32) ::noq3        ! i  nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer(kind=int_32) ::noq4        ! i  nr of exchanges in the bottom (bottom layers, specialist use only)
-      integer(kind=int_32) ::ipnt( 12)   !    local work array for the pointering
-      integer(kind=int_32) ::iq          !    local loop counter for exchanges
-      integer(kind=int_32) ::iseg1       !    segment number from
-      integer(kind=int_32) ::iseg2       !    segment number to
-      real(kind=sp) ::velocity    !    velocity
-      real(kind=sp) ::depth1      !    depth from segment
-      real(kind=sp) ::depth2      !    depth to segment
+      real(kind=real_wp) ::pmsa(*)     !i/o process manager system array, window of routine to process library
+      real(kind=real_wp) ::fl(*)       ! o  array of fluxes made by this process in mass/volume/time
+      integer(kind=int_wp) ::ipoint( 12) ! i  array of pointers in pmsa to get and store the data
+      integer(kind=int_wp) ::increm( 12) ! i  increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_wp) ::noseg       ! i  number of computational elements in the whole model schematisation
+      integer(kind=int_wp) ::noflux      ! i  number of fluxes, increment in the fl array
+      integer(kind=int_wp) ::iexpnt(4,*) ! i  from, to, from-1 and to+1 segment numbers of the exchange surfaces
+      integer(kind=int_wp) ::iknmrk(*)   ! i  active-inactive, surface-water-bottom, see manual for use
+      integer(kind=int_wp) ::noq1        ! i  nr of exchanges in 1st direction, only horizontal dir if irregular mesh
+      integer(kind=int_wp) ::noq2        ! i  nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_wp) ::noq3        ! i  nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_wp) ::noq4        ! i  nr of exchanges in the bottom (bottom layers, specialist use only)
+      integer(kind=int_wp) ::ipnt( 12)   !    local work array for the pointering
+      integer(kind=int_wp) ::iq          !    local loop counter for exchanges
+      integer(kind=int_wp) ::iseg1       !    segment number from
+      integer(kind=int_wp) ::iseg2       !    segment number to
+      real(kind=real_wp) ::velocity    !    velocity
+      real(kind=real_wp) ::depth1      !    depth from segment
+      real(kind=real_wp) ::depth2      !    depth to segment
 !
 !*******************************************************************************
 !
 !     type    name         i/o description                                        unit
 !
-      real(kind=sp) ::dfact_a     ! i  dispersion coefficient at low velocities           (m2/s)
-      real(kind=sp) ::dfact_b     ! i  dispersion coefficient at low velocities           (m2/s)
-      real(kind=sp) ::dfact_c     ! i  dispersion coefficient at low velocities           (m2/s)
-      real(kind=sp) ::dback       ! i  dispersion coefficient at low velocities           (m2/s)
-      real(kind=sp) ::dmin        ! i  dispersion coefficient at low velocities           (m2/s)
-      real(kind=sp) ::dmax        ! i  dispersion coefficient at high velocities          (m2/s)
-      real(kind=sp) ::depth       ! i  segment depth                                      (m)
-      real(kind=sp) ::xarea       ! i  exchange area                                      (m2)
-      real(kind=sp) ::flow        ! i  flow rate                                          (m3/s)
-      real(kind=sp) ::horzdispv   ! o  variable horizontal dispersion                     (m2/s)
+      real(kind=real_wp) ::dfact_a     ! i  dispersion coefficient at low velocities           (m2/s)
+      real(kind=real_wp) ::dfact_b     ! i  dispersion coefficient at low velocities           (m2/s)
+      real(kind=real_wp) ::dfact_c     ! i  dispersion coefficient at low velocities           (m2/s)
+      real(kind=real_wp) ::dback       ! i  dispersion coefficient at low velocities           (m2/s)
+      real(kind=real_wp) ::dmin        ! i  dispersion coefficient at low velocities           (m2/s)
+      real(kind=real_wp) ::dmax        ! i  dispersion coefficient at high velocities          (m2/s)
+      real(kind=real_wp) ::depth       ! i  segment depth                                      (m)
+      real(kind=real_wp) ::xarea       ! i  exchange area                                      (m2)
+      real(kind=real_wp) ::flow        ! i  flow rate                                          (m3/s)
+      real(kind=real_wp) ::horzdispv   ! o  variable horizontal dispersion                     (m2/s)
 !
 !*******************************************************************************
 

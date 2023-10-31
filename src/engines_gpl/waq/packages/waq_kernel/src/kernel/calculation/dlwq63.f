@@ -47,27 +47,27 @@
 !
 !     NAME    KIND       LENGTH       FUNCT.  DESCRIPTION
 !     ----    -----      ------       ------- -----------
-!     CONC    REAL(kind=sp) ::NOTOT*NOSEG    INPUT   first order term
-!     DERIV   REAL(kind=sp) ::NOTOT*NOSEG    IN/OUT  right hand side matrix
-!     AMASS2  REAL(kind=sp) ::NOTOT*5        IN/OUT  mass accumulation array
-!     NOSEG   INTEGER(kind=int_32) ::1         INPUT   number of segments
-!     NOTOT   INTEGER(kind=int_32) ::1         INPUT   total number of systems
-!     ISYS    INTEGER(kind=int_32) ::1         INPUT   system considered
-!     NSYS    INTEGER(kind=int_32) ::1         INPUT   number of systems to take
-!     DMPS    REAL(kind=sp) ::*         IN/OUT  dumped segment fluxes
+!     CONC    REAL(kind=real_wp) ::NOTOT*NOSEG    INPUT   first order term
+!     DERIV   REAL(kind=real_wp) ::NOTOT*NOSEG    IN/OUT  right hand side matrix
+!     AMASS2  REAL(kind=real_wp) ::NOTOT*5        IN/OUT  mass accumulation array
+!     NOSEG   INTEGER(kind=int_wp) ::1         INPUT   number of segments
+!     NOTOT   INTEGER(kind=int_wp) ::1         INPUT   total number of systems
+!     ISYS    INTEGER(kind=int_wp) ::1         INPUT   system considered
+!     NSYS    INTEGER(kind=int_wp) ::1         INPUT   number of systems to take
+!     DMPS    REAL(kind=real_wp) ::*         IN/OUT  dumped segment fluxes
 !                                             if INTOPT > 7
-!     INTOPT  INTEGER(kind=int_32) ::1       INPUT   Integration suboptions
+!     INTOPT  INTEGER(kind=int_wp) ::1       INPUT   Integration suboptions
 !
-!     ISDMP   INTEGER(kind=int_32) ::NOSEG      INPUT   pointer dumped segments
+!     ISDMP   INTEGER(kind=int_wp) ::NOSEG      INPUT   pointer dumped segments
 !
       use timers
 
-      INTEGER(kind=int_32) ::ISDMP(*)
-      real(kind=sp) ::CONC(NOTOT,*) , DERIV(*) , AMASS2(NOTOT,*) ,
+      INTEGER(kind=int_wp) ::ISDMP(*)
+      real(kind=real_wp) ::CONC(NOTOT,*) , DERIV(*) , AMASS2(NOTOT,*) ,
      *            DMPS(*)
-      integer(kind=int_32) ::notot, nsys, noseg
-      integer(kind=int_32) ::i, ip, i4, i5, i6, ntot, iset, intopt, iseg, isys
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::notot, nsys, noseg
+      integer(kind=int_wp) ::i, ip, i4, i5, i6, ntot, iset, intopt, iseg, isys
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwq63", ithandl )
 !
 !         gets concentrations

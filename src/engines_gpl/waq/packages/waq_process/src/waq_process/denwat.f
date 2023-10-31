@@ -89,21 +89,21 @@
 
       IMPLICIT NONE
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
-      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10,
+      INTEGER(kind=int_wp) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10,
      +         IP11, IP12, IP13, IP14, IP15, IP16, IP17
-      INTEGER(kind=int_32) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9, IN10,
+      INTEGER(kind=int_wp) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9, IN10,
      +         IN11, IN12, IN13, IN14, IN15, IN16, IN17
-      INTEGER(kind=int_32) ::IFLUX, ISEG
-      REAL(kind=sp) ::TC     , DENR   , DENRC  , OOXDEN , COXDEN , CURVA  ,
+      INTEGER(kind=int_wp) ::IFLUX, ISEG
+      REAL(kind=real_wp) ::TC     , DENR   , DENRC  , OOXDEN , COXDEN , CURVA  ,
      +         O2FUNC , DELTOX , CURVAQ
-      INTEGER(kind=int_32) ::IVERSN
-      REAL(kind=sp) ::KDEN   , K0DEN  , K0TEMP , K0OX   , KSNI   , KSOX   ,
+      INTEGER(kind=int_wp) ::IVERSN
+      REAL(kind=real_wp) ::KDEN   , K0DEN  , K0TEMP , K0OX   , KSNI   , KSOX   ,
      +         CROXY  , NIFUNC , OXFUNC
-      REAL(kind=sp) ::POROS  , CRTEMP , OXY    , NO3    , TEMP   , TEMPC  ,
+      REAL(kind=real_wp) ::POROS  , CRTEMP , OXY    , NO3    , TEMP   , TEMPC  ,
      +         TEMP20
 !
       LOGICAL  TMPOPT , OXYOPT

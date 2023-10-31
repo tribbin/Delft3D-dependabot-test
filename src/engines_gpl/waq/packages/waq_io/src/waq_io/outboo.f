@@ -52,29 +52,29 @@
 
 !     kind           function         name            Descriptipon
 
-      integer(kind=int_32), intent(in   ) ::  noutp          !< Number of output files
-      integer(kind=int_32), intent(in   ) ::  nrvar (noutp)  !< Number variables per output file
-      integer(kind=int_32), intent(in   ) ::  igrdou(noutp)  !< Output grid indication
-      integer(kind=int_32), intent(in   ) ::  isrtou(noutp)  !< Sort output indication
-      integer(kind=int_32), intent(in   ) ::  noseg          !< Number of computational cells
-      integer(kind=int_32), intent(in   ) ::  nodump         !< Number of monitoring points
-      integer(kind=int_32), intent(in   ) ::  nx             !< Length of dump grid
-      integer(kind=int_32), intent(in   ) ::  ny             !< Width of dump grid
-      integer(kind=int_32), intent(  out) ::  nrvart         !< Total number of output variables
-      integer(kind=int_32), intent(  out) ::  nbufmx         !< Length of output buffer needed
-      integer(kind=int_32), intent(in   ) ::  ndmpar         !< number of dump areas
-      integer(kind=int_32), intent(in   ) ::  notot          !< Number of substances
-      integer(kind=int_32), intent(  out) ::  ncbufm         !< Length of character buffer needed
-      integer(kind=int_32), intent(in   ) ::  noraai         !< Number of transects
+      integer(kind=int_wp), intent(in   ) ::  noutp          !< Number of output files
+      integer(kind=int_wp), intent(in   ) ::  nrvar (noutp)  !< Number variables per output file
+      integer(kind=int_wp), intent(in   ) ::  igrdou(noutp)  !< Output grid indication
+      integer(kind=int_wp), intent(in   ) ::  isrtou(noutp)  !< Sort output indication
+      integer(kind=int_wp), intent(in   ) ::  noseg          !< Number of computational cells
+      integer(kind=int_wp), intent(in   ) ::  nodump         !< Number of monitoring points
+      integer(kind=int_wp), intent(in   ) ::  nx             !< Length of dump grid
+      integer(kind=int_wp), intent(in   ) ::  ny             !< Width of dump grid
+      integer(kind=int_wp), intent(  out) ::  nrvart         !< Total number of output variables
+      integer(kind=int_wp), intent(  out) ::  nbufmx         !< Length of output buffer needed
+      integer(kind=int_wp), intent(in   ) ::  ndmpar         !< number of dump areas
+      integer(kind=int_wp), intent(in   ) ::  notot          !< Number of substances
+      integer(kind=int_wp), intent(  out) ::  ncbufm         !< Length of character buffer needed
+      integer(kind=int_wp), intent(in   ) ::  noraai         !< Number of transects
 
 !     Local
 
-      integer(kind=int_32), parameter ::  igseg= 1 , igmon= 2 , iggrd= 3 , igsub= 4 
-      integer(kind=int_32) ::  nocel        !  size of the NEFIS cell
-      integer(kind=int_32) ::  nbufou       !  help variable for length output buffer
-      integer(kind=int_32) ::  ncbufo       !  help variable for length character buffer
-      integer(kind=int_32) ::  iout         !  loop variable
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp), parameter ::  igseg= 1 , igmon= 2 , iggrd= 3 , igsub= 4
+      integer(kind=int_wp) ::  nocel        !  size of the NEFIS cell
+      integer(kind=int_wp) ::  nbufou       !  help variable for length output buffer
+      integer(kind=int_wp) ::  ncbufo       !  help variable for length character buffer
+      integer(kind=int_wp) ::  iout         !  loop variable
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "outboo", ithndl )
 
 !     Loop over the output files

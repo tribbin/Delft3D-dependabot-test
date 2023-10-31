@@ -35,28 +35,28 @@ module m_dlwqdata_save_restore
     implicit none
 
     !type(delwaq_data), target :: dlwqd                !< derived type for persistent storage
-    integer(kind=int_32)    ::itime
-    integer(kind=int_32)    ::ifflag
-    integer(kind=int_32)    ::iaflag
-    integer(kind=int_32)    ::ibflag
-    integer(kind=int_32)    ::nddim
-    integer(kind=int_32)    ::nvdim
-    integer(kind=int_32)    ::nosss
-    integer(kind=int_32)    ::noqtt
-    integer(kind=int_32)    ::noqt
-    integer(kind=int_32)    ::nopred
-    integer(kind=int_32)    ::ithandl
+    integer(kind=int_wp)    ::itime
+    integer(kind=int_wp)    ::ifflag
+    integer(kind=int_wp)    ::iaflag
+    integer(kind=int_wp)    ::ibflag
+    integer(kind=int_wp)    ::nddim
+    integer(kind=int_wp)    ::nvdim
+    integer(kind=int_wp)    ::nosss
+    integer(kind=int_wp)    ::noqtt
+    integer(kind=int_wp)    ::noqt
+    integer(kind=int_wp)    ::nopred
+    integer(kind=int_wp)    ::ithandl
     logical   :: litrep
     logical   :: ldummy
-    integer(kind=int_32)    ::inwtyp
-    integer(kind=int_32)    ::nowarn
-    integer(kind=int_32)    ::ioptzb
+    integer(kind=int_wp)    ::inwtyp
+    integer(kind=int_wp)    ::nowarn
+    integer(kind=int_wp)    ::ioptzb
     logical   :: forester
     logical   :: updatr
-    integer(kind=int_32)    ::lleng
+    integer(kind=int_wp)    ::lleng
     real(kind=dp)      :: tol
     logical   :: lstrec
-    integer(kind=int_32)    ::itimel
+    integer(kind=int_wp)    ::itimel
 
     contains
 

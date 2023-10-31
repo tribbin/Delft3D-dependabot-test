@@ -55,17 +55,17 @@ use m_waq_type_definitions
     public :: openSubstancesReport ! Public for testing purposes
     public :: testSetLunumbers     ! Public for testing purposes
 
-    integer(kind=int_32), parameter ::  type_substance = 1 
-    integer(kind=int_32), parameter ::  type_inactive  = 2 
-    integer(kind=int_32), parameter ::  type_constant  = 3 
-    integer(kind=int_32), parameter ::  type_parameter = 4 
-    integer(kind=int_32), parameter ::  type_output    = 5 
-    integer(kind=int_32), parameter ::  type_process   = 6
+    integer(kind=int_wp), parameter ::  type_substance = 1
+    integer(kind=int_wp), parameter ::  type_inactive  = 2
+    integer(kind=int_wp), parameter ::  type_constant  = 3
+    integer(kind=int_wp), parameter ::  type_parameter = 4
+    integer(kind=int_wp), parameter ::  type_output    = 5
+    integer(kind=int_wp), parameter ::  type_process   = 6
 
     type itemInfo 
-        integer(kind=int_32) ::  type 
+        integer(kind=int_wp) ::  type
         logical           :: private
-        real(kind=sp) ::  value 
+        real(kind=real_wp) ::  value
         character(len=20) :: name
         character(len=20) :: unit
         character(len=80) :: description
@@ -73,13 +73,13 @@ use m_waq_type_definitions
 
     type(itemInfo), dimension(:), allocatable :: item
 
-    integer(kind=int_32), private ::  lunlst = 0, lunsub, lunpar
+    integer(kind=int_wp), private ::  lunlst = 0, lunsub, lunpar
 
 contains
 
 !> Set LU-numbers, specifically for test purposes
 subroutine testSetLunumbers( testsub, testpar )
-    integer(kind=int_32), intent(in) ::  testsub, testpar
+    integer(kind=int_wp), intent(in) ::  testsub, testpar
 
     lunsub = testsub
     lunpar = testpar
@@ -102,7 +102,7 @@ subroutine loadSubstancesFile( substances_file, parameters_file, success )
     character(len=*), intent(in) :: parameters_file
     logical, intent(out)         :: success
 
-    integer(kind=int_32) ::  ierr
+    integer(kind=int_wp) ::  ierr
  
     success = .true.
 
@@ -149,15 +149,15 @@ subroutine readParametersFile( success )
 
     logical, intent(inout) :: success !< Whether this step was successful or not
 
-    integer(kind=int_32) ::  i 
-    integer(kind=int_32) ::  k 
-    integer(kind=int_32) ::  lineno 
-    integer(kind=int_32) ::  ierr 
+    integer(kind=int_wp) ::  i
+    integer(kind=int_wp) ::  k
+    integer(kind=int_wp) ::  lineno
+    integer(kind=int_wp) ::  ierr
     character(len=80)      :: string
     character(len=80)      :: prev_string
     character(len=20)      :: type
     character(len=20)      :: name
-    real(kind=sp) ::  value 
+    real(kind=real_wp) ::  value
     type(itemInfo), dimension(:), pointer :: newItems
     type(itemInfo), dimension(:), pointer :: prevItems
 
@@ -252,14 +252,14 @@ subroutine readSubstancesFile( success )
 
     logical, intent(inout) :: success !< Whether this step was successful or not
 
-    integer(kind=int_32) ::  i 
-    integer(kind=int_32) ::  idx 
-    integer(kind=int_32) ::  k 
-    integer(kind=int_32) ::  lineno 
-    integer(kind=int_32) ::  ierr 
-    integer(kind=int_32) ::  mode 
-    integer(kind=int_32) ::  itemType 
-    integer(kind=int_32) ::  maxidx 
+    integer(kind=int_wp) ::  i
+    integer(kind=int_wp) ::  idx
+    integer(kind=int_wp) ::  k
+    integer(kind=int_wp) ::  lineno
+    integer(kind=int_wp) ::  ierr
+    integer(kind=int_wp) ::  mode
+    integer(kind=int_wp) ::  itemType
+    integer(kind=int_wp) ::  maxidx
     logical                :: createItem
     logical                :: isNew
     character(len=80)      :: string
@@ -271,11 +271,11 @@ subroutine readSubstancesFile( success )
     type(itemInfo), dimension(:), pointer :: newItems
     type(itemInfo), dimension(:), pointer :: prevItems
 
-    integer(kind=int_32), parameter ::  mode_general   = 0 
-    integer(kind=int_32), parameter ::  mode_substance = 1 
-    integer(kind=int_32), parameter ::  mode_parameter = 2 
-    integer(kind=int_32), parameter ::  mode_output    = 3 
-    integer(kind=int_32), parameter ::  mode_process   = 4
+    integer(kind=int_wp), parameter ::  mode_general   = 0
+    integer(kind=int_wp), parameter ::  mode_substance = 1
+    integer(kind=int_wp), parameter ::  mode_parameter = 2
+    integer(kind=int_wp), parameter ::  mode_output    = 3
+    integer(kind=int_wp), parameter ::  mode_process   = 4
  
     if ( .not. allocated(item) ) then
         allocate( item(1) )
@@ -490,11 +490,11 @@ contains
 !> Create a new item if necessary (internal routine)
 subroutine createOrFindItem( name, idx, isNew )
     character(len=*), intent(in)  :: name
-    integer(kind=int_32), intent(out) ::  idx 
+    integer(kind=int_wp), intent(out) ::  idx
     logical         , intent(out) :: isNew
 
-    integer(kind=int_32) ::  i 
-    integer(kind=int_32) ::  maxused
+    integer(kind=int_wp) ::  i
+    integer(kind=int_wp) ::  maxused
  
     idx     = -1
     isNew   = .true.
@@ -534,7 +534,7 @@ subroutine readSecondString( string, secondString, success )
     logical, intent(out)          :: success
 
     character(len=1)              :: dummy
-    integer(kind=int_32) ::  ierr
+    integer(kind=int_wp) ::  ierr
  
     success = .true.
     read( string, *, iostat = ierr ) dummy, secondString
@@ -551,11 +551,11 @@ end subroutine readSecondString
 !> Read the value as the second item from the line
 subroutine readValue( string, value, success )
     character(len=*), intent(in)  :: string
-    real(kind=sp), intent(out) ::  value 
+    real(kind=real_wp), intent(out) ::  value
     logical, intent(out)          :: success
 
     character(len=1)              :: dummy
-    integer(kind=int_32) ::  ierr
+    integer(kind=int_wp) ::  ierr
 
     success = .true.
     read( string, *, iostat = ierr ) dummy, value
@@ -583,17 +583,17 @@ subroutine registerSubstances( success )
     !
     ! The information in the array "item" gets distributed
     !
-    integer(kind=int_32) ::  number_substances 
-    integer(kind=int_32) ::  number_transported 
-    integer(kind=int_32) ::  number_parameters 
-    integer(kind=int_32) ::  number_processes
+    integer(kind=int_wp) ::  number_substances
+    integer(kind=int_wp) ::  number_transported
+    integer(kind=int_wp) ::  number_parameters
+    integer(kind=int_wp) ::  number_processes
  
-    integer(kind=int_32) ::  i
+    integer(kind=int_wp) ::  i
  
     character(len=20), dimension(:), allocatable :: substance
     character(len=20), dimension(:), allocatable :: process_parameter
     character(len=20), dimension(:), allocatable :: process
-    real(kind=sp), dimension(:), allocatable               ::  value
+    real(kind=real_wp), dimension(:), allocatable               ::  value
  
     number_substances  = count( item%type == type_substance ) + count( item%type == type_inactive )
     number_transported = count( item%type == type_substance )
@@ -623,9 +623,9 @@ end subroutine registerSubstances
 !> Subroutine for testing - write out the contents
 subroutine writeItems( lun )
 
-    integer(kind=int_32), intent(in) ::  lun
+    integer(kind=int_wp), intent(in) ::  lun
  
-    integer(kind=int_32) ::  i
+    integer(kind=int_wp) ::  i
 
     do i = 1,size(item)
         write( lun, '(3a,i5,l5,e15.6)' ) &

@@ -61,34 +61,34 @@ contains
 
 !     Kind        Function         Name                  Description
 
-      integer(kind=int_32), intent(in   ) ::idt                  !< time step in scu's
-      integer(kind=int_32), intent(in   ) ::noseg                !< Number of computational volumes
-      real(kind=sp)    , intent(in   ) :: volnew(  noseg)      !< segment volumes
-      integer(kind=int_32), intent(in   ) ::nobnd                !< Number of open boundaries
-      integer(kind=int_32), intent(in   ) ::noq                  !< Total number fluxes in the water phase
-      integer(kind=int_32), intent(in   ) ::ipoint(4,noq)        !< from, to, from-1, to+1 volume numbers per flux
-      real(kind=sp)    , intent(in   ) :: flowtot( noq)        !< flows plus additional velos. (dim: noq)
-      real(kind=sp)    , intent(in   ) :: disptot( noq)        !< dispersion plus additional dipers. (dim: noq)
+      integer(kind=int_wp), intent(in   ) ::idt                  !< time step in scu's
+      integer(kind=int_wp), intent(in   ) ::noseg                !< Number of computational volumes
+      real(kind=real_wp)    , intent(in   ) :: volnew(  noseg)      !< segment volumes
+      integer(kind=int_wp), intent(in   ) ::nobnd                !< Number of open boundaries
+      integer(kind=int_wp), intent(in   ) ::noq                  !< Total number fluxes in the water phase
+      integer(kind=int_wp), intent(in   ) ::ipoint(4,noq)        !< from, to, from-1, to+1 volume numbers per flux
+      real(kind=real_wp)    , intent(in   ) :: flowtot( noq)        !< flows plus additional velos. (dim: noq)
+      real(kind=real_wp)    , intent(in   ) :: disptot( noq)        !< dispersion plus additional dipers. (dim: noq)
       real(kind=dp)    , intent(inout) :: diag  (noseg+nobnd)  !< diagonal of the matrix
-      integer(kind=int_32), intent(in   ) ::iscale               !< = 1 row scaling with the diagonal
+      integer(kind=int_wp), intent(in   ) ::iscale               !< = 1 row scaling with the diagonal
       real(kind=dp)    , intent(inout) :: diagcc(noseg+nobnd)  !< copy of (unscaled) diagonal of the matrix
-      integer(kind=int_32), intent(in   ) ::nomat                !< dimension of off-diagonal matrix amat
+      integer(kind=int_wp), intent(in   ) ::nomat                !< dimension of off-diagonal matrix amat
       real(kind=dp)    , intent(  out) :: amat  (nomat)        !< matrix with off-diagonal entries
-      integer(kind=int_32), intent(in   ) ::idiag(0:noseg+nobnd) !< position of the diagonals in amat
-      integer(kind=int_32), intent(in   ) ::fmat  (  noq)        !< location from(iq) in matrix
-      integer(kind=int_32), intent(in   ) ::tmat  (  noq)        !< location to  (iq) in matrix
+      integer(kind=int_wp), intent(in   ) ::idiag(0:noseg+nobnd) !< position of the diagonals in amat
+      integer(kind=int_wp), intent(in   ) ::fmat  (  noq)        !< location from(iq) in matrix
+      integer(kind=int_wp), intent(in   ) ::tmat  (  noq)        !< location to  (iq) in matrix
 
 !     Local declarations
 
-      integer(kind=int_32)  ::iseg           ! current volume
-      integer(kind=int_32)  ::iq , jq        ! current edge
-      integer(kind=int_32)  ::ito, ifrom     ! to and from volume number
-      real(kind=sp)    :: q1 , q2        ! flows
+      integer(kind=int_wp)  ::iseg           ! current volume
+      integer(kind=int_wp)  ::iq , jq        ! current edge
+      integer(kind=int_wp)  ::ito, ifrom     ! to and from volume number
+      real(kind=real_wp)    :: q1 , q2        ! flows
       real(kind=dp)    :: dt             ! time step in double
 
 !     WAQ timers
 
-      integer(kind=int_32)  ::ithandl=0
+      integer(kind=int_wp)  ::ithandl=0
       if ( timon ) call timstrt ( "dlwqf3", ithandl )
 
 ! set the diagonal

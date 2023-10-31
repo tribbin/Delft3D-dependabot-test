@@ -48,14 +48,14 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     NOTOT   INTEGER(kind=int_32) ::1     INPUT   Total number of substances
-!     NOFLUX  INTEGER(kind=int_32) ::1     INPUT   Nr. of fluxes
-!     NDMPAR  INTEGER(kind=int_32) ::1     INPUT   Nr. of dump areas
-!     NOBALT  INTEGER(kind=int_32) ::1     INPUT   Nr. of balance terms total
-!     STOCHI  REAL(kind=sp) ::NOTOT*NOFLUX INPUT   Proces stochiometry
-!     FLXINT  REAL(kind=sp) ::NOFLUX*NDMPAR INPUT   Accumulated fluxes
-!     ASMASS  REAL(kind=sp) ::NOTOT*NDMPAR*6 INPUT   Mass balance terms
-!     BALINT  REAL(kind=sp) ::NOBALT*NDMPAR OUTPUT  Balance terms
+!     NOTOT   INTEGER(kind=int_wp) ::1     INPUT   Total number of substances
+!     NOFLUX  INTEGER(kind=int_wp) ::1     INPUT   Nr. of fluxes
+!     NDMPAR  INTEGER(kind=int_wp) ::1     INPUT   Nr. of dump areas
+!     NOBALT  INTEGER(kind=int_wp) ::1     INPUT   Nr. of balance terms total
+!     STOCHI  REAL(kind=real_wp) ::NOTOT*NOFLUX INPUT   Proces stochiometry
+!     FLXINT  REAL(kind=real_wp) ::NOFLUX*NDMPAR INPUT   Accumulated fluxes
+!     ASMASS  REAL(kind=real_wp) ::NOTOT*NDMPAR*6 INPUT   Mass balance terms
+!     BALINT  REAL(kind=real_wp) ::NOBALT*NDMPAR OUTPUT  Balance terms
 !
 !     Declaration of arguments
 !
@@ -63,14 +63,14 @@
       use m_monsys
       use timers
 
-      INTEGER(kind=int_32) ::NOTOT , NOFLUX, NDMPAR, NOBALT
-      REAL(kind=sp) ::STOCHI(NOTOT,NOFLUX)  , FLXINT(NOFLUX,NDMPAR),
+      INTEGER(kind=int_wp) ::NOTOT , NOFLUX, NDMPAR, NOBALT
+      REAL(kind=real_wp) ::STOCHI(NOTOT,NOFLUX)  , FLXINT(NOFLUX,NDMPAR),
      +        ASMASS(NOTOT,NDMPAR,6), BALINT(NOBALT,NDMPAR)
 
 !     local
-      integer(kind=int_32) ::ibalt, isys, i, idmp, iflx, lurep
-      real(kind=sp) ::st
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ibalt, isys, i, idmp, iflx, lurep
+      real(kind=real_wp) ::st
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "flxbal", ithandl )
 !
 !     We construeren nu de BALINT's

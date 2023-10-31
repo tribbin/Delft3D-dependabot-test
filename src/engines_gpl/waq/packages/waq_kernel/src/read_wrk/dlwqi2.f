@@ -68,32 +68,32 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     LUN     INTEGER(kind=int_32) ::*     INPUT   logical unitnumbers
+!     LUN     INTEGER(kind=int_wp) ::*     INPUT   logical unitnumbers
 !     MODID   CHAR*40       4     OUTPUT  Model and run-ID
 !     SYSID   CHAR*20   NOTOT     OUTPUT  Systems ID
-!     IDUMP   INTEGER(kind=int_32) ::NODUMP     OUTPUT  Dump segment numbers
+!     IDUMP   INTEGER(kind=int_wp) ::NODUMP     OUTPUT  Dump segment numbers
 !     DUMPID  CHAR*20  NODUMP     OUTPUT  Dump-segment ID
-!     IDPNT   INTEGER(kind=int_32) ::NOSYS     OUTPUT  Pointers to dispersion array
-!     IVPNT   INTEGER(kind=int_32) ::NOSYS     OUTPUT  Pointers to velocity array
-!     DISP    REAL(kind=sp) ::3     OUTPUT  dispersion in 3 directions
-!     IBPNT   INTEGER(kind=int_32) ::4*NOBND    OUTPUT  1,* = timelag
+!     IDPNT   INTEGER(kind=int_wp) ::NOSYS     OUTPUT  Pointers to dispersion array
+!     IVPNT   INTEGER(kind=int_wp) ::NOSYS     OUTPUT  Pointers to velocity array
+!     DISP    REAL(kind=real_wp) ::3     OUTPUT  dispersion in 3 directions
+!     IBPNT   INTEGER(kind=int_wp) ::4*NOBND    OUTPUT  1,* = timelag
 !                                         2,* = flow pointer
 !                                         3,* = segment pointer
 !                                         4,* = time on timelag
 !     BNDID   CHAR*20   NOBND     OUTPUT  Open boundary ID's
 !     BNDNAM  CHAR*40   NOBND     OUTPUT  Open boundary names
 !     BNDTYP  CHAR*20   NOBND     OUTPUT  Open boundary types
-!     INWTYP  INTEGER(kind=int_32) ::*       OUTPUT  Types of items
-!     IWASTE  INTEGER(kind=int_32) ::NOWST     OUTPUT  waste load segment numbers
-      integer(kind=int_32), intent(  out)  ::iwsknd(*) !  wasteload processing
+!     INWTYP  INTEGER(kind=int_wp) ::*       OUTPUT  Types of items
+!     IWASTE  INTEGER(kind=int_wp) ::NOWST     OUTPUT  waste load segment numbers
+      integer(kind=int_wp), intent(  out)  ::iwsknd(*) !  wasteload processing
 !     WASTID  CHAR*20   NOWST     OUTPUT  Waste location ID
 !     WSTNAM  CHAR*40   NOWST     OUTPUT  Waste location names
 !     WSTTYP  CHAR*20   NOWST     OUTPUT  Waste location types
-!     ALENG   REAL(kind=sp) ::3       OUTPUT  Lengthes in 3 directions
-!     CONST   REAL(kind=sp) ::NOCONS     OUTPUT  value of constants
-!     PARAM   REAL(kind=sp) ::NOPA,NOSEG  OUTPUT  value of parameters
-!     NRFTOT  INTEGER(kind=int_32) ::NOITEM     OUTPUT  file lengthes per item
-!     NRHARM  INTEGER(kind=int_32) ::NOITEM     OUTPUT  nr of harmonics per item
+!     ALENG   REAL(kind=real_wp) ::3       OUTPUT  Lengthes in 3 directions
+!     CONST   REAL(kind=real_wp) ::NOCONS     OUTPUT  value of constants
+!     PARAM   REAL(kind=real_wp) ::NOPA,NOSEG  OUTPUT  value of parameters
+!     NRFTOT  INTEGER(kind=int_wp) ::NOITEM     OUTPUT  file lengthes per item
+!     NRHARM  INTEGER(kind=int_wp) ::NOITEM     OUTPUT  nr of harmonics per item
 !     CONAME  CHAR*20  NOCONS     OUTPUT  Constant names
 !     PANAME  CHAR*20  NOPA       OUTPUT  Parameter names
 !     FUNAME  CHAR*20  NOFUN      OUTPUT  Function names
@@ -101,64 +101,64 @@
 !     DINAME  CHAR*20  NODISP     OUTPUT  Dispersion array names
 !     VENAME  CHAR*20  NOVELO     OUTPUT  Velocity array names
 !     DANAM   CHAR*20  NDMPAR     OUTPUT  Dump-area    ID
-!     IPDMP   INTEGER(kind=int_32) ::*     OUTPUT  pointer structure dump area's
-!     IQDMP   INTEGER(kind=int_32) ::*     OUTPUT  Exchange to dumped exchange pointer
-!     ISDMP   INTEGER(kind=int_32) ::*     OUTPUT  Segment to dumped segment pointer
+!     IPDMP   INTEGER(kind=int_wp) ::*     OUTPUT  pointer structure dump area's
+!     IQDMP   INTEGER(kind=int_wp) ::*     OUTPUT  Exchange to dumped exchange pointer
+!     ISDMP   INTEGER(kind=int_wp) ::*     OUTPUT  Segment to dumped segment pointer
 !     RANAM   CHAR*20       *     OUTPUT  Raaien names
-!     IORAAI  INTEGER(kind=int_32) ::*     OUTPUT  option output raaien
-!     NQRAAI  INTEGER(kind=int_32) ::*     OUTPUT  number of exch. per raai
-!     IQRAAI  INTEGER(kind=int_32) ::*     OUTPUT  exchange nunbers raaien
+!     IORAAI  INTEGER(kind=int_wp) ::*     OUTPUT  option output raaien
+!     NQRAAI  INTEGER(kind=int_wp) ::*     OUTPUT  number of exch. per raai
+!     IQRAAI  INTEGER(kind=int_wp) ::*     OUTPUT  exchange nunbers raaien
 !
 !
 !     IN COMMON BLOCK     :
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     NOSEG   INTEGER(kind=int_32) ::1     INPUT   Number of segments
-!     NOSYS   INTEGER(kind=int_32) ::1     INPUT   Number of active systems
-!     NOTOT   INTEGER(kind=int_32) ::1     INPUT   Number of systems
-!     NODISP  INTEGER(kind=int_32) ::1     INPUT   Number of dispersion array's
-!     NOVELO  INTEGER(kind=int_32) ::1     INPUT   Number of velocity array's
-!     NOQ     INTEGER(kind=int_32) ::1     INPUT   total number of exchanges
-!     NODUMP  INTEGER(kind=int_32) ::1     INPUT   Number of dump segments
-!     NOBND   INTEGER(kind=int_32) ::1     INPUT   Number of open boundaries
-!     NOBTYP  INTEGER(kind=int_32) ::1     INPUT   Number of boundary types
-!     NOWST   INTEGER(kind=int_32) ::1     INPUT   Number of load locations
-!     NOWTYP  INTEGER(kind=int_32) ::1     INPUT   Number of waste load types
-!     NOCONS  INTEGER(kind=int_32) ::1     INPUT   Number of constants used
-!     NOPA    INTEGER(kind=int_32) ::1     INPUT   Number of parameters
-!     NOFUN   INTEGER(kind=int_32) ::1     INPUT   Number of functions ( user )
-!     NOSFUN  INTEGER(kind=int_32) ::1     INPUT   Number of segment functions
-!     NOITEM  INTEGER(kind=int_32) ::1     INPUT   Number possible functions
-!     NDMPAR  INTEGER(kind=int_32) ::1     INPUT   Number of dump area's
-!     NTDMPQ  INTEGER(kind=int_32) ::1     INPUT   total number exchanges in dump area
-!     NTDMPS  INTEGER(kind=int_32) ::1     INPUT   total number segments in dump area
-!     NORAAI  INTEGER(kind=int_32) ::1     INPUT   number of raaien
-!     NTRAAQ  INTEGER(kind=int_32) ::1     INPUT   total number of exch. in raaien
+!     NOSEG   INTEGER(kind=int_wp) ::1     INPUT   Number of segments
+!     NOSYS   INTEGER(kind=int_wp) ::1     INPUT   Number of active systems
+!     NOTOT   INTEGER(kind=int_wp) ::1     INPUT   Number of systems
+!     NODISP  INTEGER(kind=int_wp) ::1     INPUT   Number of dispersion array's
+!     NOVELO  INTEGER(kind=int_wp) ::1     INPUT   Number of velocity array's
+!     NOQ     INTEGER(kind=int_wp) ::1     INPUT   total number of exchanges
+!     NODUMP  INTEGER(kind=int_wp) ::1     INPUT   Number of dump segments
+!     NOBND   INTEGER(kind=int_wp) ::1     INPUT   Number of open boundaries
+!     NOBTYP  INTEGER(kind=int_wp) ::1     INPUT   Number of boundary types
+!     NOWST   INTEGER(kind=int_wp) ::1     INPUT   Number of load locations
+!     NOWTYP  INTEGER(kind=int_wp) ::1     INPUT   Number of waste load types
+!     NOCONS  INTEGER(kind=int_wp) ::1     INPUT   Number of constants used
+!     NOPA    INTEGER(kind=int_wp) ::1     INPUT   Number of parameters
+!     NOFUN   INTEGER(kind=int_wp) ::1     INPUT   Number of functions ( user )
+!     NOSFUN  INTEGER(kind=int_wp) ::1     INPUT   Number of segment functions
+!     NOITEM  INTEGER(kind=int_wp) ::1     INPUT   Number possible functions
+!     NDMPAR  INTEGER(kind=int_wp) ::1     INPUT   Number of dump area's
+!     NTDMPQ  INTEGER(kind=int_wp) ::1     INPUT   total number exchanges in dump area
+!     NTDMPS  INTEGER(kind=int_wp) ::1     INPUT   total number segments in dump area
+!     NORAAI  INTEGER(kind=int_wp) ::1     INPUT   number of raaien
+!     NTRAAQ  INTEGER(kind=int_wp) ::1     INPUT   total number of exch. in raaien
 !
 !
 
-      INTEGER(kind=int_32) ::IPDMP(*)  , IQDMP(*)   , ISDMP (*) , IORAAI(*) ,
+      INTEGER(kind=int_wp) ::IPDMP(*)  , IQDMP(*)   , ISDMP (*) , IORAAI(*) ,
      +             NQRAAI(*) , IQRAAI(*)  , GRDNOS(*) , GRDREF(*),
      +             IDUMP (*) , IDPNT (*)  , IVPNT (*) , IBPNT (4,*),
      +             IWASTE(*) , NRFTOT(*)  , NRHARM(*) , LUN   (*),
      +             IKNMRK(*) , INWTYP(*)
-      INTEGER(kind=int_32) ::GRDSEG(NOSEG+NSEG2,NOGRID)
+      INTEGER(kind=int_wp) ::GRDSEG(NOSEG+NSEG2,NOGRID)
       CHARACTER*40 MODID (4) , BNDNAM(*)  , WSTNAM(*)
       CHARACTER*20 SYSID (*) , DUMPID(*)  , BNDID (*) , BNDTYP(*) ,
      *             WASTID(*) , WSTTYP(*)  , CONAME(*) , PANAME(*) ,
      *             FUNAME(*) , SFNAME(*)  , DINAME(*) , VENAME(*) ,
      *             DANAM (*) , RANAM (*)
-      real(kind=sp) ::DISP  (*) , ALENG (*)  , CONST (*) , PARAM (*)
+      real(kind=real_wp) ::DISP  (*) , ALENG (*)  , CONST (*) , PARAM (*)
       CHARACTER*40  FILLER
       type(GridPointerColl), intent(inout) :: GridPs     !< definitions of the grids
       type(delwaq_data),     intent(inout) :: dlwqd      !< derived type for persistent storage
-      integer(kind=int_32) ::dmpbal(*)  !< indicates if dump area is included in the balance
+      integer(kind=int_wp) ::dmpbal(*)  !< indicates if dump area is included in the balance
       type(GridPointer)    :: aGrid      ! a single grid
 
-      integer(kind=int_32) ::it, noqtt, nosss, k, igrid, iin, iseg, ierror, i_grid
-      integer(kind=int_32) ::isys, ix, i, idummy
-      integer(kind=int_32) ::ithandl =0
+      integer(kind=int_wp) ::it, noqtt, nosss, k, igrid, iin, iseg, ierror, i_grid
+      integer(kind=int_wp) ::isys, ix, i, idummy
+      integer(kind=int_wp) ::ithandl =0
       if ( timon ) call timstrt ( "dlwqi2", ithandl )
 !
 !     Local
@@ -298,8 +298,8 @@
       IMPLICIT NONE
       CHARACTER(LEN=*) :: T0STRING
 
-      INTEGER(kind=int_32) ::IYEAR, IMONTH, IDAY, IHOUR, IMIN, ISEC, ISCALE
-      INTEGER(kind=int_32) ::IERR
+      INTEGER(kind=int_wp) ::IYEAR, IMONTH, IDAY, IHOUR, IMIN, ISEC, ISCALE
+      INTEGER(kind=int_wp) ::IERR
       REAL(kind=dp) :: TEMP1, TEMP2
 
       REAL(kind=dp), PARAMETER :: MODIFICATION_OFFSET = 2400000.5D0

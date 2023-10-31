@@ -65,10 +65,10 @@
 !
 !     Declaration of arguments
 !
-      INTEGER(kind=int_32) :: NOSEG1, NOSEG2, IDATYP, ISWCUM, NOTOTI, NOTOTW, NOTOTH, NOTOTO
-      INTEGER(kind=int_32) :: ISYS, ISYSO, ISYSH, ISYSW, ISYSI, NSYS
-      INTEGER(kind=int_32) :: IPGRID(NOSEG1)
-      REAL(kind=sp) :: ARRINP(NOTOTI,NOSEG2) , WEIGHT(NOTOTW,NOSEG1) ,
+      INTEGER(kind=int_wp) :: NOSEG1, NOSEG2, IDATYP, ISWCUM, NOTOTI, NOTOTW, NOTOTH, NOTOTO
+      INTEGER(kind=int_wp) :: ISYS, ISYSO, ISYSH, ISYSW, ISYSI, NSYS
+      INTEGER(kind=int_wp) :: IPGRID(NOSEG1)
+      REAL(kind=real_wp) :: ARRINP(NOTOTI,NOSEG2) , WEIGHT(NOTOTW,NOSEG1) ,
      +               ARRHLP(NOTOTH,NOSEG2) , ARROUT(NOTOTO,NOSEG1)
 !
 !     Local declaration
@@ -77,7 +77,7 @@
 !     ISEG2   INTEGER  1          LOCAL   Segment index coarser grid
 !     LUREP   INTEGER  1          LOCAL   Unit number report file
 !
-      INTEGER(kind=int_32) ::ISEG1 , ISEG2 , LUREP
+      INTEGER(kind=int_wp) ::ISEG1 , ISEG2 , LUREP
 !
 !     Zero arrays
 !

@@ -62,18 +62,18 @@
 
 !     kind           function         name                Descriptipon
 
-      integer(kind=int_32), intent(in   ) ::  nmax               !< maximum amount of items
-      integer(kind=int_32), intent(in   ) ::  iopt               !< is 1 for block functions
-      integer(kind=int_32), intent(in   ) ::  ioutpt             !< how extensive is output ?
-      integer(kind=int_32), intent(  out) ::  ipnt  (nmax)       !< the item numbers of this block
-      integer(kind=int_32), intent(  out) ::  npnt               !< amount of items of this block
-      integer(kind=int_32), intent(inout) ::  ierr               !< cumulative error indicator
+      integer(kind=int_wp), intent(in   ) ::  nmax               !< maximum amount of items
+      integer(kind=int_wp), intent(in   ) ::  iopt               !< is 1 for block functions
+      integer(kind=int_wp), intent(in   ) ::  ioutpt             !< how extensive is output ?
+      integer(kind=int_wp), intent(  out) ::  ipnt  (nmax)       !< the item numbers of this block
+      integer(kind=int_wp), intent(  out) ::  npnt               !< amount of items of this block
+      integer(kind=int_wp), intent(inout) ::  ierr               !< cumulative error indicator
 
 !     local decalations
 
-      integer(kind=int_32) :: ierr2      ! local error variable
-      integer(kind=int_32) :: i          ! loop counter
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) :: ierr2      ! local error variable
+      integer(kind=int_wp) :: i          ! loop counter
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "rdpoin", ithndl )
 
 

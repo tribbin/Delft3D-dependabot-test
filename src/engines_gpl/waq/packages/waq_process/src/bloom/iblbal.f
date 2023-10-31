@@ -39,12 +39,12 @@
 !     Function : set common CBLBAL communication with balance routines
 !     Jos van Gils, May 2011: bug fix for N-fixers and heterotrophs
 !
-      integer(kind=int_32) ::ntyp_m              ! Max number of types
-      integer(kind=int_32) ::ntyp_a              ! Actual number of types
-      real(kind=sp) ::algtyp(0:20,ntyp_m) ! Characteristics per algae type
-      integer(kind=int_32) ::ipoint(ntyp_a)      ! pointers to bloom algea concentration array
+      integer(kind=int_wp) ::ntyp_m              ! Max number of types
+      integer(kind=int_wp) ::ntyp_a              ! Actual number of types
+      real(kind=real_wp) ::algtyp(0:20,ntyp_m) ! Characteristics per algae type
+      integer(kind=int_wp) ::ipoint(ntyp_a)      ! pointers to bloom algea concentration array
 
-      integer(kind=int_32) ::ialg
+      integer(kind=int_wp) ::ialg
 !                     index  4 is NC-ratio
 !                     index  5 is PC-ratio
 !                     index 16 is NC-ratio detritus uptake

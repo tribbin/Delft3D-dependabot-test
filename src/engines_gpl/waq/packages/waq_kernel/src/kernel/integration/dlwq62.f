@@ -55,52 +55,52 @@
 
 !     Kind        Function         Name                  Description
 
-      integer(kind=int_32), intent(in   )  ::nosys               ! Number of transported substances
-      integer(kind=int_32), intent(in   )  ::isys                ! Start number of substances
-      integer(kind=int_32), intent(in   )  ::nsys                ! Number of substances with same matrix
-      integer(kind=int_32), intent(in   )  ::noq1                ! Number of fluxes first direction
-      integer(kind=int_32), intent(in   )  ::noq2                ! Number of fluxes second direction
-      integer(kind=int_32), intent(in   )  ::noq                 ! Total number fluxes in the water phase
-      integer(kind=int_32), intent(in   )  ::ipoint(4,noq)       ! from, to, from-1, to+1 volume numbers per flux
-      integer(kind=int_32), intent(in   )  ::nodisp              ! number of additional dispersion arrays
-      integer(kind=int_32), intent(in   )  ::novelo              ! number of additional velocity   arrays
-      integer(kind=int_32), intent(in   )  ::idpnt ( nosys )     ! dispersion array to be applied per substance
-      integer(kind=int_32), intent(in   )  ::ivpnt ( nosys )     ! velocity   array to be applied per substance
-      real(kind=sp), intent(in   )  ::area  ( noq )       ! crosssectional surface areas of the fluxes
-      real(kind=sp), intent(in   )  ::flow  ( noq )       ! fluxes
-      real(kind=sp), intent(in   )  ::aleng (2,noq)       ! from and to distances to the surface area
-      real(kind=sp), intent(in   )  ::disp  ( 3 )         ! default dispersions in the 3 directions
-      real(kind=sp), intent(in   )  ::disper(nodisp,noq)  ! additional dispersion arrays
-      real(kind=sp), intent(in   )  ::velo  (novelo,noq)  ! additional velocity arrays
-      real(kind=sp), intent(in   )  ::bound (nosys , * )  ! Values at the open boundaries
-      real(kind=sp), intent(inout)  ::deriv ( nsys , * )  ! Right hand side of the equations
-      integer(kind=int_32), intent(in   )  ::jtrack              ! Number of codiagonals of amat
-      integer(kind=int_32), intent(in   )  ::iopt                ! = 0 or 2 DISP at zero flow
+      integer(kind=int_wp), intent(in   )  ::nosys               ! Number of transported substances
+      integer(kind=int_wp), intent(in   )  ::isys                ! Start number of substances
+      integer(kind=int_wp), intent(in   )  ::nsys                ! Number of substances with same matrix
+      integer(kind=int_wp), intent(in   )  ::noq1                ! Number of fluxes first direction
+      integer(kind=int_wp), intent(in   )  ::noq2                ! Number of fluxes second direction
+      integer(kind=int_wp), intent(in   )  ::noq                 ! Total number fluxes in the water phase
+      integer(kind=int_wp), intent(in   )  ::ipoint(4,noq)       ! from, to, from-1, to+1 volume numbers per flux
+      integer(kind=int_wp), intent(in   )  ::nodisp              ! number of additional dispersion arrays
+      integer(kind=int_wp), intent(in   )  ::novelo              ! number of additional velocity   arrays
+      integer(kind=int_wp), intent(in   )  ::idpnt ( nosys )     ! dispersion array to be applied per substance
+      integer(kind=int_wp), intent(in   )  ::ivpnt ( nosys )     ! velocity   array to be applied per substance
+      real(kind=real_wp), intent(in   )  ::area  ( noq )       ! crosssectional surface areas of the fluxes
+      real(kind=real_wp), intent(in   )  ::flow  ( noq )       ! fluxes
+      real(kind=real_wp), intent(in   )  ::aleng (2,noq)       ! from and to distances to the surface area
+      real(kind=real_wp), intent(in   )  ::disp  ( 3 )         ! default dispersions in the 3 directions
+      real(kind=real_wp), intent(in   )  ::disper(nodisp,noq)  ! additional dispersion arrays
+      real(kind=real_wp), intent(in   )  ::velo  (novelo,noq)  ! additional velocity arrays
+      real(kind=real_wp), intent(in   )  ::bound (nosys , * )  ! Values at the open boundaries
+      real(kind=real_wp), intent(inout)  ::deriv ( nsys , * )  ! Right hand side of the equations
+      integer(kind=int_wp), intent(in   )  ::jtrack              ! Number of codiagonals of amat
+      integer(kind=int_wp), intent(in   )  ::iopt                ! = 0 or 2 DISP at zero flow
                                                        ! = 1 or 3 no DISP at zero flow
                                                        ! = 0 or 1 DISP over boundary
                                                        ! = 2 or 3 no DISP over boundary
-      integer(kind=int_32), intent(in   )  ::ilflag              ! If 0 then only 3 length values in the 3 direction
-      real(kind=sp), intent(  out)  ::amat  (2*jtrack+1,*)! Matrix with transports
+      integer(kind=int_wp), intent(in   )  ::ilflag              ! If 0 then only 3 length values in the 3 direction
+      real(kind=real_wp), intent(  out)  ::amat  (2*jtrack+1,*)! Matrix with transports
 
 !     Local declarations
 
       logical    zerof     !  if true, then NO dispersion at zero flow
       logical    zerob     !  if true, then NO dispersion accross open boundaries
       logical    length    !  if true, an array of lengthes is provided
-      integer(kind=int_32) ::iq        !  loop counter over exchange surfaces
-      integer(kind=int_32) ::ifrom     !  from volume number
-      integer(kind=int_32) ::ito       !  to   volume number
-      real(kind=sp) ::a         !  help variable for exchange surface area in m2
-      real(kind=sp) ::q         !  help variable for the flux in m3/s
-      real(kind=sp) ::e         !  help variable for diffusive flux in m3/s
-      real(kind=sp) ::dl        !  help variable for the diffusive multiplier area/leng in m
-      integer(kind=int_32) ::idp,ivp   !  help variables for idpnt(isys) and ivpnt(isys)
-      integer(kind=int_32) ::idiag     !  help variable for the location of the diagonal in amat
-      integer(kind=int_32) ::i3, i4    !  help variables for the boundaries
-      real(kind=sp) ::q1 , q2   !  help variables for upwind flow schematisation
-      integer(kind=int_32) ::noq12     !  help variable number of horizontal exchanges
+      integer(kind=int_wp) ::iq        !  loop counter over exchange surfaces
+      integer(kind=int_wp) ::ifrom     !  from volume number
+      integer(kind=int_wp) ::ito       !  to   volume number
+      real(kind=real_wp) ::a         !  help variable for exchange surface area in m2
+      real(kind=real_wp) ::q         !  help variable for the flux in m3/s
+      real(kind=real_wp) ::e         !  help variable for diffusive flux in m3/s
+      real(kind=real_wp) ::dl        !  help variable for the diffusive multiplier area/leng in m
+      integer(kind=int_wp) ::idp,ivp   !  help variables for idpnt(isys) and ivpnt(isys)
+      integer(kind=int_wp) ::idiag     !  help variable for the location of the diagonal in amat
+      integer(kind=int_wp) ::i3, i4    !  help variables for the boundaries
+      real(kind=real_wp) ::q1 , q2   !  help variables for upwind flow schematisation
+      integer(kind=int_wp) ::noq12     !  help variable number of horizontal exchanges
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwq62", ithandl )
 
       zerof  = btest( iopt, 0 )

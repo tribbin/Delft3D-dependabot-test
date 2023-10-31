@@ -49,26 +49,26 @@
 
 !     kind           function         name                Descriptipon
 
-      integer(kind=int_32), intent(in   ) ::  notot              !< Total number of substances
-      integer(kind=int_32), intent(in   ) ::  nopa               !< Number of parameters
-      integer(kind=int_32), intent(in   ) ::  nosfun             !< Number of segment functions
+      integer(kind=int_wp), intent(in   ) ::  notot              !< Total number of substances
+      integer(kind=int_wp), intent(in   ) ::  nopa               !< Number of parameters
+      integer(kind=int_wp), intent(in   ) ::  nosfun             !< Number of segment functions
       character(20), intent(in   ) :: syname(notot)     !< Names of systems
-      integer(kind=int_32), intent(in   ) ::  nocons             !< Number of constants used
-      integer(kind=int_32), intent(in   ) ::  nofun              !< Number of functions ( user )
+      integer(kind=int_wp), intent(in   ) ::  nocons             !< Number of constants used
+      integer(kind=int_wp), intent(in   ) ::  nofun              !< Number of functions ( user )
       character(20), intent(in   ) :: coname(nocons)    !< Constant names
       character(20), intent(in   ) :: paname(nopa  )    !< Parameter names
       character(20), intent(in   ) :: funame(nofun )    !< Function names
       character(20), intent(in   ) :: sfname(nosfun)    !< Segment function names
       character(20), intent(in   ) :: varnam            !< Name of variable to be identified
-      integer(kind=int_32), intent(  out) ::  ivarip             !< Pointer in the SSA
-      integer(kind=int_32), intent(in   ) ::  lurep              !< Unit nr. report file
+      integer(kind=int_wp), intent(  out) ::  ivarip             !< Pointer in the SSA
+      integer(kind=int_wp), intent(in   ) ::  lurep              !< Unit nr. report file
 
 !     Local
 
-      integer(kind=int_32), parameter ::  nopred = 6
-      integer(kind=int_32) :: indx            !  index in array of names
+      integer(kind=int_wp), parameter ::  nopred = 6
+      integer(kind=int_wp) :: indx            !  index in array of names
       character(20) predef(3)
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "varpoi", ithndl )
 
       predef(1) = 'volume'

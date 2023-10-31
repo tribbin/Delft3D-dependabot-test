@@ -44,28 +44,28 @@
 
 !     declaration of arguments
 
-      integer(kind=int_32), intent(in) ::  lunut         ! report file
-      integer(kind=int_32), intent(in) ::  iwidth        ! width of output
+      integer(kind=int_wp), intent(in) ::  lunut         ! report file
+      integer(kind=int_wp), intent(in) ::  iwidth        ! width of output
       type(t_dlwqdata)      , intent(inout) :: dlwqdata     ! data block to be filled
       character(len=*)      , intent(in)    :: strng1       ! write string 1 (items)
       character(len=*)      , intent(in)    :: strng2       ! write string 2 (values/concs)
       character(len=*)      , intent(in)    :: strng3       ! write string 3 (brkp/harm)
-      integer(kind=int_32), intent(in) ::  ioutpt        ! output file option
+      integer(kind=int_wp), intent(in) ::  ioutpt        ! output file option
 
 !     local declarations
 
       logical                               :: deflts       ! defaults for the parameters
-      integer(kind=int_32) ::  nopar         ! dlwqdata%no_param
-      integer(kind=int_32) ::  noloc         ! dlwqdata%no_loc
-      integer(kind=int_32) ::  nobrk         ! dlwqdata%no_brk
-      integer(kind=int_32) ::  ftype         ! dlwqdata%functype
-      integer(kind=int_32) ::  iorder        ! dlwqdata%iorder
-      integer(kind=int_32) ::  ipar          ! loop counter
-      integer(kind=int_32) ::  iloc          ! loop counter
-      integer(kind=int_32) ::  ibrk          ! loop counter
-      integer(kind=int_32) ::  k, ie         ! loop counter
-      integer(kind=int_32) ::  iploc         ! index number
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  nopar         ! dlwqdata%no_param
+      integer(kind=int_wp) ::  noloc         ! dlwqdata%no_loc
+      integer(kind=int_wp) ::  nobrk         ! dlwqdata%no_brk
+      integer(kind=int_wp) ::  ftype         ! dlwqdata%functype
+      integer(kind=int_wp) ::  iorder        ! dlwqdata%iorder
+      integer(kind=int_wp) ::  ipar          ! loop counter
+      integer(kind=int_wp) ::  iloc          ! loop counter
+      integer(kind=int_wp) ::  ibrk          ! loop counter
+      integer(kind=int_wp) ::  k, ie         ! loop counter
+      integer(kind=int_wp) ::  iploc         ! index number
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "print_matrix", ithndl )
 
       ! just print a message if data comes from an external source
@@ -217,7 +217,7 @@
 
 
       character*20 function car_used(i)
-      integer(kind=int_32) :: i 
+      integer(kind=int_wp) :: i
       if ( i .gt. 0 ) then
          car_used = 'used'
       elseif ( i .eq. 0 ) then

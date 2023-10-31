@@ -21,18 +21,18 @@ contains
 !
 !     Type    Name         I/O Description
 !
-      real(kind=sp)  ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
-      real(kind=sp)  ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
-      integer(kind=int_32)  ::ipoint(*)  ! I  Array of pointers in pmsa to get and store the data
-      integer(kind=int_32)  ::increm(*)  ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer(kind=int_32)  ::noseg       ! I  Number of computational elements in the whole model schematisation
-      integer(kind=int_32)  ::noflux      ! I  Number of fluxes, increment in the fl array
-      integer(kind=int_32)  ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      integer(kind=int_32)  ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      integer(kind=int_32)  ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
-      integer(kind=int_32)  ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer(kind=int_32)  ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer(kind=int_32)  ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      real(kind=real_wp)  ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
+      real(kind=real_wp)  ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
+      integer(kind=int_wp)  ::ipoint(*)  ! I  Array of pointers in pmsa to get and store the data
+      integer(kind=int_wp)  ::increm(*)  ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_wp)  ::noseg       ! I  Number of computational elements in the whole model schematisation
+      integer(kind=int_wp)  ::noflux      ! I  Number of fluxes, increment in the fl array
+      integer(kind=int_wp)  ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      integer(kind=int_wp)  ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      integer(kind=int_wp)  ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
+      integer(kind=int_wp)  ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_wp)  ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_wp)  ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
 !
 !*******************************************************************************
 !     Final Draft of version for PUB April 2018
@@ -52,132 +52,132 @@ contains
 !     Type    Name         I/O Description                                        Unit
 !
 !     support variables
-!!    integer(kind=int_32),parameter   ::npmsamax = 200
-      integer(kind=int_32), allocatable, save ::ipnt(:)    !    Local work array for the pointering
-      integer(kind=int_32)             ::iseg, isegl, iflux, ip, isrc, irec, isubs, ioq, iatt1, npmsa, ipmsa, isc
-      real(kind=sp)                ::emisvar, emisfac, sumlocator, drydep, rainconc, flux, ro_mmperday, ra_mmperday, roun_mmperday,&
+!!    integer(kind=int_wp),parameter   ::npmsamax = 200
+      integer(kind=int_wp), allocatable, save ::ipnt(:)    !    Local work array for the pointering
+      integer(kind=int_wp)             ::iseg, isegl, iflux, ip, isrc, irec, isubs, ioq, iatt1, npmsa, ipmsa, isc
+      real(kind=real_wp)                ::emisvar, emisfac, sumlocator, drydep, rainconc, flux, ro_mmperday, ra_mmperday, roun_mmperday,&
                             in_mmperday, fwashoff, ferosion, froun, finf, fdisp, fdeepinf, fgwbflow
-      real(kind=sp)                ::fluxloss, conc, fluxbound, fluxunbound, fluxinf, fluxroun, fluxero, fluxwash, fluxgwf, fluxdeepinf,&
+      real(kind=real_wp)                ::fluxloss, conc, fluxbound, fluxunbound, fluxinf, fluxroun, fluxero, fluxwash, fluxgwf, fluxdeepinf,&
                             fluxleak, fluxstp, kpaved, kunpaved, ksoil, kdunpaved, fluxexp
       character*20       :: itemname
       character*12       :: ddhhmmss1
 
       ! fixed quantities
-      integer(kind=int_32),parameter    ::scu = 1
-      integer(kind=int_32),parameter    ::nrec = 6
-      integer(kind=int_32),parameter    ::nsubs = 5
-      integer(kind=int_32),parameter    ::rec_sew = 1
-      integer(kind=int_32),parameter    ::rec_pav = 2
-      integer(kind=int_32),parameter    ::rec_unp = 3
-      integer(kind=int_32),parameter    ::rec_soi = 4
-      integer(kind=int_32),parameter    ::rec_stw = 5
-      integer(kind=int_32),parameter    ::rec_sfw = 6
-      integer(kind=int_32),parameter    ::nopar_srca = 2
-      integer(kind=int_32),parameter    ::nopar_srcb = 1
-      integer(kind=int_32),parameter    ::lu_loc = 1961
-      integer(kind=int_32),parameter    ::lu_nod = 1962
-      integer(kind=int_32),parameter    ::lu_ini = 1963
-      real(kind=sp)   ,parameter    ::qmin = 1e-10
+      integer(kind=int_wp),parameter    ::scu = 1
+      integer(kind=int_wp),parameter    ::nrec = 6
+      integer(kind=int_wp),parameter    ::nsubs = 5
+      integer(kind=int_wp),parameter    ::rec_sew = 1
+      integer(kind=int_wp),parameter    ::rec_pav = 2
+      integer(kind=int_wp),parameter    ::rec_unp = 3
+      integer(kind=int_wp),parameter    ::rec_soi = 4
+      integer(kind=int_wp),parameter    ::rec_stw = 5
+      integer(kind=int_wp),parameter    ::rec_sfw = 6
+      integer(kind=int_wp),parameter    ::nopar_srca = 2
+      integer(kind=int_wp),parameter    ::nopar_srcb = 1
+      integer(kind=int_wp),parameter    ::lu_loc = 1961
+      integer(kind=int_wp),parameter    ::lu_nod = 1962
+      integer(kind=int_wp),parameter    ::lu_ini = 1963
+      real(kind=real_wp)   ,parameter    ::qmin = 1e-10
 
       ! PMSA admin
-      integer(kind=int_32)              ::offset_srca
-      integer(kind=int_32)              ::offset_srcb
-      integer(kind=int_32)              ::offset_ef
-      integer(kind=int_32)              ::offset_ef_srca
-      integer(kind=int_32)              ::offset_ef_srcb
-      integer(kind=int_32)              ::offset_rf_srca
-      integer(kind=int_32)              ::offset_rf_srcb
-      integer(kind=int_32)              ::offset_decp
-      integer(kind=int_32)              ::offset_decup
-      integer(kind=int_32)              ::offset_decso
-      integer(kind=int_32)              ::offset_kdup
-      integer(kind=int_32)              ::offset_conc
-      integer(kind=int_32)              ::lins
-      integer(kind=int_32),parameter    ::line = 0
-      integer(kind=int_32)              ::louts
-      integer(kind=int_32)              ::loute
+      integer(kind=int_wp)              ::offset_srca
+      integer(kind=int_wp)              ::offset_srcb
+      integer(kind=int_wp)              ::offset_ef
+      integer(kind=int_wp)              ::offset_ef_srca
+      integer(kind=int_wp)              ::offset_ef_srcb
+      integer(kind=int_wp)              ::offset_rf_srca
+      integer(kind=int_wp)              ::offset_rf_srcb
+      integer(kind=int_wp)              ::offset_decp
+      integer(kind=int_wp)              ::offset_decup
+      integer(kind=int_wp)              ::offset_decso
+      integer(kind=int_wp)              ::offset_kdup
+      integer(kind=int_wp)              ::offset_conc
+      integer(kind=int_wp)              ::lins
+      integer(kind=int_wp),parameter    ::line = 0
+      integer(kind=int_wp)              ::louts
+      integer(kind=int_wp)              ::loute
 
-      integer(kind=int_32)              ::offset_vel
+      integer(kind=int_wp)              ::offset_vel
 
       ! Flux admin
-      integer(kind=int_32)              ::fl0_atm
-      integer(kind=int_32)              ::fl0_srca
-      integer(kind=int_32)              ::fl0_srcb
-      integer(kind=int_32)              ::fl0_dec
+      integer(kind=int_wp)              ::fl0_atm
+      integer(kind=int_wp)              ::fl0_srca
+      integer(kind=int_wp)              ::fl0_srcb
+      integer(kind=int_wp)              ::fl0_dec
 
       ! transport admin
-      integer(kind=int_32),parameter    ::sew2stw = 1
-      integer(kind=int_32),parameter    ::sew2stp = 2
-      integer(kind=int_32),parameter    ::pav2stw = 3
-      integer(kind=int_32),parameter    ::unp2stw = 4
-      integer(kind=int_32),parameter    ::unp2soi = 5
-      integer(kind=int_32),parameter    ::soi2stw = 6
-      integer(kind=int_32),parameter    ::stw2exp = 7
-      integer(kind=int_32),parameter    ::sfw2exp = 8
-      integer(kind=int_32),parameter    ::soi2inf = 9
+      integer(kind=int_wp),parameter    ::sew2stw = 1
+      integer(kind=int_wp),parameter    ::sew2stp = 2
+      integer(kind=int_wp),parameter    ::pav2stw = 3
+      integer(kind=int_wp),parameter    ::unp2stw = 4
+      integer(kind=int_wp),parameter    ::unp2soi = 5
+      integer(kind=int_wp),parameter    ::soi2stw = 6
+      integer(kind=int_wp),parameter    ::stw2exp = 7
+      integer(kind=int_wp),parameter    ::sfw2exp = 8
+      integer(kind=int_wp),parameter    ::soi2inf = 9
 
 
       ! pointers to concrete items
-      integer(kind=int_32),parameter    ::ip_nsrca = 1
-      integer(kind=int_32),parameter    ::ip_nsrcb = 2
-      integer(kind=int_32),parameter    ::ip_nsubs = 3
-      integer(kind=int_32),parameter    ::ip_nrecin = 4
-      integer(kind=int_32),parameter    ::ip_nosegl = 5
-      integer(kind=int_32),parameter    ::ip_delt = 6
-      integer(kind=int_32),parameter    ::ip_totsurf = 7
-      integer(kind=int_32),parameter    ::ip_fpaved = 8
-      integer(kind=int_32),parameter    ::ip_funpaved = 9
-      integer(kind=int_32),parameter    ::ip_fwater = 10
-      integer(kind=int_32),parameter    ::ip_rainfall = 11
-      integer(kind=int_32),parameter    ::ip_leakage = 12
-      integer(kind=int_32),parameter    ::ip_ropaved = 13
-      integer(kind=int_32),parameter    ::ip_rounpaved = 14
-      integer(kind=int_32),parameter    ::ip_percola = 15
-      integer(kind=int_32),parameter    ::ip_gwbflow = 16
-      integer(kind=int_32),parameter    ::ip_deepinf = 17
-      integer(kind=int_32),parameter    ::ip_totflow = 18
-      integer(kind=int_32),parameter    ::ip_itime = 19
-      integer(kind=int_32),parameter    ::lastsingle = 19
+      integer(kind=int_wp),parameter    ::ip_nsrca = 1
+      integer(kind=int_wp),parameter    ::ip_nsrcb = 2
+      integer(kind=int_wp),parameter    ::ip_nsubs = 3
+      integer(kind=int_wp),parameter    ::ip_nrecin = 4
+      integer(kind=int_wp),parameter    ::ip_nosegl = 5
+      integer(kind=int_wp),parameter    ::ip_delt = 6
+      integer(kind=int_wp),parameter    ::ip_totsurf = 7
+      integer(kind=int_wp),parameter    ::ip_fpaved = 8
+      integer(kind=int_wp),parameter    ::ip_funpaved = 9
+      integer(kind=int_wp),parameter    ::ip_fwater = 10
+      integer(kind=int_wp),parameter    ::ip_rainfall = 11
+      integer(kind=int_wp),parameter    ::ip_leakage = 12
+      integer(kind=int_wp),parameter    ::ip_ropaved = 13
+      integer(kind=int_wp),parameter    ::ip_rounpaved = 14
+      integer(kind=int_wp),parameter    ::ip_percola = 15
+      integer(kind=int_wp),parameter    ::ip_gwbflow = 16
+      integer(kind=int_wp),parameter    ::ip_deepinf = 17
+      integer(kind=int_wp),parameter    ::ip_totflow = 18
+      integer(kind=int_wp),parameter    ::ip_itime = 19
+      integer(kind=int_wp),parameter    ::lastsingle = 19
 
       ! input items
-      integer(kind=int_32)              ::nsrca     ! # of sources type A
-      integer(kind=int_32)              ::nsrcb     ! # of sources type B
-      integer(kind=int_32)              ::nsubsin    ! # of substances
-      integer(kind=int_32)              ::nrecin     ! # of receptors in input
-      integer(kind=int_32)              ::nosegl     ! # of segments per layer (horizontal schematisation elements, SCs + SWBs)
-      real(kind=sp)                 ::delt       ! time step
-      real(kind=sp)                 ::totsurf    ! total area
-      real(kind=sp)                 ::fpaved     ! fracrion paved
-      real(kind=sp)                 ::funpaved   ! fraction unpaved
-      real(kind=sp)                 ::fwater     ! fraction water
-      real(kind=sp)                 ::rainfall   ! rainfall
-      real(kind=sp)                 ::leakage    ! fraction of sewage leaking
-      real(kind=sp)                 ::ropaved    ! runoff from paved areas
-      real(kind=sp)                 ::rounpaved  ! unpaved
-      real(kind=sp)                 ::infilt     ! infiltration
-      real(kind=sp)                 ::gwbaseflow ! groundwater flow
-      real(kind=sp)                 ::deepinfilt ! deep infiltration
-      integer(kind=int_32)              ::itime      ! actual time
-      real(kind=sp)                 ::totalflow  ! actual flow
+      integer(kind=int_wp)              ::nsrca     ! # of sources type A
+      integer(kind=int_wp)              ::nsrcb     ! # of sources type B
+      integer(kind=int_wp)              ::nsubsin    ! # of substances
+      integer(kind=int_wp)              ::nrecin     ! # of receptors in input
+      integer(kind=int_wp)              ::nosegl     ! # of segments per layer (horizontal schematisation elements, SCs + SWBs)
+      real(kind=real_wp)                 ::delt       ! time step
+      real(kind=real_wp)                 ::totsurf    ! total area
+      real(kind=real_wp)                 ::fpaved     ! fracrion paved
+      real(kind=real_wp)                 ::funpaved   ! fraction unpaved
+      real(kind=real_wp)                 ::fwater     ! fraction water
+      real(kind=real_wp)                 ::rainfall   ! rainfall
+      real(kind=real_wp)                 ::leakage    ! fraction of sewage leaking
+      real(kind=real_wp)                 ::ropaved    ! runoff from paved areas
+      real(kind=real_wp)                 ::rounpaved  ! unpaved
+      real(kind=real_wp)                 ::infilt     ! infiltration
+      real(kind=real_wp)                 ::gwbaseflow ! groundwater flow
+      real(kind=real_wp)                 ::deepinfilt ! deep infiltration
+      integer(kind=int_wp)              ::itime      ! actual time
+      real(kind=real_wp)                 ::totalflow  ! actual flow
 
       ! specific other variables
-      integer(kind=int_32)              ::nsc        ! # of SCs per layer
-      integer(kind=int_32)              ::nswb       ! # of SWBs per layer
+      integer(kind=int_wp)              ::nsc        ! # of SCs per layer
+      integer(kind=int_wp)              ::nswb       ! # of SWBs per layer
 
       ! work arrays
-      real(kind=sp),allocatable ::sc_losses(:,:,:,:) ! Type A static losses per SC
-      real(kind=sp),allocatable ::losses(:)
-      real(kind=sp),allocatable ::frac2rec(:)
-      real(kind=sp),allocatable ::locator(:)
-      real(kind=sp),allocatable ::totflxin(:,:) ! total losses per receptor and per substance in current SC/SWB
-      real(kind=sp),allocatable ::boun(:)
+      real(kind=real_wp),allocatable ::sc_losses(:,:,:,:) ! Type A static losses per SC
+      real(kind=real_wp),allocatable ::losses(:)
+      real(kind=real_wp),allocatable ::frac2rec(:)
+      real(kind=real_wp),allocatable ::locator(:)
+      real(kind=real_wp),allocatable ::totflxin(:,:) ! total losses per receptor and per substance in current SC/SWB
+      real(kind=real_wp),allocatable ::boun(:)
 
       ! Prelim SRO model
-      real(kind=sp),parameter  ::ro_lothr = 2.
-      real(kind=sp),parameter  ::ro_hithr = 5.
-      real(kind=sp),parameter  ::ra_lothr = 15.
-      real(kind=sp),parameter  ::ra_hithr = 65.
-      real(kind=sp),parameter  ::disp_hithr = 7.
+      real(kind=real_wp),parameter  ::ro_lothr = 2.
+      real(kind=real_wp),parameter  ::ro_hithr = 5.
+      real(kind=real_wp),parameter  ::ra_lothr = 15.
+      real(kind=real_wp),parameter  ::ra_hithr = 65.
+      real(kind=real_wp),parameter  ::disp_hithr = 7.
 
       ! file names
       character*255      :: file_out_nodes, file_in_names, file_usefor, file_subs
@@ -606,9 +606,9 @@ contains
 1003  format (6e15.6)
       end
       subroutine ddhhmmss(timeinscu,scu,ddhhmmss1)
-      integer(kind=int_32)  ::timeinscu,scu
+      integer(kind=int_wp)  ::timeinscu,scu
       character*12 ddhhmmss1
-      integer(kind=int_32)  ::dd,hh,mm,ss,timeinseconds
+      integer(kind=int_wp)  ::dd,hh,mm,ss,timeinseconds
       timeinseconds = timeinscu*scu
       dd = timeinseconds/86400
       timeinseconds = timeinseconds - dd*86400

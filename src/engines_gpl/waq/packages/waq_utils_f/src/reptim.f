@@ -53,8 +53,8 @@
 !
 !     Declaration of arguments
 !
-      INTEGER(kind=int_32) ::LUN   , ITIME , ISFLAG
-      REAL(kind=sp) ::PERCIT
+      INTEGER(kind=int_wp) ::LUN   , ITIME , ISFLAG
+      REAL(kind=real_wp) ::PERCIT
 !
       IF ( ISFLAG .EQ. 0 ) THEN
          IF ( PERCIT .GE. 0.0 ) THEN

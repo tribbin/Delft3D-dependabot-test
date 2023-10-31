@@ -64,28 +64,28 @@
 
 !     type     kind  function         name                      description
 
-      integer(kind=int_32), intent(in   )  ::nosys                   !< number of transported substances
-      integer(kind=int_32), intent(in   )  ::notot                   !< total number of substances
-      integer(kind=int_32), intent(in   )  ::nototp                  !< number of particle substances
-      integer(kind=int_32), intent(in   )  ::noseg                   !< number of computational volumes
-      real(kind=sp), intent(inout)  ::volume (noseg )         !< volumes of the segments
-      real(kind=sp), intent(in   )  ::surface(noseg )         !< horizontal surface area
-      real(kind=sp), intent(inout)  ::amass  (notot ,noseg)   !< masses per substance per volume
-      real(kind=sp), intent(inout)  ::conc   (notot ,noseg)   !< concentrations per substance per volume
-      real(kind=sp), intent(inout)  ::deriv  (notot ,noseg)   !< derivatives per substance per volume
-      integer(kind=int_32), intent(in   )  ::idt                     !< integration time step size
-      integer(kind=int_32), intent(in   )  ::ivflag                  !< if 1 computational volumes
-      integer(kind=int_32), intent(in   )  ::lun                     !< unit number of the monitoring file
+      integer(kind=int_wp), intent(in   )  ::nosys                   !< number of transported substances
+      integer(kind=int_wp), intent(in   )  ::notot                   !< total number of substances
+      integer(kind=int_wp), intent(in   )  ::nototp                  !< number of particle substances
+      integer(kind=int_wp), intent(in   )  ::noseg                   !< number of computational volumes
+      real(kind=real_wp), intent(inout)  ::volume (noseg )         !< volumes of the segments
+      real(kind=real_wp), intent(in   )  ::surface(noseg )         !< horizontal surface area
+      real(kind=real_wp), intent(inout)  ::amass  (notot ,noseg)   !< masses per substance per volume
+      real(kind=real_wp), intent(inout)  ::conc   (notot ,noseg)   !< concentrations per substance per volume
+      real(kind=real_wp), intent(inout)  ::deriv  (notot ,noseg)   !< derivatives per substance per volume
+      integer(kind=int_wp), intent(in   )  ::idt                     !< integration time step size
+      integer(kind=int_wp), intent(in   )  ::ivflag                  !< if 1 computational volumes
+      integer(kind=int_wp), intent(in   )  ::lun                     !< unit number of the monitoring file
 
 !     local variables
 
-      integer(kind=int_32) ::isys            ! loopcounter substances
-      integer(kind=int_32) ::iseg            ! loopcounter computational volumes
-      real(kind=sp) ::surf            ! the horizontal surface area of the cell
-      real(kind=sp) ::vol             ! helpvariable for this volume
-      integer(kind=int_32), save  ::ivmess          ! number of messages printed
+      integer(kind=int_wp) ::isys            ! loopcounter substances
+      integer(kind=int_wp) ::iseg            ! loopcounter computational volumes
+      real(kind=real_wp) ::surf            ! the horizontal surface area of the cell
+      real(kind=real_wp) ::vol             ! helpvariable for this volume
+      integer(kind=int_wp), save  ::ivmess          ! number of messages printed
       data       ivmess  /0/
-      integer(kind=int_32), save  ::ithandl         ! timer handle
+      integer(kind=int_wp), save  ::ithandl         ! timer handle
       data       ithandl  /0/
       if ( timon ) call timstrt ( "dlwq18", ithandl )
 

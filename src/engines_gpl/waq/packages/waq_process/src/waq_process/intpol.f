@@ -54,16 +54,16 @@
 !     Name     Type   Library
 !     ------   -----  ------------
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER(kind=int_32) ::MAXPAR, NUMPAR, i, iseg
-      real(kind=sp) ::VALUE, RESULT
+      INTEGER(kind=int_wp) ::MAXPAR, NUMPAR, i, iseg
+      real(kind=real_wp) ::VALUE, RESULT
       PARAMETER (MAXPAR=8)
-      real(kind=sp) ::X(MAXPAR)
-      real(kind=sp) ::Y(MAXPAR)
-      integer(kind=int_32) ::IP(2*MAXPAR+2)
+      real(kind=real_wp) ::X(MAXPAR)
+      real(kind=real_wp) ::Y(MAXPAR)
+      integer(kind=int_wp) ::IP(2*MAXPAR+2)
 
       DO 10 I=1,2*MAXPAR+2
         IP(I) = IPOINT(I)

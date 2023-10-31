@@ -46,17 +46,17 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     AMASS   REAL(kind=sp) ::NOSEG     IN/OUT  closure error correction
-!     VOLUME  REAL(kind=sp) ::NOSEG     INPUT   volume
-!     IDT     INTEGER(kind=int_32) ::1       INPUT   Time between AMASS and VOLUME
-!     NOSEG   INTEGER(kind=int_32) ::1       INPUT   number of segments
+!     AMASS   REAL(kind=real_wp) ::NOSEG     IN/OUT  closure error correction
+!     VOLUME  REAL(kind=real_wp) ::NOSEG     INPUT   volume
+!     IDT     INTEGER(kind=int_wp) ::1       INPUT   Time between AMASS and VOLUME
+!     NOSEG   INTEGER(kind=int_wp) ::1       INPUT   number of segments
 !
       use timers
 
-      real(kind=sp) ::AMASS (  *) , VOLUME(*)
-      integer(kind=int_32) ::idt, noseg
-      integer(kind=int_32) ::i
-      integer(kind=int_32) ::ithandl = 0
+      real(kind=real_wp) ::AMASS (  *) , VOLUME(*)
+      integer(kind=int_wp) ::idt, noseg
+      integer(kind=int_wp) ::i
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwq65", ithandl )
 !
 !         loop oversehe number of segments

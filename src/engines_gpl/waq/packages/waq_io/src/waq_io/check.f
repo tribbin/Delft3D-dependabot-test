@@ -57,19 +57,19 @@
 !     kind           function         name                 description
 
       character*(*), intent(inout) :: cdummy            !< character that may contain block end
-      integer(kind=int_32), intent(in   ) ::  iwidth             !< width of the output file
-      integer(kind=int_32), intent(in   ) ::  iblock             !< number of the input block
-      integer(kind=int_32), intent(inout) ::  ierr2              !< accumulative nr of errors
-      integer(kind=int_32), intent(inout) ::  ierr               !< cumulative error count
+      integer(kind=int_wp), intent(in   ) ::  iwidth             !< width of the output file
+      integer(kind=int_wp), intent(in   ) ::  iblock             !< number of the input block
+      integer(kind=int_wp), intent(inout) ::  ierr2              !< accumulative nr of errors
+      integer(kind=int_wp), intent(inout) ::  ierr               !< cumulative error count
 
 !     Local
 
-      integer(kind=int_32) :: idummy             ! argument for token reading
-      real(kind=sp) :: rdummy             ! argument for token reading
-      integer(kind=int_32) :: itype              ! argument for token reading
+      integer(kind=int_wp) :: idummy             ! argument for token reading
+      real(kind=real_wp) :: rdummy             ! argument for token reading
+      integer(kind=int_wp) :: itype              ! argument for token reading
       character( 1 ) chulp             ! to convert block number to character
-      integer(kind=int_32) :: ihulp              ! return value gettoken
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) :: ihulp              ! return value gettoken
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "check", ithndl )
 
 !        First round of dealing with ierr2

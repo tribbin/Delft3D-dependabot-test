@@ -52,16 +52,16 @@
 
       IMPLICIT NONE
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER(kind=int_32) ::ISEG,
+      INTEGER(kind=int_wp) ::ISEG,
      +         IP1, IP2, IP3, IP4, IP5, IP6,
      +         IN1, IN2, IN3, IN4, IN5, IN6
 
-      INTEGER(kind=int_32) ::ISWWK, ISWS1, ISWS2
-      REAL(kind=sp) ::OXY, CROXY, POROS
+      INTEGER(kind=int_wp) ::ISWWK, ISWS1, ISWS2
+      REAL(kind=real_wp) ::OXY, CROXY, POROS
 
       IP1 = IPOINT(1)
       IP2 = IPOINT(2)

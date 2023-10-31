@@ -65,21 +65,21 @@
 
 !     kind           function         name       Descriptipon
 
-      integer(kind=int_32), intent(inout) ::  ierr      !< Cumulative error count
+      integer(kind=int_wp), intent(inout) ::  ierr      !< Cumulative error count
 
 !     local declarations
 
-      integer(kind=int_32) :: idate    ! date integer from the input file
-      integer(kind=int_32) :: itime    ! time integer from the input file
-      integer(kind=int_32) :: ierr2    ! local error variable
-      integer(kind=int_32) :: iyear    ! year of delayed reference time
-      integer(kind=int_32) :: imonth   ! month of delayed reference time
-      integer(kind=int_32) :: iday     ! day of delayed reference time
-      integer(kind=int_32) :: ihour    ! hour of delayed reference time
-      integer(kind=int_32) :: imin     ! minute of delayed reference time
-      integer(kind=int_32) :: isec     ! second of delayed reference time
+      integer(kind=int_wp) :: idate    ! date integer from the input file
+      integer(kind=int_wp) :: itime    ! time integer from the input file
+      integer(kind=int_wp) :: ierr2    ! local error variable
+      integer(kind=int_wp) :: iyear    ! year of delayed reference time
+      integer(kind=int_wp) :: imonth   ! month of delayed reference time
+      integer(kind=int_wp) :: iday     ! day of delayed reference time
+      integer(kind=int_wp) :: ihour    ! hour of delayed reference time
+      integer(kind=int_wp) :: imin     ! minute of delayed reference time
+      integer(kind=int_wp) :: isec     ! second of delayed reference time
       real(kind=dp) :: dummy    ! second in double precision (not used)
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "read_time_delay", ithndl )
 
 !     tell what you are doing here

@@ -79,47 +79,47 @@
 
 !     kind           function         name                 description
 
-      integer(kind=int_32), intent(in   ) ::  lun  (*)           !< array with unit numbers
+      integer(kind=int_wp), intent(in   ) ::  lun  (*)           !< array with unit numbers
       character(20), pointer       :: syname(:)         !< array with substance names
-      integer(kind=int_32), intent(  out) ::  nosys              !< number of transported substances
-      integer(kind=int_32), intent(  out) ::  notot              !< total number of substances
-      integer(kind=int_32), intent(  out) ::  nomult             !< number of multiple substances
-      integer(kind=int_32), pointer ::  multp (:,:)        !< multiple substance administration
-      integer(kind=int_32), intent(  out) ::  iwidth             !< width of the output file
+      integer(kind=int_wp), intent(  out) ::  nosys              !< number of transported substances
+      integer(kind=int_wp), intent(  out) ::  notot              !< total number of substances
+      integer(kind=int_wp), intent(  out) ::  nomult             !< number of multiple substances
+      integer(kind=int_wp), pointer ::  multp (:,:)        !< multiple substance administration
+      integer(kind=int_wp), intent(  out) ::  iwidth             !< width of the output file
       real(kind=dp), intent(  out) ::  otime              !< Offset of the system time (Julian)
-      integer(kind=int_32), intent(  out) ::  isfact             !< Units (in sec) of the system clock
-      integer(kind=int_32), intent(  out) ::  refday             !< reference day, varying from 1 till 365
-      integer(kind=int_32), intent(  out) ::  ioutpt             !< flag for more or less output
-      integer(kind=int_32), intent(inout) ::  ierr               !< cumulative error   count
-      integer(kind=int_32), intent(inout) ::  iwar               !< cumulative warning count
+      integer(kind=int_wp), intent(  out) ::  isfact             !< Units (in sec) of the system clock
+      integer(kind=int_wp), intent(  out) ::  refday             !< reference day, varying from 1 till 365
+      integer(kind=int_wp), intent(  out) ::  ioutpt             !< flag for more or less output
+      integer(kind=int_wp), intent(inout) ::  ierr               !< cumulative error   count
+      integer(kind=int_wp), intent(inout) ::  iwar               !< cumulative warning count
 
 !     Local
 
-      integer(kind=int_32) ::  itype                              !  input type  0 = any, 1 = char, 2 = int, 3 = float
-      integer(kind=int_32) ::  ierr2                              !  local error   accumulator
-      integer(kind=int_32) ::  iwar2                              !  local warning accumulator
+      integer(kind=int_wp) ::  itype                              !  input type  0 = any, 1 = char, 2 = int, 3 = float
+      integer(kind=int_wp) ::  ierr2                              !  local error   accumulator
+      integer(kind=int_wp) ::  iwar2                              !  local warning accumulator
       character(40)   :: modid1, modid2,  runid1, runid2   !  model identification strings
-      integer(kind=int_32) ::  idummy                             !  integer   read help variable
-      real(kind=sp) ::  adummy                             !  real      read help variable
+      integer(kind=int_wp) ::  idummy                             !  integer   read help variable
+      real(kind=real_wp) ::  adummy                             !  real      read help variable
       character(255)  :: cdummy                            !  character read help variable
-      integer(kind=int_32) ::  isys, isys2                        !  loop counters for substances
+      integer(kind=int_wp) ::  isys, isys2                        !  loop counters for substances
       logical         :: intread                           !  flag for read of substance numbers
-      integer(kind=int_32) ::  ilen                               !  length help variable
-      integer(kind=int_32) ::  idate                              !  date of the time offset
-      integer(kind=int_32) ::  itime                              !  time of the time offset
-      integer(kind=int_32) ::  iyear                              !  year of the time offset
-      integer(kind=int_32) ::  imonth                             !  month of the time offset
-      integer(kind=int_32) ::  iday                               !  day of the time offset
-      integer(kind=int_32) ::  ihour                              !  hour of the time offset
-      integer(kind=int_32) ::  iminut                             !  minute of the time offset
-      integer(kind=int_32) ::  isecnd                             !  second of the time offset
-      integer(kind=int_32) ::  ifound                             !  help variable for name search
-      integer(kind=int_32) ::  nosyss                             !  help variable for transported substance
-      integer(kind=int_32) ::  notots                             !  help variable for total substance
-      real(kind=sp) ::  input_version_number               !  version number of this input
-      integer(kind=int_32), allocatable ::  imult(:)             !  help array for number of substances
+      integer(kind=int_wp) ::  ilen                               !  length help variable
+      integer(kind=int_wp) ::  idate                              !  date of the time offset
+      integer(kind=int_wp) ::  itime                              !  time of the time offset
+      integer(kind=int_wp) ::  iyear                              !  year of the time offset
+      integer(kind=int_wp) ::  imonth                             !  month of the time offset
+      integer(kind=int_wp) ::  iday                               !  day of the time offset
+      integer(kind=int_wp) ::  ihour                              !  hour of the time offset
+      integer(kind=int_wp) ::  iminut                             !  minute of the time offset
+      integer(kind=int_wp) ::  isecnd                             !  second of the time offset
+      integer(kind=int_wp) ::  ifound                             !  help variable for name search
+      integer(kind=int_wp) ::  nosyss                             !  help variable for transported substance
+      integer(kind=int_wp) ::  notots                             !  help variable for total substance
+      real(kind=real_wp) ::  input_version_number               !  version number of this input
+      integer(kind=int_wp), allocatable ::  imult(:)             !  help array for number of substances
       character(20), allocatable :: sname(:)            !  help array for substance names
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "dlwq01", ithndl )
 
 

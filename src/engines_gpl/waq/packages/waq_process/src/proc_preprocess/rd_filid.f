@@ -50,9 +50,9 @@
 !     DEFFDS  INT      2993       I/O     Definition file descriptor
 !     DATFDS  INT       999       I/O     Data file descriptor
 !     FFORM   CH*40       1       O       File Format
-!     VFFORM  REAL(kind=sp) ::1       O       Version File Format
+!     VFFORM  REAL(kind=real_wp) ::1       O       Version File Format
 !     CONTEN  CH*40       1       O       File contents
-!     VERSIO  REAL(kind=sp) ::1       O       Version number process library
+!     VERSIO  REAL(kind=real_wp) ::1       O       Version number process library
 !     SERIAL  INT         1       O       File serial number
 !     RUNDAT  CH*20       1       O       Creation date
 !     SOURCE  CH*40       1       O       Source data
@@ -68,10 +68,10 @@
 !
 !     declaration of arguments
 !
-      INTEGER(kind=int_32) ::SERIAL      , LUNREP     ,
+      INTEGER(kind=int_wp) ::SERIAL      , LUNREP     ,
      +              IERROR
-      INTEGER(kind=int_32) ::DEFFDS
-      REAL(kind=sp) ::VFFORM      , VERSIO
+      INTEGER(kind=int_wp) ::DEFFDS
+      REAL(kind=real_wp) ::VFFORM      , VERSIO
       CHARACTER*20  RUNDAT
       CHARACTER*40  FFORM       , CONTEN     ,
      +              SOURCE
@@ -80,18 +80,18 @@
 !     Local variables
 !
 !     GRPNAM  CHAR*16     1       LOCAL   group name (table)
-!     NELEMS  INTEGER(kind=int_32) ::1       LOCAL   number of elements in group (=cell)
+!     NELEMS  INTEGER(kind=int_wp) ::1       LOCAL   number of elements in group (=cell)
 !     ELMNMS  CHAR*16  NELEMS     LOCAL   name of elements on file
 !     ELMTPS  CHAR*16  NELEMS     LOCAL   type of elements
-!     ELMDMS  INTEGER(kind=int_32) ::6,NELEMS   LOCAL   dimension of elements
-!     NBYTSG  INTEGER(kind=int_32) ::NELEMS     LOCAL   length of elements (bytes)
+!     ELMDMS  INTEGER(kind=int_wp) ::6,NELEMS   LOCAL   dimension of elements
+!     NBYTSG  INTEGER(kind=int_wp) ::NELEMS     LOCAL   length of elements (bytes)
 !
-      INTEGER(kind=int_32) ::NELEMS
+      INTEGER(kind=int_wp) ::NELEMS
       PARAMETER   ( NELEMS = 8 )
 !
-      INTEGER(kind=int_32) ::I               , IELM          ,
+      INTEGER(kind=int_wp) ::I               , IELM          ,
      +              BUFLEN
-      INTEGER(kind=int_32) ::ELMDMS(2,NELEMS), NBYTSG(NELEMS),
+      INTEGER(kind=int_wp) ::ELMDMS(2,NELEMS), NBYTSG(NELEMS),
      +              UINDEX(3)
       CHARACTER*16  GRPNAM
       CHARACTER*16  ELMNMS(NELEMS)  , ELMTPS(NELEMS)
@@ -99,7 +99,7 @@
 !
 !     External NEFIS Functions
 !
-      INTEGER(kind=int_32) ::GETELS
+      INTEGER(kind=int_wp) ::GETELS
      +         ,GETELT
       EXTERNAL  GETELS
      +         ,GETELT

@@ -45,12 +45,12 @@
 !
 !     name    kind     length     funct.  description
 !     ----    -----    ------     ------- -----------
-!     pnolay  integer(kind=int_32) ::1     output  copy of the nolay from sysn
+!     pnolay  integer(kind=int_wp) ::1     output  copy of the nolay from sysn
 !
 !     declarations
 !
       use m_sysn          ! System characteristics
-      integer(kind=int_32) ::pnolay
+      integer(kind=int_wp) ::pnolay
 !
 !     common  /  sysn   /   system characteristics
 !

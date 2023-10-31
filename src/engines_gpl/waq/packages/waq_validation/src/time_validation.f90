@@ -49,11 +49,11 @@ module m_time_validation
   ! - ierror
     subroutine validate_time_series_strictly_increasing(lun, data_block, ierror)
   
-      integer(kind=int_32), intent(in   ) ::  lun          ! logical unit number for logging error message, if required
+      integer(kind=int_wp), intent(in   ) ::  lun          ! logical unit number for logging error message, if required
       type(t_dlwqdata)      , intent(in   ) :: data_block  ! data block containing time series to validate
-      integer(kind=int_32), intent(inout) ::  ierror       ! local error count
+      integer(kind=int_wp), intent(inout) ::  ierror       ! local error count
       character(:), allocatable             :: errformat   ! format for error message
-      integer(kind=int_32) ::  i
+      integer(kind=int_wp) ::  i
    
       errformat = "(/' ERROR: time value ',I0.1,' not larger than previous time value ',I0.1, '.')"
       do i = 2, size(data_block%times)

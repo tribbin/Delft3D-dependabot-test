@@ -60,13 +60,13 @@
 !
       use timers
 
-      real(kind=sp) ::CONC (NOTOT,*)  ,  DERIV(*)  ,  AMAT(*)  ,
+      real(kind=real_wp) ::CONC (NOTOT,*)  ,  DERIV(*)  ,  AMAT(*)  ,
      *            AMASS(      *)
 
-      integer(kind=int_32) ::ntot, nsys, notot, noseg
-      integer(kind=int_32) ::i, isys, istep, iset, iseg, ioff, jtrack
+      integer(kind=int_wp) ::ntot, nsys, notot, noseg
+      integer(kind=int_wp) ::i, isys, istep, iset, iseg, ioff, jtrack
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwq61", ithandl )
 !
 !         zero the matrix

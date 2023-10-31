@@ -41,51 +41,51 @@
 !
 !     Type    Name         I/O Description
 !
-      REAL(kind=sp) ::PMSA(*)     !I/O Process Manager System Array, window of routine to process library
-      REAL(kind=sp) ::FL(*)       ! O  Array of fluxes made by this process in mass/volume/time
-      INTEGER(kind=int_32) ::IPOINT( 22) ! I  Array of pointers in PMSA to get and store the data
-      INTEGER(kind=int_32) ::INCREM( 22) ! I  Increments in IPOINT for segment loop, 0=constant, 1=spatially varying
-      INTEGER(kind=int_32) ::NOSEG       ! I  Number of computational elements in the whole model schematisation
-      INTEGER(kind=int_32) ::NOFLUX      ! I  Number of fluxes, increment in the FL array
-      INTEGER(kind=int_32) ::IEXPNT(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      INTEGER(kind=int_32) ::IKNMRK(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      INTEGER(kind=int_32) ::NOQ1        ! I  Nr of exchanges in 1st direction, only horizontal dir if irregular mesh
-      INTEGER(kind=int_32) ::NOQ2        ! I  Nr of exchanges in 2nd direction, NOQ1+NOQ2 gives hor. dir. reg. grid
-      INTEGER(kind=int_32) ::NOQ3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      INTEGER(kind=int_32) ::NOQ4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
-      INTEGER(kind=int_32) ::IPNT( 22)   !    Local work array for the pointering
-      INTEGER(kind=int_32) ::ISEG        !    Local loop counter for computational element loop
+      REAL(kind=real_wp) ::PMSA(*)     !I/O Process Manager System Array, window of routine to process library
+      REAL(kind=real_wp) ::FL(*)       ! O  Array of fluxes made by this process in mass/volume/time
+      INTEGER(kind=int_wp) ::IPOINT( 22) ! I  Array of pointers in PMSA to get and store the data
+      INTEGER(kind=int_wp) ::INCREM( 22) ! I  Increments in IPOINT for segment loop, 0=constant, 1=spatially varying
+      INTEGER(kind=int_wp) ::NOSEG       ! I  Number of computational elements in the whole model schematisation
+      INTEGER(kind=int_wp) ::NOFLUX      ! I  Number of fluxes, increment in the FL array
+      INTEGER(kind=int_wp) ::IEXPNT(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      INTEGER(kind=int_wp) ::IKNMRK(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      INTEGER(kind=int_wp) ::NOQ1        ! I  Nr of exchanges in 1st direction, only horizontal dir if irregular mesh
+      INTEGER(kind=int_wp) ::NOQ2        ! I  Nr of exchanges in 2nd direction, NOQ1+NOQ2 gives hor. dir. reg. grid
+      INTEGER(kind=int_wp) ::NOQ3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      INTEGER(kind=int_wp) ::NOQ4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      INTEGER(kind=int_wp) ::IPNT( 22)   !    Local work array for the pointering
+      INTEGER(kind=int_wp) ::ISEG        !    Local loop counter for computational element loop
 !
 !*******************************************************************************
 !
 !     Type    Name         I/O Description                                        Unit
 !
-      REAL(kind=sp) ::nMacrophyt  ! I  number of macrophyte species                       (-)
-      REAL(kind=sp) ::EM01        ! I  macrophyt emerged 01                               (gC/m2)
-      REAL(kind=sp) ::MaxEM01     ! I  maximum biomass for macrophyt emerged 01           (gC/m2)
-      REAL(kind=sp) ::EM02        ! I  macrophyt emerged 02                               (gC/m2)
-      REAL(kind=sp) ::MaxEM02     ! I  maximum biomass for EM02                           (gC/m2)
-      REAL(kind=sp) ::EM03        ! I  macrophyt emerged 03                               (gC/m2)
-      REAL(kind=sp) ::MaxEM03     ! I  maximum biomass for EM03                           (gC/m2)
-      REAL(kind=sp) ::EM04        ! I  macrophyt emerged 04                               (gC/m2)
-      REAL(kind=sp) ::MaxEM04     ! I  maximum biomass for EM04                           (gC/m2)
-      REAL(kind=sp) ::EM05        ! I  macrophyt emerged 05                               (gC/m2)
-      REAL(kind=sp) ::MaxEM05     ! I  maximum biomass for EM05                           (gC/m2)
-      REAL(kind=sp) ::RadIn       ! I  incoming radiation                                 (W/m2)
-      REAL(kind=sp) ::fcover      ! O  fraction of water surface covered <0-1>            (-)
-      REAL(kind=sp) ::CoverEM01   ! O  covergae with EM01                                 (-)
-      REAL(kind=sp) ::CoverEM02   ! O  covergae with EM02                                 (-)
-      REAL(kind=sp) ::CoverEM03   ! O  covergae with EM03                                 (-)
-      REAL(kind=sp) ::CoverEM04   ! O  covergae with EM04                                 (-)
-      REAL(kind=sp) ::CoverEM05   ! O  covergae with EM05                                 (-)
-      REAL(kind=sp) ::RadSurf     ! O radiation on top of first water layer               (W/m2)
-      INTEGER(kind=int_32) ::IQ                      !        Loop counter
-      INTEGER(kind=int_32) ::Ifrom           !        From Segment
-      INTEGER(kind=int_32) ::Ito                     !        From Segment
+      REAL(kind=real_wp) ::nMacrophyt  ! I  number of macrophyte species                       (-)
+      REAL(kind=real_wp) ::EM01        ! I  macrophyt emerged 01                               (gC/m2)
+      REAL(kind=real_wp) ::MaxEM01     ! I  maximum biomass for macrophyt emerged 01           (gC/m2)
+      REAL(kind=real_wp) ::EM02        ! I  macrophyt emerged 02                               (gC/m2)
+      REAL(kind=real_wp) ::MaxEM02     ! I  maximum biomass for EM02                           (gC/m2)
+      REAL(kind=real_wp) ::EM03        ! I  macrophyt emerged 03                               (gC/m2)
+      REAL(kind=real_wp) ::MaxEM03     ! I  maximum biomass for EM03                           (gC/m2)
+      REAL(kind=real_wp) ::EM04        ! I  macrophyt emerged 04                               (gC/m2)
+      REAL(kind=real_wp) ::MaxEM04     ! I  maximum biomass for EM04                           (gC/m2)
+      REAL(kind=real_wp) ::EM05        ! I  macrophyt emerged 05                               (gC/m2)
+      REAL(kind=real_wp) ::MaxEM05     ! I  maximum biomass for EM05                           (gC/m2)
+      REAL(kind=real_wp) ::RadIn       ! I  incoming radiation                                 (W/m2)
+      REAL(kind=real_wp) ::fcover      ! O  fraction of water surface covered <0-1>            (-)
+      REAL(kind=real_wp) ::CoverEM01   ! O  covergae with EM01                                 (-)
+      REAL(kind=real_wp) ::CoverEM02   ! O  covergae with EM02                                 (-)
+      REAL(kind=real_wp) ::CoverEM03   ! O  covergae with EM03                                 (-)
+      REAL(kind=real_wp) ::CoverEM04   ! O  covergae with EM04                                 (-)
+      REAL(kind=real_wp) ::CoverEM05   ! O  covergae with EM05                                 (-)
+      REAL(kind=real_wp) ::RadSurf     ! O radiation on top of first water layer               (W/m2)
+      INTEGER(kind=int_wp) ::IQ                      !        Loop counter
+      INTEGER(kind=int_wp) ::Ifrom           !        From Segment
+      INTEGER(kind=int_wp) ::Ito                     !        From Segment
       LOGICAL First
-      INTEGER(kind=int_32) ::IBotSeg         !        Bottom Segment for Macrophyte
+      INTEGER(kind=int_wp) ::IBotSeg         !        Bottom Segment for Macrophyte
 
-      INTEGER(kind=int_32) ::IKMRK1, IKMRK2
+      INTEGER(kind=int_wp) ::IKMRK1, IKMRK2
       DATA    FIRST /.TRUE./
       SAVE    FIRST
 !

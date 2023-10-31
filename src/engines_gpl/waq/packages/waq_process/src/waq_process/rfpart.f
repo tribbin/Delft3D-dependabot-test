@@ -75,28 +75,28 @@
 !
 !     declaration of arguments
 !
-      INTEGER(kind=int_32) ::NOSEG , NOFLUX, NOQ1  , NOQ2  , NOQ3  ,  NOQ4
-      INTEGER(kind=int_32) ::IPOINT(*)       , INCREM(*),
+      INTEGER(kind=int_wp) ::NOSEG , NOFLUX, NOQ1  , NOQ2  , NOQ3  ,  NOQ4
+      INTEGER(kind=int_wp) ::IPOINT(*)       , INCREM(*),
      +         IEXPNT(4,*)     , IKNMRK(*)
-      REAL(kind=sp) ::PMSA(*)         , FL(*)
+      REAL(kind=real_wp) ::PMSA(*)         , FL(*)
 !
 !     local declarations
 !
-      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10,
+      INTEGER(kind=int_wp) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10,
      +         IP11, IP12, IP13, IP14, IP15, IP16, IP17, IP18 ,
      +         IP19, IP20
-      INTEGER(kind=int_32) ::IFLUX, ISEG
+      INTEGER(kind=int_wp) ::IFLUX, ISEG
 !
-      INTEGER(kind=int_32) ::IVERSN
-      INTEGER(kind=int_32) ::LUNREP
+      INTEGER(kind=int_wp) ::IVERSN
+      INTEGER(kind=int_wp) ::LUNREP
 !
-      REAL(kind=sp) ::PH     , ALK    , CCL    , DOC   ,
+      REAL(kind=real_wp) ::PH     , ALK    , CCL    , DOC   ,
      +         CECIM1 , CECIM2 , CECIM3 ,
      +         AC     , BC     , CC     , DC    , LC     , GC     ,
      +         MC     , NC     , OC     ,
      +         LOGALK , LOGCCL , LOGDOC , LOGKP0
 !
-      REAL(kind=sp) ::KPIM1  , KPIM2  , KPIM3  , KP0
+      REAL(kind=real_wp) ::KPIM1  , KPIM2  , KPIM3  , KP0
 !
       IP1  = IPOINT( 1)
       IP2  = IPOINT( 2)

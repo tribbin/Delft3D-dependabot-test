@@ -49,7 +49,7 @@ contains
 !     are indeed run
 !
 subroutine prepare_tests
-    integer(kind=int_32) ::  lunrun
+    integer(kind=int_wp) ::  lunrun
 
     open( newunit = lunrun, file = 'ftnunit.run' ) 
     write( lunrun, '(a)' ) 'ALL'

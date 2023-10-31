@@ -48,24 +48,24 @@ contains
 
 !     Kind        Function         Name                    Description
 
-      integer(kind=int_32), intent(in   )  ::noseg                 !< Number of computational volumes
-      integer(kind=int_32), intent(in   )  ::notot                 !< Total number of substances
-      integer(kind=int_32), intent(in   )  ::isys                  !< First substance to update
-      integer(kind=int_32), intent(in   )  ::nsys                  !< Total number of substances to update
-      real(kind=sp), intent(inout)  ::conc  (notot,noseg)   !< Target array for update
+      integer(kind=int_wp), intent(in   )  ::noseg                 !< Number of computational volumes
+      integer(kind=int_wp), intent(in   )  ::notot                 !< Total number of substances
+      integer(kind=int_wp), intent(in   )  ::isys                  !< First substance to update
+      integer(kind=int_wp), intent(in   )  ::nsys                  !< Total number of substances to update
+      real(kind=real_wp), intent(inout)  ::conc  (notot,noseg)   !< Target array for update
       real(kind=dp), intent(inout)  ::sol   (nsys ,noseg)   !< Solution matrix for the nsys substances
-      real(kind=sp), intent(inout)  ::amass2(notot,  5  )   !< Mass accumulation array
-      real(kind=sp), intent(inout)  ::dmps  (notot,  *  )   !< Dumped segment fluxes if intopt > 7
-      integer(kind=int_32), intent(in   )  ::intopt                !< Integration sub options
-      integer(kind=int_32), intent(in   )  ::isdmp (noseg)         !< Pointer dumped segments
+      real(kind=real_wp), intent(inout)  ::amass2(notot,  5  )   !< Mass accumulation array
+      real(kind=real_wp), intent(inout)  ::dmps  (notot,  *  )   !< Dumped segment fluxes if intopt > 7
+      integer(kind=int_wp), intent(in   )  ::intopt                !< Integration sub options
+      integer(kind=int_wp), intent(in   )  ::isdmp (noseg)         !< Pointer dumped segments
 
 !     Local declarations
 
-      integer(kind=int_32) ::iseg, i, ip   ! loop variables
+      integer(kind=int_wp) ::iseg, i, ip   ! loop variables
 
 !     The WAQ-timer
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqh6", ithandl )
 
 !         put result in concentration array

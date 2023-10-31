@@ -49,37 +49,37 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     LUNUT   INTEGER(kind=int_32) ::1        INPUT   unit number monitoring file
-!     IOFF    INTEGER(kind=int_32) ::1        INPUT   index of first concentration
-!     A       REAL(kind=sp) ::?        INPUT   Real(kind=sp) ::boundary workspace
-!     J       INTEGER(kind=int_32) ::?        INPUT   Integer(kind=int_32) ::boundary workspace
-!     IIPNT   INTEGER(kind=int_32) ::1        IN/OUT  Offset in integer(kind=int_32) ::array space
-!     IRPNT   INTEGER(kind=int_32) ::1        IN/OUT  Offset in real(kind=sp) ::array space
-!     IIMAX   INTEGER(kind=int_32) ::1        INPUT   Maximum integer(kind=int_32) ::array size
-!     ITIME   INTEGER(kind=int_32) ::1        INPUT   Time in units of the system clock
-!     KTYPE   INTEGER(kind=int_32) ::NOITM     INPUT   Type of items
-!     AVAL    REAL(kind=sp) ::NOTOT,NOITM OUTPUT  Values of the bounds/wastes
-!     IVAL    INTEGER(kind=int_32) ::NOTOT,NOITM LOCAL   Count array for averages
-!     IERR    INTEGER(kind=int_32) ::1        IN/OUT  error count
+!     LUNUT   INTEGER(kind=int_wp) ::1        INPUT   unit number monitoring file
+!     IOFF    INTEGER(kind=int_wp) ::1        INPUT   index of first concentration
+!     A       REAL(kind=real_wp) ::?        INPUT   Real(kind=real_wp) ::boundary workspace
+!     J       INTEGER(kind=int_wp) ::?        INPUT   Integer(kind=int_wp) ::boundary workspace
+!     IIPNT   INTEGER(kind=int_wp) ::1        IN/OUT  Offset in integer(kind=int_wp) ::array space
+!     IRPNT   INTEGER(kind=int_wp) ::1        IN/OUT  Offset in real(kind=real_wp) ::array space
+!     IIMAX   INTEGER(kind=int_wp) ::1        INPUT   Maximum integer(kind=int_wp) ::array size
+!     ITIME   INTEGER(kind=int_wp) ::1        INPUT   Time in units of the system clock
+!     KTYPE   INTEGER(kind=int_wp) ::NOITM     INPUT   Type of items
+!     AVAL    REAL(kind=real_wp) ::NOTOT,NOITM OUTPUT  Values of the bounds/wastes
+!     IVAL    INTEGER(kind=int_wp) ::NOTOT,NOITM LOCAL   Count array for averages
+!     IERR    INTEGER(kind=int_wp) ::1        IN/OUT  error count
 !
 !     Declaration of arguments
 !
       use timers
 
-      real(kind=sp), PARAMETER   ::TWOPI = 6.28319
-      integer(kind=int_32) ::J(*) , KTYPE(*) , IVAL(*)
-      real(kind=sp) ::A(*) , AVAL(*)
-      integer(kind=int_32) ::IERR , LUNUT , IRPNT , IIMAX , ITIME , IOFF , IIPNT
+      real(kind=real_wp), PARAMETER   ::TWOPI = 6.28319
+      integer(kind=int_wp) ::J(*) , KTYPE(*) , IVAL(*)
+      real(kind=real_wp) ::A(*) , AVAL(*)
+      integer(kind=int_wp) ::IERR , LUNUT , IRPNT , IIMAX , ITIME , IOFF , IIPNT
 
 !     local
-      real(kind=sp) ::amiss, aa, ab, aphase, func
-      integer(kind=int_32) ::noitm, notot, nobrk
-      integer(kind=int_32) ::i, i1, i2, i3, ia, ib, ic, ij, ii
-      integer(kind=int_32) ::iopt, ipro, iord, itim1, itim2
-      integer(kind=int_32) ::irec, idt, itimf, it1c, it2c, idtc, iperio
-      integer(kind=int_32) ::npnt, npst, ndim, ndst, ntt
+      real(kind=real_wp) ::amiss, aa, ab, aphase, func
+      integer(kind=int_wp) ::noitm, notot, nobrk
+      integer(kind=int_wp) ::i, i1, i2, i3, ia, ib, ic, ij, ii
+      integer(kind=int_wp) ::iopt, ipro, iord, itim1, itim2
+      integer(kind=int_wp) ::irec, idt, itimf, it1c, it2c, idtc, iperio
+      integer(kind=int_wp) ::npnt, npst, ndim, ndst, ntt
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqtb", ithandl )
 !
 !         initialise the system
@@ -386,15 +386,15 @@
      *                    IT1C   , IT2C   , IDTC   , AA     , AB     )
       use timers
 !
-      real(kind=sp) ::A( * )
-      integer(kind=int_32) ::J( * )
-      integer(kind=int_32) ::I, IJ, NTT, IREC, NOBRK, ITIMF, IOPT, IT1C, IT2C, IDTC
-      real(kind=sp) ::AMISS, AA, AB
+      real(kind=real_wp) ::A( * )
+      integer(kind=int_wp) ::J( * )
+      integer(kind=int_wp) ::I, IJ, NTT, IREC, NOBRK, ITIMF, IOPT, IT1C, IT2C, IDTC
+      real(kind=real_wp) ::AMISS, AA, AB
 
 !  	local
-      integer(kind=int_32) ::ll, jj, kk
+      integer(kind=int_wp) ::ll, jj, kk
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
 
       if ( timon ) call timstrt ( "dlwmis", ithandl )
 !           Search backward for the first valid point

@@ -44,7 +44,7 @@
       !     subroutines called : dhdelf, deletes a file
       !                          filldm, fills elements dimension array
       !                          putgtc, handles i/o to nefis file for char's
-      !                          putget, handles i/o to nefis file for int/real(kind=sp) ::!
+      !                          putget, handles i/o to nefis file for int/real(kind=real_wp) ::!
 
       use m_srstop
       use m_putgtc
@@ -57,18 +57,18 @@
 
       ! declaration of arguments
 
-      integer(kind=int_32), intent(in)     ::iout                   ! unit number output file
-      integer(kind=int_32), intent(in)     ::itime                  ! present time in clock units
-      integer(kind=int_32), intent(in)     ::noseg                  ! total number of segments
-      integer(kind=int_32), intent(in)     ::notot1                 ! total number of systems
-      integer(kind=int_32), intent(in)     ::notot2                 ! number of vars in conc2
-      integer(kind=int_32), intent(in)     ::iostrt                 ! start time of output
-      integer(kind=int_32), intent(in)     ::iostop                 ! stop time of output
-      integer(kind=int_32), intent(in)     ::iostep                 ! time step of output
-      integer(kind=int_32), intent(inout)  ::init                   ! init flag (1=yes,!1=no)
-      real(kind=sp), intent(in)     ::conc1(notot1,noseg)    ! concentration values
-      real(kind=sp), intent(in)     ::conc2(notot2,noseg)    ! concentration values array 2
-      real(kind=sp), intent(out)    ::rbuffr(noseg)          ! output buffer
+      integer(kind=int_wp), intent(in)     ::iout                   ! unit number output file
+      integer(kind=int_wp), intent(in)     ::itime                  ! present time in clock units
+      integer(kind=int_wp), intent(in)     ::noseg                  ! total number of segments
+      integer(kind=int_wp), intent(in)     ::notot1                 ! total number of systems
+      integer(kind=int_wp), intent(in)     ::notot2                 ! number of vars in conc2
+      integer(kind=int_wp), intent(in)     ::iostrt                 ! start time of output
+      integer(kind=int_wp), intent(in)     ::iostop                 ! stop time of output
+      integer(kind=int_wp), intent(in)     ::iostep                 ! time step of output
+      integer(kind=int_wp), intent(inout)  ::init                   ! init flag (1=yes,!1=no)
+      real(kind=real_wp), intent(in)     ::conc1(notot1,noseg)    ! concentration values
+      real(kind=real_wp), intent(in)     ::conc2(notot2,noseg)    ! concentration values array 2
+      real(kind=real_wp), intent(out)    ::rbuffr(noseg)          ! output buffer
       character(len=*)     , intent(in)    :: lchout                 ! name output file
       character(len=40)    , intent(in)    :: moname(4)              ! model identhification
       character(len=*)     , intent(in)    :: synam1(notot1)         ! names of substances in conc1
@@ -78,45 +78,45 @@
 
       logical                  , parameter :: lwrite = .true.        ! .true.: write to file
       logical                  , parameter :: lread  = .false.
-      integer(kind=int_32), parameter  ::noelm1 = 7             ! number of elements in group 1
-      integer(kind=int_32), parameter  ::noparm = noelm1 + 1    ! fixed number of elements in file
+      integer(kind=int_wp), parameter  ::noelm1 = 7             ! number of elements in group 1
+      integer(kind=int_wp), parameter  ::noparm = noelm1 + 1    ! fixed number of elements in file
 
-      integer(kind=int_32) ::nelmxx                 ! total number of elements
+      integer(kind=int_wp) ::nelmxx                 ! total number of elements
       character(len=255)            , save :: defnam                 ! filename nefis definition file
       character(len=255)            , save :: datnam                 ! filename nefis data file
       character(len=132)                   :: error_string
       character(len=20)                    :: type
-      integer(kind=int_32), save  ::celid1 = 1             ! index of cell group 2
-      integer(kind=int_32), save  ::celid2 = 1             ! index of cell group 1
-      integer(kind=int_32) ::noelm2                 ! number of elements in group 2
+      integer(kind=int_wp), save  ::celid1 = 1             ! index of cell group 2
+      integer(kind=int_wp), save  ::celid2 = 1             ! index of cell group 1
+      integer(kind=int_wp) ::noelm2                 ! number of elements in group 2
       logical, save        :: nefis  = .true.
-      integer(kind=int_32) ::nosize(6)
-      real(kind=sp)        ::window(4)
-      integer(kind=int_32), save  ::itoff (7)
+      integer(kind=int_wp) ::nosize(6)
+      real(kind=real_wp)        ::window(4)
+      integer(kind=int_wp), save  ::itoff (7)
       character(len=16)             , save :: grnam1                 ! group 1 name (runid,text,dim's)
       character(len=16)             , save :: grnam2                 ! group 2 name (time dep data)
       character(len=16), allocatable, save :: elmnms(:)              ! name of elements on file
       character(len=16), allocatable, save :: elmpts(:)              ! element types
-      integer(kind=int_32), allocatable, save  ::elmdms(:,:)            ! element dimensions
-      integer(kind=int_32), allocatable, save  ::nbytsg(:)              ! element number of bytes
-      integer(kind=int_32) ::ierr                   ! error indication
-      integer(kind=int_32) ::ierrem                 ! error indication
-      integer(kind=int_32) ::ierr_alloc             ! error indication allocation
-      integer(kind=int_32) ::iret_error             ! error indication nefis
-      integer(kind=int_32) ::lunout                 ! unit number report file
-      integer(kind=int_32) ::i                      ! loop counter
-      integer(kind=int_32) ::isys                   ! loop counter substances
-      integer(kind=int_32) ::isys2                  ! index in second conc array
-      integer(kind=int_32) ::iseg                   ! loop counter segments
-      integer(kind=int_32) ::neferr                 ! nefis error function
-      integer(kind=int_32) ::notot                  ! total number of output variables
+      integer(kind=int_wp), allocatable, save  ::elmdms(:,:)            ! element dimensions
+      integer(kind=int_wp), allocatable, save  ::nbytsg(:)              ! element number of bytes
+      integer(kind=int_wp) ::ierr                   ! error indication
+      integer(kind=int_wp) ::ierrem                 ! error indication
+      integer(kind=int_wp) ::ierr_alloc             ! error indication allocation
+      integer(kind=int_wp) ::iret_error             ! error indication nefis
+      integer(kind=int_wp) ::lunout                 ! unit number report file
+      integer(kind=int_wp) ::i                      ! loop counter
+      integer(kind=int_wp) ::isys                   ! loop counter substances
+      integer(kind=int_wp) ::isys2                  ! index in second conc array
+      integer(kind=int_wp) ::iseg                   ! loop counter segments
+      integer(kind=int_wp) ::neferr                 ! nefis error function
+      integer(kind=int_wp) ::notot                  ! total number of output variables
 
-      integer(kind=int_32), save                         ::fd_nef = -1            ! handle to NEFIS file
-      integer(kind=int_32) , external                    :: FLSDAT, FLSDEF
+      integer(kind=int_wp), save                         ::fd_nef = -1            ! handle to NEFIS file
+      integer(kind=int_wp) , external                    :: FLSDAT, FLSDEF
 
       character*20                  , save :: duname(1) = ' '
       character(len=20), allocatable, save :: syname(:)              ! complete list of names
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "outmnf", ithandl )
 
       ! some init

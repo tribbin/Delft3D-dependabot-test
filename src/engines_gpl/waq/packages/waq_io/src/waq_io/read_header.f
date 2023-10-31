@@ -50,28 +50,28 @@
 
       type(t_dlwq_item)     , intent(inout) :: waq_param    ! list of param items to be set in this block ( substances etc )
       type(t_dlwq_item)     , intent(inout) :: data_param   ! list of param items in the data
-      integer(kind=int_32), intent(inout) ::  nocol         ! number of columns in input
-      integer(kind=int_32), intent(in) ::  itfact        ! factor between clocks
+      integer(kind=int_wp), intent(inout) ::  nocol         ! number of columns in input
+      integer(kind=int_wp), intent(in) ::  itfact        ! factor between clocks
       logical               , intent(in)    :: dtflg1       ! true if time in 'date' format
       logical               , intent(in)    :: dtflg3       ! true if yyetc instead of ddetc
-      integer(kind=int_32), intent(out) ::  ierr          ! error indication
-      integer(kind=int_32), intent(inout) ::  iwar          ! cumulative warning count
+      integer(kind=int_wp), intent(out) ::  ierr          ! error indication
+      integer(kind=int_wp), intent(inout) ::  iwar          ! cumulative warning count
 
       ! local declaration
 
-      integer(kind=int_32) ::  itype          ! type of token
+      integer(kind=int_wp) ::  itype          ! type of token
       character(len=256)                    :: ctoken        ! character token
-      integer(kind=int_32) ::  itoken         ! integer token
-      real(kind=sp) ::  rtoken         ! real token
+      integer(kind=int_wp) ::  itoken         ! integer token
+      real(kind=real_wp) ::  rtoken         ! real token
       logical                               :: first         ! first loop indicator / .not. header exists
-      integer(kind=int_32) ::  i              ! item index
-      integer(kind=int_32) ::  k              ! shifted item index
-      integer(kind=int_32) ::  icnt           ! shift in item index
+      integer(kind=int_wp) ::  i              ! item index
+      integer(kind=int_wp) ::  k              ! shifted item index
+      integer(kind=int_wp) ::  icnt           ! shift in item index
       character(len=8)                      :: strng         ! string to be printed
-      integer(kind=int_32) ::  ifound         ! index in list if found
-      integer(kind=int_32) ::  nitm          ! number of items in data
-      integer(kind=int_32) ::  ierr2         ! local error indication
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  ifound         ! index in list if found
+      integer(kind=int_wp) ::  nitm          ! number of items in data
+      integer(kind=int_wp) ::  ierr2         ! local error indication
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "read_header", ithndl )
 
       ! read loop

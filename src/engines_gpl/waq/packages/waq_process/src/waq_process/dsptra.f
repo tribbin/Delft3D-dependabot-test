@@ -46,14 +46,14 @@
 ! Coll Struct 1  O    Structure with collection of bottom collumn info
 !                  Contains:
 !    type(BotColmn), pointer :: set(:)  ! array with info for all bottom collumns
-!    integer(kind=int_32) ::maxsize ! maximum size of the current array
-!    integer(kind=int_32) ::cursize ! filled up to this size
+!    integer(kind=int_wp) ::maxsize ! maximum size of the current array
+!    integer(kind=int_wp) ::cursize ! filled up to this size
 ! BotColm Struct 1   O  Structure with bottom collumn info
 !                  Contains:
-!    integer(kind=int_32) ::fstwatsed  ! first water sediment exchange number
-!    integer(kind=int_32) ::lstwatsed  ! last  water sediment exchange number
-!    integer(kind=int_32) ::topsedsed  ! first within collumn exchange number
-!    integer(kind=int_32) ::botsedsed  ! last exchange of collumn to deeper bnd
+!    integer(kind=int_wp) ::fstwatsed  ! first water sediment exchange number
+!    integer(kind=int_wp) ::lstwatsed  ! last  water sediment exchange number
+!    integer(kind=int_wp) ::topsedsed  ! first within collumn exchange number
+!    integer(kind=int_wp) ::botsedsed  ! last exchange of collumn to deeper bnd
 
 !     Logical Units : -
 
@@ -68,15 +68,15 @@
 
       IMPLICIT REAL (A-H,J-Z)
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7
-      INTEGER(kind=int_32) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7
-      INTEGER(kind=int_32) ::IVAN, INAAR, IK, IQ
-      INTEGER(kind=int_32) ::IWA1,IWA2,ITOP,IBOT,IOFFSE
-      REAL(kind=sp) ::TURCOE, DIFCOE, VD_SOL, VU_SOL,
+      INTEGER(kind=int_wp) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7
+      INTEGER(kind=int_wp) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7
+      INTEGER(kind=int_wp) ::IVAN, INAAR, IK, IQ
+      INTEGER(kind=int_wp) ::IWA1,IWA2,ITOP,IBOT,IOFFSE
+      REAL(kind=real_wp) ::TURCOE, DIFCOE, VD_SOL, VU_SOL,
      J         DIFLEN, ACTHS1, ACTHS2, POROS1, POROS2,
      J         XFROM , XTO   , VD_DIS, VU_DIS
 

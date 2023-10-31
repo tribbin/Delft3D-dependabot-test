@@ -40,33 +40,33 @@
 
       implicit none
 
-      real(kind=sp) ::biomas(*)  ! Biomass (gC/m3)
-      real(kind=sp) ::temp       ! Temperature (deg.C)
-      real(kind=sp) ::faut(*)    ! Fraction autolysis (-)
-      real(kind=sp) ::fdet(*)    ! Fraction detritus (-)
-      real(kind=sp) ::flautn(*)  ! Nutrient autolysis fluxes (g/m3/d)
-      real(kind=sp) ::fldetn(*)  ! Detritus production fluxes (g/m3/d)
-      real(kind=sp) ::flooxn(*)  ! OOX production fluxes (g/m3/d)
-      real(kind=sp) ::flmora(*)  ! Algae mortality fluxes (gC/m3/d)
-      real(kind=sp) ::deat4      ! ??$Check necessity to transfer$
-      real(kind=sp) ::tstepi     ! Time step (d)
+      real(kind=real_wp) ::biomas(*)  ! Biomass (gC/m3)
+      real(kind=real_wp) ::temp       ! Temperature (deg.C)
+      real(kind=real_wp) ::faut(*)    ! Fraction autolysis (-)
+      real(kind=real_wp) ::fdet(*)    ! Fraction detritus (-)
+      real(kind=real_wp) ::flautn(*)  ! Nutrient autolysis fluxes (g/m3/d)
+      real(kind=real_wp) ::fldetn(*)  ! Detritus production fluxes (g/m3/d)
+      real(kind=real_wp) ::flooxn(*)  ! OOX production fluxes (g/m3/d)
+      real(kind=real_wp) ::flmora(*)  ! Algae mortality fluxes (gC/m3/d)
+      real(kind=real_wp) ::deat4      ! ??$Check necessity to transfer$
+      real(kind=real_wp) ::tstepi     ! Time step (d)
       logical    lmixo      ! Flag mixotrophy
       logical    lfixn      ! Flag N-fixation
       logical    lcarb      ! Flag carbon limitation
-      integer(kind=int_32) ::nutcon(*)  ! Nutrients involved in active nutrient constraints
-      integer(kind=int_32) ::flxcon(*)  ! Uptake fluxes involved in active nutrient constraints
+      integer(kind=int_wp) ::nutcon(*)  ! Nutrients involved in active nutrient constraints
+      integer(kind=int_wp) ::flxcon(*)  ! Uptake fluxes involved in active nutrient constraints
 
 !     Local variables
 
       real(kind=dp) ::temp8      ! Temperature (deg.C)
       real(kind=dp) ::deat       ! ??
       real(kind=dp) ::foox       ! Fraction other organic
-      real(kind=sp) ::cphyt      ! Biomass (gC/m3)
-      real(kind=sp) ::cmort      ! Mortality flux (gC/m3/d)
-      real(kind=sp) ::cmorta     ! Autolysis flux (gC/m3/d)
-      real(kind=sp) ::cmortd     ! Detritus prod. (gC/m3/d)
-      real(kind=sp) ::cmorto     ! OOx production (gC/m3/d)
-      integer(kind=int_32) ::i, j, k    ! Counters
+      real(kind=real_wp) ::cphyt      ! Biomass (gC/m3)
+      real(kind=real_wp) ::cmort      ! Mortality flux (gC/m3/d)
+      real(kind=real_wp) ::cmorta     ! Autolysis flux (gC/m3/d)
+      real(kind=real_wp) ::cmortd     ! Detritus prod. (gC/m3/d)
+      real(kind=real_wp) ::cmorto     ! OOx production (gC/m3/d)
+      integer(kind=int_wp) ::i, j, k    ! Counters
 
 !  Zero fluxes
       do j = 1,4

@@ -194,7 +194,7 @@
      5        EXTPAR, GLOEIR, HELHUM, S_D1  , S_D2  ,
      6        SECCHI, SOM_C , SOM_D1, SOM_D2, SOM_H ,
      7        TAU   , ZW_STF
-      INTEGER(kind=int_32) ::I_550 , LAMBDA, TELLER
+      INTEGER(kind=int_wp) ::I_550 , LAMBDA, TELLER
       LOGICAL DOSECC
 !
       IF ( CHLORO .GE. 0.0 .OR. DETRIT .GE. 0.0 .OR.
@@ -330,7 +330,7 @@
      2        C_GL  , C_GL1 , C_GL2 , C_MU  , CHLORO,
      3        CORCHL, D_1   , D_2   , DETRIT, EXT_KI,
      4        GLOEIR, HELHUM, ZW_STF
-      INTEGER(kind=int_32) ::I_550 , LAMBDA, TELLER
+      INTEGER(kind=int_wp) ::I_550 , LAMBDA, TELLER
 !
       I_550 = ((550-400)/5)+1
 !

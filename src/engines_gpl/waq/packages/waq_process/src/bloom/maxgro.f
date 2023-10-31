@@ -48,7 +48,7 @@
 
       real(kind=dp) ::root(*),xinit(*)
       real(kind=dp) ::effi, exttot, grlim, bt, eadj, dep
-      integer(kind=int_32) ::iskmax, j, k
+      integer(kind=int_wp) ::iskmax, j, k
 
 !----------------------------------------------------------------------
 ! Purpose of this subroutine: find the growth efficiency EFFI for each

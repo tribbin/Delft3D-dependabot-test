@@ -77,7 +77,7 @@
 !     Local
 !
       PARAMETER ( PI     = 3.14159265 )
-      INTEGER(kind=int_32) ::NOQ
+      INTEGER(kind=int_wp) ::NOQ
 !
       IP1  = IPOINT( 1)
       IP2  = IPOINT( 2)

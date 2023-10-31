@@ -40,55 +40,55 @@ contains
 !
 !     Type    Name         I/O Description
 !
-      real(kind=sp)  ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
-      real(kind=sp)  ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
-      integer(kind=int_32)  ::ipoint( 17) ! I  Array of pointers in pmsa to get and store the data
-      integer(kind=int_32)  ::increm( 17) ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer(kind=int_32)  ::noseg       ! I  Number of computational elements in the whole model schematisation
-      integer(kind=int_32)  ::noflux      ! I  Number of fluxes, increment in the fl array
-      integer(kind=int_32)  ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      integer(kind=int_32)  ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      integer(kind=int_32)  ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
-      integer(kind=int_32)  ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer(kind=int_32)  ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer(kind=int_32)  ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
-      integer(kind=int_32)  ::ipnt( 17)   !    Local work array for the pointering
-      integer(kind=int_32)  ::iseg        !    Local loop counter for computational element loop
+      real(kind=real_wp)  ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
+      real(kind=real_wp)  ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
+      integer(kind=int_wp)  ::ipoint( 17) ! I  Array of pointers in pmsa to get and store the data
+      integer(kind=int_wp)  ::increm( 17) ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_wp)  ::noseg       ! I  Number of computational elements in the whole model schematisation
+      integer(kind=int_wp)  ::noflux      ! I  Number of fluxes, increment in the fl array
+      integer(kind=int_wp)  ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      integer(kind=int_wp)  ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      integer(kind=int_wp)  ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
+      integer(kind=int_wp)  ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_wp)  ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_wp)  ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      integer(kind=int_wp)  ::ipnt( 17)   !    Local work array for the pointering
+      integer(kind=int_wp)  ::iseg        !    Local loop counter for computational element loop
 !
 !*******************************************************************************
 !
 !     Type    Name         I/O Description                                        Unit
 !
-      real(kind=sp)  ::fes         ! I  iron(II) sulphide                                  (gFe/m3)
-      real(kind=sp)  ::feiiipa     ! I  particulate amorphous oxidizing iron               (gFe/m3)
-      real(kind=sp)  ::feiiipc     ! I  particulate crystalline oxidizing iron             (gFe/m3)
-      real(kind=sp)  ::sud         ! I  total dissolved sulphide (SUD)                     (gS/m3)
-      real(kind=sp)  ::frh2sdis    ! I  fraction of dissolved hydrogen sulphide            (-)
-      real(kind=sp)  ::rcfeah2s20  ! I  rate of amorphous iron red. with H2S               (m3/gS/d)
-      real(kind=sp)  ::rcfech2s20  ! I  rate of crystalline iron red. with H2S             (m3/gS/d)
-      real(kind=sp)  ::rcfeafes20  ! I  rate of amorphous iron red. with FeS               (m3/gFe/d)
-      real(kind=sp)  ::rcfecfes20  ! I  rate of crystalline iron red. with FeS             (m3/gFe/d)
-      real(kind=sp)  ::tcfered     ! I  temperature coeff. for abiotic iron reduction      (-)
-      real(kind=sp)  ::temp        ! I  ambient water temperature                          (oC)
-      real(kind=sp)  ::delt        ! I  timestep for processes                             (d)
-      real(kind=sp)  ::poros       ! I  volumetric porosity                                (-)
-      real(kind=sp)  ::fire1       ! O  rate of amorphous iron red. with H2S               (gFe/m3/d)
-      real(kind=sp)  ::fire2       ! O  rate of crystalline iron red. with H2S             (gFe/m3/d)
-      real(kind=sp)  ::fire3       ! O  rate of amorphous iron red. with FeS               (gFe/m3/d)
-      real(kind=sp)  ::fire4       ! O  rate of crystalline iron red. with FeS             (gFe/m3/d)
-      real(kind=sp)  ::dire1       ! F  rate of amorphous iron red. with H2S               (gFe/m3/d)
-      real(kind=sp)  ::dire2       ! F  rate of crystalline iron red. with H2S             (gFe/m3/d)
-      real(kind=sp)  ::dire3       ! F  rate of amorphous iron red. with FeS               (gFe/m3/d)
-      real(kind=sp)  ::dire4       ! F  rate of crystalline iron red. with FeS             (gFe/m3/d)
-      integer(kind=int_32)  ::idire1      !    Pointer to the rate of amorphous iron red. with H2S
-      integer(kind=int_32)  ::idire2      !    Pointer to the rate of crystalline iron red. with H2S
-      integer(kind=int_32)  ::idire3      !    Pointer to the rate of amorphous iron red. with FeS
-      integer(kind=int_32)  ::idire4      !    Pointer to the rate of crystalline iron red. with FeS
-      real(kind=sp)  ::tffered     ! L  temperature function for abiotic iron reduction
-      real(kind=sp)  ::kire1       ! L  rate of amorphous iron red. with H2S
-      real(kind=sp)  ::kire2       ! L  rate of crystalline iron red. with H2S
-      real(kind=sp)  ::kire3       ! L  rate of amorphous iron red. with FeS
-      real(kind=sp)  ::kire4       ! L  rate of crystalline iron red. with FeS
+      real(kind=real_wp)  ::fes         ! I  iron(II) sulphide                                  (gFe/m3)
+      real(kind=real_wp)  ::feiiipa     ! I  particulate amorphous oxidizing iron               (gFe/m3)
+      real(kind=real_wp)  ::feiiipc     ! I  particulate crystalline oxidizing iron             (gFe/m3)
+      real(kind=real_wp)  ::sud         ! I  total dissolved sulphide (SUD)                     (gS/m3)
+      real(kind=real_wp)  ::frh2sdis    ! I  fraction of dissolved hydrogen sulphide            (-)
+      real(kind=real_wp)  ::rcfeah2s20  ! I  rate of amorphous iron red. with H2S               (m3/gS/d)
+      real(kind=real_wp)  ::rcfech2s20  ! I  rate of crystalline iron red. with H2S             (m3/gS/d)
+      real(kind=real_wp)  ::rcfeafes20  ! I  rate of amorphous iron red. with FeS               (m3/gFe/d)
+      real(kind=real_wp)  ::rcfecfes20  ! I  rate of crystalline iron red. with FeS             (m3/gFe/d)
+      real(kind=real_wp)  ::tcfered     ! I  temperature coeff. for abiotic iron reduction      (-)
+      real(kind=real_wp)  ::temp        ! I  ambient water temperature                          (oC)
+      real(kind=real_wp)  ::delt        ! I  timestep for processes                             (d)
+      real(kind=real_wp)  ::poros       ! I  volumetric porosity                                (-)
+      real(kind=real_wp)  ::fire1       ! O  rate of amorphous iron red. with H2S               (gFe/m3/d)
+      real(kind=real_wp)  ::fire2       ! O  rate of crystalline iron red. with H2S             (gFe/m3/d)
+      real(kind=real_wp)  ::fire3       ! O  rate of amorphous iron red. with FeS               (gFe/m3/d)
+      real(kind=real_wp)  ::fire4       ! O  rate of crystalline iron red. with FeS             (gFe/m3/d)
+      real(kind=real_wp)  ::dire1       ! F  rate of amorphous iron red. with H2S               (gFe/m3/d)
+      real(kind=real_wp)  ::dire2       ! F  rate of crystalline iron red. with H2S             (gFe/m3/d)
+      real(kind=real_wp)  ::dire3       ! F  rate of amorphous iron red. with FeS               (gFe/m3/d)
+      real(kind=real_wp)  ::dire4       ! F  rate of crystalline iron red. with FeS             (gFe/m3/d)
+      integer(kind=int_wp)  ::idire1      !    Pointer to the rate of amorphous iron red. with H2S
+      integer(kind=int_wp)  ::idire2      !    Pointer to the rate of crystalline iron red. with H2S
+      integer(kind=int_wp)  ::idire3      !    Pointer to the rate of amorphous iron red. with FeS
+      integer(kind=int_wp)  ::idire4      !    Pointer to the rate of crystalline iron red. with FeS
+      real(kind=real_wp)  ::tffered     ! L  temperature function for abiotic iron reduction
+      real(kind=real_wp)  ::kire1       ! L  rate of amorphous iron red. with H2S
+      real(kind=real_wp)  ::kire2       ! L  rate of crystalline iron red. with H2S
+      real(kind=real_wp)  ::kire3       ! L  rate of amorphous iron red. with FeS
+      real(kind=real_wp)  ::kire4       ! L  rate of crystalline iron red. with FeS
 
       ! initialise pointering in pmsa
 

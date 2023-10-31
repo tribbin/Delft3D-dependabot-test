@@ -36,10 +36,10 @@
 
       implicit none
 
-      integer(kind=int_32) ::lunrep       ! Report file for error messages
+      integer(kind=int_wp) ::lunrep       ! Report file for error messages
 
       character(256) filnam       ! File name with extention
-      integer(kind=int_32) ::iost         ! I/O-status
+      integer(kind=int_wp) ::iost         ! I/O-status
 
 !  Open statement for BLOOM II input files.
       filnam = trim(runnam)//'.frm'

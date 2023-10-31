@@ -37,10 +37,10 @@ subroutine close_files( lun )
 
    implicit none
 
-   integer(kind=int_32), dimension(*) ::lun !< Array of LU-numbers
+   integer(kind=int_wp), dimension(*) ::lun !< Array of LU-numbers
 
    logical :: opflag
-   integer(kind=int_32)  ::i
+   integer(kind=int_wp)  ::i
 
    do i=1 , 22
       inquire ( lun(i) , opened = opflag )

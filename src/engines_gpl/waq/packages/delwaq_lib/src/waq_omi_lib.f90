@@ -40,14 +40,14 @@ module waq_omi_utils
     use m_dlwqp1
     use m_open_waq_files
 
-    integer(kind=int_32), parameter ::  LEVEL_FATAL   = 1 
-    integer(kind=int_32), parameter ::  LEVEL_ERROR   = 2 
-    integer(kind=int_32), parameter ::  LEVEL_WARNING = 3 
-    integer(kind=int_32), parameter ::  LEVEL_INFO    = 4 
+    integer(kind=int_wp), parameter ::  LEVEL_FATAL   = 1
+    integer(kind=int_wp), parameter ::  LEVEL_ERROR   = 2
+    integer(kind=int_wp), parameter ::  LEVEL_WARNING = 3
+    integer(kind=int_wp), parameter ::  LEVEL_INFO    = 4
     logical, save      :: reporting   = .false.
-    integer(kind=int_32), save ::  lunlst
+    integer(kind=int_wp), save ::  lunlst
  
-    integer(kind=int_32), save ::  msg_level = LEVEL_INFO 
+    integer(kind=int_wp), save ::  msg_level = LEVEL_INFO
     character(len=200), save :: msg_text  = 'No message'
 
 contains
@@ -56,9 +56,9 @@ contains
 subroutine find_index( name, list_names, idx )
     character(len=*)               :: name           !< Name to be found
     character(len=*), dimension(:) :: list_names     !< List of names to be searched
-    integer(kind=int_32) ::  idx             !< Index (-1 if name unknown)
+    integer(kind=int_wp) ::  idx             !< Index (-1 if name unknown)
 
-    integer(kind=int_32) ::  i
+    integer(kind=int_wp) ::  i
 
     idx = -1
     do i = 1,size(list_names)
@@ -82,7 +82,7 @@ subroutine set_intopt( option, keyword_true, keyword_false )
     character(len=*) :: keyword_true                   !< Keyword describing "true" value for the option
     character(len=*) :: keyword_false                  !< Keyword describing "false" value for the option
 
-    integer(kind=int_32) ::  lunut, ierr2
+    integer(kind=int_wp) ::  lunut, ierr2
 
     lunut = 10 
     if ( option ) then
@@ -95,7 +95,7 @@ end subroutine set_intopt
 !> Store an error message
 !! Used here only
 subroutine SetMessage( level, text )
-    integer(kind=int_32) ::  level 
+    integer(kind=int_wp) ::  level
     character(*) :: text
 
     msg_level = level
@@ -107,11 +107,11 @@ end subroutine SetMessage
 subroutine write_array_const( name, suffix, value, size )
     character(len=*)   :: name                         !< Name of the work files
     character(len=*)   :: suffix                       !< Suffix for this particular file
-    real(kind=sp) ::  value                         !< Constant value to be written
-    integer(kind=int_32) ::  size                          !< Number of times the value must be repeated
+    real(kind=real_wp) ::  value                         !< Constant value to be written
+    integer(kind=int_wp) ::  size                          !< Number of times the value must be repeated
 
-    integer(kind=int_32) ::  i, lunwrk 
-    integer(kind=int_32) ::  time_dummy
+    integer(kind=int_wp) ::  i, lunwrk
+    integer(kind=int_wp) ::  time_dummy
 
     time_dummy = 0
 
@@ -138,7 +138,7 @@ logical function GetLastMessage( level, text )
 
     use waq_omi_utils
 
-    integer(kind=int_32), intent(out) ::  level 
+    integer(kind=int_wp), intent(out) ::  level
     character(*), intent(out) :: text
 
     GetLastMessage = .true.
@@ -157,8 +157,8 @@ logical function GetWQDimensions(notot, noseg)
 
     implicit none
 
-    integer(kind=int_32), intent(out) ::  notot          !< Number of substances
-    integer(kind=int_32), intent(out) ::  noseg          !< Number of segments
+    integer(kind=int_wp), intent(out) ::  notot          !< Number of substances
+    integer(kind=int_wp), intent(out) ::  noseg          !< Number of segments
 
     notot = size_dlwq_state%notot
     noseg = size_dlwq_state%noseg
@@ -179,9 +179,9 @@ logical function SetSimulationTimes(startTime, endTime, timeStep)
 
     implicit none
 
-    integer(kind=int_32), intent(in) ::  startTime        !< Start time in seconds since the reference date/time
-    integer(kind=int_32), intent(in) ::  endTime          !< Stop time in seconds since the reference date/time
-    integer(kind=int_32), intent(in) ::  timeStep         !< Time step in seconds
+    integer(kind=int_wp), intent(in) ::  startTime        !< Start time in seconds since the reference date/time
+    integer(kind=int_wp), intent(in) ::  endTime          !< Stop time in seconds since the reference date/time
+    integer(kind=int_wp), intent(in) ::  timeStep         !< Time step in seconds
 
     itstrt = startTime
     itstop = endTime
@@ -205,9 +205,9 @@ logical function GetSimulationTimes(startTime, endTime, timeStep)
 
     implicit none
 
-    integer(kind=int_32), intent(out) ::  startTime        !< Start time in seconds since the reference date/time
-    integer(kind=int_32), intent(out) ::  endTime          !< Stop time in seconds since the reference date/time
-    integer(kind=int_32), intent(out) ::  timeStep         !< Time step in seconds
+    integer(kind=int_wp), intent(out) ::  startTime        !< Start time in seconds since the reference date/time
+    integer(kind=int_wp), intent(out) ::  endTime          !< Stop time in seconds since the reference date/time
+    integer(kind=int_wp), intent(out) ::  timeStep         !< Time step in seconds
 
     startTime = itstrt
     endTime   = itstop
@@ -228,7 +228,7 @@ logical function SetTimeFormat(timeFormat)
 
     implicit none
 
-    integer(kind=int_32), intent(in) ::  timeFormat       !< Time format (0 = integer, 1 = dd:hh:mm:ss, 2 = yy:ddd:hh:mm:ss)
+    integer(kind=int_wp), intent(in) ::  timeFormat       !< Time format (0 = integer, 1 = dd:hh:mm:ss, 2 = yy:ddd:hh:mm:ss)
 
     isflag = timeFormat
 
@@ -244,12 +244,12 @@ logical function SetReferenceDate( year_in, month_in, day_in, hour_in, minute_in
 
     use delwaq2_global_data
 
-    integer(kind=int_32), intent(in) ::  year_in 
-    integer(kind=int_32), intent(in) ::  month_in 
-    integer(kind=int_32), intent(in) ::  day_in 
-    integer(kind=int_32), intent(in) ::  hour_in 
-    integer(kind=int_32), intent(in) ::  minute_in 
-    integer(kind=int_32), intent(in) ::  second_in
+    integer(kind=int_wp), intent(in) ::  year_in
+    integer(kind=int_wp), intent(in) ::  month_in
+    integer(kind=int_wp), intent(in) ::  day_in
+    integer(kind=int_wp), intent(in) ::  hour_in
+    integer(kind=int_wp), intent(in) ::  minute_in
+    integer(kind=int_wp), intent(in) ::  second_in
 
     ref_year    = year_in
     ref_month   = month_in
@@ -277,10 +277,10 @@ logical function SetOutputTimers(type, startTime, endTime, timeStep)
 
     implicit none
 
-    integer(kind=int_32), intent(in) ::  type 
-    integer(kind=int_32), intent(in) ::  startTime 
-    integer(kind=int_32), intent(in) ::  endTime 
-    integer(kind=int_32), intent(in) ::  timeStep
+    integer(kind=int_wp), intent(in) ::  type
+    integer(kind=int_wp), intent(in) ::  startTime
+    integer(kind=int_wp), intent(in) ::  endTime
+    integer(kind=int_wp), intent(in) ::  timeStep
 
     select case ( type )
         case( 1 )
@@ -319,15 +319,15 @@ logical function SetAttributeInit(idx, ivalue)
 
     implicit none
 
-    integer(kind=int_32), intent(in) ::  idx 
-    integer(kind=int_32), dimension(*), intent(in) ::  ivalue
+    integer(kind=int_wp), intent(in) ::  idx
+    integer(kind=int_wp), dimension(*), intent(in) ::  ivalue
 
-    integer(kind=int_32) ::  iseg  !< segment number
-    integer(kind=int_32) ::  ilow  !< divisor of this attribute
-    integer(kind=int_32) ::  iup   !< divisor of attributes with higher index
-    integer(kind=int_32) ::  i1    !< value of attributes with higher index
-    integer(kind=int_32) ::  i2    !< previous value of this attribute
-    integer(kind=int_32) ::  i3    !< value of attributes wih lower index
+    integer(kind=int_wp) ::  iseg  !< segment number
+    integer(kind=int_wp) ::  ilow  !< divisor of this attribute
+    integer(kind=int_wp) ::  iup   !< divisor of attributes with higher index
+    integer(kind=int_wp) ::  i1    !< value of attributes with higher index
+    integer(kind=int_wp) ::  i2    !< previous value of this attribute
+    integer(kind=int_wp) ::  i3    !< value of attributes wih lower index
 
     SetAttributeInit = .false.
 
@@ -369,9 +369,9 @@ logical function SetCurrentValueScalarInit(name, value)
     implicit none
 
     character(len=*), intent(in)     :: name
-    real(kind=sp), intent(in) ::  value
+    real(kind=real_wp), intent(in) ::  value
  
-    integer(kind=int_32) ::  idx
+    integer(kind=int_wp) ::  idx
  
     SetCurrentValueScalarInit = .false.
 
@@ -420,9 +420,9 @@ logical function SetCurrentValueFieldInit(name, value)
     implicit none
 
     character(len=*), intent(in)     :: name
-    real(kind=sp), dimension(*),intent(in)     ::  value
+    real(kind=real_wp), dimension(*),intent(in)     ::  value
 
-    integer(kind=int_32) ::  idx
+    integer(kind=int_wp) ::  idx
 
     SetCurrentValueFieldInit = .false.
 
@@ -466,9 +466,9 @@ logical function SetCurrentValueScalarRun(name, value)
     implicit none
 
     character(len=*), intent(in)     :: name
-    real(kind=sp), intent(in) ::  value
+    real(kind=real_wp), intent(in) ::  value
 
-    integer(kind=int_32) ::  idx
+    integer(kind=int_wp) ::  idx
 
     SetCurrentValueScalarRun = .false.
 
@@ -513,10 +513,10 @@ logical function SetCurrentValueFieldRun(name, value)
     implicit none
 
     character(len=*), intent(in)     :: name
-    real(kind=sp), dimension(*),intent(in)     ::  value
+    real(kind=real_wp), dimension(*),intent(in)     ::  value
 
 
-    integer(kind=int_32) ::  idx
+    integer(kind=int_wp) ::  idx
 
     SetCurrentValueFieldRun = .false.
 
@@ -556,10 +556,10 @@ logical function GetCurrentValue(name, value)
     implicit none
 
     character(len=*), intent(in)     :: name
-    real(kind=sp), dimension(*), intent(out)   ::  value
+    real(kind=real_wp), dimension(*), intent(out)   ::  value
 
-    integer(kind=int_32) ::  idx 
-    integer(kind=int_32) ::  i
+    integer(kind=int_wp) ::  idx
+    integer(kind=int_wp) ::  i
 
     GetCurrentValue = .false.
 
@@ -598,7 +598,7 @@ logical function SetIntegrationOptions(method, disp_flow_zero, disp_bound, first
 
     implicit none
 
-    integer(kind=int_32), intent(in) ::  method 
+    integer(kind=int_wp), intent(in) ::  method
     logical, intent(in)              :: disp_flow_zero
     logical, intent(in)              :: disp_bound
     logical, intent(in)              :: first_order
@@ -635,13 +635,13 @@ logical function SetBalanceOutputOptions(type, lump_processes, lump_loads, lump_
 
     implicit none
 
-    integer(kind=int_32), intent(in) ::  type 
+    integer(kind=int_wp), intent(in) ::  type
     logical, intent(in)              :: lump_processes
     logical, intent(in)              :: lump_loads
     logical, intent(in)              :: lump_transport
     logical, intent(in)              :: suppress_space
     logical, intent(in)              :: suppress_time
-    integer(kind=int_32), intent(in) ::  unit_type
+    integer(kind=int_wp), intent(in) ::  unit_type
 
     select case ( type ) 
         case (1,2)
@@ -684,14 +684,14 @@ logical function DefineWQSchematisation(number_segments, pointer_table, number_e
 
     implicit none
 
-    integer(kind=int_32), intent(in) ::  number_segments 
-    integer(kind=int_32), dimension(4) ::  number_exchanges 
+    integer(kind=int_wp), intent(in) ::  number_segments
+    integer(kind=int_wp), dimension(4) ::  number_exchanges
     integer, dimension(4,1:sum(number_exchanges)), intent(in)  :: pointer_table
 
-    integer(kind=int_32) ::  number_layers 
-    integer(kind=int_32) ::  number_segments_per_layer 
-    integer(kind=int_32) ::  i, j 
-    integer(kind=int_32) ::  lunwrk
+    integer(kind=int_wp) ::  number_layers
+    integer(kind=int_wp) ::  number_segments_per_layer
+    integer(kind=int_wp) ::  i, j
+    integer(kind=int_wp) ::  lunwrk
 
     number_layers = 1 
     if (number_exchanges(3) > 0) then
@@ -785,11 +785,11 @@ logical function DefineWQDispersion(dispc, length)
 
     implicit none
 
-    real(kind=sp), dimension(3), intent(in)       ::  dispc 
-    real(kind=sp), dimension(2,noq) ::  length
+    real(kind=real_wp), dimension(3), intent(in)       ::  dispc
+    real(kind=real_wp), dimension(2,noq) ::  length
 
-    integer(kind=int_32) ::  time_dummy 
-    integer(kind=int_32) ::  lunwrk
+    integer(kind=int_wp) ::  time_dummy
+    integer(kind=int_wp) ::  lunwrk
 
     time_dummy = 0
 
@@ -882,15 +882,15 @@ logical function DefineWQProcesses(substance, number_substances, number_transpor
 
     implicit none
 
-    integer(kind=int_32), intent(in) ::  number_substances 
+    integer(kind=int_wp), intent(in) ::  number_substances
     character(len=*), dimension(number_substances)        :: substance
-    integer(kind=int_32), intent(in) ::  number_transported 
-    integer(kind=int_32), intent(in) ::  number_parameters 
+    integer(kind=int_wp), intent(in) ::  number_transported
+    integer(kind=int_wp), intent(in) ::  number_parameters
     character(len=*), dimension(number_parameters)        :: process_parameter
-    integer(kind=int_32), intent(in) ::  number_processes 
+    integer(kind=int_wp), intent(in) ::  number_processes
     character(len=*), dimension(number_processes)         :: process
 
-    integer(kind=int_32), dimension(number_substances) ::  substance_mult
+    integer(kind=int_wp), dimension(number_substances) ::  substance_mult
 
     substance_mult = 1
 
@@ -916,15 +916,15 @@ logical function DefineWQProcessesX(substance, substance_mult, &
     implicit none
 
     character(len=*), dimension(*)   :: substance
-    integer(kind=int_32), dimension(*) ::  substance_mult 
-    integer(kind=int_32), intent(in) ::  number_substances 
-    integer(kind=int_32), intent(in) ::  number_transported 
+    integer(kind=int_wp), dimension(*) ::  substance_mult
+    integer(kind=int_wp), intent(in) ::  number_substances
+    integer(kind=int_wp), intent(in) ::  number_transported
     character(len=*), dimension(*)   :: process_parameter
-    integer(kind=int_32), intent(in) ::  number_parameters 
+    integer(kind=int_wp), intent(in) ::  number_parameters
     character(len=*), dimension(*)   :: field_parameter
-    integer(kind=int_32), intent(in) ::  number_fields 
+    integer(kind=int_wp), intent(in) ::  number_fields
     character(len=*), dimension(*)   :: process
-    integer(kind=int_32), intent(in) ::  number_processes
+    integer(kind=int_wp), intent(in) ::  number_processes
 
     DefineWQProcessesX = DefineWQProcessesCore(substance, substance_mult, &
                                    number_substances, number_transported, &
@@ -951,24 +951,24 @@ logical function DefineWQProcessesCore(substance, substance_mult, &
 
     implicit none
 
-    integer(kind=int_32), intent(in) ::  number_substances 
-    integer(kind=int_32), intent(in) ::  number_parameters 
-    integer(kind=int_32), intent(in) ::  number_transported 
-    integer(kind=int_32), intent(in) ::  number_processes 
-    integer(kind=int_32), intent(in) ::  number_fields
+    integer(kind=int_wp), intent(in) ::  number_substances
+    integer(kind=int_wp), intent(in) ::  number_parameters
+    integer(kind=int_wp), intent(in) ::  number_transported
+    integer(kind=int_wp), intent(in) ::  number_processes
+    integer(kind=int_wp), intent(in) ::  number_fields
  
     character(len=*), dimension(number_substances)   :: substance
     character(len=*), dimension(number_processes)   :: process
     character(len=*), dimension(number_parameters)   :: process_parameter
     character(len=*), dimension(number_fields)   :: field_parameter
 
-    integer(kind=int_32), dimension(number_substances) ::  substance_mult
+    integer(kind=int_wp), dimension(number_substances) ::  substance_mult
  
-    integer(kind=int_32) ::  numsubstot 
-    integer(kind=int_32) ::  numsubsact 
-    integer(kind=int_32) ::  i 
+    integer(kind=int_wp) ::  numsubstot
+    integer(kind=int_wp) ::  numsubsact
+    integer(kind=int_wp) ::  i
     character(len=3)                 :: numstr
-    integer(kind=int_32) ::  j
+    integer(kind=int_wp) ::  j
  
     if ( allocated(substance_name)        ) deallocate( substance_name        )
     if ( allocated(mult)                  ) deallocate( mult                  )
@@ -1068,7 +1068,7 @@ logical function DefineWQExtraOutputParameters(extra_output, number_output)
 
     implicit none
 
-    integer(kind=int_32) ::  number_output 
+    integer(kind=int_wp) ::  number_output
     character(len=*), dimension(number_output) :: extra_output
 
 
@@ -1102,10 +1102,10 @@ logical function DefineDischargeLocations(cell, number_loads)
     implicit none
 
 
-    integer(kind=int_32), intent(in) ::  number_loads 
-    integer(kind=int_32), dimension(number_loads) ::  cell
+    integer(kind=int_wp), intent(in) ::  number_loads
+    integer(kind=int_wp), dimension(number_loads) ::  cell
  
-    integer(kind=int_32) ::  i 
+    integer(kind=int_wp) ::  i
     character(len=100)               :: message
 
     DefineDischargeLocations = .false.
@@ -1162,11 +1162,11 @@ logical function DefineMonitoringLocations(cell, name, number_monitoring)
 
 
 
-    integer(kind=int_32), intent(in) ::  number_monitoring 
+    integer(kind=int_wp), intent(in) ::  number_monitoring
     character(len=*), dimension(number_monitoring)   :: name
-    integer(kind=int_32), dimension(number_monitoring) ::  cell
+    integer(kind=int_wp), dimension(number_monitoring) ::  cell
  
-    integer(kind=int_32) ::  i 
+    integer(kind=int_wp) ::  i
     character(len=100)               :: message
 
     DefineMonitoringLocations = .false.
@@ -1219,10 +1219,10 @@ logical function SetInitialVolume( volume )
 
     implicit none
 
-    real(kind=sp), dimension(noseg), intent(in)  ::  volume
+    real(kind=real_wp), dimension(noseg), intent(in)  ::  volume
  
-    integer(kind=int_32) ::  time_dummy 
-    integer(kind=int_32) ::  lunwrk
+    integer(kind=int_wp) ::  time_dummy
+    integer(kind=int_wp) ::  lunwrk
  
     SetInitialVolume = .false.
 
@@ -1256,9 +1256,9 @@ logical function SetFlowData( volume, area, flow )
 
     implicit none
 
-    real(kind=sp), dimension(noseg), intent(in)  ::  volume 
-    real(kind=sp), dimension(noq), intent(in)    ::  area 
-    real(kind=sp), dimension(noq), intent(in)    ::  flow
+    real(kind=real_wp), dimension(noseg), intent(in)  ::  volume
+    real(kind=real_wp), dimension(noq), intent(in)    ::  area
+    real(kind=real_wp), dimension(noq), intent(in)    ::  flow
 
 
     SetFlowData = .false.
@@ -1289,7 +1289,7 @@ logical function SetFlowDataVolume( volume )
 
     implicit none
 
-    real(kind=sp), dimension(noseg), intent(in)  ::  volume
+    real(kind=real_wp), dimension(noseg), intent(in)  ::  volume
 
     SetFlowDataVolume = .false.
 
@@ -1312,7 +1312,7 @@ logical function SetFlowDataVelocity( velocity )
 
     implicit none
 
-    real(kind=sp), dimension(noq), intent(in)    ::  velocity
+    real(kind=real_wp), dimension(noq), intent(in)    ::  velocity
 
     SetFlowDataVelocity = .false.
 
@@ -1344,14 +1344,14 @@ integer function CorrectVolumeSurface( volume, surf, mass_per_m2 )
 
     implicit none
 
-    real(kind=sp), dimension(noseg), intent(in)  ::  volume 
-    real(kind=sp), dimension(noseg), intent(in)  ::  surf 
-    integer(kind=int_32) ::  mass_per_m2
+    real(kind=real_wp), dimension(noseg), intent(in)  ::  volume
+    real(kind=real_wp), dimension(noseg), intent(in)  ::  surf
+    integer(kind=int_wp) ::  mass_per_m2
 
-    integer(kind=int_32) ::  error_count 
-    integer(kind=int_32) ::  iseg, isys, isurf, ioff, ip 
-    integer(kind=int_32) ::  nosubs 
-    real(kind=sp) ::  ratio
+    integer(kind=int_wp) ::  error_count
+    integer(kind=int_wp) ::  iseg, isys, isurf, ioff, ip
+    integer(kind=int_wp) ::  nosubs
+    real(kind=real_wp) ::  ratio
 
     CorrectVolumeSurface = 1
 
@@ -1422,12 +1422,12 @@ logical function SetWasteLoadValues( idx, value )
 
     implicit none
 
-    integer(kind=int_32) ::  idx 
-    real(kind=sp), dimension(notot+1), intent(in)  ::  value 
+    integer(kind=int_wp) ::  idx
+    real(kind=real_wp), dimension(notot+1), intent(in)  ::  value
     character(len=20)                    :: string
-    integer(kind=int_32) ::  i 
-    integer(kind=int_32) ::  i2 
-    integer(kind=int_32) ::  j
+    integer(kind=int_wp) ::  i
+    integer(kind=int_wp) ::  i2
+    integer(kind=int_wp) ::  j
  
     SetWasteLoadValues = .false.
 
@@ -1479,12 +1479,12 @@ logical function SetBoundaryConditions( idx, value )
 
     implicit none
 
-    integer(kind=int_32) ::  idx 
-    real(kind=sp), dimension(nosys), intent(in)  ::  value 
+    integer(kind=int_wp) ::  idx
+    real(kind=real_wp), dimension(nosys), intent(in)  ::  value
     character(len=20)                  :: string
-    integer(kind=int_32) ::  i 
-    integer(kind=int_32) ::  i2 
-    integer(kind=int_32) ::  j
+    integer(kind=int_wp) ::  i
+    integer(kind=int_wp) ::  i2
+    integer(kind=int_wp) ::  j
  
     SetBoundaryConditions = .false.
 
@@ -1544,7 +1544,7 @@ integer function WriteRestartFileDefaultName ()
     implicit none
 
     character (len=255) lcharmap
-    integer(kind=int_32) :: i, k, ierr, found
+    integer(kind=int_wp) :: i, k, ierr, found
 
     lcharmap = lchar(23) 
     found = 0
@@ -1579,7 +1579,7 @@ integer function WriteRestartFile ( lcharmap )
     implicit none
 
     character (len=*) lcharmap
-    integer(kind=int_32) :: i, k, ierr
+    integer(kind=int_wp) :: i, k, ierr
 
     call open_waq_files ( lun(23), lcharmap, 23    , 1     , ierr  )
     if ( ierr == 0 ) then
@@ -1616,8 +1616,8 @@ integer function ModelInitialize ()
     implicit none
 
     type(t_dlwq_item)               :: constants    !< delwaq constants list
-    integer(kind=int_32) ::  lunrep, lunwrk 
-    integer(kind=int_32) ::  ierr
+    integer(kind=int_wp) ::  lunrep, lunwrk
+    integer(kind=int_wp) ::  ierr
 
     !
     ! Arguments have already been initialised
@@ -1732,9 +1732,9 @@ subroutine write_delwaq03( name )
     character(len=*) :: name
 
 
-    integer(kind=int_32) ::  imaxa, imaxi, imaxc 
+    integer(kind=int_wp) ::  imaxa, imaxi, imaxc
     type(waq_data_buffer)                   :: buffer
-    integer(kind=int_32) ::  lunwrk
+    integer(kind=int_wp) ::  lunwrk
 
 
     !noutp = 0 ! TODO: requires additional information in delwaq03
@@ -1770,13 +1770,13 @@ subroutine write_delwaq04( name )
     character(len=*) :: name
 
 
-    integer(kind=int_32) ::  i 
-    integer(kind=int_32) ::  idummy 
-    integer(kind=int_32) ::  iref 
-    integer(kind=int_32) ::  load_kind 
-    integer(kind=int_32) ::  iseg 
-    integer(kind=int_32) ::  error 
-    integer(kind=int_32) ::  lunwrk
+    integer(kind=int_wp) ::  i
+    integer(kind=int_wp) ::  idummy
+    integer(kind=int_wp) ::  iref
+    integer(kind=int_wp) ::  load_kind
+    integer(kind=int_wp) ::  iseg
+    integer(kind=int_wp) ::  error
+    integer(kind=int_wp) ::  lunwrk
  
     type(GridPointer) :: aGrid
 
@@ -1889,17 +1889,17 @@ end subroutine write_delwaq04
 
 subroutine write_delwaq04_monitoring
 
-    integer(kind=int_32) ::  ndmpq 
-    integer(kind=int_32) ::  ndmps 
-    integer(kind=int_32) ::  noraai 
-    integer(kind=int_32) ::  ntraaq 
-    integer(kind=int_32) ::  ierr 
-    integer(kind=int_32) ::  noinfo 
-    integer(kind=int_32), dimension(1) ::  nexcraai 
-    integer(kind=int_32), dimension(1) ::  iexcraai 
-    integer(kind=int_32), dimension(1) ::  ioptraai 
-    integer(kind=int_32), dimension(ndmpar) ::  nsegdmp 
-    integer(kind=int_32), dimension(ndmpar) ::  isegdmp
+    integer(kind=int_wp) ::  ndmpq
+    integer(kind=int_wp) ::  ndmps
+    integer(kind=int_wp) ::  noraai
+    integer(kind=int_wp) ::  ntraaq
+    integer(kind=int_wp) ::  ierr
+    integer(kind=int_wp) ::  noinfo
+    integer(kind=int_wp), dimension(1) ::  nexcraai
+    integer(kind=int_wp), dimension(1) ::  iexcraai
+    integer(kind=int_wp), dimension(1) ::  ioptraai
+    integer(kind=int_wp), dimension(ndmpar) ::  nsegdmp
+    integer(kind=int_wp), dimension(ndmpar) ::  isegdmp
 
     ntdmps  = ndmpar  ! For now
     nsegdmp = 1
@@ -1929,9 +1929,9 @@ subroutine handle_output_requests( name )
 
     character(len=*) :: name
 
-    integer(kind=int_32) ::  i 
-    integer(kind=int_32) ::  k 
-    integer(kind=int_32) ::  luninp
+    integer(kind=int_wp) ::  i
+    integer(kind=int_wp) ::  k
+    integer(kind=int_wp) ::  luninp
  
     open( newunit = luninp, file = trim(name) // '.inp' )
 
@@ -1975,30 +1975,30 @@ subroutine handle_processes( name )
 
     type(procespropcoll)      :: statprocesdef   ! the statistical proces definition
     type(itempropcoll)        :: allitems        ! all items of the proces system
-    integer(kind=int_32) ::  ioutps(7,10)     ! (old) output structure
+    integer(kind=int_wp) ::  ioutps(7,10)     ! (old) output structure
     type(outputcoll)          :: outputs         ! output structure
-    integer(kind=int_32) ::  noinfo           ! count of informative message
-    integer(kind=int_32) ::  nowarn           ! count of warnings
-    integer(kind=int_32) ::  ierr             ! error count
-    integer(kind=int_32) ::  org_noutp        ! Store the number of output files
+    integer(kind=int_wp) ::  noinfo           ! count of informative message
+    integer(kind=int_wp) ::  nowarn           ! count of warnings
+    integer(kind=int_wp) ::  ierr             ! error count
+    integer(kind=int_wp) ::  org_noutp        ! Store the number of output files
                                                  ! Pointers into DELWAQ arrays
-    integer(kind=int_32), parameter ::  nopred = 6       ! Predefined parameters - fioutv.f
-    integer(kind=int_32) ::  iocons           ! Constants
-    integer(kind=int_32) ::  iopa             ! Parameters
-    integer(kind=int_32) ::  iofun            ! Functions
-    integer(kind=int_32) ::  iosfun           ! Segment functions
-    integer(kind=int_32) ::  ioconc           ! Concentrations
+    integer(kind=int_wp), parameter ::  nopred = 6       ! Predefined parameters - fioutv.f
+    integer(kind=int_wp) ::  iocons           ! Constants
+    integer(kind=int_wp) ::  iopa             ! Parameters
+    integer(kind=int_wp) ::  iofun            ! Functions
+    integer(kind=int_wp) ::  iosfun           ! Segment functions
+    integer(kind=int_wp) ::  ioconc           ! Concentrations
 
-    integer(kind=int_32), parameter ::  icmax = 2000 
-    integer(kind=int_32), parameter ::  iimax = 2000 
+    integer(kind=int_wp), parameter ::  icmax = 2000
+    integer(kind=int_wp), parameter ::  iimax = 2000
     character(len=20), dimension(icmax)   :: car
-    integer(kind=int_32), dimension(iimax) ::  iar 
-    integer(kind=int_32) ::  iwidth 
-    integer(kind=int_32) ::  ibflag 
-    integer(kind=int_32) ::  iwar 
-    integer(kind=int_32) ::  ioutpt  ! Dummy
+    integer(kind=int_wp), dimension(iimax) ::  iar
+    integer(kind=int_wp) ::  iwidth
+    integer(kind=int_wp) ::  ibflag
+    integer(kind=int_wp) ::  iwar
+    integer(kind=int_wp) ::  ioutpt  ! Dummy
     real                                  :: version = 4.9
-    integer(kind=int_32) ::  refday
+    integer(kind=int_wp) ::  refday
  
     StatProcesDef%maxsize = 0
     StatProcesDef%cursize = 0
@@ -2049,10 +2049,10 @@ subroutine write_array_2d( name, suffix, array )
     implicit none
     character(len=*)     :: name
     character(len=*)     :: suffix
-    real(kind=sp), dimension(:,:) ::  array
+    real(kind=real_wp), dimension(:,:) ::  array
  
-    integer(kind=int_32) ::  time_dummy 
-    integer(kind=int_32) ::  lunwrk
+    integer(kind=int_wp) ::  time_dummy
+    integer(kind=int_wp) ::  lunwrk
 
     time_dummy = 0
 
@@ -2068,11 +2068,11 @@ end subroutine write_array_2d
 subroutine write_functions( name )
     character(len=*), intent(in) :: name
 
-    integer(kind=int_32), parameter ::  FILE_NAME_SIZE = 256 
-    integer(kind=int_32), parameter ::  ITEM_NAME_SIZE = 20 
-    integer(kind=int_32) ::  k 
-    integer(kind=int_32) ::  i 
-    integer(kind=int_32) ::  lun = 10 
+    integer(kind=int_wp), parameter ::  FILE_NAME_SIZE = 256
+    integer(kind=int_wp), parameter ::  ITEM_NAME_SIZE = 20
+    integer(kind=int_wp) ::  k
+    integer(kind=int_wp) ::  i
+    integer(kind=int_wp) ::  lun = 10
     character(len=FILE_NAME_SIZE) :: filename
     character(len=ITEM_NAME_SIZE) :: loc
 
@@ -2151,9 +2151,9 @@ end subroutine write_functions
 !     Report the model input in the monitor file
 !
 subroutine report_model_data( lunrep )
-    integer(kind=int_32), intent(in) ::  lunrep
+    integer(kind=int_wp), intent(in) ::  lunrep
  
-    integer(kind=int_32) ::  i
+    integer(kind=int_wp) ::  i
  
     write( lunrep, '(a)' ) 'Run:'
     write( lunrep, '(4x,a)' ) title
@@ -2217,7 +2217,7 @@ integer function ModelFinalize( )
     implicit none
 
     character(len=20), dimension(0) :: argv_dummy
-    integer(kind=int_32) ::  ierr
+    integer(kind=int_wp) ::  ierr
 
     call dlwqmain( ACTION_FINALISATION, 0, argv_dummy, dlwqd )
 

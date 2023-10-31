@@ -35,13 +35,13 @@
 !>\file
 !>       Extinction of light by algae and POC
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
 !     Local declarations
 !
-      INTEGER(kind=int_32) ::NALG  , ISWFIX, NIPALG, IFLUX , ISEG  ,
+      INTEGER(kind=int_wp) ::NALG  , ISWFIX, NIPALG, IFLUX , ISEG  ,
      +         IALG  , IP    , IFIX
       REAL(kind=dp) ::EXTALG, EXTCF , BIOMAS, DEPTH, SDMIX
 !

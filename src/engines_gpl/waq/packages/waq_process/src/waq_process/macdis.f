@@ -43,56 +43,56 @@
 !
 !     Type    Name         I/O Description
 !
-      REAL(kind=sp) :: PMSA(*)      !I/O Process Manager System Array, window of routine to process library
-      REAL(kind=sp) :: FL(*)        ! O  Array of fluxes made by this process in mass/volume/time
-      INTEGER(kind=int_32) :: IPOINT(14)   ! I  Array of pointers in PMSA to get and store the data
-      INTEGER(kind=int_32) :: INCREM(14)   ! I  Increments in IPOINT for segment loop, 0=constant, 1=spatially varying
-      INTEGER(kind=int_32) :: NOSEG        ! I  Number of computational elements in the whole model schematisation
-      INTEGER(kind=int_32) :: NOFLUX       ! I  Number of fluxes, increment in the FL array
-      INTEGER(kind=int_32) :: IEXPNT(4,*)  ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      INTEGER(kind=int_32) :: IKNMRK(*)    ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      INTEGER(kind=int_32) :: NOQ1         ! I  Nr of exchanges in 1st direction, only horizontal dir if irregular mesh
-      INTEGER(kind=int_32) :: NOQ2         ! I  Nr of exchanges in 2nd direction, NOQ1+NOQ2 gives hor. dir. reg. grid
-      INTEGER(kind=int_32) :: NOQ3         ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      INTEGER(kind=int_32) :: NOQ4         ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
-      INTEGER(kind=int_32) :: IPNT(14)     !    Local work array for the pointering
-      INTEGER(kind=int_32) :: ISEG         !    Local loop counter for computational element loop
+      REAL(kind=real_wp) :: PMSA(*)      !I/O Process Manager System Array, window of routine to process library
+      REAL(kind=real_wp) :: FL(*)        ! O  Array of fluxes made by this process in mass/volume/time
+      INTEGER(kind=int_wp) :: IPOINT(14)   ! I  Array of pointers in PMSA to get and store the data
+      INTEGER(kind=int_wp) :: INCREM(14)   ! I  Increments in IPOINT for segment loop, 0=constant, 1=spatially varying
+      INTEGER(kind=int_wp) :: NOSEG        ! I  Number of computational elements in the whole model schematisation
+      INTEGER(kind=int_wp) :: NOFLUX       ! I  Number of fluxes, increment in the FL array
+      INTEGER(kind=int_wp) :: IEXPNT(4,*)  ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      INTEGER(kind=int_wp) :: IKNMRK(*)    ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      INTEGER(kind=int_wp) :: NOQ1         ! I  Nr of exchanges in 1st direction, only horizontal dir if irregular mesh
+      INTEGER(kind=int_wp) :: NOQ2         ! I  Nr of exchanges in 2nd direction, NOQ1+NOQ2 gives hor. dir. reg. grid
+      INTEGER(kind=int_wp) :: NOQ3         ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      INTEGER(kind=int_wp) :: NOQ4         ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      INTEGER(kind=int_wp) :: IPNT(14)     !    Local work array for the pointering
+      INTEGER(kind=int_wp) :: ISEG         !    Local loop counter for computational element loop
 !*******************************************************************************
 !
 !     Type    Name         I/O Description                                        Unit
 !
-      REAL(kind=sp) :: Surf         ! I  surface of segment                            (m2)
-      REAL(kind=sp) :: Depth        ! I  depth of segment                               (m)
-      REAL(kind=sp) :: TotalDepth   ! I  total depth water column                       (m)
-      REAL(kind=sp) :: LocalDepth   ! I  depth from water surface to bottom of segment  (m)
-      REAL(kind=sp) :: SM           ! I  macrophyte submerged                       (gC/m2)
-      REAL(kind=sp) :: smmax        ! I  Maximum biomass macrophyte submerged       (gC/m2)
-      REAL(kind=sp) :: SwDisSM      ! I  macrophyt distr. function (1: lin, 2:Exp)      (-)
-      REAL(kind=sp) :: Hmax         ! I  Maxmimum Length Macrophytes                    (m)
-      REAL(kind=sp) :: Ffac         ! I  Form factor lin: F = M(mean)/(M/Hmax)          (-)
-      REAL(kind=sp) :: BmLaySM      ! O  Biomass Layer macrophyt submerged 01       (gC/m2)
-      REAL(kind=sp) :: Hact         ! O  Actual Length Macrophytes                      (m)
-      REAL(kind=sp) :: Z2           !    Height Bottom Segment from Bottom              (m)
-      REAL(kind=sp) :: Z1           !    Height Top Segment from Bottom                 (m)
-      REAL(kind=sp) :: Z2a          !    Height Bottom Segment from Bottom              (m)
-      REAL(kind=sp) :: Z1a          !    Height Top Segment from Bottom                 (m)
-      REAL(kind=sp) :: Hactd        !    Actual Length Macrophytes - relative to top    (-)
-      REAL(kind=sp) :: Z2ad         !    Height Bottom Segment from Bottom - relative   (-)
-      REAL(kind=sp) :: Z1ad         !    Height Top Segment from Bottom - relative      (-)
-      REAL(kind=sp) :: absHmax      !    Absolute maxmimum Length Macrophytes           (m)
-      INTEGER(kind=int_32) :: IKMRK1
+      REAL(kind=real_wp) :: Surf         ! I  surface of segment                            (m2)
+      REAL(kind=real_wp) :: Depth        ! I  depth of segment                               (m)
+      REAL(kind=real_wp) :: TotalDepth   ! I  total depth water column                       (m)
+      REAL(kind=real_wp) :: LocalDepth   ! I  depth from water surface to bottom of segment  (m)
+      REAL(kind=real_wp) :: SM           ! I  macrophyte submerged                       (gC/m2)
+      REAL(kind=real_wp) :: smmax        ! I  Maximum biomass macrophyte submerged       (gC/m2)
+      REAL(kind=real_wp) :: SwDisSM      ! I  macrophyt distr. function (1: lin, 2:Exp)      (-)
+      REAL(kind=real_wp) :: Hmax         ! I  Maxmimum Length Macrophytes                    (m)
+      REAL(kind=real_wp) :: Ffac         ! I  Form factor lin: F = M(mean)/(M/Hmax)          (-)
+      REAL(kind=real_wp) :: BmLaySM      ! O  Biomass Layer macrophyt submerged 01       (gC/m2)
+      REAL(kind=real_wp) :: Hact         ! O  Actual Length Macrophytes                      (m)
+      REAL(kind=real_wp) :: Z2           !    Height Bottom Segment from Bottom              (m)
+      REAL(kind=real_wp) :: Z1           !    Height Top Segment from Bottom                 (m)
+      REAL(kind=real_wp) :: Z2a          !    Height Bottom Segment from Bottom              (m)
+      REAL(kind=real_wp) :: Z1a          !    Height Top Segment from Bottom                 (m)
+      REAL(kind=real_wp) :: Hactd        !    Actual Length Macrophytes - relative to top    (-)
+      REAL(kind=real_wp) :: Z2ad         !    Height Bottom Segment from Bottom - relative   (-)
+      REAL(kind=real_wp) :: Z1ad         !    Height Top Segment from Bottom - relative      (-)
+      REAL(kind=real_wp) :: absHmax      !    Absolute maxmimum Length Macrophytes           (m)
+      INTEGER(kind=int_wp) :: IKMRK1
       INTEGER IKMRK2 
-      REAL(kind=sp) :: FrBmLay      !    Fraction BM per layer                          (-)
-      REAL(kind=sp) :: Zm           !    Watersurface to top Macropyte                  (-)
-      REAL(kind=sp) :: A            !    Lineair factor A (Ax + B)                      (-)
-      REAL(kind=sp) :: B            !    Lineair factor B (Ax + B)                      (-)
-      REAL(kind=sp) :: OriginalDepth
+      REAL(kind=real_wp) :: FrBmLay      !    Fraction BM per layer                          (-)
+      REAL(kind=real_wp) :: Zm           !    Watersurface to top Macropyte                  (-)
+      REAL(kind=real_wp) :: A            !    Lineair factor A (Ax + B)                      (-)
+      REAL(kind=real_wp) :: B            !    Lineair factor B (Ax + B)                      (-)
+      REAL(kind=real_wp) :: OriginalDepth
 c     INTEGER IQ           !    Loop counter
 c     INTEGER Ifrom       !    From Segment
 c     INTEGER Ito         !    From Segment
 c     LOGICAL First
 
-      INTEGER(kind=int_32) ::  LUNREP
+      INTEGER(kind=int_wp) ::  LUNREP
 
       INTEGER IBotSeg      ! Bottom Segment for Macrophyte
 !     INTEGER ITopSeg     ! Top    Segment for Macrophyte

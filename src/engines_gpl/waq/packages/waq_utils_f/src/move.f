@@ -45,8 +45,8 @@
 !     ARRAY2  REAL      NOTOT     OUTPUT  array to copy to
 !     NOTOT   INTEGER     1       INPUT   total number of entries
 !
-      real(kind=sp) ::ARRAY1(*) , ARRAY2(*)
-      integer(kind=int_32) ::I , NOTOT
+      real(kind=real_wp) ::ARRAY1(*) , ARRAY2(*)
+      integer(kind=int_wp) ::I , NOTOT
 !
       DO  10 I = 1,NOTOT
    10 ARRAY2(I) = ARRAY1(I)
@@ -56,8 +56,8 @@
       subroutine dmove ( array1 , array2 , notot )
 
       real(kind=dp) ::array1(*)
-      real(kind=sp) ::array2(*)
-      integer(kind=int_32) ::I , NOTOT
+      real(kind=real_wp) ::array2(*)
+      integer(kind=int_wp) ::I , NOTOT
 
       do i = 1,notot
          array2(i) = array1(i)
@@ -67,9 +67,9 @@
       end
       subroutine smove ( array1 , array2 , notot )
 
-      real(kind=sp) ::array1(*)
+      real(kind=real_wp) ::array1(*)
       real(kind=dp) ::array2(*)
-      integer(kind=int_32) ::I , NOTOT
+      integer(kind=int_wp) ::I , NOTOT
 
       do i = 1,notot
          array2(i) = array1(i)

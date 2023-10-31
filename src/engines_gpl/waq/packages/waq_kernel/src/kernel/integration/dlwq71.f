@@ -50,52 +50,52 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     DISP    REAL(kind=sp) ::3       INPUT   dispersion in 3 directions
-!     DISPER  REAL(kind=sp) ::NODISP*NOQ   INPUT   additional dispersion array
-!     AREA    REAL(kind=sp) ::NOQ      INPUT   exchange surface area
-!     FLOW    REAL(kind=sp) ::NOQ      INPUT   flows accross exchange surfs
-!     ALENG   REAL(kind=sp) ::2*NOQ     INPUT   from- and to lengthes
-!     VELO    REAL(kind=sp) ::NOVELO*NOQ   INPUT   additional velocity array
-!     CONC    REAL(kind=sp) ::NOTOT*NOSEG  INPUT   concentrations
-!     BOUND   REAL(kind=sp) ::NOTOT*?    INPUT   boundary concentrations
-!     IPOINT  INTEGER(kind=int_32) ::4*NOQ     INPUT   exchange pointers
-!     NOSYS   INTEGER(kind=int_32) ::1       INPUT   number of active substances
-!     NOTOT   INTEGER(kind=int_32) ::1       INPUT   total number of substances
-!     NOQ1    INTEGER(kind=int_32) ::1       INPUT   nr of exchanges in first dir.
-!     NOQ2    INTEGER(kind=int_32) ::1       INPUT   nr of exchanges in second dir.
-!     NOQ3    INTEGER(kind=int_32) ::1       INPUT   nr of exchanges in third dir.
-!     NOQ     INTEGER(kind=int_32) ::1       INPUT   total number of exchanges
-!     NODISP  INTEGER(kind=int_32) ::1       INPUT   number  of additional dispers.
-!     NOVELO  INTEGER(kind=int_32) ::1       INPUT   number  of additional velos.
-!     IDPNT   INTEGER(kind=int_32) ::NOSYS     INPUT   pointer systems to dispersions
-!     IVPNT   INTEGER(kind=int_32) ::NOSYS     INPUT   pointer systems to velocities
-!     IOPT    INTEGER(kind=int_32) ::1       INPUT   = 0 or 2 DISP at zero flow
+!     DISP    REAL(kind=real_wp) ::3       INPUT   dispersion in 3 directions
+!     DISPER  REAL(kind=real_wp) ::NODISP*NOQ   INPUT   additional dispersion array
+!     AREA    REAL(kind=real_wp) ::NOQ      INPUT   exchange surface area
+!     FLOW    REAL(kind=real_wp) ::NOQ      INPUT   flows accross exchange surfs
+!     ALENG   REAL(kind=real_wp) ::2*NOQ     INPUT   from- and to lengthes
+!     VELO    REAL(kind=real_wp) ::NOVELO*NOQ   INPUT   additional velocity array
+!     CONC    REAL(kind=real_wp) ::NOTOT*NOSEG  INPUT   concentrations
+!     BOUND   REAL(kind=real_wp) ::NOTOT*?    INPUT   boundary concentrations
+!     IPOINT  INTEGER(kind=int_wp) ::4*NOQ     INPUT   exchange pointers
+!     NOSYS   INTEGER(kind=int_wp) ::1       INPUT   number of active substances
+!     NOTOT   INTEGER(kind=int_wp) ::1       INPUT   total number of substances
+!     NOQ1    INTEGER(kind=int_wp) ::1       INPUT   nr of exchanges in first dir.
+!     NOQ2    INTEGER(kind=int_wp) ::1       INPUT   nr of exchanges in second dir.
+!     NOQ3    INTEGER(kind=int_wp) ::1       INPUT   nr of exchanges in third dir.
+!     NOQ     INTEGER(kind=int_wp) ::1       INPUT   total number of exchanges
+!     NODISP  INTEGER(kind=int_wp) ::1       INPUT   number  of additional dispers.
+!     NOVELO  INTEGER(kind=int_wp) ::1       INPUT   number  of additional velos.
+!     IDPNT   INTEGER(kind=int_wp) ::NOSYS     INPUT   pointer systems to dispersions
+!     IVPNT   INTEGER(kind=int_wp) ::NOSYS     INPUT   pointer systems to velocities
+!     IOPT    INTEGER(kind=int_wp) ::1       INPUT   = 0 or 2 DISP at zero flow
 !                                         = 1 or 3 no DISP at zero flow
 !                                         = 0 or 1 DISP over boundary
 !                                         = 2 or 3 no DISP over boundary
-!     AMASS2  REAL(kind=sp) ::NOTOT*5    IN/OUT  mass balance array
-!     ILFLAG  INTEGER(kind=int_32) ::1       INPUT   if 0 then 3 length values
-!     DMPQ    REAL(kind=sp) ::NOTOT*NDMPQ*? IN/OUT  mass balance dumped exchange
+!     AMASS2  REAL(kind=real_wp) ::NOTOT*5    IN/OUT  mass balance array
+!     ILFLAG  INTEGER(kind=int_wp) ::1       INPUT   if 0 then 3 length values
+!     DMPQ    REAL(kind=real_wp) ::NOTOT*NDMPQ*? IN/OUT  mass balance dumped exchange
 !                                         if INTOPT > 7
-!     NDMPQ   INTEGER(kind=int_32) ::1       INPUT   number of dumped exchanges
-!     IQDMP   INTEGER(kind=int_32) ::*       INPUT   pointer dumped exchanges
+!     NDMPQ   INTEGER(kind=int_wp) ::1       INPUT   number of dumped exchanges
+!     IQDMP   INTEGER(kind=int_wp) ::*       INPUT   pointer dumped exchanges
 !
       use timers
 
-      INTEGER(kind=int_32) ::NDMPQ
-      INTEGER(kind=int_32) ::IQDMP   (*) , ILFLAG
-      real(kind=sp) ::DISP  (  3) , DISPER(*) , AREA (*) , FLOW  (*) ,
+      INTEGER(kind=int_wp) ::NDMPQ
+      INTEGER(kind=int_wp) ::IQDMP   (*) , ILFLAG
+      real(kind=real_wp) ::DISP  (  3) , DISPER(*) , AREA (*) , FLOW  (*) ,
      *           ALENG (  *) , VELO  (*) , CONC (*) , BOUND (*) ,
      *           AMASS2(*)   , DMPQ  (*)
-      integer(kind=int_32) ::IPOINT(4,*) , IDPNT(*)  , IVPNT(*)
+      integer(kind=int_wp) ::IPOINT(4,*) , IDPNT(*)  , IVPNT(*)
 
-      integer(kind=int_32) ::i, i3, i4, i5, i6, is, iq, ibflag, ipb, ipq, iopt
-      integer(kind=int_32) ::j, k1, k2
-      integer(kind=int_32) ::notot, nosys, noq, noq1, noq2, novelo, nodisp
+      integer(kind=int_wp) ::i, i3, i4, i5, i6, is, iq, ibflag, ipb, ipq, iopt
+      integer(kind=int_wp) ::j, k1, k2
+      integer(kind=int_wp) ::notot, nosys, noq, noq1, noq2, novelo, nodisp
 
-      real(kind=sp) ::a, q, e, d, v, al, dl, dv, dq, f1, f2
+      real(kind=real_wp) ::a, q, e, d, v, al, dl, dv, dq, f1, f2
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwq71", ithandl )
 !
 !         loop accross the number of exchanges

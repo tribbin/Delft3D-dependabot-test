@@ -79,40 +79,40 @@
 
       implicit none
 
-      real(kind=sp) ::pmsa  ( * ) , fl    (*)
-      integer(kind=int_32) ::ipoint( * ) , increm(*) , noseg , noflux,
+      real(kind=real_wp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_wp) ::ipoint( * ) , increm(*) , noseg , noflux,
      +         iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 !
 !     local declarations
 !
-      real(kind=sp), parameter  ::pi                  = 3.1415926
-      real(kind=sp), parameter  ::perday              = 86400.0        ! [s/day], seconds per day
-      real(kind=sp), parameter  ::gravacc             = 9.8            ! [m/s2]
-      real(kind=sp), parameter  ::boltzmann           = 1.38064852e-23 ! [J/K]
-      real(kind=sp), parameter  ::dynamic_viscosity   = 1.0e-3         ! [kg/m.s]
-      real(kind=sp), parameter  ::kinematic_viscosity = 1.0e-6         ! [m2/s]
+      real(kind=real_wp), parameter  ::pi                  = 3.1415926
+      real(kind=real_wp), parameter  ::perday              = 86400.0        ! [s/day], seconds per day
+      real(kind=real_wp), parameter  ::gravacc             = 9.8            ! [m/s2]
+      real(kind=real_wp), parameter  ::boltzmann           = 1.38064852e-23 ! [J/K]
+      real(kind=real_wp), parameter  ::dynamic_viscosity   = 1.0e-3         ! [kg/m.s]
+      real(kind=real_wp), parameter  ::kinematic_viscosity = 1.0e-6         ! [m2/s]
 
-      integer(kind=int_32) ::iflux, iseg, ikmrk1,ikmrk2, itel
-      real(kind=sp) ::ctyre, ntyre, diameter_tyre, density_tyre, settling_tyre,
+      integer(kind=int_wp) ::iflux, iseg, ikmrk1,ikmrk2, itel
+      real(kind=real_wp) ::ctyre, ntyre, diameter_tyre, density_tyre, settling_tyre,
      &         csusp, nsusp, diameter_susp, density_susp, settling_susp
-      real(kind=sp) ::agg_rate, shear
-      real(kind=sp) ::chezy, depth, efficiency, flow_velocity, temperature,
+      real(kind=real_wp) ::agg_rate, shear
+      real(kind=real_wp) ::chezy, depth, efficiency, flow_velocity, temperature,
      &         delt
-      real(kind=sp) ::volume_tyre, mass_tyre
-      real(kind=sp) ::volume_susp, mass_susp
+      real(kind=real_wp) ::volume_tyre, mass_tyre
+      real(kind=real_wp) ::volume_susp, mass_susp
 
-      integer(kind=int_32) ::ipnt(500)  
-      integer(kind=int_32),parameter  ::ip_nTRWP = 1
-      integer(kind=int_32),parameter  ::ip_nIM = 2
-      integer(kind=int_32),parameter  ::ip_Efficiency = 3
-      integer(kind=int_32),parameter  ::ip_Temp = 4
-      integer(kind=int_32),parameter  ::ip_Velocity = 5
-      integer(kind=int_32),parameter  ::ip_Chezy = 6
-      integer(kind=int_32),parameter  ::ip_Delt = 7
-      integer(kind=int_32),parameter  ::ip_Depth = 8
-      integer(kind=int_32),parameter  ::ip_lastsingle = 8
+      integer(kind=int_wp) ::ipnt(500)
+      integer(kind=int_wp),parameter  ::ip_nTRWP = 1
+      integer(kind=int_wp),parameter  ::ip_nIM = 2
+      integer(kind=int_wp),parameter  ::ip_Efficiency = 3
+      integer(kind=int_wp),parameter  ::ip_Temp = 4
+      integer(kind=int_wp),parameter  ::ip_Velocity = 5
+      integer(kind=int_wp),parameter  ::ip_Chezy = 6
+      integer(kind=int_wp),parameter  ::ip_Delt = 7
+      integer(kind=int_wp),parameter  ::ip_Depth = 8
+      integer(kind=int_wp),parameter  ::ip_lastsingle = 8
 
-      integer(kind=int_32) ::ntrwp, itrwp, nspm, ispm, nitem
+      integer(kind=int_wp) ::ntrwp, itrwp, nspm, ispm, nitem
 
       ntrwp = pmsa(ipoint(ip_ntrwp))
       nspm = pmsa(ipoint(ip_nim  ))

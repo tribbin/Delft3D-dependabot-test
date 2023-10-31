@@ -50,38 +50,38 @@
 
 !     Kind        Function         Name                    Description
 
-      integer(kind=int_32), intent(in   )  ::isys                  ! current active substance
-      integer(kind=int_32), intent(in   )  ::nosys                 ! number of active substances
-      integer(kind=int_32), intent(in   )  ::notot                 ! total number of substances
+      integer(kind=int_wp), intent(in   )  ::isys                  ! current active substance
+      integer(kind=int_wp), intent(in   )  ::nosys                 ! number of active substances
+      integer(kind=int_wp), intent(in   )  ::notot                 ! total number of substances
 
-      integer(kind=int_32), intent(in   )  ::noseg                 ! number of segments
-      real(kind=sp), intent(in   )  ::conc   (notot, noseg) ! old concentrations
+      integer(kind=int_wp), intent(in   )  ::noseg                 ! number of segments
+      real(kind=real_wp), intent(in   )  ::conc   (notot, noseg) ! old concentrations
       real(kind=dp), intent(in   )  ::concvt (       noseg) ! first solution estimation by means of local theta method
-      integer(kind=int_32), intent(in   )  ::nobnd                 ! number of boundary segments
-      real(kind=sp), intent(in   )  ::bound  (nosys, nobnd) ! boundary concentrations
-      integer(kind=int_32), intent(in   )  ::noq                   ! number of exchanges
-      integer(kind=int_32), intent(in   )  ::ipoint ( 4   , noq  ) ! exchange pointers
-      real(kind=sp), intent(in   )  ::theta  ( noq )        ! local theta coefficients
-      real(kind=sp), intent(in   )  ::flowtot( noq )        ! flows plus additional velos.
-      real(kind=sp), intent(in   )  ::disptot( noq )        ! dispersion plus additional dipers.
+      integer(kind=int_wp), intent(in   )  ::nobnd                 ! number of boundary segments
+      real(kind=real_wp), intent(in   )  ::bound  (nosys, nobnd) ! boundary concentrations
+      integer(kind=int_wp), intent(in   )  ::noq                   ! number of exchanges
+      integer(kind=int_wp), intent(in   )  ::ipoint ( 4   , noq  ) ! exchange pointers
+      real(kind=real_wp), intent(in   )  ::theta  ( noq )        ! local theta coefficients
+      real(kind=real_wp), intent(in   )  ::flowtot( noq )        ! flows plus additional velos.
+      real(kind=real_wp), intent(in   )  ::disptot( noq )        ! dispersion plus additional dipers.
 
-      real(kind=sp), intent(inout)  ::amass2 (notot, 5    ) ! amass2(*,1) masses
+      real(kind=real_wp), intent(inout)  ::amass2 (notot, 5    ) ! amass2(*,1) masses
                                                          ! amass2(*,2) processes
                                                          ! amass2(*,3) discharges
                                                          ! amass2(*,4) incoming boundary transport
                                                          ! amass2(*,5) outgoing boundary transport
-      integer(kind=int_32), intent(in   )  ::ndmpq                 ! number of dumped exchanges
-      integer(kind=int_32), intent(in   )  ::iqdmp  ( noq )        ! pointers dumped exchages
-      real(kind=sp), intent(inout)  ::dmpq  (nosys,ndmpq,2) ! dmpq(*,*,1) incoming transport
+      integer(kind=int_wp), intent(in   )  ::ndmpq                 ! number of dumped exchanges
+      integer(kind=int_wp), intent(in   )  ::iqdmp  ( noq )        ! pointers dumped exchages
+      real(kind=real_wp), intent(inout)  ::dmpq  (nosys,ndmpq,2) ! dmpq(*,*,1) incoming transport
                                                          ! dmpq(*,*,2) outgoing transport
-      integer(kind=int_32), intent(in)     ::idt                   ! time step
-      real(kind=sp) ::cio, cjo              ! old from- and to concentrations
-      real(kind=sp) ::cin, cjn              ! new from- and to concentrations
-      real(kind=sp) ::fluxij                ! flux from i to j
-      integer(kind=int_32) ::ifrom , ito           ! from- and to volume indices
-      integer(kind=int_32) ::iq                    ! current edge
+      integer(kind=int_wp), intent(in)     ::idt                   ! time step
+      real(kind=real_wp) ::cio, cjo              ! old from- and to concentrations
+      real(kind=real_wp) ::cin, cjn              ! new from- and to concentrations
+      real(kind=real_wp) ::fluxij                ! flux from i to j
+      integer(kind=int_wp) ::ifrom , ito           ! from- and to volume indices
+      integer(kind=int_wp) ::iq                    ! current edge
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqm4", ithandl )
 
 !         flow and diffusion

@@ -61,9 +61,9 @@
       implicit none
 
       character*8 :: cdate
-      integer(kind=int_32) ::nonun(mt)
-      integer(kind=int_32) ::i, id, iseg, k, nset, numun
-      integer(kind=int_32) ::swblsa, infeas
+      integer(kind=int_wp) ::nonun(mt)
+      integer(kind=int_wp) ::i, id, iseg, k, nset, numun
+      integer(kind=int_wp) ::swblsa, infeas
       real(kind=dp) ::sol
       real(kind=dp) ::solpar
       real(kind=dp) ::dep

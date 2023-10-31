@@ -45,7 +45,7 @@
 
       character*60 aline
 
-      integer(kind=int_32) ::i, ioff, j
+      integer(kind=int_wp) ::i, ioff, j
 
 
 !  Read data for the integrated photosynthetic efficiency curves.

@@ -45,29 +45,29 @@
       use timers
       implicit none
 
-      integer(kind=int_32), intent(in   )  ::idt             ! time step in scu's
-      integer(kind=int_32), intent(in   )  ::noseg           ! number of segments
-      integer(kind=int_32), intent(in   )  ::nobnd           ! number of boundaries
-      real(kind=sp), intent(in   )  ::volold(noseg)   ! volumes at beginning of step (dim: noseg)
-      integer(kind=int_32), intent(in   )  ::noq             ! total number of exchanges
-      integer(kind=int_32), intent(in   )  ::noq1            ! number of exchanges in the first direction
-      integer(kind=int_32), intent(in   )  ::noq2            ! number of exchanges in the second direction
-      integer(kind=int_32), intent(in   )  ::ipoint  (4,noq) ! exchange pointers (dim: 4 x noq)
-      real(kind=sp), intent(in   )  ::flowtot (  noq) ! total flows accross exchange surfs (dim: noq)
-      real(kind=sp), intent(in   )  ::disptot (  noq) ! total flows accross exchange surfs (dim: noq)
-      real(kind=sp), intent(  out)  ::theta   (  noq) ! variable theta coefficients (dim: noq)
-      real(kind=sp), intent(  out)  ::thetaseg(noseg) ! variable theta coefficients per segment
+      integer(kind=int_wp), intent(in   )  ::idt             ! time step in scu's
+      integer(kind=int_wp), intent(in   )  ::noseg           ! number of segments
+      integer(kind=int_wp), intent(in   )  ::nobnd           ! number of boundaries
+      real(kind=real_wp), intent(in   )  ::volold(noseg)   ! volumes at beginning of step (dim: noseg)
+      integer(kind=int_wp), intent(in   )  ::noq             ! total number of exchanges
+      integer(kind=int_wp), intent(in   )  ::noq1            ! number of exchanges in the first direction
+      integer(kind=int_wp), intent(in   )  ::noq2            ! number of exchanges in the second direction
+      integer(kind=int_wp), intent(in   )  ::ipoint  (4,noq) ! exchange pointers (dim: 4 x noq)
+      real(kind=real_wp), intent(in   )  ::flowtot (  noq) ! total flows accross exchange surfs (dim: noq)
+      real(kind=real_wp), intent(in   )  ::disptot (  noq) ! total flows accross exchange surfs (dim: noq)
+      real(kind=real_wp), intent(  out)  ::theta   (  noq) ! variable theta coefficients (dim: noq)
+      real(kind=real_wp), intent(  out)  ::thetaseg(noseg) ! variable theta coefficients per segment
       logical(4), intent(in   ) :: antidiffusion   ! if true: replace diffusion error by antidiffusion error
-      integer(kind=int_32), intent(  out)  ::iexseg  (noseg+nobnd) ! 0 if volume is explicit
+      integer(kind=int_wp), intent(  out)  ::iexseg  (noseg+nobnd) ! 0 if volume is explicit
 
 !     Local declarations
 
-      integer(kind=int_32) ::i, j            ! from- and to volumes
-      integer(kind=int_32) ::iq              ! current edge
-      integer(kind=int_32) ::iseg            ! current volumes
-      integer(kind=int_32) ::iexp            ! explicit fraction of the problem
+      integer(kind=int_wp) ::i, j            ! from- and to volumes
+      integer(kind=int_wp) ::iq              ! current edge
+      integer(kind=int_wp) ::iseg            ! current volumes
+      integer(kind=int_wp) ::iexp            ! explicit fraction of the problem
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqm1", ithandl )
 
 !         initialisation

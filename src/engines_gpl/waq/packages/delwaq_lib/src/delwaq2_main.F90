@@ -66,19 +66,19 @@ subroutine dlwqmain(action, argc, argv, dlwqd)
 
       implicit none
 
-      integer(kind=int_32), intent(in) ::  action 
-      integer(kind=int_32), intent(in) ::  argc 
+      integer(kind=int_wp), intent(in) ::  action
+      integer(kind=int_wp), intent(in) ::  argc
       character(len=*), dimension(argc), intent(in) :: argv
       type(delwaq_data)                             :: dlwqd
 
       character(len=20)                             :: rundat
 
       logical                                       :: init        ! do not save!
-      integer(kind=int_32) ::  lunrep
+      integer(kind=int_wp) ::  lunrep
 
-      integer(kind=int_32), save ::  itota 
-      integer(kind=int_32), save ::  itoti 
-      integer(kind=int_32), save ::  itotc
+      integer(kind=int_wp), save ::  itota
+      integer(kind=int_wp), save ::  itoti
+      integer(kind=int_wp), save ::  itotc
 
       init = action == action_initialisation .or. &
              action == action_fullcomputation

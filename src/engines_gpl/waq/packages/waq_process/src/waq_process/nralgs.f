@@ -66,13 +66,13 @@
 
       IMPLICIT NONE
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
-      integer(kind=int_32) ::ip1 , ip2 , ip3 , ip4 , ip5 , ip6 , ip7 , ip8 ,
+      integer(kind=int_wp) ::ip1 , ip2 , ip3 , ip4 , ip5 , ip6 , ip7 , ip8 ,
      j         ip9 , ip10, ip11, ip12, ip13,
      j         iflux, iseg, ikmrk2
-      real(kind=sp) ::FALG1,NCRAT1,PCRAT1,AUT1,DET1,FALG2,NCRAT2,PCRAT2,
+      real(kind=real_wp) ::FALG1,NCRAT1,PCRAT1,AUT1,DET1,FALG2,NCRAT2,PCRAT2,
      j         SICRAT,AUT2,DET2,DEPTH,SWITCH,AA,DC1,DC2
 
 !

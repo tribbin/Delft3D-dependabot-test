@@ -52,32 +52,32 @@
 
 !     Kind         Function         Name                    Description
 
-      integer(kind=int_32), intent(in   )  ::noseg1                !< Number of segments on finer grid
-      integer(kind=int_32), intent(in   )  ::noseg2                !< Number of segments on coarser grid
-      integer(kind=int_32), intent(in   )  ::nototi                !< First dimension on finer grid
-      integer(kind=int_32), intent(in   )  ::nototw                !< First dimension of weight on finer grid
-      integer(kind=int_32), intent(in   )  ::nototh                !< First dimension on coarser help grid
-      integer(kind=int_32), intent(in   )  ::nototo                !< First dimension on coarser output array
-      integer(kind=int_32), intent(in   )  ::isysi                 !<
-      integer(kind=int_32), intent(in   )  ::isysw                 !<
-      integer(kind=int_32), intent(in   )  ::isysh                 !< Entry in help array to be used
-      integer(kind=int_32), intent(in   )  ::isyso                 !< Offset in output
-      integer(kind=int_32), intent(in   )  ::nsys                  !< Number of items to aggregate
-      integer(kind=int_32), intent(in   )  ::ipgrid(noseg1)        !< Grid pointers to coarser grid
-      integer(kind=int_32), intent(in   )  ::iagtyp                !< 1 = accum; 2 = average; 3 = weighted avg
-      real(kind=sp), intent(in   )         ::arrinp(nototi,noseg1) !< Array to be aggregated
-      real(kind=sp), intent(in   )  :: weight(nototw,noseg1) !< Weigth in averaging
-      real(kind=sp)                 ::  arrhlp(nototh,noseg2) !< Local help array
-      real(kind=sp), intent(  out)  ::arrout(nototo,noseg2) !< Aggregated array
+      integer(kind=int_wp), intent(in   )  ::noseg1                !< Number of segments on finer grid
+      integer(kind=int_wp), intent(in   )  ::noseg2                !< Number of segments on coarser grid
+      integer(kind=int_wp), intent(in   )  ::nototi                !< First dimension on finer grid
+      integer(kind=int_wp), intent(in   )  ::nototw                !< First dimension of weight on finer grid
+      integer(kind=int_wp), intent(in   )  ::nototh                !< First dimension on coarser help grid
+      integer(kind=int_wp), intent(in   )  ::nototo                !< First dimension on coarser output array
+      integer(kind=int_wp), intent(in   )  ::isysi                 !<
+      integer(kind=int_wp), intent(in   )  ::isysw                 !<
+      integer(kind=int_wp), intent(in   )  ::isysh                 !< Entry in help array to be used
+      integer(kind=int_wp), intent(in   )  ::isyso                 !< Offset in output
+      integer(kind=int_wp), intent(in   )  ::nsys                  !< Number of items to aggregate
+      integer(kind=int_wp), intent(in   )  ::ipgrid(noseg1)        !< Grid pointers to coarser grid
+      integer(kind=int_wp), intent(in   )  ::iagtyp                !< 1 = accum; 2 = average; 3 = weighted avg
+      real(kind=real_wp), intent(in   )         ::arrinp(nototi,noseg1) !< Array to be aggregated
+      real(kind=real_wp), intent(in   )  :: weight(nototw,noseg1) !< Weigth in averaging
+      real(kind=real_wp)                 ::  arrhlp(nototh,noseg2) !< Local help array
+      real(kind=real_wp), intent(  out)  ::arrout(nototo,noseg2) !< Aggregated array
 
 !     Local declarations
 
-      integer(kind=int_32) ::iseg1   !  Segment index finer grid
-      integer(kind=int_32) ::iseg2   !  Segment index coarser grid
-      integer(kind=int_32) ::lurep   !  Unit number report file
-      integer(kind=int_32) ::isys    !  Loop counter substances
-      real(kind=sp) ::w       !  Help variable for weight
-      real(kind=sp) ::abs
+      integer(kind=int_wp) ::iseg1   !  Segment index finer grid
+      integer(kind=int_wp) ::iseg2   !  Segment index coarser grid
+      integer(kind=int_wp) ::lurep   !  Unit number report file
+      integer(kind=int_wp) ::isys    !  Loop counter substances
+      real(kind=real_wp) ::w       !  Help variable for weight
+      real(kind=real_wp) ::abs
 
       select case ( iagtyp )
 

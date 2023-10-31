@@ -53,23 +53,23 @@
 
 !     kind           function         name                    description
 
-      integer(kind=int_32), intent(in   )  ::noflux                !< Number of fluxes
-      integer(kind=int_32), intent(in   )  ::ndmpar                !< Number of dump areas
-      integer(kind=int_32), intent(in   )  ::idt                   !< Time step system clock units
-      integer(kind=int_32), intent(in   )  ::iturat                !< System clock/proces clock ratio
-      real(kind=sp), intent(in   )  ::flxdmp(noflux,*)      !< Fluxes at dump segments
-      real(kind=sp), intent(inout)  ::flxint(noflux,ndmpar) !< Integrated fluxes at dump segments
-      integer(kind=int_32), intent(in   )  ::isdmp ( * )           !< Segment to dumped segment pointer
-      integer(kind=int_32), intent(in   )  ::ipdmp ( * )           !< Pointer structure dump area's
-      integer(kind=int_32), intent(in   )  ::ntdmpq                !< Total number exchanges in dump area
+      integer(kind=int_wp), intent(in   )  ::noflux                !< Number of fluxes
+      integer(kind=int_wp), intent(in   )  ::ndmpar                !< Number of dump areas
+      integer(kind=int_wp), intent(in   )  ::idt                   !< Time step system clock units
+      integer(kind=int_wp), intent(in   )  ::iturat                !< System clock/proces clock ratio
+      real(kind=real_wp), intent(in   )  ::flxdmp(noflux,*)      !< Fluxes at dump segments
+      real(kind=real_wp), intent(inout)  ::flxint(noflux,ndmpar) !< Integrated fluxes at dump segments
+      integer(kind=int_wp), intent(in   )  ::isdmp ( * )           !< Segment to dumped segment pointer
+      integer(kind=int_wp), intent(in   )  ::ipdmp ( * )           !< Pointer structure dump area's
+      integer(kind=int_wp), intent(in   )  ::ntdmpq                !< Total number exchanges in dump area
 
 !     Local declaration
 
-      integer(kind=int_32) ::itel2 , idump , nsc   , isc   , iseg  ,
+      integer(kind=int_wp) ::itel2 , idump , nsc   , isc   , iseg  ,
      &              ips   , iflx  , ip1
-      real(kind=sp) ::fscale
+      real(kind=real_wp) ::fscale
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "proint", ithandl )
 
 !     Loop over the dump area's

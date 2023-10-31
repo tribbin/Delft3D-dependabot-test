@@ -56,22 +56,22 @@
 
 !     Kind        Function         Name                  Description
 
-      integer(kind=int_32), intent(in   )  ::lun                 !< Unit number of the monitroing file
-      integer(kind=int_32), intent(in   )  ::nosys               !< Number of transport substances
-      integer(kind=int_32), intent(in   )  ::notot               !< Total number of substances
-      integer(kind=int_32), intent(in   )  ::noseg               !< Number of computational volumes
-      real(kind=sp), intent(inout)  ::amass (notot,noseg) !< Delwaq mass array to be updated
-      real(kind=sp), intent(in   )  ::volumn(noseg)       !< Volume after rewind
-      real(kind=sp), intent(in   )  ::voluml(noseg)       !< Last volume before rewind
+      integer(kind=int_wp), intent(in   )  ::lun                 !< Unit number of the monitroing file
+      integer(kind=int_wp), intent(in   )  ::nosys               !< Number of transport substances
+      integer(kind=int_wp), intent(in   )  ::notot               !< Total number of substances
+      integer(kind=int_wp), intent(in   )  ::noseg               !< Number of computational volumes
+      real(kind=real_wp), intent(inout)  ::amass (notot,noseg) !< Delwaq mass array to be updated
+      real(kind=real_wp), intent(in   )  ::volumn(noseg)       !< Volume after rewind
+      real(kind=real_wp), intent(in   )  ::voluml(noseg)       !< Last volume before rewind
 
 !     Locals
 
       real(kind=dp) ::tovoll   ! total of the last volume array
       real(kind=dp) ::tovoln   ! total of the last new volume array
       real(kind=dp) ::clofac   ! closure correction factor
-      integer(kind=int_32) ::iseg     ! finite volume counter
+      integer(kind=int_wp) ::iseg     ! finite volume counter
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqce", ithandl )
 
 !     Say what you are doing

@@ -90,7 +90,7 @@
     end interface
 
 
-    integer(kind=int_32) ::  dummy
+    integer(kind=int_wp) ::  dummy
  
 
     character(len=1023)    :: version_string
@@ -98,10 +98,10 @@
     character(len=1023)    :: value
     character(len=1023)    :: runid
     character(len=1023)    :: resfile
-    integer(kind=int_32) ::  itimestamp 
-    real(kind=sp) ::  p_value 
+    integer(kind=int_wp) ::  itimestamp
+    real(kind=real_wp) ::  p_value
     real(kind=dp) :: startTime, stopTime, currentTime
-    integer(kind=int_32) :: i ,status, found, lunlog, k
+    integer(kind=int_wp) :: i ,status, found, lunlog, k
     logical                :: log = .true.
 
     if (log) open(newunit=lunlog, file='dimr_test.log',status='replace')

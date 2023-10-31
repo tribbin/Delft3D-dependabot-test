@@ -46,7 +46,7 @@
       real(kind=dp) ::xdef(*)
       real(kind=dp) ::sumsp
       real(kind=dp) ::dmax1
-      integer(kind=int_32) ::i, i1, k, k1, l1, l2
+      integer(kind=int_wp) ::i, i1, k, k1, l1, l2
       
 ! To tell Bloom how much biomass of the living phytoplankton
 ! species is left at the end of the time-step, the 'minimum

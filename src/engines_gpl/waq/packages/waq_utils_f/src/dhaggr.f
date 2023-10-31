@@ -67,11 +67,11 @@
 !
 !     Declaration of arguments
 !
-      INTEGER(kind=int_32) ::NOSEG1, NOSEG2, NOTOTI, NOTOTW, NOTOTH,
+      INTEGER(kind=int_wp) ::NOSEG1, NOSEG2, NOTOTI, NOTOTW, NOTOTH,
      +               NOTOTO, ISYSI , ISYSW , ISYSH , ISYSO ,
      +               IAGTYP
-      INTEGER(kind=int_32) ::IPGRID(NOSEG1)
-      REAL(kind=sp) ::ARRINP(NOTOTI,NOSEG1) , WEIGHT(NOTOTW,NOSEG1) ,
+      INTEGER(kind=int_wp) ::IPGRID(NOSEG1)
+      REAL(kind=real_wp) ::ARRINP(NOTOTI,NOSEG1) , WEIGHT(NOTOTW,NOSEG1) ,
      +               ARRHLP(NOTOTH,NOSEG2) , ARROUT(NOTOTO,NOSEG2)
 !
 !     Local declaration
@@ -80,15 +80,15 @@
 !     ISEG2   INTEGER  1          LOCAL   Segment index coarser grid
 !     LUREP   INTEGER  1          LOCAL   Unit number report file
 !
-      INTEGER(kind=int_32) :: ISEG1 , ISEG2 , LUREP
-      real(kind=sp)        :: vmin          ! minimum in weight variable
+      INTEGER(kind=int_wp) :: ISEG1 , ISEG2 , LUREP
+      real(kind=real_wp)        :: vmin          ! minimum in weight variable
       logical              :: lfound        ! command line option found
-      integer(kind=int_32) :: idummy        !
+      integer(kind=int_wp) :: idummy        !
       character            :: cdummy        !
-      integer(kind=int_32) :: ierr2         !
-      integer(kind=int_32) :: lunrep        ! report file
+      integer(kind=int_wp) :: ierr2         !
+      integer(kind=int_wp) :: lunrep        ! report file
       logical              :: lfirst = .true.
-      real(kind=sp), parameter           ::rmiss = -999.
+      real(kind=real_wp), parameter           ::rmiss = -999.
 
       save           lfirst, vmin
 

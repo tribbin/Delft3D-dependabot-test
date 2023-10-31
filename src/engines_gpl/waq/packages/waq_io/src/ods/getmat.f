@@ -68,21 +68,21 @@
       use m_dhfext
 
       CHARACTER*256 FNAME (3) , OPTION
-      REAL(kind=sp) ::  DATA(*) 
-      INTEGER(kind=int_32) ::  LOC(*) 
+      REAL(kind=real_wp) ::  DATA(*)
+      INTEGER(kind=int_wp) ::  LOC(*)
       REAL(kind=dp)        ::TIM(2)    , OTIME  , ATIME    , SECOND
-      real(kind=sp) :: amiss 
+      real(kind=real_wp) :: amiss
       character*256         :: ext     ! file extension
-      integer(kind=int_32) ::  extpos   ! position of extension
-      integer(kind=int_32) ::  extlen   ! length of file extension
+      integer(kind=int_wp) ::  extpos   ! position of extension
+      integer(kind=int_wp) ::  extlen   ! length of file extension
       logical               :: mapfil  ! true if map file extension
-      integer(kind=int_32) ::  lun 
-      integer(kind=int_32) ::  I1 
-      integer(kind=int_32) ::  NODUMP, NOTOT 
-      integer(kind=int_32) ::  k, L, i2, i3, i4, ierror, iyear, imonth, iday 
-      integer(kind=int_32) ::  ihour, iminut, isecnd, isfact, idummy, idate 
-      integer(kind=int_32) ::  itime, ntt, iset, iprcod, maxdim 
-      integer(kind=int_32) ::  adummy, itype
+      integer(kind=int_wp) ::  lun
+      integer(kind=int_wp) ::  I1
+      integer(kind=int_wp) ::  NODUMP, NOTOT
+      integer(kind=int_wp) ::  k, L, i2, i3, i4, ierror, iyear, imonth, iday
+      integer(kind=int_wp) ::  ihour, iminut, isecnd, isfact, idummy, idate
+      integer(kind=int_wp) ::  itime, ntt, iset, iprcod, maxdim
+      integer(kind=int_wp) ::  adummy, itype
       
  !         Open the DELWAQ .HIS file if needed
 !
@@ -200,19 +200,19 @@
 !
 !
       CHARACTER*256 FNAME (3) , OPTION
-      REAL(kind=sp) :: DATA(*) 
-      integer(kind=int_32) :: LOC(*) 
+      REAL(kind=real_wp) :: DATA(*)
+      integer(kind=int_wp) :: LOC(*)
       REAL(kind=dp)        :: TIM(2)    , OTIME  , ATIME    , SECOND
-      real(kind=sp) :: amiss 
+      real(kind=real_wp) :: amiss
       character*256         :: ext     ! file extension
-      integer(kind=int_32) ::  extpos   ! position of extension
-      integer(kind=int_32) ::  extlen   ! length of file extension
+      integer(kind=int_wp) ::  extpos   ! position of extension
+      integer(kind=int_wp) ::  extlen   ! length of file extension
       logical               :: mapfil  ! true if map file extension
-      integer(kind=int_32) ::  lun, NODUMP, NOTOT, k, NTT 
-      integer(kind=int_32) ::  ierror, iyear, imonth, iday 
-      integer(kind=int_32) ::  ihour, iminut, isecnd, isfact, idummy, idate 
+      integer(kind=int_wp) ::  lun, NODUMP, NOTOT, k, NTT
+      integer(kind=int_wp) ::  ierror, iyear, imonth, iday
+      integer(kind=int_wp) ::  ihour, iminut, isecnd, isfact, idummy, idate
       integer               :: itime, iset, iprcod(:), maxdim
-      integer(kind=int_32) ::  adummy, itype
+      integer(kind=int_wp) ::  adummy, itype
  !
 !         Open the DELWAQ .HIS file if needed
 !

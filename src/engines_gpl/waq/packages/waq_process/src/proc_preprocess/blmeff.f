@@ -37,24 +37,24 @@
       use timers        !   performance timers
 
       implicit none
-      integer(kind=int_32) ::lunrep, lunblm
-      real(kind=sp) ::verspe
-      integer(kind=int_32) ::lunfrm, nuecog, noalg
+      integer(kind=int_wp) ::lunrep, lunblm
+      real(kind=real_wp) ::verspe
+      integer(kind=int_wp) ::lunfrm, nuecog, noalg
       character*10  grname(nuecog)
       character*10  typnam(noalg)
 
 !
-      integer(kind=int_32), parameter  ::maxlin=1000
-      integer(kind=int_32), parameter  ::maxspe=30
-      integer(kind=int_32), parameter  ::maxtok=8
-      integer(kind=int_32), parameter  ::maxnz=51
-      integer(kind=int_32) ::ifnd (maxspe)
+      integer(kind=int_wp), parameter  ::maxlin=1000
+      integer(kind=int_wp), parameter  ::maxspe=30
+      integer(kind=int_wp), parameter  ::maxtok=8
+      integer(kind=int_wp), parameter  ::maxnz=51
+      integer(kind=int_wp) ::ifnd (maxspe)
       real(kind=dp) ::power(51), effic(51,maxspe), fun(51,maxspe), der(51,maxspe), zvec(51),daymul(24,maxspe), dl(24)
       character*8 spnam2 (maxspe)
-      integer(kind=int_32) ::numtyp, i, j, nfnd, npoint, nz
-      real(kind=sp) ::tefcur
+      integer(kind=int_wp) ::numtyp, i, j, nfnd, npoint, nz
+      real(kind=real_wp) ::tefcur
       character*1000 line
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::ithndl = 0
 
       if (timon) call timstrt( "blmeff", ithndl )
 
@@ -180,11 +180,11 @@
       end
 
 ! INSORT subroutine.
-! Purpose: sort an integer(kind=int_32) ::array.
+! Purpose: sort an integer(kind=int_wp) ::array.
 
       subroutine insort (inarr, lenarr)
-      integer(kind=int_32) ::inarr (*), lenarr
-      integer(kind=int_32) ::i, ihelp
+      integer(kind=int_wp) ::inarr (*), lenarr
+      integer(kind=int_wp) ::i, ihelp
       logical ready
 !
 10    continue

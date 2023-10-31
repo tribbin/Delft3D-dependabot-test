@@ -38,7 +38,7 @@
       use timers
 
       real(kind=dp) ::sa,sb,c,s,roe,scale,r,z,one
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "srotg", ithandl )
 !
       roe = sb

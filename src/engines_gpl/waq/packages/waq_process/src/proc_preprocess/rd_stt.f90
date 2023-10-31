@@ -39,15 +39,15 @@ contains
 
    implicit none
 
-   integer(kind=int_32)             , intent(inout) ::lunrep          !< logical unit of report file
+   integer(kind=int_wp)             , intent(inout) ::lunrep          !< logical unit of report file
    character(len=256)  , intent(inout) :: sttfil          !< filename stt
    type(procespropcoll), intent(inout) :: statprocesdef   !< the statistical proces definition
    type(itempropcoll)  , intent(inout) :: allitems        !< all items of the proces system
-   integer(kind=int_32)             , intent(inout) ::noinfo
-   integer(kind=int_32)             , intent(inout) ::iwar
-   integer(kind=int_32)             , intent(inout) ::ierr
+   integer(kind=int_wp)             , intent(inout) ::noinfo
+   integer(kind=int_wp)             , intent(inout) ::iwar
+   integer(kind=int_wp)             , intent(inout) ::ierr
 
-   integer(kind=int_32)                              ::ioutpt
+   integer(kind=int_wp)                              ::ioutpt
    logical                             :: dtflg1
    logical                             :: dtflg3
 

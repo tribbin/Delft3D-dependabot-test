@@ -50,13 +50,13 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     LUNWRO  INTEGER(kind=int_32) ::1     INPUT   Output work file
+!     LUNWRO  INTEGER(kind=int_wp) ::1     INPUT   Output work file
 !     LCH     CHA*(*)       1     INPUT   Name output work file
-!     LUREP   INTEGER(kind=int_32) ::1     INPUT   Monitoring file
-!     NOUTP   INTEGER(kind=int_32) ::1     INPUT   Number of output files
-!     NRVART  INTEGER(kind=int_32) ::1     INPUT   Number of extra output vars
-!     NBUFMX  INTEGER(kind=int_32) ::1     INPUT   length of output buffer
-!     IOUTPS  INTEGER(kind=int_32) ::7*NOUTP    OUTPUT   Output structure
+!     LUREP   INTEGER(kind=int_wp) ::1     INPUT   Monitoring file
+!     NOUTP   INTEGER(kind=int_wp) ::1     INPUT   Number of output files
+!     NRVART  INTEGER(kind=int_wp) ::1     INPUT   Number of extra output vars
+!     NBUFMX  INTEGER(kind=int_wp) ::1     INPUT   length of output buffer
+!     IOUTPS  INTEGER(kind=int_wp) ::7*NOUTP    OUTPUT   Output structure
 !                                            index 1 = start time
 !                                            index 2 = stop time
 !                                            index 3 = time step
@@ -64,7 +64,7 @@
 !                                            index 5 = kind of output
 !                                            index 6 = format of output
 !                                            index 7 = initialize flag
-!     IOPOIN  INTEGER(kind=int_32) ::NRVART    OUTPUT   Pointer to DELWAQ array's
+!     IOPOIN  INTEGER(kind=int_wp) ::NRVART    OUTPUT   Pointer to DELWAQ array's
 !     OUNAM   CHAR*(*) NRVART    OUTPUT   name of output variable
 !     OUSNM   CHAR*(*) NRVART    OUTPUT   standard name of output variable
 !     OUUNI   CHAR*(*) NRVART    OUTPUT   unit of output variable
@@ -72,9 +72,9 @@
 !     OSSNM   CHAR*(*) NRVART    OUTPUT   standard name of substance
 !     OSUNI   CHAR*(*) NRVART    OUTPUT   unit of substance
 !     OSDSC   CHAR*(*) NRVART    OUTPUT   description of substance
-!     LUN     INTEGER(kind=int_32) ::*        INPUT   array with unit numbers
+!     LUN     INTEGER(kind=int_wp) ::*        INPUT   array with unit numbers
 !     LCHAR   CHAR*(*)   *        INPUT   filenames
-!     IERR    INTEGER(kind=int_32) ::1    IN/OUT   cummulative error count
+!     IERR    INTEGER(kind=int_wp) ::1    IN/OUT   cummulative error count
 !
 !     Declaration of arguments
 !
@@ -83,9 +83,9 @@
       use timers
       use output
 
-      INTEGER(kind=int_32) ::LUNWRO, LUREP , NOUTP , NRVART, NBUFMX, NOSYS,
+      INTEGER(kind=int_wp) ::LUNWRO, LUREP , NOUTP , NRVART, NBUFMX, NOSYS,
      +              IERR, NOTOT
-      INTEGER(kind=int_32) ::IOUTPS(7,*)   , IOPOIN(*)     , LUN(*)
+      INTEGER(kind=int_wp) ::IOUTPS(7,*)   , IOPOIN(*)     , LUN(*)
       CHARACTER*(*) LCH           , LCHAR(*)
       CHARACTER*20  OUNAM(*)
       CHARACTER*100 OUSNM(*)      , SYSNM(*)
@@ -94,14 +94,14 @@
 !
 !     Local declarations
 !
-      integer(kind=int_32), PARAMETER  ::LUOFF = 18
-      integer(kind=int_32), PARAMETER  ::LUOFF2= 36
-      INTEGER(kind=int_32) ::NOUTPD, NRVARD, NBUFMD
-      REAL(kind=sp) ::VERSIO
+      integer(kind=int_wp), PARAMETER  ::LUOFF = 18
+      integer(kind=int_wp), PARAMETER  ::LUOFF2= 36
+      INTEGER(kind=int_wp) ::NOUTPD, NRVARD, NBUFMD
+      REAL(kind=real_wp) ::VERSIO
 
-      integer(kind=int_32) ::k, isrtou, ifi, idum
+      integer(kind=int_wp) ::k, isrtou, ifi, idum
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqio", ithandl )
 !
 !     read and check version number

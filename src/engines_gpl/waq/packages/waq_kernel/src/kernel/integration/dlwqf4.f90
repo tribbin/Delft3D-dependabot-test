@@ -50,16 +50,16 @@ contains
 
 !     Kind        Function         Name                  Description
 
-      integer(kind=int_32), intent(in   )  ::noseg               ! Number of computational volumes
-      integer(kind=int_32), intent(in   )  ::nobnd               ! Number of open boundaries
-      integer(kind=int_32), intent(in   )  ::nosys               ! Number of transported substances
-      integer(kind=int_32), intent(in   )  ::notot               ! Total number of substances
-      integer(kind=int_32), intent(in   )  ::isys                ! This substance
-      integer(kind=int_32), intent(in   )  ::idt                 ! timestep in scu's
-      real(kind=sp), intent(in   )  ::conc  (notot,noseg) ! all concentrations
-      real(kind=sp), intent(in   )  ::deriv (notot,noseg) ! all derivatives (loads, processes)
-      real(kind=sp), intent(in   )  ::volold(noseg)       ! volumes at beginning of time step
-      real(kind=sp), intent(in   )  ::bound (nosys,nobnd) ! open boundary concentrations
+      integer(kind=int_wp), intent(in   )  ::noseg               ! Number of computational volumes
+      integer(kind=int_wp), intent(in   )  ::nobnd               ! Number of open boundaries
+      integer(kind=int_wp), intent(in   )  ::nosys               ! Number of transported substances
+      integer(kind=int_wp), intent(in   )  ::notot               ! Total number of substances
+      integer(kind=int_wp), intent(in   )  ::isys                ! This substance
+      integer(kind=int_wp), intent(in   )  ::idt                 ! timestep in scu's
+      real(kind=real_wp), intent(in   )  ::conc  (notot,noseg) ! all concentrations
+      real(kind=real_wp), intent(in   )  ::deriv (notot,noseg) ! all derivatives (loads, processes)
+      real(kind=real_wp), intent(in   )  ::volold(noseg)       ! volumes at beginning of time step
+      real(kind=real_wp), intent(in   )  ::bound (nosys,nobnd) ! open boundary concentrations
       real(kind=dp), intent(  out)  ::rhs   (noseg+nobnd) ! right hand side of the equation
       real(kind=dp), intent(in   )  ::diag  (noseg+nobnd) ! value of the diagonal
       real(kind=dp), intent(  out)  ::sol   (noseg+nobnd) ! initial guess
@@ -67,11 +67,11 @@ contains
 !     Local declarations
 
       real(kind=dp) ::ddt                                   ! 1.0 / time step in double
-      integer(kind=int_32) ::iseg                                  ! Loop variable
+      integer(kind=int_wp) ::iseg                                  ! Loop variable
 
 !     The WAQ-timer
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqf4", ithandl )
 
 !         set the right hand side, normal part

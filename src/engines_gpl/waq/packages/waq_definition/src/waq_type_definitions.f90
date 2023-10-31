@@ -27,7 +27,7 @@ module m_waq_type_definitions
       use, intrinsic :: iso_fortran_env
       implicit none
       private
-      public :: int_8, int_16, int_32, int_64, sp, dp, qp
+      public :: int_8, int_16, int_32, int_64, int_wp, sp, dp, qp, real_wp
       
       ! f77: integer*1, f90: integer(kind=1)
       integer, parameter :: int_8 = INT8
@@ -37,8 +37,10 @@ module m_waq_type_definitions
       integer, parameter :: int_32 = INT32
       ! f77: integer*8, f90: integer(kind=8)
       integer, parameter :: int_64 = INT64
+      integer, parameter :: int_wp = INT32
       
       integer, parameter :: sp = REAL32
+      integer, parameter :: real_wp = REAL32
       integer, parameter :: dp = REAL64
       integer, parameter :: qp = REAL128
 end module m_waq_type_definitions

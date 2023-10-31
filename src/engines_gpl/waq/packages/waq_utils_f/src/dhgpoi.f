@@ -35,8 +35,8 @@
      +                   IDIM2 , IP_AR , IGRID , ISYS  , NOTOT ,
      +                   IP_VAR)
 !
-      INTEGER(kind=int_32) ::IVAR, IKIND, ISYS, IGRID, IDIM1, IDIM2
-      INTEGER(kind=int_32) ::NOTOT, IP_AR, IARRAY, LUREP, IP_VAR, IVINDX
+      INTEGER(kind=int_wp) ::IVAR, IKIND, ISYS, IGRID, IDIM1, IDIM2
+      INTEGER(kind=int_wp) ::NOTOT, IP_AR, IARRAY, LUREP, IP_VAR, IVINDX
       
       IF ( IKIND .EQ. 2 ) THEN
          ISYS   = IVINDX

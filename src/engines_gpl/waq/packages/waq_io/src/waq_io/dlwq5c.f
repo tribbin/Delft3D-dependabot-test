@@ -119,30 +119,30 @@
       use time_module
 
 
-      integer(kind=int_32) :: icmax  , iimax  , irmax 
+      integer(kind=int_wp) :: icmax  , iimax  , irmax
       character*(*) car(*) , fname
-      integer(kind=int_32) :: iar(*) 
-      real(kind=sp) :: rar(*) 
+      integer(kind=int_wp) :: iar(*)
+      real(kind=real_wp) :: rar(*)
       logical       scale
       real(kind=dp) :: drar(*) 
       character     cfile(3)*256
-      real(kind=sp) :: amiss
+      real(kind=real_wp) :: amiss
  !
 !     local declarations
       dimension     loc(3)
       real(kind=dp) :: afact    , a1    , a2    , d_beg    , d_end , dummy 
       character*3   cdummy
-      integer(kind=int_32) ::  nodim, iorder, ioffa, ioffb, ioffc, ioffd, nscle, lunut 
-      integer(kind=int_32) ::  k1, ierror, nsubs, nlocs, ntims, j1, j2, j3, k2, k3 
-      integer(kind=int_32) ::  ierr, noloc, noit2, noitv, j 
-      integer(kind=int_32) ::  nottt, itmnr, notim, idmnr, i, iwar, ishft, ltot 
-      integer(kind=int_32) ::  noitm, nshft, nopar, icnt, k5, nitm, k, k4, nobrk, k6 
-      integer(kind=int_32) ::  iy1, im1, id1, ih1, in1, is1 
-      integer(kind=int_32) ::  iy2, im2, id2, ih2, in12 is2 
-      integer(kind=int_32) ::  i1, i2, in2, is2, nt1, nt2, is, maxd, loc, ig, igs, kp 
-      integer(kind=int_32) ::  kl, ig2
+      integer(kind=int_wp) ::  nodim, iorder, ioffa, ioffb, ioffc, ioffd, nscle, lunut
+      integer(kind=int_wp) ::  k1, ierror, nsubs, nlocs, ntims, j1, j2, j3, k2, k3
+      integer(kind=int_wp) ::  ierr, noloc, noit2, noitv, j
+      integer(kind=int_wp) ::  nottt, itmnr, notim, idmnr, i, iwar, ishft, ltot
+      integer(kind=int_wp) ::  noitm, nshft, nopar, icnt, k5, nitm, k, k4, nobrk, k6
+      integer(kind=int_wp) ::  iy1, im1, id1, ih1, in1, is1
+      integer(kind=int_wp) ::  iy2, im2, id2, ih2, in12 is2
+      integer(kind=int_wp) ::  i1, i2, in2, is2, nt1, nt2, is, maxd, loc, ig, igs, kp
+      integer(kind=int_wp) ::  kl, ig2
  !
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "dlwq5c", ithndl )
 !
 !     array offsets

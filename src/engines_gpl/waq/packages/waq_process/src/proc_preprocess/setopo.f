@@ -45,24 +45,24 @@
 
       type(procespropcoll)      :: procesdef       ! all processes
       type(outputcoll)          :: outputs         ! output structure
-      integer(kind=int_32) ::iloc            ! offset to local array
-      integer(kind=int_32) ::idef            ! offset to default array
-      integer(kind=int_32) ::iflx            ! offset to flux array
-      integer(kind=int_32) ::nowarn          ! number of warnings
+      integer(kind=int_wp) ::iloc            ! offset to local array
+      integer(kind=int_wp) ::idef            ! offset to default array
+      integer(kind=int_wp) ::iflx            ! offset to flux array
+      integer(kind=int_wp) ::nowarn          ! number of warnings
 
       ! local decalarations
 
-      integer(kind=int_32) ::nproc           ! number of processes
-      integer(kind=int_32) ::iproc           ! loop counter processes
+      integer(kind=int_wp) ::nproc           ! number of processes
+      integer(kind=int_wp) ::iproc           ! loop counter processes
       type(procesprop), pointer :: proc            ! process description
       character(len=100)        :: line            ! line buffer for output
-      integer(kind=int_32) ::ioutput         ! index output item
-      integer(kind=int_32) ::i_input         ! index input item
-      integer(kind=int_32) ::indx            ! index
-      integer(kind=int_32) ::iou             ! loop counter output variable
-      integer(kind=int_32) ::iou2            ! loop counter output variable
+      integer(kind=int_wp) ::ioutput         ! index output item
+      integer(kind=int_wp) ::i_input         ! index input item
+      integer(kind=int_wp) ::indx            ! index
+      integer(kind=int_wp) ::iou             ! loop counter output variable
+      integer(kind=int_wp) ::iou2            ! loop counter output variable
       character(len=20)         :: predef(3)       ! predefined names
-      integer(kind=int_32) ::ithndl = 0      ! handle for performance timer
+      integer(kind=int_wp) ::ithndl = 0      ! handle for performance timer
       if (timon) call timstrt( "setopo", ithndl )
 
       predef(1) = 'volume'

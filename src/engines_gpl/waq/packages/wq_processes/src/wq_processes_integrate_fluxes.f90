@@ -44,25 +44,25 @@ contains
 !     Parameters          :
 !     type     kind  function         name                      description
 
-      integer(kind=int_32), intent(in   ) ::  nosys                    !< number of transported substances
-      integer(kind=int_32), intent(in   ) ::  notot                    !< total number of substances
-      integer(kind=int_32), intent(in   ) ::  noseg                    !< number of computational volumes
-      real(kind=sp), intent(inout) ::  conc  (notot ,noseg)     !< concentrations per substance per volume
+      integer(kind=int_wp), intent(in   ) ::  nosys                    !< number of transported substances
+      integer(kind=int_wp), intent(in   ) ::  notot                    !< total number of substances
+      integer(kind=int_wp), intent(in   ) ::  noseg                    !< number of computational volumes
+      real(kind=real_wp), intent(inout) ::  conc  (notot ,noseg)     !< concentrations per substance per volume
       real(kind=dp), intent(inout) ::  amass (notot ,noseg)     !< masses per substance per volume
       real(kind=dp), intent(inout) ::  deriv (noseg, notot)     !< derivatives per substance per volume
       real(kind=dp), intent(in   ) ::  volume(noseg )           !< volumes of the segments
       real(kind=dp), intent(in   ) ::  dts                      !< integration time step size
-      real(kind=sp), intent(in   ) ::  surfac(noseg)            !< horizontal surface
+      real(kind=real_wp), intent(in   ) ::  surfac(noseg)            !< horizontal surface
 
       ! local declarations
 
-      integer(kind=int_32) ::  iseg                     !  segment loop counter
-      integer(kind=int_32) ::  i                        !  substance loop counter
+      integer(kind=int_wp) ::  iseg                     !  segment loop counter
+      integer(kind=int_wp) ::  i                        !  substance loop counter
       real(kind=dp) ::  v1                       !  segment volume
       real(kind=dp) ::  s1                       !  segment surface
       real(kind=dp) ::  a                        !  segment mass
 
-      integer(kind=int_32), save ::  ithndl = 0 
+      integer(kind=int_wp), save ::  ithndl = 0
       if (timon) call timstrt( "wq_processes_integrate_fluxes", ithndl )
 
       ! loop accross the number of computational elements

@@ -35,10 +35,10 @@ module delwaq2_global_data
     type(delwaq_data) :: dlwqd                      !< Variable holding all internal state information
 
     type t_size_dlwq_state
-      integer(kind=int_32) ::  total 
-      integer(kind=int_32) ::  core, pseudo, output 
-      integer(kind=int_32) ::  conc,  other, notot, noseg 
-      integer(kind=int_32) ::  mass, rbuf, names, timeadmin
+      integer(kind=int_wp) ::  total
+      integer(kind=int_wp) ::  core, pseudo, output
+      integer(kind=int_wp) ::  conc,  other, notot, noseg
+      integer(kind=int_wp) ::  mass, rbuf, names, timeadmin
     end type t_size_dlwq_state
  
     type(t_size_dlwq_state) :: size_dlwq_state
@@ -50,69 +50,69 @@ module delwaq2_global_data
     character(len=256), dimension(:),   allocatable :: argv_tmp
 
     character(len=20),  dimension(:),   allocatable :: substance_name
-    real(kind=sp), dimension(:,:), allocatable  ::  substance_conc 
+    real(kind=real_wp), dimension(:,:), allocatable  ::  substance_conc
     character(len=20),  dimension(:),   allocatable :: procparam_const
     character(len=20),  dimension(:),   allocatable :: procparam_param
-    real(kind=sp), dimension(:),   allocatable  ::  procparam_const_value 
-    real(kind=sp), dimension(:,:), allocatable  ::  procparam_param_value 
+    real(kind=real_wp), dimension(:),   allocatable  ::  procparam_const_value
+    real(kind=real_wp), dimension(:,:), allocatable  ::  procparam_param_value
     character(len=20),  dimension(:),   allocatable :: output_param
 
-    integer(kind=int_32) ::  nomult 
-    integer(kind=int_32), dimension(:,:), allocatable  ::  mult
+    integer(kind=int_wp) ::  nomult
+    integer(kind=int_wp), dimension(:,:), allocatable  ::  mult
  
     character(len=20),  dimension(:),   allocatable :: monitor_name
-    integer(kind=int_32), dimension(:),   allocatable  ::  cells_per_monitor 
-    integer(kind=int_32), dimension(:),   allocatable  ::  monitor_cell 
-    integer(kind=int_32), dimension(:),   allocatable  ::  selected_cells_monitor 
+    integer(kind=int_wp), dimension(:),   allocatable  ::  cells_per_monitor
+    integer(kind=int_wp), dimension(:),   allocatable  ::  monitor_cell
+    integer(kind=int_wp), dimension(:),   allocatable  ::  selected_cells_monitor
     character(len=20),  dimension(:),   allocatable :: transect_name
-    integer(kind=int_32), dimension(:),   allocatable  ::  iqdmp_array 
-    integer(kind=int_32), dimension(:),   allocatable  ::  isdmp_array
+    integer(kind=int_wp), dimension(:),   allocatable  ::  iqdmp_array
+    integer(kind=int_wp), dimension(:),   allocatable  ::  isdmp_array
  
     character(len=40),  dimension(:),   allocatable :: load_name
-    integer(kind=int_32), dimension(:),   allocatable  ::  load_cell 
+    integer(kind=int_wp), dimension(:),   allocatable  ::  load_cell
     character(len=20),  dimension(:),   allocatable :: load_type
     character(len=20),  dimension(:),   allocatable :: load_type_def
 
     character(len=20),  dimension(:),   allocatable :: procparam_name
 
-    integer(kind=int_32), dimension(50) ::  lun 
+    integer(kind=int_wp), dimension(50) ::  lun
     character(len=255), dimension(50)               :: lchar
-    integer(kind=int_32), dimension(50) ::  filtype
+    integer(kind=int_wp), dimension(50) ::  filtype
  
     character(len=255), save                        :: runid = 'deltashell'
 
     character(len=40),  dimension(4)                :: title
 
-    integer(kind=int_32), dimension(:),   allocatable  ::  iknmrk
+    integer(kind=int_wp), dimension(:),   allocatable  ::  iknmrk
  
     character(len=20),  dimension(:),   allocatable :: diname
     character(len=20),  dimension(:),   allocatable :: vename
-    integer(kind=int_32), dimension(:),   allocatable  ::  idpnt_array 
-    integer(kind=int_32), dimension(:),   allocatable  ::  ivpnt_array 
-    real(kind=sp), dimension(3) ::  disp 
-    real(kind=sp), dimension(3) ::  aleng
+    integer(kind=int_wp), dimension(:),   allocatable  ::  idpnt_array
+    integer(kind=int_wp), dimension(:),   allocatable  ::  ivpnt_array
+    real(kind=real_wp), dimension(3) ::  disp
+    real(kind=real_wp), dimension(3) ::  aleng
  
     character(len=20),  dimension(:),   allocatable :: boundary_id
     character(len=40),  dimension(:),   allocatable :: boundary_name
     character(len=20),  dimension(:),   allocatable :: boundary_type
-    integer(kind=int_32), dimension(:,:), allocatable  ::  ibpnt_array 
-    integer(kind=int_32), dimension(:,:), allocatable  ::  ipoint
+    integer(kind=int_wp), dimension(:,:), allocatable  ::  ibpnt_array
+    integer(kind=int_wp), dimension(:,:), allocatable  ::  ipoint
  
-    integer(kind=int_32), dimension(:),   allocatable  ::  nrftot 
-    integer(kind=int_32), dimension(:),   allocatable  ::  nrharm
+    integer(kind=int_wp), dimension(:),   allocatable  ::  nrftot
+    integer(kind=int_wp), dimension(:),   allocatable  ::  nrharm
  
-    integer(kind=int_32) ::  ref_year 
-    integer(kind=int_32) ::  ref_month 
-    integer(kind=int_32) ::  ref_day 
-    integer(kind=int_32) ::  ref_hour 
-    integer(kind=int_32) ::  ref_minute 
-    integer(kind=int_32) ::  ref_second
+    integer(kind=int_wp) ::  ref_year
+    integer(kind=int_wp) ::  ref_month
+    integer(kind=int_wp) ::  ref_day
+    integer(kind=int_wp) ::  ref_hour
+    integer(kind=int_wp) ::  ref_minute
+    integer(kind=int_wp) ::  ref_second
 
 contains
 
 subroutine delwaq2_global_data_initialize(runid_given) 
     character(len=*) :: runid_given
-    integer(kind=int_32) ::  i
+    integer(kind=int_wp) ::  i
 
     lun  = (/ 14 , 15 , 16 , 17 , 18 , 19 , 20 , 21 , 22 , 23 , &
                       24 , 25 , 26 , 27 , 28 , 29 , 30 , 31 , 32 , 33 , &
@@ -163,7 +163,7 @@ subroutine delwaq2_global_data_finalize
 
     implicit none
 
-    integer(kind=int_32) ::  i
+    integer(kind=int_wp) ::  i
 
 !   first, all arrays from waqmem
     call waqmem_deallocate()
@@ -230,7 +230,7 @@ subroutine delwaq2_global_data_copy( dlwqd )
     character(len=20), dimension(1) :: dlwqname ! Template for entity names
 
 
-    integer(kind=int_32) ::  iColl, max_waqfiles
+    integer(kind=int_wp) ::  iColl, max_waqfiles
     !
     ! Copy the relevant character data
     !

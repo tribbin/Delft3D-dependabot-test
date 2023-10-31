@@ -149,20 +149,20 @@
 
       IMPLICIT  NONE
 
-      REAL(kind=sp) ::PMSA  (*)  , FL  (*)
-      INTEGER(kind=int_32) ::IPOINT(*)  , INCREM(*), NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  (*)  , FL  (*)
+      INTEGER(kind=int_wp) ::IPOINT(*)  , INCREM(*), NOSEG , NOFLUX,
      +            IEXPNT(4,*), IKNMRK(*), IKMRK2, IPODIM, NOQ1,NOQ2,NOQ3,NOQ4
 
-      INTEGER(kind=int_32), PARAMETER  ::NO_POINTER = 349 +21 ! number of input output variables in PMSA array =56+3*ntotnut+7*(nfood-2)+21 output vars
-      INTEGER(kind=int_32) ::IP(NO_POINTER)       ! index pointer in PMSA array updated for each segment
+      INTEGER(kind=int_wp), PARAMETER  ::NO_POINTER = 349 +21 ! number of input output variables in PMSA array =56+3*ntotnut+7*(nfood-2)+21 output vars
+      INTEGER(kind=int_wp) ::IP(NO_POINTER)       ! index pointer in PMSA array updated for each segment
 
-      INTEGER(kind=int_32) ::I,IFOOD,IFLUX,ISEG,IKMRK1
-      INTEGER(kind=int_32) ::NFOOD = 40 +2        ! 30 BLOOM algae + 2 DYNAMO algae + 8 dummy food sources + DetCS1 + Detritus = 40+2
-      INTEGER(kind=int_32) ::NTOTNUT = 4          ! Carbon, Nitrogen, Phosphorus and Silica
-      INTEGER(kind=int_32) ::BENTHS
+      INTEGER(kind=int_wp) ::I,IFOOD,IFLUX,ISEG,IKMRK1
+      INTEGER(kind=int_wp) ::NFOOD = 40 +2        ! 30 BLOOM algae + 2 DYNAMO algae + 8 dummy food sources + DetCS1 + Detritus = 40+2
+      INTEGER(kind=int_wp) ::NTOTNUT = 4          ! Carbon, Nitrogen, Phosphorus and Silica
+      INTEGER(kind=int_wp) ::BENTHS
 !
 ! From PMSA array
-      REAL(kind=sp) ::DELT , Volume, temp, TotalDepth, Depth, TIM, GEM,
+      REAL(kind=real_wp) ::DELT , Volume, temp, TotalDepth, Depth, TIM, GEM,
      +            Length_ini, Vtot, Etot, Rtot, Dens_ini, E_L3,
      +            rMor_ref, cMor, rHrv_ref, cHrv, TC, TN, TP, TSi,
      +            Ta, Tal, Tah, Th, Tl,  Vb, Vp, shape, Dummy,
@@ -171,15 +171,15 @@
      +            conv_J_gC, conv_cm3_gC, conv_gWW_gC, conv_gAFDW_gC
      +
 
-      REAL(kind=sp) ::CFOOD   (42),  CCFOOD (42),  Pref   (42),
+      REAL(kind=real_wp) ::CFOOD   (42),  CCFOOD (42),  Pref   (42),
      +             NCFOOD  (42),  PCFOOD (42),  SICFOOD(42),
      +             dFil    (42),  FFFOOD (42)
-      INTEGER(kind=int_32) ::BENFOOD (42),  SwitchV1
-      INTEGER(kind=int_32) ::lunrep
+      INTEGER(kind=int_wp) ::BENFOOD (42),  SwitchV1
+      INTEGER(kind=int_wp) ::lunrep
 
-      REAL(kind=sp) ::POM(4), DETRIT(4), DETS1(4), DETBIO(4)
+      REAL(kind=real_wp) ::POM(4), DETRIT(4), DETS1(4), DETBIO(4)
 
-      REAL(kind=sp) ::Area, Dens_m2, Dens,
+      REAL(kind=real_wp) ::Area, Dens_m2, Dens,
      +             E_scaled, V, E, R, V_m2, E_m2, R_m2,
      +             Food, dDef, dNDef, dPDef, dSiDef,
      +             dMor, dNMor, dPMor, Pra, rMor, rHrv,
@@ -192,7 +192,7 @@
      +             Pa, Pc, Pr, Pg, Pm, Prj, Pjj, Pja, Pv,
      +             Vd, Length, Onethird, kappa_G, kT, minFood
 
-      REAL(kind=sp) ::Cin, Cuit, Cbal, Nin, Nuit, Pin, Puit,
+      REAL(kind=real_wp) ::Cin, Cuit, Cbal, Nin, Nuit, Pin, Puit,
      +             Siin, Siuit, Nbal, Pbal, Sibal,
      +             Dens_out, WW_ind, Biomass, TotBiomass,
      +             AFDW, TotAFDW, WW, TotWW,

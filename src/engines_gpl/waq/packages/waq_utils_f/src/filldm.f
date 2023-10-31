@@ -83,7 +83,7 @@
 !
 !  declaration and specification
 !
-      integer(kind=int_32) :: elmdms( 6, *), ielem,
+      integer(kind=int_wp) :: elmdms( 6, *), ielem,
      *        dm1   ,dm2   ,dm3   ,dm4   ,dm5   ,dm6
 !-----------------------------------------------------------------------
 !-----define element dimensions

@@ -45,21 +45,21 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     AMASS   REAL(kind=sp) ::NOTOT*NOSEG  OUTPUT  closure error correction
-!     VOLUME  REAL(kind=sp) ::NOSEG     INPUT   volume
-!     CONC    REAL(kind=sp) ::NOTOT*NOSEG  INPUT   concentrations
-!     NOTOT   INTEGER(kind=int_32) ::1       INPUT   number of systems
-!     NOSEG   INTEGER(kind=int_32) ::1       INPUT   number of segments
+!     AMASS   REAL(kind=real_wp) ::NOTOT*NOSEG  OUTPUT  closure error correction
+!     VOLUME  REAL(kind=real_wp) ::NOSEG     INPUT   volume
+!     CONC    REAL(kind=real_wp) ::NOTOT*NOSEG  INPUT   concentrations
+!     NOTOT   INTEGER(kind=int_wp) ::1       INPUT   number of systems
+!     NOSEG   INTEGER(kind=int_wp) ::1       INPUT   number of segments
 !
       use timers
 
-      real(kind=sp) ::AMASS(NOTOT,*) , VOLUME(*) , CONC(NOTOT,*)
-      real(kind=sp) ::v1
+      real(kind=real_wp) ::AMASS(NOTOT,*) , VOLUME(*) , CONC(NOTOT,*)
+      real(kind=real_wp) ::v1
 
-      integer(kind=int_32) ::notot, noseg
-      integer(kind=int_32) ::isys, iseg
+      integer(kind=int_wp) ::notot, noseg
+      integer(kind=int_wp) ::isys, iseg
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwq66", ithandl )
 !
 !         loop over the number of segments and systems

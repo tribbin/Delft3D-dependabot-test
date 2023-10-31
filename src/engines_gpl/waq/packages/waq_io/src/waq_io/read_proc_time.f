@@ -54,20 +54,20 @@
 
 !     declaration of arguments
 
-      integer(kind=int_32), intent(in   ) ::  notot           !< nr of substances
+      integer(kind=int_wp), intent(in   ) ::  notot           !< nr of substances
       character(20)         , intent(in   ) :: syname(notot)  !< substance names
-      integer(kind=int_32), intent(inout) ::  isyst (notot)   !< process timestep multiplier
-      integer(kind=int_32), intent(inout) ::  ierr            !< cummulative error count
+      integer(kind=int_wp), intent(inout) ::  isyst (notot)   !< process timestep multiplier
+      integer(kind=int_wp), intent(inout) ::  ierr            !< cummulative error count
 
 !     local declarations
 
       character(len=255)    :: ctoken           ! character token from input
-      integer(kind=int_32) ::  itype             ! type of input that was provided
-      integer(kind=int_32) ::  ierr2             ! local error indication
-      integer(kind=int_32) ::  sysused(notot)    ! work array substance selection
-      integer(kind=int_32) ::  isys              ! index substance
-      integer(kind=int_32) ::  idtmult           ! timestep multiplier
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  itype             ! type of input that was provided
+      integer(kind=int_wp) ::  ierr2             ! local error indication
+      integer(kind=int_wp) ::  sysused(notot)    ! work array substance selection
+      integer(kind=int_wp) ::  isys              ! index substance
+      integer(kind=int_wp) ::  idtmult           ! timestep multiplier
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "read_proc_time", ithndl )
 
 !     some init

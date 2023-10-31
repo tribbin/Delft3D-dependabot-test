@@ -45,7 +45,7 @@
 !
 ! Name    T   L I/O   Description                                    Units
 ! ----    --- -  -    -------------------                            -----
-! ZFL     REAL(kind=sp) ::Zero'th oreder flux         M/m3/s
+! ZFL     REAL(kind=real_wp) ::Zero'th oreder flux         M/m3/s
 ! DEPTH   R*4 1 I     depth                                          [m]
 ! SW1                 load option 0=all, 1=top, 2=bottom segments    (-)
 ! SW2                 maximise withdrawel to mass 0=no, 1=yes        (-)
@@ -56,12 +56,12 @@
 !     Name     Type   Library
 !     ------   -----  ------------
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
-      integer(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IFLUX, ISEG, IKMRK1,
+      integer(kind=int_wp) ::IP1, IP2, IP3, IP4, IP5, IP6, IFLUX, ISEG, IKMRK1,
      +         IKMRK2, ISW1, ISW2
-      real(kind=sp) ::zfl, depth, conc, delt  
+      real(kind=real_wp) ::zfl, depth, conc, delt
 
       IP1  = IPOINT( 1)
       IP2  = IPOINT( 2)

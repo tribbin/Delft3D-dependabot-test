@@ -55,12 +55,12 @@
 
       IMPLICIT NONE
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( 40 ) , INCREM(40) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( 40 ) , INCREM(40) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER(kind=int_32) ::IP(40)
-      REAL(kind=sp) ::FLX1  , FLX2  , FLX3  , FLX1S2  , FLX2S2  , FLX3S2  ,
+      INTEGER(kind=int_wp) ::IP(40)
+      REAL(kind=real_wp) ::FLX1  , FLX2  , FLX3  , FLX1S2  , FLX2S2  , FLX3S2  ,
      J         FLPOC , FLPOM , FLALGC,
      J         FLALGM, DMCF1 , DMCF2 , DMCF3 , TIMSED, TDMSED, POCSED,
      J         C1    , C2    , C3    , V1    , V2    , V3    , CTOT,
@@ -70,8 +70,8 @@
      J         CP2   , VP2   ,
      J         CP3   , VP3   ,
      J         CP4   , VP4
-      INTEGER(kind=int_32) ::IFLUX , ISEG  , IKMRK2, IQ    , IVAN  , INAAR
-      INTEGER(kind=int_32) ::IKMRKN, IKMRKV
+      INTEGER(kind=int_wp) ::IFLUX , ISEG  , IKMRK2, IQ    , IVAN  , INAAR
+      INTEGER(kind=int_wp) ::IKMRKN, IKMRKV
 
       IP = IPOINT
 !

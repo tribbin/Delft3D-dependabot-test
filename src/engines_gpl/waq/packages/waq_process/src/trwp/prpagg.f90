@@ -63,25 +63,25 @@ use m_evaluate_waq_attribute
 
     implicit none
 
-    real(kind=sp)      ::pmsa  ( * ) , fl    (*)
-    integer(kind=int_32)   ::ipoint( * ) , increm(*) , noseg , noflux, &
+    real(kind=real_wp)      ::pmsa  ( * ) , fl    (*)
+    integer(kind=int_wp)   ::ipoint( * ) , increm(*) , noseg , noflux, &
              iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 !
 !   local declarations
 !
-    integer(kind=int_32)   ::iseg, ikmrk1,ikmrk2, itel, noq, iq, ifrom, ipp
-    real(kind=sp)      ::diameter1, density1, diameter2, density2, biofilm_thk, biofilm_density
-    real(kind=sp)      ::combined_diameter, combined_density, new_shape_factor
-    real(kind=sp)      ::settle_vel, tcr_sedim
+    integer(kind=int_wp)   ::iseg, ikmrk1,ikmrk2, itel, noq, iq, ifrom, ipp
+    real(kind=real_wp)      ::diameter1, density1, diameter2, density2, biofilm_thk, biofilm_density
+    real(kind=real_wp)      ::combined_diameter, combined_density, new_shape_factor
+    real(kind=real_wp)      ::settle_vel, tcr_sedim
 
-    integer(kind=int_32)            ::ipnt(500)  
-    integer(kind=int_32),parameter  ::ip_nTRWP = 1
-    integer(kind=int_32),parameter  ::ip_nIM = 2
-    integer(kind=int_32),parameter  ::ip_BioFilmThk = 3
-    integer(kind=int_32),parameter  ::ip_BioFilmDen = 4
-    integer(kind=int_32),parameter  ::ip_lastsingle = 4
+    integer(kind=int_wp)            ::ipnt(500)
+    integer(kind=int_wp),parameter  ::ip_nTRWP = 1
+    integer(kind=int_wp),parameter  ::ip_nIM = 2
+    integer(kind=int_wp),parameter  ::ip_BioFilmThk = 3
+    integer(kind=int_wp),parameter  ::ip_BioFilmDen = 4
+    integer(kind=int_wp),parameter  ::ip_lastsingle = 4
 
-    integer(kind=int_32)  ::ntrwp, itrwp, nsusp, isusp, nitem, offset
+    integer(kind=int_wp)  ::ntrwp, itrwp, nsusp, isusp, nitem, offset
 
     ntrwp = pmsa(ipoint(ip_ntrwp))
     nsusp = pmsa(ipoint(ip_nim  ))

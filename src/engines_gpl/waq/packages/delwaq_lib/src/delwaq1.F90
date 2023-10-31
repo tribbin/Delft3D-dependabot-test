@@ -56,9 +56,9 @@ use m_delwaq1_allocate_workspace
 
     implicit none
 
-    integer(kind=int_32), intent(in) ::  argc 
+    integer(kind=int_wp), intent(in) ::  argc
     character(len=*), dimension(argc), intent(in) :: argv
-    integer(kind=int_32), intent(out) ::  errorcode
+    integer(kind=int_wp), intent(out) ::  errorcode
 
     errorcode = 0
 

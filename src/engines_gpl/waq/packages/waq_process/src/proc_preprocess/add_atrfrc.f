@@ -43,23 +43,23 @@
 
       ! decalaration of arguments
 
-      integer(kind=int_32) ::lunrep          ! report file
+      integer(kind=int_wp) ::lunrep          ! report file
       type(procespropcoll)      :: procesdef       ! the process definition
       type(sfracsprop)          :: sfracs          ! substance fraction properties
 
       ! local declaration
 
       type(procesprop), pointer :: proc              ! single process
-      integer(kind=int_32) ::nproc             ! number of processes
-      integer(kind=int_32) ::iproc             ! loop counter processes
+      integer(kind=int_wp) ::nproc             ! number of processes
+      integer(kind=int_wp) ::iproc             ! loop counter processes
       logical                   :: lfound            ! command line argument found
-      integer(kind=int_32) ::idummy            ! dummy
-      real(kind=sp) ::rdummy            ! dummy
+      integer(kind=int_wp) ::idummy            ! dummy
+      real(kind=real_wp) ::rdummy            ! dummy
       character(len=256)        :: patrfil           ! process attributes file
-      integer(kind=int_32) ::lun_patr          ! unit number
+      integer(kind=int_wp) ::lun_patr          ! unit number
       character(len=256)        :: type              ! sfrac_type from file
-      integer(kind=int_32) ::ierr              ! ierr
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::ierr              ! ierr
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "add_atrfrc", ithndl )
 
       call getcom ( '-sfrac', 3    , lfound, idummy, rdummy, patrfil, ierr)

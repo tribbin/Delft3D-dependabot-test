@@ -21,7 +21,7 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
 module m_delwaq_statistical_process
-use m_waq_type_definitions, only: int_32, sp
+use m_waq_type_definitions, only: int_wp, real_wp
 use m_setqtl
 use m_setprc
 use m_setgeo
@@ -57,59 +57,59 @@ contains
 
       !     kind           function         name                Descriptipon
 
-      integer(kind=int_32), intent(in   )  ::lunrep            !! unit nr of output report file
-      integer(kind=int_32), intent(in   )  ::npos              !! significant line length of input file
+      integer(kind=int_wp), intent(in   )  ::lunrep            !! unit nr of output report file
+      integer(kind=int_wp), intent(in   )  ::npos              !! significant line length of input file
       character( 1), intent(in   )         :: cchar                    !! comment character
-      integer(kind=int_32), intent(inout)  ::ilun (*)          !! unitnumber include stack
+      integer(kind=int_wp), intent(inout)  ::ilun (*)          !! unitnumber include stack
       character( *), intent(inout)         :: lch  (*)                 !! filename include stack for input
-      integer(kind=int_32), intent(in   )  ::lstack            !! include file stack size
-      integer(kind=int_32), intent(  out)  ::ioutpt            !! flag for more or less output
+      integer(kind=int_wp), intent(in   )  ::lstack            !! include file stack size
+      integer(kind=int_wp), intent(  out)  ::ioutpt            !! flag for more or less output
       logical      , intent(in   )         :: dtflg1                   !! 'date'-format 1st timescale
       logical      , intent(in   )         :: dtflg3                   !! 'date'-format (F;ddmmhhss,T;yydddhh)
       type(ProcesPropColl)                 :: StatProcesDef            !! the statistical proces definition
       type(ItemPropColl)                   :: AllItems                 !! all items of the proces system
-      integer(kind=int_32), intent(inout)  ::noinfo            !! count of informative message
-      integer(kind=int_32), intent(inout)  ::nowarn            !! cumulative warning count
-      integer(kind=int_32), intent(inout)  ::ierr              !! cumulative error   count
+      integer(kind=int_wp), intent(inout)  ::noinfo            !! count of informative message
+      integer(kind=int_wp), intent(inout)  ::nowarn            !! cumulative warning count
+      integer(kind=int_wp), intent(inout)  ::ierr              !! cumulative error   count
 
       type(ProcesProp)                     :: aProcesProp       !! one statistical proces definition
 
-      INTEGER(kind=int_32) , POINTER :: STA_NO_IN(:)
-      INTEGER(kind=int_32) , POINTER :: STA_NO_OUT(:)
-      INTEGER(kind=int_32) , POINTER :: STA_SWITR(:)
+      INTEGER(kind=int_wp) , POINTER :: STA_NO_IN(:)
+      INTEGER(kind=int_wp) , POINTER :: STA_NO_OUT(:)
+      INTEGER(kind=int_wp) , POINTER :: STA_SWITR(:)
       CHARACTER*20, POINTER :: STA_IN_NAM(:)
       CHARACTER*50, POINTER :: STA_IN_TXT(:)
-      REAL(kind=sp) , POINTER :: STA_IN_DEF(:)
+      REAL(kind=real_wp) , POINTER :: STA_IN_DEF(:)
       CHARACTER*20, POINTER :: STA_OUT_NAM(:)
       CHARACTER*50, POINTER :: STA_OUT_TXT(:)
       CHARACTER*10, POINTER :: STA_MODNAM(:)
 
-      INTEGER(kind=int_32) ::NKEY  , IPOSR , NSPROC
+      INTEGER(kind=int_wp) ::NKEY  , IPOSR , NSPROC
       CHARACTER*20, POINTER :: KEYNAM(:)
       CHARACTER*20, POINTER :: KEYVAL(:)
       CHARACTER*20, ALLOCATABLE :: KEYNAM2(:)
       CHARACTER*20, ALLOCATABLE :: KEYVAL2(:)
-      INTEGER(kind=int_32) , POINTER :: NOKEY(:)
+      INTEGER(kind=int_wp) , POINTER :: NOKEY(:)
 
-      INTEGER(kind=int_32) ::NPERIOD
+      INTEGER(kind=int_wp) ::NPERIOD
       CHARACTER*20, POINTER :: PERNAM(:)
       CHARACTER*20, POINTER :: PERSFX(:)
-      INTEGER(kind=int_32) , POINTER :: PSTART(:)
-      INTEGER(kind=int_32) , POINTER :: PSTOP(:)
+      INTEGER(kind=int_wp) , POINTER :: PSTART(:)
+      INTEGER(kind=int_wp) , POINTER :: PSTOP(:)
 
-      INTEGER(kind=int_32) ::NSVAI , NSVAO , ISWITR
+      INTEGER(kind=int_wp) ::NSVAI , NSVAO , ISWITR
       CHARACTER*20, POINTER :: VAINAM(:)
       CHARACTER*50, POINTER :: VAITXT(:)
-      REAL(kind=sp) , POINTER :: VAIDEF(:)
+      REAL(kind=real_wp) , POINTER :: VAIDEF(:)
       CHARACTER*20, POINTER :: VAONAM(:)
       CHARACTER*50, POINTER :: VAOTXT(:)
 
-      INTEGER(kind=int_32) :: IKSTAT, ISTAT , IKEY   , IFOUND, IERR_ALLOC, &
+      INTEGER(kind=int_wp) :: IKSTAT, ISTAT , IKEY   , IFOUND, IERR_ALLOC, &
                               NOSTAT, ISPROC, IPERIOD, IRET  , IHULP1    , &
                               IHULP2
       CHARACTER*20  :: KEY
       CHARACTER*4   :: CH4
-      integer(kind=int_32) :: ithndl = 0
+      integer(kind=int_wp) :: ithndl = 0
       if (timon) call timstrt( "setup_statistical", ithndl )
 
       WRITE(LUNREP,2000)

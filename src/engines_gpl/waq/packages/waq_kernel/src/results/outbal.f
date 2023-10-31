@@ -50,28 +50,28 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     LUBAL   INTEGER(kind=int_32) ::1     INPUT   Logical unit balance file
+!     LUBAL   INTEGER(kind=int_wp) ::1     INPUT   Logical unit balance file
 !     FILBAL  CHAR*(*)      1     INPUT   Name balance file
-!     ITIME   INTEGER(kind=int_32) ::1     INPUT   Simulation time ( scu )
+!     ITIME   INTEGER(kind=int_wp) ::1     INPUT   Simulation time ( scu )
 !     MONAME  CHAR*40       4     INPUT   model identification
-!     NOTOT   INTEGER(kind=int_32) ::1     INPUT   Total number of substances
-!     NOFLUX  INTEGER(kind=int_32) ::1     INPUT   Nr. of fluxes
+!     NOTOT   INTEGER(kind=int_wp) ::1     INPUT   Total number of substances
+!     NOFLUX  INTEGER(kind=int_wp) ::1     INPUT   Nr. of fluxes
 !     SYNAME  CHAR*20   NOTOT     INPUT   names of substances
-!     NDMPAR  INTEGER(kind=int_32) ::1     INPUT   Number of dump segments
+!     NDMPAR  INTEGER(kind=int_wp) ::1     INPUT   Number of dump segments
 !     DANAME  CHAR*20   NDMPAR    INPUT   names of monitoring stations
-!     ASMASS  REAL(kind=sp) ::NOTOT*NDMPAR*6 INPUT   Mass balance terms
-!     FLXINT  REAL(kind=sp) ::NOFLUX*NDMPAR INPUT   Integrated fluxes
-!     NOTOT2  REAL(kind=sp) ::1     INPUT   Number of extra variables
-!     CONC2   REAL(kind=sp) ::NOTOT2*NDMPAR  INPUT   Extra variables
-!     INIT    INTEGER(kind=int_32) ::1     IN/OUT  Init flag (1=yes,!1=no)
+!     ASMASS  REAL(kind=real_wp) ::NOTOT*NDMPAR*6 INPUT   Mass balance terms
+!     FLXINT  REAL(kind=real_wp) ::NOFLUX*NDMPAR INPUT   Integrated fluxes
+!     NOTOT2  REAL(kind=real_wp) ::1     INPUT   Number of extra variables
+!     CONC2   REAL(kind=real_wp) ::NOTOT2*NDMPAR  INPUT   Extra variables
+!     INIT    INTEGER(kind=int_wp) ::1     IN/OUT  Init flag (1=yes,!1=no)
 !
 !     Declaration of arguments
 !
       use timers
 
-      INTEGER(kind=int_32) ::LUBAL , ITIME , INIT  , NOTOT , NOFLUX,
+      INTEGER(kind=int_wp) ::LUBAL , ITIME , INIT  , NOTOT , NOFLUX,
      +              NDMPAR, NOTOT2, NOPOUT
-      REAL(kind=sp) ::ASMASS(NOTOT,NDMPAR,6), FLXINT(NOFLUX,NDMPAR),
+      REAL(kind=real_wp) ::ASMASS(NOTOT,NDMPAR,6), FLXINT(NOFLUX,NDMPAR),
      +              CONC2(NOTOT2,NDMPAR)
       CHARACTER*20  SYNAME(*)             , DANAME(*)
       CHARACTER*40  MONAME(4)
@@ -79,9 +79,9 @@
 !
 !     Local declarations
 !
-      INTEGER(kind=int_32) ::J     , I     , K     , ISYS  , IFLX  ,
+      INTEGER(kind=int_wp) ::J     , I     , K     , ISYS  , IFLX  ,
      +             IHLP
-      integer(kind=int_32) ::ithandl =0
+      integer(kind=int_wp) ::ithandl =0
       if ( timon ) call timstrt ( "outbal", ithandl )
 !
 !     Initialize file

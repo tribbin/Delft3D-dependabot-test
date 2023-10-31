@@ -71,50 +71,50 @@
 
 !     kind           function         name                      description
 
-      integer(kind=int_32), intent(in   ) :: itime                   !< actual time
-      integer(kind=int_32), intent(in   ) :: noseg                   !< delwaq noseg
-      integer(kind=int_32), intent(in   ) :: nolay                   !< delwaq layers
-      integer(kind=int_32), intent(in   ) :: noq                     !< delwaq noq
-      integer(kind=int_32), intent(in   ) :: nosys                   !< delwaq transported subs
-      integer(kind=int_32), intent(in   ) :: notot                   !< delwaq total subs, part subs included
-      real(kind=sp) , intent(in   ) :: dwqvol (noseg )         !< delwaq volumes
-      real(kind=sp) , intent(in   ) :: surface(noseg )         !< horizontal surfaces
-      real(kind=sp) , intent(in   ) :: dwqflo (noq   )         !< delwaq flows
+      integer(kind=int_wp), intent(in   ) :: itime                   !< actual time
+      integer(kind=int_wp), intent(in   ) :: noseg                   !< delwaq noseg
+      integer(kind=int_wp), intent(in   ) :: nolay                   !< delwaq layers
+      integer(kind=int_wp), intent(in   ) :: noq                     !< delwaq noq
+      integer(kind=int_wp), intent(in   ) :: nosys                   !< delwaq transported subs
+      integer(kind=int_wp), intent(in   ) :: notot                   !< delwaq total subs, part subs included
+      real(kind=real_wp) , intent(in   ) :: dwqvol (noseg )         !< delwaq volumes
+      real(kind=real_wp) , intent(in   ) :: surface(noseg )         !< horizontal surfaces
+      real(kind=real_wp) , intent(in   ) :: dwqflo (noq   )         !< delwaq flows
       character(20), intent(in   ) :: syname (notot )         !< names of sumstances
-      integer(kind=int_32), intent(in   ) :: nosfun                  !< number of segment functions
+      integer(kind=int_wp), intent(in   ) :: nosfun                  !< number of segment functions
       character(20), intent(in   ) :: sfname (nosfun)         !< names of segment functions
-      real(kind=sp), intent(in   )  ::segfun (noseg ,nosfun)  !< segment function values
-      real(kind=sp), intent(inout)  ::amass  (notot ,noseg )  !< delwaq mass array
-      real(kind=sp), intent(inout)  ::conc   (notot ,noseg )  !< delwaq conc array
-      integer(kind=int_32), intent(in   )  ::iaflag                  !< if 1 then accumulation of balances
-      integer(kind=int_32), intent(in   )  ::intopt                  !< integration suboptions
-      integer(kind=int_32), intent(in   )  ::ndmps                   !< number of dumped volumes for balances
-      integer(kind=int_32), intent(in   )  ::isdmp  (noseg )         !< volume to dump-location pointer
-      real(kind=sp), intent(inout)  ::dmps   (notot ,ndmps,*) !< dumped segment fluxes if INTOPT > 7
-      real(kind=sp), intent(inout)  ::amass2 (notot , 5 )     !< mass balance array
+      real(kind=real_wp), intent(in   )  ::segfun (noseg ,nosfun)  !< segment function values
+      real(kind=real_wp), intent(inout)  ::amass  (notot ,noseg )  !< delwaq mass array
+      real(kind=real_wp), intent(inout)  ::conc   (notot ,noseg )  !< delwaq conc array
+      integer(kind=int_wp), intent(in   )  ::iaflag                  !< if 1 then accumulation of balances
+      integer(kind=int_wp), intent(in   )  ::intopt                  !< integration suboptions
+      integer(kind=int_wp), intent(in   )  ::ndmps                   !< number of dumped volumes for balances
+      integer(kind=int_wp), intent(in   )  ::isdmp  (noseg )         !< volume to dump-location pointer
+      real(kind=real_wp), intent(inout)  ::dmps   (notot ,ndmps,*) !< dumped segment fluxes if INTOPT > 7
+      real(kind=real_wp), intent(inout)  ::amass2 (notot , 5 )     !< mass balance array
 
 
 !     Locals
 
-      integer(kind=int_32) lunut             !  output unit number
-      integer(kind=int_32) ::lunpr
-      integer(kind=int_32) ::indx              !  index in segment names
-      integer(kind=int_32) ::ioff              !  offset in substances array
-      integer(kind=int_32) ::isys              !  loop counter substances
+      integer(kind=int_wp) lunut             !  output unit number
+      integer(kind=int_wp) ::lunpr
+      integer(kind=int_wp) ::indx              !  index in segment names
+      integer(kind=int_wp) ::ioff              !  offset in substances array
+      integer(kind=int_wp) ::isys              !  loop counter substances
       logical     :: first  = .true.
-      integer(kind=int_32), save :: idtimd , itimd1 , itimd2     ! timings of the vertical diffusion file
-      integer(kind=int_32), save :: idtimt , itimt1 , itimt2     ! timings of the tau file
-      integer(kind=int_32), save :: idtims , itims1 , itims2     ! timings of the salinity file
-      integer(kind=int_32), save :: idtimtm , itimtm1 , itimtm2     ! timings of the temperature file
-      integer(kind=int_32), save :: ifflag , isflag
+      integer(kind=int_wp), save :: idtimd , itimd1 , itimd2     ! timings of the vertical diffusion file
+      integer(kind=int_wp), save :: idtimt , itimt1 , itimt2     ! timings of the tau file
+      integer(kind=int_wp), save :: idtims , itims1 , itims2     ! timings of the salinity file
+      integer(kind=int_wp), save :: idtimtm , itimtm1 , itimtm2     ! timings of the temperature file
+      integer(kind=int_wp), save :: ifflag , isflag
       logical    , save :: updatd
-      integer(kind=int_32) nosubud
-      integer(kind=int_32) iseg, i, i2, ipart
-      real(kind=sp)  depmin
+      integer(kind=int_wp) nosubud
+      integer(kind=int_wp) iseg, i, i2, ipart
+      real(kind=real_wp)  depmin
       logical     update
-      integer(kind=int_32) ::iniday
-      integer(kind=int_32) ::lures
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::iniday
+      integer(kind=int_wp) ::lures
+      integer(kind=int_wp) ::ithandl = 0
 
       if ( alone ) return
       if ( timon ) call timstrt ( "delpar01", ithandl )

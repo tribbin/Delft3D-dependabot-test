@@ -42,7 +42,7 @@
       implicit none
 
       real(kind=dp) ::x(mx), biopos, bio2, total
-      integer(kind=int_32) ::int, j, k, k2, l1, l2, ni, nin
+      integer(kind=int_wp) ::int, j, k, k2, l1, l2, ni, nin
 
 !  Print maximum solution on unit outdbg
       write (outdbg,10)

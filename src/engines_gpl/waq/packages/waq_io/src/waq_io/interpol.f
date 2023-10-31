@@ -56,22 +56,22 @@
 
 !     kind           function         name                   Descriptipon
 
-      integer(kind=int_32), intent(in   ) ::  nvar                  !< number of variables
-      integer(kind=int_32), intent(in   ) ::  ndim2                 !< data per variable
-      integer(kind=int_32), intent(in   ) ::  tset                  !< interpolation time
-      integer(kind=int_32), intent(in   ) ::  thigh                 !< time at end of interval
-      integer(kind=int_32), intent(in   ) ::  tlow                  !< time at start of interval
-      real(kind=sp), intent(  out) ::  result(ndim2,nvar)    !< resulting array
-      real(kind=sp), intent(in   ) ::  lower (ndim2,nvar)    !< lower end array
-      real(kind=sp), intent(in   ) ::  higher(ndim2,nvar)    !< higher end array
-      integer(kind=int_32), intent(in   ) ::  iftyp (nvar )         !< interpolation type per variable
+      integer(kind=int_wp), intent(in   ) ::  nvar                  !< number of variables
+      integer(kind=int_wp), intent(in   ) ::  ndim2                 !< data per variable
+      integer(kind=int_wp), intent(in   ) ::  tset                  !< interpolation time
+      integer(kind=int_wp), intent(in   ) ::  thigh                 !< time at end of interval
+      integer(kind=int_wp), intent(in   ) ::  tlow                  !< time at start of interval
+      real(kind=real_wp), intent(  out) ::  result(ndim2,nvar)    !< resulting array
+      real(kind=real_wp), intent(in   ) ::  lower (ndim2,nvar)    !< lower end array
+      real(kind=real_wp), intent(in   ) ::  higher(ndim2,nvar)    !< higher end array
+      integer(kind=int_wp), intent(in   ) ::  iftyp (nvar )         !< interpolation type per variable
 
 !     local decalations
 
-      real(kind=sp) :: factor1       ! weight of the higher end
-      real(kind=sp) :: factor2       ! weight of the lower end
-      integer(kind=int_32) :: ivar          ! loop counter
-      integer(kind=int_32) ::  ithndl = 0 
+      real(kind=real_wp) :: factor1       ! weight of the higher end
+      real(kind=real_wp) :: factor2       ! weight of the lower end
+      integer(kind=int_wp) :: ivar          ! loop counter
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "interpol", ithndl )
 
 !        interpolate

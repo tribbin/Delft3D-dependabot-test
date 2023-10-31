@@ -39,20 +39,20 @@
 !
 !     Arguments
 !
-      INTEGER(kind=int_32) ::NARG
-      INTEGER(kind=int_32) ::IARG
+      INTEGER(kind=int_wp) ::NARG
+      INTEGER(kind=int_wp) ::IARG
       CHARACTER*(*) LINE
 !
 !     Local
 !
       INTEGER(kind=int_16) ::N, STATUS
       CHARACTER*256 BUFFER
-      INTEGER(kind=int_32) ::COUNT
-      INTEGER(kind=int_32) ::STORED
+      INTEGER(kind=int_wp) ::COUNT
+      INTEGER(kind=int_wp) ::STORED
       LOGICAL       OPENED, EXISTS
-      INTEGER(kind=int_32) ::IERR
-      INTEGER(kind=int_32) ::LUN
-      INTEGER(kind=int_32) ::I
+      INTEGER(kind=int_wp) ::IERR
+      INTEGER(kind=int_wp) ::LUN
+      INTEGER(kind=int_wp) ::I
 
 !
 !     Any stored arguments?

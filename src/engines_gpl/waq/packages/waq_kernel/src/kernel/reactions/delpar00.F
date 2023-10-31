@@ -69,28 +69,28 @@
 !     kind            function         name                      description
 
       character( * ), intent(in   ) :: mdpfile                 !< file name mdp-file
-      integer  ( kind=int_32), intent(in   ) :: noseg                   !< delwaq noseg
-      integer  ( kind=int_32), intent(in   ) :: noq                     !< delwaq noq
-      real     ( kind=sp), intent(in   ) :: dwqvol (noseg)          !< delwaq volumes
-      real     ( kind=sp), intent(in   ) :: dwqflo (noq)            !< delwaq flows
-      integer  ( kind=int_32), intent(in   ) :: nosfun                  !< number of segment functions
+      integer  ( kind=int_wp), intent(in   ) :: noseg                   !< delwaq noseg
+      integer  ( kind=int_wp), intent(in   ) :: noq                     !< delwaq noq
+      real     ( kind=real_wp), intent(in   ) :: dwqvol (noseg)          !< delwaq volumes
+      real     ( kind=real_wp), intent(in   ) :: dwqflo (noq)            !< delwaq flows
+      integer  ( kind=int_wp), intent(in   ) :: nosfun                  !< number of segment functions
       character( 20), intent(in   ) :: sfname (nosfun)         !< names of segment functions
-      real(kind=sp), intent(in   ) ::  segfun (noseg ,nosfun)   !< segment function values
-      integer(kind=int_32), save ::  iniday               ! release of initial condition, not used here
+      real(kind=real_wp), intent(in   ) ::  segfun (noseg ,nosfun)   !< segment function values
+      integer(kind=int_wp), save ::  iniday               ! release of initial condition, not used here
 
 !     Locals
 
-      integer(kind=int_32) i, i2, itime, indx, ierr
-      integer(kind=int_32) :: lunut          ! report file
-      integer(kind=int_32)         :: ilp, isp, ids, ide, iext, nores, noras, nosubs_idp
-      real   (kind=sp) :: depmin
-      real   (kind=sp) :: dtstep
-      real   (kind=sp)         :: rnorm
+      integer(kind=int_wp) i, i2, itime, indx, ierr
+      integer(kind=int_wp) :: lunut          ! report file
+      integer(kind=int_wp)         :: ilp, isp, ids, ide, iext, nores, noras, nosubs_idp
+      real   (kind=real_wp) :: depmin
+      real   (kind=real_wp) :: dtstep
+      real   (kind=real_wp)         :: rnorm
       real   (kind=dp) :: rseed = 0.5d0 ! AM: some strange quirk makes this necessary
       logical update
-      integer(kind=int_32) ::  luini
+      integer(kind=int_wp) ::  luini
  
-      integer(kind=int_32) :: ithandl = 0
+      integer(kind=int_wp) :: ithandl = 0
       if ( timon ) call timstrt ( "delpar00", ithandl )
 
       alone = .true.

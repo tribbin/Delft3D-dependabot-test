@@ -36,23 +36,23 @@
       use timers
       implicit none
 
-      integer(kind=int_32), intent(in   )  ::nosss          ! total number of segments
-      integer(kind=int_32), intent(in   )  ::ndmpar         ! Number of dump areas
-      integer(kind=int_32), intent(in   )  ::ipdmp(*)       ! pointer structure dump area's
-      integer(kind=int_32), intent(in   )  ::isegcol(*)     ! pointer from segment to top of column
-      real(kind=sp), intent(in   )  ::surf(*)        ! horizontal surface per segment
-      real(kind=sp), intent(  out)  ::dmp_surf(*)    ! horizontal surface per dump area
+      integer(kind=int_wp), intent(in   )  ::nosss          ! total number of segments
+      integer(kind=int_wp), intent(in   )  ::ndmpar         ! Number of dump areas
+      integer(kind=int_wp), intent(in   )  ::ipdmp(*)       ! pointer structure dump area's
+      integer(kind=int_wp), intent(in   )  ::isegcol(*)     ! pointer from segment to top of column
+      real(kind=real_wp), intent(in   )  ::surf(*)        ! horizontal surface per segment
+      real(kind=real_wp), intent(  out)  ::dmp_surf(*)    ! horizontal surface per dump area
 
       ! local declarations
 
-      integer(kind=int_32) ::itel           ! index counter
-      integer(kind=int_32) ::idump          ! dump area number
-      integer(kind=int_32) ::nsc            ! number of segment contributions
-      integer(kind=int_32) ::isc            ! index of segment contributions
-      integer(kind=int_32) ::iseg           ! segment number
-      integer(kind=int_32) ::icol           ! segment number top of column
-      integer(kind=int_32), allocatable    ::i_surf(:)      ! indication if column is already in area
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::itel           ! index counter
+      integer(kind=int_wp) ::idump          ! dump area number
+      integer(kind=int_wp) ::nsc            ! number of segment contributions
+      integer(kind=int_wp) ::isc            ! index of segment contributions
+      integer(kind=int_wp) ::iseg           ! segment number
+      integer(kind=int_wp) ::icol           ! segment number top of column
+      integer(kind=int_wp), allocatable    ::i_surf(:)      ! indication if column is already in area
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dmpsurf", ithandl )
 
       ! loop over the dump area's, sum value

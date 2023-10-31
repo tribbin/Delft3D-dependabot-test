@@ -41,79 +41,79 @@
 
       ! arguments          i/o description
 
-      real(kind=sp) :: pmsa(*)      !i/o process manager system array, window of routine to process library
-      real(kind=sp) :: fl(*)        ! o  array of fluxes made by this process in mass/volume/time
-      integer(kind=int_32) :: ipoint(*)    ! i  array of pointers in pmsa to get and store the data
-      integer(kind=int_32) :: increm(*)    ! i  increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer(kind=int_32) :: noseg        ! i  number of computational elements in the whole model schematisation
-      integer(kind=int_32) :: noflux       ! i  number of fluxes, increment in the fl array
-      integer(kind=int_32) :: iexpnt(4,*)  ! i  from, to, from-1 and to+1 segment numbers of the exchange surfaces
-      integer(kind=int_32) :: iknmrk(*)    ! i  active-inactive, surface-water-bottom, see manual for use
-      integer(kind=int_32) :: noq1         ! i  nr of exchanges in 1st direction, only horizontal dir if irregular mesh
-      integer(kind=int_32) :: noq2         ! i  nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer(kind=int_32) :: noq3         ! i  nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer(kind=int_32) :: noq4         ! i  nr of exchanges in the bottom (bottom layers, specialist use only)
+      real(kind=real_wp) :: pmsa(*)      !i/o process manager system array, window of routine to process library
+      real(kind=real_wp) :: fl(*)        ! o  array of fluxes made by this process in mass/volume/time
+      integer(kind=int_wp) :: ipoint(*)    ! i  array of pointers in pmsa to get and store the data
+      integer(kind=int_wp) :: increm(*)    ! i  increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_wp) :: noseg        ! i  number of computational elements in the whole model schematisation
+      integer(kind=int_wp) :: noflux       ! i  number of fluxes, increment in the fl array
+      integer(kind=int_wp) :: iexpnt(4,*)  ! i  from, to, from-1 and to+1 segment numbers of the exchange surfaces
+      integer(kind=int_wp) :: iknmrk(*)    ! i  active-inactive, surface-water-bottom, see manual for use
+      integer(kind=int_wp) :: noq1         ! i  nr of exchanges in 1st direction, only horizontal dir if irregular mesh
+      integer(kind=int_wp) :: noq2         ! i  nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_wp) :: noq3         ! i  nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_wp) :: noq4         ! i  nr of exchanges in the bottom (bottom layers, specialist use only)
 
       ! from pmsa array
 
-      real(kind=sp) :: depth        ! i  depth of segment                               (m)
-      real(kind=sp) :: totaldepth   ! i  total depth water column                       (m)
-      real(kind=sp) :: localdepth   ! i  depth from water surface to bottom of segment  (m)
-      real(kind=sp) :: volume       ! i  volume                                        (m3)
-      real(kind=sp) :: surf         ! i  surf                                          (m2)
-      real(kind=sp) :: hmax         ! i  maxmimum length roots                          (m)
-      real(kind=sp) :: nh4          ! i  nh4                                         (g/m3)
-      real(kind=sp) :: aap          ! i  aap                                         (g/m3)
-      real(kind=sp) :: so4          ! i  so4                                         (g/m3)
-      real(kind=sp) :: no3          ! i  no3                                         (g/m3)
-      real(kind=sp) :: po4          ! i  po4                                         (g/m3)
-      real(kind=sp) :: sud          ! i  sud                                         (g/m3)
-      real(kind=sp) :: s1_nh4       ! i  nh4 in sediment                             (g/m2)
-      real(kind=sp) :: s1_aap       ! i  aap in sediment                             (g/m2)
-      real(kind=sp) :: s1_so4       ! i  so4 in sediment                             (g/m2)
-      real(kind=sp) :: s1_no3       ! i  no3 in sediment                             (g/m2)
-      real(kind=sp) :: s1_po4       ! i  po4 in sediment                             (g/m2)
-      real(kind=sp) :: s1_sud       ! i  sud in sediment                             (g/m2)
-      real(kind=sp) :: SWRoot       ! I  RootShootModel(y=1,n=0) for F2VB F4VB       (-)
-      real(kind=sp) :: Vmax         ! I  maximun rate in Michelis/Menten             (-)
-      real(kind=sp) :: Km           ! I  TIN conc. at half of Vmax                  (gN/m3)
-      real(kind=sp) :: Vini         ! I  initial rate in Michelis/Menten             (-)
-      real(kind=sp) :: Poros        ! I  Porosity                                    (-)
-      real(kind=sp) :: hsed         ! I  sediment layer thickness                    (m)
+      real(kind=real_wp) :: depth        ! i  depth of segment                               (m)
+      real(kind=real_wp) :: totaldepth   ! i  total depth water column                       (m)
+      real(kind=real_wp) :: localdepth   ! i  depth from water surface to bottom of segment  (m)
+      real(kind=real_wp) :: volume       ! i  volume                                        (m3)
+      real(kind=real_wp) :: surf         ! i  surf                                          (m2)
+      real(kind=real_wp) :: hmax         ! i  maxmimum length roots                          (m)
+      real(kind=real_wp) :: nh4          ! i  nh4                                         (g/m3)
+      real(kind=real_wp) :: aap          ! i  aap                                         (g/m3)
+      real(kind=real_wp) :: so4          ! i  so4                                         (g/m3)
+      real(kind=real_wp) :: no3          ! i  no3                                         (g/m3)
+      real(kind=real_wp) :: po4          ! i  po4                                         (g/m3)
+      real(kind=real_wp) :: sud          ! i  sud                                         (g/m3)
+      real(kind=real_wp) :: s1_nh4       ! i  nh4 in sediment                             (g/m2)
+      real(kind=real_wp) :: s1_aap       ! i  aap in sediment                             (g/m2)
+      real(kind=real_wp) :: s1_so4       ! i  so4 in sediment                             (g/m2)
+      real(kind=real_wp) :: s1_no3       ! i  no3 in sediment                             (g/m2)
+      real(kind=real_wp) :: s1_po4       ! i  po4 in sediment                             (g/m2)
+      real(kind=real_wp) :: s1_sud       ! i  sud in sediment                             (g/m2)
+      real(kind=real_wp) :: SWRoot       ! I  RootShootModel(y=1,n=0) for F2VB F4VB       (-)
+      real(kind=real_wp) :: Vmax         ! I  maximun rate in Michelis/Menten             (-)
+      real(kind=real_wp) :: Km           ! I  TIN conc. at half of Vmax                  (gN/m3)
+      real(kind=real_wp) :: Vini         ! I  initial rate in Michelis/Menten             (-)
+      real(kind=real_wp) :: Poros        ! I  Porosity                                    (-)
+      real(kind=real_wp) :: hsed         ! I  sediment layer thickness                    (m)
 
-      real(kind=sp) :: vbxxnavail   ! o  available nitrogen                          (g/m2)
-      real(kind=sp) :: vbxxpavail   ! o  available p                                 (g/m2)
-      real(kind=sp) :: vbxxsavail   ! o  available s                                 (g/m2)
-      real(kind=sp) :: porevol      ! o  pore water volume                           (m3)
-      real(kind=sp) :: F1VB         ! o  allocation factor comp. 1 (stem)             (-)
-      real(kind=sp) :: F2VB         ! o  allocation factor comp. 2 (foliage)          (-)
-      real(kind=sp) :: F3VB         ! o  allocation factor comp. 3 (branch)           (-)
-      real(kind=sp) :: F4VB         ! o  allocation factor comp. 4 (root)             (-)
-      real(kind=sp) :: F5VB         ! o  allocation factor comp. 5 (fine root)        (-)
+      real(kind=real_wp) :: vbxxnavail   ! o  available nitrogen                          (g/m2)
+      real(kind=real_wp) :: vbxxpavail   ! o  available p                                 (g/m2)
+      real(kind=real_wp) :: vbxxsavail   ! o  available s                                 (g/m2)
+      real(kind=real_wp) :: porevol      ! o  pore water volume                           (m3)
+      real(kind=real_wp) :: F1VB         ! o  allocation factor comp. 1 (stem)             (-)
+      real(kind=real_wp) :: F2VB         ! o  allocation factor comp. 2 (foliage)          (-)
+      real(kind=real_wp) :: F3VB         ! o  allocation factor comp. 3 (branch)           (-)
+      real(kind=real_wp) :: F4VB         ! o  allocation factor comp. 4 (root)             (-)
+      real(kind=real_wp) :: F5VB         ! o  allocation factor comp. 5 (fine root)        (-)
 
       ! local declarations
 
-      integer(kind=int_32) :: iseg         !    local loop counter for computational element loop
-      real(kind=sp) :: z2           !    height bottom segment from bottom              (m)
-      real(kind=sp) :: z1           !    height top segment from bottom                 (m)
-      integer(kind=int_32) :: ikmrk1
+      integer(kind=int_wp) :: iseg         !    local loop counter for computational element loop
+      real(kind=real_wp) :: z2           !    height bottom segment from bottom              (m)
+      real(kind=real_wp) :: z1           !    height top segment from bottom                 (m)
+      integer(kind=int_wp) :: ikmrk1
       integer ikmrk2 
-      real(kind=sp) :: zm           !    watersurface to top macropyte                  (-)
-      real(kind=sp) :: frlay        !    fraction witin layer                           (-)
-      integer(kind=int_32) :: iq           !    loop counter
-      integer(kind=int_32) :: ifrom        !    from segment
-      integer(kind=int_32) :: ito          !    from segment
-      integer(kind=int_32) :: iflux        !    index in the fl array
+      real(kind=real_wp) :: zm           !    watersurface to top macropyte                  (-)
+      real(kind=real_wp) :: frlay        !    fraction witin layer                           (-)
+      integer(kind=int_wp) :: iq           !    loop counter
+      integer(kind=int_wp) :: ifrom        !    from segment
+      integer(kind=int_wp) :: ito          !    from segment
+      integer(kind=int_wp) :: iflux        !    index in the fl array
 
-      integer(kind=int_32), parameter ::  npnt    = 34         ! number of pointers
-      integer(kind=int_32), parameter           :: ioffout = npnt - 9  ! offset for output parameters
-      integer(kind=int_32) ::  ipnt(npnt)           ! local work array for the pointering
-      integer(kind=int_32) ::  ipb 
-      integer(kind=int_32) ::  ibotseg              ! bottom segment for macrophyte
+      integer(kind=int_wp), parameter ::  npnt    = 34         ! number of pointers
+      integer(kind=int_wp), parameter           :: ioffout = npnt - 9  ! offset for output parameters
+      integer(kind=int_wp) ::  ipnt(npnt)           ! local work array for the pointering
+      integer(kind=int_wp) ::  ipb
+      integer(kind=int_wp) ::  ibotseg              ! bottom segment for macrophyte
 
-      real(kind=sp) :: TIN          !    nh4+no2 conc.                                 (g/m3)
-      real(kind=sp) :: porewater    !    pore water volume                            (m3)
-      real(kind=sp) :: fsurf        !    auxiliary factor                             (m2)
+      real(kind=real_wp) :: TIN          !    nh4+no2 conc.                                 (g/m3)
+      real(kind=real_wp) :: porewater    !    pore water volume                            (m3)
+      real(kind=real_wp) :: fsurf        !    auxiliary factor                             (m2)
       ! zero the pool for all segments
 
       ipnt  = ipoint(1:npnt)

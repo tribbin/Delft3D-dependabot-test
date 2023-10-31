@@ -47,41 +47,41 @@
       ! declaration of arguments
 
       type(procespropcoll)      :: procesdef       ! all processes
-      integer(kind=int_32) ::notot           ! number of substances
+      integer(kind=int_wp) ::notot           ! number of substances
       character(len=*)          :: syname(*)       ! substance name
-      integer(kind=int_32) ::ndspx           ! number of dispersions
-      integer(kind=int_32) ::nvelx           ! number of velocities
-      integer(kind=int_32) ::ioffx           ! offset to dispersion array in waq data space
-      integer(kind=int_32) ::nosys           ! number of active substances
-      real(kind=sp) ::dsto(nosys,*)   ! dispersion stochi factors
-      real(kind=sp) ::vsto(nosys,*)   ! velocity stochi factors
-      integer(kind=int_32) ::ndspn           ! number of new (combined) dispersions
-      integer(kind=int_32) ::idpnw(nosys)    ! pointer for substance to new (combined) dispersions
-      integer(kind=int_32) ::nveln           ! number of new (combined) velocities
-      integer(kind=int_32) ::ivpnw(nosys)    ! pointer for substance to new (combined) velocity
-      integer(kind=int_32) ::noq3            ! number of exhcanges in third direction
-      integer(kind=int_32) ::noinfo          ! number of informative messages
-      integer(kind=int_32) ::nowarn          ! number of warnings
-      integer(kind=int_32) ::nerror          ! number of errors
+      integer(kind=int_wp) ::ndspx           ! number of dispersions
+      integer(kind=int_wp) ::nvelx           ! number of velocities
+      integer(kind=int_wp) ::ioffx           ! offset to dispersion array in waq data space
+      integer(kind=int_wp) ::nosys           ! number of active substances
+      real(kind=real_wp) ::dsto(nosys,*)   ! dispersion stochi factors
+      real(kind=real_wp) ::vsto(nosys,*)   ! velocity stochi factors
+      integer(kind=int_wp) ::ndspn           ! number of new (combined) dispersions
+      integer(kind=int_wp) ::idpnw(nosys)    ! pointer for substance to new (combined) dispersions
+      integer(kind=int_wp) ::nveln           ! number of new (combined) velocities
+      integer(kind=int_wp) ::ivpnw(nosys)    ! pointer for substance to new (combined) velocity
+      integer(kind=int_wp) ::noq3            ! number of exhcanges in third direction
+      integer(kind=int_wp) ::noinfo          ! number of informative messages
+      integer(kind=int_wp) ::nowarn          ! number of warnings
+      integer(kind=int_wp) ::nerror          ! number of errors
 
       ! local decalarations
 
-      integer(kind=int_32) ::nproc           ! number of processes
-      integer(kind=int_32) ::iproc           ! loop counter processes
+      integer(kind=int_wp) ::nproc           ! number of processes
+      integer(kind=int_wp) ::iproc           ! loop counter processes
       type(procesprop), pointer :: proc            ! process description
-      integer(kind=int_32) ::isys            ! index substance
-      integer(kind=int_32) ::indx            ! second index substance
-      integer(kind=int_32) ::iflux           ! index flux
-      integer(kind=int_32) ::ifl             ! flux count
-      integer(kind=int_32) ::istochi         ! index flux
-      integer(kind=int_32) ::ioutput         ! index output item
-      integer(kind=int_32) ::idsp            ! dispersion count
-      integer(kind=int_32) ::iidspx          ! dispersion pointer in waq data space
-      integer(kind=int_32) ::ivel            ! velocity count
-      integer(kind=int_32) ::iivelx          ! velocity pointer in waq data space
+      integer(kind=int_wp) ::isys            ! index substance
+      integer(kind=int_wp) ::indx            ! second index substance
+      integer(kind=int_wp) ::iflux           ! index flux
+      integer(kind=int_wp) ::ifl             ! flux count
+      integer(kind=int_wp) ::istochi         ! index flux
+      integer(kind=int_wp) ::ioutput         ! index output item
+      integer(kind=int_wp) ::idsp            ! dispersion count
+      integer(kind=int_wp) ::iidspx          ! dispersion pointer in waq data space
+      integer(kind=int_wp) ::ivel            ! velocity count
+      integer(kind=int_wp) ::iivelx          ! velocity pointer in waq data space
       character(len=20)         :: gen             ! generic name
       character(len=100)        :: line            ! line buffer for output
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "primpro", ithndl )
 
       write ( line , '(a)' ) '# Determining the processes to model the substances.'

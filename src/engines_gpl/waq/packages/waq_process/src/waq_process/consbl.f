@@ -54,8 +54,8 @@
 !     Name     Type   Library
 !     ------   -----  ------------
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
 !     Local
@@ -102,7 +102,7 @@
 ! ZALGPRGrn       1.00000       Preference of Zooplank for Greens              (-)
 ! ZALGFFGrn      0.500000       Faecal fraction Greens for Zooplank            (-)
 
-      INTEGER(kind=int_32) ::NTOGRZ,        NTONUT,          NTOALG,
+      INTEGER(kind=int_wp) ::NTOGRZ,        NTONUT,          NTOALG,
      1        IFILSP,        I     ,          J     ,
      2        NIN   ,        NINGRZ,
      3        IP
@@ -114,7 +114,7 @@
 
       DIMENSION  IP(NIN)
 
-      REAL(kind=sp) ::DETBIO(NTONUT), ALGBIO(NTOALG), ALGSTC(NTONUT ,NTOALG),
+      REAL(kind=real_wp) ::DETBIO(NTONUT), ALGBIO(NTOALG), ALGSTC(NTONUT ,NTOALG),
      1        GRZML (NTOGRZ), GRZOLD(NTOGRZ), GRZNEW(NTOGRZ),
      2        DISFLX(NTONUT), DETFLX(NTONUT), BOTFLX(NTONUT),
      3        ALGFLX(NTOALG), GRZGM (NTOGRZ), TMPGM (NTOGRZ),
@@ -124,7 +124,7 @@
      7        GRZRM (NTOGRZ), TMPFM (NTOGRZ), GRZFM (NTOGRZ),
      8        GRZMO (NTOGRZ), GRZGRZ        , GRZRAT        ,
      9        GRZFIL        , GRZUPT(NTONUT), DETFF (NTOGRZ)
-      REAL(kind=sp) ::ALGFF (NTOALG , NTOGRZ)       , GRZPMX        ,
+      REAL(kind=real_wp) ::ALGFF (NTOALG , NTOGRZ)       , GRZPMX        ,
      A        GRZST (NTONUT , NTOGRZ)       , GRZPRT        ,
      B        GRZRE (NTOGRZ), GRZMET        , TMPSE (NTOGRZ),
      C        GRZSE (NTOGRZ), GRZBRU        , ALTFLX(NTONUT),
@@ -133,10 +133,10 @@
      F        POC   (NTONUT),                 DEPTH         ,
      G        FRDBOT_SAVE(NTOGRZ)           ,
      H        GRZMC (NTOGRZ)
-      INTEGER(kind=int_32) ::BENTHS(NTOGRZ)
-      INTEGER(kind=int_32) ::IKMRK2, iflux, iseg
-      integer(kind=int_32) ::lunrep
-      REAL(kind=sp) ::GEM, MaxFiltration, MaxUptake, GrowthResp,
+      INTEGER(kind=int_wp) ::BENTHS(NTOGRZ)
+      INTEGER(kind=int_wp) ::IKMRK2, iflux, iseg
+      integer(kind=int_wp) ::lunrep
+      REAL(kind=real_wp) ::GEM, MaxFiltration, MaxUptake, GrowthResp,
      j        DetrGrazing
 
       LOGICAL INIT, active_grazer(ntogrz), problem
@@ -383,7 +383,7 @@
               GRZGRZ = 0.0
           ENDIF
 !****
-!*  7 Calculate real(kind=sp) ::ized feeding (mg C/mg C.d) and filtration rate (l/mg C.d)
+!*  7 Calculate real(kind=real_wp) ::ized feeding (mg C/mg C.d) and filtration rate (l/mg C.d)
 !*    GRZRAT and GRZFIL are output variables, not used at the moment
 !****
           IF (GRZOLD(IFILSP) .GT. 0.0) THEN

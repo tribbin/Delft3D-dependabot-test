@@ -50,48 +50,48 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     DISP    REAL(kind=sp) ::3       INPUT   dispersion in 3 directions
-!     DISPER  REAL(kind=sp) ::NODISP*NOQ   INPUT   additional dispersion array
-!     AREA    REAL(kind=sp) ::NOQ      INPUT   exchange surface area
-!     FLOW    REAL(kind=sp) ::NOQ      INPUT   flows accross exchange surfs
-!     ALENG   REAL(kind=sp) ::2*NOQ     INPUT   from- and to lengthes
-!     VELO    REAL(kind=sp) ::NOVELO*NOQ   INPUT   additional velocity array
-!     BOUND   REAL(kind=sp) ::NOTOT*?    INPUT   boundary concentrations
-!     IPOINT  INTEGER(kind=int_32) ::4*NOQ     INPUT   exchange pointers
-!     NOTOT   INTEGER(kind=int_32) ::1       INPUT   number of total substances
-!     ISYS    INTEGER(kind=int_32) ::1       INPUT   system number considered
-!     NSYS    INTEGER(kind=int_32) ::1       INPUT   number of systems considered
-!     NOQ1    INTEGER(kind=int_32) ::1       INPUT   nr of exchanges in first dir.
-!     NOQ2    INTEGER(kind=int_32) ::1       INPUT   nr of exchanges in second dir.
-!     NOQ     INTEGER(kind=int_32) ::1       INPUT   total number of exchanges
-!     NODISP  INTEGER(kind=int_32) ::1       INPUT   number of additional dispers.
-!     NOVELO  INTEGER(kind=int_32) ::1       INPUT   number of additional velos.
-!     IDPNT   INTEGER(kind=int_32) ::NOSYS     INPUT   pointer systems to dispersions
-!     IVPNT   INTEGER(kind=int_32) ::NOSYS     INPUT   pointer systems to velocities
-!     DERIV   REAL(kind=sp) ::NOTOT*NOSEG  OUTPUT  derivatives
-!     AMAT    REAL(kind=sp) ::large     IN/OUT  matrix to be updated
-!     JTRACK  INTEGER(kind=int_32) ::1       INPUT   number of codiagonals of AMAT
-!     IOPT    INTEGER(kind=int_32) ::1       INPUT   = 0 or 2 DISP at zero flow
+!     DISP    REAL(kind=real_wp) ::3       INPUT   dispersion in 3 directions
+!     DISPER  REAL(kind=real_wp) ::NODISP*NOQ   INPUT   additional dispersion array
+!     AREA    REAL(kind=real_wp) ::NOQ      INPUT   exchange surface area
+!     FLOW    REAL(kind=real_wp) ::NOQ      INPUT   flows accross exchange surfs
+!     ALENG   REAL(kind=real_wp) ::2*NOQ     INPUT   from- and to lengthes
+!     VELO    REAL(kind=real_wp) ::NOVELO*NOQ   INPUT   additional velocity array
+!     BOUND   REAL(kind=real_wp) ::NOTOT*?    INPUT   boundary concentrations
+!     IPOINT  INTEGER(kind=int_wp) ::4*NOQ     INPUT   exchange pointers
+!     NOTOT   INTEGER(kind=int_wp) ::1       INPUT   number of total substances
+!     ISYS    INTEGER(kind=int_wp) ::1       INPUT   system number considered
+!     NSYS    INTEGER(kind=int_wp) ::1       INPUT   number of systems considered
+!     NOQ1    INTEGER(kind=int_wp) ::1       INPUT   nr of exchanges in first dir.
+!     NOQ2    INTEGER(kind=int_wp) ::1       INPUT   nr of exchanges in second dir.
+!     NOQ     INTEGER(kind=int_wp) ::1       INPUT   total number of exchanges
+!     NODISP  INTEGER(kind=int_wp) ::1       INPUT   number of additional dispers.
+!     NOVELO  INTEGER(kind=int_wp) ::1       INPUT   number of additional velos.
+!     IDPNT   INTEGER(kind=int_wp) ::NOSYS     INPUT   pointer systems to dispersions
+!     IVPNT   INTEGER(kind=int_wp) ::NOSYS     INPUT   pointer systems to velocities
+!     DERIV   REAL(kind=real_wp) ::NOTOT*NOSEG  OUTPUT  derivatives
+!     AMAT    REAL(kind=real_wp) ::large     IN/OUT  matrix to be updated
+!     JTRACK  INTEGER(kind=int_wp) ::1       INPUT   number of codiagonals of AMAT
+!     IOPT    INTEGER(kind=int_wp) ::1       INPUT   = 0 or 2 DISP at zero flow
 !                                         = 1 or 3 no DISP at zero flow
 !                                         = 0 or 1 DISP over boundary
 !                                         = 2 or 3 no DISP over boundary
-!     ILFLAG  INTEGER(kind=int_32) ::1       INPUT   if 0 then 3 length values
+!     ILFLAG  INTEGER(kind=int_wp) ::1       INPUT   if 0 then 3 length values
 !
       use timers
 
-      real(kind=sp) ::DISP  (  3) , DISPER(*) , AREA (*) , FLOW (*) ,
+      real(kind=real_wp) ::DISP  (  3) , DISPER(*) , AREA (*) , FLOW (*) ,
      *           ALENG (  *) , VELO  (*) , BOUND(*) , AMAT (*) ,
      *           DERIV(*)
-      integer(kind=int_32) ::IPOINT(4,*) , IDPNT(*)  , IVPNT(*)
+      integer(kind=int_wp) ::IPOINT(4,*) , IDPNT(*)  , IVPNT(*)
 
-      integer(kind=int_32) ::iband, iq, i, it, i3, i4, iopt, ilflag, isys
-      integer(kind=int_32) ::j, jtrack, jt
-      integer(kind=int_32) ::noq, noq1, noq2, nodisp, novelo, notot, nsys
-      integer(kind=int_32) ::kt, k1, k2
+      integer(kind=int_wp) ::iband, iq, i, it, i3, i4, iopt, ilflag, isys
+      integer(kind=int_wp) ::j, jtrack, jt
+      integer(kind=int_wp) ::noq, noq1, noq2, nodisp, novelo, notot, nsys
+      integer(kind=int_wp) ::kt, k1, k2
 
-      real(kind=sp) ::a, q, q1, q2, e, al, f1, f2, dl
+      real(kind=real_wp) ::a, q, q1, q2, e, al, f1, f2, dl
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwq70", ithandl )
 !
       IBAND = 2*JTRACK + 1

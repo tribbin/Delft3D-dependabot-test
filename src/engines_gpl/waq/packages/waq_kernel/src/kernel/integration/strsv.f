@@ -37,7 +37,7 @@
       use timers
       use m_lsame
 *     .. Scalar Arguments ..
-      INTEGER(kind=int_32) ::INCX, LDA, N
+      INTEGER(kind=int_wp) ::INCX, LDA, N
       CHARACTER*1        DIAG, TRANS, UPLO
 *     .. Array Arguments ..
       REAL(kind=dp) ::A( LDA, * ), X( * )
@@ -142,11 +142,11 @@
       PARAMETER        ( ZERO = 0.0E+0 )
 *     .. Local Scalars ..
       REAL(kind=dp) ::TEMP
-      INTEGER(kind=int_32) ::I, INFO, IX, J, JX, KX
+      INTEGER(kind=int_wp) ::I, INFO, IX, J, JX, KX
       LOGICAL            NOUNIT
 *     .. Intrinsic Functions ..
       INTRINSIC          MAX
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "strsv", ithandl )
 *     ..
 *     .. Executable Statements ..

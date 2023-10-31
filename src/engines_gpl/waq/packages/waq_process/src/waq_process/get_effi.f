@@ -45,18 +45,18 @@
 
 !     arguments
 
-      integer(kind=int_32) ::SWEff      ! input , Switch to use classic(1) or direct(2) BLOOM Efficiency calculation
-      real(kind=sp) ::temper     ! input , temperature
-      real(kind=sp) ::radiat     ! input , radiation
-      real(kind=sp) ::ext        ! input , total extinction
-      real(kind=sp) ::depthw     ! input , depth of the layer
-      real(kind=sp) ::daylen     ! input , daylength in hours
-      integer(kind=int_32) ::nspe       ! output, number of bloom algea species
-      real(kind=sp) ::effi(30)   ! output, calculated efficiencies per species
+      integer(kind=int_wp) ::SWEff      ! input , Switch to use classic(1) or direct(2) BLOOM Efficiency calculation
+      real(kind=real_wp) ::temper     ! input , temperature
+      real(kind=real_wp) ::radiat     ! input , radiation
+      real(kind=real_wp) ::ext        ! input , total extinction
+      real(kind=real_wp) ::depthw     ! input , depth of the layer
+      real(kind=real_wp) ::daylen     ! input , daylength in hours
+      integer(kind=int_wp) ::nspe       ! output, number of bloom algea species
+      real(kind=real_wp) ::effi(30)   ! output, calculated efficiencies per species
 
 !     local decalarations
 
-      integer(kind=int_32) ::lunrep
+      integer(kind=int_wp) ::lunrep
 
       real(kind=dp) ::temp       ! temperature
       real(kind=dp) ::csol       ! radiation
@@ -70,17 +70,17 @@
       real(kind=dp) ::effibot    ! efficiency at the bottom of the segment
       real(kind=dp) ::effilay    ! efficiency at the current effi layer of the segment
       real(kind=dp) ::effitot    ! efficiency collector for calculation of the average
-      integer(kind=int_32) ::neffilay   ! number of effi layers
-      integer(kind=int_32) ::ilay       ! current effi layer number
+      integer(kind=int_wp) ::neffilay   ! number of effi layers
+      integer(kind=int_wp) ::ilay       ! current effi layer number
       real(kind=dp) ::dep        ! depth
       real(kind=dp) ::exttot     ! total extinction
       real(kind=dp) ::day        ! daylength in hours
       real(kind=dp) ::dayl       ! daylength in fraction
       real(kind=dp) ::tcorr      ! tcorr
       real(kind=dp) ::surf_typ   ! scaled, converted and corrected radiation for a type
-      integer(kind=int_32) ::ntyp       ! number of bloom algea types
-      integer(kind=int_32) ::itype      ! index number of bloom algae type
-      integer(kind=int_32) ::igroup     ! index number of bloom algae group
+      integer(kind=int_wp) ::ntyp       ! number of bloom algea types
+      integer(kind=int_wp) ::itype      ! index number of bloom algae type
+      integer(kind=int_wp) ::igroup     ! index number of bloom algae group
       real(kind=dp) ::pmax20(mt),sdmixn(mt)
 
       real(kind=dp) ::phi_s      ! x value tabulated function at surface
@@ -218,8 +218,8 @@
 
       real(kind=dp) ::rad
       real(kind=dp) ::effi
-      integer(kind=int_32) ::numgr, i
-      integer(kind=int_32) ::lunrep
+      integer(kind=int_wp) ::numgr, i
+      integer(kind=int_wp) ::lunrep
       real(kind=dp) ::interpol
       logical, save :: first = .true.
 
@@ -262,7 +262,7 @@
 
       implicit none
 
-      integer(kind=int_32) ::nspe       ! input , number of bloom algea types
+      integer(kind=int_wp) ::nspe       ! input , number of bloom algea types
 
       nspe   = nuecog
 

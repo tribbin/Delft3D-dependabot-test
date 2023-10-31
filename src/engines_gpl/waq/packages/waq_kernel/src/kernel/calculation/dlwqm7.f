@@ -52,24 +52,24 @@
       use timers
       implicit none
 
-      integer(kind=int_32), intent(in   )  ::noq                 !< number of exchanges
-      integer(kind=int_32), intent(in   )  ::noq1                !< number of exchanges in first direction
-      integer(kind=int_32), intent(in   )  ::noq2                !< number of exchanges in second direction
-      real(kind=sp), intent(in   )  ::area(noq)           !< exchange surface areas (dim: noq)
-      real(kind=sp), intent(in   )  ::flow(noq)           !< flows accross exchange surfs (dim: noq)
-      real(kind=sp), intent(in   )  ::aleng(2,noq)        !< from- and to lengths (dim: 2*noq)
-      integer(kind=int_32), intent(in   )  ::ilflag              !< if 0 then 3 length values (equidistant grid)
-      integer(kind=int_32), intent(in   )  ::iopt                !< optoons for e.g. treatment of boundaries
-      integer(kind=int_32), intent(in   )  ::ipoint(4,noq)       !< exchange pointers (dim: 4 x noq)
-      real(kind=sp), intent(  out)  ::mixlen(noq)         !< exchange surface areas (dim: noq)
-      integer(kind=int_32), intent(in   )  ::iknmrk( * )         !< feature array, bit zero indicates wet or not
+      integer(kind=int_wp), intent(in   )  ::noq                 !< number of exchanges
+      integer(kind=int_wp), intent(in   )  ::noq1                !< number of exchanges in first direction
+      integer(kind=int_wp), intent(in   )  ::noq2                !< number of exchanges in second direction
+      real(kind=real_wp), intent(in   )  ::area(noq)           !< exchange surface areas (dim: noq)
+      real(kind=real_wp), intent(in   )  ::flow(noq)           !< flows accross exchange surfs (dim: noq)
+      real(kind=real_wp), intent(in   )  ::aleng(2,noq)        !< from- and to lengths (dim: 2*noq)
+      integer(kind=int_wp), intent(in   )  ::ilflag              !< if 0 then 3 length values (equidistant grid)
+      integer(kind=int_wp), intent(in   )  ::iopt                !< optoons for e.g. treatment of boundaries
+      integer(kind=int_wp), intent(in   )  ::ipoint(4,noq)       !< exchange pointers (dim: 4 x noq)
+      real(kind=real_wp), intent(  out)  ::mixlen(noq)         !< exchange surface areas (dim: noq)
+      integer(kind=int_wp), intent(in   )  ::iknmrk( * )         !< feature array, bit zero indicates wet or not
 
 !     Local declarations
 
-      integer(kind=int_32) ::ifrom, ito          ! from- and to segments
-      integer(kind=int_32) ::iq                  ! current edge
+      integer(kind=int_wp) ::ifrom, ito          ! from- and to segments
+      integer(kind=int_wp) ::iq                  ! current edge
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqm7", ithandl )
 
       mixlen = 0.0

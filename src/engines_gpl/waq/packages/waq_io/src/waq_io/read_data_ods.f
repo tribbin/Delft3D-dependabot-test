@@ -53,18 +53,18 @@
 
 !     declaration of arguments
 
-      integer(kind=int_32), intent(in) ::  lunut         ! report file
+      integer(kind=int_wp), intent(in) ::  lunut         ! report file
       character(len=*)      , intent(in)    :: fname        ! filename ODS file
       type(t_dlwq_item)     , intent(inout) :: data_param   ! list of param items in the data
       type(t_dlwq_item)     , intent(inout) :: data_loc     ! list of loc items in the data
-      real(kind=sp), intent(in) ::  amiss         ! missing value
+      real(kind=real_wp), intent(in) ::  amiss         ! missing value
       type(t_dlwqdata)      , intent(inout) :: data_block   ! data block
-      integer(kind=int_32), intent(inout) ::  ierr          ! cummulative error count
+      integer(kind=int_wp), intent(inout) ::  ierr          ! cummulative error count
 
 !     local declarations
 
-      integer(kind=int_32) ::  iorder        ! order of the parameters and locations in the data array
-      integer(kind=int_32) ::  loc(3)        ! to pass the locations to ODS
+      integer(kind=int_wp) ::  iorder        ! order of the parameters and locations in the data array
+      integer(kind=int_wp) ::  loc(3)        ! to pass the locations to ODS
       character(len=256)                    :: cfile(3)     ! to pass the filename to ODS
       character(len=3)                      :: cdummy       ! dummy not used
       real(kind=dp) ::  afact         ! scale factor for times
@@ -72,43 +72,43 @@
       real(kind=dp) ::  a2            ! time
       character(len=20)                     :: locdef(1)    ! to strore wanted locations
       character(len=20)     , allocatable   :: locnam(:)    ! locations in file
-      integer(kind=int_32), allocatable ::  loctyp(:)     ! locations type in file
-      integer(kind=int_32), allocatable ::  locnr(:)      ! locations numbers in file
-      integer(kind=int_32), allocatable ::  iloc_ods(:)   ! locations index in file of the wanted locations
+      integer(kind=int_wp), allocatable ::  loctyp(:)     ! locations type in file
+      integer(kind=int_wp), allocatable ::  locnr(:)      ! locations numbers in file
+      integer(kind=int_wp), allocatable ::  iloc_ods(:)   ! locations index in file of the wanted locations
       character(len=20)                     :: pardef(1)    ! to strore wanted parameters
       character(len=20)     , allocatable   :: parnam(:)    ! parameters in file
       character(len=20)     , allocatable   :: parunit(:)   ! parameters unit in file
-      integer(kind=int_32), allocatable ::  partyp(:)     ! parameters type in file
-      integer(kind=int_32), allocatable ::  parnr(:)      ! parameters numbers in file
-      integer(kind=int_32), allocatable ::  ipar_ods(:)   ! parameter index in file of the wanted parameters
+      integer(kind=int_wp), allocatable ::  partyp(:)     ! parameters type in file
+      integer(kind=int_wp), allocatable ::  parnr(:)      ! parameters numbers in file
+      integer(kind=int_wp), allocatable ::  ipar_ods(:)   ! parameter index in file of the wanted parameters
       real(kind=dp) ::  timdef(2)     ! to store wanted times
       real(kind=dp), allocatable ::  times(:)      ! times
-      integer(kind=int_32), allocatable ::  timetyp(:)    ! time types ?
-      real(kind=sp), allocatable ::  buffer(:)     ! data buffer for read
-      real(kind=sp), allocatable ::  buffer2(:,:,:) ! data buffer for read
-      integer(kind=int_32) ::  nsubs         ! number of parameters in file
-      integer(kind=int_32) ::  nlocs         ! number of locations in file
-      integer(kind=int_32) ::  ntims         ! number of times in file
-      integer(kind=int_32) ::  nopar         ! number of parameters in file
-      integer(kind=int_32) ::  noloc         ! number of locations in file
-      integer(kind=int_32) ::  ndim1          ! first dimension
-      integer(kind=int_32) ::  ndim2          ! second dimension
-      integer(kind=int_32) ::  nobrk         ! number of times in file
-      integer(kind=int_32) ::  iloc          ! location index / loop counter
-      integer(kind=int_32) ::  ipar          ! parameter index / loop counter
-      integer(kind=int_32) ::  ibrk          ! time index / loop counter
-      integer(kind=int_32) ::  iloc_found    ! location index in file
-      integer(kind=int_32) ::  ipar_found    ! parameter index in file
-      integer(kind=int_32) ::  ierror        ! ierror
+      integer(kind=int_wp), allocatable ::  timetyp(:)    ! time types ?
+      real(kind=real_wp), allocatable ::  buffer(:)     ! data buffer for read
+      real(kind=real_wp), allocatable ::  buffer2(:,:,:) ! data buffer for read
+      integer(kind=int_wp) ::  nsubs         ! number of parameters in file
+      integer(kind=int_wp) ::  nlocs         ! number of locations in file
+      integer(kind=int_wp) ::  ntims         ! number of times in file
+      integer(kind=int_wp) ::  nopar         ! number of parameters in file
+      integer(kind=int_wp) ::  noloc         ! number of locations in file
+      integer(kind=int_wp) ::  ndim1          ! first dimension
+      integer(kind=int_wp) ::  ndim2          ! second dimension
+      integer(kind=int_wp) ::  nobrk         ! number of times in file
+      integer(kind=int_wp) ::  iloc          ! location index / loop counter
+      integer(kind=int_wp) ::  ipar          ! parameter index / loop counter
+      integer(kind=int_wp) ::  ibrk          ! time index / loop counter
+      integer(kind=int_wp) ::  iloc_found    ! location index in file
+      integer(kind=int_wp) ::  ipar_found    ! parameter index in file
+      integer(kind=int_wp) ::  ierror        ! ierror
       logical                               :: calculation  ! indicates that item is part of calculation
-      integer(kind=int_32) ::  i , i1 , i2 
-      integer(kind=int_32) ::  iy1, im1, id1, ih1, in1, is1 
-      integer(kind=int_32) ::  iy2, im2, id2, ih2, in2, is2 
+      integer(kind=int_wp) ::  i , i1 , i2
+      integer(kind=int_wp) ::  iy1, im1, id1, ih1, in1, is1
+      integer(kind=int_wp) ::  iy2, im2, id2, ih2, in2, is2
       real(kind=dp) ::  dummy         ! second in double precision (not used)
-      integer(kind=int_32) ::  maxdim 
-      integer(kind=int_32) ::  ierr_alloc
+      integer(kind=int_wp) ::  maxdim
+      integer(kind=int_wp) ::  ierr_alloc
  
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "read_data_ods", ithndl )
 
       ! write the ods file name

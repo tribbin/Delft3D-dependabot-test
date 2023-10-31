@@ -35,11 +35,11 @@
 !
       use timers       !   performance timers
 
-      INTEGER(kind=int_32) ::LUNREP
+      INTEGER(kind=int_wp) ::LUNREP
       CHARACTER*(*) TEKST , FILNAM
       
-      integer(kind=int_32) ::i, ilen, iend
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::i, ilen, iend
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "dhpfil", ithndl )
 !
       ILEN = LEN(FILNAM)

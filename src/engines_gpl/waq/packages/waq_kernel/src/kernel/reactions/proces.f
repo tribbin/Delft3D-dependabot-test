@@ -101,123 +101,123 @@
 
 !     Kind         Function         Name                          Description
 
-      integer(kind=int_32), intent(in   )  ::nogrid                      !< Number of computational grids
-      integer(kind=int_32), intent(in   )  ::notot                       !< Total number of substances
-      integer(kind=int_32), intent(in   )  ::noseg                       !< Nr. of computational volumes
-      integer(kind=int_32), intent(in   )  ::nodef                       !< Number of values in the deafult array
-      integer(kind=int_32), intent(in   )  ::novar                       !<
-      real(kind=sp), intent(inout)  ::conc  (notot,noseg,nogrid)  !< Model concentrations
-      real(kind=sp), intent(inout)  ::volume(      noseg,nogrid)  !< Segment volumes
-      integer(kind=int_32), intent(in   )  ::itime                       !< Time in system clock units
-      integer(kind=int_32), intent(in   )  ::idt                         !< Time step system clock units
-      real(kind=sp), intent(  out)  ::deriv (notot,noseg,nogrid)  !< Model derivatives
-      integer(kind=int_32), intent(in   )  ::ndmpar                      !< Number of dump areas
-      integer(kind=int_32), intent(in   )  ::nproc                       !< Number of processes
-      integer(kind=int_32), intent(in   )  ::noflux                      !< Number of fluxes
-      integer(kind=int_32), intent(in   )  ::ipmsa (*)                   !< Direct pointer in DELWAQ arrays
-      integer(kind=int_32), intent(in   )  ::prvnio(nproc)               !< Nr. of state variables per proces
-      integer(kind=int_32), intent(in   )  ::promnr(nproc)               !< Proces module number per proces
-      integer(kind=int_32), intent(in   )  ::iflux (nproc)               !< Offset in flux array per process
-      integer(kind=int_32), intent(in   )  ::increm(*)                   !< Direct increment in DELWAQ arrays
-      real(kind=sp) ::flux  (noflux,noseg,nogrid) !< Proces fluxes
-      real(kind=sp) ::flxdmp(ndmps ,noflux)       !< Fluxes at dump segments
-      real(kind=sp), intent(in   )  ::stochi(notot ,noflux)       !< Proces stochiometry
-      integer(kind=int_32), intent(in   )  ::ibflag                      !< if 1 then mass balance output
-      integer(kind=int_32), intent(in   )  ::ipbloo                      !< Number of Bloom module  (if >0)
-      integer(kind=int_32), intent(in   )  ::ioffbl                      !< Offset in IPMSA for Bloom
-      real(kind=sp), intent(inout)  ::amass (notot,noseg,nogrid)  !< mass array to be updated
-      integer(kind=int_32), intent(in   )  ::nosys                       !< number of active substances
-      integer(kind=int_32), intent(in   )  ::itfact                      !< time scale factor processes
-      real(kind=sp), intent(inout)  ::amass2(notot,5    )         !< mass balance array
-      integer(kind=int_32), intent(in   )  ::iaflag                      !< if 1 then accumulation
-      integer(kind=int_32), intent(in   )  ::intopt                      !< Integration suboptions
-      real(kind=sp), intent(inout)  ::flxint(ndmpar,noflux)       !< Integrated fluxes at dump areas
-      integer(kind=int_32), intent(in   )  ::iexpnt(4,*)                 !< Exchange pointer
-      integer(kind=int_32), intent(in   )  ::iknmrk(noseg,nogrid)        !< Integration suboptions
-      integer(kind=int_32), intent(in   )  ::noq1                        !< Number of exchanges first direction
-      integer(kind=int_32), intent(in   )  ::noq2                        !< Number of exchanges second direction
-      integer(kind=int_32), intent(in   )  ::noq3                        !< Number of exchanges vertical
-      integer(kind=int_32), intent(in   )  ::noq4                        !< Number of exchanges in the bed
-      integer(kind=int_32), intent(in   )  ::ndspn                       !< Number of new dispersion arrays
-      integer(kind=int_32), intent(in   )  ::idpnew(nosys )              !< Pointer to new disp array
-      real(kind=sp), intent(  out)  ::dispnw(ndspn ,*)            !< New dispersion array
-      integer(kind=int_32), intent(in   )  ::nodisp                      !< Nr. of original dispersions
-      integer(kind=int_32), intent(in   )  ::idpnt (nosys )              !< Pointer to original dispersion
-      real(kind=sp), intent(in   )  ::disper(nodisp,*)            !< Original dispersions
-      integer(kind=int_32), intent(in   )  ::ndspx                       !< Nr. of calculated dispersions
-      real(kind=sp) ::dspx  (ndspx ,*)            !< Calculated dispersions
-      real(kind=sp), intent(in   )  ::dsto  (nosys,ndspx)         !< Factor for calc. dispersions
-      integer(kind=int_32), intent(in   )  ::nveln                       !< Nr. of new velocity array's
-      integer(kind=int_32), intent(in   )  ::ivpnew(nosys )              !< Pointer to new velo array
-      real(kind=sp), intent(  out)  ::velonw(nveln ,*)            !< New velocity array
-      integer(kind=int_32), intent(in   )  ::novelo                      !< Nr. of original velocities
-      integer(kind=int_32), intent(in   )  ::ivpnt (nosys )              !< pointer to original velo
-      real(kind=sp), intent(in   )  ::velo  (novelo,*)            !< Original velocities
-      integer(kind=int_32), intent(in   )  ::nvelx                       !< Nr. of calculated velocities
-      real(kind=sp) ::velx  (nvelx ,*)            !< Calculated velocities
-      real(kind=sp), intent(in   )  ::vsto  (nosys,nvelx)         !< Factor for velocitie
-      real(kind=sp), intent(inout)  ::dmps  (notot,ndmps)         !< dumped segment fluxes
-      integer(kind=int_32), intent(in   )  ::isdmp (noseg)               !< pointer dumped segments
-      integer(kind=int_32), intent(in   )  ::ipdmp (*)                   !< pointer structure dump area's
-      integer(kind=int_32), intent(in   )  ::ntdmpq                      !< total number exchanges in dump area
-      real(kind=sp), intent(inout)  ::defaul(nodef)               !< Default proces parameters
-      integer(kind=int_32), intent(inout)  ::prondt(nproc)               !<
-      integer(kind=int_32), intent(in   )  ::progrd(nproc)               !< Grid per process
-      integer(kind=int_32), intent(in   )  ::prvvar(*)                   !<
-      integer(kind=int_32), intent(in   )  ::prvtyp(*)                   !<
-      integer(kind=int_32), intent(in   )  ::vararr(novar)               !<
-      integer(kind=int_32), intent(in   )  ::varidx(novar)               !<
-      integer(kind=int_32), intent(in   )  ::vartda(novar)               !<
-      integer(kind=int_32), intent(in   )  ::vardag(novar)               !<
-      integer(kind=int_32), intent(in   )  ::vartag(novar)               !<
-      integer(kind=int_32), intent(in   )  ::varagg(novar)               !<
-      integer(kind=int_32), intent(in   )  ::arrpoi(*)                   !<
-      integer(kind=int_32), intent(in   )  ::arrknd(*)                   !<
-      integer(kind=int_32), intent(in   )  ::arrdm1(*)                   !<
-      integer(kind=int_32), intent(in   )  ::arrdm2(*)                   !<
-      integer(kind=int_32) ::vgrset(novar,nogrid)        !< Local flag for variables and grid
-      integer(kind=int_32), intent(in   )  ::grdnos(nogrid)              !< Number of segments per grid
-      integer(kind=int_32), intent(in   )  ::grdseg(noseg,nogrid)        !< Aggregation pointer per grid
-      real(kind=sp), intent(in   )  ::a     (*)                   !<
-      integer(kind=int_32), intent(in   )  ::ndmps                       !<
+      integer(kind=int_wp), intent(in   )  ::nogrid                      !< Number of computational grids
+      integer(kind=int_wp), intent(in   )  ::notot                       !< Total number of substances
+      integer(kind=int_wp), intent(in   )  ::noseg                       !< Nr. of computational volumes
+      integer(kind=int_wp), intent(in   )  ::nodef                       !< Number of values in the deafult array
+      integer(kind=int_wp), intent(in   )  ::novar                       !<
+      real(kind=real_wp), intent(inout)  ::conc  (notot,noseg,nogrid)  !< Model concentrations
+      real(kind=real_wp), intent(inout)  ::volume(      noseg,nogrid)  !< Segment volumes
+      integer(kind=int_wp), intent(in   )  ::itime                       !< Time in system clock units
+      integer(kind=int_wp), intent(in   )  ::idt                         !< Time step system clock units
+      real(kind=real_wp), intent(  out)  ::deriv (notot,noseg,nogrid)  !< Model derivatives
+      integer(kind=int_wp), intent(in   )  ::ndmpar                      !< Number of dump areas
+      integer(kind=int_wp), intent(in   )  ::nproc                       !< Number of processes
+      integer(kind=int_wp), intent(in   )  ::noflux                      !< Number of fluxes
+      integer(kind=int_wp), intent(in   )  ::ipmsa (*)                   !< Direct pointer in DELWAQ arrays
+      integer(kind=int_wp), intent(in   )  ::prvnio(nproc)               !< Nr. of state variables per proces
+      integer(kind=int_wp), intent(in   )  ::promnr(nproc)               !< Proces module number per proces
+      integer(kind=int_wp), intent(in   )  ::iflux (nproc)               !< Offset in flux array per process
+      integer(kind=int_wp), intent(in   )  ::increm(*)                   !< Direct increment in DELWAQ arrays
+      real(kind=real_wp) ::flux  (noflux,noseg,nogrid) !< Proces fluxes
+      real(kind=real_wp) ::flxdmp(ndmps ,noflux)       !< Fluxes at dump segments
+      real(kind=real_wp), intent(in   )  ::stochi(notot ,noflux)       !< Proces stochiometry
+      integer(kind=int_wp), intent(in   )  ::ibflag                      !< if 1 then mass balance output
+      integer(kind=int_wp), intent(in   )  ::ipbloo                      !< Number of Bloom module  (if >0)
+      integer(kind=int_wp), intent(in   )  ::ioffbl                      !< Offset in IPMSA for Bloom
+      real(kind=real_wp), intent(inout)  ::amass (notot,noseg,nogrid)  !< mass array to be updated
+      integer(kind=int_wp), intent(in   )  ::nosys                       !< number of active substances
+      integer(kind=int_wp), intent(in   )  ::itfact                      !< time scale factor processes
+      real(kind=real_wp), intent(inout)  ::amass2(notot,5    )         !< mass balance array
+      integer(kind=int_wp), intent(in   )  ::iaflag                      !< if 1 then accumulation
+      integer(kind=int_wp), intent(in   )  ::intopt                      !< Integration suboptions
+      real(kind=real_wp), intent(inout)  ::flxint(ndmpar,noflux)       !< Integrated fluxes at dump areas
+      integer(kind=int_wp), intent(in   )  ::iexpnt(4,*)                 !< Exchange pointer
+      integer(kind=int_wp), intent(in   )  ::iknmrk(noseg,nogrid)        !< Integration suboptions
+      integer(kind=int_wp), intent(in   )  ::noq1                        !< Number of exchanges first direction
+      integer(kind=int_wp), intent(in   )  ::noq2                        !< Number of exchanges second direction
+      integer(kind=int_wp), intent(in   )  ::noq3                        !< Number of exchanges vertical
+      integer(kind=int_wp), intent(in   )  ::noq4                        !< Number of exchanges in the bed
+      integer(kind=int_wp), intent(in   )  ::ndspn                       !< Number of new dispersion arrays
+      integer(kind=int_wp), intent(in   )  ::idpnew(nosys )              !< Pointer to new disp array
+      real(kind=real_wp), intent(  out)  ::dispnw(ndspn ,*)            !< New dispersion array
+      integer(kind=int_wp), intent(in   )  ::nodisp                      !< Nr. of original dispersions
+      integer(kind=int_wp), intent(in   )  ::idpnt (nosys )              !< Pointer to original dispersion
+      real(kind=real_wp), intent(in   )  ::disper(nodisp,*)            !< Original dispersions
+      integer(kind=int_wp), intent(in   )  ::ndspx                       !< Nr. of calculated dispersions
+      real(kind=real_wp) ::dspx  (ndspx ,*)            !< Calculated dispersions
+      real(kind=real_wp), intent(in   )  ::dsto  (nosys,ndspx)         !< Factor for calc. dispersions
+      integer(kind=int_wp), intent(in   )  ::nveln                       !< Nr. of new velocity array's
+      integer(kind=int_wp), intent(in   )  ::ivpnew(nosys )              !< Pointer to new velo array
+      real(kind=real_wp), intent(  out)  ::velonw(nveln ,*)            !< New velocity array
+      integer(kind=int_wp), intent(in   )  ::novelo                      !< Nr. of original velocities
+      integer(kind=int_wp), intent(in   )  ::ivpnt (nosys )              !< pointer to original velo
+      real(kind=real_wp), intent(in   )  ::velo  (novelo,*)            !< Original velocities
+      integer(kind=int_wp), intent(in   )  ::nvelx                       !< Nr. of calculated velocities
+      real(kind=real_wp) ::velx  (nvelx ,*)            !< Calculated velocities
+      real(kind=real_wp), intent(in   )  ::vsto  (nosys,nvelx)         !< Factor for velocitie
+      real(kind=real_wp), intent(inout)  ::dmps  (notot,ndmps)         !< dumped segment fluxes
+      integer(kind=int_wp), intent(in   )  ::isdmp (noseg)               !< pointer dumped segments
+      integer(kind=int_wp), intent(in   )  ::ipdmp (*)                   !< pointer structure dump area's
+      integer(kind=int_wp), intent(in   )  ::ntdmpq                      !< total number exchanges in dump area
+      real(kind=real_wp), intent(inout)  ::defaul(nodef)               !< Default proces parameters
+      integer(kind=int_wp), intent(inout)  ::prondt(nproc)               !<
+      integer(kind=int_wp), intent(in   )  ::progrd(nproc)               !< Grid per process
+      integer(kind=int_wp), intent(in   )  ::prvvar(*)                   !<
+      integer(kind=int_wp), intent(in   )  ::prvtyp(*)                   !<
+      integer(kind=int_wp), intent(in   )  ::vararr(novar)               !<
+      integer(kind=int_wp), intent(in   )  ::varidx(novar)               !<
+      integer(kind=int_wp), intent(in   )  ::vartda(novar)               !<
+      integer(kind=int_wp), intent(in   )  ::vardag(novar)               !<
+      integer(kind=int_wp), intent(in   )  ::vartag(novar)               !<
+      integer(kind=int_wp), intent(in   )  ::varagg(novar)               !<
+      integer(kind=int_wp), intent(in   )  ::arrpoi(*)                   !<
+      integer(kind=int_wp), intent(in   )  ::arrknd(*)                   !<
+      integer(kind=int_wp), intent(in   )  ::arrdm1(*)                   !<
+      integer(kind=int_wp), intent(in   )  ::arrdm2(*)                   !<
+      integer(kind=int_wp) ::vgrset(novar,nogrid)        !< Local flag for variables and grid
+      integer(kind=int_wp), intent(in   )  ::grdnos(nogrid)              !< Number of segments per grid
+      integer(kind=int_wp), intent(in   )  ::grdseg(noseg,nogrid)        !< Aggregation pointer per grid
+      real(kind=real_wp), intent(in   )  ::a     (*)                   !<
+      integer(kind=int_wp), intent(in   )  ::ndmps                       !<
       character(20)              :: pronam(*)                   !< Name of called module
-      integer(kind=int_32), intent(in   )  ::intsrt                      !< Number of integration routine used
-      integer(kind=int_32), intent(in   )  ::prvpnt(nproc)               !< entry in process pointers OMP
-      integer(kind=int_32) ::done  (nproc)               !< flag whether a process has ran
-      integer(kind=int_32), intent(in   )  ::nrref                       !< maximum nr of back references
-      integer(kind=int_32), intent(in   )  ::proref(nrref,nproc)         !< the back references
-      real(kind=sp), intent(in   )  ::surfac(noseg)               !< horizontal surface
-      integer(kind=int_32), intent(in   )  ::lunrep                      !< Logical unit number of report-file
+      integer(kind=int_wp), intent(in   )  ::intsrt                      !< Number of integration routine used
+      integer(kind=int_wp), intent(in   )  ::prvpnt(nproc)               !< entry in process pointers OMP
+      integer(kind=int_wp) ::done  (nproc)               !< flag whether a process has ran
+      integer(kind=int_wp), intent(in   )  ::nrref                       !< maximum nr of back references
+      integer(kind=int_wp), intent(in   )  ::proref(nrref,nproc)         !< the back references
+      real(kind=real_wp), intent(in   )  ::surfac(noseg)               !< horizontal surface
+      integer(kind=int_wp), intent(in   )  ::lunrep                      !< Logical unit number of report-file
 
 !     Local declarations
 
-      integer(kind=int_32) ::maxgrid    ! Highest grid number in progrd array
-      integer(kind=int_32) ::iiknmr     ! Pointer somewhere into the array tree
-      integer(kind=int_32) ::ix_hlp, ia_hlp, iv_hlp, ik_hlp, ip_hlp, !  array pointers
+      integer(kind=int_wp) ::maxgrid    ! Highest grid number in progrd array
+      integer(kind=int_wp) ::iiknmr     ! Pointer somewhere into the array tree
+      integer(kind=int_wp) ::ix_hlp, ia_hlp, iv_hlp, ik_hlp, ip_hlp, !  array pointers
      &             id1hlp, id2hlp                          !
-      integer(kind=int_32) ::ivar  , iarr  , iv_idx, ip_arr          !  help variables
-      integer(kind=int_32) ::ix_cnc, ia_cnc, iv_cnc, ip_arh          !  help variables
-      integer(kind=int_32) ::ipndt , ndtblo, igrblo, ndtcha, igrcha  !  help variables
-      integer(kind=int_32) ::isys  , igrid , isysh , nototh, igrd    !  help variables
-      integer(kind=int_32) ::noseg2, nfluxp, iswcum, ifracs, iproc   !  help variables
-      integer(kind=int_32) ::k
-      integer(kind=int_32) ::actually_done
-      integer(kind=int_32) ::idtpro    ! fractional step idt
-      integer(kind=int_32) ::ipp_idt    ! pointer in default array to process specific idt
-      integer(kind=int_32) ::ipp_delt   ! pointer in default array to process specific delt
-      INTEGER(kind=int_32) ::ISTEP, NOQ, IERR
-      integer(kind=int_32), allocatable, save  ::velndt(:) ! fractional step per velocity
-      integer(kind=int_32), allocatable, save  ::dspndt(:) ! fractional step per dispersion
-      integer(kind=int_32) ::open_shared_library
-      integer(kind=int_32) ::perf_function
-      integer(kind=int_32), save               ::ifirst = 1
+      integer(kind=int_wp) ::ivar  , iarr  , iv_idx, ip_arr          !  help variables
+      integer(kind=int_wp) ::ix_cnc, ia_cnc, iv_cnc, ip_arh          !  help variables
+      integer(kind=int_wp) ::ipndt , ndtblo, igrblo, ndtcha, igrcha  !  help variables
+      integer(kind=int_wp) ::isys  , igrid , isysh , nototh, igrd    !  help variables
+      integer(kind=int_wp) ::noseg2, nfluxp, iswcum, ifracs, iproc   !  help variables
+      integer(kind=int_wp) ::k
+      integer(kind=int_wp) ::actually_done
+      integer(kind=int_wp) ::idtpro    ! fractional step idt
+      integer(kind=int_wp) ::ipp_idt    ! pointer in default array to process specific idt
+      integer(kind=int_wp) ::ipp_delt   ! pointer in default array to process specific delt
+      INTEGER(kind=int_wp) ::ISTEP, NOQ, IERR
+      integer(kind=int_wp), allocatable, save  ::velndt(:) ! fractional step per velocity
+      integer(kind=int_wp), allocatable, save  ::dspndt(:) ! fractional step per dispersion
+      integer(kind=int_wp) ::open_shared_library
+      integer(kind=int_wp) ::perf_function
+      integer(kind=int_wp), save               ::ifirst = 1
       integer(c_intptr_t), save  :: dll_opb     ! open proces library dll handle
       character(len=256)         :: shared_dll
       logical                    :: lfound
-      integer(kind=int_32) ::idummy
-      real(kind=sp) ::rdummy
-      integer(kind=int_32) ::ierror
-      integer(kind=int_32) ::ierr2
+      integer(kind=int_wp) ::idummy
+      real(kind=real_wp) ::rdummy
+      integer(kind=int_wp) ::ierror
+      integer(kind=int_wp) ::ierr2
       logical                    :: l_stop
 
 
@@ -230,11 +230,11 @@
 !
       COMMON /CFRACS/ IFRACS
       logical                 run              ! lp for OMP
-      integer(kind=int_32) ::aproc            ! lp for OMP
+      integer(kind=int_wp) ::aproc            ! lp for OMP
 
       logical timon_old
-      integer(kind=int_32) ::ithandl = 0
-      integer(kind=int_32) ::ithand2 = 0
+      integer(kind=int_wp) ::ithandl = 0
+      integer(kind=int_wp) ::ithand2 = 0
       if ( timon ) call timstrt ( "proces", ithandl )
 !jvb
 !
@@ -318,7 +318,7 @@
       id1hlp = arrdm1(ia_hlp)
       id2hlp = arrdm2(ia_hlp)
 
-!     Fill some specific variables absolute in the real(kind=sp) ::array
+!     Fill some specific variables absolute in the real(kind=real_wp) ::array
 
       defaul(2) = float(itime)
       noq = noq1 + noq2 + noq3 + noq4
@@ -678,11 +678,11 @@
       use m_dhgpoi
       use m_dhgvar
 !
-      INTEGER(kind=int_32) ::IPROC , K     , IDT   , ITFACT, NOGRID,
+      INTEGER(kind=int_wp) ::IPROC , K     , IDT   , ITFACT, NOGRID,
      +                    NOSEG , NOFLUX, NOQ1  , NOQ2  , NOQ3  ,
      +                    NOQ4  , NPROC , NOTOT , IBFLAG, NOVAR ,
      +                    IIKNMR
-      INTEGER(kind=int_32) ::PROGRD(*)      , GRDNOS(*)      ,
+      INTEGER(kind=int_wp) ::PROGRD(*)      , GRDNOS(*)      ,
      +                    PRVNIO(*)      , PRVTYP(*)      ,
      +                    PRVVAR(*)      , VARARR(*)      ,
      +                    VARIDX(*)      , ARRKND(*)      ,
@@ -696,7 +696,7 @@
      +                    PRONDT(*)      , ISDMP (*)      ,
      +                    VARTAG(*)      ,
      +                    DSPNDT(*)      , VELNDT(*)
-      REAL(kind=sp) ::A(*)           , FLUX(*)        ,
+      REAL(kind=real_wp) ::A(*)           , FLUX(*)        ,
      +                    DERIV(*)       , STOCHI(*)      ,
      +                    VOLUME(*)      , FLXDMP(*)
       CHARACTER*10        PRONAM(*)
@@ -704,13 +704,13 @@
 !
 !     Local
 !
-      INTEGER(kind=int_32) ::IDTPRO, ITYP, IX_HLP, IA_HLP, IV_HLP, IK_HLP, IP_HLP, ID1HLP, ID2HLP
-      integer(kind=int_32) ::NOSEG2, IVARIO, IGRID, IGR3, NOSEG3, ISYSI, NOTOTI
-      integer(kind=int_32) ::IVAR, IARR, IV_IDX, IARKND, IP_ARR, IDIM1, IDIM2
-      integer(kind=int_32) ::IV_AG, IA_AG, IX_AG, IK_AG, IP_AG, ID1_AG, ID2_AG
-      integer(kind=int_32) ::IP_ARI, NOTOTO, ISYSO, IP_ARO, IDATYP, IV_DA, IA_DA, IK_DA
-      integer(kind=int_32) ::IX_DA, IP_DA, ID1_DA, ID2_DA, NOTOTW, ISYSW, IP_ARW
-      integer(kind=int_32) ::NOTOTH, ISYSH, IP_ARH, ISWCUM, IAGTYP, IPFLUX, IPKNMR, IGR2
+      INTEGER(kind=int_wp) ::IDTPRO, ITYP, IX_HLP, IA_HLP, IV_HLP, IK_HLP, IP_HLP, ID1HLP, ID2HLP
+      integer(kind=int_wp) ::NOSEG2, IVARIO, IGRID, IGR3, NOSEG3, ISYSI, NOTOTI
+      integer(kind=int_wp) ::IVAR, IARR, IV_IDX, IARKND, IP_ARR, IDIM1, IDIM2
+      integer(kind=int_wp) ::IV_AG, IA_AG, IX_AG, IK_AG, IP_AG, ID1_AG, ID2_AG
+      integer(kind=int_wp) ::IP_ARI, NOTOTO, ISYSO, IP_ARO, IDATYP, IV_DA, IA_DA, IK_DA
+      integer(kind=int_wp) ::IX_DA, IP_DA, ID1_DA, ID2_DA, NOTOTW, ISYSW, IP_ARW
+      integer(kind=int_wp) ::NOTOTH, ISYSH, IP_ARH, ISWCUM, IAGTYP, IPFLUX, IPKNMR, IGR2
       
       
 !
@@ -1061,35 +1061,35 @@
 
 !     Kind        Function         Name   Dimensions                 Description
 
-      integer(kind=int_32), intent(in   )  ::nproc                           ! Total number of processes
-      integer(kind=int_32), intent(in   )  ::nogrid                          ! Total number of grids
-      integer(kind=int_32), intent(in   )  ::noflux                          ! Total number of fluxes
-      integer(kind=int_32), intent(in   )  ::novar                           ! Total number of variables
-      integer(kind=int_32), intent(in   )  ::noseg                           ! Total number of computational volumes
-      integer(kind=int_32), intent(in   )  ::notot                           ! Total number of substances
-      integer(kind=int_32), intent(in   )  ::progrd(nproc )                  ! The grid number of each process
-      integer(kind=int_32), intent(in   )  ::grdnos(nogrid)                  ! The nummber of volumes in each grid
-      integer(kind=int_32), intent(in   )  ::iflux (nproc )                  ! Offset in the flux array per process
-      integer(kind=int_32), intent(inout)  ::vgrset(novar         , nogrid)  ! Indicates whether a variable for a grid is set
-      integer(kind=int_32), intent(in   )  ::grdseg(noseg         , nogrid)  ! Probably the aggregation pointer of the grids
-      real(kind=sp), intent(inout)  ::volume(noseg         , nogrid)  ! Computational volumes
-      real(kind=sp), intent(inout)  ::deriv (notot , noseg , nogrid)  ! Array with derivatives
-      real(kind=sp), intent(in   )  ::stochi(notot , noflux)          ! Stoichiometric factors per flux
-      real(kind=sp), intent(in   )  ::flux  (noflux, noseg , nogrid)  ! Process fluxes
-      integer(kind=int_32), intent(in   )  ::prondt(nproc )                  ! Time step size of the process
-      integer(kind=int_32), intent(in   )  ::ibflag                          ! If > 0 then balances are required
-      integer(kind=int_32), intent(in   )  ::isdmp (noseg )                  ! Segment to dumped segment pointer
-      real(kind=sp), intent(inout)  ::flxdmp(noflux, *     )          ! Dumped fluxes
-      integer(kind=int_32), intent(in   )  ::ipbloo                          ! The BLOOM  process if any
-      integer(kind=int_32), intent(in   )  ::istep                           ! Time step nr.
+      integer(kind=int_wp), intent(in   )  ::nproc                           ! Total number of processes
+      integer(kind=int_wp), intent(in   )  ::nogrid                          ! Total number of grids
+      integer(kind=int_wp), intent(in   )  ::noflux                          ! Total number of fluxes
+      integer(kind=int_wp), intent(in   )  ::novar                           ! Total number of variables
+      integer(kind=int_wp), intent(in   )  ::noseg                           ! Total number of computational volumes
+      integer(kind=int_wp), intent(in   )  ::notot                           ! Total number of substances
+      integer(kind=int_wp), intent(in   )  ::progrd(nproc )                  ! The grid number of each process
+      integer(kind=int_wp), intent(in   )  ::grdnos(nogrid)                  ! The nummber of volumes in each grid
+      integer(kind=int_wp), intent(in   )  ::iflux (nproc )                  ! Offset in the flux array per process
+      integer(kind=int_wp), intent(inout)  ::vgrset(novar         , nogrid)  ! Indicates whether a variable for a grid is set
+      integer(kind=int_wp), intent(in   )  ::grdseg(noseg         , nogrid)  ! Probably the aggregation pointer of the grids
+      real(kind=real_wp), intent(inout)  ::volume(noseg         , nogrid)  ! Computational volumes
+      real(kind=real_wp), intent(inout)  ::deriv (notot , noseg , nogrid)  ! Array with derivatives
+      real(kind=real_wp), intent(in   )  ::stochi(notot , noflux)          ! Stoichiometric factors per flux
+      real(kind=real_wp), intent(in   )  ::flux  (noflux, noseg , nogrid)  ! Process fluxes
+      integer(kind=int_wp), intent(in   )  ::prondt(nproc )                  ! Time step size of the process
+      integer(kind=int_wp), intent(in   )  ::ibflag                          ! If > 0 then balances are required
+      integer(kind=int_wp), intent(in   )  ::isdmp (noseg )                  ! Segment to dumped segment pointer
+      real(kind=real_wp), intent(inout)  ::flxdmp(noflux, *     )          ! Dumped fluxes
+      integer(kind=int_wp), intent(in   )  ::ipbloo                          ! The BLOOM  process if any
+      integer(kind=int_wp), intent(in   )  ::istep                           ! Time step nr.
 
 !     Local
 
-      integer(kind=int_32) ::iproc                           ! Loop counter over processes
-      integer(kind=int_32) ::igrid                           ! Grid nr of this process
-      integer(kind=int_32) ::noseg2                          ! Number of computational volumes in this grid
-      integer(kind=int_32) ::nfluxp                          ! Number of fluxes in this process
-      integer(kind=int_32), save           ::ithandl = 0
+      integer(kind=int_wp) ::iproc                           ! Loop counter over processes
+      integer(kind=int_wp) ::igrid                           ! Grid nr of this process
+      integer(kind=int_wp) ::noseg2                          ! Number of computational volumes in this grid
+      integer(kind=int_wp) ::nfluxp                          ! Number of fluxes in this process
+      integer(kind=int_wp), save           ::ithandl = 0
       if ( timon ) call timstrt ( "twopro", ithandl )
 
       do iproc = 1, nproc

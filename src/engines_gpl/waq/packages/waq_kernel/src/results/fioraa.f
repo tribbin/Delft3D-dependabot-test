@@ -45,24 +45,24 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     OUTVAL  REAL(kind=sp) ::NRVAR,*     OUTPUT  Values for vars on output grid
-!     NRVAR   INTEGER(kind=int_32) ::1     INPUT   Number of output vars
-!     TRRAAI  REAL(kind=sp) ::NOSYS,*     INPUT   Tranport over raai for active substanc
-!     NORAAI  INTEGER(kind=int_32) ::1     INPUT   Number of raaien
-!     NOSYS   INTEGER(kind=int_32) ::1     INPUT   Number of parameters in TRRAAI
+!     OUTVAL  REAL(kind=real_wp) ::NRVAR,*     OUTPUT  Values for vars on output grid
+!     NRVAR   INTEGER(kind=int_wp) ::1     INPUT   Number of output vars
+!     TRRAAI  REAL(kind=real_wp) ::NOSYS,*     INPUT   Tranport over raai for active substanc
+!     NORAAI  INTEGER(kind=int_wp) ::1     INPUT   Number of raaien
+!     NOSYS   INTEGER(kind=int_wp) ::1     INPUT   Number of parameters in TRRAAI
 !
 !     Declaration of arguments
 !
       use timers
 
-      INTEGER(kind=int_32) ::NRVAR , NORAAI, NOSYS
-      REAL(kind=sp) ::OUTVAL(NRVAR,*), TRRAAI(NOSYS,*)
+      INTEGER(kind=int_wp) ::NRVAR , NORAAI, NOSYS
+      REAL(kind=real_wp) ::OUTVAL(NRVAR,*), TRRAAI(NOSYS,*)
 !
 !     Local
 !
-      integer(kind=int_32) ::iraai, isys
-      real(kind=sp), PARAMETER   ::RMISS = -999.
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::iraai, isys
+      real(kind=real_wp), PARAMETER   ::RMISS = -999.
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "fioraa", ithandl )
 !
 !     Copy values into output buffer

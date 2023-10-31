@@ -55,23 +55,23 @@
 !     Parameters          :
 !     type     kind  function         name                      description
 
-      integer(kind=int_32), intent(in   )  ::noseg                   !< number of computational volumes
-      integer(kind=int_32), intent(in   )  ::nopa                    !< number of parameters
+      integer(kind=int_wp), intent(in   )  ::noseg                   !< number of computational volumes
+      integer(kind=int_wp), intent(in   )  ::nopa                    !< number of parameters
       character(20), intent(in   ) :: paname(nopa  )          !< names of the parameters
-      real(kind=sp), intent(in   )  ::param (nopa  ,noseg)    !< parameter values
-      integer(kind=int_32), intent(in   )  ::nosfun                  !< number of segment functions
+      real(kind=real_wp), intent(in   )  ::param (nopa  ,noseg)    !< parameter values
+      integer(kind=int_wp), intent(in   )  ::nosfun                  !< number of segment functions
       character(20), intent(in   ) :: sfname(nosfun)          !< names of the segment functions
-      real(kind=sp), intent(in   )  ::segfun(noseg ,nosfun)   !< segment function values
-      real(kind=sp), intent(inout)  ::surface(noseg)          !< horizontal surface
-      integer(kind=int_32), intent(in   )  ::lun                     !< logical unit number monitoring file
+      real(kind=real_wp), intent(in   )  ::segfun(noseg ,nosfun)   !< segment function values
+      real(kind=real_wp), intent(inout)  ::surface(noseg)          !< horizontal surface
+      integer(kind=int_wp), intent(in   )  ::lun                     !< logical unit number monitoring file
 
 
 !     local variables
 
       logical   , save :: first = .true.  ! true if first time step
-      integer(kind=int_32), save  ::indx            ! index of the surf variable in the array
-      integer(kind=int_32), save  ::mode            ! -1 segment functions, +1 parameters, 0 none
-      integer(kind=int_32), save  ::ithandl         ! timer handle
+      integer(kind=int_wp), save  ::indx            ! index of the surf variable in the array
+      integer(kind=int_wp), save  ::mode            ! -1 segment functions, +1 parameters, 0 none
+      integer(kind=int_wp), save  ::ithandl         ! timer handle
       data       ithandl  /0/
       if ( timon ) call timstrt ( "hsurf", ithandl )
 

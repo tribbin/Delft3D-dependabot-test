@@ -51,22 +51,22 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     IOUT    INTEGER(kind=int_32) ::1       INPUT   unit number output file
-!     AMASS2  REAL(kind=sp) ::NOTOT*5    INPUT   mass balance whole system
-!     ITIME   INTEGER(kind=int_32) ::1       INPUT   present time in clock units
+!     IOUT    INTEGER(kind=int_wp) ::1       INPUT   unit number output file
+!     AMASS2  REAL(kind=real_wp) ::NOTOT*5    INPUT   mass balance whole system
+!     ITIME   INTEGER(kind=int_wp) ::1       INPUT   present time in clock units
 !     SNAME   CHAR*20   NOTOT     INPUT   names of substances
 !     MNAME   CHAR*40     4       INPUT   model identification
-!     NOTOT   INTEGER(kind=int_32) ::1       INPUT   total number of systems
-!     IP      INTEGER(kind=int_32) ::4       IN/OUT  paging structure
-!     ISFLAG  INTEGER(kind=int_32) ::1       INPUT   if 1 then dd-hh:mm'ss"
-!     ASMASS  REAL(kind=sp) ::NOTOT*NDMPAR*? INPUT   Mass balance per segment
-!     IBFLAG  INTEGER(kind=int_32) ::1       INPUT   Flag = 1 then balances
-!     NOTOT2  INTEGER(kind=int_32) ::INPUT   Number of extra output vars
+!     NOTOT   INTEGER(kind=int_wp) ::1       INPUT   total number of systems
+!     IP      INTEGER(kind=int_wp) ::4       IN/OUT  paging structure
+!     ISFLAG  INTEGER(kind=int_wp) ::1       INPUT   if 1 then dd-hh:mm'ss"
+!     ASMASS  REAL(kind=real_wp) ::NOTOT*NDMPAR*? INPUT   Mass balance per segment
+!     IBFLAG  INTEGER(kind=int_wp) ::1       INPUT   Flag = 1 then balances
+!     NOTOT2  INTEGER(kind=int_wp) ::INPUT   Number of extra output vars
 !     SYNAM2  CHAR*20             INPUT   Names of extra output vars
-!     CONC2   REAL(kind=sp) ::NOTOT1*?    INPUT   Value of all vars
-!     ITSTRT  INTEGER(kind=int_32) ::1       INPUT   start time
-!     ITSTOP  INTEGER(kind=int_32) ::1       INPUT   stop time
-!     NDMPAR  INTEGER(kind=int_32) ::1       INPUT   number of dump area's
+!     CONC2   REAL(kind=real_wp) ::NOTOT1*?    INPUT   Value of all vars
+!     ITSTRT  INTEGER(kind=int_wp) ::1       INPUT   start time
+!     ITSTOP  INTEGER(kind=int_wp) ::1       INPUT   stop time
+!     NDMPAR  INTEGER(kind=int_wp) ::1       INPUT   number of dump area's
 !     DANAM   CHAR*20  NDMPAR     INPUT   names of dump area's
 !
 !
@@ -74,10 +74,10 @@
       use m_reptim
       use timers
 
-      INTEGER(kind=int_32) ::IOUT  , ITIME , NOTOT , ISFLAG, IBFLAG,
+      INTEGER(kind=int_wp) ::IOUT  , ITIME , NOTOT , ISFLAG, IBFLAG,
      +             NOTOT2, ITSTRT, ITSTOP, NDMPAR
-      INTEGER(kind=int_32) ::IP(4)
-      REAL(kind=sp) ::AMASS2(NOTOT,5), ASMASS(NOTOT,NDMPAR,*) ,
+      INTEGER(kind=int_wp) ::IP(4)
+      REAL(kind=real_wp) ::AMASS2(NOTOT,5), ASMASS(NOTOT,NDMPAR,*) ,
      +             CONC2(*)
       CHARACTER*20 SNAME(*) , SYNAM2(*) , DANAM(*)
       CHARACTER*40 MNAME(*)
@@ -85,10 +85,10 @@
 !     Local declaration
 !
       CHARACTER*40 VNAME
-      integer(kind=int_32) ::idmp, k, id, id2, nend, nend2
-      real(kind=sp) ::percit
+      integer(kind=int_wp) ::idmp, k, id, id2, nend, nend2
+      real(kind=real_wp) ::percit
 
-      integer(kind=int_32) ::ithandl = 0 
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "outmo3", ithandl )
 !
 !         initialise the paging, accumulation arrays and acumul flag

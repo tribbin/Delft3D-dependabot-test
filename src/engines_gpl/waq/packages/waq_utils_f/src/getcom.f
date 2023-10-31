@@ -66,9 +66,9 @@
       use m_dhcarg
       use m_dhgarg
 
-      INTEGER(kind=int_32) ::ARGMOD, INTARG, IERR
-      INTEGER(kind=int_32) ::I , I1 , I2 , IA , IF ,  ILEN , ILENC
-      REAL(kind=sp) ::REAARG
+      INTEGER(kind=int_wp) ::ARGMOD, INTARG, IERR
+      INTEGER(kind=int_wp) ::I , I1 , I2 , IA , IF ,  ILEN , ILENC
+      REAL(kind=real_wp) ::REAARG
       LOGICAL        FOUND
       CHARACTER*(*)  COMSTR, CHAARG
 !
@@ -76,7 +76,7 @@
 !
 
       CHARACTER*256  ARGV , ARG , COM
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::ithndl = 0
       if ( timon ) call timstrt( "getcom", ithndl )
 !
       FOUND = .FALSE.

@@ -100,11 +100,11 @@
       IMPLICIT REAL    (A-H,J-Z)
       IMPLICIT INTEGER (I)
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      REAL(kind=sp) ::POC    , PON   , POP   , RC20LO , RC20UP , RC20   ,
+      REAL(kind=real_wp) ::POC    , PON   , POP   , RC20LO , RC20UP , RC20   ,
      +         TEMP   , TC    , TEMPC , ANR    , APR    , ALN    ,
      +         ALP    , AUN   , AUP   , FNUT   , N_FACT , P_FACT ,
      +         OXY    , NO3   , B_NO3 , B_SULF , ELFACT , B_DTPR ,
@@ -112,7 +112,7 @@
      +         CNVPP  , CNVDC , CNVDN , CNVDP  , POS    , DECOS  ,
      +         CNVPS  , CNVDS , ASR   , S_FACT , DEPTH  , NATTEM ,
      +         DECOCE
-      INTEGER(kind=int_32) ::SWEMRS
+      INTEGER(kind=int_wp) ::SWEMRS
 !
       IP1  = IPOINT( 1)
       IP2  = IPOINT( 2)

@@ -44,23 +44,23 @@
 
 !     declaration of arguments
 
-      integer(kind=int_32), intent(in) ::  lunut         ! report file
+      integer(kind=int_wp), intent(in) ::  lunut         ! report file
       type(t_dlwq_item)     , intent(inout) :: waq_param    ! list of param items to be set in this block ( substances etc )
       type(t_dlwq_item)     , intent(inout) :: data_param   ! list of param items in the data
-      integer(kind=int_32), intent(in) ::  i             ! item index
-      integer(kind=int_32), intent(inout) ::  icnt          ! shift in item index
+      integer(kind=int_wp), intent(in) ::  i             ! item index
+      integer(kind=int_wp), intent(inout) ::  icnt          ! shift in item index
 
       ! local declaration
 
       character(len=20)                     :: chulp        ! item name
-      integer(kind=int_32) ::  nitm          ! number of items in data
-      integer(kind=int_32) ::  ishft         ! number of items shifted in data
-      integer(kind=int_32) ::  i1            ! item index
-      integer(kind=int_32) ::  i2            ! item index
-      integer(kind=int_32) ::  i3            ! item index
-      integer(kind=int_32) ::  i4            ! item index
-      integer(kind=int_32) ::  i5            ! item index
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  nitm          ! number of items in data
+      integer(kind=int_wp) ::  ishft         ! number of items shifted in data
+      integer(kind=int_wp) ::  i1            ! item index
+      integer(kind=int_wp) ::  i2            ! item index
+      integer(kind=int_wp) ::  i3            ! item index
+      integer(kind=int_wp) ::  i4            ! item index
+      integer(kind=int_wp) ::  i5            ! item index
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "compact_usefor", ithndl )
 
       ! write message

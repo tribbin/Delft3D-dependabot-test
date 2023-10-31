@@ -53,109 +53,109 @@ use ieee_arithmetic
 !
 !     Type    Name         I/O Description
 !
-    real(kind=sp)  ::pmsa(*)      ! I/O Process Manager System Array, window of routine to process library
-    real(kind=sp)  ::fl(*)        ! O  Array of fluxes made by this process in mass/volume/time
-    integer(kind=int_32)  ::ipoint(*)    ! I  Array of pointers in pmsa to get and store the data
-    integer(kind=int_32)  ::increm(*)    ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
-    integer(kind=int_32)  ::noseg        ! I  Number of computational elements in the whole model schematisation
-    integer(kind=int_32)  ::noflux       ! I  Number of fluxes, increment in the fl array
-    integer(kind=int_32)  ::iexpnt(4,*)  ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-    integer(kind=int_32)  ::iknmrk(*)    ! I  Active-Inactive, Surface-water-bottom, see manual for use
-    integer(kind=int_32)  ::noq1         ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
-    integer(kind=int_32)  ::noq2         ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-    integer(kind=int_32)  ::noq3         ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-    integer(kind=int_32)  ::noq4         ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+    real(kind=real_wp)  ::pmsa(*)      ! I/O Process Manager System Array, window of routine to process library
+    real(kind=real_wp)  ::fl(*)        ! O  Array of fluxes made by this process in mass/volume/time
+    integer(kind=int_wp)  ::ipoint(*)    ! I  Array of pointers in pmsa to get and store the data
+    integer(kind=int_wp)  ::increm(*)    ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
+    integer(kind=int_wp)  ::noseg        ! I  Number of computational elements in the whole model schematisation
+    integer(kind=int_wp)  ::noflux       ! I  Number of fluxes, increment in the fl array
+    integer(kind=int_wp)  ::iexpnt(4,*)  ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+    integer(kind=int_wp)  ::iknmrk(*)    ! I  Active-Inactive, Surface-water-bottom, see manual for use
+    integer(kind=int_wp)  ::noq1         ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
+    integer(kind=int_wp)  ::noq2         ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+    integer(kind=int_wp)  ::noq3         ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+    integer(kind=int_wp)  ::noq4         ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
 !
 !*******************************************************************************
 !
 !     Type    Name         I/O Description                                        Unit
 !
 !     support variables
-    integer(kind=int_32),  parameter    :: nrIndInp = 8    !   nr of species independent input items
-    integer(kind=int_32),  parameter    :: nrSpecInp = 41  !   nr of inputs per species
-    integer(kind=int_32),  parameter    :: nrSpecOut = 42  !   nr of outputs per species
-    integer(kind=int_32),  parameter    :: nrSpecFlux = 25 !   nr of fluxes per species
-    integer(kind=int_32),  parameter    :: nrPreyInp = 8   !   nr of inputs per prey
-    integer(kind=int_32)                ::nrInputItems     !   nr of input items need for output PMSA
-    integer(kind=int_32)                ::nrOutputItems    !   nr of output items need for output PMSA
-    integer(kind=int_32)                ::ipointLength     !   total length of the PMSA input and output pointer array
-    integer(kind=int_32), allocatable ::ipnt(:)          !   Local work array for the pointering
+    integer(kind=int_wp),  parameter    :: nrIndInp = 8    !   nr of species independent input items
+    integer(kind=int_wp),  parameter    :: nrSpecInp = 41  !   nr of inputs per species
+    integer(kind=int_wp),  parameter    :: nrSpecOut = 42  !   nr of outputs per species
+    integer(kind=int_wp),  parameter    :: nrSpecFlux = 25 !   nr of fluxes per species
+    integer(kind=int_wp),  parameter    :: nrPreyInp = 8   !   nr of inputs per prey
+    integer(kind=int_wp)                ::nrInputItems     !   nr of input items need for output PMSA
+    integer(kind=int_wp)                ::nrOutputItems    !   nr of output items need for output PMSA
+    integer(kind=int_wp)                ::ipointLength     !   total length of the PMSA input and output pointer array
+    integer(kind=int_wp), allocatable ::ipnt(:)          !   Local work array for the pointering
 
-    integer(kind=int_32)  ::iseg          ! Local loop counter for computational element loop
-    integer(kind=int_32)  ::ioq
-    integer(kind=int_32)  ::iflux
-    integer(kind=int_32)  ::ikmrk1        ! first segment attribute
+    integer(kind=int_wp)  ::iseg          ! Local loop counter for computational element loop
+    integer(kind=int_wp)  ::ioq
+    integer(kind=int_wp)  ::iflux
+    integer(kind=int_wp)  ::ikmrk1        ! first segment attribute
 
-    integer(kind=int_32)  ::iSpec         ! local species number counter
-    integer(kind=int_32)  ::iPrey         ! local prey number counter
-    integer(kind=int_32)  ::spInc         ! local species PMSA/FL number increment
-    integer(kind=int_32)  ::prInc         ! local pray FL number increment
+    integer(kind=int_wp)  ::iSpec         ! local species number counter
+    integer(kind=int_wp)  ::iPrey         ! local prey number counter
+    integer(kind=int_wp)  ::spInc         ! local species PMSA/FL number increment
+    integer(kind=int_wp)  ::prInc         ! local pray FL number increment
 
      !input parameters
-     integer(kind=int_32)     ::nrSpec        ! total nr species implemented in process (from proc_def)
-     integer(kind=int_32)     ::nrPrey        ! total nr prey implemented in process (from proc_def)
-     real(kind=sp)     ::relPhag                                     ! relative phagotrophy night:day
-     real(kind=sp)     ::UmRT, Q10, RT, CR                           ! growth and respiration rate calculation
-     real(kind=sp)     ::NCm, NO3Cm, PCm, ChlCm                      ! maximum NC, PC, ChlC quotas
-     real(kind=sp)     ::NCo, PCo, ChlCo                             ! minimum NC and PC quotas
-     real(kind=sp)     ::NCopt, NO3Copt, PCopt                       ! optimal NC and PC quotas
-     real(kind=sp)     ::KtP, KtNH4, KtNO3                           ! half saturation constants
-     real(kind=sp)     ::PCoNCopt, PCoNCm                            ! P status influence on optimum NC
-     real(kind=sp)     ::ReUmNH4, ReUmNO3, redco, PSDOC, maxPSreq, relPS     ! relative growth rates with specific nutrients
-     real(kind=sp)     ::CcellProt, rProt                            ! parameters for protozooplankton cell
-     real(kind=sp)     ::optCR                                       ! parameters for encounter
-     real(kind=sp)     ::kAE, AEm, AEo                               ! parameters for assimilation efficiency
-     real(kind=sp)     ::SDA                                         ! specific dynamic action
-     real(kind=sp)     ::MrtRT, FrAut, FrDet                         ! reference mortality and fractions
-     real(kind=sp)     ::alpha                                       ! inital slope
+     integer(kind=int_wp)     ::nrSpec        ! total nr species implemented in process (from proc_def)
+     integer(kind=int_wp)     ::nrPrey        ! total nr prey implemented in process (from proc_def)
+     real(kind=real_wp)     ::relPhag                                     ! relative phagotrophy night:day
+     real(kind=real_wp)     ::UmRT, Q10, RT, CR                           ! growth and respiration rate calculation
+     real(kind=real_wp)     ::NCm, NO3Cm, PCm, ChlCm                      ! maximum NC, PC, ChlC quotas
+     real(kind=real_wp)     ::NCo, PCo, ChlCo                             ! minimum NC and PC quotas
+     real(kind=real_wp)     ::NCopt, NO3Copt, PCopt                       ! optimal NC and PC quotas
+     real(kind=real_wp)     ::KtP, KtNH4, KtNO3                           ! half saturation constants
+     real(kind=real_wp)     ::PCoNCopt, PCoNCm                            ! P status influence on optimum NC
+     real(kind=real_wp)     ::ReUmNH4, ReUmNO3, redco, PSDOC, maxPSreq, relPS     ! relative growth rates with specific nutrients
+     real(kind=real_wp)     ::CcellProt, rProt                            ! parameters for protozooplankton cell
+     real(kind=real_wp)     ::optCR                                       ! parameters for encounter
+     real(kind=real_wp)     ::kAE, AEm, AEo                               ! parameters for assimilation efficiency
+     real(kind=real_wp)     ::SDA                                         ! specific dynamic action
+     real(kind=real_wp)     ::MrtRT, FrAut, FrDet                         ! reference mortality and fractions
+     real(kind=real_wp)     ::alpha                                       ! inital slope
 
      ! input state variables
-     real(kind=sp)     ::protC, protChl, protN, protP                ! protist state variables
-     real(kind=sp)     ::PO4, NH4, NO3                               ! nutrient state variables
-     real(kind=sp)     ::Temp                                        ! physical abiotic variables
-     real(kind=sp)     ::PFD, atten, exat                            ! available light and extinction
+     real(kind=real_wp)     ::protC, protChl, protN, protP                ! protist state variables
+     real(kind=real_wp)     ::PO4, NH4, NO3                               ! nutrient state variables
+     real(kind=real_wp)     ::Temp                                        ! physical abiotic variables
+     real(kind=real_wp)     ::PFD, atten, exat                            ! available light and extinction
 
 
      ! auxiliaries
-     real(kind=sp)     ::lightInh                                    ! inhibtion of feeding in dark
-     real(kind=sp)     ::NC, PC, ChlC                                ! cell nutrient quotas
-     real(kind=sp)     ::UmT, BR                                     ! growth and repsiration rates
-     real(kind=sp)     ::NCu, PCu, NPCu                              ! nutrient status within the cell
-     real(kind=sp)     ::mot                                         ! motility
-     real(kind=sp)     ::upP, upNH4, upNO3                           ! nutrient uptake
-     real(kind=sp)     ::PSqm, Cfix, synChl, degChl                  ! plateau and Cifx through photosynthesis
-     real(kind=sp)     ::CfixPS                                      ! C fix minus phototsynthesis related respiration
-     real(kind=sp)     ::PS                                          ! req for C to come from PS
+     real(kind=real_wp)     ::lightInh                                    ! inhibtion of feeding in dark
+     real(kind=real_wp)     ::NC, PC, ChlC                                ! cell nutrient quotas
+     real(kind=real_wp)     ::UmT, BR                                     ! growth and repsiration rates
+     real(kind=real_wp)     ::NCu, PCu, NPCu                              ! nutrient status within the cell
+     real(kind=real_wp)     ::mot                                         ! motility
+     real(kind=real_wp)     ::upP, upNH4, upNO3                           ! nutrient uptake
+     real(kind=real_wp)     ::PSqm, Cfix, synChl, degChl                  ! plateau and Cifx through photosynthesis
+     real(kind=real_wp)     ::CfixPS                                      ! C fix minus phototsynthesis related respiration
+     real(kind=real_wp)     ::PS                                          ! req for C to come from PS
      ! food quantity
-     real(kind=sp)     ::sumCP        ! total captured prey
-     real(kind=sp)     ::ingNC, ingPC ! total ingested N and P
-     real(kind=sp)     ::preyFlag     ! sum of preyFlag (can be 0 = both low, 1 = 1 ok, 2 = both ok)
+     real(kind=real_wp)     ::sumCP        ! total captured prey
+     real(kind=real_wp)     ::ingNC, ingPC ! total ingested N and P
+     real(kind=real_wp)     ::preyFlag     ! sum of preyFlag (can be 0 = both low, 1 = 1 ok, 2 = both ok)
 
      ! food quality
-     real(kind=sp)     ::stoichP, ppNC, ppPC                    ! stoichiometry comparison
-     real(kind=sp)     ::opAE                                   ! assimilation efficiency
+     real(kind=real_wp)     ::stoichP, ppNC, ppPC                    ! stoichiometry comparison
+     real(kind=real_wp)     ::opAE                                   ! assimilation efficiency
      ! ingestion and assimilation
-     real(kind=sp)     ::reqPred                                ! required Predation
-     real(kind=sp)     ::maxIng, ingSat, ingC, ingN, ingP, KI   ! ingestion
-     real(kind=sp)     ::assC, assN, assP                       ! assimilation
+     real(kind=real_wp)     ::reqPred                                ! required Predation
+     real(kind=real_wp)     ::maxIng, ingSat, ingC, ingN, ingP, KI   ! ingestion
+     real(kind=real_wp)     ::assC, assN, assP                       ! assimilation
      ! respiration, Cu and mortality
-     real(kind=sp)     ::totR, Cu, NPP                               ! respiration, C-growth and nett primary production
-     real(kind=sp)     ::mrt, mrtFrAut, mrtFrDet                     ! mortality to detritus and autolysis
+     real(kind=real_wp)     ::totR, Cu, NPP                               ! respiration, C-growth and nett primary production
+     real(kind=real_wp)     ::mrt, mrtFrAut, mrtFrDet                     ! mortality to detritus and autolysis
 
      ! other parameters
-     real(kind=sp),  parameter :: wTurb = 0.0 ! this needs to be an input!!!!
+     real(kind=real_wp),  parameter :: wTurb = 0.0 ! this needs to be an input!!!!
 
      ! Fluxes
-     real(kind=sp)     ::dNH4up, dNO3up, dPup                        ! uptake fluxes
-     real(kind=sp)     ::dCfix                                       ! photosynthesis flux
-     real(kind=sp)     ::dChlsyn, dChldeg                            ! Chl synthesis  and degradation flux
-     real(kind=sp)     ::dCresp                                      ! respiration flux
-     real(kind=sp)     ::dDOCleak                                    ! C leak through photosynthesis
-     real(kind=sp)     ::dDOCvoid, dNH4out, dPout                    ! voiding fluxes
-     real(kind=sp)     ::dAutC, dAutN, dAutP, dAutChl                ! autolysis fluxes
-     real(kind=sp)     ::dDetC, dDetN, dDetP, dDetChl                ! voiding fluxes
-     real(kind=sp)     ::dCeat, dNeat, dPeat                         ! assimilation fluxes
-     real(kind=sp)     ::dPOCout, dPONout, dPOPout                   ! voiding fluxes
+     real(kind=real_wp)     ::dNH4up, dNO3up, dPup                        ! uptake fluxes
+     real(kind=real_wp)     ::dCfix                                       ! photosynthesis flux
+     real(kind=real_wp)     ::dChlsyn, dChldeg                            ! Chl synthesis  and degradation flux
+     real(kind=real_wp)     ::dCresp                                      ! respiration flux
+     real(kind=real_wp)     ::dDOCleak                                    ! C leak through photosynthesis
+     real(kind=real_wp)     ::dDOCvoid, dNH4out, dPout                    ! voiding fluxes
+     real(kind=real_wp)     ::dAutC, dAutN, dAutP, dAutChl                ! autolysis fluxes
+     real(kind=real_wp)     ::dDetC, dDetN, dDetP, dDetChl                ! voiding fluxes
+     real(kind=real_wp)     ::dCeat, dNeat, dPeat                         ! assimilation fluxes
+     real(kind=real_wp)     ::dPOCout, dPONout, dPOPout                   ! voiding fluxes
 
      ! Protist arrays
      type(protist_array)   :: prot_array                 ! type containing all protist specific arrays

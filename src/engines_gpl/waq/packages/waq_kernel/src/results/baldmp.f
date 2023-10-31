@@ -70,20 +70,20 @@
 !
       use timers
 
-      INTEGER(kind=int_32) ::NOTOT , NOSYS , NOFLUX, NDMPAR, NDMPQ ,
+      INTEGER(kind=int_wp) ::NOTOT , NOSYS , NOFLUX, NDMPAR, NDMPQ ,
      +              NDMPS , NTDMPQ
-      INTEGER(kind=int_32) ::IQDMP(*)              , ISDMP(*)        ,
+      INTEGER(kind=int_wp) ::IQDMP(*)              , ISDMP(*)        ,
      +              IPDMP(*)
-      REAL(kind=sp) ::DMPQ(NOSYS,NDMPQ,*)   , MASS(NOTOT,*)   ,
+      REAL(kind=real_wp) ::DMPQ(NOSYS,NDMPQ,*)   , MASS(NOTOT,*)   ,
      +              DMPS(NOTOT,NDMPS,*)   , FLXDMP(NOFLUX,*),
      +              ASMASS(NOTOT,NDMPAR,*), FLXINT(NOFLUX,*)
 !
 !     Local declarations
 !
-      INTEGER(kind=int_32) ::ITEL1 , ITEL2 , IP1   , IDUMP , NQC   ,
+      INTEGER(kind=int_wp) ::ITEL1 , ITEL2 , IP1   , IDUMP , NQC   ,
      +              IQC   , IQ    , IPQ   , ISYS  , NSC   ,
      +              ISC   , ISEG  , IPS
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "baldmp", ithandl )
 
 !

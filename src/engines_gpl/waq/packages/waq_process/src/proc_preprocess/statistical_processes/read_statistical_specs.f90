@@ -45,27 +45,27 @@ contains
       !
       !     NAME    KIND     LENGTH      FUNCT.  DESCRIPTION
       !     ---------------------------------------------------------
-      !     IPOSR   INTEGER(kind=int_32) ::1           IN/OUT  position on input record
-      !     NPOS    INTEGER(kind=int_32) ::1           INPUT   length of input record
+      !     IPOSR   INTEGER(kind=int_wp) ::1           IN/OUT  position on input record
+      !     NPOS    INTEGER(kind=int_wp) ::1           INPUT   length of input record
       !     CCHAR   CHAR*1   1           INPUT   comment character
-      !     VERSION REAL(kind=sp) ::1           INPUT   program version number
-      !     ILUN    INTEGER(kind=int_32) ::LSTACK      IN/OUT  unit number stack
+      !     VERSION REAL(kind=real_wp) ::1           INPUT   program version number
+      !     ILUN    INTEGER(kind=int_wp) ::LSTACK      IN/OUT  unit number stack
       !     LCH     CHAR*(*) LSTACK      IN/OUT  Filename stack
-      !     LSTACK  INTEGER(kind=int_32) ::1           INPUT   size of the stack
-      !     IOUTPT  INTEGER(kind=int_32) ::1           INPUT   output file option
+      !     LSTACK  INTEGER(kind=int_wp) ::1           INPUT   size of the stack
+      !     IOUTPT  INTEGER(kind=int_wp) ::1           INPUT   output file option
       !     DTFLG1  LOGICAL  1           INPUT   'date'-format 1st timescale
       !     DTFLG3  LOGICAL  1           INPUT   'date'-format (F;ddmmhhss,T;yydddhh)
-      !     IERR    INTEGER(kind=int_32) ::1           IN/OUT  Cumulative error count
-      !     NOSTAT  INTEGER(kind=int_32) ::1           OUTPUT  number of statistical processes
-      !     NKEY    INTEGER(kind=int_32) ::1           OUTPUT  total number of keywords
-      !     NOKEY   INTEGER(kind=int_32) ::NOSTAT      OUTPUT  number of keywords per stat. proc.
+      !     IERR    INTEGER(kind=int_wp) ::1           IN/OUT  Cumulative error count
+      !     NOSTAT  INTEGER(kind=int_wp) ::1           OUTPUT  number of statistical processes
+      !     NKEY    INTEGER(kind=int_wp) ::1           OUTPUT  total number of keywords
+      !     NOKEY   INTEGER(kind=int_wp) ::NOSTAT      OUTPUT  number of keywords per stat. proc.
       !     KEYNAM  CHAR*20  NKEY        OUTPUT  names of the keywords read
       !     KEYVAL  CHAR*20  NKEY        OUTPUT  values of the keywords
-      !     NPERIOD INTEGER(kind=int_32) ::1           OUTPUT  number of periods
+      !     NPERIOD INTEGER(kind=int_wp) ::1           OUTPUT  number of periods
       !     PERNAM  CHAR*20  NPERIOD     OUTPUT  period name
       !     PERSFX  CHAR*20  NPERIOD     OUTPUT  period suffix
-      !     PSTART  INTEGER(kind=int_32) ::NPERIOD     OUTPUT  period start
-      !     PSTOP   INTEGER(kind=int_32) ::NPERIOD     OUTPUT  period stop
+      !     PSTART  INTEGER(kind=int_wp) ::NPERIOD     OUTPUT  period start
+      !     PSTOP   INTEGER(kind=int_wp) ::NPERIOD     OUTPUT  period stop
       !
       use m_zoek
       use timers 
@@ -74,24 +74,24 @@ contains
 
       implicit none
 
-      INTEGER(kind=int_32)  :: LUNREP , IPOSR  , NPOS   , LSTACK , IOUTPT , &
+      INTEGER(kind=int_wp)  :: LUNREP , IPOSR  , NPOS   , LSTACK , IOUTPT , &
                                IERR   , NOSTAT , NKEY
       LOGICAL               :: DTFLG1 , DTFLG3
-      INTEGER(kind=int_32)  :: ILUN(*)
+      INTEGER(kind=int_wp)  :: ILUN(*)
       CHARACTER*(*)         :: LCH  (*)
       CHARACTER*1           :: CCHAR
       CHARACTER*20, POINTER :: KEYNAM(:)
       CHARACTER*20, POINTER :: KEYVAL(:)
-      INTEGER(kind=int_32) , POINTER :: NOKEY(:)
-      INTEGER(kind=int_32)  :: NPERIOD
+      INTEGER(kind=int_wp) , POINTER :: NOKEY(:)
+      INTEGER(kind=int_wp)  :: NPERIOD
       CHARACTER*20, POINTER :: PERNAM(:)
       CHARACTER*20, POINTER :: PERSFX(:)
-      INTEGER(kind=int_32) , POINTER :: PSTART(:)
-      INTEGER(kind=int_32) , POINTER :: PSTOP(:)
+      INTEGER(kind=int_wp) , POINTER :: PSTART(:)
+      INTEGER(kind=int_wp) , POINTER :: PSTOP(:)
 
       ! Local
 
-      INTEGER(kind=int_32) :: NPKEY  , NKEYPER, NKEYPAR, IPAR
+      INTEGER(kind=int_wp) :: NPKEY  , NKEYPER, NKEYPAR, IPAR
       PARAMETER   ( NPKEY = 4 )
       PARAMETER   ( NKEYPER = 4 )
       PARAMETER   ( NKEYPAR = 3 )
@@ -100,12 +100,12 @@ contains
       CHARACTER*20  :: KEYPAR(NKEYPAR)
       CHARACTER*20  :: KNAM   , CDUMMY
       CHARACTER*20  :: KVAL
-      REAL(kind=sp) :: ADUMMY
-      INTEGER(kind=int_32) :: IDUMMY , IERR2  , IKEY  , ITYPE  , MAXKEY , &
+      REAL(kind=real_wp) :: ADUMMY
+      INTEGER(kind=int_wp) :: IDUMMY , IERR2  , IKEY  , ITYPE  , MAXKEY , &
                               MAXSTAT, VERSTAT, MINSTAT, IKEY2 , ITSTRT , &
                               ITSTOP , MPERIOD, IKEY3
-      integer(kind=int_32) :: istart, istop
-      integer(kind=int_32) :: ithndl = 0
+      integer(kind=int_wp) :: istart, istop
+      integer(kind=int_wp) :: ithndl = 0
       if (timon) call timstrt( "rdstat", ithndl )
 
       NOSTAT = 0

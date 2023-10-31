@@ -37,8 +37,8 @@
       use timers
 
       real(kind=dp) ::sx(1),sy(1),stemp,c,s
-      integer(kind=int_32) ::i,incx,incy,ix,iy,n
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::i,incx,incy,ix,iy,n
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "srot", ithandl )
 !
       if(n.le.0)return

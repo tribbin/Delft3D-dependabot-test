@@ -44,17 +44,17 @@
 !
       use timers
       implicit none
-      integer(kind=int_32), intent(in)     ::lunrep         ! unit number of output file
-      integer(kind=int_32), intent(in)     ::noseg          ! number of segments
+      integer(kind=int_wp), intent(in)     ::lunrep         ! unit number of output file
+      integer(kind=int_wp), intent(in)     ::noseg          ! number of segments
 
-      integer(kind=int_32), intent(inout)  ::iknmrk(noseg)  ! property array
+      integer(kind=int_wp), intent(inout)  ::iknmrk(noseg)  ! property array
 !
 !     Local variables :
 !
-      integer(kind=int_32) ::iseg                ! segment index
-      integer(kind=int_32) ::var1,var2,var3,var4 ! 1st, 2nd, 3rd and 4th number of feature
-      integer(kind=int_32) ::icount              ! counts the number of changes
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::iseg                ! segment index
+      integer(kind=int_wp) ::var1,var2,var3,var4 ! 1st, 2nd, 3rd and 4th number of feature
+      integer(kind=int_wp) ::icount              ! counts the number of changes
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "chknmr", ithandl )
 !
 !     on input, the kenmerk-array contains two digits:

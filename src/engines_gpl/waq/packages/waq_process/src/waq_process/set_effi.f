@@ -51,12 +51,12 @@
 
 !     arguments
 
-      real(kind=sp) ::temper     ! input , temperature
-      real(kind=sp) ::radiat     ! input , radiation
-      real(kind=sp) ::ext        ! input , total extinction
-      real(kind=sp) ::depthw     ! input , depth of the layer
-      real(kind=sp) ::daylen     ! input , daylength in hours
-      integer(kind=int_32) ::id         ! input , weeknumber
+      real(kind=real_wp) ::temper     ! input , temperature
+      real(kind=real_wp) ::radiat     ! input , radiation
+      real(kind=real_wp) ::ext        ! input , total extinction
+      real(kind=real_wp) ::depthw     ! input , depth of the layer
+      real(kind=real_wp) ::daylen     ! input , daylength in hours
+      integer(kind=int_wp) ::id         ! input , weeknumber
 
 !     local decalarations
 
@@ -70,8 +70,8 @@
       real(kind=dp) ::deat       ! DEAT
       real(kind=dp) ::tcorr      ! TCORR
       real(kind=dp) ::surf_typ   ! scaled, converted and corrected radiation for a type
-      integer(kind=int_32) ::igroup     ! index number of BLOOM algae group
-      integer(kind=int_32) ::itype      ! index number of BLOOM algae type
+      integer(kind=int_wp) ::igroup     ! index number of BLOOM algae group
+      integer(kind=int_wp) ::itype      ! index number of BLOOM algae type
       real(kind=dp) ::pmax20(mt),sdmixn(mt)
 
 

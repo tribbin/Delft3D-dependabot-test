@@ -70,22 +70,22 @@
       use m_dhfext
 
       CHARACTER*256    FNAME (3) , OPTION
-      INTEGER(kind=int_32) :: ITMTYP(*) 
+      INTEGER(kind=int_wp) :: ITMTYP(*)
       real(kind=dp) :: TIMLST(*) , TIMDEF(2,*) , ATIME , OTIME, SECOND
       LOGICAL          SETALL
 !
-      REAL(kind=sp), ALLOCATABLE ::  RDATA(:) 
+      REAL(kind=real_wp), ALLOCATABLE ::  RDATA(:)
       character*256         :: ext     ! file extension
-      integer(kind=int_32) ::  extpos   ! position of extension
-      integer(kind=int_32) ::  extlen   ! length of file extension
+      integer(kind=int_wp) ::  extpos   ! position of extension
+      integer(kind=int_wp) ::  extlen   ! length of file extension
       logical               :: mapfil  ! true if map file extension
-      integer(kind=int_32) ::  lun 
-      integer(kind=int_32) ::  NODUMP 
-      integer(kind=int_32) ::  k, I, NOTOT, NTT 
-      integer(kind=int_32) ::  ierror, nrlst, iprcod, iprtyp 
-      integer(kind=int_32) ::  itype, maxdef, itmdep, locdep, maxlst, lang 
-      integer(kind=int_32) ::  iyear, imonth, iday, ihour, iminut, isecnd 
-      integer(kind=int_32) ::  isfact, idummy, idate, itime, iprdep
+      integer(kind=int_wp) ::  lun
+      integer(kind=int_wp) ::  NODUMP
+      integer(kind=int_wp) ::  k, I, NOTOT, NTT
+      integer(kind=int_wp) ::  ierror, nrlst, iprcod, iprtyp
+      integer(kind=int_wp) ::  itype, maxdef, itmdep, locdep, maxlst, lang
+      integer(kind=int_wp) ::  iyear, imonth, iday, ihour, iminut, isecnd
+      integer(kind=int_wp) ::  isfact, idummy, idate, itime, iprdep
  !
 !         Open the DELWAQ .HIS file
 !

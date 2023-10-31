@@ -58,10 +58,10 @@
       
       implicit none
 
-      integer(kind=int_32) ::irs3, i, ier, index1, index2, infeas, inow, int, inhib, ismax, iskmax, irerun
-      integer(kind=int_32) ::j, k, l1, l2, linf, ni, nin, nset, numuni, numun, swblsa
-      integer(kind=int_32) ::ntstot, itnum, ntsst, k1
-      integer(kind=int_32) ::nonuni(mt),nonun(mt),irs(3),lib(mx),jkmax(ms)
+      integer(kind=int_wp) ::irs3, i, ier, index1, index2, infeas, inow, int, inhib, ismax, iskmax, irerun
+      integer(kind=int_wp) ::j, k, l1, l2, linf, ni, nin, nset, numuni, numun, swblsa
+      integer(kind=int_wp) ::ntstot, itnum, ntsst, k1
+      integer(kind=int_wp) ::nonuni(mt),nonun(mt),irs(3),lib(mx),jkmax(ms)
       save    irs, irs3
       real(kind=dp) ::x(mx),xinit(*),xdef(*),bio(2),groot(2),oroot(2*mt),root(2),emin(mt),xeco(*),xecost(ms),zood(0:mg)
       real(kind=dp) ::t

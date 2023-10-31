@@ -109,14 +109,14 @@
       IMPLICIT REAL (A-H,J-Z)
       IMPLICIT INTEGER (I)
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER(kind=int_32) ::LUNREP
+      INTEGER(kind=int_wp) ::LUNREP
 
       LOGICAL  TFACT,AFACT
-      REAL(kind=sp) ::RAT5N , BODN  , BDNPHY, AMCCF , BDNPOC
+      REAL(kind=real_wp) ::RAT5N , BODN  , BDNPHY, AMCCF , BDNPOC
 
       IN1  = INCREM( 1)
       IN2  = INCREM( 2)

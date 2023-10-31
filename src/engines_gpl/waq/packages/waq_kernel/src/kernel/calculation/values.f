@@ -38,14 +38,14 @@
 
 !
       CHARACTER*20 NAME  , CONAME(*), PANAME(*), FUNAME(*), SFNAME(*)
-      REAL(kind=sp) ::VALUE(NOSSS), CONST(NOCONS), PARAM (NOPA ,NOSSS ),
+      REAL(kind=real_wp) ::VALUE(NOSSS), CONST(NOCONS), PARAM (NOPA ,NOSSS ),
      *                           FUNCS(NOFUN ), SFUNCS(NOSSS,NOSFUN)
       LOGICAL      LGET
-      integer(kind=int_32) ::NOSSS, NOCONS , NOPA, NOFUN, NOSFUN, IERR
+      integer(kind=int_wp) ::NOSSS, NOCONS , NOPA, NOFUN, NOSFUN, IERR
 
 !     local
-      integer(kind=int_32) ::INDX
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::INDX
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "values", ithandl )
 !
       IERR = 1

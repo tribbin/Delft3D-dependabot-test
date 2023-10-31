@@ -44,10 +44,10 @@
 !     IARRAY  INTEGER  NOTOT      OUTPUT  array to be zeroed
 !     NOTOT   INTEGER     1       INPUT   total number of entries
 !
-      integer(kind=int_32) ::NOTOT
-      integer(kind=int_32) ::I
+      integer(kind=int_wp) ::NOTOT
+      integer(kind=int_wp) ::I
 
-      integer(kind=int_32) ::IARRAY(*)
+      integer(kind=int_wp) ::IARRAY(*)
 !
       DO  10 I  = 1,NOTOT
    10 IARRAY(I) = 0

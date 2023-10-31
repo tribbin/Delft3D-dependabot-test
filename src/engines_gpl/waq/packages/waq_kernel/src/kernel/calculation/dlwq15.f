@@ -88,80 +88,80 @@
 !     Parameters          :
 !     type     kind  function         name                      description
 
-      integer(kind=int_32), intent(in   )  ::nosys                   !< number of transported substances
-      integer(kind=int_32), intent(in   )  ::notot                   !< total number of substances
-      integer(kind=int_32), intent(in   )  ::noseg                   !< number of volumes
-      integer(kind=int_32), intent(in   )  ::noq                     !< number of flows
-      integer(kind=int_32), intent(in   )  ::nowst                   !< number of wastes
-      integer(kind=int_32), intent(in   )  ::nowtyp                  !< number of waste types
-      integer(kind=int_32), intent(in   )  ::ndmps                   !< number of dumped volumes for balances
-      integer(kind=int_32), intent(in   )  ::intopt                  !< integration suboptions
-      integer(kind=int_32), intent(in   )  ::idt                     !< integration time step size
-      integer(kind=int_32), intent(in   )  ::itime                   !< current time
-      integer(kind=int_32), intent(in   )  ::iaflag                  !< if 1 then accumulation of balances
+      integer(kind=int_wp), intent(in   )  ::nosys                   !< number of transported substances
+      integer(kind=int_wp), intent(in   )  ::notot                   !< total number of substances
+      integer(kind=int_wp), intent(in   )  ::noseg                   !< number of volumes
+      integer(kind=int_wp), intent(in   )  ::noq                     !< number of flows
+      integer(kind=int_wp), intent(in   )  ::nowst                   !< number of wastes
+      integer(kind=int_wp), intent(in   )  ::nowtyp                  !< number of waste types
+      integer(kind=int_wp), intent(in   )  ::ndmps                   !< number of dumped volumes for balances
+      integer(kind=int_wp), intent(in   )  ::intopt                  !< integration suboptions
+      integer(kind=int_wp), intent(in   )  ::idt                     !< integration time step size
+      integer(kind=int_wp), intent(in   )  ::itime                   !< current time
+      integer(kind=int_wp), intent(in   )  ::iaflag                  !< if 1 then accumulation of balances
       character(20), intent(in   ) :: syname(notot  )         !< names of the substances
-      real(kind=sp), intent(in   )  ::conc  (notot  ,noseg)   !< concentrations for withdrawals
-      real(kind=sp), intent(in   )  ::volume(noseg  )         !< volumes at start of time step
-      real(kind=sp), intent(in   )  ::vol2  (noseg  )         !< volumes at end   of time step
-      real(kind=sp), intent(in   )  ::flow  (noq    )         !< flows between comp. volumes
-      integer(kind=int_32), intent(in   )  ::ipoint(4,noq  )         !< from-to pointer
+      real(kind=real_wp), intent(in   )  ::conc  (notot  ,noseg)   !< concentrations for withdrawals
+      real(kind=real_wp), intent(in   )  ::volume(noseg  )         !< volumes at start of time step
+      real(kind=real_wp), intent(in   )  ::vol2  (noseg  )         !< volumes at end   of time step
+      real(kind=real_wp), intent(in   )  ::flow  (noq    )         !< flows between comp. volumes
+      integer(kind=int_wp), intent(in   )  ::ipoint(4,noq  )         !< from-to pointer
       character(20), intent(in   ) :: wastid(nowst  )         !< IDs   of the wasteloads
       character(40), intent(in   ) :: wstnam(nowst  )         !< names of the wasteloads
       character(40), intent(in   ) :: wsttyp(nowst  )         !< types of the wasteloads
-      integer(kind=int_32), intent(in   )  ::iwtype(nowst  )         !< type numbers of the wasteloads
-      integer(kind=int_32), intent(in   )  ::iwaste(nowst  )         !< volume numbers of the waste locations
-      integer(kind=int_32), intent(in   )  ::iwstkind(nowst)         !< treatment of the flow-conc combination
-      real(kind=sp), intent(inout)  ::waste (0:notot,nowst)   !< waste masses/concs per system clock
+      integer(kind=int_wp), intent(in   )  ::iwtype(nowst  )         !< type numbers of the wasteloads
+      integer(kind=int_wp), intent(in   )  ::iwaste(nowst  )         !< volume numbers of the waste locations
+      integer(kind=int_wp), intent(in   )  ::iwstkind(nowst)         !< treatment of the flow-conc combination
+      real(kind=real_wp), intent(inout)  ::waste (0:notot,nowst)   !< waste masses/concs per system clock
                                                               !< zero-th element is 'flow'
-      real(kind=sp), intent(inout)  ::deriv (notot  ,noseg)   !< derivatives to be updated
-      integer(kind=int_32), intent(in   )  ::iknmrk(noseg  )         !< feature array
-      integer(kind=int_32), intent(in   )  ::nopa                    !< nr of parameters
+      real(kind=real_wp), intent(inout)  ::deriv (notot  ,noseg)   !< derivatives to be updated
+      integer(kind=int_wp), intent(in   )  ::iknmrk(noseg  )         !< feature array
+      integer(kind=int_wp), intent(in   )  ::nopa                    !< nr of parameters
       character(20), intent(in   ) :: paname(nopa   )         !< names of the parameters
-      real(kind=sp), intent(in   )  ::param (nopa   ,noseg)   !< parameter values
-      integer(kind=int_32), intent(in   )  ::nosfun                  !< nr of segment functions
+      real(kind=real_wp), intent(in   )  ::param (nopa   ,noseg)   !< parameter values
+      integer(kind=int_wp), intent(in   )  ::nosfun                  !< nr of segment functions
       character(20), intent(in   ) :: sfname(nosfun )         !< names of the segment functions
-      real(kind=sp), intent(in   )  ::segfun(noseg  ,nosfun)  !< segment function values
-      integer(kind=int_32), intent(in   )  ::isdmp (noseg  )         !< volume to dump-location pointer
-      real(kind=sp), intent(inout)  ::dmps  (notot  ,ndmps,*) !< dumped segment fluxes if INTOPT > 7
-      real(kind=sp), intent(inout)  ::amass2(notot  , 5 )     !< mass balance array
-      real(kind=sp), intent(inout)  ::wstdmp(notot,nowst,2)   !< accumulated wasteloads 1/2 in and out
-      integer(kind=int_32), intent(in   )  ::isys                    !< first substance in array
-      integer(kind=int_32), intent(in   )  ::nsys                    !< number of substances  to deal with
+      real(kind=real_wp), intent(in   )  ::segfun(noseg  ,nosfun)  !< segment function values
+      integer(kind=int_wp), intent(in   )  ::isdmp (noseg  )         !< volume to dump-location pointer
+      real(kind=real_wp), intent(inout)  ::dmps  (notot  ,ndmps,*) !< dumped segment fluxes if INTOPT > 7
+      real(kind=real_wp), intent(inout)  ::amass2(notot  , 5 )     !< mass balance array
+      real(kind=real_wp), intent(inout)  ::wstdmp(notot,nowst,2)   !< accumulated wasteloads 1/2 in and out
+      integer(kind=int_wp), intent(in   )  ::isys                    !< first substance in array
+      integer(kind=int_wp), intent(in   )  ::nsys                    !< number of substances  to deal with
 
 !     local simple variables
 
       logical          fluxes     ! set .true. if intopt > 7
       logical          massbal    ! set .true. if iaflag eq 1
       logical          surfbed    ! set true is surface or bed effects are wanted
-      integer(kind=int_32) ::nrdetec    ! number of wasteloads detected for missing flow value
-      integer(kind=int_32) ::i, i1      ! loop counter
-      integer(kind=int_32) ::iwst       ! wasteload location volume nr.
-      integer(kind=int_32) ::ip         ! help variable for 'from' and 'to' volume nr
-      integer(kind=int_32) ::ipb        ! help variable for balances
-      real(kind=sp) ::wasteflow  ! help variable for the flow of 'this' waste
-      integer(kind=int_32) ::ierr_alloc ! error indicator for allocations
-      real(kind=sp) ::ahelp      ! help variable for waste mass detection
-      integer(kind=int_32) ::indx       ! index in parameter or segment function arrays
-      integer(kind=int_32) ::istrt      ! loop bounds
-      integer(kind=int_32) ::istop      ! loop bounds
-      integer(kind=int_32) ::ikmrk2     ! second feature (second decimal in feature array)
-      integer(kind=int_32) ::icel       ! loop counter computational volumes
+      integer(kind=int_wp) ::nrdetec    ! number of wasteloads detected for missing flow value
+      integer(kind=int_wp) ::i, i1      ! loop counter
+      integer(kind=int_wp) ::iwst       ! wasteload location volume nr.
+      integer(kind=int_wp) ::ip         ! help variable for 'from' and 'to' volume nr
+      integer(kind=int_wp) ::ipb        ! help variable for balances
+      real(kind=real_wp) ::wasteflow  ! help variable for the flow of 'this' waste
+      integer(kind=int_wp) ::ierr_alloc ! error indicator for allocations
+      real(kind=real_wp) ::ahelp      ! help variable for waste mass detection
+      integer(kind=int_wp) ::indx       ! index in parameter or segment function arrays
+      integer(kind=int_wp) ::istrt      ! loop bounds
+      integer(kind=int_wp) ::istop      ! loop bounds
+      integer(kind=int_wp) ::ikmrk2     ! second feature (second decimal in feature array)
+      integer(kind=int_wp) ::icel       ! loop counter computational volumes
 
 !     Wasteflow detection items
 
       type DetectStruct
-         integer(kind=int_32) ::icell               ! number of the comp. volume
-         integer(kind=int_32) ::iwast               ! wasteload reference nr
-         real(kind=sp) ::flow                ! the associated flow
+         integer(kind=int_wp) ::icell               ! number of the comp. volume
+         integer(kind=int_wp) ::iwast               ! wasteload reference nr
+         real(kind=real_wp) ::flow                ! the associated flow
       end type DetectStruct
 
-      integer(kind=int_32),              save  ::MaxDetec               ! maximum number of detection items
+      integer(kind=int_wp),              save  ::MaxDetec               ! maximum number of detection items
       type(DetectStruct), pointer    , save :: IDetec (:), Itemp  (:)
-      integer(kind=int_32), allocatable, save  ::IBpoint(:), IWpoint(:)
-      real(kind=sp), allocatable, save  ::wflow  (:), surf   (:), length(:)
+      integer(kind=int_wp), allocatable, save  ::IBpoint(:), IWpoint(:)
+      real(kind=real_wp), allocatable, save  ::wflow  (:), surf   (:), length(:)
       data     MaxDetec / 0 /
 
-      integer(kind=int_32) ::ithandl
+      integer(kind=int_wp) ::ithandl
       data       ithandl  /0/
       if ( timon ) call timstrt ( "dlwq15", ithandl )
 

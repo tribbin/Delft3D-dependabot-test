@@ -56,21 +56,21 @@
 !     ------   -----  ------------
 
       implicit none
-      real(kind=sp) ::pmsa  ( * ) , fl    (*)
-      integer(kind=int_32) ::ipoint( * ) , increm(*) , noseg , noflux,
+      real(kind=real_wp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_wp) ::ipoint( * ) , increm(*) , noseg , noflux,
      +         iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 
-      integer(kind=int_32) ::ip1,ip2,ip3,ip4,ip5
-      integer(kind=int_32) ::in1,in2,in3,in4,in5
-      real(kind=sp) ::time, tref, auxsys
-      real(kind=sp) ::daynr
+      integer(kind=int_wp) ::ip1,ip2,ip3,ip4,ip5
+      integer(kind=int_wp) ::in1,in2,in3,in4,in5
+      real(kind=real_wp) ::time, tref, auxsys
+      real(kind=real_wp) ::daynr
       double precision latitu, declin, temp, daylength
       double precision sin50m, e     , pi
       parameter ( sin50m = -1.454389765d-2 )
       parameter ( e  = 1.721420632d-2 )
       parameter ( pi = 3.141592654d0)
       logical  varflg
-      integer(kind=int_32) ::iseg
+      integer(kind=int_wp) ::iseg
 
       in1  = increm( 1)
       in2  = increm( 2)

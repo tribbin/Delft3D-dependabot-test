@@ -116,10 +116,10 @@
 !     Declaration of arguments
 !
       type(waq_data_buffer), target             :: buffer
-      INTEGER(kind=int_32) ::IMAXA , IMAXI , IMAXC
+      INTEGER(kind=int_wp) ::IMAXA , IMAXI , IMAXC
       LOGICAL                                 :: INIT
       LOGICAL                                 :: exists
-      INTEGER(kind=int_32) ::ACTION
+      INTEGER(kind=int_wp) ::ACTION
       TYPE(DELWAQ_DATA), TARGET               :: DLWQD
       type(GridPointerColl), pointer, save    :: GridPs               ! collection of all grid definitions
 
@@ -137,38 +137,38 @@
 !
 !     Local declarations
 !
-      INTEGER(kind=int_32) ::LUNIN
-      INTEGER(kind=int_32), PARAMETER  ::IPAGE  =    64
-      INTEGER(kind=int_32), PARAMETER  ::NLUN   =    50
-      INTEGER(kind=int_32), PARAMETER  ::LCHMAX =   255
+      INTEGER(kind=int_wp) ::LUNIN
+      INTEGER(kind=int_wp), PARAMETER  ::IPAGE  =    64
+      INTEGER(kind=int_wp), PARAMETER  ::NLUN   =    50
+      INTEGER(kind=int_wp), PARAMETER  ::LCHMAX =   255
 !
 !           input structure for boot-file
 !
 !
-      INTEGER(kind=int_32), SAVE             ::LUN(NLUN)
+      INTEGER(kind=int_wp), SAVE             ::LUN(NLUN)
       CHARACTER*(LCHMAX), SAVE :: LCHAR(NLUN)
-      integer(kind=int_32), save             ::filtype(nlun)
+      integer(kind=int_wp), save             ::filtype(nlun)
       CHARACTER*(LCHMAX), SAVE :: RUNID
       LOGICAL, SAVE            :: INIT2        = .TRUE. ! To suppress the start-up screen
 
       logical                  :: lfound
-      integer(kind=int_32) ::idummy, ierr2
-      real(kind=sp) ::rdummy
+      integer(kind=int_wp) ::idummy, ierr2
+      real(kind=real_wp) ::rdummy
       CHARACTER                :: cdummy
       CHARACTER*2              :: C2
 !
-      integer(kind=int_32), save          ::ithndl = 0
+      integer(kind=int_wp), save          ::ithndl = 0
 !
 !     Local variables
 !
-      INTEGER(kind=int_32), SAVE             ::INDX
-      INTEGER(kind=int_32) ::IERR
-      INTEGER(kind=int_32) ::IMR
-      INTEGER(kind=int_32) ::IMI
-      INTEGER(kind=int_32) ::IMC
-      INTEGER(kind=int_32) ::ILUN
-      INTEGER(kind=int_32) ::IERRD
-      INTEGER(kind=int_32) ::K
+      INTEGER(kind=int_wp), SAVE             ::INDX
+      INTEGER(kind=int_wp) ::IERR
+      INTEGER(kind=int_wp) ::IMR
+      INTEGER(kind=int_wp) ::IMI
+      INTEGER(kind=int_wp) ::IMC
+      INTEGER(kind=int_wp) ::ILUN
+      INTEGER(kind=int_wp) ::IERRD
+      INTEGER(kind=int_wp) ::K
 
 !
       IF ( INIT ) THEN

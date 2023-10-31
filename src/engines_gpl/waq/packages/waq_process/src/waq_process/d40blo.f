@@ -70,9 +70,9 @@
 
       implicit none
 
-      real(kind=sp) ::pmsa  ( * ) , fl    (*)
-      integer(kind=int_32) ::ipoint( * ) , increm(*) , noseg , noflux
-      integer(kind=int_32) ::iexpnt(4,*) , iknmrk(*) , iq, ifrom, ito, noq1, noq2, noq3, noq4
+      real(kind=real_wp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_wp) ::ipoint( * ) , increm(*) , noseg , noflux
+      integer(kind=int_wp) ::iexpnt(4,*) , iknmrk(*) , iq, ifrom, ito, noq1, noq2, noq3, noq4
 
 !
 !     Local (species groups arrays are now dimensioned as species/types arrays)
@@ -139,7 +139,7 @@
 !     TotNin  R     1             Total nitrogen for BLOOM stand alone        (g/m3)
 !     TotPin  R     1             Total phosphorous for BLOOM stand alone     (g/m3)
 !     TotSIin R     1             Total silicium for BLOOM stand alone        (g/m3)
-      integer(kind=int_32) ::ntyp_m, nipfix, nipvar, noutlim, nunucom, nopfix
+      integer(kind=int_wp) ::ntyp_m, nipfix, nipvar, noutlim, nunucom, nopfix
       parameter ( ntyp_m = 30 )
 !     NIPFIX      Nr of input items independent of BLOOM types, preceding BLOOM types input
 !     NIPVAR      Nr of input items for BLOOM types
@@ -147,53 +147,53 @@
       parameter ( nopfix = 29 )
       parameter (nunucom = 8)
       parameter (noutlim = nunucom + 2 + 2*ntyp_m)
-      real(kind=sp) ::biomas(ntyp_m), faut  (ntyp_m), fdet  (ntyp_m),
+      real(kind=real_wp) ::biomas(ntyp_m), faut  (ntyp_m), fdet  (ntyp_m),
      1         algtyp(0:20,ntyp_m), mrtm1(ntyp_m), mrtm2(ntyp_m),
      2         mrtb1(ntyp_m), mrtb2(ntyp_m), cgroup(ntyp_m)
-      integer(kind=int_32) ::ifix(ntyp_m)
-      real(kind=sp) ::ratgro(ntyp_m), ratmor(ntyp_m)
+      integer(kind=int_wp) ::ifix(ntyp_m)
+      real(kind=real_wp) ::ratgro(ntyp_m), ratmor(ntyp_m)
       logical  lmixo,lfixn,lcarb
-      integer(kind=int_32) ::ntyp_a, ngro_a,
+      integer(kind=int_wp) ::ntyp_a, ngro_a,
      j         nset  , id
-      real(kind=sp) ::timmul, temper, radiat, depthw, depth,  daylen,
+      real(kind=real_wp) ::timmul, temper, radiat, depthw, depth,  daylen,
      j         ammoni, nitrat, phosph, silica, deltat, blstep,
      j         exttot, deat4 , nuptak, frammo, fbod5 , extalg,
      j         chloro, totnut(4)     ,                 algdm ,
      j         thrnh4, thrno3, thrpo4, thrsi , rcresp, tcresp,
      m         bldep , cl    , tic   , co2   , co2lim, effin,
      j         ppmco2, detn  , detp  , rdcnt , sdmixn, volume
-      real(kind=sp) ::limfac(6)
-      integer(kind=int_32) ::ip1 , ip2 , ip3 , ip4 , ip5 , ip6 , ip7 , ip8 , ip9 ,
+      real(kind=real_wp) ::limfac(6)
+      integer(kind=int_wp) ::ip1 , ip2 , ip3 , ip4 , ip5 , ip6 , ip7 , ip8 , ip9 ,
      j         ip10, ip11, ip12, ip13, ip14, ip15, ip16, ip17, ip18,
      j         ip19, ip20, ip21, ip22, ip23, ip24, ip25, ip26, ip27,
      j         ip28, ip29, ip30, ip31, ip32
-      integer(kind=int_32) ::io(nopfix)
-      integer(kind=int_32) ::nosegw, nolay, nosegl, ikmrk1, ikmrk2
-      integer(kind=int_32) ::ipo17, ipo18, ipo19
-      integer(kind=int_32) ::ino17, ino18, ino19
-      integer(kind=int_32) ::init , iflux, iseg, ialg, ioff, ip, igro
-      integer(kind=int_32) ::ifauto, ifdetr, ifooxp, ifupta, ifprod, ifmort
-      integer(kind=int_32) ::iswvtr
-      integer(kind=int_32) ::swbloomout
-      integer(kind=int_32) ::swclim
-      integer(kind=int_32) ::lunrep
+      integer(kind=int_wp) ::io(nopfix)
+      integer(kind=int_wp) ::nosegw, nolay, nosegl, ikmrk1, ikmrk2
+      integer(kind=int_wp) ::ipo17, ipo18, ipo19
+      integer(kind=int_wp) ::ino17, ino18, ino19
+      integer(kind=int_wp) ::init , iflux, iseg, ialg, ioff, ip, igro
+      integer(kind=int_wp) ::ifauto, ifdetr, ifooxp, ifupta, ifprod, ifmort
+      integer(kind=int_wp) ::iswvtr
+      integer(kind=int_wp) ::swbloomout
+      integer(kind=int_wp) ::swclim
+      integer(kind=int_wp) ::lunrep
       character cdummy
       real(kind=dp) ::org_availn(ntyp_m)
-      integer(kind=int_32) ::nutcon(nunucom), flxcon(nunucom), con2out(nunucom)
-      real(kind=sp) ::outlim(noutlim)
-      real(kind=sp) ::TotNin, TotPin, TotSIin
-      integer(kind=int_32) ::swblsa
+      integer(kind=int_wp) ::nutcon(nunucom), flxcon(nunucom), con2out(nunucom)
+      real(kind=real_wp) ::outlim(noutlim)
+      real(kind=real_wp) ::TotNin, TotPin, TotSIin
+      integer(kind=int_wp) ::swblsa
 
 !     Former D09 input
-      integer(kind=int_32) ::SWBlSolInt           ! Switch for solar irradiation as total radiation (0) or PAR (1)
-      integer(kind=int_32) ::SWBlObject           ! Switch for objective growth (1) or biomass (0)
-      real(kind=sp) ::BlTemLim             ! Minimum temperature for growth
-      real(kind=sp) ::BlBasMor             ! Base mortality when temperature is below minimum temperature for growth
-      integer(kind=int_32) ::SWBlGroChk           ! Switch to use extra constraints on growth rates
-      real(kind=sp) ::BlBioBas             ! Base biomass level per group
-      integer(kind=int_32) ::SWBlMorChk           ! Switch to use extra mortality constraints
-      real(kind=sp) ::BlTopLev             ! Top level of mortality constraints
-      integer(kind=int_32) ::SWBlOutput           ! Switch to BLOOM debug output (possible to set this on (1) or off(0) per segment and in time)
+      integer(kind=int_wp) ::SWBlSolInt           ! Switch for solar irradiation as total radiation (0) or PAR (1)
+      integer(kind=int_wp) ::SWBlObject           ! Switch for objective growth (1) or biomass (0)
+      real(kind=real_wp) ::BlTemLim             ! Minimum temperature for growth
+      real(kind=real_wp) ::BlBasMor             ! Base mortality when temperature is below minimum temperature for growth
+      integer(kind=int_wp) ::SWBlGroChk           ! Switch to use extra constraints on growth rates
+      real(kind=real_wp) ::BlBioBas             ! Base biomass level per group
+      integer(kind=int_wp) ::SWBlMorChk           ! Switch to use extra mortality constraints
+      real(kind=real_wp) ::BlTopLev             ! Top level of mortality constraints
+      integer(kind=int_wp) ::SWBlOutput           ! Switch to BLOOM debug output (possible to set this on (1) or off(0) per segment and in time)
 
 !     JVB much more variables needs to be saved, for the time being all
 !
@@ -929,7 +929,7 @@
       subroutine blstopinit(lunrep, inputname)
       use m_srstop
 
-      integer(kind=int_32) ::lunrep
+      integer(kind=int_wp) ::lunrep
       character(*) inputname
 
       write(lunrep,*) 'ERROR in bloom: ',inputname,' must be a constant!'
@@ -948,7 +948,7 @@
 
 
       character(*) mes
-      integer(kind=int_32) ::lunrep, i
+      integer(kind=int_wp) ::lunrep, i
 
       call getmlu(lunrep)
       write(lunrep,*) 'ERROR in bloom: '

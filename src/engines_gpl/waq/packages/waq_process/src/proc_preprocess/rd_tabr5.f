@@ -68,29 +68,29 @@
 !
 !     declaration of arguments
 !
-      INTEGER(kind=int_32) ::NO_OUTF_MAX , NO_OUTF     ,
+      INTEGER(kind=int_wp) ::NO_OUTF_MAX , NO_OUTF     ,
      +              LUNREP      , IERROR
-      INTEGER(kind=int_32) ::DEFFDS
+      INTEGER(kind=int_wp) ::DEFFDS
       CHARACTER*10  R5_PID      (NO_OUTF_MAX)
       CHARACTER*10  R5_IID      (NO_OUTF_MAX)
-      INTEGER(kind=int_32) ::R5_NUMB(NO_OUTF_MAX)
+      INTEGER(kind=int_wp) ::R5_NUMB(NO_OUTF_MAX)
       CHARACTER*1   R5_DOC (NO_OUTF_MAX)
 !
 !     Local variables
 !
 !     GRPNAM  CHAR*16     1       LOCAL   group name (table)
-!     NELEMS  INTEGER(kind=int_32) ::1       LOCAL   number of elements in group (=cell)
+!     NELEMS  INTEGER(kind=int_wp) ::1       LOCAL   number of elements in group (=cell)
 !     ELMNMS  CHAR*16  NELEMS     LOCAL   name of elements on file
 !     ELMTPS  CHAR*16  NELEMS     LOCAL   type of elements
-!     ELMDMS  INTEGER(kind=int_32) ::6,NELEMS   LOCAL   dimension of elements
-!     NBYTSG  INTEGER(kind=int_32) ::NELEMS     LOCAL   length of elements (bytes)
+!     ELMDMS  INTEGER(kind=int_wp) ::6,NELEMS   LOCAL   dimension of elements
+!     NBYTSG  INTEGER(kind=int_wp) ::NELEMS     LOCAL   length of elements (bytes)
 !
-      INTEGER(kind=int_32) ::NELEMS
+      INTEGER(kind=int_wp) ::NELEMS
       PARAMETER   ( NELEMS = 5 )
 !
-      INTEGER(kind=int_32) ::I               , IELM          ,
+      INTEGER(kind=int_wp) ::I               , IELM          ,
      +              BUFLEN
-      INTEGER(kind=int_32) ::ELMDMS(2,NELEMS), NBYTSG(NELEMS),
+      INTEGER(kind=int_wp) ::ELMDMS(2,NELEMS), NBYTSG(NELEMS),
      +              UINDEX(3)
       CHARACTER*16  GRPNAM
       CHARACTER*16  ELMNMS(NELEMS)  , ELMTPS(NELEMS)
@@ -98,7 +98,7 @@
 !
 !     External NEFIS Functions
 !
-      INTEGER(kind=int_32) ::GETELS
+      INTEGER(kind=int_wp) ::GETELS
      +         ,GETELT
       EXTERNAL  GETELS
      +         ,GETELT

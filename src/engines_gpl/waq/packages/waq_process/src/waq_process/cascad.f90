@@ -82,20 +82,20 @@ use m_evaluate_waq_attribute
 
     implicit none
 
-    real(kind=sp)      ::pmsa  ( * ) , fl    (*)
-    integer(kind=int_32)   ::ipoint(20)  , increm(20) , noseg , noflux, &
+    real(kind=real_wp)      ::pmsa  ( * ) , fl    (*)
+    integer(kind=int_wp)   ::ipoint(20)  , increm(20) , noseg , noflux, &
              iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 
-    integer(kind=int_32)   ::iseg, iflux, ikmrk1
+    integer(kind=int_wp)   ::iseg, iflux, ikmrk1
 
-    real(kind=sp)      ::c1, c2, c3, c4, c5
-    real(kind=sp)      ::decay1, decay2, decay3, decay4, decay5
-    real(kind=sp)      ::trc1c2, trc1c3, trc1c4, trc1c5
-    real(kind=sp)      ::trc2c3, trc2c4, trc2c5
-    real(kind=sp)      ::trc3c4, trc3c5
-    real(kind=sp)      ::trc4c5
+    real(kind=real_wp)      ::c1, c2, c3, c4, c5
+    real(kind=real_wp)      ::decay1, decay2, decay3, decay4, decay5
+    real(kind=real_wp)      ::trc1c2, trc1c3, trc1c4, trc1c5
+    real(kind=real_wp)      ::trc2c3, trc2c4, trc2c5
+    real(kind=real_wp)      ::trc3c4, trc3c5
+    real(kind=real_wp)      ::trc4c5
 
-    integer(kind=int_32)   ::ipnt(20)
+    integer(kind=int_wp)   ::ipnt(20)
 
     ipnt  = ipoint(1:20)
     iflux = 0

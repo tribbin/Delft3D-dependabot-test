@@ -47,28 +47,28 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     IOUT    INTEGER(kind=int_32) ::1         INPUT   unit number output file
-!     ARRA    REAL(kind=sp) ::*         INPUT   values to be printed
+!     IOUT    INTEGER(kind=int_wp) ::1         INPUT   unit number output file
+!     ARRA    REAL(kind=real_wp) ::*         INPUT   values to be printed
 !     VNAME   CHAR*40   1         INPUT   name of printed value
 !     DNAME   CHAR*20   NODUMP    INPUT   names of monitoring stations
-!     NODUMP  INTEGER(kind=int_32) ::1         INPUT   amount of dump segments
-!     ID      INTEGER(kind=int_32) ::1         INPUT   index first system in this block
-!     NEND    INTEGER(kind=int_32) ::1         INPUT   index last system in this block
-!     NOTOT   INTEGER(kind=int_32) ::1         INPUT   total number of systems
+!     NODUMP  INTEGER(kind=int_wp) ::1         INPUT   amount of dump segments
+!     ID      INTEGER(kind=int_wp) ::1         INPUT   index first system in this block
+!     NEND    INTEGER(kind=int_wp) ::1         INPUT   index last system in this block
+!     NOTOT   INTEGER(kind=int_wp) ::1         INPUT   total number of systems
 !
 !     Declaration of arguments
 !
       use timers
 
-      INTEGER(kind=int_32) ::IOUT  , NODUMP, ID    , NEND  , NOTOT
-      REAL(kind=sp) ::ARRA(NOTOT,*)
+      INTEGER(kind=int_wp) ::IOUT  , NODUMP, ID    , NEND  , NOTOT
+      REAL(kind=real_wp) ::ARRA(NOTOT,*)
       CHARACTER*20 DNAME(*)
       CHARACTER*40 VNAME
 
 !     local
-      integer(kind=int_32) ::idmp, k
+      integer(kind=int_wp) ::idmp, k
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "outmo2", ithandl )
 !
       WRITE (IOUT,2060) VNAME

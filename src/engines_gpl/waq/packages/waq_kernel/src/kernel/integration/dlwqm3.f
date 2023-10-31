@@ -50,38 +50,38 @@
 
 !     Kind        Function         Name                    Description
 
-      integer(kind=int_32), intent(in   )  ::idt                   ! time step in scu's
-      integer(kind=int_32), intent(in   )  ::isys                  ! current active substance
-      integer(kind=int_32), intent(in   )  ::nosys                 ! number of active substances
-      integer(kind=int_32), intent(in   )  ::notot                 ! total number of substances
+      integer(kind=int_wp), intent(in   )  ::idt                   ! time step in scu's
+      integer(kind=int_wp), intent(in   )  ::isys                  ! current active substance
+      integer(kind=int_wp), intent(in   )  ::nosys                 ! number of active substances
+      integer(kind=int_wp), intent(in   )  ::notot                 ! total number of substances
 
-      integer(kind=int_32), intent(in   )  ::noseg                 ! number of segments
-      real(kind=sp), intent(in   )  ::conc   (notot, noseg) ! concentrations
-      real(kind=sp), intent(in   )  ::deriv  (notot, noseg) ! processes and discharges (divided by the time step idt)
-      real(kind=sp), intent(in   )  ::volold (noseg)        ! segment volumes at the previous time
-      integer(kind=int_32), intent(in   )  ::nobnd                 ! number of boundary segments
-      real(kind=sp), intent(in   )  ::bound  (nosys, nobnd) ! boundary concentrions
+      integer(kind=int_wp), intent(in   )  ::noseg                 ! number of segments
+      real(kind=real_wp), intent(in   )  ::conc   (notot, noseg) ! concentrations
+      real(kind=real_wp), intent(in   )  ::deriv  (notot, noseg) ! processes and discharges (divided by the time step idt)
+      real(kind=real_wp), intent(in   )  ::volold (noseg)        ! segment volumes at the previous time
+      integer(kind=int_wp), intent(in   )  ::nobnd                 ! number of boundary segments
+      real(kind=real_wp), intent(in   )  ::bound  (nosys, nobnd) ! boundary concentrions
 
-      integer(kind=int_32), intent(in   )  ::noq                   ! number of exchanges
-      integer(kind=int_32), intent(in   )  ::ipoint (4,noq)        ! exchange pointers (dim: 4 x noq)
-      real(kind=sp), intent(in   )  ::flowtot(noq)          ! flows plus additional velos. (dim: noq)
-      real(kind=sp), intent(in   )  ::disptot(noq)          ! dispersion plus additional dipers. (dim: noq)
-      real(kind=sp), intent(in   )  ::theta  (noq)          ! variable theta coefficients
+      integer(kind=int_wp), intent(in   )  ::noq                   ! number of exchanges
+      integer(kind=int_wp), intent(in   )  ::ipoint (4,noq)        ! exchange pointers (dim: 4 x noq)
+      real(kind=real_wp), intent(in   )  ::flowtot(noq)          ! flows plus additional velos. (dim: noq)
+      real(kind=real_wp), intent(in   )  ::disptot(noq)          ! dispersion plus additional dipers. (dim: noq)
+      real(kind=real_wp), intent(in   )  ::theta  (noq)          ! variable theta coefficients
 
       real(kind=dp), intent(in   )  ::diag   (noseg+nobnd)  ! diagonal of the matrix (lhs)
-      integer(kind=int_32), intent(in   )  ::iscale                ! 0: no diagonal scaling
+      integer(kind=int_wp), intent(in   )  ::iscale                ! 0: no diagonal scaling
                                                          ! 1: diagonal scaling
       real(kind=dp), intent(  out)  ::rhs(noseg+nobnd)      ! righthandside
       real(kind=dp), intent(  out)  ::sol(noseg+nobnd)      ! initial guess
 
-      integer(kind=int_32) ::ifrom,ito             ! from- and to segments
-      real(kind=sp) ::ci,cj                 ! from- and to concentrations
-      real(kind=sp) ::fluxij                ! flux from segment i to segment j
-      integer(kind=int_32) ::iseg                  ! current segment
-      integer(kind=int_32) ::ibnd                  ! current boundary segment
-      integer(kind=int_32) ::iq                    ! current edge
+      integer(kind=int_wp) ::ifrom,ito             ! from- and to segments
+      real(kind=real_wp) ::ci,cj                 ! from- and to concentrations
+      real(kind=real_wp) ::fluxij                ! flux from segment i to segment j
+      integer(kind=int_wp) ::iseg                  ! current segment
+      integer(kind=int_wp) ::ibnd                  ! current boundary segment
+      integer(kind=int_wp) ::iq                    ! current edge
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqm3", ithandl )
 
 ! volumes, processes, and discharges

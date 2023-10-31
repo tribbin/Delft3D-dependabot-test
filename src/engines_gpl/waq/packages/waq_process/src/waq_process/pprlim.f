@@ -47,20 +47,20 @@
 
 !     Type    Name         I/O Description
 
-      real(kind=sp) ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
-      real(kind=sp) ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
-      integer(kind=int_32) ::ipoint( 14) ! I  Array of pointers in pmsa to get and store the data
-      integer(kind=int_32) ::increm( 14) ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer(kind=int_32) ::noseg       ! I  Number of computational elements in the whole model schematisation
-      integer(kind=int_32) ::noflux      ! I  Number of fluxes, increment in the fl array
-      integer(kind=int_32) ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      integer(kind=int_32) ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      integer(kind=int_32) ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
-      integer(kind=int_32) ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer(kind=int_32) ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer(kind=int_32) ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
-      integer(kind=int_32) ::ipnt( 14)   !    Local work array for the pointering
-      integer(kind=int_32) ::iseg        !    Local loop counter for computational element loop
+      real(kind=real_wp) ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
+      real(kind=real_wp) ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
+      integer(kind=int_wp) ::ipoint( 14) ! I  Array of pointers in pmsa to get and store the data
+      integer(kind=int_wp) ::increm( 14) ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_wp) ::noseg       ! I  Number of computational elements in the whole model schematisation
+      integer(kind=int_wp) ::noflux      ! I  Number of fluxes, increment in the fl array
+      integer(kind=int_wp) ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      integer(kind=int_wp) ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      integer(kind=int_wp) ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
+      integer(kind=int_wp) ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_wp) ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_wp) ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      integer(kind=int_wp) ::ipnt( 14)   !    Local work array for the pointering
+      integer(kind=int_wp) ::iseg        !    Local loop counter for computational element loop
 
 !***********************************************************************
 !
@@ -78,34 +78,34 @@
 
 !     Type    Name         I/O Description                                        Unit
 
-      real(kind=sp) ::fPPGreen    ! I  net primary production of Greens                   (gC/m3/d)
-      real(kind=sp) ::NCRatGreen  ! I  N:C ratio Greens                                   (gN/gC)
-      real(kind=sp) ::PCRatGreen  ! I  P:C ratio Greens                                   (gP/gC)
-      real(kind=sp) ::fPPDiat     ! I  net primary production of Diatoms                  (gC/m3/d)
-      real(kind=sp) ::NCRatDiat   ! I  N:C ratio Diatoms                                  (gN/gC)
-      real(kind=sp) ::PCRatDiat   ! I  P:C ratio Diatoms                                  (gP/gC)
-      real(kind=sp) ::SCRatDiat   ! I  Si:C ratio Diatoms                                 (gSi/gC)
-      real(kind=sp) ::DELT        ! I  timestep for processes                             (d)
-      real(kind=sp) ::NH4         ! I  Ammonium (NH4)                                     (gN/m3)
-      real(kind=sp) ::NO3         ! I  Nitrate (NO3)                                      (gN/m3)
-      real(kind=sp) ::PO4         ! I  Ortho-Phosphate (PO4)                              (gP/m3)
-      real(kind=sp) ::Si          ! I  dissolved Silica (Si)                              (gSi/m3)
-      real(kind=sp) ::fcPPGreen   ! O  numerical maximum flux Greens                      (gC/m3/d)
-      real(kind=sp) ::fcPPDiat    ! O  numerical maximum flux Diatoms                     (gC/m3/d)
-      real(kind=sp) ::dcPPGreen   ! F  correction flux Greens growth                      (gC/m3/d)
-      real(kind=sp) ::dcPPDiat    ! F  correction flux Diatoms growth                     (gC/m3/d)
-      integer(kind=int_32) ::IdcPPGreen  !    Pointer to the correction flux Greens growth
-      integer(kind=int_32) ::IdcPPDiat   !    Pointer to the correction flux Diatoms growth
-      real(kind=sp) ::ConmxN      !    Total available nitrogen, minimally 0.0            (gN/m3)
-      real(kind=sp) ::ConmxP      !    Total available phosphorus, minimally 0.0          (gP/m3)
-      real(kind=sp) ::ConmxS      !    Total available silica, minimally 0.0              (gSi/m3)
-      real(kind=sp) ::N_demand    !    Nitrogen needed for this time step                 (gN/m3)
-      real(kind=sp) ::P_demand    !    Phosphorus needed for this time step               (gP/m3)
-      real(kind=sp) ::Si_demand   !    Silica needed for this time step                   (gSi/m3)
-      real(kind=sp) ::N_fact      !    available / demand N                               (-)
-      real(kind=sp) ::P_fact      !    available / demand P                               (-)
-      real(kind=sp) ::Si_fact     !    available / demand Si                              (-)
-      real(kind=sp) ::G_fact      !    available / demand N & P                           (-)
+      real(kind=real_wp) ::fPPGreen    ! I  net primary production of Greens                   (gC/m3/d)
+      real(kind=real_wp) ::NCRatGreen  ! I  N:C ratio Greens                                   (gN/gC)
+      real(kind=real_wp) ::PCRatGreen  ! I  P:C ratio Greens                                   (gP/gC)
+      real(kind=real_wp) ::fPPDiat     ! I  net primary production of Diatoms                  (gC/m3/d)
+      real(kind=real_wp) ::NCRatDiat   ! I  N:C ratio Diatoms                                  (gN/gC)
+      real(kind=real_wp) ::PCRatDiat   ! I  P:C ratio Diatoms                                  (gP/gC)
+      real(kind=real_wp) ::SCRatDiat   ! I  Si:C ratio Diatoms                                 (gSi/gC)
+      real(kind=real_wp) ::DELT        ! I  timestep for processes                             (d)
+      real(kind=real_wp) ::NH4         ! I  Ammonium (NH4)                                     (gN/m3)
+      real(kind=real_wp) ::NO3         ! I  Nitrate (NO3)                                      (gN/m3)
+      real(kind=real_wp) ::PO4         ! I  Ortho-Phosphate (PO4)                              (gP/m3)
+      real(kind=real_wp) ::Si          ! I  dissolved Silica (Si)                              (gSi/m3)
+      real(kind=real_wp) ::fcPPGreen   ! O  numerical maximum flux Greens                      (gC/m3/d)
+      real(kind=real_wp) ::fcPPDiat    ! O  numerical maximum flux Diatoms                     (gC/m3/d)
+      real(kind=real_wp) ::dcPPGreen   ! F  correction flux Greens growth                      (gC/m3/d)
+      real(kind=real_wp) ::dcPPDiat    ! F  correction flux Diatoms growth                     (gC/m3/d)
+      integer(kind=int_wp) ::IdcPPGreen  !    Pointer to the correction flux Greens growth
+      integer(kind=int_wp) ::IdcPPDiat   !    Pointer to the correction flux Diatoms growth
+      real(kind=real_wp) ::ConmxN      !    Total available nitrogen, minimally 0.0            (gN/m3)
+      real(kind=real_wp) ::ConmxP      !    Total available phosphorus, minimally 0.0          (gP/m3)
+      real(kind=real_wp) ::ConmxS      !    Total available silica, minimally 0.0              (gSi/m3)
+      real(kind=real_wp) ::N_demand    !    Nitrogen needed for this time step                 (gN/m3)
+      real(kind=real_wp) ::P_demand    !    Phosphorus needed for this time step               (gP/m3)
+      real(kind=real_wp) ::Si_demand   !    Silica needed for this time step                   (gSi/m3)
+      real(kind=real_wp) ::N_fact      !    available / demand N                               (-)
+      real(kind=real_wp) ::P_fact      !    available / demand P                               (-)
+      real(kind=real_wp) ::Si_fact     !    available / demand Si                              (-)
+      real(kind=real_wp) ::G_fact      !    available / demand N & P                           (-)
 
       ipnt        = ipoint
       IdcPPGreen  = 1

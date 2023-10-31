@@ -54,40 +54,40 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     NOTOT   INTEGER(kind=int_32) ::1     INPUT   Total number of substances
-!     NOSYS   INTEGER(kind=int_32) ::1     INPUT   number of active substances
-!     NOSEG   INTEGER(kind=int_32) ::1     INPUT   Nr. of computational elements
-!     NOQ     INTEGER(kind=int_32) ::1     INPUT   Total number of exchanges
-!     NOQ1    INTEGER(kind=int_32) ::1     INPUT   Nr. of exchanges direction 1
-!     NOQ2    INTEGER(kind=int_32) ::1     INPUT   Nr. of exchanges direction 2
-!     NOQ3    INTEGER(kind=int_32) ::1     INPUT   Nr. of exchanges direction 3
-!     NOPA    INTEGER(kind=int_32) ::1     INPUT   Number of parameters
-!     NOSFUN  INTEGER(kind=int_32) ::1     INPUT   Number of segment functions
-!     NODISP  INTEGER(kind=int_32) ::1     INPUT   Number of user-dispersions
-!     NOVELO  INTEGER(kind=int_32) ::1     INPUT   Number of user-flows
-!     IPOINT  INTEGER(kind=int_32) ::4*NOQ     INPUT   1= "From"   segment pointers
+!     NOTOT   INTEGER(kind=int_wp) ::1     INPUT   Total number of substances
+!     NOSYS   INTEGER(kind=int_wp) ::1     INPUT   number of active substances
+!     NOSEG   INTEGER(kind=int_wp) ::1     INPUT   Nr. of computational elements
+!     NOQ     INTEGER(kind=int_wp) ::1     INPUT   Total number of exchanges
+!     NOQ1    INTEGER(kind=int_wp) ::1     INPUT   Nr. of exchanges direction 1
+!     NOQ2    INTEGER(kind=int_wp) ::1     INPUT   Nr. of exchanges direction 2
+!     NOQ3    INTEGER(kind=int_wp) ::1     INPUT   Nr. of exchanges direction 3
+!     NOPA    INTEGER(kind=int_wp) ::1     INPUT   Number of parameters
+!     NOSFUN  INTEGER(kind=int_wp) ::1     INPUT   Number of segment functions
+!     NODISP  INTEGER(kind=int_wp) ::1     INPUT   Number of user-dispersions
+!     NOVELO  INTEGER(kind=int_wp) ::1     INPUT   Number of user-flows
+!     IPOINT  INTEGER(kind=int_wp) ::4*NOQ     INPUT   1= "From"   segment pointers
 !                                 INPUT   2= "To"     segment pointers
 !                                 INPUT   3= "From-1" segment pointers
 !                                 INPUT   4= "To+1"   segment pointers
-!     VOLUME  REAL(kind=sp) ::NOSEG     INPUT   Segment volumes
-!     AREA    REAL(kind=sp) ::NOQ     INPUT   Exchange surfaces
-!     FLOW    REAL(kind=sp) ::NOQ     INPUT   Flows
-!     ALENG a)REAL(kind=sp) ::2*NOQ     INPUT   1= Length to "From" surface
+!     VOLUME  REAL(kind=real_wp) ::NOSEG     INPUT   Segment volumes
+!     AREA    REAL(kind=real_wp) ::NOQ     INPUT   Exchange surfaces
+!     FLOW    REAL(kind=real_wp) ::NOQ     INPUT   Flows
+!     ALENG a)REAL(kind=real_wp) ::2*NOQ     INPUT   1= Length to "From" surface
 !                                         2= Length to "To"   surface
-!           b)REAL(kind=sp) ::3       INPUT   3 lengthes in the grid
-!     CONC    REAL(kind=sp) ::NOTOT*NOSEG  INPUT   Model concentrations
-!     DISP    REAL(kind=sp) ::3       IN/OUT  Dispersion in 3 directions
-!     CONS    REAL(kind=sp) ::*     IN/OUT  Model constants
-!     PARAM   REAL(kind=sp) ::NOPA*NOSEG  IN/OUT  Model parameters
-!     FUNC    REAL(kind=sp) ::*     IN/OUT  Model functions at ITIME
-!     SEGFUN  REAL(kind=sp) ::NOSEG*NOSFUN IN/OUT  Segment functions at ITIME
-!     DISPER  REAL(kind=sp) ::NODISP*NOQ   OUTPUT  User defined dispersion
-!     VELO    REAL(kind=sp) ::NOVELO*NOQ   OUTPUT  User defined flows
-!     ITIME   INTEGER(kind=int_32) ::1     INPUT   Time in system clock units
-!     IDT     INTEGER(kind=int_32) ::1     INPUT   Time step system clock units
+!           b)REAL(kind=real_wp) ::3       INPUT   3 lengthes in the grid
+!     CONC    REAL(kind=real_wp) ::NOTOT*NOSEG  INPUT   Model concentrations
+!     DISP    REAL(kind=real_wp) ::3       IN/OUT  Dispersion in 3 directions
+!     CONS    REAL(kind=real_wp) ::*     IN/OUT  Model constants
+!     PARAM   REAL(kind=real_wp) ::NOPA*NOSEG  IN/OUT  Model parameters
+!     FUNC    REAL(kind=real_wp) ::*     IN/OUT  Model functions at ITIME
+!     SEGFUN  REAL(kind=real_wp) ::NOSEG*NOSFUN IN/OUT  Segment functions at ITIME
+!     DISPER  REAL(kind=real_wp) ::NODISP*NOQ   OUTPUT  User defined dispersion
+!     VELO    REAL(kind=real_wp) ::NOVELO*NOQ   OUTPUT  User defined flows
+!     ITIME   INTEGER(kind=int_wp) ::1     INPUT   Time in system clock units
+!     IDT     INTEGER(kind=int_wp) ::1     INPUT   Time step system clock units
 !     SYNAME  CHAR*20    NOTOT    INPUT   names of systems
-!     NOCONS  INTEGER(kind=int_32) ::1     INPUT   Number of constants used
-!     NOFUN   INTEGER(kind=int_32) ::1     INPUT   Number of functions ( user )
+!     NOCONS  INTEGER(kind=int_wp) ::1     INPUT   Number of constants used
+!     NOFUN   INTEGER(kind=int_wp) ::1     INPUT   Number of functions ( user )
 !     CONAME  CHAR*20   NOCONS    INPUT   Constant names
 !     PANAME  CHAR*20   NOPA      INPUT   Parameter names
 !     FUNAME  CHAR*20   NOFUN     INPUT   Function names
@@ -97,7 +97,7 @@
 !                                         set this flag to .T. if he alters
 !                                         part of the matrix and uses integratio
 !                                         option 10.xx .
-!     ILFLAG  INTEGER(kind=int_32) ::1       INPUT   if 0 then 3 length values
+!     ILFLAG  INTEGER(kind=int_wp) ::1       INPUT   if 0 then 3 length values
 !
 !     ==================================================================
 !
@@ -105,8 +105,8 @@
 !
       SAVE
 !
-      integer(kind=int_32) ::IPOINT(4,NOQ)
-      real(kind=sp) ::VOLUME(NOSEG)     , AREA(NOQ)         ,
+      integer(kind=int_wp) ::IPOINT(4,NOQ)
+      real(kind=real_wp) ::VOLUME(NOSEG)     , AREA(NOQ)         ,
      +             FLOW(NOQ)         , ALENG (2,NOQ)     ,
      +             CONC(NOTOT,NOSEG) , DISP(3)           ,
      +             CONS(*)           , PARAM (NOPA,NOSEG),
@@ -116,12 +116,12 @@
      +             PANAME (*)        , FUNAME (*)        ,
      +             SFNAME (*)
       LOGICAL      UPDATR
-      integer(kind=int_32) ::NOTOT, ILFLAG, NOSYS, NOSEG, NOQ, NOQ1, IDT, ITIME,
+      integer(kind=int_wp) ::NOTOT, ILFLAG, NOSYS, NOSEG, NOQ, NOQ1, IDT, ITIME,
      +             NOQ2, NOQ3, NOPA, NOSFUN, NODISP, NOVELO, NOCONS, NOFUN
 !
 !     Local
 !
-      INTEGER(kind=int_32) ::LCCCO, ier, ierr, ier2, lunrep, isurf,
+      INTEGER(kind=int_wp) ::LCCCO, ier, ierr, ier2, lunrep, isurf,
      +           nmaxa, mmaxa, nma, idummy, nmt, k, iseg,
      +           ilay, iq, ipos, ifrom, ito, layt
       LOGICAL    FIRST ,  LINIT , LEXI

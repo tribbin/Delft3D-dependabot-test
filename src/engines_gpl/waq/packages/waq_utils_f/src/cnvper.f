@@ -74,7 +74,7 @@
       REAL(kind=dp) :: OTIM2  , OTIM3  , AFACT
       LOGICAL       :: DTFLG1 , DTFLG3
       CHARACTER*20  :: KEY
-      INTEGER(kind=int_32) :: IERR, IYEAR, IMONTH, IDAY, IHOUR, IMINUT, ISECND, ISEC, IHULP
+      INTEGER(kind=int_wp) :: IERR, IYEAR, IMONTH, IDAY, IHOUR, IMINUT, ISECND, ISEC, IHULP
 
       IERR = 1
       IF ( CHULP( 5: 5) /= '/' .OR. CHULP( 8: 8) /= '/' .OR.

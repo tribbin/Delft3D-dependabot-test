@@ -80,38 +80,38 @@
 
 !     kind           function         name                   description
 
-      integer(kind=int_32), intent(in   )  ::nosys                !< number of transported substances
-      integer(kind=int_32), intent(in   )  ::notot                !< total number of substances
-      integer(kind=int_32), intent(in   )  ::noseg                !< number of computational volumes
-      integer(kind=int_32), intent(in   )  ::noqw                 !< number of interfaces waterphase
-      integer(kind=int_32), intent(in   )  ::noq                  !< total number of interfaces
-      integer(kind=int_32), intent(in   )  ::nodisp               !< number additional dispersions
-      integer(kind=int_32), intent(in   )  ::novelo               !< number additional velocities
-      real(kind=sp), intent(in   )  ::disp  (3)            !< fixed dispersions in the 3 directions
-      real(kind=sp), intent(in   )  ::disper(nodisp,noq)   !< array with additional dispersions
-      real(kind=sp), intent(in   )  ::velo  (novelo,noq)   !< array with additional velocities
-      real(kind=sp), intent(in   )  ::area  (noq)          !< exchange areas in m2
-      real(kind=sp), intent(in   )  ::flow  (noq)          !< flows through the exchange areas in m3/s
-      real(kind=sp), intent(in   )  ::aleng (  2   ,noq)   !< mixing length to and from the exchange area
-      integer(kind=int_32), intent(in   )  ::ipoint(  4   ,noq)   !< from, to, from-1, to+1 volume numbers
-      integer(kind=int_32), intent(in   )  ::iknmrk(noseg)        !< feature array
-      integer(kind=int_32), intent(in   )  ::idpnt (nosys)        !< additional dispersion number per substance
-      integer(kind=int_32), intent(in   )  ::ivpnt (nosys)        !< additional velocity number per substance
-      real(kind=sp), intent(inout)  ::conc  (notot,noseg)  !< masses after horizontal transport step
-      real(kind=sp), intent(in   )  ::bound (nosys,  *  )  !< open boundary concentrations
-      integer(kind=int_32), intent(in   )  ::iopt                 !< bit 0: 1 if no dispersion at zero flow
+      integer(kind=int_wp), intent(in   )  ::nosys                !< number of transported substances
+      integer(kind=int_wp), intent(in   )  ::notot                !< total number of substances
+      integer(kind=int_wp), intent(in   )  ::noseg                !< number of computational volumes
+      integer(kind=int_wp), intent(in   )  ::noqw                 !< number of interfaces waterphase
+      integer(kind=int_wp), intent(in   )  ::noq                  !< total number of interfaces
+      integer(kind=int_wp), intent(in   )  ::nodisp               !< number additional dispersions
+      integer(kind=int_wp), intent(in   )  ::novelo               !< number additional velocities
+      real(kind=real_wp), intent(in   )  ::disp  (3)            !< fixed dispersions in the 3 directions
+      real(kind=real_wp), intent(in   )  ::disper(nodisp,noq)   !< array with additional dispersions
+      real(kind=real_wp), intent(in   )  ::velo  (novelo,noq)   !< array with additional velocities
+      real(kind=real_wp), intent(in   )  ::area  (noq)          !< exchange areas in m2
+      real(kind=real_wp), intent(in   )  ::flow  (noq)          !< flows through the exchange areas in m3/s
+      real(kind=real_wp), intent(in   )  ::aleng (  2   ,noq)   !< mixing length to and from the exchange area
+      integer(kind=int_wp), intent(in   )  ::ipoint(  4   ,noq)   !< from, to, from-1, to+1 volume numbers
+      integer(kind=int_wp), intent(in   )  ::iknmrk(noseg)        !< feature array
+      integer(kind=int_wp), intent(in   )  ::idpnt (nosys)        !< additional dispersion number per substance
+      integer(kind=int_wp), intent(in   )  ::ivpnt (nosys)        !< additional velocity number per substance
+      real(kind=real_wp), intent(inout)  ::conc  (notot,noseg)  !< masses after horizontal transport step
+      real(kind=real_wp), intent(in   )  ::bound (nosys,  *  )  !< open boundary concentrations
+      integer(kind=int_wp), intent(in   )  ::iopt                 !< bit 0: 1 if no dispersion at zero flow
                                                            !< bit 1: 1 if no dispersion across boundaries
                                                            !< bit 2: 1 if lower order across boundaries
                                                            !< bit 3: 1 if mass balance output
-      integer(kind=int_32), intent(in   )  ::ilflag               !< if 0 then only 3 constant lenght values
-      integer(kind=int_32), intent(in   )  ::idt                  !< time step in seconds
-      real(kind=sp), intent(inout)  ::deriv (notot,noseg)  !< workspace containing the diagonal
-      integer(kind=int_32), intent(in   )  ::iaflag               !< if 1 then accumulate mass in report array
-      real(kind=sp), intent(inout)  ::amass2(notot, 5   )  !< report array for monitoring file
-      integer(kind=int_32), intent(in   )  ::lun                  !< unit number of monitoring file
-      integer(kind=int_32), intent(in   )  ::ndmpq                !< number of dumped exchanges
-      integer(kind=int_32), intent(in   )  ::iqdmp ( noq )        !< pointers dumped exchages
-      real(kind=sp), intent(inout)  ::dmpq  (nosys,ndmpq,2)!< dmpq(*,*,1) incoming transport
+      integer(kind=int_wp), intent(in   )  ::ilflag               !< if 0 then only 3 constant lenght values
+      integer(kind=int_wp), intent(in   )  ::idt                  !< time step in seconds
+      real(kind=real_wp), intent(inout)  ::deriv (notot,noseg)  !< workspace containing the diagonal
+      integer(kind=int_wp), intent(in   )  ::iaflag               !< if 1 then accumulate mass in report array
+      real(kind=real_wp), intent(inout)  ::amass2(notot, 5   )  !< report array for monitoring file
+      integer(kind=int_wp), intent(in   )  ::lun                  !< unit number of monitoring file
+      integer(kind=int_wp), intent(in   )  ::ndmpq                !< number of dumped exchanges
+      integer(kind=int_wp), intent(in   )  ::iqdmp ( noq )        !< pointers dumped exchages
+      real(kind=real_wp), intent(inout)  ::dmpq  (nosys,ndmpq,2)!< dmpq(*,*,1) incoming transport
                                                            !< dmpq(*,*,2) outgoing transport
       real(kind=dp), intent(inout)  ::rhs   (notot,noseg)  !< local right hand side
       real(kind=dp), intent(inout)  ::diag  (notot,noseg)  !< local diagonal filled with volumes
@@ -120,12 +120,12 @@
 
 !         local variables
 
-      integer(kind=int_32) ::iq                    ! loop counter exchanges
-      integer(kind=int_32) ::isys                  ! loop counter substance
-      integer(kind=int_32) ::iseg                  ! loop counter computational volumes
-      integer(kind=int_32) ::ifrom, ito            ! from and to volume numbers
-      integer(kind=int_32) ::iq2, iq3              ! help variables to identify first or second pointers
-      integer(kind=int_32) ::iqd                   ! help variable for dump pointers
+      integer(kind=int_wp) ::iq                    ! loop counter exchanges
+      integer(kind=int_wp) ::isys                  ! loop counter substance
+      integer(kind=int_wp) ::iseg                  ! loop counter computational volumes
+      integer(kind=int_wp) ::ifrom, ito            ! from and to volume numbers
+      integer(kind=int_wp) ::iq2, iq3              ! help variables to identify first or second pointers
+      integer(kind=int_wp) ::iqd                   ! help variable for dump pointers
       real(kind=dp) ::a                     ! this exchange area
       real(kind=dp) ::q                     ! flow for this exchange
       real(kind=dp) ::e                     ! dispersion for this exchange
@@ -144,13 +144,13 @@
       logical       abound                ! is it a boundary?
 
       logical   , save :: sw_settling   ! if true, settling should be dealt with upwind
-      integer(kind=int_32), save  ::init = 1      ! first call ?
+      integer(kind=int_wp), save  ::init = 1      ! first call ?
       character        :: cdummy        !
-      integer(kind=int_32) ::idummy        !
-      real(kind=sp) ::rdummy        !
-      integer(kind=int_32) ::ierr2         !
+      integer(kind=int_wp) ::idummy        !
+      real(kind=real_wp) ::rdummy        !
+      integer(kind=int_wp) ::ierr2         !
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqd1", ithandl )
 
 !         get special option from command line

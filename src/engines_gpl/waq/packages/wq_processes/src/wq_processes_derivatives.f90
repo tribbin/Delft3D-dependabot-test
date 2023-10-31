@@ -36,13 +36,13 @@ contains
 
       implicit none
 
-      integer(kind=int_32) :: notot, noflux, nflux1, nfluxp, noseg
+      integer(kind=int_wp) :: notot, noflux, nflux1, nfluxp, noseg
       integer isys, iflux, iseg, ndt 
-      real(kind=sp) ::    stochi(notot,noflux), flux(noflux,noseg)
+      real(kind=real_wp) ::    stochi(notot,noflux), flux(noflux,noseg)
       real(8) deriv(noseg,notot), volume(noseg)
       real(kind=dp) :: st, fact
  
-      integer(kind=int_32), save ::  ithndl = 0 
+      integer(kind=int_wp), save ::  ithndl = 0
       if (timon) call timstrt( "wq_processes_derivatives", ithndl )
 !
 !     Construct the DERIV's

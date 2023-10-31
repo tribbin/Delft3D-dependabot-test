@@ -56,104 +56,104 @@
       use m_dhzeri
       use timers
 
-      INTEGER(kind=int_32) ::LUREP , NOCONS, NOPA  , NOFUN , NOSFUN,
+      INTEGER(kind=int_wp) ::LUREP , NOCONS, NOPA  , NOFUN , NOSFUN,
      +                    NOSYS , NOTOT , NODISP, NOVELO, NODEF ,
      +                    NOLOC , NDSPX , NVELX , NLOCX , NFLUX ,
      +                    NOPRED, NOVAR, NOGRID
-      INTEGER(kind=int_32) ::VARARR(NOVAR) , VARIDX(NOVAR) ,
+      INTEGER(kind=int_wp) ::VARARR(NOVAR) , VARIDX(NOVAR) ,
      +                    VARTDA(NOVAR) , VARDAG(NOVAR) ,
      +                    VARTAG(NOVAR) , VARAGG(NOVAR)
-      INTEGER(kind=int_32) ::VGRSET(NOVAR,NOGRID)
+      INTEGER(kind=int_wp) ::VGRSET(NOVAR,NOGRID)
 
 !
 !     Just take the used array's in the right order
 !
-      integer(kind=int_32) ::IIVOL  =  1
-      integer(kind=int_32) ::IIAREA =  2
-      integer(kind=int_32) ::IIFLOW =  3
-      integer(kind=int_32) ::IILENG =  4
-      integer(kind=int_32) ::IIDISP =  5
-      integer(kind=int_32) ::IICONC =  6
-      integer(kind=int_32) ::IIMASS =  7
-      integer(kind=int_32) ::IIDERV =  8
-      integer(kind=int_32) ::IIBOUN =  9
-      integer(kind=int_32) ::IIBSET = 10
-      integer(kind=int_32) ::IIBSAV = 11
-      integer(kind=int_32) ::IIWSTE = 12
-      integer(kind=int_32) ::IICONS = 13
-      integer(kind=int_32) ::IIPARM = 14
-      integer(kind=int_32) ::IIFUNC = 15
-      integer(kind=int_32) ::IISFUN = 16
-      integer(kind=int_32) ::IIDNEW = 17
-      integer(kind=int_32) ::IIDIFF = 18
-      integer(kind=int_32) ::IIVNEW = 19
-      integer(kind=int_32) ::IIVELO = 20
-      integer(kind=int_32) ::IIHARM = 21
-      integer(kind=int_32) ::IIFARR = 22
-      integer(kind=int_32) ::IIMAS2 = 23
-      integer(kind=int_32) ::IITIMR = 24
-      integer(kind=int_32) ::IIVOL2 = 25
-      integer(kind=int_32) ::IITRAC = 26
-      integer(kind=int_32) ::IIGWRK = 27
-      integer(kind=int_32) ::IIGHES = 28
-      integer(kind=int_32) ::IIGSOL = 29
-      integer(kind=int_32) ::IIGDIA = 30
-      integer(kind=int_32) ::IIGTRI = 31
-      integer(kind=int_32) ::IISMAS = 32
-      integer(kind=int_32) ::IIPLOC = 33
-      integer(kind=int_32) ::IIDEFA = 34
-      integer(kind=int_32) ::IIFLUX = 35
-      integer(kind=int_32) ::IISTOC = 36
-      integer(kind=int_32) ::IIFLXD = 37
-      integer(kind=int_32) ::IIFLXI = 38
-      integer(kind=int_32) ::IIRIOB = 39
-      integer(kind=int_32) ::IIDSPX = 40
-      integer(kind=int_32) ::IIVELX = 41
-      integer(kind=int_32) ::IILOCX = 42
-      integer(kind=int_32) ::IIDSTO = 43
-      integer(kind=int_32) ::IIVSTO = 44
-      integer(kind=int_32) ::IIDMPQ = 45
-      integer(kind=int_32) ::IIDMPS = 46
-      integer(kind=int_32) ::IITRRA = 47
-      integer(kind=int_32) ::IINRSP = 48
-      integer(kind=int_32) ::IIVOLL = 49
-      integer(kind=int_32) ::IIVOL3 = 50
-      integer(kind=int_32) ::IIR1   = 51
-      integer(kind=int_32) ::IIQXK  = 52
-      integer(kind=int_32) ::IIQYK  = 53
-      integer(kind=int_32) ::IIQZK  = 54
-      integer(kind=int_32) ::IIDIFX = 55
-      integer(kind=int_32) ::IIDIFY = 56
-      integer(kind=int_32) ::IIDIFZ = 57
-      integer(kind=int_32) ::IIVOLA = 58
-      integer(kind=int_32) ::IIVOLB = 59
-      integer(kind=int_32) ::IIGUV  = 60
-      integer(kind=int_32) ::IIGVU  = 61
-      integer(kind=int_32) ::IIGZZ  = 62
-      integer(kind=int_32) ::IIAAK  = 63
-      integer(kind=int_32) ::IIBBK  = 64
-      integer(kind=int_32) ::IICCK  = 65
-      integer(kind=int_32) ::IIBD3X = 66
-      integer(kind=int_32) ::IIBDDX = 67
-      integer(kind=int_32) ::IIBDX  = 68
-      integer(kind=int_32) ::IIBU3X = 69
-      integer(kind=int_32) ::IIBUUX = 70
-      integer(kind=int_32) ::IIBUX  = 71
-      integer(kind=int_32) ::IIWRK1 = 72
-      integer(kind=int_32) ::IIWRK2 = 73
-      integer(kind=int_32) ::IIAAKL = 74
-      integer(kind=int_32) ::IIBBKL = 75
-      integer(kind=int_32) ::IICCKL = 76
-      integer(kind=int_32) ::IIDDKL = 77
+      integer(kind=int_wp) ::IIVOL  =  1
+      integer(kind=int_wp) ::IIAREA =  2
+      integer(kind=int_wp) ::IIFLOW =  3
+      integer(kind=int_wp) ::IILENG =  4
+      integer(kind=int_wp) ::IIDISP =  5
+      integer(kind=int_wp) ::IICONC =  6
+      integer(kind=int_wp) ::IIMASS =  7
+      integer(kind=int_wp) ::IIDERV =  8
+      integer(kind=int_wp) ::IIBOUN =  9
+      integer(kind=int_wp) ::IIBSET = 10
+      integer(kind=int_wp) ::IIBSAV = 11
+      integer(kind=int_wp) ::IIWSTE = 12
+      integer(kind=int_wp) ::IICONS = 13
+      integer(kind=int_wp) ::IIPARM = 14
+      integer(kind=int_wp) ::IIFUNC = 15
+      integer(kind=int_wp) ::IISFUN = 16
+      integer(kind=int_wp) ::IIDNEW = 17
+      integer(kind=int_wp) ::IIDIFF = 18
+      integer(kind=int_wp) ::IIVNEW = 19
+      integer(kind=int_wp) ::IIVELO = 20
+      integer(kind=int_wp) ::IIHARM = 21
+      integer(kind=int_wp) ::IIFARR = 22
+      integer(kind=int_wp) ::IIMAS2 = 23
+      integer(kind=int_wp) ::IITIMR = 24
+      integer(kind=int_wp) ::IIVOL2 = 25
+      integer(kind=int_wp) ::IITRAC = 26
+      integer(kind=int_wp) ::IIGWRK = 27
+      integer(kind=int_wp) ::IIGHES = 28
+      integer(kind=int_wp) ::IIGSOL = 29
+      integer(kind=int_wp) ::IIGDIA = 30
+      integer(kind=int_wp) ::IIGTRI = 31
+      integer(kind=int_wp) ::IISMAS = 32
+      integer(kind=int_wp) ::IIPLOC = 33
+      integer(kind=int_wp) ::IIDEFA = 34
+      integer(kind=int_wp) ::IIFLUX = 35
+      integer(kind=int_wp) ::IISTOC = 36
+      integer(kind=int_wp) ::IIFLXD = 37
+      integer(kind=int_wp) ::IIFLXI = 38
+      integer(kind=int_wp) ::IIRIOB = 39
+      integer(kind=int_wp) ::IIDSPX = 40
+      integer(kind=int_wp) ::IIVELX = 41
+      integer(kind=int_wp) ::IILOCX = 42
+      integer(kind=int_wp) ::IIDSTO = 43
+      integer(kind=int_wp) ::IIVSTO = 44
+      integer(kind=int_wp) ::IIDMPQ = 45
+      integer(kind=int_wp) ::IIDMPS = 46
+      integer(kind=int_wp) ::IITRRA = 47
+      integer(kind=int_wp) ::IINRSP = 48
+      integer(kind=int_wp) ::IIVOLL = 49
+      integer(kind=int_wp) ::IIVOL3 = 50
+      integer(kind=int_wp) ::IIR1   = 51
+      integer(kind=int_wp) ::IIQXK  = 52
+      integer(kind=int_wp) ::IIQYK  = 53
+      integer(kind=int_wp) ::IIQZK  = 54
+      integer(kind=int_wp) ::IIDIFX = 55
+      integer(kind=int_wp) ::IIDIFY = 56
+      integer(kind=int_wp) ::IIDIFZ = 57
+      integer(kind=int_wp) ::IIVOLA = 58
+      integer(kind=int_wp) ::IIVOLB = 59
+      integer(kind=int_wp) ::IIGUV  = 60
+      integer(kind=int_wp) ::IIGVU  = 61
+      integer(kind=int_wp) ::IIGZZ  = 62
+      integer(kind=int_wp) ::IIAAK  = 63
+      integer(kind=int_wp) ::IIBBK  = 64
+      integer(kind=int_wp) ::IICCK  = 65
+      integer(kind=int_wp) ::IIBD3X = 66
+      integer(kind=int_wp) ::IIBDDX = 67
+      integer(kind=int_wp) ::IIBDX  = 68
+      integer(kind=int_wp) ::IIBU3X = 69
+      integer(kind=int_wp) ::IIBUUX = 70
+      integer(kind=int_wp) ::IIBUX  = 71
+      integer(kind=int_wp) ::IIWRK1 = 72
+      integer(kind=int_wp) ::IIWRK2 = 73
+      integer(kind=int_wp) ::IIAAKL = 74
+      integer(kind=int_wp) ::IIBBKL = 75
+      integer(kind=int_wp) ::IICCKL = 76
+      integer(kind=int_wp) ::IIDDKL = 77
 !
-      integer(kind=int_32) ::IVVOL, IVARE, IVFLO, IVLEN, IVCNS, IVPAR, IVFUN, IVSFU,
+      integer(kind=int_wp) ::IVVOL, IVARE, IVFLO, IVLEN, IVCNS, IVPAR, IVFUN, IVSFU,
      +           IVCNC, IVMAS, IVDER, IVDSP, IVVEL, IVDEF, IVLOC, IVDSX,
      +           IVVLX, IVLCX, IVFLX
 
-      integer(kind=int_32) ::ivar, icons, ipa , ifun, isys, isfun, idsp, ivel, iloc,
+      integer(kind=int_wp) ::ivar, icons, ipa , ifun, isys, isfun, idsp, ivel, iloc,
      +           idsx, ivlx , ilcx, idef, iflx
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqiv", ithandl )
 
       IVVOL = 1

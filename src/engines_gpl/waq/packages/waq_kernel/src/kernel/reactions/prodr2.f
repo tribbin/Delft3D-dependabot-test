@@ -48,29 +48,29 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     DERIV   REAL(kind=sp) ::NOTOT,*    OUTPUT  Model derivatives
-!     NOTOT   INTEGER(kind=int_32) ::1     INPUT   Total number of substances
-!     NOFLUX  INTEGER(kind=int_32) ::1     INPUT   Nr. of fluxes
-!     STOCHI  REAL(kind=sp) ::NOTOT*NOFLUX INPUT   Proces stochiometry
-!     NFLUX1  INTEGER(kind=int_32) ::1     INPUT   first flux to construct deriv
-!     NFLUXP  INTEGER(kind=int_32) ::1     INPUT   number of fluxes to construct deriv
-!     FLUX    REAL(kind=sp) ::*     INPUT   fluxes at all segments
-!     NOSEG   INTEGER(kind=int_32) ::1     INPUT   number of segments
-!     VOLUME  REAL(kind=sp) ::*     INPUT   Segment volumes
-!     NDT     INTEGER(kind=int_32) ::1     INPUT   nuber of timesteps in fractional step
+!     DERIV   REAL(kind=real_wp) ::NOTOT,*    OUTPUT  Model derivatives
+!     NOTOT   INTEGER(kind=int_wp) ::1     INPUT   Total number of substances
+!     NOFLUX  INTEGER(kind=int_wp) ::1     INPUT   Nr. of fluxes
+!     STOCHI  REAL(kind=real_wp) ::NOTOT*NOFLUX INPUT   Proces stochiometry
+!     NFLUX1  INTEGER(kind=int_wp) ::1     INPUT   first flux to construct deriv
+!     NFLUXP  INTEGER(kind=int_wp) ::1     INPUT   number of fluxes to construct deriv
+!     FLUX    REAL(kind=real_wp) ::*     INPUT   fluxes at all segments
+!     NOSEG   INTEGER(kind=int_wp) ::1     INPUT   number of segments
+!     VOLUME  REAL(kind=real_wp) ::*     INPUT   Segment volumes
+!     NDT     INTEGER(kind=int_wp) ::1     INPUT   nuber of timesteps in fractional step
 !
 !     Declaration of arguments
 !
       use timers
-      INTEGER(kind=int_32) ::NOTOT , NOFLUX, NFLUX1, NFLUXP, NOSEG, NDT
-      REAL(kind=sp) ::DERIV(NOTOT,NOSEG) , STOCHI(NOTOT,NOFLUX) ,
+      INTEGER(kind=int_wp) ::NOTOT , NOFLUX, NFLUX1, NFLUXP, NOSEG, NDT
+      REAL(kind=real_wp) ::DERIV(NOTOT,NOSEG) , STOCHI(NOTOT,NOFLUX) ,
      +        FLUX(NOFLUX,NOSEG) , VOLUME(NOSEG)
 
 !     loclal
-      integer(kind=int_32) ::fdt, isys, iflux, iseg
-      real(kind=sp) ::st, fact
+      integer(kind=int_wp) ::fdt, isys, iflux, iseg
+      real(kind=real_wp) ::st, fact
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "prodr2", ithandl )
 !
 !     We construeren nu de DERIV's

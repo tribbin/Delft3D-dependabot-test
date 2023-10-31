@@ -51,23 +51,23 @@
 !     Parameters          :
 
 !     type     kind  function         name                      description
-      integer(kind=int_32), intent(in   )  ::notot                   !< total number of substances
-      integer(kind=int_32), intent(in   )  ::noseg                   !< number of computational volumes
-      real(kind=sp), intent(inout)  ::deriv (notot ,noseg)    !< derivatives to be scaled
-      real(kind=sp), intent(inout)  ::conc  (notot ,noseg)    !< concentrations per substance per volume
-      integer(kind=int_32), intent(in   )  ::itfact                  !< scale factor between clocks
-      real(kind=sp), intent(inout)  ::amass2(notot , 5   )    !< mass balance array
-      integer(kind=int_32), intent(in   )  ::isys                    !< 'this' substance
-      integer(kind=int_32), intent(in   )  ::nsys                    !< number of substances
-      real(kind=sp), intent(inout)  ::dmps  (notot,*)         !< dumped fluxes is intopt > 7
-      integer(kind=int_32), intent(in   )  ::intopt                  !< Integration suboptions
-      integer(kind=int_32), intent(in   )  ::isdmp (noseg)           !< Pointer dumped segments
+      integer(kind=int_wp), intent(in   )  ::notot                   !< total number of substances
+      integer(kind=int_wp), intent(in   )  ::noseg                   !< number of computational volumes
+      real(kind=real_wp), intent(inout)  ::deriv (notot ,noseg)    !< derivatives to be scaled
+      real(kind=real_wp), intent(inout)  ::conc  (notot ,noseg)    !< concentrations per substance per volume
+      integer(kind=int_wp), intent(in   )  ::itfact                  !< scale factor between clocks
+      real(kind=real_wp), intent(inout)  ::amass2(notot , 5   )    !< mass balance array
+      integer(kind=int_wp), intent(in   )  ::isys                    !< 'this' substance
+      integer(kind=int_wp), intent(in   )  ::nsys                    !< number of substances
+      real(kind=real_wp), intent(inout)  ::dmps  (notot,*)         !< dumped fluxes is intopt > 7
+      integer(kind=int_wp), intent(in   )  ::intopt                  !< Integration suboptions
+      integer(kind=int_wp), intent(in   )  ::isdmp (noseg)           !< Pointer dumped segments
 
 !     Local declarations
 
-      integer(kind=int_32) ::iseg, i, ip   ! Loop and help variables
+      integer(kind=int_wp) ::iseg, i, ip   ! Loop and help variables
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwq60", ithandl )
 
 !         loop accross deriv and conc

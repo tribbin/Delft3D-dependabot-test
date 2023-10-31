@@ -44,8 +44,8 @@
 
       implicit none
 
-      integer(kind=int_32) ::i, j, k, k1, k2
-      integer(kind=int_32) ::itnum, ntape, ntstot, numlim, ncon
+      integer(kind=int_wp) ::i, j, k, k1, k2
+      integer(kind=int_wp) ::itnum, ntape, ntstot, numlim, ncon
       real(kind=dp) ::bio2, xbio, total, tot2
       
       real(kind=dp) ::x(*),xeco(*)

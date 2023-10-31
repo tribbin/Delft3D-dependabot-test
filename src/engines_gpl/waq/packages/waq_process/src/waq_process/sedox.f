@@ -42,8 +42,8 @@
 !
 ! Name    T   L I/O   Description                                    Units
 ! ----    --- -  -    -------------------                            -----
-! ZFL     REAL(kind=sp) ::Zero'th order flux                        [gO2/m2/d]
-! ZFLAUT  REAL(kind=sp) ::Zero'th order flux (autonomous)           [gO2/m2/d]
+! ZFL     REAL(kind=real_wp) ::Zero'th order flux                        [gO2/m2/d]
+! ZFLAUT  REAL(kind=real_wp) ::Zero'th order flux (autonomous)           [gO2/m2/d]
 ! DEPTH   R*4 1 I     Depth                                            [m]
 ! SOD     R*4 1 I     oxygen demand in sediment                   [gO2/m2]
 ! RCSOD   R*4 1 I     decay reaction rate SOD at 20 xC               [1/d]
@@ -73,22 +73,22 @@
 !     Name     Type   Library
 !     ------   -----  ------------
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      REAL(kind=sp) ::x1real(6) , kapc20, kappad,
+      REAL(kind=real_wp) ::x1real(6) , kapc20, kappad,
      J         OXY   , COXSOD, OOXSOD, TCSOD , TEMP  , TFSOD , O2FUNC,
      J         ZFL   , DEPTH , SOD   , RCSOD , VOL   , DSOD  , DOXSOD,
      J         DMINER, DIAGEN, HSED  , THETAK, EDWCSD, DIAMB , XOX   ,
      J         DEP   , ZFLAUT
       LOGICAL  TFACT, GASBEL, BODEM, OFACT
-      INTEGER(kind=int_32) ::IFLUX , ISEG  , IKMRK1, IKMRK2
-      INTEGER(kind=int_32) ::IP1 , IP2 , IP3 , IP4 , IP5 , IP6 , IP7 , IP8 , IP9 ,
+      INTEGER(kind=int_wp) ::IFLUX , ISEG  , IKMRK1, IKMRK2
+      INTEGER(kind=int_wp) ::IP1 , IP2 , IP3 , IP4 , IP5 , IP6 , IP7 , IP8 , IP9 ,
      J         IP10, IP11, IP12, IP13, IP14, IP15, IP16, IP17, IP18,
      J         IP19, IP20, IP21, IP22, IP23, IP24, IP25, IP26, IP27,
      J         IP28, IP29, IP30, IP31, IP32, IP33
-      INTEGER(kind=int_32) ::IN1 , IN2 , IN3 , IN4 , IN5 , IN6 , IN7 , IN8 , IN9 ,
+      INTEGER(kind=int_wp) ::IN1 , IN2 , IN3 , IN4 , IN5 , IN6 , IN7 , IN8 , IN9 ,
      J         IN10, IN11, IN12, IN13, IN14, IN15, IN16, IN17, IN18,
      J         IN19, IN20, IN21, IN22, IN23, IN24, IN25, IN26, IN27,
      J         IN28, IN29, IN30, IN31, IN32, IN33

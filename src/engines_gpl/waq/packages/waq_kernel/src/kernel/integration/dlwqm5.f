@@ -64,52 +64,52 @@
 
 !     Kind        Function         Name                    Description
 
-      integer(kind=int_32), intent(in   )  ::idt                !< time step in scu's
-      integer(kind=int_32), intent(in   )  ::isys               !< current active substance
-      integer(kind=int_32), intent(in   )  ::nosys              !< number of active substances
-      integer(kind=int_32), intent(in   )  ::notot              !< total number of substances
-      integer(kind=int_32), intent(in   )  ::noseg              !< number of segments
-      real(kind=sp), intent(inout)  ::conc(notot,noseg)  !< concentrations
+      integer(kind=int_wp), intent(in   )  ::idt                !< time step in scu's
+      integer(kind=int_wp), intent(in   )  ::isys               !< current active substance
+      integer(kind=int_wp), intent(in   )  ::nosys              !< number of active substances
+      integer(kind=int_wp), intent(in   )  ::notot              !< total number of substances
+      integer(kind=int_wp), intent(in   )  ::noseg              !< number of segments
+      real(kind=real_wp), intent(inout)  ::conc(notot,noseg)  !< concentrations
       real(kind=dp), intent(inout)  ::concvt(noseg)      !< first solution estimation by means of local theta method
-      real(kind=sp), intent(in   )  ::volnew(noseg)      !< segment volumes at the new time
-      integer(kind=int_32), intent(in   )  ::nobnd              !< number of boundary segments
-      real(kind=sp), intent(in   )  ::bound(nosys,nobnd) !< boundary concentrations
-      integer(kind=int_32), intent(in   )  ::noq                !< number of exchanges
-      integer(kind=int_32), intent(in   )  ::noq1               !< number of exchanges in the first direction
-      integer(kind=int_32), intent(in   )  ::noq2               !< number of exchanges in the second direction
-      integer(kind=int_32), intent(in   )  ::noq3               !< number of exchanges in the third direction
-      integer(kind=int_32), intent(in   )  ::ipoint(4,noq)      !< exchange pointers
-      integer(kind=int_32), intent(in   )  ::iknmrk(noseg)      !< feature array
-      real(kind=sp), intent(in   )  ::area(noq)          !< surface areas
-      real(kind=sp), intent(in   )  ::aleng(2,noq)       !< from- and to lengths (dim: 2*noq)
-      real(kind=sp), intent(in   )  ::theta(noq)         !< local theta coefficients
-      real(kind=sp), intent(in   )  ::flowtot(noq)       !< flows plus additional velos.
-      real(kind=sp), intent(in   )  ::disptot(noq)       !< dispersion plus additional dipers.
-      integer(kind=int_32), intent(in   )  ::iopt               !< options for special treatment of boundaries etc.
-      real(kind=sp), intent(inout)  ::amass2(notot,5)    !< areawide mass balance arrays
-      integer(kind=int_32), intent(in   )  ::ndmpq              !< number of dumped discharges
-      integer(kind=int_32), intent(in   )  ::iqdmp(noq)         !< pointer dumped exchages
-      real(kind=sp), intent(inout)  ::dmpq(nosys,ndmpq,2)!< mass balance array per monitoring area
-      real(kind=sp) ::flux( noq )        !< flux corrections
-      real(kind=sp) ::lim ( noq )        !< limiter
-      real(kind=sp) ::maxi(noseg)        !< workspace
-      real(kind=sp) ::mini(noseg)        !< workspace
-      real(kind=sp) ::l1  (noseg)        !< workspace
-      real(kind=sp) ::l2  (noseg)        !< workspace
-      real(kind=sp) ::m1  (noseg)        !< workspace
-      real(kind=sp) ::m2  (noseg)        !< workspace
-      real(kind=sp) ::n1  (noseg)        !< workspace
-      real(kind=sp) ::n2  (noseg)        !< workspace
+      real(kind=real_wp), intent(in   )  ::volnew(noseg)      !< segment volumes at the new time
+      integer(kind=int_wp), intent(in   )  ::nobnd              !< number of boundary segments
+      real(kind=real_wp), intent(in   )  ::bound(nosys,nobnd) !< boundary concentrations
+      integer(kind=int_wp), intent(in   )  ::noq                !< number of exchanges
+      integer(kind=int_wp), intent(in   )  ::noq1               !< number of exchanges in the first direction
+      integer(kind=int_wp), intent(in   )  ::noq2               !< number of exchanges in the second direction
+      integer(kind=int_wp), intent(in   )  ::noq3               !< number of exchanges in the third direction
+      integer(kind=int_wp), intent(in   )  ::ipoint(4,noq)      !< exchange pointers
+      integer(kind=int_wp), intent(in   )  ::iknmrk(noseg)      !< feature array
+      real(kind=real_wp), intent(in   )  ::area(noq)          !< surface areas
+      real(kind=real_wp), intent(in   )  ::aleng(2,noq)       !< from- and to lengths (dim: 2*noq)
+      real(kind=real_wp), intent(in   )  ::theta(noq)         !< local theta coefficients
+      real(kind=real_wp), intent(in   )  ::flowtot(noq)       !< flows plus additional velos.
+      real(kind=real_wp), intent(in   )  ::disptot(noq)       !< dispersion plus additional dipers.
+      integer(kind=int_wp), intent(in   )  ::iopt               !< options for special treatment of boundaries etc.
+      real(kind=real_wp), intent(inout)  ::amass2(notot,5)    !< areawide mass balance arrays
+      integer(kind=int_wp), intent(in   )  ::ndmpq              !< number of dumped discharges
+      integer(kind=int_wp), intent(in   )  ::iqdmp(noq)         !< pointer dumped exchages
+      real(kind=real_wp), intent(inout)  ::dmpq(nosys,ndmpq,2)!< mass balance array per monitoring area
+      real(kind=real_wp) ::flux( noq )        !< flux corrections
+      real(kind=real_wp) ::lim ( noq )        !< limiter
+      real(kind=real_wp) ::maxi(noseg)        !< workspace
+      real(kind=real_wp) ::mini(noseg)        !< workspace
+      real(kind=real_wp) ::l1  (noseg)        !< workspace
+      real(kind=real_wp) ::l2  (noseg)        !< workspace
+      real(kind=real_wp) ::m1  (noseg)        !< workspace
+      real(kind=real_wp) ::m2  (noseg)        !< workspace
+      real(kind=real_wp) ::n1  (noseg)        !< workspace
+      real(kind=real_wp) ::n2  (noseg)        !< workspace
 
 !    Local variables
 
-      real(kind=sp) ::length
-      real(kind=sp) ::cio, cjo, cin, cjn ! old and local-theta from- and to concentrations
-      integer(kind=int_32) ::ifrom, ito         ! from- and to segement indices
-      integer(kind=int_32) ::iseg               ! current segment
-      integer(kind=int_32) ::iq                 ! current edge
+      real(kind=real_wp) ::length
+      real(kind=real_wp) ::cio, cjo, cin, cjn ! old and local-theta from- and to concentrations
+      integer(kind=int_wp) ::ifrom, ito         ! from- and to segement indices
+      integer(kind=int_wp) ::iseg               ! current segment
+      integer(kind=int_wp) ::iq                 ! current edge
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqm5", ithandl )
 
 ! initialisation

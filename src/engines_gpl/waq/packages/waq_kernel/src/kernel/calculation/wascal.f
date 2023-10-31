@@ -51,32 +51,32 @@
 
       ! arguments declarations
 
-      integer(kind=int_32) ::nowst
-      integer(kind=int_32) ::notot
-      integer(kind=int_32) ::nosys
-      integer(kind=int_32) ::noseg
+      integer(kind=int_wp) ::nowst
+      integer(kind=int_wp) ::notot
+      integer(kind=int_wp) ::nosys
+      integer(kind=int_wp) ::noseg
       character(len=20)                   :: syname(notot)
-      real(kind=sp) ::conc(notot,noseg)
-      integer(kind=int_32) ::itime
-      integer(kind=int_32) ::nowtyp
+      real(kind=real_wp) ::conc(notot,noseg)
+      integer(kind=int_wp) ::itime
+      integer(kind=int_wp) ::nowtyp
       character(len=20)                   :: wastid(nowst)
       character(len=40)                   :: wstnam(nowst)
       character(len=20)                   :: wsttyp(nowtyp)
-      integer(kind=int_32) ::iwaste(nowst)
-      integer(kind=int_32) ::iwtype(nowst)
-      real(kind=sp) ::waste(0:notot,nowst)
+      integer(kind=int_wp) ::iwaste(nowst)
+      integer(kind=int_wp) ::iwtype(nowst)
+      real(kind=real_wp) ::waste(0:notot,nowst)
 
       ! local declarations
 
-      integer(kind=int_32), save        ::ifirst = 1
-      integer(kind=int_32) ::ierror
-      integer(kind=int_32) ::iwst
-      integer(kind=int_32) ::isys
-      integer(kind=int_32) ::lunrep
+      integer(kind=int_wp), save        ::ifirst = 1
+      integer(kind=int_wp) ::ierror
+      integer(kind=int_wp) ::iwst
+      integer(kind=int_wp) ::isys
+      integer(kind=int_wp) ::lunrep
       character(len=256)  :: load_routine
 
-      integer(kind=int_32) ::ierr_alloc
-      integer(kind=int_32), save     ::ithandl = 0
+      integer(kind=int_wp) ::ierr_alloc
+      integer(kind=int_wp), save     ::ithandl = 0
 
       if ( timon ) call timstrt ( "wascal", ithandl )
 

@@ -66,39 +66,39 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     LUN     INTEGER(kind=int_32) ::*     INPUT   unit numbers
-!     ITIME   INTEGER(kind=int_32) ::1     INPUT   Model timer
-!     ITIMEL  INTEGER(kind=int_32) ::1     INPUT   Model timer previous time step
-!     IHARM   INTEGER(kind=int_32) ::NRHARM    IN/OUT  integer(kind=int_32) ::harmonics space
-!                           *     INPUT   integer(kind=int_32) ::array space new version
-!     HARMAT  REAL(kind=sp) ::(NRHARM,*)  INPUT   matrix with harmonic info
-!                           *     INPUT   real(kind=sp) ::array space new version
-!     FARRAY  REAL(kind=sp) ::(NRFTOT,2)  INPUT   double file buffer
-!     IPOINT  INTEGER(kind=int_32) ::NTOT+3    INPUT   pointer to result array + ...
+!     LUN     INTEGER(kind=int_wp) ::*     INPUT   unit numbers
+!     ITIME   INTEGER(kind=int_wp) ::1     INPUT   Model timer
+!     ITIMEL  INTEGER(kind=int_wp) ::1     INPUT   Model timer previous time step
+!     IHARM   INTEGER(kind=int_wp) ::NRHARM    IN/OUT  integer(kind=int_wp) ::harmonics space
+!                           *     INPUT   integer(kind=int_wp) ::array space new version
+!     HARMAT  REAL(kind=real_wp) ::(NRHARM,*)  INPUT   matrix with harmonic info
+!                           *     INPUT   real(kind=real_wp) ::array space new version
+!     FARRAY  REAL(kind=real_wp) ::(NRFTOT,2)  INPUT   double file buffer
+!     IPOINT  INTEGER(kind=int_wp) ::NTOT+3    INPUT   pointer to result array + ...
 !                                 INPUT   type definition of items
-!     RESULT  REAL(kind=sp) ::*     OUTPUT  result array at time ITIME
-!     NOSUB   INTEGER(kind=int_32) ::1     INPUT   amount of values per item
-!     NRHARM  INTEGER(kind=int_32) ::1     INPUT   amount of harmonic records
-!     NTOT    INTEGER(kind=int_32) ::1     INPUT   number of items to be filled
-!     NRFTOT  INTEGER(kind=int_32) ::1     INPUT   record lengt file
-!     IPA     INTEGER(kind=int_32) ::1     IN/OUT  pointer in FARRAY
+!     RESULT  REAL(kind=real_wp) ::*     OUTPUT  result array at time ITIME
+!     NOSUB   INTEGER(kind=int_wp) ::1     INPUT   amount of values per item
+!     NRHARM  INTEGER(kind=int_wp) ::1     INPUT   amount of harmonic records
+!     NTOT    INTEGER(kind=int_wp) ::1     INPUT   number of items to be filled
+!     NRFTOT  INTEGER(kind=int_wp) ::1     INPUT   record lengt file
+!     IPA     INTEGER(kind=int_wp) ::1     IN/OUT  pointer in FARRAY
 !                                 INPUT   array space IHARM (new version)
-!     IPH     INTEGER(kind=int_32) ::1     IN/OUT  pointer in HARMAT
+!     IPH     INTEGER(kind=int_wp) ::1     IN/OUT  pointer in HARMAT
 !                                 INPUT   array space HARMAT (new version)
-!     IPF     INTEGER(kind=int_32) ::1     IN/OUT  pointer in IHARM
-!     IPI     INTEGER(kind=int_32) ::1     IN/OUT  pointer in IPOINT
+!     IPF     INTEGER(kind=int_wp) ::1     IN/OUT  pointer in IHARM
+!     IPI     INTEGER(kind=int_wp) ::1     IN/OUT  pointer in IPOINT
 !     LUNTXT  CHAR*(*)      ?     INPUT   txt with the unit numbers
-!     IS      INTEGER(kind=int_32) ::1     INPUT   offset in LUN and LUNTXT
-!     ISFLAG  INTEGER(kind=int_32) ::1     INPUT   = 1 then 'ddhhmmss' format
-!     IFFLAG  INTEGER(kind=int_32) ::1     INPUT   = 1 then first invocation
+!     IS      INTEGER(kind=int_wp) ::1     INPUT   offset in LUN and LUNTXT
+!     ISFLAG  INTEGER(kind=int_wp) ::1     INPUT   = 1 then 'ddhhmmss' format
+!     IFFLAG  INTEGER(kind=int_wp) ::1     INPUT   = 1 then first invocation
 !     UPDATE  LOGICAL       1     OUTPUT  set to T if function is updated
 !                                         else set to F
 !     NEWSET  LOGICAL       1     INPUT   T if new function processing
-!     IOFF    INTEGER(kind=int_32) ::1     LOCAL   offset in the concentration array
-!     IWORK   INTEGER(kind=int_32) ::*     LOCAL   workspace
+!     IOFF    INTEGER(kind=int_wp) ::1     LOCAL   offset in the concentration array
+!     IWORK   INTEGER(kind=int_wp) ::*     LOCAL   workspace
 !     LSTREC  LOGICAL       1     INPUT   Switch last record on rewind wanted
 !     LREWIN  LOGICAL       1     OUTPUT  Then rewind took place
-!     RECLST  REAL(kind=sp) ::*     OUTPUT  Last record before rewind
+!     RECLST  REAL(kind=real_wp) ::*     OUTPUT  Last record before rewind
 !
 !     DECLARATIONS        :
 !
@@ -109,15 +109,15 @@
       use timers
       use delwaq2_data
 
-      integer(kind=int_32), intent(in   )            ::ftype  (*) !< type of files to be opened
+      integer(kind=int_wp), intent(in   )            ::ftype  (*) !< type of files to be opened
       type(delwaq_data), intent(inout) :: dlwqd      !< derived type for persistent storage
 
-      integer(kind=int_32) ::IHARM (*) , IPOINT(*) , LUN   (*) , IWORK (*)
-      real(kind=sp) ::HARMAT(*) , FARRAY(*) , RESULT(*) , RECLST(*)
+      integer(kind=int_wp) ::IHARM (*) , IPOINT(*) , LUN   (*) , IWORK (*)
+      real(kind=real_wp) ::HARMAT(*) , FARRAY(*) , RESULT(*) , RECLST(*)
       CHARACTER*(*) LUNTXT(*)
       CHARACTER*12  CHLP
       LOGICAL       UPDATE    , NEWSET    , LSTREC    , LREWIN
-      integer(kind=int_32) ::IPA  , IPH    , IPF, ITIME  , ITIMEL , NOSUB , NRHARM,
+      integer(kind=int_wp) ::IPA  , IPH    , IPF, ITIME  , ITIMEL , NOSUB , NRHARM,
      +              NTOT , NRFTOT , IS , ISFLAG , IFFLAG , IOFF  , IPI
 !
 !     Local
@@ -133,10 +133,10 @@
       LOGICAL            OLCFWQ, SRWACT, RTCACT
       COMMON /COMMUN/    OLCFWQ, SRWACT, RTCACT
 
-      integer(kind=int_32) ::ierr, ioerr, ipsi, ipsa, ipb, k, i, i2, j2
-      integer(kind=int_32) ::ntotal, nospac, npoint
+      integer(kind=int_wp) ::ierr, ioerr, ipsi, ipsa, ipb, k, i, i2, j2
+      integer(kind=int_wp) ::ntotal, nospac, npoint
 
-      integer(kind=int_32) ::ithandl= 0
+      integer(kind=int_wp) ::ithandl= 0
       if ( timon ) call timstrt ( "dlwqt1", ithandl )
 !
 !         Prescribe ONLINE mode for selected files
@@ -237,7 +237,7 @@
 !
       I2 =  NTOT +1
       J2 =  NRFTOT +1
-!         5 arguments of integer(kind=int_32) ::and real(kind=sp) ::array space removed
+!         5 arguments of integer(kind=int_wp) ::and real(kind=real_wp) ::array space removed
 !         opening of binary file moved inside DLWQT4         July 2002
       CALL DLWQT4 ( LUN    , LUNTXT , ftype         , LUN(19) , IS     ,
      *              ITIME  , RESULT , IPOINT(NPOINT), NOSUB   , NRFTOT ,

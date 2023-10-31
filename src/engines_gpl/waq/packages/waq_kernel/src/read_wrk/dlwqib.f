@@ -47,25 +47,25 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     LUN     INTEGER(kind=int_32) ::1        INPUT   unit number input file
-!     A       REAL(kind=sp) ::?        IN/OUT  Real(kind=sp) ::boundary workspace
-!     J       INTEGER(kind=int_32) ::?        IN/OUT  Integer(kind=int_32) ::boundary workspace
-!     MODE    INTEGER(kind=int_32) ::1        INPUT   File number involved
-!     IISP    INTEGER(kind=int_32) ::1        IN/OUT  Integer(kind=int_32) ::array space pointer
-!     IRSP    INTEGER(kind=int_32) ::1        IN/OUT  Real(kind=sp) ::array space pointer
-!     IERR    INTEGER(kind=int_32) ::1        IN/OUT  error count
+!     LUN     INTEGER(kind=int_wp) ::1        INPUT   unit number input file
+!     A       REAL(kind=real_wp) ::?        IN/OUT  Real(kind=real_wp) ::boundary workspace
+!     J       INTEGER(kind=int_wp) ::?        IN/OUT  Integer(kind=int_wp) ::boundary workspace
+!     MODE    INTEGER(kind=int_wp) ::1        INPUT   File number involved
+!     IISP    INTEGER(kind=int_wp) ::1        IN/OUT  Integer(kind=int_wp) ::array space pointer
+!     IRSP    INTEGER(kind=int_wp) ::1        IN/OUT  Real(kind=real_wp) ::array space pointer
+!     IERR    INTEGER(kind=int_wp) ::1        IN/OUT  error count
 !
 !     Declaration of arguments
 !
       use timers
 
-      real(kind=sp) ::A(*)
-      integer(kind=int_32) ::J(*)
-      integer(kind=int_32) ::IISP, IRSP, IERR, MODE, LUN, LUNUT
+      real(kind=real_wp) ::A(*)
+      integer(kind=int_wp) ::J(*)
+      integer(kind=int_wp) ::IISP, IRSP, IERR, MODE, LUN, LUNUT
 
-      integer(kind=int_32) ::i, ia, ij, k, iopt
-      integer(kind=int_32) ::noitm, nosys, npnt, ndim, ntal, nobrk
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::i, ia, ij, k, iopt
+      integer(kind=int_wp) ::noitm, nosys, npnt, ndim, ntal, nobrk
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqib", ithandl )
 !
 !         initialise the system

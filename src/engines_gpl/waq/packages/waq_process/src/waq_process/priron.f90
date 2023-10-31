@@ -40,20 +40,20 @@ contains
 !
 !     Type    Name         I/O Description
 !
-      real(kind=sp)  ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
-      real(kind=sp)  ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
-      integer(kind=int_32)  ::ipoint( 45) ! I  Array of pointers in pmsa to get and store the data
-      integer(kind=int_32)  ::increm( 45) ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer(kind=int_32)  ::noseg       ! I  Number of computational elements in the whole model schematisation
-      integer(kind=int_32)  ::noflux      ! I  Number of fluxes, increment in the fl array
-      integer(kind=int_32)  ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      integer(kind=int_32)  ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      integer(kind=int_32)  ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
-      integer(kind=int_32)  ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer(kind=int_32)  ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer(kind=int_32)  ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
-      integer(kind=int_32)  ::ipnt( 45)   !    Local work array for the pointering
-      integer(kind=int_32)  ::iseg        !    Local loop counter for computational element loop
+      real(kind=real_wp)  ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
+      real(kind=real_wp)  ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
+      integer(kind=int_wp)  ::ipoint( 45) ! I  Array of pointers in pmsa to get and store the data
+      integer(kind=int_wp)  ::increm( 45) ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_wp)  ::noseg       ! I  Number of computational elements in the whole model schematisation
+      integer(kind=int_wp)  ::noflux      ! I  Number of fluxes, increment in the fl array
+      integer(kind=int_wp)  ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      integer(kind=int_wp)  ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      integer(kind=int_wp)  ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
+      integer(kind=int_wp)  ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_wp)  ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_wp)  ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      integer(kind=int_wp)  ::ipnt( 45)   !    Local work array for the pointering
+      integer(kind=int_wp)  ::iseg        !    Local loop counter for computational element loop
 !
 !*******************************************************************************
 !
@@ -105,14 +105,14 @@ contains
       real(kind=dp)  ::fdfeco3     ! O  rate of iron(II) carbonate dissolution             (gFe/m3/d)
       real(kind=dp)  ::fpyr        ! O  rate of pyrite formation                           (gFe/m3/d)
       real(kind=dp)  ::dafe3       ! F  rate of amorphous iron(III) aging                  (gFe/m3/d)
-      integer(kind=int_32)  ::idpfe3      !    Pointer to the rate of amorphous iron(III) precipitat.
-      integer(kind=int_32)  ::iddfe3      !    Pointer to the rate of amorphous iron(III) dissolution
-      integer(kind=int_32)  ::idafe3      !    Pointer to the rate of amorphous iron(III) aging
-      integer(kind=int_32)  ::idpfes      !    Pointer to the rate of iron(II) sulphide precipitation
-      integer(kind=int_32)  ::iddfes      !    Pointer to the rate of iron(II) sulphide dissolution
-      integer(kind=int_32)  ::idpfeco3    !    Pointer to the rate of iron(II) carbonate precipitation
-      integer(kind=int_32)  ::iddfeco3    !    Pointer to the rate of iron(II) carbonate dissolution
-      integer(kind=int_32)  ::idpyr       !    Pointer to the rate of pyrite formation
+      integer(kind=int_wp)  ::idpfe3      !    Pointer to the rate of amorphous iron(III) precipitat.
+      integer(kind=int_wp)  ::iddfe3      !    Pointer to the rate of amorphous iron(III) dissolution
+      integer(kind=int_wp)  ::idafe3      !    Pointer to the rate of amorphous iron(III) aging
+      integer(kind=int_wp)  ::idpfes      !    Pointer to the rate of iron(II) sulphide precipitation
+      integer(kind=int_wp)  ::iddfes      !    Pointer to the rate of iron(II) sulphide dissolution
+      integer(kind=int_wp)  ::idpfeco3    !    Pointer to the rate of iron(II) carbonate precipitation
+      integer(kind=int_wp)  ::iddfeco3    !    Pointer to the rate of iron(II) carbonate dissolution
+      integer(kind=int_wp)  ::idpyr       !    Pointer to the rate of pyrite formation
       real(kind=dp)  ::ksp1        ! L  solubility product for Fe(OH)3 ((mole.l-1)4)
       real(kind=dp)  ::cfe3d       ! L  equilibrium dissolved free iron(III) concentration (mole.l-1)
       real(kind=dp)  ::oh          ! L  hydroxyl concentration (mole.l-1)

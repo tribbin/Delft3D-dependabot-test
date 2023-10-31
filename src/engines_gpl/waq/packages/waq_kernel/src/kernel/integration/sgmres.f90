@@ -65,27 +65,27 @@ contains
 
 !     Kind        Function         Name                         Description
 
-      integer(kind=int_32), intent(in   )  ::ntrace                      !< Dimension of the matrix
+      integer(kind=int_wp), intent(in   )  ::ntrace                      !< Dimension of the matrix
       real(kind=dp), intent(in   )  ::rhs    (ntrace)             !< right-hand side (1 substance)
       real(kind=dp), intent(inout)  ::sol    (ntrace)             !< on entry: initial guess / on exit: solution
-      integer(kind=int_32), intent(in   )  ::restrt                      !< size of Krylov space, restrt < ntrace !
+      integer(kind=int_wp), intent(in   )  ::restrt                      !< size of Krylov space, restrt < ntrace !
       real(kind=dp) ::work   (ntrace  ,restrt+5)  !< workspace
-      integer(kind=int_32), intent(in   )  ::ldw                         !< leading dimension >= max(1,ntrace  ) (probably superfluous lp)
+      integer(kind=int_wp), intent(in   )  ::ldw                         !< leading dimension >= max(1,ntrace  ) (probably superfluous lp)
       real(kind=dp), intent(in   )  ::hess   (restrt+1,restrt+2)  !< hessenberg matrix
-      integer(kind=int_32), intent(in   )  ::ldh                         !< leading dimension >= max(1,restrt+1) (probably superfluous lp)
-      integer(kind=int_32), intent(in   )  ::maxit                       !< maximum number of iterations
+      integer(kind=int_wp), intent(in   )  ::ldh                         !< leading dimension >= max(1,restrt+1) (probably superfluous lp)
+      integer(kind=int_wp), intent(in   )  ::maxit                       !< maximum number of iterations
       real(kind=dp), intent(in   )  ::tol                         !< convergence criterion
-      integer(kind=int_32), intent(in   )  ::nomat                       !< number of off-diagonal entries of matrix a (format from lp)
+      integer(kind=int_wp), intent(in   )  ::nomat                       !< number of off-diagonal entries of matrix a (format from lp)
       real(kind=dp), intent(in   )  ::amat   (nomat)              !< off-diagonal entries of matrix a (format from lp)
-      integer(kind=int_32), intent(in   )  ::imat   (nomat)              !< pointer table off-diagonal entries
+      integer(kind=int_wp), intent(in   )  ::imat   (nomat)              !< pointer table off-diagonal entries
       real(kind=dp), intent(in   )  ::diag   (ntrace)             !< diagonal entries of matrix a
-      integer(kind=int_32), intent(in   )  ::idiag  (0:ntrace)           !< position of the diagonals in amat
-      integer(kind=int_32), intent(in   )  ::klay                        !< number of layers
-      integer(kind=int_32), intent(in   )  ::ioptpc                      !< option for preconditioner
-      integer(kind=int_32), intent(in   )  ::nobnd                       !< number of open boundaries
+      integer(kind=int_wp), intent(in   )  ::idiag  (0:ntrace)           !< position of the diagonals in amat
+      integer(kind=int_wp), intent(in   )  ::klay                        !< number of layers
+      integer(kind=int_wp), intent(in   )  ::ioptpc                      !< option for preconditioner
+      integer(kind=int_wp), intent(in   )  ::nobnd                       !< number of open boundaries
       real(kind=dp) ::triwrk (klay*6)             !< workspace for tridiagonal solution vertical
-      integer(kind=int_32), intent(in   )  ::iexseg (ntrace)             !< 0 for explicit volumes
-      integer(kind=int_32), intent(in   )  ::lurep                       !< Unit number report file
+      integer(kind=int_wp), intent(in   )  ::iexseg (ntrace)             !< 0 for explicit volumes
+      integer(kind=int_wp), intent(in   )  ::lurep                       !< Unit number report file
       logical   , intent(in   ) :: litrep                      !< Perform report on iteration process if TRUE
 
 !        Local constants
@@ -98,7 +98,7 @@ contains
 
 !        Local Scalars
 
-      INTEGER(kind=int_32) ::I      , J      , K      , iter   , AV     , CS     ,                          &
+      INTEGER(kind=int_wp) ::I      , J      , K      , iter   , AV     , CS     ,                          &
      &          SN     , R      , S      , V      , W      , Y      ,                          &
      &          I2     , IERR   , imax   , iloop
       REAL(kind=dp) ::AA     , BB     , BNRM2  , RNORM  , RESID, rmax
@@ -106,7 +106,7 @@ contains
       LOGICAL   FIRST
       DATA            FIRST  /.TRUE./
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "sgmres", ithandl )
 
 !        sloppy way of output
@@ -385,12 +385,12 @@ contains
       use timers
       IMPLICIT NONE
 
-      INTEGER(kind=int_32) ::N      , I      , LDH    , LDV
+      INTEGER(kind=int_wp) ::N      , I      , LDH    , LDV
       REAL(kind=dp) ::X(*)   , Y(i)   , S(i)   , H(LDH,*)        , V(LDV,*)
 
 !     This routine updates the GMRES iterated solution approximation.
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "updats", ithandl )
 
 
@@ -414,15 +414,15 @@ contains
       use timers
       implicit none
 
-      integer(kind=int_32) ::i, n, ldv
+      integer(kind=int_wp) ::i, n, ldv
       real(kind=dp) ::h(i+1), w(n), v(n,i+1)
 
 !     Construct the I-th column of the upper Hessenberg matrix H
 !     using the Modified Gram-Schmidt process on V and W.
 
       real(kind=dp) ::hscal, aid
-      integer(kind=int_32) ::k
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::k
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "basis", ithandl )
 
       do k = 1, i

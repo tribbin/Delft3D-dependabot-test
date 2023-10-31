@@ -46,18 +46,18 @@ use m_waq_type_definitions
     ! Protist arrays
     type :: protist_array
         ! prey state variables
-        real(kind=sp), dimension(:), allocatable ::preyC, preyChl, preyN, preyP, preySi
+        real(kind=real_wp), dimension(:), allocatable ::preyC, preyChl, preyN, preyP, preySi
         ! other prey input parameters
-        real(kind=sp), dimension(:), allocatable ::CcellPrey, rPrey, motPrey, PR
+        real(kind=real_wp), dimension(:), allocatable ::CcellPrey, rPrey, motPrey, PR
         ! food quantity
-        real(kind=sp), dimension(:), allocatable ::preyFlag                       ! protection aginst small prey conc.
-        real(kind=sp), dimension(:), allocatable ::nrPrey                         ! prey abundance
-        real(kind=sp), dimension(:), allocatable ::smallerVel, largerVel          ! velocities
-        real(kind=sp), dimension(:), allocatable ::encPrey                        ! prey encounter
-        real(kind=sp), dimension(:), allocatable ::capturedPrey                   ! prey capture
-        real(kind=sp), dimension(:), allocatable ::propPrey, ingNC, ingPC         ! preyN and preyP proprtion in diet
+        real(kind=real_wp), dimension(:), allocatable ::preyFlag                       ! protection aginst small prey conc.
+        real(kind=real_wp), dimension(:), allocatable ::nrPrey                         ! prey abundance
+        real(kind=real_wp), dimension(:), allocatable ::smallerVel, largerVel          ! velocities
+        real(kind=real_wp), dimension(:), allocatable ::encPrey                        ! prey encounter
+        real(kind=real_wp), dimension(:), allocatable ::capturedPrey                   ! prey capture
+        real(kind=real_wp), dimension(:), allocatable ::propPrey, ingNC, ingPC         ! preyN and preyP proprtion in diet
         ! ingestion of prey by predator fluxes
-        real(kind=sp), dimension(:), allocatable ::dPreyC, dPreyChl, dPreyN, dPreyP, dPreySi
+        real(kind=real_wp), dimension(:), allocatable ::dPreyC, dPreyChl, dPreyN, dPreyP, dPreySi
     end type
 
 
@@ -66,7 +66,7 @@ use m_waq_type_definitions
     ! allocate arrays
     subroutine allocate_prot_array(prot_array,nrPrey)
         type(protist_array), intent(inout)  :: prot_array
-        integer(kind=int_32), intent(in) ::nrPrey
+        integer(kind=int_wp), intent(in) ::nrPrey
 
         ! allocate statements
         allocate( prot_array%preyC(nrPrey)        )
@@ -101,12 +101,12 @@ use m_waq_type_definitions
     ! initialize arrays
     subroutine initialize_prot_array(prot_array,nrPrey, PMSA, ipnt, nrIndInp, nrSpec, nrSpecInp, iSpec, nrPreyInp)
         type(protist_array), intent(inout)  :: prot_array
-        integer(kind=int_32), intent(in) ::nrPrey
-        real(kind=sp)                              ::pmsa(*)
-        integer(kind=int_32), intent(in) ::ipnt(:)
-        integer(kind=int_32), intent(in) ::nrIndInp, nrSpec, nrSpecInp, iSpec, nrPreyInp
-        integer(kind=int_32)  ::iPrey         ! local prey number counter
-        integer(kind=int_32)  ::prInc         ! local pray PMSA number increment
+        integer(kind=int_wp), intent(in) ::nrPrey
+        real(kind=real_wp)                              ::pmsa(*)
+        integer(kind=int_wp), intent(in) ::ipnt(:)
+        integer(kind=int_wp), intent(in) ::nrIndInp, nrSpec, nrSpecInp, iSpec, nrPreyInp
+        integer(kind=int_wp)  ::iPrey         ! local prey number counter
+        integer(kind=int_wp)  ::prInc         ! local pray PMSA number increment
 
 
         do iPrey = 1, nrPrey

@@ -37,7 +37,7 @@
 
 *     .. Scalar Arguments ..
       REAL(kind=dp) ::ALPHA, BETA
-      INTEGER(kind=int_32) ::INCX, INCY, LDA, M, N
+      INTEGER(kind=int_wp) ::INCX, INCY, LDA, M, N
       CHARACTER*1        TRANS
 *     .. Array Arguments ..
       REAL(kind=dp) ::A( LDA, * ), X( * ), Y( * )
@@ -68,7 +68,7 @@
 *
 *           Unchanged on exit.
 *
-*  M      - INTEGER(kind=int_32) ::.
+*  M      - INTEGER(kind=int_wp) ::.
 *           On entry, M specifies the number of rows of the matrix A.
 *           M must be at least zero.
 *           Unchanged on exit.
@@ -139,10 +139,10 @@
       PARAMETER        ( ONE = 1.0E+0, ZERO = 0.0E+0 )
 *     .. Local Scalars ..
       REAL(kind=dp) ::TEMP
-      INTEGER(kind=int_32) ::I, INFO, IX, IY, J, JX, JY, KX, KY, LENX, LENY
+      INTEGER(kind=int_wp) ::I, INFO, IX, IY, J, JX, JY, KX, KY, LENX, LENY
 *     .. Intrinsic Functions ..
       INTRINSIC          MAX
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "sgemv", ithandl )
 *     ..
 *     .. Executable Statements ..

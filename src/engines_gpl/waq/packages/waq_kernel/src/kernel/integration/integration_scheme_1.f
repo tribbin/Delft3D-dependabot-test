@@ -102,8 +102,8 @@
       use m_actions
       use m_sysn          ! System characteristics
       use m_sysi          ! Timer characteristics
-      use m_sysa          ! Pointers in real(kind=sp) ::array workspace
-      use m_sysj          ! Pointers in integer(kind=int_32) ::array workspace
+      use m_sysa          ! Pointers in real(kind=real_wp) ::array workspace
+      use m_sysj          ! Pointers in integer(kind=int_wp) ::array workspace
       use m_sysc          ! Pointers in character array workspace
       use m_dlwqdata_save_restore
 
@@ -114,9 +114,9 @@
 !     kind           function         name                Descriptipon
 
       type(waq_data_buffer), target:: buffer           !< System total array space
-      integer(kind=int_32), intent(inout)  ::lun  (*)          !< array with unit numbers
+      integer(kind=int_wp), intent(inout)  ::lun  (*)          !< array with unit numbers
       character*(*), intent(in   ) :: lchar(*)          !< array with file names
-      integer(kind=int_32), intent(in   )  ::action            !< type of action to perform
+      integer(kind=int_wp), intent(in   )  ::action            !< type of action to perform
       type(delwaq_data)   , target :: dlwqd             !< delwaq data structure
       type(GridPointerColl)        :: gridps            !< collection of all grid definitions
 
@@ -125,14 +125,14 @@
 
       LOGICAL         IMFLAG , IDFLAG , IHFLAG
       LOGICAL         LREWIN , rdvolu
-      REAL(kind=sp) ::RDUMMY(1)
-      INTEGER(kind=int_32) ::NSTEP
-      INTEGER(kind=int_32) ::IBND
-      INTEGER(kind=int_32) ::ISYS
-      INTEGER(kind=int_32) ::IERROR
+      REAL(kind=real_wp) ::RDUMMY(1)
+      INTEGER(kind=int_wp) ::NSTEP
+      INTEGER(kind=int_wp) ::IBND
+      INTEGER(kind=int_wp) ::ISYS
+      INTEGER(kind=int_wp) ::IERROR
 
-      INTEGER(kind=int_32) ::IDTOLD
-      INTEGER(kind=int_32) ::sindex
+      INTEGER(kind=int_wp) ::IDTOLD
+      INTEGER(kind=int_wp) ::sindex
 
       associate ( a => buffer%rbuf, j => buffer%ibuf, c => buffer%chbuf )
 

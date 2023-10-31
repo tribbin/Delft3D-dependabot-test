@@ -43,7 +43,7 @@
 
       implicit none
 
-      integer(kind=int_32) ::i
+      integer(kind=int_wp) ::i
       real(kind=dp) ::death, temp, temp2, tmpcor
 !
       temp2 = temp

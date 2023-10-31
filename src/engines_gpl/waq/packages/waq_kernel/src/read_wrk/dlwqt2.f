@@ -48,22 +48,22 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     LUNIN   INTEGER(kind=int_32) ::1     INPUT   unit number intermediate file
-!     LUNOUT  INTEGER(kind=int_32) ::1     INPUT   unit number monitor file
-!     ITIME   INTEGER(kind=int_32) ::1     INPUT   Model timer
-!     RESULT  REAL(kind=sp) ::NTOTAL     OUTPUT  result array at time ITIME
-!     NTOTAL  INTEGER(kind=int_32) ::1     INPUT   number of items to be filled
+!     LUNIN   INTEGER(kind=int_wp) ::1     INPUT   unit number intermediate file
+!     LUNOUT  INTEGER(kind=int_wp) ::1     INPUT   unit number monitor file
+!     ITIME   INTEGER(kind=int_wp) ::1     INPUT   Model timer
+!     RESULT  REAL(kind=real_wp) ::NTOTAL     OUTPUT  result array at time ITIME
+!     NTOTAL  INTEGER(kind=int_wp) ::1     INPUT   number of items to be filled
 !     LUNTXT  CHAR*(*)      1     INPUT   text concerning unit numbers
-!     ISFLAG  INTEGER(kind=int_32) ::1     INPUT   = 1 then 'ddhhmmss' format
-!     IFFLAG  INTEGER(kind=int_32) ::1     INPUT   = 1 then first invocation
+!     ISFLAG  INTEGER(kind=int_wp) ::1     INPUT   = 1 then 'ddhhmmss' format
+!     IFFLAG  INTEGER(kind=int_wp) ::1     INPUT   = 1 then first invocation
 !
 !     DECLARATIONS        :
 !
       use m_srstop
       use timers
 
-      real(kind=sp) ::RESULT(NTOTAL)
-      integer(kind=int_32) ::LUNIN  , LUNOUT , ITIME , NTOTAL, ISFLAG , IFFLAG
+      real(kind=real_wp) ::RESULT(NTOTAL)
+      integer(kind=int_wp) ::LUNIN  , LUNOUT , ITIME , NTOTAL, ISFLAG , IFFLAG
       CHARACTER*10  MSGTXT(3)
       CHARACTER*(*) LUNTXT
       LOGICAL       ONLINE
@@ -71,8 +71,8 @@
       logical        stream_access                     ! help variable to detect the type of file access
       character(20)  access                            ! help variable to detect the type of file access
 
-      integer(kind=int_32) ::ierr, itime1, messge
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ierr, itime1, messge
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqt2", ithandl )
 
       IF ( ONLINE ) THEN

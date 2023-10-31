@@ -54,27 +54,27 @@
 !     Parameters          :
 !     type     kind  function         name                      description
 
-      integer(kind=int_32), intent(in   )  ::nosys                   !< number of transported substances
-      integer(kind=int_32), intent(in   )  ::notot                   !< total number of substances
-      integer(kind=int_32), intent(in   )  ::noseg                   !< number of computational volumes
-      real(kind=sp), intent(inout)  ::conc  (notot ,noseg)    !< concentrations per substance per volume
-      real(kind=sp), intent(inout)  ::amass (notot ,noseg)    !< masses per substance per volume
-      real(kind=sp), intent(inout)  ::deriv (notot ,noseg)    !< derivatives per substance per volume
-      real(kind=sp), intent(inout)  ::volume(noseg )          !< volumes of the segments
-      integer(kind=int_32), intent(in   )  ::idt                     !< integration time step size
-      integer(kind=int_32), intent(in   )  ::lun                     !< unit number of the monitoring file
-      integer(kind=int_32), intent(in   )  ::ivflag                  !< if 1 computational volumes
-      real(kind=sp), intent(in   )  ::surfac(noseg)           !< horizontal surface
+      integer(kind=int_wp), intent(in   )  ::nosys                   !< number of transported substances
+      integer(kind=int_wp), intent(in   )  ::notot                   !< total number of substances
+      integer(kind=int_wp), intent(in   )  ::noseg                   !< number of computational volumes
+      real(kind=real_wp), intent(inout)  ::conc  (notot ,noseg)    !< concentrations per substance per volume
+      real(kind=real_wp), intent(inout)  ::amass (notot ,noseg)    !< masses per substance per volume
+      real(kind=real_wp), intent(inout)  ::deriv (notot ,noseg)    !< derivatives per substance per volume
+      real(kind=real_wp), intent(inout)  ::volume(noseg )          !< volumes of the segments
+      integer(kind=int_wp), intent(in   )  ::idt                     !< integration time step size
+      integer(kind=int_wp), intent(in   )  ::lun                     !< unit number of the monitoring file
+      integer(kind=int_wp), intent(in   )  ::ivflag                  !< if 1 computational volumes
+      real(kind=real_wp), intent(in   )  ::surfac(noseg)           !< horizontal surface
 
       ! local declarations
 
-      integer(kind=int_32) ::iseg                    !  segment loop counter
-      integer(kind=int_32) ::i                       !  substance loop counter
-      real(kind=sp) ::v1                      !  segment volume
-      real(kind=sp) ::a                       !  segment mass
-      integer(kind=int_32), save                 ::ivmess = 0              !  count messages on small volumes
+      integer(kind=int_wp) ::iseg                    !  segment loop counter
+      integer(kind=int_wp) ::i                       !  substance loop counter
+      real(kind=real_wp) ::v1                      !  segment volume
+      real(kind=real_wp) ::a                       !  segment mass
+      integer(kind=int_wp), save                 ::ivmess = 0              !  count messages on small volumes
 
-      integer(kind=int_32) ::ithandl =0
+      integer(kind=int_wp) ::ithandl =0
       if ( timon ) call timstrt ( "dlwqp0", ithandl )
 
       ! loop accross the number of computational elements

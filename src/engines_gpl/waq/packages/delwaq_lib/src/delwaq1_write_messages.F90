@@ -40,7 +40,7 @@ subroutine delwaq1_write_messages(errorcode)
 
     implicit none
 
-    integer(kind=int_32), intent(inout) ::  errorcode
+    integer(kind=int_wp), intent(inout) ::  errorcode
  
     write ( lunrep,'(//'' Messages presented including .lsp file:'')')
     write ( lunrep,'(  '' Number of WARNINGS            :'',I6)') iwar

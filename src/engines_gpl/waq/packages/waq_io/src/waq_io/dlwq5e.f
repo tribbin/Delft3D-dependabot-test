@@ -69,10 +69,10 @@
       use timers       !   performance timers
 
       LOGICAL       MINIEM , MAXIEM
-      integer(kind=int_32) ::  ithndl = 0 
-      integer(kind=int_32) ::  ioff1, noitm, itmnr, idmnr, nodim, iorder, ioff0 
-      integer(kind=int_32) ::  locbas, iloc, itel, itels, ifrst, ibrk, ioff, iopt 
-      integer(kind=int_32) ::  ip, ip2, lunut, iloco, nocol, nobrk, ioff2 
+      integer(kind=int_wp) ::  ithndl = 0
+      integer(kind=int_wp) ::  ioff1, noitm, itmnr, idmnr, nodim, iorder, ioff0
+      integer(kind=int_wp) ::  locbas, iloc, itel, itels, ifrst, ibrk, ioff, iopt
+      integer(kind=int_wp) ::  ip, ip2, lunut, iloco, nocol, nobrk, ioff2
       integer  :: iar(:), i, iarp(:)
       real     :: accum, rmatu(:), amaxv, amiss, aminv
       real     :: rar(:), rmat(:)

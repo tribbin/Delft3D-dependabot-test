@@ -58,15 +58,15 @@
 !     Name     Type   Library
 !     ------   -----  ------------
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
 !     Local declarations, constants in source
 !
-      REAL(kind=sp) ::ROUGH  , DEPTH , TOTDEP,    CHZ, ONESIX,
+      REAL(kind=real_wp) ::ROUGH  , DEPTH , TOTDEP,    CHZ, ONESIX,
      +         MANCOF
-      INTEGER(kind=int_32) ::IP1    , IP2   , IP3   , IKMRK2,
+      INTEGER(kind=int_wp) ::IP1    , IP2   , IP3   , IKMRK2,
      +         ICHZTP , IP4   , IP5   , IP6   , ISEG
 
 
@@ -85,7 +85,7 @@
 ! 0-inactive cell  1-active cell
        CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
        IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
-! place in layers   0-depth integer(kind=int_32) ::ated (2D) 1-top 2-between 3-bottom
+! place in layers   0-depth integer(kind=int_wp) ::ated (2D) 1-top 2-between 3-bottom
 !
 
         ROUGH   =      PMSA(IP1 )

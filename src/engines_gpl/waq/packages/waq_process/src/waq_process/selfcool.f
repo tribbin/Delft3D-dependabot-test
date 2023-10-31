@@ -40,36 +40,36 @@
       IMPLICIT NONE
 
 !     arguments
-      REAL(kind=sp) ::PMSA(*)            ! in/out input-output array space to be adressed with IPOINT/INCREM
-      REAL(kind=sp) ::FL(*)              ! in/out flux array
-      INTEGER(kind=int_32) ::IPOINT(*)          ! in     start index input-output parameters in the PMSA array (segment or exchange number 1)
-      INTEGER(kind=int_32) ::INCREM(*)          ! in     increment for each segment-exchange for the input-output parameters in the PMSA array
-      INTEGER(kind=int_32) ::NOSEG              ! in     number of segments
-      INTEGER(kind=int_32) ::NOFLUX             ! in     total number of fluxes (increment in FL array)
-      INTEGER(kind=int_32) ::IEXPNT(4,*)        ! in     exchange pointer table
-      INTEGER(kind=int_32) ::IKNMRK(*)          ! in     segment features array
-      INTEGER(kind=int_32) ::NOQ1               ! in     number of exchanges in first direction
-      INTEGER(kind=int_32) ::NOQ2               ! in     number of exchanges in second direction
-      INTEGER(kind=int_32) ::NOQ3               ! in     number of exchanges in third direction
-      INTEGER(kind=int_32) ::NOQ4               ! in     number of exchanges in fourth direction
+      REAL(kind=real_wp) ::PMSA(*)            ! in/out input-output array space to be adressed with IPOINT/INCREM
+      REAL(kind=real_wp) ::FL(*)              ! in/out flux array
+      INTEGER(kind=int_wp) ::IPOINT(*)          ! in     start index input-output parameters in the PMSA array (segment or exchange number 1)
+      INTEGER(kind=int_wp) ::INCREM(*)          ! in     increment for each segment-exchange for the input-output parameters in the PMSA array
+      INTEGER(kind=int_wp) ::NOSEG              ! in     number of segments
+      INTEGER(kind=int_wp) ::NOFLUX             ! in     total number of fluxes (increment in FL array)
+      INTEGER(kind=int_wp) ::IEXPNT(4,*)        ! in     exchange pointer table
+      INTEGER(kind=int_wp) ::IKNMRK(*)          ! in     segment features array
+      INTEGER(kind=int_wp) ::NOQ1               ! in     number of exchanges in first direction
+      INTEGER(kind=int_wp) ::NOQ2               ! in     number of exchanges in second direction
+      INTEGER(kind=int_wp) ::NOQ3               ! in     number of exchanges in third direction
+      INTEGER(kind=int_wp) ::NOQ4               ! in     number of exchanges in fourth direction
 
 !     from PMSA array
 !                                                                                                     
-      REAL(kind=sp) ::SurTemp            ! I  natural temperature                                (oC)        1             
-      REAL(kind=sp) ::HtTot              ! I  Total heat flux                                    (W/m2)      2           
-      REAL(kind=sp) ::HtTot2             ! I  Total heat flux for Temp+1                         (W/m2)      3           
-      REAL(kind=sp) ::SelfCool           ! O  Self Cooling                                       [W/deg/m2]  4 
-      REAL(kind=sp) ::DELT              ! I  DELWAQ process time step                           [d]         5
-      REAL(kind=sp) ::Cp        
-      REAL(kind=sp) ::Rho0      
-      REAL(kind=sp) ::RhoWat
-      REAL(kind=sp) ::Temp      
-      REAL(kind=sp) ::Depth      
-      REAL(kind=sp) ::HeatFlux           ! 1      excess temperature flux                           [oC/d]
+      REAL(kind=real_wp) ::SurTemp            ! I  natural temperature                                (oC)        1
+      REAL(kind=real_wp) ::HtTot              ! I  Total heat flux                                    (W/m2)      2
+      REAL(kind=real_wp) ::HtTot2             ! I  Total heat flux for Temp+1                         (W/m2)      3
+      REAL(kind=real_wp) ::SelfCool           ! O  Self Cooling                                       [W/deg/m2]  4
+      REAL(kind=real_wp) ::DELT              ! I  DELWAQ process time step                           [d]         5
+      REAL(kind=real_wp) ::Cp
+      REAL(kind=real_wp) ::Rho0
+      REAL(kind=real_wp) ::RhoWat
+      REAL(kind=real_wp) ::Temp
+      REAL(kind=real_wp) ::Depth
+      REAL(kind=real_wp) ::HeatFlux           ! 1      excess temperature flux                           [oC/d]
     
 !                                                                                                     
-      INTEGER(kind=int_32) ::IP1 ,IP2 ,IP3 ,IP4, IP5,IP6, IP7, IP8, IP9
-      INTEGER(kind=int_32) ::IFLUX , ISEG  , IKMRK1, IKMRK2
+      INTEGER(kind=int_wp) ::IP1 ,IP2 ,IP3 ,IP4, IP5,IP6, IP7, IP8, IP9
+      INTEGER(kind=int_wp) ::IFLUX , ISEG  , IKMRK1, IKMRK2
 
       IP1  = IPOINT(1 )
       IP2  = IPOINT(2 )

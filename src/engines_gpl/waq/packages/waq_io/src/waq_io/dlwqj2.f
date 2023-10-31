@@ -61,11 +61,11 @@
 !
       use timers       !   performance timers
 
-      integer(kind=int_32) ::  ithndl = 0 
-      integer(kind=int_32) ::  ITAL 
-      integer(kind=int_32) ::  k, I, NOTOT 
+      integer(kind=int_wp) ::  ithndl = 0
+      integer(kind=int_wp) ::  ITAL
+      integer(kind=int_wp) ::  k, I, NOTOT
       integer    :: lunwr, nobrk, itel, jtel, iar(:), ifilsz, jfilsz
-      real(kind=sp) ::  rar(:) 
+      real(kind=real_wp) ::  rar(:)
       if (timon) call timstrt( "dlwqj2", ithndl )
 !
 !           Write nr of breakpoints first

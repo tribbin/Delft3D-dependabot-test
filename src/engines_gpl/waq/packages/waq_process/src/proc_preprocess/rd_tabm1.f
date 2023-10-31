@@ -59,33 +59,33 @@
 !
 !     declaration of arguments
 !
-      integer(kind=int_32) ::deffds                                       ! nefis file descriptor
-      integer(kind=int_32) ::n_old_items_max                              ! maximum number of old items
-      integer(kind=int_32) ::n_old_items                                  ! number of old items
+      integer(kind=int_wp) ::deffds                                       ! nefis file descriptor
+      integer(kind=int_wp) ::n_old_items_max                              ! maximum number of old items
+      integer(kind=int_wp) ::n_old_items                                  ! number of old items
       character*10       :: old_items_old_name(n_old_items_max)          ! old name (if equal to new name then use old_default if target serial is less then
       character*10       :: old_items_new_name(n_old_items_max)          ! new name
-      real(kind=sp) ::old_items_old_default(n_old_items_max)       ! old default value
+      real(kind=real_wp) ::old_items_old_default(n_old_items_max)       ! old default value
       character*10       :: old_items_configuration(n_old_items_max)     ! (only use this new name if a specific configuration is used?)
-      integer(kind=int_32) ::old_items_serial(n_old_items_max)            ! the proces definition serial number up to where this old name, old default was used
-      integer(kind=int_32) ::old_items_action_type(n_old_items_max)       ! process rename, process parameter rename, default value change
-      integer(kind=int_32) ::lunrep                                       ! report file
-      integer(kind=int_32) ::ierror                                       ! error
+      integer(kind=int_wp) ::old_items_serial(n_old_items_max)            ! the proces definition serial number up to where this old name, old default was used
+      integer(kind=int_wp) ::old_items_action_type(n_old_items_max)       ! process rename, process parameter rename, default value change
+      integer(kind=int_wp) ::lunrep                                       ! report file
+      integer(kind=int_wp) ::ierror                                       ! error
 !
 !     Local variables
 !
 !     GRPNAM  CHAR*16     1       LOCAL   group name (table)
-!     NELEMS  INTEGER(kind=int_32) ::1       LOCAL   number of elements in group (=cell)
+!     NELEMS  INTEGER(kind=int_wp) ::1       LOCAL   number of elements in group (=cell)
 !     ELMNMS  CHAR*16  NELEMS     LOCAL   name of elements on file
 !     ELMTPS  CHAR*16  NELEMS     LOCAL   type of elements
-!     ELMDMS  INTEGER(kind=int_32) ::6,NELEMS   LOCAL   dimension of elements
-!     NBYTSG  INTEGER(kind=int_32) ::NELEMS     LOCAL   length of elements (bytes)
+!     ELMDMS  INTEGER(kind=int_wp) ::6,NELEMS   LOCAL   dimension of elements
+!     NBYTSG  INTEGER(kind=int_wp) ::NELEMS     LOCAL   length of elements (bytes)
 !
-      INTEGER(kind=int_32) ::NELEMS
+      INTEGER(kind=int_wp) ::NELEMS
       PARAMETER   ( NELEMS = 7 )
 !
-      INTEGER(kind=int_32) ::I               , IELM          ,
+      INTEGER(kind=int_wp) ::I               , IELM          ,
      +              BUFLEN
-      INTEGER(kind=int_32) ::ELMDMS(2,NELEMS), NBYTSG(NELEMS),
+      INTEGER(kind=int_wp) ::ELMDMS(2,NELEMS), NBYTSG(NELEMS),
      +              UINDEX(3)
       CHARACTER*16  GRPNAM
       CHARACTER*16  ELMNMS(NELEMS)  , ELMTPS(NELEMS)
@@ -93,7 +93,7 @@
 !
 !     External NEFIS Functions
 !
-      INTEGER(kind=int_32) ::GETELS
+      INTEGER(kind=int_wp) ::GETELS
      +         ,GETELT
       EXTERNAL  GETELS
      +         ,GETELT

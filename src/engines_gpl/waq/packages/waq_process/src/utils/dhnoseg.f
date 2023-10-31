@@ -45,12 +45,12 @@
 !
 !     name    kind     length     funct.  description
 !     ----    -----    ------     ------- -----------
-!     pnoseg  integer(kind=int_32) ::1     output  copy of the noseg from sysn
+!     pnoseg  integer(kind=int_wp) ::1     output  copy of the noseg from sysn
 !
 !     declarations
       use m_sysn          ! System characteristics
 !
-      integer(kind=int_32) ::pnoseg
+      integer(kind=int_wp) ::pnoseg
 
       pnoseg = noseg
 
@@ -74,13 +74,13 @@
 !
 !     name     kind     length     funct.  description
 !     ----     -----    ------     ------- -----------
-!     nosegfm  integer(kind=int_32) ::1     input   number of water segments (!)
-!     kmx      integer(kind=int_32) ::1     input   number of layers
+!     nosegfm  integer(kind=int_wp) ::1     input   number of water segments (!)
+!     kmx      integer(kind=int_wp) ::1     input   number of layers
 !
 !     declarations
       use m_sysn          ! System characteristics
 !
-      integer(kind=int_32) ::pnoseg, kmx, nosegfm
+      integer(kind=int_wp) ::pnoseg, kmx, nosegfm
 
 
       noseg = nosegfm

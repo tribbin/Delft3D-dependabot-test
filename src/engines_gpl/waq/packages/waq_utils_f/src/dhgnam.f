@@ -64,8 +64,8 @@
       CHARACTER*3   ANSWER
       LOGICAL       EXI  ,LFOUND
       CHARACTER*1   CRJV  , CJVB  , CDUMMY
-      INTEGER(kind=int_32) ::LUNAM, MAXNAM, IDUMMY, IERR, INDX, INDX1, INDX2, IOERR
-      REAL(kind=sp) ::RDUMMY
+      INTEGER(kind=int_wp) ::LUNAM, MAXNAM, IDUMMY, IERR, INDX, INDX1, INDX2, IOERR
+      REAL(kind=real_wp) ::RDUMMY
 
 
       CRJV = '/'

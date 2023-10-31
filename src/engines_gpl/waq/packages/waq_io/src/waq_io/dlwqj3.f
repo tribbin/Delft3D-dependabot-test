@@ -92,18 +92,18 @@ cjvb  ook voor constanten hebben we in delwaq2 initieel werkruimte nodig als dez
       LOGICAL               ::  SCALE  , ODS    , BINFIL , DEFLTS
       LOGICAL               ::  DTFLG1 , DTFLG3
       CHARACTER*(*)         :: STRNG1 , STRNG2 , STRNG3 , CAR(*)
-      integer(kind=int_32) ::  NODIM 
-      integer(kind=int_32) ::  k, ie, IE2, NOITM, i1, i2 
+      integer(kind=int_wp) ::  NODIM
+      integer(kind=int_wp) ::  k, ie, IE2, NOITM, i1, i2
       integer               :: nodi2, iorder, lunut, lunwr, iar(:), iopt, ipro
-      integer(kind=int_32) ::  ifilsz, jfilsz, nobrk, ioffb, ioffi, ioffs 
-      integer(kind=int_32) ::  iskip, iskp2, notot, iss, ioutpt, iwidth 
-      integer(kind=int_32) ::  itel2, itfact, i1dum, i2dum 
-      integer(kind=int_32) ::  itels, itel, i3 
-      real(kind=sp)        :: rar(:), rmat(:)
+      integer(kind=int_wp) ::  ifilsz, jfilsz, nobrk, ioffb, ioffi, ioffs
+      integer(kind=int_wp) ::  iskip, iskp2, notot, iss, ioutpt, iwidth
+      integer(kind=int_wp) ::  itel2, itfact, i1dum, i2dum
+      integer(kind=int_wp) ::  itels, itel, i3
+      real(kind=real_wp)        :: rar(:), rmat(:)
 !
 !     Local declarations
 
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "dlwqj3", ithndl )
 !
 !     Write headers
@@ -274,7 +274,7 @@ cjvb1    ENDIF
       END
 !
       CHARACTER*20 FUNCTION CAR_OF_DUM(CAR,I)
-      INTEGER(kind=int_32) :: I 
+      INTEGER(kind=int_wp) :: I
       CHARACTER*(*) CAR(*)
       IF ( I .GT. 0 ) THEN
          CAR_OF_DUM = CAR(I)

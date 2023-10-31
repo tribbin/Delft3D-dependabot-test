@@ -47,16 +47,16 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     LUN     INTEGER(kind=int_32) ::*     INPUT   unit number intermediate file
-!     ITIME   INTEGER(kind=int_32) ::1     INPUT   Model timer
-!     IKTIM   INTEGER(kind=int_32) ::*     IN/OUT  Timers in file
-!     IKNMRK  INTEGER(kind=int_32) ::NOSEG,*   IN/OUT  Kenmerk array
-!     NOSEG   INTEGER(kind=int_32) ::1     INPUT   number of segments
-!     IS      INTEGER(kind=int_32) ::1     INPUT   Index number intermediate file
+!     LUN     INTEGER(kind=int_wp) ::*     INPUT   unit number intermediate file
+!     ITIME   INTEGER(kind=int_wp) ::1     INPUT   Model timer
+!     IKTIM   INTEGER(kind=int_wp) ::*     IN/OUT  Timers in file
+!     IKNMRK  INTEGER(kind=int_wp) ::NOSEG,*   IN/OUT  Kenmerk array
+!     NOSEG   INTEGER(kind=int_wp) ::1     INPUT   number of segments
+!     IS      INTEGER(kind=int_wp) ::1     INPUT   Index number intermediate file
 !     LUNTXT  CHAR*(*)      *     INPUT   text with the unit number
-!     ISFLAG  INTEGER(kind=int_32) ::1     INPUT   = 1 then 'ddhhmmss' format
-!     IFFLAG  INTEGER(kind=int_32) ::1     INPUT   = 1 then first invocation
-!     IFIOPK  INTEGER(kind=int_32) ::1     IN/OUT  file option kenmerk array
+!     ISFLAG  INTEGER(kind=int_wp) ::1     INPUT   = 1 then 'ddhhmmss' format
+!     IFFLAG  INTEGER(kind=int_wp) ::1     INPUT   = 1 then first invocation
+!     IFIOPK  INTEGER(kind=int_wp) ::1     IN/OUT  file option kenmerk array
 !
 !     DECLARATIONS        :
 !
@@ -68,15 +68,15 @@
       use m_evaluate_waq_attribute
       use m_dhimov
       use timers
-      INTEGER(kind=int_32) ::ITIME , NOSEG , IS    , ISFLAG, IFFLAG,
+      INTEGER(kind=int_wp) ::ITIME , NOSEG , IS    , ISFLAG, IFFLAG,
      +              IFIOPK, IKMRK1
-      INTEGER(kind=int_32) ::LUN(*)   , IKNMRK(NOSEG,*),
+      INTEGER(kind=int_wp) ::LUN(*)   , IKNMRK(NOSEG,*),
      +              IKTIM(*)
 
       CHARACTER*(*) LUNTXT(*)
 
-      integer(kind=int_32) ::ierr, iseg, lunout, ikmrk4
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ierr, iseg, lunout, ikmrk4
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqtk", ithandl )
 
 !

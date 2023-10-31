@@ -107,56 +107,56 @@
 
 !     kind           function         name                Descriptipon
 
-      integer(kind=int_32), intent(inout) ::  lun   (*)          !< array with unit numbers
+      integer(kind=int_wp), intent(inout) ::  lun   (*)          !< array with unit numbers
       character( *), intent(in   ) :: lchar (*)         !< array with file names of the files
-      integer(kind=int_32), intent(in   ) ::  is                 !< entry in lun for this call
-      integer(kind=int_32), intent(in   ) ::  nitem              !< number of required items
-      integer(kind=int_32), intent(in   ) ::  nvals              !< number of values per item
-      integer(kind=int_32), intent(in   ) ::  nscal              !< number of scale values
-      integer(kind=int_32), intent(in   ) ::  ifact              !< factor between clocks
+      integer(kind=int_wp), intent(in   ) ::  is                 !< entry in lun for this call
+      integer(kind=int_wp), intent(in   ) ::  nitem              !< number of required items
+      integer(kind=int_wp), intent(in   ) ::  nvals              !< number of values per item
+      integer(kind=int_wp), intent(in   ) ::  nscal              !< number of scale values
+      integer(kind=int_wp), intent(in   ) ::  ifact              !< factor between clocks
       logical      , intent(in   ) :: dtflg             !< 'date'-format for output ?
       logical      , intent(in   ) :: dtflg3            !< 'date'-format (F;ddmmhhss,T;yydddhh)
-      integer(kind=int_32), intent(  out) ::  nrfunc             !< number of functions
-      integer(kind=int_32), intent(  out) ::  nrharm             !< number of harmonic functions
-      integer(kind=int_32), intent(in   ) ::  iwidth             !< width of the output file
-      integer(kind=int_32), intent(in   ) ::  ioutpt             !< flag for more or less output
-      integer(kind=int_32), intent(inout) ::  ierr               !< error count / switch
+      integer(kind=int_wp), intent(  out) ::  nrfunc             !< number of functions
+      integer(kind=int_wp), intent(  out) ::  nrharm             !< number of harmonic functions
+      integer(kind=int_wp), intent(in   ) ::  iwidth             !< width of the output file
+      integer(kind=int_wp), intent(in   ) ::  ioutpt             !< flag for more or less output
+      integer(kind=int_wp), intent(inout) ::  ierr               !< error count / switch
 
 
 
 !     local decalations
 
-      integer(kind=int_32), pointer ::  breaks(:)         !  breakpoints
-      integer(kind=int_32), allocatable ::  break2(:)         !  breakpoints of a block
-      integer(kind=int_32), pointer ::  break3(:)         !  help pointer for resizing
-      real(kind=sp), pointer ::  values(:,:)       !  values
-      real(kind=sp), allocatable ::  value2(:,:)       !  values of a block
-      real(kind=sp), pointer ::  value3(:,:)       !  help pointer for resizing
-      integer(kind=int_32) :: itemId(nitem)      !  array for itemIds
-      real(kind=sp) :: factor(nvals)      !  array for scale factors
-      integer(kind=int_32) :: nval1              !  nval1 but at least 1
+      integer(kind=int_wp), pointer ::  breaks(:)         !  breakpoints
+      integer(kind=int_wp), allocatable ::  break2(:)         !  breakpoints of a block
+      integer(kind=int_wp), pointer ::  break3(:)         !  help pointer for resizing
+      real(kind=real_wp), pointer ::  values(:,:)       !  values
+      real(kind=real_wp), allocatable ::  value2(:,:)       !  values of a block
+      real(kind=real_wp), pointer ::  value3(:,:)       !  help pointer for resizing
+      integer(kind=int_wp) :: itemId(nitem)      !  array for itemIds
+      real(kind=real_wp) :: factor(nvals)      !  array for scale factors
+      integer(kind=int_wp) :: nval1              !  nval1 but at least 1
       logical(4) bound             !  boundary ?
       logical(4) waste             !  wastes ?
       logical(4) funcs             !  segment functions ?
       logical(4) found             !  help variable for finding strings
-      integer(kind=int_32) :: ierr2              !  local error variable
-      integer(kind=int_32) :: ifilsz             !  local counter of used integer array space
-      integer(kind=int_32) :: jfilsz             !  local counter of used real array space
-      integer(kind=int_32) :: ntot               !  nitem*nval1, real space of one breakpoint
-      integer(kind=int_32) :: ntotal             !  total number of items with input
-      integer(kind=int_32) :: nobrkt             !  total number of breakpoints
-      integer(kind=int_32) :: nobrk2             !  number of breakpoints in this block
-      integer(kind=int_32) :: newbrk             !  number of breakpoints for the new allocation
-      integer(kind=int_32) :: iopt3              !  option for this block
-      integer(kind=int_32) :: nvarnw             !  number of items in a block
-      integer(kind=int_32) :: lunuit             !  the unit of the binary file
-      integer(kind=int_32) :: i1, i2, k          !  loop counters
-      integer(kind=int_32) :: ibrk               !  loop counter breakpoints
-      integer(kind=int_32) :: iscal              !  loop counter scale values
-      integer(kind=int_32) :: nrec               !  total nr of rec's
-      integer(kind=int_32) :: nrec2              !  local nr of rec's
-      integer(kind=int_32) :: nvarar             !  number of items previous read
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) :: ierr2              !  local error variable
+      integer(kind=int_wp) :: ifilsz             !  local counter of used integer array space
+      integer(kind=int_wp) :: jfilsz             !  local counter of used real array space
+      integer(kind=int_wp) :: ntot               !  nitem*nval1, real space of one breakpoint
+      integer(kind=int_wp) :: ntotal             !  total number of items with input
+      integer(kind=int_wp) :: nobrkt             !  total number of breakpoints
+      integer(kind=int_wp) :: nobrk2             !  number of breakpoints in this block
+      integer(kind=int_wp) :: newbrk             !  number of breakpoints for the new allocation
+      integer(kind=int_wp) :: iopt3              !  option for this block
+      integer(kind=int_wp) :: nvarnw             !  number of items in a block
+      integer(kind=int_wp) :: lunuit             !  the unit of the binary file
+      integer(kind=int_wp) :: i1, i2, k          !  loop counters
+      integer(kind=int_wp) :: ibrk               !  loop counter breakpoints
+      integer(kind=int_wp) :: iscal              !  loop counter scale values
+      integer(kind=int_wp) :: nrec               !  total nr of rec's
+      integer(kind=int_wp) :: nrec2              !  local nr of rec's
+      integer(kind=int_wp) :: nvarar             !  number of items previous read
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "opt3", ithndl )
 
 !          Initialisations

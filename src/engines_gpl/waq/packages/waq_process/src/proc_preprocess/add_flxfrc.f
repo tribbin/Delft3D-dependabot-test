@@ -43,39 +43,39 @@
 
       ! decalaration of arguments
 
-      integer(kind=int_32) ::lunrep          ! report file
+      integer(kind=int_wp) ::lunrep          ! report file
       type(procespropcoll)      :: procesdef       ! the process definition
       type(itempropcoll)        :: allitems        ! all items of the proces system
       type(sfracsprop)          :: sfracs          ! substance fraction properties
-      integer(kind=int_32) ::no_act          ! number of active processes
+      integer(kind=int_wp) ::no_act          ! number of active processes
       character(len=*)          :: actlst(*)       ! active processes names
-      integer(kind=int_32) ::nbpr            ! number of processes
+      integer(kind=int_wp) ::nbpr            ! number of processes
 
       ! local declaration
 
       type(procesprop), pointer :: proc            ! single process
       type(procesprop)          :: procn           ! process to be added
       type(itemprop)            :: item            ! one item
-      integer(kind=int_32) ::nproc           ! number of processes
-      integer(kind=int_32) ::iproc           ! loop counter processes
-      integer(kind=int_32) ::iproc_new       ! index inserted process
-      integer(kind=int_32) ::isfrac          ! index substance fractions
-      integer(kind=int_32) ::isfrac_2        ! index substance fractions
-      integer(kind=int_32) ::nfrac           ! number fractions in substance fraction
-      integer(kind=int_32) ::nlink           ! number of linked substance fractions
-      integer(kind=int_32) ::ilink           ! index of linked substance fractions
-      integer(kind=int_32) ::linklst(sfracs%nsfrac) ! index linked substance fractions
+      integer(kind=int_wp) ::nproc           ! number of processes
+      integer(kind=int_wp) ::iproc           ! loop counter processes
+      integer(kind=int_wp) ::iproc_new       ! index inserted process
+      integer(kind=int_wp) ::isfrac          ! index substance fractions
+      integer(kind=int_wp) ::isfrac_2        ! index substance fractions
+      integer(kind=int_wp) ::nfrac           ! number fractions in substance fraction
+      integer(kind=int_wp) ::nlink           ! number of linked substance fractions
+      integer(kind=int_wp) ::ilink           ! index of linked substance fractions
+      integer(kind=int_wp) ::linklst(sfracs%nsfrac) ! index linked substance fractions
       character(len=20)         :: basnam          ! base name substance fractions
-      integer(kind=int_32) ::istochi         ! index stochi
-      integer(kind=int_32) ::istochi_2       ! index stochi
-      integer(kind=int_32) ::isfrac_positive ! fraction to be used if flux is positive
-      integer(kind=int_32) ::isfrac_negative ! fraction to be used if flux is negative
-      integer(kind=int_32) ::indx            ! index in list
-      integer(kind=int_32) ::iret            ! index in collection
-      integer(kind=int_32) ::ifrac           ! fraction number
+      integer(kind=int_wp) ::istochi         ! index stochi
+      integer(kind=int_wp) ::istochi_2       ! index stochi
+      integer(kind=int_wp) ::isfrac_positive ! fraction to be used if flux is positive
+      integer(kind=int_wp) ::isfrac_negative ! fraction to be used if flux is negative
+      integer(kind=int_wp) ::indx            ! index in list
+      integer(kind=int_wp) ::iret            ! index in collection
+      integer(kind=int_wp) ::ifrac           ! fraction number
       character(len=3)          :: suffix          ! suffix
-      integer(kind=int_32) ::ierr_alloc      ! error indication
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::ierr_alloc      ! error indication
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "add_flxfrc", ithndl )
 
       ! loop over the processes

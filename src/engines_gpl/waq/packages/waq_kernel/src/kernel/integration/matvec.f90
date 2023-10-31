@@ -49,24 +49,24 @@ contains
 
 !     Kind        Function         Name             Description
 
-      integer(kind=int_32), intent(in   )  ::ntrace           ! Dimension of the matrix
-      integer(kind=int_32), intent(in   )  ::nomat            ! Dimension of the off-diagonal entries
+      integer(kind=int_wp), intent(in   )  ::ntrace           ! Dimension of the matrix
+      integer(kind=int_wp), intent(in   )  ::nomat            ! Dimension of the off-diagonal entries
       real(kind=dp), intent(in   )  ::alpha            ! Coefficient to multiply Ax with
       real(kind=dp), intent(in   )  ::amat  (  nomat)  ! Off diagonal entries of A in LP format
-      integer(kind=int_32), intent(in   )  ::imat  (  nomat)  ! Pointer table off-diagonal entries
+      integer(kind=int_wp), intent(in   )  ::imat  (  nomat)  ! Pointer table off-diagonal entries
       real(kind=dp), intent(in   )  ::diag  (  ntrace) ! diagonal of the matrix
-      integer(kind=int_32), intent(in   )  ::idiag (0:ntrace) ! position of the diagonals in amat
+      integer(kind=int_wp), intent(in   )  ::idiag (0:ntrace) ! position of the diagonals in amat
       real(kind=dp), intent(in   )  ::xvec  (  ntrace) ! vector to multiply amat with
       real(kind=dp), intent(in   )  ::beta             ! Coefficient to multiply yvec with
       real(kind=dp), intent(inout)  ::yvec  (  ntrace) ! yvec = beta*yvec + alpha*A*xvec
 
 !        local variables
 
-      integer(kind=int_32) ::i, j             ! Help variables for loop processing
+      integer(kind=int_wp) ::i, j             ! Help variables for loop processing
 
 !        WAQ timer
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "matvec", ithandl )
 
       yvec = yvec*beta/alpha

@@ -44,24 +44,24 @@
 
       ! declaration of arguments
 
-      integer(kind=int_32), intent(in)        ::nodisp             ! number of dispersions from input
-      integer(kind=int_32), intent(in)        ::idpnt(nosys)       ! pointers to dispersion array
-      integer(kind=int_32), intent(inout)     ::ndspn              ! number of new dispersion array
-      integer(kind=int_32), intent(inout)     ::idpnw(nosys)       ! pointers to dispersion array
-      integer(kind=int_32), intent(in)        ::nosys              ! number of active substances
-      integer(kind=int_32), intent(in)        ::ndspx              ! number of dispersions from the processes
-      real(kind=sp), intent(in)        ::dsto(nosys,ndspx)  ! dispersion stochi factors
+      integer(kind=int_wp), intent(in)        ::nodisp             ! number of dispersions from input
+      integer(kind=int_wp), intent(in)        ::idpnt(nosys)       ! pointers to dispersion array
+      integer(kind=int_wp), intent(inout)     ::ndspn              ! number of new dispersion array
+      integer(kind=int_wp), intent(inout)     ::idpnw(nosys)       ! pointers to dispersion array
+      integer(kind=int_wp), intent(in)        ::nosys              ! number of active substances
+      integer(kind=int_wp), intent(in)        ::ndspx              ! number of dispersions from the processes
+      real(kind=real_wp), intent(in)        ::dsto(nosys,ndspx)  ! dispersion stochi factors
 
       ! local declarations
 
-      real(kind=sp), allocatable          ::dsto_new(:,:)      ! stochi factors for the new dispersion array, to check if it is unique
-      integer(kind=int_32) ::isys               ! index substances
+      real(kind=real_wp), allocatable          ::dsto_new(:,:)      ! stochi factors for the new dispersion array, to check if it is unique
+      integer(kind=int_wp) ::isys               ! index substances
       logical                   :: found              ! true if a matching new dispersion is found
       logical                   :: dsto_equal         ! true if the stochi factors of a new dispersion match
-      integer(kind=int_32) ::i_dspn             ! index new dispersion
-      integer(kind=int_32) ::idisp              ! index dispersion
-      integer(kind=int_32) ::idspx              ! index dispersion from processes
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::i_dspn             ! index new dispersion
+      integer(kind=int_wp) ::idisp              ! index dispersion
+      integer(kind=int_wp) ::idspx              ! index dispersion from processes
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "setdvp", ithndl )
 
       ! only action if there are already new dispersions, we will reset the number of new dispersions ndspn

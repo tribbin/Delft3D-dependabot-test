@@ -51,21 +51,21 @@ contains
 
 !     Kind        Function         Name                  Description
 
-      integer(kind=int_32), intent(in   )  ::noseg               !< Number of computational volumes
-      integer(kind=int_32), intent(in   )  ::notot               !< Total number of substances
-      integer(kind=int_32), intent(in   )  ::isys                !< First substance to update
-      integer(kind=int_32), intent(in   )  ::nsys                !< Total number of substances to update
+      integer(kind=int_wp), intent(in   )  ::noseg               !< Number of computational volumes
+      integer(kind=int_wp), intent(in   )  ::notot               !< Total number of substances
+      integer(kind=int_wp), intent(in   )  ::isys                !< First substance to update
+      integer(kind=int_wp), intent(in   )  ::nsys                !< Total number of substances to update
       real(kind=dp), intent(inout)  ::rhs (nsys ,noseg)   !< RHS matrix for the nsys substances
-      real(kind=sp), intent(inout)  ::conc(notot,noseg)   !< Target array for update
-      integer(kind=int_32), intent(in   )  ::iknmrk(noseg)       !< feature array, bit zero indicates wet or not
+      real(kind=real_wp), intent(inout)  ::conc(notot,noseg)   !< Target array for update
+      integer(kind=int_wp), intent(in   )  ::iknmrk(noseg)       !< feature array, bit zero indicates wet or not
 
 !     Local declarations
 
-      integer(kind=int_32) ::iseg, j       ! loop variables
+      integer(kind=int_wp) ::iseg, j       ! loop variables
 
 !     The WAQ-timer
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqf6", ithandl )
 
 !         put result in concentration array

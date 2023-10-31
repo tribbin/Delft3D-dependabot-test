@@ -65,86 +65,86 @@
 
       ! arguments
 
-      integer(kind=int_32), intent(in   )  ::lurep                  !< unit number report file
+      integer(kind=int_wp), intent(in   )  ::lurep                  !< unit number report file
       type(procespropcoll), intent(in   ) :: procesdef              !< the proces definition
-      integer(kind=int_32), intent(in   )  ::nodef                  !< number of default values
-      real(kind=sp), intent(in   )  ::defaul(*)              !< array with default
-      integer(kind=int_32), intent(in   )  ::idpnw(*)               !< new dispersion pointers
-      integer(kind=int_32), intent(in   )  ::ivpnw(*)               !< new velocity pointers
-      real(kind=sp), intent(in   )  ::dsto(*)                !< dispersion stochi factors
-      real(kind=sp), intent(in   )  ::vsto(*)                !< velocity stochi factors
+      integer(kind=int_wp), intent(in   )  ::nodef                  !< number of default values
+      real(kind=real_wp), intent(in   )  ::defaul(*)              !< array with default
+      integer(kind=int_wp), intent(in   )  ::idpnw(*)               !< new dispersion pointers
+      integer(kind=int_wp), intent(in   )  ::ivpnw(*)               !< new velocity pointers
+      real(kind=real_wp), intent(in   )  ::dsto(*)                !< dispersion stochi factors
+      real(kind=real_wp), intent(in   )  ::vsto(*)                !< velocity stochi factors
       character(len=20)   , intent(in   ) :: locnam(*)              !< name of the local variables
-      integer(kind=int_32), intent(in   )  ::nopred                 !< number of predfined values
-      integer(kind=int_32), intent(in   )  ::nocons                 !< number of constants
-      integer(kind=int_32), intent(in   )  ::nopa                   !< number of parameters
-      integer(kind=int_32), intent(in   )  ::nofun                  !< number of functions
-      integer(kind=int_32), intent(in   )  ::nosfun                 !< number of segment functions
-      integer(kind=int_32), intent(in   )  ::notot                  !< number of substances
-      integer(kind=int_32), intent(in   )  ::noloc                  !< number of local values
-      integer(kind=int_32), intent(in   )  ::nodisp                 !< number of dispersions
-      integer(kind=int_32), intent(in   )  ::novelo                 !< number of velocities
-      integer(kind=int_32), intent(in   )  ::ndspx                  !< number of dispersions
-      integer(kind=int_32), intent(in   )  ::nvelx                  !< number of velocities
-      integer(kind=int_32), intent(in   )  ::nlocx                  !< number of local values on exchanges
-      integer(kind=int_32), intent(in   )  ::nosys                  !< number of active substances
-      integer(kind=int_32), intent(in   )  ::nogrid                 !< number of grids
+      integer(kind=int_wp), intent(in   )  ::nopred                 !< number of predfined values
+      integer(kind=int_wp), intent(in   )  ::nocons                 !< number of constants
+      integer(kind=int_wp), intent(in   )  ::nopa                   !< number of parameters
+      integer(kind=int_wp), intent(in   )  ::nofun                  !< number of functions
+      integer(kind=int_wp), intent(in   )  ::nosfun                 !< number of segment functions
+      integer(kind=int_wp), intent(in   )  ::notot                  !< number of substances
+      integer(kind=int_wp), intent(in   )  ::noloc                  !< number of local values
+      integer(kind=int_wp), intent(in   )  ::nodisp                 !< number of dispersions
+      integer(kind=int_wp), intent(in   )  ::novelo                 !< number of velocities
+      integer(kind=int_wp), intent(in   )  ::ndspx                  !< number of dispersions
+      integer(kind=int_wp), intent(in   )  ::nvelx                  !< number of velocities
+      integer(kind=int_wp), intent(in   )  ::nlocx                  !< number of local values on exchanges
+      integer(kind=int_wp), intent(in   )  ::nosys                  !< number of active substances
+      integer(kind=int_wp), intent(in   )  ::nogrid                 !< number of grids
       character(len=20)   , intent(in   ) :: dename(*)              !< default names
       character(len=20)   , intent(in   ) :: coname(*)              !< constant names
       character(len=20)   , intent(in   ) :: paname(*)              !< parameter names
       character(len=20)   , intent(in   ) :: funame(*)              !< function names
       character(len=20)   , intent(in   ) :: sfname(*)              !< segm.func. names
       character(len=20)   , intent(in   ) :: syname(*)              !< substance names
-      integer(kind=int_32), intent(in   )  ::intopt                 !< integration sub options
-      integer(kind=int_32), intent(inout)  ::lun(*)                 !< unit numbers
+      integer(kind=int_wp), intent(in   )  ::intopt                 !< integration sub options
+      integer(kind=int_wp), intent(inout)  ::lun(*)                 !< unit numbers
       character(len=*)    , intent(in   ) :: lchar(*)               !< filenames
-      integer(kind=int_32), intent(in   )  ::noutp                  !< total number of output files
-      integer(kind=int_32), intent(in   )  ::ioutps(7,*)            !< (old) output structure
+      integer(kind=int_wp), intent(in   )  ::noutp                  !< total number of output files
+      integer(kind=int_wp), intent(in   )  ::ioutps(7,*)            !< (old) output structure
       type(outputcoll)    , intent(in   ) :: outputs                !< output structure
-      integer(kind=int_32), intent(in   )  ::ndmpar                 !< number of dump areas
-      integer(kind=int_32), intent(in   )  ::nbufmx                 !< maximum buffer length
-      real(kind=sp), intent(in   )  ::versio                 !< version number proces definition file
-      integer(kind=int_32), intent(in   )  ::ndspn                  !< number of new dispersions
-      integer(kind=int_32), intent(in   )  ::nveln                  !< number of new velocities
-      integer(kind=int_32), intent(in   )  ::nrref                  !< maximum nr of references to be resolved
-      integer(kind=int_32), intent(in   )  ::proref(nrref,*)        !< input items to be resolved for each process
-      integer(kind=int_32), intent(  out)  ::nproc                  !< number of processes
-      integer(kind=int_32), intent(  out)  ::nflux                  !< number of fluxes
-      integer(kind=int_32), intent(  out)  ::novar                  !< number of variables
-      integer(kind=int_32), intent(  out)  ::nipmsa                 !< actual length of pmsa array
+      integer(kind=int_wp), intent(in   )  ::ndmpar                 !< number of dump areas
+      integer(kind=int_wp), intent(in   )  ::nbufmx                 !< maximum buffer length
+      real(kind=real_wp), intent(in   )  ::versio                 !< version number proces definition file
+      integer(kind=int_wp), intent(in   )  ::ndspn                  !< number of new dispersions
+      integer(kind=int_wp), intent(in   )  ::nveln                  !< number of new velocities
+      integer(kind=int_wp), intent(in   )  ::nrref                  !< maximum nr of references to be resolved
+      integer(kind=int_wp), intent(in   )  ::proref(nrref,*)        !< input items to be resolved for each process
+      integer(kind=int_wp), intent(  out)  ::nproc                  !< number of processes
+      integer(kind=int_wp), intent(  out)  ::nflux                  !< number of fluxes
+      integer(kind=int_wp), intent(  out)  ::novar                  !< number of variables
+      integer(kind=int_wp), intent(  out)  ::nipmsa                 !< actual length of pmsa array
 
       ! local
 
-      integer(kind=int_32) ::mxpmsa                 !  maximum length of pmsa array
-      integer(kind=int_32) ::nbpr                   !  number of active processes
-      integer(kind=int_32) ::ioffx                  !  offset to the exchange items
-      integer(kind=int_32) ::no_ins          ! number of output items
-      integer(kind=int_32) ::no_ine          ! number of output items
-      integer(kind=int_32) ::no_ous          ! number of output items
-      integer(kind=int_32) ::no_oue          ! number of output items
-      integer(kind=int_32) ::no_flu          ! number of output items
-      integer(kind=int_32) ::no_sto          ! number of output items
-      integer(kind=int_32) ::no_dis          ! number of output items
-      integer(kind=int_32) ::no_vel          ! number of output items
-      integer(kind=int_32) , pointer :: nsvar(:)
-      integer(kind=int_32) , pointer :: iflux(:)
-      integer(kind=int_32) , pointer :: ipmsa(:)
-      integer(kind=int_32) , pointer :: ipssa(:)
-      integer(kind=int_32) , pointer :: prvvar(:)
-      integer(kind=int_32) , pointer :: prvtyp(:)
-      integer(kind=int_32) , pointer :: progrd(:)
-      integer(kind=int_32) , pointer :: prondt(:)
-      real(kind=sp) , pointer :: stochi(:)
+      integer(kind=int_wp) ::mxpmsa                 !  maximum length of pmsa array
+      integer(kind=int_wp) ::nbpr                   !  number of active processes
+      integer(kind=int_wp) ::ioffx                  !  offset to the exchange items
+      integer(kind=int_wp) ::no_ins          ! number of output items
+      integer(kind=int_wp) ::no_ine          ! number of output items
+      integer(kind=int_wp) ::no_ous          ! number of output items
+      integer(kind=int_wp) ::no_oue          ! number of output items
+      integer(kind=int_wp) ::no_flu          ! number of output items
+      integer(kind=int_wp) ::no_sto          ! number of output items
+      integer(kind=int_wp) ::no_dis          ! number of output items
+      integer(kind=int_wp) ::no_vel          ! number of output items
+      integer(kind=int_wp) , pointer :: nsvar(:)
+      integer(kind=int_wp) , pointer :: iflux(:)
+      integer(kind=int_wp) , pointer :: ipmsa(:)
+      integer(kind=int_wp) , pointer :: ipssa(:)
+      integer(kind=int_wp) , pointer :: prvvar(:)
+      integer(kind=int_wp) , pointer :: prvtyp(:)
+      integer(kind=int_wp) , pointer :: progrd(:)
+      integer(kind=int_wp) , pointer :: prondt(:)
+      real(kind=real_wp) , pointer :: stochi(:)
       character*10 , allocatable :: pronam(:)
       character*20,allocatable  :: varnam(:)       ! variable names
-      integer(kind=int_32),allocatable   ::vararr(:)       ! variable array
-      integer(kind=int_32),allocatable   ::varidx(:)       ! variable index
-      integer(kind=int_32),allocatable   ::vartda(:)       ! variable type of dis-aggregation
-      integer(kind=int_32),allocatable   ::vardag(:)       ! variable dis-aggregation variable
-      integer(kind=int_32),allocatable   ::vartag(:)       ! variable type of aggregation
-      integer(kind=int_32),allocatable   ::varagg(:)       ! variable aggregation variable
-      integer(kind=int_32) ::iproc                  !  loop counter processes
-      integer(kind=int_32) ::ierr2                  !  local error indication
-      integer(kind=int_32) ::ithndl = 0        ! handle for performance timer
+      integer(kind=int_wp),allocatable   ::vararr(:)       ! variable array
+      integer(kind=int_wp),allocatable   ::varidx(:)       ! variable index
+      integer(kind=int_wp),allocatable   ::vartda(:)       ! variable type of dis-aggregation
+      integer(kind=int_wp),allocatable   ::vardag(:)       ! variable dis-aggregation variable
+      integer(kind=int_wp),allocatable   ::vartag(:)       ! variable type of aggregation
+      integer(kind=int_wp),allocatable   ::varagg(:)       ! variable aggregation variable
+      integer(kind=int_wp) ::iproc                  !  loop counter processes
+      integer(kind=int_wp) ::ierr2                  !  local error indication
+      integer(kind=int_wp) ::ithndl = 0        ! handle for performance timer
       if (timon) call timstrt( "wr_proceswrk", ithndl )
 
       ! count active processes (merge nbpr and nproc?)

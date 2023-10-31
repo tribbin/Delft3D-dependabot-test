@@ -51,16 +51,16 @@
 
 !     kind           function         name                        Descriptipon
 
-      integer(kind=int_32), intent(in   ) ::  nvals                      !< number of values
-      integer(kind=int_32), intent(in   ) ::  nitem                      !< number of items
-      real(kind=sp), intent(inout) ::  arrin (nvals,nitem)        !< number of items
-      real(kind=sp), intent(in   ) ::  factor(nvals)              !< scale factors
+      integer(kind=int_wp), intent(in   ) ::  nvals                      !< number of values
+      integer(kind=int_wp), intent(in   ) ::  nitem                      !< number of items
+      real(kind=real_wp), intent(inout) ::  arrin (nvals,nitem)        !< number of items
+      real(kind=real_wp), intent(in   ) ::  factor(nvals)              !< scale factors
 
 !     local decalations
 
-      integer(kind=int_32) :: i1, i2        ! loop counters
-      real(kind=sp) :: fact          ! factor
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) :: i1, i2        ! loop counters
+      real(kind=real_wp) :: fact          ! factor
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "scale", ithndl )
 
       do i1 = 1, nvals

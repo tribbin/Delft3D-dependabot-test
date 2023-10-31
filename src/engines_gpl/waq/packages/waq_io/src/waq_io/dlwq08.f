@@ -89,42 +89,42 @@
 
 !     Kind                    Function         Name               Description
 
-      integer(kind=int_32), intent(inout) ::  lun  (*)       !< array with unit numbers
+      integer(kind=int_wp), intent(inout) ::  lun  (*)       !< array with unit numbers
       character         ( *), intent(inout) :: lchar(*)      !< filenames
-      integer(kind=int_32), intent(inout) ::  filtype(*)     !< type of binary file
-      integer(kind=int_32), intent(in   ) ::  noseg          !< nr of computational volumes
-      integer(kind=int_32), intent(in   ) ::  notot          !< nr of delwaq + delpar state variables
+      integer(kind=int_wp), intent(inout) ::  filtype(*)     !< type of binary file
+      integer(kind=int_wp), intent(in   ) ::  noseg          !< nr of computational volumes
+      integer(kind=int_wp), intent(in   ) ::  notot          !< nr of delwaq + delpar state variables
       character         (20), intent(in   ) :: syname(notot) !< names of the substances
-      integer(kind=int_32), intent(in   ) ::  iwidth         !< width of the output file
-      integer(kind=int_32), intent(in   ) ::  ioutpt         !< option for extent of output
+      integer(kind=int_wp), intent(in   ) ::  iwidth         !< width of the output file
+      integer(kind=int_wp), intent(in   ) ::  ioutpt         !< option for extent of output
       type(inputfilestack)  , intent(inout) :: inpfil        !< input file strucure with include stack and flags
       type(gridpointercoll) , intent(in)    :: gridps        !< collection off all grid definitions
-      integer(kind=int_32), intent(inout) ::  ierr           !< cumulative error   count
-      integer(kind=int_32), intent(inout) ::  iwar           !< cumulative warning count
+      integer(kind=int_wp), intent(inout) ::  ierr           !< cumulative error   count
+      integer(kind=int_wp), intent(inout) ::  iwar           !< cumulative warning count
 
-      integer(kind=int_32), parameter ::  STRING   =  1 
+      integer(kind=int_wp), parameter ::  STRING   =  1
       integer, parameter :: EXTASCII = -1, BINARY   = 0, THISFILE = 1
-      integer(kind=int_32), parameter ::  NODEFAUL =  1, DEFAULTS = 2
+      integer(kind=int_wp), parameter ::  NODEFAUL =  1, DEFAULTS = 2
  
-      real(kind=sp), allocatable ::  scales(:)              ! real workspace scale factors
-      real(kind=sp), allocatable ::  values(:,:)            ! real workspace values
-      integer(kind=int_32), allocatable ::  iover (:)              ! integer space for overridings
+      real(kind=real_wp), allocatable ::  scales(:)              ! real workspace scale factors
+      real(kind=real_wp), allocatable ::  values(:,:)            ! real workspace values
+      integer(kind=int_wp), allocatable ::  iover (:)              ! integer space for overridings
 
-      integer(kind=int_32) :: ierr2                          ! local error indicator
-      integer(kind=int_32) :: itype                          ! 0 = all, 1 = string, 2 = integer, 3 = real
+      integer(kind=int_wp) :: ierr2                          ! local error indicator
+      integer(kind=int_wp) :: itype                          ! 0 = all, 1 = string, 2 = integer, 3 = real
       character(255)  cdummy                        ! workspace for reading
       character(  4)  cext                          ! inital conditions file extention
-      integer(kind=int_32) :: icopt1                         ! first file option (ASCII/Binary/external etc)
-      integer(kind=int_32) :: icopt2                         ! constants with or without defaults
+      integer(kind=int_wp) :: icopt1                         ! first file option (ASCII/Binary/external etc)
+      integer(kind=int_wp) :: icopt2                         ! constants with or without defaults
       logical         ldummy                        ! dummy variable
-      integer(kind=int_32) :: ip                             ! location of the period in the file name
-      integer(kind=int_32) :: i                              ! loop variable and dummy integer
-      integer(kind=int_32) :: isys, iseg                     ! substances and volumes loop variables
+      integer(kind=int_wp) :: ip                             ! location of the period in the file name
+      integer(kind=int_wp) :: i                              ! loop variable and dummy integer
+      integer(kind=int_wp) :: isys, iseg                     ! substances and volumes loop variables
       logical         masspm2                       ! is it mass per m2 ?
       logical         transp            ! input with a transposed matrix (per substance) ?
       logical         old_input         ! old or new input
-      integer(kind=int_32) :: itime              ! time in map file
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) :: itime              ! time in map file
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "dlwq08", ithndl )
 
 !        Initialisations

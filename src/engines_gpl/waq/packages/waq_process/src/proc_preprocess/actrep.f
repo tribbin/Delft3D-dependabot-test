@@ -48,9 +48,9 @@
 
       ! decalaration of arguments
 
-      integer(kind=int_32), intent(in   )  ::noalg             !< number of algae types
-      integer(kind=int_32), intent(in   )  ::noprot            !< number of proto processes ono to one
-      integer(kind=int_32), intent(in   )  ::nopralg           !< number of proto processes per algae type
+      integer(kind=int_wp), intent(in   )  ::noalg             !< number of algae types
+      integer(kind=int_wp), intent(in   )  ::noprot            !< number of proto processes ono to one
+      integer(kind=int_wp), intent(in   )  ::nopralg           !< number of proto processes per algae type
       character(len=*) , intent(in   ) :: namprot(noprot)   !< name proto processes
       character(len=*) , intent(in   ) :: nampact(noprot)   !< name actual processes
       character(len=*) , intent(in   ) :: nampralg(noprot)  !< name proto processes per algae type
@@ -61,14 +61,14 @@
       character*10                     :: name1
       character*20                     :: name20
       character*80                     :: line
-      integer(kind=int_32) ::nocons
-      integer(kind=int_32) ::nocon2
-      integer(kind=int_32) ::ico
-      integer(kind=int_32) ::ipro
-      integer(kind=int_32) ::ilen
-      integer(kind=int_32) ::ialg
-      integer(kind=int_32) ::ierr2
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::nocons
+      integer(kind=int_wp) ::nocon2
+      integer(kind=int_wp) ::ico
+      integer(kind=int_wp) ::ipro
+      integer(kind=int_wp) ::ilen
+      integer(kind=int_wp) ::ialg
+      integer(kind=int_wp) ::ierr2
+      integer(kind=int_wp) ::ithndl = 0
 
       if (timon) call timstrt( "actrep", ithndl )
 

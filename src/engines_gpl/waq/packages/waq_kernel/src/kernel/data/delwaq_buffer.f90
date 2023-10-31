@@ -28,8 +28,8 @@ use m_waq_type_definitions
     implicit none
 
     type, public :: waq_data_buffer
-        integer(kind=int_32), dimension(:),allocatable ::ibuf
-        real(kind=sp), dimension(:),allocatable ::rbuf
+        integer(kind=int_wp), dimension(:),allocatable ::ibuf
+        real(kind=real_wp), dimension(:),allocatable ::rbuf
         character(len=1), dimension(:),allocatable     :: chbuf
 
       contains

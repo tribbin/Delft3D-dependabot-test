@@ -56,50 +56,50 @@ contains
 
 !     Kind        Function         Name                  Description
 
-      integer(kind=int_32), intent(IN   )  ::noseg               ! Number of computational volumes
-      integer(kind=int_32), intent(IN   )  ::nobnd               ! Number of open boundaries
-      integer(kind=int_32), intent(IN   )  ::noq1                ! Number of fluxes first direction
-      integer(kind=int_32), intent(IN   )  ::noq2                ! Number of fluxes second direction
-      integer(kind=int_32), intent(IN   )  ::noq                 ! Total number fluxes in the water phase
-      integer(kind=int_32), intent(IN   )  ::ipoint(4,noq)       ! from, to, from-1, to+1 volume numbers per flux
-      integer(kind=int_32), intent(IN   )  ::nodisp              ! number of additional dispersion arrays
-      integer(kind=int_32), intent(IN   )  ::novelo              ! number of additional velocity   arrays
-      integer(kind=int_32), intent(IN   )  ::idpnt ( * )         ! dispersion array to be applied per substance
-      integer(kind=int_32), intent(IN   )  ::ivpnt ( * )         ! velocity   array to be applied per substance
-      real(kind=sp), intent(IN   )  ::area  ( noq )       ! crosssectional surface areas of the fluxes
-      real(kind=sp), intent(IN   )  ::flow  ( noq )       ! fluxes
-      real(kind=sp), intent(IN   )  ::disp  ( 3 )         ! default dispersions in the 3 directions
-      real(kind=sp), intent(IN   )  ::disper(nodisp,noq)  ! additional dispersion arrays
-      real(kind=sp), intent(IN   )  ::velo  (novelo,noq)  ! additional velocity arrays
-      integer(kind=int_32), intent(IN   )  ::isys                ! substances number to be used for this matrix
-      integer(kind=int_32), intent(IN   )  ::nomat               ! dimension of off-diagonal matrix amat
+      integer(kind=int_wp), intent(IN   )  ::noseg               ! Number of computational volumes
+      integer(kind=int_wp), intent(IN   )  ::nobnd               ! Number of open boundaries
+      integer(kind=int_wp), intent(IN   )  ::noq1                ! Number of fluxes first direction
+      integer(kind=int_wp), intent(IN   )  ::noq2                ! Number of fluxes second direction
+      integer(kind=int_wp), intent(IN   )  ::noq                 ! Total number fluxes in the water phase
+      integer(kind=int_wp), intent(IN   )  ::ipoint(4,noq)       ! from, to, from-1, to+1 volume numbers per flux
+      integer(kind=int_wp), intent(IN   )  ::nodisp              ! number of additional dispersion arrays
+      integer(kind=int_wp), intent(IN   )  ::novelo              ! number of additional velocity   arrays
+      integer(kind=int_wp), intent(IN   )  ::idpnt ( * )         ! dispersion array to be applied per substance
+      integer(kind=int_wp), intent(IN   )  ::ivpnt ( * )         ! velocity   array to be applied per substance
+      real(kind=real_wp), intent(IN   )  ::area  ( noq )       ! crosssectional surface areas of the fluxes
+      real(kind=real_wp), intent(IN   )  ::flow  ( noq )       ! fluxes
+      real(kind=real_wp), intent(IN   )  ::disp  ( 3 )         ! default dispersions in the 3 directions
+      real(kind=real_wp), intent(IN   )  ::disper(nodisp,noq)  ! additional dispersion arrays
+      real(kind=real_wp), intent(IN   )  ::velo  (novelo,noq)  ! additional velocity arrays
+      integer(kind=int_wp), intent(IN   )  ::isys                ! substances number to be used for this matrix
+      integer(kind=int_wp), intent(IN   )  ::nomat               ! dimension of off-diagonal matrix amat
       real(kind=dp), intent(  OUT)  ::amat  (nomat)       ! matrix with off-diagonal entries
-      integer(kind=int_32), intent(IN   )  ::imat  (nomat)       ! pointers of the off-diagonals in amat
-      integer(kind=int_32), intent(IN   )  ::idiag(0:noseg+nobnd) ! position of the diagonals in amat
+      integer(kind=int_wp), intent(IN   )  ::imat  (nomat)       ! pointers of the off-diagonals in amat
+      integer(kind=int_wp), intent(IN   )  ::idiag(0:noseg+nobnd) ! position of the diagonals in amat
       real(kind=dp), intent(INOUT)  ::diag  (noseg+nobnd) ! diagonal of the matrix
       real(kind=dp), intent(INOUT)  ::diagcc(noseg+nobnd) ! copy of (unscaled) diagonal of the matrix
-      integer(kind=int_32), intent(IN   )  ::iscale              ! = 0 no row scaling of diagonal
+      integer(kind=int_wp), intent(IN   )  ::iscale              ! = 0 no row scaling of diagonal
                                                        ! = 1    row scaling of diagonal
-      integer(kind=int_32), intent(in   )  ::fmat  (  noq)       ! location from(iq) in matrix
-      integer(kind=int_32), intent(in   )  ::tmat  (  noq)       ! location to  (iq) in matrix
-      real(kind=sp), intent(in   )  ::mixlen(  noq)       ! area/length for diffusion
-      integer(kind=int_32), intent(in   )  ::iknmrk(noseg)       ! feature array, bit zero indicates wet or not
+      integer(kind=int_wp), intent(in   )  ::fmat  (  noq)       ! location from(iq) in matrix
+      integer(kind=int_wp), intent(in   )  ::tmat  (  noq)       ! location to  (iq) in matrix
+      real(kind=real_wp), intent(in   )  ::mixlen(  noq)       ! area/length for diffusion
+      integer(kind=int_wp), intent(in   )  ::iknmrk(noseg)       ! feature array, bit zero indicates wet or not
 
 !     Local declarations
 
       logical    lscale    !  if true, then APPLY row scaling of the diagonal
-      integer(kind=int_32) ::ifrom     !  from volume number
-      integer(kind=int_32) ::ito       !  to   volume number
-      real(kind=sp) ::a         !  help variable for exchange surface area in m2
-      real(kind=sp) ::q         !  help variable for the flux in m3/s
-      real(kind=sp) ::e         !  help variable for diffusive flux in m3/s
-      integer(kind=int_32) ::idp,ivp   !  help variables for idpnt(isys) and ivpnt(isys)
-      real(kind=sp) ::q1 , q2   !  help variables
-      integer(kind=int_32) ::iq , jq   !  loop counters
+      integer(kind=int_wp) ::ifrom     !  from volume number
+      integer(kind=int_wp) ::ito       !  to   volume number
+      real(kind=real_wp) ::a         !  help variable for exchange surface area in m2
+      real(kind=real_wp) ::q         !  help variable for the flux in m3/s
+      real(kind=real_wp) ::e         !  help variable for diffusive flux in m3/s
+      integer(kind=int_wp) ::idp,ivp   !  help variables for idpnt(isys) and ivpnt(isys)
+      real(kind=real_wp) ::q1 , q2   !  help variables
+      integer(kind=int_wp) ::iq , jq   !  loop counters
 
 !     WAQ timers
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqh2", ithandl )
 
 !     set the logicals for dispersion and scaling and other fixed items

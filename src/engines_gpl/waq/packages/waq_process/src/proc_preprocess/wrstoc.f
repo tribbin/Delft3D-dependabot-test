@@ -45,44 +45,44 @@
       ! declaration of arguments
 
       type(procespropcoll)      :: procesdef       ! all processes
-      integer(kind=int_32) ::luout           ! stochi file
-      integer(kind=int_32) ::notot           ! number of substances
+      integer(kind=int_wp) ::luout           ! stochi file
+      integer(kind=int_wp) ::notot           ! number of substances
       character(len=*)          :: syname(notot)   ! name of substances
-      real(kind=sp) ::stoch2(notot,*) ! delwaq stochi array
-      integer(kind=int_32) ::noutp           ! number of output variables
-      integer(kind=int_32) ::ioutps(7,noutp) ! output structure
+      real(kind=real_wp) ::stoch2(notot,*) ! delwaq stochi array
+      integer(kind=int_wp) ::noutp           ! number of output variables
+      integer(kind=int_wp) ::ioutps(7,noutp) ! output structure
       type(outputcoll)          :: outputs         ! output structure
-      integer(kind=int_32) ::ndmpar          ! number of stations
-      integer(kind=int_32) ::nbufmx          ! max buffer
-      integer(kind=int_32) ::intopt          ! integration option
+      integer(kind=int_wp) ::ndmpar          ! number of stations
+      integer(kind=int_wp) ::nbufmx          ! max buffer
+      integer(kind=int_wp) ::intopt          ! integration option
 
       character(len=80)         :: line            ! output buffer
-      integer(kind=int_32) ::noflx           ! number of fluxes
-      integer(kind=int_32) ::nproctot        ! number of processes
-      integer(kind=int_32) ::iproc           ! index process
+      integer(kind=int_wp) ::noflx           ! number of fluxes
+      integer(kind=int_wp) ::nproctot        ! number of processes
+      integer(kind=int_wp) ::iproc           ! index process
       type(procesprop), pointer :: proc            ! process description
-      integer(kind=int_32) ::i               ! loop counter
-      integer(kind=int_32) ::j               ! loop counter
-      integer(kind=int_32) ::niflx           ! number of fluxes
-      integer(kind=int_32) ::nflx            ! number of fluxes
-      integer(kind=int_32) ::iflx            ! index flux
-      integer(kind=int_32) ::iflux           ! index flux
-      integer(kind=int_32) ::istochi         ! index flux
-      integer(kind=int_32) ::isys            ! index substance
-      real(kind=sp) ::scale           ! stochi factor
+      integer(kind=int_wp) ::i               ! loop counter
+      integer(kind=int_wp) ::j               ! loop counter
+      integer(kind=int_wp) ::niflx           ! number of fluxes
+      integer(kind=int_wp) ::nflx            ! number of fluxes
+      integer(kind=int_wp) ::iflx            ! index flux
+      integer(kind=int_wp) ::iflux           ! index flux
+      integer(kind=int_wp) ::istochi         ! index flux
+      integer(kind=int_wp) ::isys            ! index substance
+      real(kind=real_wp) ::scale           ! stochi factor
       character(len=20)         :: flxnam          ! output buffer
-      integer(kind=int_32) ::nrvar           ! counter
-      integer(kind=int_32) ::nrvarn          ! counter
-      integer(kind=int_32) ::nrvaro          ! counter
-      integer(kind=int_32) ::ioutp           ! index output variable
-      integer(kind=int_32) ::ivar            ! index output variable
-      integer(kind=int_32) ::isrtou          ! type of output
-      integer(kind=int_32) ::nobalt          ! number of balances
-      integer(kind=int_32) ::nocel           ! number of cells
-      integer(kind=int_32) ::nbufou          ! buffer used
+      integer(kind=int_wp) ::nrvar           ! counter
+      integer(kind=int_wp) ::nrvarn          ! counter
+      integer(kind=int_wp) ::nrvaro          ! counter
+      integer(kind=int_wp) ::ioutp           ! index output variable
+      integer(kind=int_wp) ::ivar            ! index output variable
+      integer(kind=int_wp) ::isrtou          ! type of output
+      integer(kind=int_wp) ::nobalt          ! number of balances
+      integer(kind=int_wp) ::nocel           ! number of cells
+      integer(kind=int_wp) ::nbufou          ! buffer used
       type(outputcoll)          :: outputl         ! local output structure
-      integer(kind=int_32) ::nrvarm          ! size of local output structure
-      integer(kind=int_32) ::ithndl = 0        ! handle for performance timer
+      integer(kind=int_wp) ::nrvarm          ! size of local output structure
+      integer(kind=int_wp) ::ithndl = 0        ! handle for performance timer
       if (timon) call timstrt( "wrstoc", ithndl )
 
       ! calculate noflx

@@ -74,18 +74,18 @@
 !
       IMPLICIT NONE
 !
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
-      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10
-      INTEGER(kind=int_32) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9, IN10
-      INTEGER(kind=int_32) ::IFLUX  , ISEG
+      INTEGER(kind=int_wp) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10
+      INTEGER(kind=int_wp) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9, IN10
+      INTEGER(kind=int_wp) ::IFLUX  , ISEG
 !
-      REAL(kind=sp) ::CSP    , CSD
-      REAL(kind=sp) ::KDIS   , KPRC   , CSDE   , KTDIS  , KTPRC
-      REAL(kind=sp) ::POROS  , TEMP   , TEMPCD , TEMPCP , TEMP20
-      REAL(kind=sp) ::DELT   , FLUXPR , FLUXDS
+      REAL(kind=real_wp) ::CSP    , CSD
+      REAL(kind=real_wp) ::KDIS   , KPRC   , CSDE   , KTDIS  , KTPRC
+      REAL(kind=real_wp) ::POROS  , TEMP   , TEMPCD , TEMPCP , TEMP20
+      REAL(kind=real_wp) ::DELT   , FLUXPR , FLUXDS
 !
       IN1  = INCREM( 1)
       IN2  = INCREM( 2)

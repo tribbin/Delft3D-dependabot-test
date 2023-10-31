@@ -82,7 +82,7 @@
       use timers
       use m_dhdagg
 
-      INTEGER(kind=int_32) ::NRVAR , NOCONS, NOPA  , NOFUN , NOSFUN,
+      INTEGER(kind=int_wp) ::NRVAR , NOCONS, NOPA  , NOFUN , NOSFUN,
      +           NOTOT , NOSEG , NOLOC , NOGRID, NOVAR,
      +           NOTOTO, NOTOTI, NOSEG2, NOPRED, I, IX_HLP,
      +           IV_IDX, IV_HLP, IV_DA, IVAR, ISYSO, ISYSI,
@@ -94,20 +94,20 @@
                        
                  
                  
-      INTEGER(kind=int_32) ::IOPOIN(NRVAR) , VARARR(NOVAR) ,
+      INTEGER(kind=int_wp) ::IOPOIN(NRVAR) , VARARR(NOVAR) ,
      +           VARIDX(NOVAR) , VARTDA(NOVAR) ,
      +           VARDAG(NOVAR) , ARRKND(*)     ,
      +           ARRPOI(*)     , ARRDM1(*)     ,
      +           ARRDM2(*)     , VGRSET(NOVAR,*),
      +           GRDNOS(NOGRID), GRDSEG(NOSEG,NOGRID)
-      REAL(kind=sp) ::A(*)
+      REAL(kind=real_wp) ::A(*)
 !
 !     Local
 !
       PARAMETER ( NOPRED= 6 )
-      INTEGER(kind=int_32) ::IOPA  , IOFUNC, IOSFUN, IOCONC, IOLOC ,
+      INTEGER(kind=int_wp) ::IOPA  , IOFUNC, IOSFUN, IOCONC, IOLOC ,
      +            IODEF , IP
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "actloc", ithandl )
 !
 !     If no locals get out of here

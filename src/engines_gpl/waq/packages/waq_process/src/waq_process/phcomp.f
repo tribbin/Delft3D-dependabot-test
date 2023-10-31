@@ -48,13 +48,13 @@
 
       IMPLICIT REAL (A-H,J-Z)
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER(kind=int_32) ::ITEL  , ISEG
-      INTEGER(kind=int_32) ::NTYPE , ITYPE
-      REAL(kind=sp) ::PHYT  , ALGN  , ALGP  , ALGSI , ALGDM , CHLFA , BIOMAS,
+      INTEGER(kind=int_wp) ::ITEL  , ISEG
+      INTEGER(kind=int_wp) ::NTYPE , ITYPE
+      REAL(kind=real_wp) ::PHYT  , ALGN  , ALGP  , ALGSI , ALGDM , CHLFA , BIOMAS,
      J         NCRAT , PCRAT , SICRAT, DMCF  , CATOCL
 
       NTYPE   = PMSA(IPOINT(1))

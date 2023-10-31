@@ -74,13 +74,13 @@
       DIMENSION     LOCTYP(MAXLST) , LOCNR (MAXLST)
       LOGICAL       SETALL
       character*256         :: ext     ! file extension
-      integer(kind=int_32) ::  extpos   ! position of extension
-      integer(kind=int_32) ::  extlen   ! length of file extension
+      integer(kind=int_wp) ::  extpos   ! position of extension
+      integer(kind=int_wp) ::  extlen   ! length of file extension
       logical               :: mapfil  ! true if map file extension
-      integer(kind=int_32) ::  lun 
-      integer(kind=int_32) ::  k, i1, i2, i3, NOTOT, ierror, nodump, idummy 
-      integer(kind=int_32) ::  itype, itmdep, iprdep, nrlst, maxk, nbase 
-      integer(kind=int_32) ::  locnr, loctyp, maxdef, maxlst
+      integer(kind=int_wp) ::  lun
+      integer(kind=int_wp) ::  k, i1, i2, i3, NOTOT, ierror, nodump, idummy
+      integer(kind=int_wp) ::  itype, itmdep, iprdep, nrlst, maxk, nbase
+      integer(kind=int_wp) ::  locnr, loctyp, maxdef, maxlst
  !
 !         Open the DELWAQ .HIS file
 !

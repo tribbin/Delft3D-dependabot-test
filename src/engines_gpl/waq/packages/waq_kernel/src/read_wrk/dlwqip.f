@@ -58,70 +58,70 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     LUNWRP  INTEGER(kind=int_32) ::1     INPUT   Proces work file
+!     LUNWRP  INTEGER(kind=int_wp) ::1     INPUT   Proces work file
 !     LCH     CHA*(*)       1     INPUT   Name proces work file
-!     LUREP   INTEGER(kind=int_32) ::1     INPUT   Monitoring file
-!     NOTOT   INTEGER(kind=int_32) ::1     INPUT   Number of substances
-!     NIPMSA  INTEGER(kind=int_32) ::1     INPUT   Length IPMSA
-!     NPROC   INTEGER(kind=int_32) ::1     INPUT   Number of called processes
-!     NOLOC   INTEGER(kind=int_32) ::1     INPUT   Number of local proces params
-!     NFLUX   INTEGER(kind=int_32) ::1     INPUT   total number of fluxes
-!     NODEF   INTEGER(kind=int_32) ::1     INPUT   Number of used defaults
-!     PRVNIO  INTEGER(kind=int_32) ::*     OUTPUT  Number of variables per proces
-!     IFLUX   INTEGER(kind=int_32) ::*     OUTPUT  Pointer in FLUX per proces inst.
-!     IPMSA   INTEGER(kind=int_32) ::*     OUTPUT  Pointer in SSA per proces inst.
-!     IPSSA   INTEGER(kind=int_32) ::*     OUTPUT  Pointer to SSA per proces inst.
-!     DEFAUL  REAL(kind=sp) ::*     OUTPUT  Default proces parameters
-!     STOCHI  REAL(kind=sp) ::*     OUTPUT  Proces stochiometry
+!     LUREP   INTEGER(kind=int_wp) ::1     INPUT   Monitoring file
+!     NOTOT   INTEGER(kind=int_wp) ::1     INPUT   Number of substances
+!     NIPMSA  INTEGER(kind=int_wp) ::1     INPUT   Length IPMSA
+!     NPROC   INTEGER(kind=int_wp) ::1     INPUT   Number of called processes
+!     NOLOC   INTEGER(kind=int_wp) ::1     INPUT   Number of local proces params
+!     NFLUX   INTEGER(kind=int_wp) ::1     INPUT   total number of fluxes
+!     NODEF   INTEGER(kind=int_wp) ::1     INPUT   Number of used defaults
+!     PRVNIO  INTEGER(kind=int_wp) ::*     OUTPUT  Number of variables per proces
+!     IFLUX   INTEGER(kind=int_wp) ::*     OUTPUT  Pointer in FLUX per proces inst.
+!     IPMSA   INTEGER(kind=int_wp) ::*     OUTPUT  Pointer in SSA per proces inst.
+!     IPSSA   INTEGER(kind=int_wp) ::*     OUTPUT  Pointer to SSA per proces inst.
+!     DEFAUL  REAL(kind=real_wp) ::*     OUTPUT  Default proces parameters
+!     STOCHI  REAL(kind=real_wp) ::*     OUTPUT  Proces stochiometry
 !     PRONAM  CHA*(*)       *     OUTPUT  Name of called module
-!     IMODU   INTEGER(kind=int_32) ::*     OUTPUT  Module number proces
-!     IERR    INTEGER(kind=int_32) ::1     IN/OUT  Error count
-!     IPBLOO  INTEGER(kind=int_32) ::1     INPUT   Number of Bloom module (if >0)
-!     IOFFBL  INTEGER(kind=int_32) ::1     INPUT   Offset in IPMSA for Bloom
-!     NOSYS   INTEGER(kind=int_32) ::1     INPUT   Number of active substances
-!     NDSPX   INTEGER(kind=int_32) ::1     INPUT   Number of extra dispersion array
-!     NVELX   INTEGER(kind=int_32) ::1     INPUT   Number of extra velocity array
-!     DSTO    INTEGER(kind=int_32) ::NOSYS,*     OUTPUT  dispersion stochi matrix
-!     VSTO    INTEGER(kind=int_32) ::NOSYS,*     OUTPUT  velocity stochi matrix
-!     NDSPN   INTEGER(kind=int_32) ::1     INPUT   Number of new dispersion array
-!     IDPNW   INTEGER(kind=int_32) ::NOSYS     OUTPUT  Pointers to new dispersion array
-!     NVELN   INTEGER(kind=int_32) ::1     INPUT   Number of new velocity array
-!     IVPNW   INTEGER(kind=int_32) ::NOSYS     OUTPUT  Pointers to new velocity array
-!     PROGRD  INTEGER(kind=int_32) ::NPROC     OUTPUT  Grid number for process
-!     PRONDT  INTEGER(kind=int_32) ::NPROC     OUTPUT  Fractional step for process
+!     IMODU   INTEGER(kind=int_wp) ::*     OUTPUT  Module number proces
+!     IERR    INTEGER(kind=int_wp) ::1     IN/OUT  Error count
+!     IPBLOO  INTEGER(kind=int_wp) ::1     INPUT   Number of Bloom module (if >0)
+!     IOFFBL  INTEGER(kind=int_wp) ::1     INPUT   Offset in IPMSA for Bloom
+!     NOSYS   INTEGER(kind=int_wp) ::1     INPUT   Number of active substances
+!     NDSPX   INTEGER(kind=int_wp) ::1     INPUT   Number of extra dispersion array
+!     NVELX   INTEGER(kind=int_wp) ::1     INPUT   Number of extra velocity array
+!     DSTO    INTEGER(kind=int_wp) ::NOSYS,*     OUTPUT  dispersion stochi matrix
+!     VSTO    INTEGER(kind=int_wp) ::NOSYS,*     OUTPUT  velocity stochi matrix
+!     NDSPN   INTEGER(kind=int_wp) ::1     INPUT   Number of new dispersion array
+!     IDPNW   INTEGER(kind=int_wp) ::NOSYS     OUTPUT  Pointers to new dispersion array
+!     NVELN   INTEGER(kind=int_wp) ::1     INPUT   Number of new velocity array
+!     IVPNW   INTEGER(kind=int_wp) ::NOSYS     OUTPUT  Pointers to new velocity array
+!     PROGRD  INTEGER(kind=int_wp) ::NPROC     OUTPUT  Grid number for process
+!     PRONDT  INTEGER(kind=int_wp) ::NPROC     OUTPUT  Fractional step for process
 !
 !     Declaration of arguments
 !
       use timers
       use process_registration
 
-      INTEGER(kind=int_32) ::LUNWRP, LUREP , NOTOT , NIPMSA, NPROC ,
+      INTEGER(kind=int_wp) ::LUNWRP, LUREP , NOTOT , NIPMSA, NPROC ,
      +              NOLOC , NFLUX , NODEF , IPBLOO, 
      +              IOFFBL, NOSYS , NDSPX , NVELX ,
      +              NDSPN , NVELN , NOVAR , nrref
-      INTEGER(kind=int_32) ::PRVNIO(*)     , IFLUX(*)      , PRVVAR(*)    ,
+      INTEGER(kind=int_wp) ::PRVNIO(*)     , IFLUX(*)      , PRVVAR(*)    ,
      +              PRVTYP(*)     , IMODU(*)      , IDPNW(*)     ,
      +              IVPNW(*)      , PROGRD(*)     , PRONDT(*)    ,
      +              VARARR(*)     , VARIDX(*)     , VARTDA(*)    ,
      +              VARDAG(*)     , VARTAG(*)     , VARAGG(*)    ,
      &              proref(*)     , prvpnt(*)
-      REAL(kind=sp) ::DEFAUL(*)     , STOCHI(*)     , DSTO(*)      ,
+      REAL(kind=real_wp) ::DEFAUL(*)     , STOCHI(*)     , DSTO(*)      ,
      +              VSTO(*)
       CHARACTER*(*) LCH
       CHARACTER*10  PRONAM(*)
 !
 !     Local declarations
-      INTEGER(kind=int_32) ::NIPMSD, NPROCD, NOLOCD, NFLUXD, NODEFD,
+      INTEGER(kind=int_wp) ::NIPMSD, NPROCD, NOLOCD, NFLUXD, NODEFD,
      +              NOTOTD, IOFF, NOSYSD, NDSPXD, NVELXD,
      +              NLOCXD, NDSPND, NVELND, NOVARD, nrrefD
-      REAL(kind=sp) ::VERSIO
+      REAL(kind=real_wp) ::VERSIO
 
-      integer(kind=int_32) ::k, ierr, nlocx, iproc, ifracs, ipdgrd
+      integer(kind=int_wp) ::k, ierr, nlocx, iproc, ifracs, ipdgrd
 !
 !jvb  Store fractional step flag in common CFRACS
 !
       COMMON /CFRACS/ IFRACS
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqip", ithandl )
 !jvb
 !

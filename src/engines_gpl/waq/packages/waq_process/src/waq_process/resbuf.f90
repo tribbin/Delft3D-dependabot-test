@@ -41,18 +41,18 @@ contains
 !
 !     Type         Name         I/O Description
 !
-      real(kind=sp)  ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
-      real(kind=sp)  ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
-      integer(kind=int_32)  ::ipoint(45)  ! I  Array of pointers in pmsa to get and store the data
-      integer(kind=int_32)  ::increm(45)  ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer(kind=int_32)  ::noseg       ! I  Number of computational elements in the whole model schematisation
-      integer(kind=int_32)  ::noflux      ! I  Number of fluxes, increment in the fl array
-      integer(kind=int_32)  ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      integer(kind=int_32)  ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      integer(kind=int_32)  ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
-      integer(kind=int_32)  ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer(kind=int_32)  ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer(kind=int_32)  ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      real(kind=real_wp)  ::pmsa(*)     !I/O Process Manager System Array, window of routine to process library
+      real(kind=real_wp)  ::fl(*)       ! O  Array of fluxes made by this process in mass/volume/time
+      integer(kind=int_wp)  ::ipoint(45)  ! I  Array of pointers in pmsa to get and store the data
+      integer(kind=int_wp)  ::increm(45)  ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_wp)  ::noseg       ! I  Number of computational elements in the whole model schematisation
+      integer(kind=int_wp)  ::noflux      ! I  Number of fluxes, increment in the fl array
+      integer(kind=int_wp)  ::iexpnt(4,*) ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      integer(kind=int_wp)  ::iknmrk(*)   ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      integer(kind=int_wp)  ::noq1        ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
+      integer(kind=int_wp)  ::noq2        ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_wp)  ::noq3        ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_wp)  ::noq4        ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
 !
 !*******************************************************************************
 !     This process replaces RESPUP and S12TIM 
@@ -90,79 +90,79 @@ contains
 ! FrIM1S2Pup    O fraction IM1 in layer S2 pick-up         (gDM/gDM)
 ! dResS2Pup     F pick-up resuspension flux IM1 from S2     (g/m3/d)
 
-      integer(kind=int_32)  ::ipnt( 45)   !    local work array for the pointering
-      integer(kind=int_32)  ::iseg        !    local loop counter for computational element loop
-      integer(kind=int_32)  ::iflux
-      integer(kind=int_32)  ::ikmrk2
+      integer(kind=int_wp)  ::ipnt( 45)   !    local work array for the pointering
+      integer(kind=int_wp)  ::iseg        !    local loop counter for computational element loop
+      integer(kind=int_wp)  ::iflux
+      integer(kind=int_wp)  ::ikmrk2
 
       ! input items
-      real(kind=sp)  ::im1s2
-      real(kind=sp)  ::im2s2
-      real(kind=sp)  ::im3s2
-      real(kind=sp)  ::tau
-      real(kind=sp)  ::tcrrs2
-      real(kind=sp)  ::grain50
-      real(kind=sp)  ::grav
-      real(kind=sp)  ::kinviscos
-      real(kind=sp)  ::rhosand
-      real(kind=sp)  ::rhowater
-      real(kind=sp)  ::pors2
-      real(kind=sp)  ::thicks2
-      real(kind=sp)  ::surf
-      real(kind=sp)  ::depth
-      real(kind=sp)  ::delt
-      real(kind=sp)  ::mindep
-      real(kind=sp)  ::maxrespup
-      real(kind=sp)  ::factrespup
-      integer(kind=int_32)  ::isw_zf   
-      real(kind=sp)  ::im1s1    
-      real(kind=sp)  ::zresim1  
-      real(kind=sp)  ::vresim1  
-      real(kind=sp)  ::tcrrim1  
-      real(kind=sp)  ::im2s1    
-      real(kind=sp)  ::zresim2  
-      real(kind=sp)  ::vresim2  
-      real(kind=sp)  ::tcrrim2  
-      real(kind=sp)  ::im3s1    
-      real(kind=sp)  ::zresim3  
-      real(kind=sp)  ::vresim3  
-      real(kind=sp)  ::tcrrim3  
-      real(kind=sp)  ::dms1       
-      real(kind=sp)  ::dms2     
+      real(kind=real_wp)  ::im1s2
+      real(kind=real_wp)  ::im2s2
+      real(kind=real_wp)  ::im3s2
+      real(kind=real_wp)  ::tau
+      real(kind=real_wp)  ::tcrrs2
+      real(kind=real_wp)  ::grain50
+      real(kind=real_wp)  ::grav
+      real(kind=real_wp)  ::kinviscos
+      real(kind=real_wp)  ::rhosand
+      real(kind=real_wp)  ::rhowater
+      real(kind=real_wp)  ::pors2
+      real(kind=real_wp)  ::thicks2
+      real(kind=real_wp)  ::surf
+      real(kind=real_wp)  ::depth
+      real(kind=real_wp)  ::delt
+      real(kind=real_wp)  ::mindep
+      real(kind=real_wp)  ::maxrespup
+      real(kind=real_wp)  ::factrespup
+      integer(kind=int_wp)  ::isw_zf
+      real(kind=real_wp)  ::im1s1
+      real(kind=real_wp)  ::zresim1
+      real(kind=real_wp)  ::vresim1
+      real(kind=real_wp)  ::tcrrim1
+      real(kind=real_wp)  ::im2s1
+      real(kind=real_wp)  ::zresim2
+      real(kind=real_wp)  ::vresim2
+      real(kind=real_wp)  ::tcrrim2
+      real(kind=real_wp)  ::im3s1
+      real(kind=real_wp)  ::zresim3
+      real(kind=real_wp)  ::vresim3
+      real(kind=real_wp)  ::tcrrim3
+      real(kind=real_wp)  ::dms1
+      real(kind=real_wp)  ::dms2
       
       ! output
-      real(kind=sp)  ::flrim1s2
-      real(kind=sp)  ::flrim2s2
-      real(kind=sp)  ::flrim3s2
-      real(kind=sp)  ::flres2
-      real(kind=sp)  ::press2
-      real(kind=sp)  ::frtims2pup
-      real(kind=sp)  ::frpoms2pup
-      real(kind=sp)  ::flrim1s1
-      real(kind=sp)  ::flrim2s1
-      real(kind=sp)  ::flrim3s1
-      real(kind=sp)  ::flrdms1
-      real(kind=sp)  ::flrdms2
+      real(kind=real_wp)  ::flrim1s2
+      real(kind=real_wp)  ::flrim2s2
+      real(kind=real_wp)  ::flrim3s2
+      real(kind=real_wp)  ::flres2
+      real(kind=real_wp)  ::press2
+      real(kind=real_wp)  ::frtims2pup
+      real(kind=real_wp)  ::frpoms2pup
+      real(kind=real_wp)  ::flrim1s1
+      real(kind=real_wp)  ::flrim2s1
+      real(kind=real_wp)  ::flrim3s1
+      real(kind=real_wp)  ::flrdms1
+      real(kind=real_wp)  ::flrdms2
 
       ! other
-      real(kind=sp)  ::frim1s2pup
-      real(kind=sp)  ::frim2s2pup
-      real(kind=sp)  ::frim3s2pup
-      real(kind=sp)  ::tims2
-      real(kind=sp)  ::rhosandkg
-      real(kind=sp)  ::s
-      real(kind=sp)  ::dster
-      real(kind=sp)  ::rest
-      real(kind=sp)  ::rfdms2
-      real(kind=sp)  ::rfim1s2
-      real(kind=sp)  ::rfim2s2
-      real(kind=sp)  ::rfim3s2
-      real(kind=sp)  ::mrim1s2
-      real(kind=sp)  ::mrim2s2
-      real(kind=sp)  ::mrim3s2
+      real(kind=real_wp)  ::frim1s2pup
+      real(kind=real_wp)  ::frim2s2pup
+      real(kind=real_wp)  ::frim3s2pup
+      real(kind=real_wp)  ::tims2
+      real(kind=real_wp)  ::rhosandkg
+      real(kind=real_wp)  ::s
+      real(kind=real_wp)  ::dster
+      real(kind=real_wp)  ::rest
+      real(kind=real_wp)  ::rfdms2
+      real(kind=real_wp)  ::rfim1s2
+      real(kind=real_wp)  ::rfim2s2
+      real(kind=real_wp)  ::rfim3s2
+      real(kind=real_wp)  ::mrim1s2
+      real(kind=real_wp)  ::mrim2s2
+      real(kind=real_wp)  ::mrim3s2
       
       ! new
-      real(kind=sp)  ::press1im1, press1im2, press1im3, flres1, tims1
+      real(kind=real_wp)  ::press1im1, press1im2, press1im3, flres1, tims1
 
       ipnt        = ipoint
 

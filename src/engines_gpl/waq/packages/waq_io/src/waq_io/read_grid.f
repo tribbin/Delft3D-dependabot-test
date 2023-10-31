@@ -71,34 +71,34 @@
 
 !     declaration of arguments
 
-      integer(kind=int_32), intent(inout) ::  lun(*)         !< unit numbers used
+      integer(kind=int_wp), intent(inout) ::  lun(*)         !< unit numbers used
       type(GridPointer)     , intent(inout) :: aGrid         !< collection off all grid definitions
       type(GridPointerColl) , intent(in   ) :: GridPs        !< collection off all grid definitions
       logical               , intent(in   ) :: oldproc       !< true if old processing
-      integer(kind=int_32), intent(in   ) ::  nosegl_bottom  !< number of segments expected for bottom
-      integer(kind=int_32), intent(inout) ::  ierr           !< cummulative error count
+      integer(kind=int_wp), intent(in   ) ::  nosegl_bottom  !< number of segments expected for bottom
+      integer(kind=int_wp), intent(inout) ::  ierr           !< cummulative error count
 
 !     local declarations
 
-      integer(kind=int_32) ::  itype         ! type of input that was obtained
-      integer(kind=int_32) ::  itoken        ! integer token from input
-      integer(kind=int_32) ::  idummy        ! dummy which content is not used
+      integer(kind=int_wp) ::  itype         ! type of input that was obtained
+      integer(kind=int_wp) ::  itoken        ! integer token from input
+      integer(kind=int_wp) ::  idummy        ! dummy which content is not used
       character(len=255)    :: ctoken       ! character token from input
-      integer(kind=int_32) ::  ierr2         ! local error indication
-      integer(kind=int_32) ::  i_base_grid   ! index base grid in collection
-      integer(kind=int_32) ::  i_grid        ! index grid in collection
-      integer(kind=int_32) ::  nmax          ! nmax
-      integer(kind=int_32) ::  mmax          ! mmax
-      integer(kind=int_32) ::  noseg         ! number of segments
-      integer(kind=int_32) ::  noseg2        ! number of segments in sub grid
-      integer(kind=int_32) ::  noseg_lay     ! number of segments per layer
-      integer(kind=int_32) ::  noseg_fil     ! number of segments in file
-      integer(kind=int_32) ::  noseg_input   ! number of segments in input
-      integer(kind=int_32) ::  iseg          ! index segment number
-      integer(kind=int_32) ::  iseg2         ! second index segment number
-      integer(kind=int_32) ::  nolay         ! number of layers
-      integer(kind=int_32), allocatable ::  iwork(:)      ! work array
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  ierr2         ! local error indication
+      integer(kind=int_wp) ::  i_base_grid   ! index base grid in collection
+      integer(kind=int_wp) ::  i_grid        ! index grid in collection
+      integer(kind=int_wp) ::  nmax          ! nmax
+      integer(kind=int_wp) ::  mmax          ! mmax
+      integer(kind=int_wp) ::  noseg         ! number of segments
+      integer(kind=int_wp) ::  noseg2        ! number of segments in sub grid
+      integer(kind=int_wp) ::  noseg_lay     ! number of segments per layer
+      integer(kind=int_wp) ::  noseg_fil     ! number of segments in file
+      integer(kind=int_wp) ::  noseg_input   ! number of segments in input
+      integer(kind=int_wp) ::  iseg          ! index segment number
+      integer(kind=int_wp) ::  iseg2         ! second index segment number
+      integer(kind=int_wp) ::  nolay         ! number of layers
+      integer(kind=int_wp), allocatable ::  iwork(:)      ! work array
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "read_grid", ithndl )
 
 !     some init
@@ -245,15 +245,15 @@
       subroutine read_attributes_for_bottomgrid( lunut, iarray, nosegl, ierr )
       use m_evaluate_waq_attribute
 
-      integer(kind=int_32) ::  lunut, nosegl, ierr 
-      integer(kind=int_32), dimension(:) ::  iarray
+      integer(kind=int_wp) ::  lunut, nosegl, ierr
+      integer(kind=int_wp), dimension(:) ::  iarray
  
-      integer(kind=int_32) ::  i, j, nkopt, ikopt1, ikopt2, ierr2, lunbin, iover, ikdef, idummy 
-      integer(kind=int_32) ::  noseg, nopt, nover, attrib, active, iknm1, iknm2, iknmrk, ivalk 
-      integer(kind=int_32), allocatable, dimension(:)  ::  iamerge         !  composite attribute array
-      integer(kind=int_32), allocatable, dimension(:)  ::  ikmerge         !  array with indicators whether attributes are already set
-      integer(kind=int_32), allocatable, dimension(:)  ::  ikenm           !  array with attributes of an input block
-      integer(kind=int_32), allocatable, dimension(:)  ::  iread           !  array to read attributes
+      integer(kind=int_wp) ::  i, j, nkopt, ikopt1, ikopt2, ierr2, lunbin, iover, ikdef, idummy
+      integer(kind=int_wp) ::  noseg, nopt, nover, attrib, active, iknm1, iknm2, iknmrk, ivalk
+      integer(kind=int_wp), allocatable, dimension(:)  ::  iamerge         !  composite attribute array
+      integer(kind=int_wp), allocatable, dimension(:)  ::  ikmerge         !  array with indicators whether attributes are already set
+      integer(kind=int_wp), allocatable, dimension(:)  ::  ikenm           !  array with attributes of an input block
+      integer(kind=int_wp), allocatable, dimension(:)  ::  iread           !  array to read attributes
       character(len=255) :: filename
 
       noseg = size(iarray)

@@ -45,7 +45,7 @@
       real(kind=dp) ::aco(mt,mt),rvec(2*mt),svec(2*mt),dvec(2*mt),xvec(2*mt)
       real(kind=dp) ::extb, rtemp, extlim
       
-      integer(kind=int_32) ::i, ij, il, j, jk, k, k3, m, n, ni, nn
+      integer(kind=int_wp) ::i, ij, il, j, jk, k, k3, m, n, ni, nn
 
 !  Initialize.
       do i=1,nuspec

@@ -36,7 +36,7 @@
       use m_dhslen
       use timers       !   performance timers
 
-      integer(kind=int_32) ::noalg , noprot , nopralg
+      integer(kind=int_wp) ::noalg , noprot , nopralg
       character*(*)  namprot(noprot)  , nampact(noprot),
      +               nampralg(nopralg)
 
@@ -46,8 +46,8 @@
       character*10   namep2
       character*10   namep3
       logical        found
-      integer(kind=int_32) ::ithndl = 0
-      integer(kind=int_32) ::iproc, ipro, iproc2, ic, iprcnf, iprcnf2, ialg, ilen
+      integer(kind=int_wp) ::ithndl = 0
+      integer(kind=int_wp) ::iproc, ipro, iproc2, ic, iprcnf, iprcnf2, ialg, ilen
       
       if (timon) call timstrt( "cnfrep", ithndl )
 

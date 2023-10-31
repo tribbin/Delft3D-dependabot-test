@@ -41,26 +41,26 @@ use m_waq_type_definitions
 
 !      wasteloads
 
-   integer(kind=int_32),  pointer     :: iwstkind(:)      ! steers flow-concentration processing
-   integer(kind=int_32)                  ::ftype   (50)     ! copy of filtype in delwaq2
+   integer(kind=int_wp),  pointer     :: iwstkind(:)      ! steers flow-concentration processing
+   integer(kind=int_wp)                  ::ftype   (50)     ! copy of filtype in delwaq2
 
 !      general solvers
 
-   real(kind=sp), allocatable ::surface (:)      ! horizontal surface
+   real(kind=real_wp), allocatable ::surface (:)      ! horizontal surface
    real(kind=dp), allocatable ::volume0 (:)      ! begin volume of a time step
    real(kind=dp), allocatable ::volume1 (:)      ! end   volume of a time step
-   real(kind=sp), allocatable ::mixlen  (:)      ! standard mixing flow m3/s
-   real(kind=sp), allocatable ::wdrawal (:)      ! withdrawal term
-   integer(kind=int_32), allocatable ::rowpnt  (:)      ! start of each row in the matrix (0:n)-array
-   integer(kind=int_32), allocatable ::fmat    (:)      ! pointer from(iq) in matrix
-   integer(kind=int_32), allocatable ::tmat    (:)      ! pointer to  (iq) in matrix
-   integer(kind=int_32),  pointer     :: iexseg  (:,:)    ! zero if volume is explicit
-   integer(kind=int_32),  pointer     :: iknmkv  (:,:)    ! time variable feature array (for drying/flooding)
-   integer(kind=int_32), allocatable ::isegcol (:)      ! pointer from segment to top of column
+   real(kind=real_wp), allocatable ::mixlen  (:)      ! standard mixing flow m3/s
+   real(kind=real_wp), allocatable ::wdrawal (:)      ! withdrawal term
+   integer(kind=int_wp), allocatable ::rowpnt  (:)      ! start of each row in the matrix (0:n)-array
+   integer(kind=int_wp), allocatable ::fmat    (:)      ! pointer from(iq) in matrix
+   integer(kind=int_wp), allocatable ::tmat    (:)      ! pointer to  (iq) in matrix
+   integer(kind=int_wp),  pointer     :: iexseg  (:,:)    ! zero if volume is explicit
+   integer(kind=int_wp),  pointer     :: iknmkv  (:,:)    ! time variable feature array (for drying/flooding)
+   integer(kind=int_wp), allocatable ::isegcol (:)      ! pointer from segment to top of column
 
 !      solver  6, 7 and 10 only
 
-   real(kind=sp), allocatable ::rhs     (:,:)    ! delmat right hand side
+   real(kind=real_wp), allocatable ::rhs     (:,:)    ! delmat right hand side
 
 !      solver 11, 12, 13, 14 and 24 only
 
@@ -82,39 +82,39 @@ use m_waq_type_definitions
 
 !      if regular grid is provided (for future incorporation PART)
 
-   integer(kind=int_32), allocatable ::cellpnt (:)      ! backpointer from noseg to mnmaxk
-   integer(kind=int_32), allocatable ::flowpnt (:)      ! backpointer from noq to 3*mnmaxk - mnmax
-   real(kind=sp), allocatable ::cell_x  (:,:)    ! x-values at the corner points of the grid
-   real(kind=sp), allocatable ::cell_y  (:,:)    ! y-values at the corner points of the grid
+   integer(kind=int_wp), allocatable ::cellpnt (:)      ! backpointer from noseg to mnmaxk
+   integer(kind=int_wp), allocatable ::flowpnt (:)      ! backpointer from noq to 3*mnmaxk - mnmax
+   real(kind=real_wp), allocatable ::cell_x  (:,:)    ! x-values at the corner points of the grid
+   real(kind=real_wp), allocatable ::cell_y  (:,:)    ! y-values at the corner points of the grid
 
 !      solver 21 and 22 only
 
-   real(kind=sp), allocatable ::theta   (:,:)    ! theta per exchange per processor
-   real(kind=sp), allocatable ::thetaseg(:,:)    ! theta per volume per processor
-   real(kind=sp), allocatable ::flowtot (:,:)    ! flow per processor
-   real(kind=sp), allocatable ::disptot (:,:)    ! dispersion per processor
-   real(kind=sp), allocatable ::flux    (:,:)    ! flux corrections
-   real(kind=sp), allocatable ::lim     (:,:)    ! limiter
-   real(kind=sp), allocatable ::maxi    (:,:)
-   real(kind=sp), allocatable ::mini    (:,:)
-   real(kind=sp), allocatable ::l1      (:,:)
-   real(kind=sp), allocatable ::l2      (:,:)
-   real(kind=sp), allocatable ::m1      (:,:)
-   real(kind=sp), allocatable ::m2      (:,:)
-   real(kind=sp), allocatable ::n1      (:,:)
-   real(kind=sp), allocatable ::n2      (:,:)
+   real(kind=real_wp), allocatable ::theta   (:,:)    ! theta per exchange per processor
+   real(kind=real_wp), allocatable ::thetaseg(:,:)    ! theta per volume per processor
+   real(kind=real_wp), allocatable ::flowtot (:,:)    ! flow per processor
+   real(kind=real_wp), allocatable ::disptot (:,:)    ! dispersion per processor
+   real(kind=real_wp), allocatable ::flux    (:,:)    ! flux corrections
+   real(kind=real_wp), allocatable ::lim     (:,:)    ! limiter
+   real(kind=real_wp), allocatable ::maxi    (:,:)
+   real(kind=real_wp), allocatable ::mini    (:,:)
+   real(kind=real_wp), allocatable ::l1      (:,:)
+   real(kind=real_wp), allocatable ::l2      (:,:)
+   real(kind=real_wp), allocatable ::m1      (:,:)
+   real(kind=real_wp), allocatable ::m2      (:,:)
+   real(kind=real_wp), allocatable ::n1      (:,:)
+   real(kind=real_wp), allocatable ::n2      (:,:)
 
 !      solver 24 only
 
    real(kind=dp), allocatable ::dwork   (:,:)    ! work array self adjusting step
    real(kind=dp), allocatable ::volint  (:)      ! interpolation array for volumes
    real(kind=dp), allocatable ::dconc2  (:,:)    ! first guess array concentrations
-   integer(kind=int_32), allocatable ::ibas    (:)      ! administrative arrays for the self
-   integer(kind=int_32), allocatable ::ibaf    (:)      ! adjusting time step procedure
-   integer(kind=int_32), allocatable ::iords   (:)      ! id.
-   integer(kind=int_32), allocatable ::iordf   (:)      ! id.
-   integer(kind=int_32), allocatable ::nvert   (:,:)    ! id.
-   integer(kind=int_32), allocatable ::ivert   (:)      ! id.
+   integer(kind=int_wp), allocatable ::ibas    (:)      ! administrative arrays for the self
+   integer(kind=int_wp), allocatable ::ibaf    (:)      ! adjusting time step procedure
+   integer(kind=int_wp), allocatable ::iords   (:)      ! id.
+   integer(kind=int_wp), allocatable ::iordf   (:)      ! id.
+   integer(kind=int_wp), allocatable ::nvert   (:,:)    ! id.
+   integer(kind=int_wp), allocatable ::ivert   (:)      ! id.
 
    contains
 

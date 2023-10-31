@@ -38,22 +38,22 @@
       use timers
       implicit none
 
-      integer(kind=int_32), intent(in   )  ::nosss          ! total number of segments
-      integer(kind=int_32), intent(in   )  ::noq1           ! number of exchange pointers in first direction
-      integer(kind=int_32), intent(in   )  ::noq2           ! number of exchange pointers in first direction
-      integer(kind=int_32), intent(in   )  ::noq3           ! number of exchange pointers in first direction
-      integer(kind=int_32), intent(in   )  ::noq4           ! number of exchange pointers in first direction
-      integer(kind=int_32), intent(in   )  ::ipoint(4,*)    ! exchange pointers
-      integer(kind=int_32), intent(in   )  ::iknmrk(*)      ! segment attributes
-      integer(kind=int_32), intent(  out)  ::isegcol(*)     ! pointer from segment to top of column
+      integer(kind=int_wp), intent(in   )  ::nosss          ! total number of segments
+      integer(kind=int_wp), intent(in   )  ::noq1           ! number of exchange pointers in first direction
+      integer(kind=int_wp), intent(in   )  ::noq2           ! number of exchange pointers in first direction
+      integer(kind=int_wp), intent(in   )  ::noq3           ! number of exchange pointers in first direction
+      integer(kind=int_wp), intent(in   )  ::noq4           ! number of exchange pointers in first direction
+      integer(kind=int_wp), intent(in   )  ::ipoint(4,*)    ! exchange pointers
+      integer(kind=int_wp), intent(in   )  ::iknmrk(*)      ! segment attributes
+      integer(kind=int_wp), intent(  out)  ::isegcol(*)     ! pointer from segment to top of column
 
       ! local declarations
 
-      integer(kind=int_32) ::iseg           ! segment index
-      integer(kind=int_32) ::iq             ! exchange index
-      integer(kind=int_32) ::ifrom          ! from segment in pointer
-      integer(kind=int_32) ::ito            ! to segment in pointer
-      integer(kind=int_32) ::ikmrkv         ! first attribute from segment
+      integer(kind=int_wp) ::iseg           ! segment index
+      integer(kind=int_wp) ::iq             ! exchange index
+      integer(kind=int_wp) ::ifrom          ! from segment in pointer
+      integer(kind=int_wp) ::ito            ! to segment in pointer
+      integer(kind=int_wp) ::ikmrkv         ! first attribute from segment
 
       do iseg = 1, nosss
          isegcol(iseg) = iseg

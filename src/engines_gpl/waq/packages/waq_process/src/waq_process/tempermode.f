@@ -41,32 +41,32 @@
 
 !     arguments
 
-      REAL(kind=sp) ::PMSA(*)            ! in/out input-output array space to be adressed with IPOINT/INCREM
-      REAL(kind=sp) ::FL(*)              ! in/out flux array
-      INTEGER(kind=int_32) ::IPOINT(*)          ! in     start index input-output parameters in the PMSA array (segment or exchange number 1)
-      INTEGER(kind=int_32) ::INCREM(*)          ! in     increment for each segment-exchange for the input-output parameters in the PMSA array
-      INTEGER(kind=int_32) ::NOSEG              ! in     number of segments
-      INTEGER(kind=int_32) ::NOFLUX             ! in     total number of fluxes (increment in FL array)
-      INTEGER(kind=int_32) ::IEXPNT(4,*)        ! in     exchange pointer table
-      INTEGER(kind=int_32) ::IKNMRK(*)          ! in     segment features array
-      INTEGER(kind=int_32) ::NOQ1               ! in     number of exchanges in first direction
-      INTEGER(kind=int_32) ::NOQ2               ! in     number of exchanges in second direction
-      INTEGER(kind=int_32) ::NOQ3               ! in     number of exchanges in third direction
-      INTEGER(kind=int_32) ::NOQ4               ! in     number of exchanges in fourth direction
+      REAL(kind=real_wp) ::PMSA(*)            ! in/out input-output array space to be adressed with IPOINT/INCREM
+      REAL(kind=real_wp) ::FL(*)              ! in/out flux array
+      INTEGER(kind=int_wp) ::IPOINT(*)          ! in     start index input-output parameters in the PMSA array (segment or exchange number 1)
+      INTEGER(kind=int_wp) ::INCREM(*)          ! in     increment for each segment-exchange for the input-output parameters in the PMSA array
+      INTEGER(kind=int_wp) ::NOSEG              ! in     number of segments
+      INTEGER(kind=int_wp) ::NOFLUX             ! in     total number of fluxes (increment in FL array)
+      INTEGER(kind=int_wp) ::IEXPNT(4,*)        ! in     exchange pointer table
+      INTEGER(kind=int_wp) ::IKNMRK(*)          ! in     segment features array
+      INTEGER(kind=int_wp) ::NOQ1               ! in     number of exchanges in first direction
+      INTEGER(kind=int_wp) ::NOQ2               ! in     number of exchanges in second direction
+      INTEGER(kind=int_wp) ::NOQ3               ! in     number of exchanges in third direction
+      INTEGER(kind=int_wp) ::NOQ4               ! in     number of exchanges in fourth direction
 
 !     from PMSA array
 
-      REAL(kind=sp) ::MTEMP              ! 1  in  Modelled temperature                                [oC]
-      REAL(kind=sp) ::TMPNAT             ! 2  in  natural temperature of ambient water                [oC]
-      INTEGER(kind=int_32) ::ISWTMP             ! 3  in  DELWAQ process time step                             [d]
-      REAL(kind=sp) ::TTEMP              ! 4  out Total temperature                                   [oC]
-      REAL(kind=sp) ::ETEMP              ! 5  out EXCESS! temperature                                 [oC]
+      REAL(kind=real_wp) ::MTEMP              ! 1  in  Modelled temperature                                [oC]
+      REAL(kind=real_wp) ::TMPNAT             ! 2  in  natural temperature of ambient water                [oC]
+      INTEGER(kind=int_wp) ::ISWTMP             ! 3  in  DELWAQ process time step                             [d]
+      REAL(kind=real_wp) ::TTEMP              ! 4  out Total temperature                                   [oC]
+      REAL(kind=real_wp) ::ETEMP              ! 5  out EXCESS! temperature                                 [oC]
 
 !     local decalrations
 
 
-      INTEGER(kind=int_32) ::IP1 ,IP2 ,IP3 ,IP4 ,IP5 ,IP6 
-      INTEGER(kind=int_32) ::IFLUX , ISEG  , IKMRK2
+      INTEGER(kind=int_wp) ::IP1 ,IP2 ,IP3 ,IP4 ,IP5 ,IP6
+      INTEGER(kind=int_wp) ::IFLUX , ISEG  , IKMRK2
 
       IP1  = IPOINT(1 )
       IP2  = IPOINT(2 )

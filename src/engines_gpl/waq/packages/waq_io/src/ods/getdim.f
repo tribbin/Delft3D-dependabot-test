@@ -74,14 +74,14 @@
       CHARACTER*3   DIM
       DIMENSION     NDIM(3)
       character*256         :: ext     ! file extension
-      integer(kind=int_32) ::  extpos   ! position of extension
-      integer(kind=int_32) ::  extlen   ! length of file extension
+      integer(kind=int_wp) ::  extpos   ! position of extension
+      integer(kind=int_wp) ::  extlen   ! length of file extension
       logical               :: mapfil  ! true if map file extension
-      integer(kind=int_32) ::  lun 
-      integer(kind=int_32) ::  NODUMP, NOTOT 
-      integer(kind=int_32) ::  k, NTT, ierror, idummy, notim, ndim, itype 
-      real(kind=sp) ::  adummy 
-      integer(kind=int_32) ::  iprdep, itmdep, locdep
+      integer(kind=int_wp) ::  lun
+      integer(kind=int_wp) ::  NODUMP, NOTOT
+      integer(kind=int_wp) ::  k, NTT, ierror, idummy, notim, ndim, itype
+      real(kind=real_wp) ::  adummy
+      integer(kind=int_wp) ::  iprdep, itmdep, locdep
 
  !
 !         Open the DELWAQ .HIS file

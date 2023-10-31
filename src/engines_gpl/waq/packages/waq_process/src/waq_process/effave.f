@@ -48,17 +48,17 @@
 !     ------   -----  ------------
 
       implicit none
-      real(kind=sp) ::pmsa  ( * ) , fl    (*)
-      integer(kind=int_32) ::ipoint( 92) , increm( 92) , noseg , noflux,
+      real(kind=real_wp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_wp) ::ipoint( 92) , increm( 92) , noseg , noflux,
      +         iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 
-      integer(kind=int_32) ::ip( 92)
-      real(kind=sp) ::delt, efftalg, limralg, rstep
-      integer(kind=int_32) ::navera
-      integer(kind=int_32) ::iseg, iflux, igro
-      integer(kind=int_32) ::nspe       ! number of bloom algae species
+      integer(kind=int_wp) ::ip( 92)
+      real(kind=real_wp) ::delt, efftalg, limralg, rstep
+      integer(kind=int_wp) ::navera
+      integer(kind=int_wp) ::iseg, iflux, igro
+      integer(kind=int_wp) ::nspe       ! number of bloom algae species
 
-      integer(kind=int_32), save   ::istep = 0
+      integer(kind=int_wp), save   ::istep = 0
 
 !     this is in a module/include, so we might put a flag if it was read of not.
 !     this should be a 'proto-proces', and thus needs to be added to the BLOOM.SPE

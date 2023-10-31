@@ -98,46 +98,46 @@
 
       IMPLICIT NONE
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
       DOUBLE PRECISION AHPLUSD, P_VAL
 
-      INTEGER(kind=int_32) ::ILUMON
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , ISEG, NOFLUX,
+      INTEGER(kind=int_wp) ::ILUMON
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , ISEG, NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
-      INTEGER(kind=int_32) ::IP1 , IP2 , IP3 , IP4 , IP5 , IP6 , IP7 , IP8, IP9, IP10,
+      INTEGER(kind=int_wp) ::IP1 , IP2 , IP3 , IP4 , IP5 , IP6 , IP7 , IP8, IP9, IP10,
      +         IP11, IP12, IP13, IP14
 
       LOGICAL,SAVE  :: FIRST = .TRUE.
 !
 !     Local declarations, constants in source
 !
-      REAL(kind=sp), PARAMETER  ::MC            =    12.0
-      REAL(kind=sp), PARAMETER  ::MCO2          =    44.0
-      REAL(kind=sp), PARAMETER  ::MHCO3         =    61.0
-      REAL(kind=sp), PARAMETER  ::MB            =    10.8
-      REAL(kind=sp), PARAMETER  ::MTOMM         =    1.0E+3
-      REAL(kind=sp), PARAMETER  ::MMTOM         =    1.0E-3
-      REAL(kind=sp), PARAMETER  ::M3TOL         =    1.0E+3
-      REAL(kind=sp), PARAMETER  ::CM3TOM3       =    1.0E-6
-      REAL(kind=sp), PARAMETER  ::ATMTOMICROATM =    1.0E+6
-      REAL(kind=sp), PARAMETER  ::ATMTOPA       =    101325.0
-      REAL(kind=sp), PARAMETER  ::KELVIN        =    real(CtoKelvin)
-      REAL(kind=sp), PARAMETER  ::R             =    8.314
+      REAL(kind=real_wp), PARAMETER  ::MC            =    12.0
+      REAL(kind=real_wp), PARAMETER  ::MCO2          =    44.0
+      REAL(kind=real_wp), PARAMETER  ::MHCO3         =    61.0
+      REAL(kind=real_wp), PARAMETER  ::MB            =    10.8
+      REAL(kind=real_wp), PARAMETER  ::MTOMM         =    1.0E+3
+      REAL(kind=real_wp), PARAMETER  ::MMTOM         =    1.0E-3
+      REAL(kind=real_wp), PARAMETER  ::M3TOL         =    1.0E+3
+      REAL(kind=real_wp), PARAMETER  ::CM3TOM3       =    1.0E-6
+      REAL(kind=real_wp), PARAMETER  ::ATMTOMICROATM =    1.0E+6
+      REAL(kind=real_wp), PARAMETER  ::ATMTOPA       =    101325.0
+      REAL(kind=real_wp), PARAMETER  ::KELVIN        =    real(CtoKelvin)
+      REAL(kind=real_wp), PARAMETER  ::R             =    8.314
 
 
-      REAL(kind=sp) ::SAL, TEMP, TIC, ALKA, PH_MIN, PH_MAX
-      REAL(kind=sp) ::PH_OLD, TEMPK, LNKW, KW
-      REAL(kind=sp) ::LNK0, K0, LNK1, K1, LNK2, K2, LNKB, KB
-      REAL(kind=sp) ::LOGCAL, KCAL, LOGARG, KARG
-      REAL(kind=sp) ::RHOH2O, TICM, ALK, BT, CA
-      REAL(kind=sp) ::AHPLUS, PH, BV, DELTA, FCO2, MOLKGCO2
-      REAL(kind=sp) ::CO2, pCO2water, HCO3, CO3, BOH4, SATCAL, SATARG
+      REAL(kind=real_wp) ::SAL, TEMP, TIC, ALKA, PH_MIN, PH_MAX
+      REAL(kind=real_wp) ::PH_OLD, TEMPK, LNKW, KW
+      REAL(kind=real_wp) ::LNK0, K0, LNK1, K1, LNK2, K2, LNKB, KB
+      REAL(kind=real_wp) ::LOGCAL, KCAL, LOGARG, KARG
+      REAL(kind=real_wp) ::RHOH2O, TICM, ALK, BT, CA
+      REAL(kind=real_wp) ::AHPLUS, PH, BV, DELTA, FCO2, MOLKGCO2
+      REAL(kind=real_wp) ::CO2, pCO2water, HCO3, CO3, BOH4, SATCAL, SATARG
 
-      integer(kind=int_32), save    ::nr_mes = 0     ! message count negative total carbonate
-      integer(kind=int_32), save    ::nrmes2 = 0     ! message count negative salinity
-      integer(kind=int_32), save    ::nrmes3 = 0     ! message count high salinity
-      integer(kind=int_32), save    ::nrmes4 = 0     ! message count negative alkalinity
-      integer(kind=int_32), save    ::nrmes5 = 0     ! message count negative H+
+      integer(kind=int_wp), save    ::nr_mes = 0     ! message count negative total carbonate
+      integer(kind=int_wp), save    ::nrmes2 = 0     ! message count negative salinity
+      integer(kind=int_wp), save    ::nrmes3 = 0     ! message count high salinity
+      integer(kind=int_wp), save    ::nrmes4 = 0     ! message count negative alkalinity
+      integer(kind=int_wp), save    ::nrmes5 = 0     ! message count negative H+
 !
       IP1   = IPOINT( 1)
       IP2   = IPOINT( 2)

@@ -67,35 +67,35 @@
 
 !     kind           function         name            Descriptipon
 
-      integer(kind=int_32), intent(inout) ::  lun   (*)      !< array with unit numbers
+      integer(kind=int_wp), intent(inout) ::  lun   (*)      !< array with unit numbers
       character( *), intent(inout) :: lchar (*)     !< array with file names of the files
-      integer(kind=int_32), intent(in   ) ::  noseg          !< number of computational volumes
-      integer(kind=int_32), intent(in   ) ::  noq            !< noq1 + noq2 + noq3
-      integer(kind=int_32), intent(in   ) ::  noq1           !< number of exchanges 1st direction
-      integer(kind=int_32), intent(in   ) ::  noq2           !< number of exchanges 2nd direction
-      integer(kind=int_32), intent(in   ) ::  noq3           !< number of exchanges 3rd direction
-      integer(kind=int_32), intent(in   ) ::  noqt           !< total number of exchanges
-      integer(kind=int_32), intent(  out) ::  nobnd          !< number of open boundaries
-      integer(kind=int_32), intent(  out) ::  ipnt (4,noqt)  !< exchange pointer
-      integer(kind=int_32), intent(in   ) ::  intsrt         !< integration number
-      integer(kind=int_32), intent(in   ) ::  ipopt1         !< file option ( 0 = binary )
-      integer(kind=int_32), intent(  out) ::  jtrack         !< number of codiagonals of matrix
-      integer(kind=int_32), intent(in   ) ::  ftype          !< type of the pointer file
-      integer(kind=int_32), intent(in   ) ::  ioutpt         !< flag for more or less output
+      integer(kind=int_wp), intent(in   ) ::  noseg          !< number of computational volumes
+      integer(kind=int_wp), intent(in   ) ::  noq            !< noq1 + noq2 + noq3
+      integer(kind=int_wp), intent(in   ) ::  noq1           !< number of exchanges 1st direction
+      integer(kind=int_wp), intent(in   ) ::  noq2           !< number of exchanges 2nd direction
+      integer(kind=int_wp), intent(in   ) ::  noq3           !< number of exchanges 3rd direction
+      integer(kind=int_wp), intent(in   ) ::  noqt           !< total number of exchanges
+      integer(kind=int_wp), intent(  out) ::  nobnd          !< number of open boundaries
+      integer(kind=int_wp), intent(  out) ::  ipnt (4,noqt)  !< exchange pointer
+      integer(kind=int_wp), intent(in   ) ::  intsrt         !< integration number
+      integer(kind=int_wp), intent(in   ) ::  ipopt1         !< file option ( 0 = binary )
+      integer(kind=int_wp), intent(  out) ::  jtrack         !< number of codiagonals of matrix
+      integer(kind=int_wp), intent(in   ) ::  ftype          !< type of the pointer file
+      integer(kind=int_wp), intent(in   ) ::  ioutpt         !< flag for more or less output
       type(GridPointerColl)           GridPs        !< Collection of grid pointers
-      integer(kind=int_32), intent(inout) ::  ierr           !< cumulative error   count
-      integer(kind=int_32), intent(inout) ::  iwar           !< cumulative warning count
+      integer(kind=int_wp), intent(inout) ::  ierr           !< cumulative error   count
+      integer(kind=int_wp), intent(inout) ::  iwar           !< cumulative warning count
 
 !     Local variables    :
 
-      integer(kind=int_32) :: noq12        ! noq1 + noq2 (horizontal exchanges
-      integer(kind=int_32) :: iq           ! loop counter exchanges
-      integer(kind=int_32) :: ip           ! loop counter pointers
-      integer(kind=int_32) :: ierr1        ! local I/O error
-      integer(kind=int_32) :: ierr2        ! local error count
-      integer(kind=int_32) :: idummy 
+      integer(kind=int_wp) :: noq12        ! noq1 + noq2 (horizontal exchanges
+      integer(kind=int_wp) :: iq           ! loop counter exchanges
+      integer(kind=int_wp) :: ip           ! loop counter pointers
+      integer(kind=int_wp) :: ierr1        ! local I/O error
+      integer(kind=int_wp) :: ierr2        ! local error count
+      integer(kind=int_wp) :: idummy
       character(len=1) :: cdummy
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "pointi", ithndl )
 
       ierr2 = 0

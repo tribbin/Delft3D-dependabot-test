@@ -73,15 +73,15 @@
       use m_srstop
       use timers
 
-      REAL(kind=sp) ::A(*), B(*)
-      integer(kind=int_32) ::ithandl = 0
+      REAL(kind=real_wp) ::A(*), B(*)
+      integer(kind=int_wp) ::ithandl = 0
 
-      integer(kind=int_32) ::NUC, NLC, N, NMUC, NMLC, NDM1, ND, N1
-      integer(kind=int_32) ::L1, L2, L3, L4, L5
-      integer(kind=int_32) ::K1, K2, K3, K4, K5, K6
-      integer(kind=int_32) ::M, IOPT
+      integer(kind=int_wp) ::NUC, NLC, N, NMUC, NMLC, NDM1, ND, N1
+      integer(kind=int_wp) ::L1, L2, L3, L4, L5
+      integer(kind=int_wp) ::K1, K2, K3, K4, K5, K6
+      integer(kind=int_wp) ::M, IOPT
 
-      real(kind=sp) ::F, P
+      real(kind=real_wp) ::F, P
 
       if ( timon ) call timstrt ( "delmat", ithandl )
       NMUC = N - NUC

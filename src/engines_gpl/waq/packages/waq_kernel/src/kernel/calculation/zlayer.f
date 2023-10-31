@@ -82,46 +82,46 @@
 
 !     kind           function         name                   description
 
-      integer(kind=int_32), intent(in   )  ::nosegw               !< number of computational volumes water
-      integer(kind=int_32), intent(in   )  ::noseg                !< number of computational volumes total
-      integer(kind=int_32), intent(in   )  ::nosys                !< number of transported substance
-      integer(kind=int_32), intent(in   )  ::notot                !< total number of substance
-      integer(kind=int_32), intent(in   )  ::nolay                !< number of layers
-      real(kind=sp), intent(in   )  ::volume(noseg )       !< volumes at start of time step
-      integer(kind=int_32), intent(in   )  ::noq12                !< number of horizontal exchanges
-      integer(kind=int_32), intent(in   )  ::noq                  !< total number of exchanges
-      real(kind=sp), intent(inout)  ::area  (noq12 )       !< areas at start of time step
-      integer(kind=int_32), intent(in   )  ::nocons               !< number of constants
+      integer(kind=int_wp), intent(in   )  ::nosegw               !< number of computational volumes water
+      integer(kind=int_wp), intent(in   )  ::noseg                !< number of computational volumes total
+      integer(kind=int_wp), intent(in   )  ::nosys                !< number of transported substance
+      integer(kind=int_wp), intent(in   )  ::notot                !< total number of substance
+      integer(kind=int_wp), intent(in   )  ::nolay                !< number of layers
+      real(kind=real_wp), intent(in   )  ::volume(noseg )       !< volumes at start of time step
+      integer(kind=int_wp), intent(in   )  ::noq12                !< number of horizontal exchanges
+      integer(kind=int_wp), intent(in   )  ::noq                  !< total number of exchanges
+      real(kind=real_wp), intent(inout)  ::area  (noq12 )       !< areas at start of time step
+      integer(kind=int_wp), intent(in   )  ::nocons               !< number of constants
       character(20), intent(in   ) :: coname(nocons)       !< names of the constants
-      real(kind=sp), intent(in   )  ::cons  (nocons)       !< values of the constants
-      integer(kind=int_32), intent(in   )  ::nopa                 !< number of parameters
+      real(kind=real_wp), intent(in   )  ::cons  (nocons)       !< values of the constants
+      integer(kind=int_wp), intent(in   )  ::nopa                 !< number of parameters
       character(20), intent(in   ) :: paname(nopa  )       !< names of the parameters
-      real(kind=sp), intent(in   )  ::param (nopa ,noseg ) !< values of the parametrs
-      integer(kind=int_32), intent(in   )  ::nosfun               !< number of segment functions
+      real(kind=real_wp), intent(in   )  ::param (nopa ,noseg ) !< values of the parametrs
+      integer(kind=int_wp), intent(in   )  ::nosfun               !< number of segment functions
       character(20), intent(in   ) :: sfname(nosfun)       !< names of the segment functions
-      real(kind=sp), intent(in   )  ::segfun(noseg,nosfun) !< values of the constants
-      real(kind=sp), intent(inout)  ::conc  (notot,noseg ) !< model concentrations
-      real(kind=sp), intent(inout)  ::mass  (notot,noseg ) !< model masses
-      integer(kind=int_32), intent(inout)  ::iknmrk(noseg )       !< constant feature array
-      integer(kind=int_32), intent(  out)  ::iknmkv(noseg )       !< time varying feature array
-      integer(kind=int_32), intent(inout)  ::ifrmto(4,noq )       !< exchange pointer array
+      real(kind=real_wp), intent(in   )  ::segfun(noseg,nosfun) !< values of the constants
+      real(kind=real_wp), intent(inout)  ::conc  (notot,noseg ) !< model concentrations
+      real(kind=real_wp), intent(inout)  ::mass  (notot,noseg ) !< model masses
+      integer(kind=int_wp), intent(inout)  ::iknmrk(noseg )       !< constant feature array
+      integer(kind=int_wp), intent(  out)  ::iknmkv(noseg )       !< time varying feature array
+      integer(kind=int_wp), intent(inout)  ::ifrmto(4,noq )       !< exchange pointer array
 
 !     Locals
 
-      integer(kind=int_32) ::idryfld         ! help variable to find dry_tresh constant
-      integer(kind=int_32) ::isurf           ! index to find horizontal surface area values
-      real(kind=sp) ::threshold       ! drying and flooding value
-      real(kind=sp) ::minarea         ! minimum exhange area of a horizontal exchange
-      integer(kind=int_32) ::nosegl          ! number of computational volumes per layer
-      integer(kind=int_32) ::iseg            ! loop variable volumes
-      integer(kind=int_32) ::iq              ! loop variable exchanges
-      integer(kind=int_32) ::i, j            ! general loop variables
-      integer(kind=int_32) ::ivol            ! this computational volumes
-      integer(kind=int_32) ::isub            ! loop variable substances
-      integer(kind=int_32) ::ilay            ! loop variable layers
-      integer(kind=int_32) ::ikm             ! feature
+      integer(kind=int_wp) ::idryfld         ! help variable to find dry_tresh constant
+      integer(kind=int_wp) ::isurf           ! index to find horizontal surface area values
+      real(kind=real_wp) ::threshold       ! drying and flooding value
+      real(kind=real_wp) ::minarea         ! minimum exhange area of a horizontal exchange
+      integer(kind=int_wp) ::nosegl          ! number of computational volumes per layer
+      integer(kind=int_wp) ::iseg            ! loop variable volumes
+      integer(kind=int_wp) ::iq              ! loop variable exchanges
+      integer(kind=int_wp) ::i, j            ! general loop variables
+      integer(kind=int_wp) ::ivol            ! this computational volumes
+      integer(kind=int_wp) ::isub            ! loop variable substances
+      integer(kind=int_wp) ::ilay            ! loop variable layers
+      integer(kind=int_wp) ::ikm             ! feature
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
 
       call zoek20 ( 'Z_THRESH  ', nocons, coname, 10, idryfld )
       if ( idryfld .le. 0 ) then                                       ! constant not found
@@ -291,22 +291,22 @@
 
 !     kind           function         name                   description
 
-      integer(kind=int_32), intent(in   )  ::noq                  !< number of exchanges between cells
-      integer(kind=int_32), intent(in   )  ::noq12                !< number of horizontal exchanges
-      integer(kind=int_32), intent(in   )  ::nolay                !< number of Z-layers
-      integer(kind=int_32), intent(in   )  ::nocons               !< number of constants
+      integer(kind=int_wp), intent(in   )  ::noq                  !< number of exchanges between cells
+      integer(kind=int_wp), intent(in   )  ::noq12                !< number of horizontal exchanges
+      integer(kind=int_wp), intent(in   )  ::nolay                !< number of Z-layers
+      integer(kind=int_wp), intent(in   )  ::nocons               !< number of constants
       character(20), intent(in   ) :: coname(nocons)       !< names of the constants
-      real(kind=sp), intent(in   )  ::flow  ( noq )        !< flows between cells
-      integer(kind=int_32), intent(inout)  ::ifrmto(4,noq )       !< exchange pointer array
+      real(kind=real_wp), intent(in   )  ::flow  ( noq )        !< flows between cells
+      integer(kind=int_wp), intent(inout)  ::ifrmto(4,noq )       !< exchange pointer array
 
 !     Locals
 
-      integer(kind=int_32) ::iq              ! loop variable exchanges
-      integer(kind=int_32) ::ifrom, ito      ! from and to cell number
-      integer(kind=int_32) ::iql             ! help variable to find lowest active cell
-      integer(kind=int_32) ::noqhl           ! number of horizontal exchanges per layer
+      integer(kind=int_wp) ::iq              ! loop variable exchanges
+      integer(kind=int_wp) ::ifrom, ito      ! from and to cell number
+      integer(kind=int_wp) ::iql             ! help variable to find lowest active cell
+      integer(kind=int_wp) ::noqhl           ! number of horizontal exchanges per layer
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
 
       call zoek20 ( 'Z_THRESH  ', nocons, coname, 10, iq )
       if ( iq .le. 0 ) return
@@ -323,7 +323,7 @@
          if ( ifrom .eq. 0 ) then
             iql = iq - noqhl                         ! look at the corresponding
             do while ( iql .gt. 0 )                  ! exchange one layer higher
-               if ( ifrmto(1,iql) .gt. 0 ) then      ! if that is real(kind=sp) ::ifrmto(1,iq) = ifrmto(1,iql)       ! take that cell for this flux also
+               if ( ifrmto(1,iql) .gt. 0 ) then      ! if that is real(kind=real_wp) ::ifrmto(1,iq) = ifrmto(1,iql)       ! take that cell for this flux also
                   exit
                endif
                iql = iql - noqhl

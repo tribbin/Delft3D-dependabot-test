@@ -54,21 +54,21 @@
 
 !     kind           function         name            Descriptipon
 
-      integer(kind=int_32), intent(in   ) ::  noutp          !< Number of output files
-      integer(kind=int_32), intent(  out) ::  nrvar (noutp)  !< Number of extra output vars
-      integer(kind=int_32), intent(  out) ::  iostrt(noutp)  !< Output start time (scu)
-      integer(kind=int_32), intent(  out) ::  iostop(noutp)  !< Output stop time (scu)
-      integer(kind=int_32), intent(  out) ::  iostep(noutp)  !< Output step time (scu)
-      integer(kind=int_32), intent(  out) ::  isrtou(noutp)  !< Sort output indication
-      integer(kind=int_32), intent(  out) ::  igrdou(noutp)  !< Output grid indication
+      integer(kind=int_wp), intent(in   ) ::  noutp          !< Number of output files
+      integer(kind=int_wp), intent(  out) ::  nrvar (noutp)  !< Number of extra output vars
+      integer(kind=int_wp), intent(  out) ::  iostrt(noutp)  !< Output start time (scu)
+      integer(kind=int_wp), intent(  out) ::  iostop(noutp)  !< Output stop time (scu)
+      integer(kind=int_wp), intent(  out) ::  iostep(noutp)  !< Output step time (scu)
+      integer(kind=int_wp), intent(  out) ::  isrtou(noutp)  !< Sort output indication
+      integer(kind=int_wp), intent(  out) ::  igrdou(noutp)  !< Output grid indication
 
 !     Common declarations
 
 
 !     Local declarations
 
-      integer(kind=int_32), parameter ::  igseg= 1 , igmon= 2 , iggrd= 3 , igsub = 4 
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp), parameter ::  igseg= 1 , igmon= 2 , iggrd= 3 , igsub = 4
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "defout", ithndl )
 
 !     set output system default action

@@ -47,43 +47,43 @@
       ! declaration of arguments
 
       type(procespropcoll)      :: procesdef       ! all processes
-      integer(kind=int_32) ::nogrid          ! number of grids
-      integer(kind=int_32) ::notot           ! number of substances
-      integer(kind=int_32) ::grdref(nogrid)  ! reference grid number
-      integer(kind=int_32) ::sysgrd(notot)   ! grid number substances
-      integer(kind=int_32) ::sysndt(notot)   ! timestep multiplier substances
+      integer(kind=int_wp) ::nogrid          ! number of grids
+      integer(kind=int_wp) ::notot           ! number of substances
+      integer(kind=int_wp) ::grdref(nogrid)  ! reference grid number
+      integer(kind=int_wp) ::sysgrd(notot)   ! grid number substances
+      integer(kind=int_wp) ::sysndt(notot)   ! timestep multiplier substances
 
       ! local decalarations
 
-      integer(kind=int_32) ::nproc           ! number of processes
-      integer(kind=int_32) ::iproc           ! loop counter processes
-      integer(kind=int_32) ::iproc2          ! loop counter processes
+      integer(kind=int_wp) ::nproc           ! number of processes
+      integer(kind=int_wp) ::iproc           ! loop counter processes
+      integer(kind=int_wp) ::iproc2          ! loop counter processes
       type(procesprop), pointer :: proc            ! process description
       type(procesprop), pointer :: proc2           ! process description
-      integer(kind=int_32) ::isys            ! index substance
-      integer(kind=int_32) ::i               ! loop index
-      integer(kind=int_32) ::ipgrid          ! index grid
-      integer(kind=int_32) ::istochi         ! index stochi
-      integer(kind=int_32) ::i_input         ! index input
-      integer(kind=int_32) ::ioutput         ! index output
-      integer(kind=int_32) ::imnoag          ! index routine
-      integer(kind=int_32) ::nmnoag          ! number of routines whic may not be aggregated
-      integer(kind=int_32), parameter         ::mxnoag = 1000   ! dimension for local array
+      integer(kind=int_wp) ::isys            ! index substance
+      integer(kind=int_wp) ::i               ! loop index
+      integer(kind=int_wp) ::ipgrid          ! index grid
+      integer(kind=int_wp) ::istochi         ! index stochi
+      integer(kind=int_wp) ::i_input         ! index input
+      integer(kind=int_wp) ::ioutput         ! index output
+      integer(kind=int_wp) ::imnoag          ! index routine
+      integer(kind=int_wp) ::nmnoag          ! number of routines whic may not be aggregated
+      integer(kind=int_wp), parameter         ::mxnoag = 1000   ! dimension for local array
       character(len=10)         :: monoag(mxnoag)  ! list of routines which may not be aggregated
-      integer(kind=int_32) ::maxwrk          ! dimension for local array
-      integer(kind=int_32) ::nototg          !
-      integer(kind=int_32) ::maxndt          ! max timestep multiplier
-      integer(kind=int_32) ::ndt             ! timestep multiplier
-      integer(kind=int_32) ::nndt            ! number of ndt
+      integer(kind=int_wp) ::maxwrk          ! dimension for local array
+      integer(kind=int_wp) ::nototg          !
+      integer(kind=int_wp) ::maxndt          ! max timestep multiplier
+      integer(kind=int_wp) ::ndt             ! timestep multiplier
+      integer(kind=int_wp) ::nndt            ! number of ndt
       character(len=20)         :: valnam          ! name
-      integer(kind=int_32), allocatable       ::grpath(:)       !
-      integer(kind=int_32) , pointer          :: grdwrk(:)       !
+      integer(kind=int_wp), allocatable       ::grpath(:)       !
+      integer(kind=int_wp) , pointer          :: grdwrk(:)       !
       logical                   :: lexi
       logical                   :: l_exchange      ! in or output on exchanges
-      integer(kind=int_32), allocatable       ::isysto(:)       ! temp, copy of the substances in the fluxstochi
-      integer(kind=int_32) ::lun
-      integer(kind=int_32) ::ierr
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp), allocatable       ::isysto(:)       ! temp, copy of the substances in the fluxstochi
+      integer(kind=int_wp) ::lun
+      integer(kind=int_wp) ::ierr
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "setprg", ithndl )
 
       allocate(grpath(nogrid))

@@ -51,32 +51,32 @@
 
 !     kind           function         name                      description
 
-      integer(kind=int_32), intent(in   )  ::notot                   !< Total number of substances
-      integer(kind=int_32), intent(in   )  ::nosys                   !< Number of transported substances
-      integer(kind=int_32), intent(in   )  ::noflux                  !< Number of fluxes
-      integer(kind=int_32), intent(in   )  ::ndmpar                  !< Number of dump areas
-      integer(kind=int_32), intent(in   )  ::ndmpq                   !< Number of dump exchanges
-      integer(kind=int_32), intent(in   )  ::ndmps                   !< Number of dump segments
-      real(kind=sp), intent(  out)  ::asmass(notot ,ndmpar,6) !< Mass balance terms
-      real(kind=sp), intent(  out)  ::flxint(noflux,ndmpar)   !< Integrated fluxes
-      real(kind=sp), intent(  out)  ::amass2(notot ,5     )   !< Mass balance whole system
-      real(kind=sp), intent(  out)  ::flxdmp(noflux,ndmps )   !< Integrated fluxes
-      real(kind=sp), intent(  out)  ::dmpq  (nosys ,ndmpq ,2) !< Integrated fluxes
-      real(kind=sp), intent(  out)  ::dmps  (notot ,ndmps ,3) !< Integrated fluxes
-      integer(kind=int_32), intent(in   )  ::noraai                  !< Number of transects
+      integer(kind=int_wp), intent(in   )  ::notot                   !< Total number of substances
+      integer(kind=int_wp), intent(in   )  ::nosys                   !< Number of transported substances
+      integer(kind=int_wp), intent(in   )  ::noflux                  !< Number of fluxes
+      integer(kind=int_wp), intent(in   )  ::ndmpar                  !< Number of dump areas
+      integer(kind=int_wp), intent(in   )  ::ndmpq                   !< Number of dump exchanges
+      integer(kind=int_wp), intent(in   )  ::ndmps                   !< Number of dump segments
+      real(kind=real_wp), intent(  out)  ::asmass(notot ,ndmpar,6) !< Mass balance terms
+      real(kind=real_wp), intent(  out)  ::flxint(noflux,ndmpar)   !< Integrated fluxes
+      real(kind=real_wp), intent(  out)  ::amass2(notot ,5     )   !< Mass balance whole system
+      real(kind=real_wp), intent(  out)  ::flxdmp(noflux,ndmps )   !< Integrated fluxes
+      real(kind=real_wp), intent(  out)  ::dmpq  (nosys ,ndmpq ,2) !< Integrated fluxes
+      real(kind=real_wp), intent(  out)  ::dmps  (notot ,ndmps ,3) !< Integrated fluxes
+      integer(kind=int_wp), intent(in   )  ::noraai                  !< Number of transects
       logical      , intent(in   ) :: imflag                  !< True if monitoring step
       logical      , intent(in   ) :: ihflag                  !< True if history step
-      real(kind=sp), intent(  out)  ::trraai(nosys ,noraai)   !< Cummulative transport over transects
-      integer(kind=int_32), intent(in   )  ::ibflag                  !< zero or one
-      integer(kind=int_32), intent(in   )  ::nowst                   !< number of wasteloads
-      real(kind=sp), intent(  out)  ::wstdmp(notot ,nowst ,2) !< accumulated wasteloads 1/2 in and out
+      real(kind=real_wp), intent(  out)  ::trraai(nosys ,noraai)   !< Cummulative transport over transects
+      integer(kind=int_wp), intent(in   )  ::ibflag                  !< zero or one
+      integer(kind=int_wp), intent(in   )  ::nowst                   !< number of wasteloads
+      real(kind=real_wp), intent(  out)  ::wstdmp(notot ,nowst ,2) !< accumulated wasteloads 1/2 in and out
 
 !     Local declarations
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "zercum", ithandl )
 
-!     Zero all monitor ( and balance ) real(kind=sp) ::ted cummulative array's
+!     Zero all monitor ( and balance ) real(kind=real_wp) ::ted cummulative array's
 
       if ( imflag ) then
          if ( ibflag .eq. 1 ) asmass = 0.0
@@ -86,14 +86,14 @@
       endif
 !     flxdmp = 0.0
 
-!     Zero all monitor .or. history real(kind=sp) ::ted
+!     Zero all monitor .or. history real(kind=real_wp) ::ted
 
       if ( imflag .or. ihflag ) then
          dmpq = 0.0
          dmps = 0.0
       endif
 
-!     Zero all history real(kind=sp) ::ted
+!     Zero all history real(kind=real_wp) ::ted
 
       if ( ihflag ) then
          trraai = 0.0

@@ -57,16 +57,16 @@
 !     ------   -----  ------------
 
       implicit none
-      real(kind=sp) ::pmsa  ( * ) , fl    (*)
-      integer(kind=int_32) ::ipoint( * ) , increm(*) , noseg , noflux,
+      real(kind=real_wp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_wp) ::ipoint( * ) , increm(*) , noseg , noflux,
      +         iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 
-      integer(kind=int_32) ::ip1,ip2,ip3,ip4,ip5
-      integer(kind=int_32) ::in1,in2,in3,in4,in5
-      real(kind=sp) ::time, tref, auxsys
-      real(kind=sp) ::latitudeg, daynr, daynrrefl, reflec
+      integer(kind=int_wp) ::ip1,ip2,ip3,ip4,ip5
+      integer(kind=int_wp) ::in1,in2,in3,in4,in5
+      real(kind=real_wp) ::time, tref, auxsys
+      real(kind=real_wp) ::latitudeg, daynr, daynrrefl, reflec
       logical varflg
-      integer(kind=int_32) ::weeknr , iseg
+      integer(kind=int_wp) ::weeknr , iseg
 
       in1  = increm( 1)
       in2  = increm( 2)

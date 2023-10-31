@@ -58,30 +58,30 @@
 
       IMPLICIT NONE
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      REAL(kind=sp) ::DEPTH              ! 1  in  depth of segment                                     (m)
-      REAL(kind=sp) ::SURF               ! 2  in horizontal surface area                              (m2)
-      REAL(kind=sp) ::TOTALDEPTH         ! 3  out total depth water column                             (m)
-      REAL(kind=sp) ::LOCALDEPTH         ! 4  out depth from water surface to bottom of segment        (m)
-      REAL(kind=sp) ::LOCSEDDEPT         ! 5  out Sediment layer depth to bottom of segment            (m)
-      REAL(kind=sp) ::TOTSEDDEPT         ! 2  out Sediment layer depth to bottom of sediment column    (m)
+      REAL(kind=real_wp) ::DEPTH              ! 1  in  depth of segment                                     (m)
+      REAL(kind=real_wp) ::SURF               ! 2  in horizontal surface area                              (m2)
+      REAL(kind=real_wp) ::TOTALDEPTH         ! 3  out total depth water column                             (m)
+      REAL(kind=real_wp) ::LOCALDEPTH         ! 4  out depth from water surface to bottom of segment        (m)
+      REAL(kind=real_wp) ::LOCSEDDEPT         ! 5  out Sediment layer depth to bottom of segment            (m)
+      REAL(kind=real_wp) ::TOTSEDDEPT         ! 2  out Sediment layer depth to bottom of sediment column    (m)
 
-      INTEGER(kind=int_32) ::IP1   , IP2   , IP3   , IP4   , IP5
-      INTEGER(kind=int_32) ::IN1   , IN2   , IN3   , IN4   , IN5
-      INTEGER(kind=int_32) ::IKMRK , ISEG  , IFROM , ITO
-      INTEGER(kind=int_32) ::IK                 ! loop counter bottom columns
-      INTEGER(kind=int_32) ::IQ                 ! loop counter exchanges
-      INTEGER(kind=int_32) ::IWA1               ! index first water exchange
-      INTEGER(kind=int_32) ::IWA2               ! index last water exchange
-      INTEGER(kind=int_32) ::ITOP               ! index first bottom exhange
-      INTEGER(kind=int_32) ::IBOT               ! index last bottom exhange
-      INTEGER(kind=int_32) ::IBODEM             ! segment number bottom segment
-      INTEGER(kind=int_32) ::IWATER             ! segment number water segment
-      REAL(kind=sp) ::CUMTOTDEPTH        ! cummulative in averaging totaldepth
-      REAL(kind=sp) ::TOTSURF            ! cummulative surf in averaging totaldepth
+      INTEGER(kind=int_wp) ::IP1   , IP2   , IP3   , IP4   , IP5
+      INTEGER(kind=int_wp) ::IN1   , IN2   , IN3   , IN4   , IN5
+      INTEGER(kind=int_wp) ::IKMRK , ISEG  , IFROM , ITO
+      INTEGER(kind=int_wp) ::IK                 ! loop counter bottom columns
+      INTEGER(kind=int_wp) ::IQ                 ! loop counter exchanges
+      INTEGER(kind=int_wp) ::IWA1               ! index first water exchange
+      INTEGER(kind=int_wp) ::IWA2               ! index last water exchange
+      INTEGER(kind=int_wp) ::ITOP               ! index first bottom exhange
+      INTEGER(kind=int_wp) ::IBOT               ! index last bottom exhange
+      INTEGER(kind=int_wp) ::IBODEM             ! segment number bottom segment
+      INTEGER(kind=int_wp) ::IWATER             ! segment number water segment
+      REAL(kind=real_wp) ::CUMTOTDEPTH        ! cummulative in averaging totaldepth
+      REAL(kind=real_wp) ::TOTSURF            ! cummulative surf in averaging totaldepth
 
 
 !     initialise bottom if necessary

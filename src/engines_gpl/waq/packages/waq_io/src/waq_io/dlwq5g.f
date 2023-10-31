@@ -91,19 +91,19 @@
       use timers       !   performance timers
       use m_cnvtim
 
-      integer(kind=int_32) :: i_max 
+      integer(kind=int_wp) :: i_max
       character*(*) lch   (lstack) , chulp , names_to_check(*)
       character     cchar*1 , strng*8
       dimension     i_array(*) , ilun( lstack )
       logical       dtflg1 , dtflg3 , first, must_read_more
       integer(kind=int_64) :: ihulp8 
-      integer(kind=int_32) ::  ithndl = 0 
-      integer(kind=int_32) ::  i, count_items_comp_rule, count_subs_assign, count_subs_comp_rule, index_first, offset_names
-      integer(kind=int_32) ::  offset_common, notim 
-      integer(kind=int_32) ::  itype, lunut, ilun, start_in_line, nopos, ihulp, error_idx 
-      integer(kind=int_32) ::  i_array, nocol, ifound, itfact, icnt, iods, k, iwar 
-      integer(kind=int_32) ::  offset_i_array, count_items_assign, count_names, npos, lstack 
-      real(kind=sp) ::  rhulp
+      integer(kind=int_wp) ::  ithndl = 0
+      integer(kind=int_wp) ::  i, count_items_comp_rule, count_subs_assign, count_subs_comp_rule, index_first, offset_names
+      integer(kind=int_wp) ::  offset_common, notim
+      integer(kind=int_wp) ::  itype, lunut, ilun, start_in_line, nopos, ihulp, error_idx
+      integer(kind=int_wp) ::  i_array, nocol, ifound, itfact, icnt, iods, k, iwar
+      integer(kind=int_wp) ::  offset_i_array, count_items_assign, count_names, npos, lstack
+      real(kind=real_wp) ::  rhulp
       
        
       if (timon) call timstrt( "dlwq5g", ithndl )

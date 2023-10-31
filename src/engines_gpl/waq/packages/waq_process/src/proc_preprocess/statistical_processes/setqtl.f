@@ -51,18 +51,18 @@
 !
 !     NAME    KIND      LENGTH  FUNCT.  DESCRIPTION
 !     ----    -----     ------  ------- -----------
-!     LUNREP  INTEGER(kind=int_32) ::1  INPUT   unit number report file
-!     NOKEY   INTEGER(kind=int_32) ::1  INPUT   number of keywords for this process
+!     LUNREP  INTEGER(kind=int_wp) ::1  INPUT   unit number report file
+!     NOKEY   INTEGER(kind=int_wp) ::1  INPUT   number of keywords for this process
 !     KEYNAM  CHAR*20    NOKEY  INPUT   keyword name
 !     KEYVAL  CHAR*20    NOKEY  INPUT   keyword value
 !     PERNAM  CHAR*20        1  INPUT   period name
 !     PERSFX  CHAR*20        1  INPUT   period suffix
-!     PSTART  INTEGER(kind=int_32) ::1  INPUT   period start
-!     PSTOP   INTEGER(kind=int_32) ::1  INPUT   period stop
+!     PSTART  INTEGER(kind=int_wp) ::1  INPUT   period start
+!     PSTOP   INTEGER(kind=int_wp) ::1  INPUT   period stop
 !     aProcesProp               OUTPUT  properties for this proces
 !     AllItems                  INPUT   all items known to the proces system
-!     IERR    INTEGER(kind=int_32) ::1  IN/OUT  cummulative error count
-!     NOWARN  INTEGER(kind=int_32) ::1  IN/OUT  cummulative warning count
+!     IERR    INTEGER(kind=int_wp) ::1  IN/OUT  cummulative error count
+!     NOWARN  INTEGER(kind=int_wp) ::1  IN/OUT  cummulative warning count
 !
       use m_zoek
       use m_srstop
@@ -74,7 +74,7 @@
 !
 !     Declaration of arguments
 !
-      INTEGER(kind=int_32) ::LUNREP, NOKEY , PSTART, PSTOP , IPROC ,
+      INTEGER(kind=int_wp) ::LUNREP, NOKEY , PSTART, PSTOP , IPROC ,
      +              IERR  , NOWARN
       CHARACTER*20  PERNAM, PERSFX
       CHARACTER*20  KEYNAM(NOKEY), KEYVAL(NOKEY)
@@ -83,15 +83,15 @@
 !
 !     Local declarations
 !
-      INTEGER(kind=int_32) ::IERR_ALLOC, IKEY  , ISTART, ISTOP , ISLEN ,
+      INTEGER(kind=int_wp) ::IERR_ALLOC, IKEY  , ISTART, ISTOP , ISLEN ,
      +              IERR2     , IRET
-      INTEGER(kind=int_32),      ALLOCATABLE  ::ISUSED(:)
+      INTEGER(kind=int_wp),      ALLOCATABLE  ::ISUSED(:)
       CHARACTER*20  KEY       , SUFFIX
       CHARACTER*10  STANAM
-      REAL(kind=sp) ::CLOBND    , CUPBND , CQLEV
-      INTEGER(kind=int_32) ::NOBUCK    , IBUCK
+      REAL(kind=real_wp) ::CLOBND    , CUPBND , CQLEV
+      INTEGER(kind=int_wp) ::NOBUCK    , IBUCK
       type(ItemProp)        :: aItemProp            ! one item
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "setqtl", ithndl )
 !
 !     init

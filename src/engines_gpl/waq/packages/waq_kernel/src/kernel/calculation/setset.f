@@ -50,32 +50,32 @@
 
 !     kind           function         name                    description
 
-      integer(kind=int_32), intent(in   )  ::lurep                 !< Unit number monitoring file (not used)
-      integer(kind=int_32), intent(in   )  ::nocons                !< Number of constants
-      integer(kind=int_32), intent(in   )  ::nopa                  !< Number of parameters
-      integer(kind=int_32), intent(in   )  ::nofun                 !< Number of functions
-      integer(kind=int_32), intent(in   )  ::nosfun                !< Number of segment functions
-      integer(kind=int_32), intent(in   )  ::nosys                 !< Number of transported substances
-      integer(kind=int_32), intent(in   )  ::notot                 !< Total number of substances
-      integer(kind=int_32), intent(in   )  ::nodisp                !< Number of user-dispersions
-      integer(kind=int_32), intent(in   )  ::novelo                !< Number of user-flows
-      integer(kind=int_32), intent(in   )  ::nodef                 !< Number of default values
-      integer(kind=int_32), intent(in   )  ::noloc                 !< Number of local values
-      integer(kind=int_32), intent(in   )  ::ndspx                 !< Number of dspx
-      integer(kind=int_32), intent(in   )  ::nvelx                 !< Number of velx
-      integer(kind=int_32), intent(in   )  ::nlocx                 !< Number of locx
-      integer(kind=int_32), intent(in   )  ::nflux                 !< Number of flux
-      integer(kind=int_32), intent(in   )  ::nopred                !< Not used
-      integer(kind=int_32), intent(in   )  ::novar                 !< Number of variables on the grids
-      integer(kind=int_32), intent(in   )  ::nogrid                !< Number of grids
-      integer(kind=int_32), intent(inout)  ::vgrset(novar,nogrid)  !< Number of grids
+      integer(kind=int_wp), intent(in   )  ::lurep                 !< Unit number monitoring file (not used)
+      integer(kind=int_wp), intent(in   )  ::nocons                !< Number of constants
+      integer(kind=int_wp), intent(in   )  ::nopa                  !< Number of parameters
+      integer(kind=int_wp), intent(in   )  ::nofun                 !< Number of functions
+      integer(kind=int_wp), intent(in   )  ::nosfun                !< Number of segment functions
+      integer(kind=int_wp), intent(in   )  ::nosys                 !< Number of transported substances
+      integer(kind=int_wp), intent(in   )  ::notot                 !< Total number of substances
+      integer(kind=int_wp), intent(in   )  ::nodisp                !< Number of user-dispersions
+      integer(kind=int_wp), intent(in   )  ::novelo                !< Number of user-flows
+      integer(kind=int_wp), intent(in   )  ::nodef                 !< Number of default values
+      integer(kind=int_wp), intent(in   )  ::noloc                 !< Number of local values
+      integer(kind=int_wp), intent(in   )  ::ndspx                 !< Number of dspx
+      integer(kind=int_wp), intent(in   )  ::nvelx                 !< Number of velx
+      integer(kind=int_wp), intent(in   )  ::nlocx                 !< Number of locx
+      integer(kind=int_wp), intent(in   )  ::nflux                 !< Number of flux
+      integer(kind=int_wp), intent(in   )  ::nopred                !< Not used
+      integer(kind=int_wp), intent(in   )  ::novar                 !< Number of variables on the grids
+      integer(kind=int_wp), intent(in   )  ::nogrid                !< Number of grids
+      integer(kind=int_wp), intent(inout)  ::vgrset(novar,nogrid)  !< Number of grids
 
 !     Local declarations
 
-      integer(kind=int_32) ::i, ivar, igrid      ! help variables for loop and index counting
-      integer(kind=int_32) ::iset                ! help variable 1 for igrid = 1, 0 for igrid > 1
+      integer(kind=int_wp) ::i, ivar, igrid      ! help variables for loop and index counting
+      integer(kind=int_wp) ::iset                ! help variable 1 for igrid = 1, 0 for igrid > 1
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "setset", ithandl )
 
       do igrid = 1 , nogrid

@@ -49,17 +49,17 @@
 !     ------   -----  ------------
 
       IMPLICIT NONE
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7
-      INTEGER(kind=int_32) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7
-      REAL(kind=sp) ::VELOC, CHEZY, WIDTH, TOTDEP, alfaK,
+      INTEGER(kind=int_wp) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7
+      INTEGER(kind=int_wp) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7
+      REAL(kind=real_wp) ::VELOC, CHEZY, WIDTH, TOTDEP, alfaK,
      J         VELOCV, CHEZYV, WIDTHV, TOTDPV, alfaKV,
      J         VELOCN, CHEZYN, WIDTHN, TOTDPN, alfaKN,
      J         term1, term2, g, DVAR, MAXDSP, MAXDSN, MAXDSV
-      INTEGER(kind=int_32) ::IVAN  , INAAR , IQ
+      INTEGER(kind=int_wp) ::IVAN  , INAAR , IQ
 
       IP1   = IPOINT( 1)
       IP2   = IPOINT( 2)

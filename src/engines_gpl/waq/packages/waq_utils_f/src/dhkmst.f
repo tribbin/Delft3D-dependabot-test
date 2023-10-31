@@ -49,14 +49,14 @@
 
 !     kind           function         name           description
 
-      integer(kind=int_32), intent(in   )  ::iknmrk       !< Index of the feature to be set
-      integer(kind=int_32), intent(inout)  ::kenmrk       !< Feature value to be modified
-      integer(kind=int_32), intent(in   )  ::knmrki       !< Value to update the feature with
+      integer(kind=int_wp), intent(in   )  ::iknmrk       !< Index of the feature to be set
+      integer(kind=int_wp), intent(inout)  ::kenmrk       !< Feature value to be modified
+      integer(kind=int_wp), intent(in   )  ::knmrki       !< Value to update the feature with
 
 !     Local               :
 
-      integer(kind=int_32) ::ikhlp           ! to store lower order part
-      integer(kind=int_32) ::ipower          ! to store higher powers of 10
+      integer(kind=int_wp) ::ikhlp           ! to store lower order part
+      integer(kind=int_wp) ::ipower          ! to store higher powers of 10
 
       if     ( iknmrk .eq. 1 ) then
          kenmrk = (kenmrk/  10)*  10 + knmrki

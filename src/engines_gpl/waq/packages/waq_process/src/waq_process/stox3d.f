@@ -39,22 +39,22 @@
 !
 !     declaration of arguments
 !
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
 !     i/o from PMSA array
 !
-      REAL(kind=sp) ::SPARAM                      ! process parameter on segment
-      REAL(kind=sp) ::FACTOR                      ! scaling factor
-      REAL(kind=sp) ::QPARAM                      ! process parameter on segment
+      REAL(kind=real_wp) ::SPARAM                      ! process parameter on segment
+      REAL(kind=real_wp) ::FACTOR                      ! scaling factor
+      REAL(kind=real_wp) ::QPARAM                      ! process parameter on segment
 !
 !     local declarations
 !
-      INTEGER(kind=int_32) ::IP1, IP2, IP3               ! index pointers in PMSA array
-      INTEGER(kind=int_32) ::IN1, IN2, IN3               ! increments in PMSA array
-      INTEGER(kind=int_32) ::IQ                          ! loop counter exchanges
-      INTEGER(kind=int_32) ::IFROM                       ! number from-segment
+      INTEGER(kind=int_wp) ::IP1, IP2, IP3               ! index pointers in PMSA array
+      INTEGER(kind=int_wp) ::IN1, IN2, IN3               ! increments in PMSA array
+      INTEGER(kind=int_wp) ::IQ                          ! loop counter exchanges
+      INTEGER(kind=int_wp) ::IFROM                       ! number from-segment
 !
       IP1  = IPOINT( 1)
       IP2  = IPOINT( 2)

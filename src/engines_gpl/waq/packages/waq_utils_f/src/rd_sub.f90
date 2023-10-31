@@ -39,27 +39,27 @@ contains
 
    logical           , intent (in   )  :: allocated       !< only store actual data when arrays are allocated
    character(len=256), intent (in   )  :: input_file      !< input filename
-   integer(kind=int_32)        , intent (inout)  :: nosys           !< Number of active systems
-   integer(kind=int_32)        , intent (inout)  :: notot           !< Number of systems
-   integer(kind=int_32)        , intent (inout)  :: nocons          !< Number of constants used
-   integer(kind=int_32)        , intent (inout)  :: noout           !< Number of outputs
+   integer(kind=int_wp)        , intent (inout)  :: nosys           !< Number of active systems
+   integer(kind=int_wp)        , intent (inout)  :: notot           !< Number of systems
+   integer(kind=int_wp)        , intent (inout)  :: nocons          !< Number of constants used
+   integer(kind=int_wp)        , intent (inout)  :: noout           !< Number of outputs
    character(20)     , intent (inout)  :: syname(*)       !< substance names
    character(20)     , intent (inout)  :: syunit(*)       !< substance names
    character(20)     , intent (inout)  :: coname(*)       !< constant names
-   real(kind=sp)              ,  intent (inout)  :: covalue(*)      !< constant values
+   real(kind=real_wp)              ,  intent (inout)  :: covalue(*)      !< constant values
    character(20)     , intent (inout)  :: ouname(*)       !< output names
    character(80)     , intent (inout)  :: oudesc(*)       !< output descriptions
-   integer(kind=int_32)           ,  intent (  out)  :: ierr            !< error status
+   integer(kind=int_wp)           ,  intent (  out)  :: ierr            !< error status
    character(256)    , intent (  out)  :: cerr            !< error message
 
    character(20)                       :: ianame(10000)   !< inactive substance names
    character(20)                       :: iaunit(10000)   !< inactive substance names
 
-   integer(kind=int_32), parameter                   ::ntag=4
-   integer(kind=int_32), parameter                   ::natt=8
-   integer(kind=int_32)                              ::isub
-   integer(kind=int_32)                              ::itag
-   integer(kind=int_32)                              ::iatt
+   integer(kind=int_wp), parameter                   ::ntag=4
+   integer(kind=int_wp), parameter                   ::natt=8
+   integer(kind=int_wp)                              ::isub
+   integer(kind=int_wp)                              ::itag
+   integer(kind=int_wp)                              ::iatt
    logical                             :: isactive
    character(20)                       :: starttag (ntag)
    character(20)                       :: endtag   (ntag)
@@ -72,14 +72,14 @@ contains
    character(20)                       :: ctag
    character(20)                       :: catt
    character(256)                      :: cstr
-   real(kind=sp)                                 ::rdata
+   real(kind=real_wp)                                 ::rdata
 
-   integer(kind=int_32)                              ::i
-   integer(kind=int_32)                              ::iostat
+   integer(kind=int_wp)                              ::i
+   integer(kind=int_wp)                              ::iostat
 
-   integer(kind=int_32)                           :: anint
-   real(kind=sp)                              :: areal
-   integer(kind=int_32)                           :: itype
+   integer(kind=int_wp)                           :: anint
+   real(kind=real_wp)                              :: areal
+   integer(kind=int_wp)                           :: itype
 
    data starttag  / 'substance           ','parameter           ', &
                     'output              ','active-processes    ' /

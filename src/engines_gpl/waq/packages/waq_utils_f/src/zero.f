@@ -44,8 +44,8 @@
 !     ARRAY   REAL      NOTOT     OUTPUT  array to be zeroed
 !     NOTOT   INTEGER     1       INPUT   total number of entries
 !
-      real(kind=sp) ::ARRAY(*)
-      integer(kind=int_32) ::I, NOTOT
+      real(kind=real_wp) ::ARRAY(*)
+      integer(kind=int_wp) ::I, NOTOT
 !
       DO  10 I = 1,NOTOT
    10 ARRAY(I) = 0.0

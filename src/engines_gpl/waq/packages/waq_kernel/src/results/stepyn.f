@@ -49,11 +49,11 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     ITIME   INTEGER(kind=int_32) ::1     INPUT   Time in system clock units
-!     IDT     INTEGER(kind=int_32) ::1     INPUT   Simulation timestep
-!     IMSTRT  INTEGER(kind=int_32) ::1     INPUT   start time of timer
-!     IMSTOP  INTEGER(kind=int_32) ::1     INPUT   stop time of timer
-!     IMSTEP  INTEGER(kind=int_32) ::1     INPUT   time step of timer
+!     ITIME   INTEGER(kind=int_wp) ::1     INPUT   Time in system clock units
+!     IDT     INTEGER(kind=int_wp) ::1     INPUT   Simulation timestep
+!     IMSTRT  INTEGER(kind=int_wp) ::1     INPUT   start time of timer
+!     IMSTOP  INTEGER(kind=int_wp) ::1     INPUT   stop time of timer
+!     IMSTEP  INTEGER(kind=int_wp) ::1     INPUT   time step of timer
 !     LFLAG   LOGICAL       1     OUTPUT  If .T. then action else not
 !     LFIRST  LOGICAL       1     OUTPUT  If .T. then first step
 !
@@ -61,9 +61,9 @@
 !
       use timers
 
-      INTEGER(kind=int_32) ::ITIME , IDT   , ISTRT , ISTOP , ISTEP
+      INTEGER(kind=int_wp) ::ITIME , IDT   , ISTRT , ISTOP , ISTEP
       LOGICAL       LFLAG , LFIRST
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "stepyn", ithandl )
 !
 !     Evaluate timer

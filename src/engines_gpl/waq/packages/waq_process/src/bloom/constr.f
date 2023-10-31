@@ -61,7 +61,7 @@
       real(kind=dp) ::xm
       real(kind=dp) ::fp
 
-      integer(kind=int_32) ::i, k, numgr
+      integer(kind=int_wp) ::i, k, numgr
       logical     :: rootsexist
       
 !  Determines limits on the extinction coefficient

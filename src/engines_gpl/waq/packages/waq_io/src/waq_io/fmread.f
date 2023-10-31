@@ -69,30 +69,30 @@
 
 !     kind           function         name                        Descriptipon
 
-      integer(kind=int_32), intent(in   ) ::  nitem                      !< number of items
-      integer(kind=int_32), intent(in   ) ::  item  (nitem)              !< item numbers
-      integer(kind=int_32), intent(in   ) ::  nvals                      !< number of values per item
-      integer(kind=int_32), intent(in   ) ::  nfact                      !< number of scale factors
-      real(kind=sp), intent(inout) ::  factor(nvals)              !< scale factors
-      integer(kind=int_32), intent(in   ) ::  nobrk                      !< number of breakpoints
-      integer(kind=int_32), intent(  out) ::  ibrk  (nobrk)              !< breakpoints read
-      real(kind=sp), intent(  out) ::  arrin (nvals,nitem,nobrk)  !< breakpoints read
+      integer(kind=int_wp), intent(in   ) ::  nitem                      !< number of items
+      integer(kind=int_wp), intent(in   ) ::  item  (nitem)              !< item numbers
+      integer(kind=int_wp), intent(in   ) ::  nvals                      !< number of values per item
+      integer(kind=int_wp), intent(in   ) ::  nfact                      !< number of scale factors
+      real(kind=real_wp), intent(inout) ::  factor(nvals)              !< scale factors
+      integer(kind=int_wp), intent(in   ) ::  nobrk                      !< number of breakpoints
+      integer(kind=int_wp), intent(  out) ::  ibrk  (nobrk)              !< breakpoints read
+      real(kind=real_wp), intent(  out) ::  arrin (nvals,nitem,nobrk)  !< breakpoints read
       logical  ( 4), intent(in   ) :: dtflg                     !< 'date'-format time scale
       logical  ( 4), intent(in   ) :: dtflg3                    !< (F;ddmmhhss,T;yydddhh)
-      integer(kind=int_32), intent(in   ) ::  ifact                      !< factor between timings
-      integer(kind=int_32), intent(in   ) ::  iwidth                     !< width of the output file
-      integer(kind=int_32), intent(in   ) ::  ioutpt                     !< how extensive is output ?
-      integer(kind=int_32), intent(inout) ::  ierr                       !< cumulative error count
+      integer(kind=int_wp), intent(in   ) ::  ifact                      !< factor between timings
+      integer(kind=int_wp), intent(in   ) ::  iwidth                     !< width of the output file
+      integer(kind=int_wp), intent(in   ) ::  ioutpt                     !< how extensive is output ?
+      integer(kind=int_wp), intent(inout) ::  ierr                       !< cumulative error count
 
 !     local decalations
 
-      integer(kind=int_32) :: ierr2         ! local error variable
-      integer(kind=int_32) :: i1, i2, i3    ! loop counters
-      integer(kind=int_32) :: k             ! loop counter
-      integer(kind=int_32) :: ie1, ie2      ! endpoint help variables
+      integer(kind=int_wp) :: ierr2         ! local error variable
+      integer(kind=int_wp) :: i1, i2, i3    ! loop counters
+      integer(kind=int_wp) :: k             ! loop counter
+      integer(kind=int_wp) :: ie1, ie2      ! endpoint help variables
       character(255) ctoken       ! to read a time string
-      integer(kind=int_32) :: itype         ! to indicate what was read
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) :: itype         ! to indicate what was read
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "fmread", ithndl )
 
       if ( ioutpt .lt. 4 ) write ( lunut , 2000 )

@@ -45,15 +45,15 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     ISYSI   INTEGER(kind=int_32) ::*     OUTPUT  copy of the SYSI common block
-!     ISYSN   INTEGER(kind=int_32) ::*     OUTPUT  copy of the SYSI common block
+!     ISYSI   INTEGER(kind=int_wp) ::*     OUTPUT  copy of the SYSI common block
+!     ISYSN   INTEGER(kind=int_wp) ::*     OUTPUT  copy of the SYSI common block
 !
 !     declarations
       use m_dhimov
       use m_sysn          ! System characteristics
       use m_sysi          ! Timer characteristics
 !
-      INTEGER(kind=int_32) ::ISYSI(:), ISYSN(:)
+      INTEGER(kind=int_wp) ::ISYSI(:), ISYSN(:)
 
 !     Fill the array's
 !

@@ -41,24 +41,24 @@
 
       ! declaration of arguments
 
-      integer(kind=int_32) ::lunrep          ! report file
+      integer(kind=int_wp) ::lunrep          ! report file
       type(procespropcoll)      :: procesdef       ! the process definition
-      integer(kind=int_32) ::no_ins          ! number of output items
-      integer(kind=int_32) ::no_ine          ! number of output items
-      integer(kind=int_32) ::no_ous          ! number of output items
-      integer(kind=int_32) ::no_oue          ! number of output items
-      integer(kind=int_32) ::no_flu          ! number of output items
-      integer(kind=int_32) ::no_sto          ! number of output items
-      integer(kind=int_32) ::no_dis          ! number of output items
-      integer(kind=int_32) ::no_vel          ! number of output items
+      integer(kind=int_wp) ::no_ins          ! number of output items
+      integer(kind=int_wp) ::no_ine          ! number of output items
+      integer(kind=int_wp) ::no_ous          ! number of output items
+      integer(kind=int_wp) ::no_oue          ! number of output items
+      integer(kind=int_wp) ::no_flu          ! number of output items
+      integer(kind=int_wp) ::no_sto          ! number of output items
+      integer(kind=int_wp) ::no_dis          ! number of output items
+      integer(kind=int_wp) ::no_vel          ! number of output items
 
       ! local decalarations
 
       type(procesprop), pointer :: proc            ! single process
-      integer(kind=int_32) ::nproc           ! number of processes
-      integer(kind=int_32) ::iproc           ! index processes
-      integer(kind=int_32) ::i_item          ! index io_items
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::nproc           ! number of processes
+      integer(kind=int_wp) ::iproc           ! index processes
+      integer(kind=int_wp) ::i_item          ! index io_items
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "proc_totals", ithndl )
 
 

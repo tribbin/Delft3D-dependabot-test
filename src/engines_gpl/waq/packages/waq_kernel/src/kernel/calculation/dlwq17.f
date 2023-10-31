@@ -58,41 +58,41 @@
 !     Arguments
 
 !     kind        function         name                    description
-      integer(kind=int_32), intent(in   )  ::nosys                 !< number of transported substances
-      integer(kind=int_32), intent(in   )  ::notot                 !< total number of substances
-      integer(kind=int_32), intent(in   )  ::nobnd                 !< number of open boundary conditions
-      real(kind=sp), intent(in   )  ::bset (nosys,nobnd)    !< prescribed open boundary conditions
-      real(kind=sp), intent(inout)  ::bsave(nosys,nobnd)    !< saved open boundaries at outflow
-      integer(kind=int_32), intent(inout)  ::ibpnt(  4  ,nobnd)    !< 1 = timelags /n
+      integer(kind=int_wp), intent(in   )  ::nosys                 !< number of transported substances
+      integer(kind=int_wp), intent(in   )  ::notot                 !< total number of substances
+      integer(kind=int_wp), intent(in   )  ::nobnd                 !< number of open boundary conditions
+      real(kind=real_wp), intent(in   )  ::bset (nosys,nobnd)    !< prescribed open boundary conditions
+      real(kind=real_wp), intent(inout)  ::bsave(nosys,nobnd)    !< saved open boundaries at outflow
+      integer(kind=int_wp), intent(inout)  ::ibpnt(  4  ,nobnd)    !< 1 = timelags /n
                                                          !  2 = flow pointer (can be negative) /n
                                                          !  3 = segment pointer /n
                                                          !  4 = time on the cosine /n
-      integer(kind=int_32), intent(in   )  ::idt                   !< time step size in system clock units
-      real(kind=sp), intent(in   )  ::conc (notot,  *  )    !< model concentrations
-      real(kind=sp), intent(in   )  ::flow (  *  )          !< model flows
-      real(kind=sp), intent(  out)  ::bound(nosys,nobnd)    !< model open boundary conditions
+      integer(kind=int_wp), intent(in   )  ::idt                   !< time step size in system clock units
+      real(kind=real_wp), intent(in   )  ::conc (notot,  *  )    !< model concentrations
+      real(kind=real_wp), intent(in   )  ::flow (  *  )          !< model flows
+      real(kind=real_wp), intent(  out)  ::bound(nosys,nobnd)    !< model open boundary conditions
 
 !     Locals
 
-      real(kind=sp), parameter  ::pi = 3.141593
-      integer(kind=int_32) ::ibnd             !  loop variable boundaries
-      integer(kind=int_32) ::isub             !  loop variable (transported) substances
-      integer(kind=int_32) ::itlag            !  time lag for this boundary
-      integer(kind=int_32) ::iflow            !  flow number of this boundary (positive if towards boundary)
-      real(kind=sp) ::aflow            !  flow accross boundary, positive is 'out'
-      real(kind=sp) ::at               !  Tatcher Harleman half cosine value
-      integer(kind=int_32) ::iseg             !  active volume number associated with the boundary
-      integer(kind=int_32) ::ibtime           !  time since last outflow at this boundary
+      real(kind=real_wp), parameter  ::pi = 3.141593
+      integer(kind=int_wp) ::ibnd             !  loop variable boundaries
+      integer(kind=int_wp) ::isub             !  loop variable (transported) substances
+      integer(kind=int_wp) ::itlag            !  time lag for this boundary
+      integer(kind=int_wp) ::iflow            !  flow number of this boundary (positive if towards boundary)
+      real(kind=real_wp) ::aflow            !  flow accross boundary, positive is 'out'
+      real(kind=real_wp) ::at               !  Tatcher Harleman half cosine value
+      integer(kind=int_wp) ::iseg             !  active volume number associated with the boundary
+      integer(kind=int_wp) ::ibtime           !  time since last outflow at this boundary
 
       logical, save :: init = .true.
       logical, save :: bndmirror = .false.
       logical       :: lfound
       character     :: cdummy
-      integer(kind=int_32) ::idummy
-      real(kind=sp) ::rdummy
-      integer(kind=int_32) ::ierr2
+      integer(kind=int_wp) ::idummy
+      real(kind=real_wp) ::rdummy
+      integer(kind=int_wp) ::ierr2
       
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwq17", ithandl )
 
       if (init) then

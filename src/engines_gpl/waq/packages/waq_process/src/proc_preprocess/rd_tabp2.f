@@ -77,13 +77,13 @@
 !
 !     declaration of arguments
 !
-      INTEGER(kind=int_32) ::NO_ITEM_MAX , NO_ITEM     ,
+      INTEGER(kind=int_wp) ::NO_ITEM_MAX , NO_ITEM     ,
      +              LUNREP      , IERROR
-      INTEGER(kind=int_32) ::DEFFDS
+      INTEGER(kind=int_wp) ::DEFFDS
       CHARACTER*10  ITEM_ID     (NO_ITEM_MAX)
       CHARACTER*50  ITEM_NAME   (NO_ITEM_MAX)
       CHARACTER*20  ITEM_UNIT   (NO_ITEM_MAX)
-      REAL(kind=sp) ::ITEM_DEFAULT(NO_ITEM_MAX)
+      REAL(kind=real_wp) ::ITEM_DEFAULT(NO_ITEM_MAX)
       CHARACTER*10  ITEM_AGGREGA(NO_ITEM_MAX)
       CHARACTER*10  ITEM_DISAGGR(NO_ITEM_MAX)
       CHARACTER*30  ITEM_GROUPID(NO_ITEM_MAX)
@@ -95,18 +95,18 @@
 !     Local variables
 !
 !     GRPNAM  CHAR*16     1       LOCAL   group name (table)
-!     NELEMS  INTEGER(kind=int_32) ::1       LOCAL   number of elements in group (=cell)
+!     NELEMS  INTEGER(kind=int_wp) ::1       LOCAL   number of elements in group (=cell)
 !     ELMNMS  CHAR*16  NELEMS     LOCAL   name of elements on file
 !     ELMTPS  CHAR*16  NELEMS     LOCAL   type of elements
-!     ELMDMS  INTEGER(kind=int_32) ::6,NELEMS   LOCAL   dimension of elements
-!     NBYTSG  INTEGER(kind=int_32) ::NELEMS     LOCAL   length of elements (bytes)
+!     ELMDMS  INTEGER(kind=int_wp) ::6,NELEMS   LOCAL   dimension of elements
+!     NBYTSG  INTEGER(kind=int_wp) ::NELEMS     LOCAL   length of elements (bytes)
 !
-      INTEGER(kind=int_32) ::NELEMS, INQNELEMS
+      INTEGER(kind=int_wp) ::NELEMS, INQNELEMS
       PARAMETER   ( NELEMS = 12 )
 !
-      INTEGER(kind=int_32) ::I               , IELM          ,
+      INTEGER(kind=int_wp) ::I               , IELM          ,
      +              BUFLEN
-      INTEGER(kind=int_32) ::ELMDMS(2,NELEMS), NBYTSG(NELEMS),
+      INTEGER(kind=int_wp) ::ELMDMS(2,NELEMS), NBYTSG(NELEMS),
      +              UINDEX(3)
       CHARACTER*16  GRPNAM
       CHARACTER*16  ELMNMS(NELEMS)  , INQELMNMS(NELEMS),  ELMTPS(NELEMS)
@@ -115,7 +115,7 @@
 !
 !     External NEFIS Functions
 !
-      INTEGER(kind=int_32) ::INQCEL
+      INTEGER(kind=int_wp) ::INQCEL
      +         ,GETELS
      +         ,GETELT
       EXTERNAL  GETELS

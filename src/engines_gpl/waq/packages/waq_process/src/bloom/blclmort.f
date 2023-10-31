@@ -37,13 +37,13 @@
 
       implicit none
 
-      integer(kind=int_32) ::ntyp_a              ! Actual number of algae types
-      real(kind=sp) ::mrtm1(ntyp_a)       ! Original mortality rates
-      real(kind=sp) ::mrtm2(ntyp_a)       ! M2 mort rate coeff
-      real(kind=sp) ::mrtb1(ntyp_a)       ! B1 mort rate sal stress coeff
-      real(kind=sp) ::mrtb2(ntyp_a)       ! B2 mort rate sal stress coeff
-      real(kind=sp) ::cl                  ! Chlorine concentration
-      integer(kind=int_32) ::ialg                ! Counter over algae types
+      integer(kind=int_wp) ::ntyp_a              ! Actual number of algae types
+      real(kind=real_wp) ::mrtm1(ntyp_a)       ! Original mortality rates
+      real(kind=real_wp) ::mrtm2(ntyp_a)       ! M2 mort rate coeff
+      real(kind=real_wp) ::mrtb1(ntyp_a)       ! B1 mort rate sal stress coeff
+      real(kind=real_wp) ::mrtb2(ntyp_a)       ! B2 mort rate sal stress coeff
+      real(kind=real_wp) ::cl                  ! Chlorine concentration
+      integer(kind=int_wp) ::ialg                ! Counter over algae types
 
 !     Loop over algae types
       do ialg = 1, ntyp_a
@@ -66,9 +66,9 @@
 
       implicit none
 
-      integer(kind=int_32) ::ntyp_a              ! Actual number of algae types
-      real(kind=sp) ::mrtm1(ntyp_a)       ! Original mortality rates
-      integer(kind=int_32) ::ialg                ! Counter over algae types
+      integer(kind=int_wp) ::ntyp_a              ! Actual number of algae types
+      real(kind=real_wp) ::mrtm1(ntyp_a)       ! Original mortality rates
+      integer(kind=int_wp) ::ialg                ! Counter over algae types
 
 !     Loop over algae types
       do ialg = 1, ntyp_a
@@ -86,8 +86,8 @@
       
       implicit none
 
-      integer(kind=int_32) ::ialg                ! index alg involved
-      real(kind=sp) ::ppmax               ! PPMAX value to be set
+      integer(kind=int_wp) ::ialg                ! index alg involved
+      real(kind=real_wp) ::ppmax               ! PPMAX value to be set
 
       pmax1(ialg) = ppmax
 
@@ -101,8 +101,8 @@
       
       implicit none
 
-      integer(kind=int_32) ::ialg                ! index alg involved
-      real(kind=sp) ::sdmixn              ! SDMIX value to be set
+      integer(kind=int_wp) ::ialg                ! index alg involved
+      real(kind=real_wp) ::sdmixn              ! SDMIX value to be set
 
       sdmix(ialg) = sdmixn
 
@@ -117,9 +117,9 @@
       
       implicit none
 
-      integer(kind=int_32) ::igroup              ! Index of group involved
-      integer(kind=int_32) ::itype               ! Index of algae involved
-      real(kind=sp) ::effin               ! EFFI value to be set
+      integer(kind=int_wp) ::igroup              ! Index of group involved
+      integer(kind=int_wp) ::itype               ! Index of algae involved
+      real(kind=real_wp) ::effin               ! EFFI value to be set
 
       do itype = it2(igroup,1),it2(igroup,2)
          aveffi(itype) = effin

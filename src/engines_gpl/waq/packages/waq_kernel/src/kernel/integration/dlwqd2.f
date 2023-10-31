@@ -76,15 +76,15 @@
 !
       use timers
 !
-      INTEGER(kind=int_32) ::LUNUT , NOSYS , NOTOT , NOSEG , NOQ3  , NOWARN, KMAX
-      REAL(kind=sp) ::CONC(NOTOT,NOSEG) , ALENG(2,NOQ3)
+      INTEGER(kind=int_wp) ::LUNUT , NOSYS , NOTOT , NOSEG , NOQ3  , NOWARN, KMAX
+      REAL(kind=real_wp) ::CONC(NOTOT,NOSEG) , ALENG(2,NOQ3)
 
-      real(kind=sp) ::dd, dr, dr1, dr2, dz1, dz2, coef
+      real(kind=real_wp) ::dd, dr, dr1, dr2, dz1, dz2, coef
 
-      integer(kind=int_32) ::iseg, isys, ifilt, il, is, ilu, ifil, ild, ilay
-      integer(kind=int_32) ::nhor, maxfil
+      integer(kind=int_wp) ::iseg, isys, ifilt, il, is, ilu, ifil, ild, ilay
+      integer(kind=int_wp) ::nhor, maxfil
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqd2", ithandl )
 !
       DD     = 1.0E-02

@@ -46,26 +46,26 @@
       implicit none
 
       character(len=*)    , intent(in   ) :: lchar(*)               !< filenames
-      integer(kind=int_32), intent(in   )  ::lun(*)                 !< unit numbers
-      integer(kind=int_32), intent(in   )  ::notot                  !< number of substances
+      integer(kind=int_wp), intent(in   )  ::lun(*)                 !< unit numbers
+      integer(kind=int_wp), intent(in   )  ::notot                  !< number of substances
       character(len=20)   , intent(in   ) :: syname(*)              !< substance names
-      integer(kind=int_32), intent(in   )  ::noutp                  !< total number of output files
-      integer(kind=int_32), intent(in   )  ::ioutps(7,*)            !< (old) output structure
+      integer(kind=int_wp), intent(in   )  ::noutp                  !< total number of output files
+      integer(kind=int_wp), intent(in   )  ::ioutps(7,*)            !< (old) output structure
       type(outputcoll)    , intent(in   ) :: outputs                !< output structure
 
       ! local
 
-      integer(kind=int_32) ::isys
-      integer(kind=int_32) ::ivar
-      integer(kind=int_32) ::ioffv
+      integer(kind=int_wp) ::isys
+      integer(kind=int_wp) ::ivar
+      integer(kind=int_wp) ::ioffv
       character*255                       :: filpst
       character*255                       :: filstu
-      integer(kind=int_32) ::lunwrk
-      integer(kind=int_32) ::nrvar
-      integer(kind=int_32) ::indx
-      integer(kind=int_32) ::indx2
-      integer(kind=int_32) ::ilen
-      integer(kind=int_32) ::ithndl = 0        ! handle for performance timer
+      integer(kind=int_wp) ::lunwrk
+      integer(kind=int_wp) ::nrvar
+      integer(kind=int_wp) ::indx
+      integer(kind=int_wp) ::indx2
+      integer(kind=int_wp) ::ilen
+      integer(kind=int_wp) ::ithndl = 0        ! handle for performance timer
       if (timon) call timstrt( "wrtoys", ithndl )
 !
       lunwrk = 81

@@ -80,32 +80,32 @@
 
 !     kind        function         name            Descriptipon
 
-      integer(kind=int_32), intent(in   ) ::  iopt           !< 3 Harmonics, 4 Fourier
-      integer(kind=int_32), intent(in   ) ::  nitem          !< number of input items
-      integer(kind=int_32), intent(in   ) ::  nvals          !< number of values per item
-      integer(kind=int_32), intent(in   ) ::  item (nitem)   !< item numbers
-      integer(kind=int_32), intent(inout) ::  nrec           !< number of harmonic records
-      integer(kind=int_32), intent(inout) ::  nhtot          !< total harmonic array space
-      integer(kind=int_32), intent(in   ) ::  ifact          !< factor between clocks
+      integer(kind=int_wp), intent(in   ) ::  iopt           !< 3 Harmonics, 4 Fourier
+      integer(kind=int_wp), intent(in   ) ::  nitem          !< number of input items
+      integer(kind=int_wp), intent(in   ) ::  nvals          !< number of values per item
+      integer(kind=int_wp), intent(in   ) ::  item (nitem)   !< item numbers
+      integer(kind=int_wp), intent(inout) ::  nrec           !< number of harmonic records
+      integer(kind=int_wp), intent(inout) ::  nhtot          !< total harmonic array space
+      integer(kind=int_wp), intent(in   ) ::  ifact          !< factor between clocks
       logical   , intent(in   ) :: dtflg         !< "date"-format
       logical   , intent(in   ) :: dtflg3        !< 'date'-format (F;ddmmhhss,T;yydddhh)
-      integer(kind=int_32), intent(in   ) ::  lununf         !< unit nr unformatted file
-      integer(kind=int_32), intent(in   ) ::  iwidth         !< width of theoutput file
-      integer(kind=int_32), intent(in   ) ::  ioutpt         !< how extensive output ?
-      integer(kind=int_32), intent(inout) ::  ierr           !< error count
+      integer(kind=int_wp), intent(in   ) ::  lununf         !< unit nr unformatted file
+      integer(kind=int_wp), intent(in   ) ::  iwidth         !< width of theoutput file
+      integer(kind=int_wp), intent(in   ) ::  ioutpt         !< how extensive output ?
+      integer(kind=int_wp), intent(inout) ::  ierr           !< error count
 
-      integer(kind=int_32) :: ndim           ! total size of the matrix
-      integer(kind=int_32) :: nhar           ! number of harmonics
-      integer(kind=int_32) :: ibase          ! base period of Fouriers
-      integer(kind=int_32) :: ierr2          ! error hlp variable
-      integer(kind=int_32) :: i, k           ! loop variables
-      integer(kind=int_32) :: ib, ie         ! limits for printed output
-      integer(kind=int_32) :: i1, i2         ! print loop counters
+      integer(kind=int_wp) :: ndim           ! total size of the matrix
+      integer(kind=int_wp) :: nhar           ! number of harmonics
+      integer(kind=int_wp) :: ibase          ! base period of Fouriers
+      integer(kind=int_wp) :: ierr2          ! error hlp variable
+      integer(kind=int_wp) :: i, k           ! loop variables
+      integer(kind=int_wp) :: ib, ie         ! limits for printed output
+      integer(kind=int_wp) :: i1, i2         ! print loop counters
       logical                      bound         ! true if boundary processing
       logical                      waste         ! true if waste processing
-      integer(kind=int_32), allocatable ::  iperio(:)      ! workspace for frequencies
-      real(kind=sp), allocatable ::  value (:,:)    ! workspace for values
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp), allocatable ::  iperio(:)      ! workspace for frequencies
+      real(kind=real_wp), allocatable ::  value (:,:)    ! workspace for values
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "rwfunc", ithndl )
 
       bound = .false.

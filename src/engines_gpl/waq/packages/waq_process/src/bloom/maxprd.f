@@ -44,7 +44,7 @@
       implicit none
 
       real(kind=dp) ::t
-      integer(kind=int_32) ::i, k
+      integer(kind=int_wp) ::i, k
       
 !  Calculate respiration rate constants.
 !  Calculate the maximum gross growth rate per day as a linear or

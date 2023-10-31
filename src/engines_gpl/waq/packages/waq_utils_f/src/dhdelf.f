@@ -45,11 +45,11 @@
 !     IERROR  INTEGER       1     OUTPUT  Error indication
 !
       CHARACTER*(*) FILNAM
-      INTEGER(kind=int_32) ::IERROR
+      INTEGER(kind=int_wp) ::IERROR
 !
 !     Local
 !
-      INTEGER(kind=int_32) ::IOLUN, ILUN
+      INTEGER(kind=int_wp) ::IOLUN, ILUN
       LOGICAL LOPEN, LEXIST
 !
 !     Init

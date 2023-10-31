@@ -88,83 +88,83 @@
 
 !     kind           function         name                     description
 
-      integer(kind=int_32), intent(in   )  ::lunut                  !< unit number of the monitoring file
-      integer(kind=int_32), intent(in   )  ::nosys                  !< number of transported substances
-      integer(kind=int_32), intent(in   )  ::notot                  !< total number of substances
-      integer(kind=int_32), intent(in   )  ::nototp                 !< number of particle substances
-      integer(kind=int_32), intent(in   )  ::noseg                  !< number of computational volumes
-      integer(kind=int_32), intent(in   )  ::nosss                  !< noseg + bed-computational volumes
-      integer(kind=int_32), intent(in   )  ::noq1                   !< number of interfaces in direction 1
-      integer(kind=int_32), intent(in   )  ::noq2                   !< number of interfaces in direction 2
-      integer(kind=int_32), intent(in   )  ::noq3                   !< number of interfaces in direction 3
-      integer(kind=int_32), intent(in   )  ::noq                    !< total number of interfaces
-      integer(kind=int_32), intent(in   )  ::noq4                   !< number of interfaces in the bed
-      integer(kind=int_32), intent(in   )  ::nodisp                 !< number additional dispersions
-      integer(kind=int_32), intent(in   )  ::novelo                 !< number additional velocities
-      real(kind=sp), intent(in   )  ::disp   (3)             !< fixed dispersions in the 3 directions
-      real(kind=sp), intent(in   )  ::disper (nodisp,noq  )  !< array with additional dispersions
-      real(kind=sp), intent(in   )  ::velo   (novelo,noq  )  !< array with additional velocities
-      real(kind=sp), intent(in   )  ::volold (nosss )        !< volumes of the segments at start of step
-      real(kind=sp), intent(inout)  ::volnew (nosss )        !< volumes of the segments at stop of step
-      real(kind=sp), intent(in   )  ::area   (noq   )        !< exchange areas in m2
-      real(kind=sp), intent(in   )  ::flow   (noq   )        !< flows through the exchange areas in m3/s
-      real(kind=sp), intent(in   )  ::surface(nosss )        !< horizontal surface area
-      real(kind=sp), intent(inout)  ::aleng  (  2   ,noq  )  !< mixing length to and from the exchange area
-      integer(kind=int_32), intent(in   )  ::ipoint (  4   ,noq  )  !< from, to, from-1, to+1 volume numbers
-      integer(kind=int_32), intent(in   )  ::idpnt  (nosys )        !< additional dispersion number per substance
-      integer(kind=int_32), intent(in   )  ::ivpnt  (nosys )        !< additional velocity number per substance
-      real(kind=sp), intent(inout)  ::amass  (notot ,nosss)  !< masses per substance per volume
-      real(kind=sp), intent(inout)  ::conc   (notot ,nosss)  !< concentrations at previous time level
+      integer(kind=int_wp), intent(in   )  ::lunut                  !< unit number of the monitoring file
+      integer(kind=int_wp), intent(in   )  ::nosys                  !< number of transported substances
+      integer(kind=int_wp), intent(in   )  ::notot                  !< total number of substances
+      integer(kind=int_wp), intent(in   )  ::nototp                 !< number of particle substances
+      integer(kind=int_wp), intent(in   )  ::noseg                  !< number of computational volumes
+      integer(kind=int_wp), intent(in   )  ::nosss                  !< noseg + bed-computational volumes
+      integer(kind=int_wp), intent(in   )  ::noq1                   !< number of interfaces in direction 1
+      integer(kind=int_wp), intent(in   )  ::noq2                   !< number of interfaces in direction 2
+      integer(kind=int_wp), intent(in   )  ::noq3                   !< number of interfaces in direction 3
+      integer(kind=int_wp), intent(in   )  ::noq                    !< total number of interfaces
+      integer(kind=int_wp), intent(in   )  ::noq4                   !< number of interfaces in the bed
+      integer(kind=int_wp), intent(in   )  ::nodisp                 !< number additional dispersions
+      integer(kind=int_wp), intent(in   )  ::novelo                 !< number additional velocities
+      real(kind=real_wp), intent(in   )  ::disp   (3)             !< fixed dispersions in the 3 directions
+      real(kind=real_wp), intent(in   )  ::disper (nodisp,noq  )  !< array with additional dispersions
+      real(kind=real_wp), intent(in   )  ::velo   (novelo,noq  )  !< array with additional velocities
+      real(kind=real_wp), intent(in   )  ::volold (nosss )        !< volumes of the segments at start of step
+      real(kind=real_wp), intent(inout)  ::volnew (nosss )        !< volumes of the segments at stop of step
+      real(kind=real_wp), intent(in   )  ::area   (noq   )        !< exchange areas in m2
+      real(kind=real_wp), intent(in   )  ::flow   (noq   )        !< flows through the exchange areas in m3/s
+      real(kind=real_wp), intent(in   )  ::surface(nosss )        !< horizontal surface area
+      real(kind=real_wp), intent(inout)  ::aleng  (  2   ,noq  )  !< mixing length to and from the exchange area
+      integer(kind=int_wp), intent(in   )  ::ipoint (  4   ,noq  )  !< from, to, from-1, to+1 volume numbers
+      integer(kind=int_wp), intent(in   )  ::idpnt  (nosys )        !< additional dispersion number per substance
+      integer(kind=int_wp), intent(in   )  ::ivpnt  (nosys )        !< additional velocity number per substance
+      real(kind=real_wp), intent(inout)  ::amass  (notot ,nosss)  !< masses per substance per volume
+      real(kind=real_wp), intent(inout)  ::conc   (notot ,nosss)  !< concentrations at previous time level
       real(kind=dp) ::dconc2 (notot ,nosss)  !< estimate used in flux correction
-      real(kind=sp), intent(in   )  ::bound  (nosys ,  *  )  !< open boundary concentrations
-      integer(kind=int_32), intent(in   )  ::idt                    !< time step in seconds
-      integer(kind=int_32) ::ibas   (noseg )        !< in which basket is my cell
-      integer(kind=int_32) ::ibaf   (noq   )        !< in which basket is my flow
+      real(kind=real_wp), intent(in   )  ::bound  (nosys ,  *  )  !< open boundary concentrations
+      integer(kind=int_wp), intent(in   )  ::idt                    !< time step in seconds
+      integer(kind=int_wp) ::ibas   (noseg )        !< in which basket is my cell
+      integer(kind=int_wp) ::ibaf   (noq   )        !< in which basket is my flow
       real(kind=dp) ::work   (  3   ,noseg)  !< work array
       real(kind=dp) ::volint (noseg )        !< fractional migrating volume
-      integer(kind=int_32) ::iords  (noseg )        !< order of segments
-      integer(kind=int_32) ::iordf  (noq   )        !< order of fluxes
-      real(kind=sp), intent(inout)  ::deriv  (notot ,nosss)  !< derivatives of the concentrations
-      real(kind=sp), intent(inout)  ::wdrawal(noseg  )       !< withdrawals applied to all substances
-      integer(kind=int_32), intent(in   )  ::iaflag                 !< if 1 then accumulate mass in report array
-      real(kind=sp), intent(inout)  ::amass2 (notot , 5   )  !< report array for monitoring file
-      integer(kind=int_32), intent(in   )  ::ndmpq                  !< number of dumped exchanges for mass balances
-      integer(kind=int_32), intent(in   )  ::ndmps                  !< number of dumped volumes for balances
-      integer(kind=int_32), intent(in   )  ::nowst                  !< number of wastes
-      integer(kind=int_32), intent(in   )  ::iqdmp  (noq)           !< pointer from echange to dump location
-      real(kind=sp), intent(inout)  ::dmpq   (nosys ,ndmpq,2)!< array with mass balance information
-      integer(kind=int_32), intent(in   )  ::isdmp  (noseg )        !< volume to dump-location pointer
-      real(kind=sp), intent(inout)  ::dmps   (notot ,ndmps,*)!< dumped segment fluxes if IOPT > 7
-      integer(kind=int_32), intent(in   )  ::iwaste (nowst )        !< volume numbers of the waste locations
-      real(kind=sp), intent(inout)  ::wstdmp (notot ,nowst,2)!< accumulated wasteloads 1/2 in and out
-      integer(kind=int_32), intent(in   )  ::iopt                   !< integration features integer(kind=int_32) ::, see logicals
-      integer(kind=int_32), intent(in   )  ::ilflag                 !< if 0 then only 3 constant lenght values
+      integer(kind=int_wp) ::iords  (noseg )        !< order of segments
+      integer(kind=int_wp) ::iordf  (noq   )        !< order of fluxes
+      real(kind=real_wp), intent(inout)  ::deriv  (notot ,nosss)  !< derivatives of the concentrations
+      real(kind=real_wp), intent(inout)  ::wdrawal(noseg  )       !< withdrawals applied to all substances
+      integer(kind=int_wp), intent(in   )  ::iaflag                 !< if 1 then accumulate mass in report array
+      real(kind=real_wp), intent(inout)  ::amass2 (notot , 5   )  !< report array for monitoring file
+      integer(kind=int_wp), intent(in   )  ::ndmpq                  !< number of dumped exchanges for mass balances
+      integer(kind=int_wp), intent(in   )  ::ndmps                  !< number of dumped volumes for balances
+      integer(kind=int_wp), intent(in   )  ::nowst                  !< number of wastes
+      integer(kind=int_wp), intent(in   )  ::iqdmp  (noq)           !< pointer from echange to dump location
+      real(kind=real_wp), intent(inout)  ::dmpq   (nosys ,ndmpq,2)!< array with mass balance information
+      integer(kind=int_wp), intent(in   )  ::isdmp  (noseg )        !< volume to dump-location pointer
+      real(kind=real_wp), intent(inout)  ::dmps   (notot ,ndmps,*)!< dumped segment fluxes if IOPT > 7
+      integer(kind=int_wp), intent(in   )  ::iwaste (nowst )        !< volume numbers of the waste locations
+      real(kind=real_wp), intent(inout)  ::wstdmp (notot ,nowst,2)!< accumulated wasteloads 1/2 in and out
+      integer(kind=int_wp), intent(in   )  ::iopt                   !< integration features integer(kind=int_wp) ::, see logicals
+      integer(kind=int_wp), intent(in   )  ::ilflag                 !< if 0 then only 3 constant lenght values
       real(kind=dp), intent(inout)  ::rhs    (notot ,nosss)  !< local right hand side
       real(kind=dp), intent(inout)  ::diag   (notot ,nosss)  !< local diagonal filled with volumes
       real(kind=dp), intent(inout)  ::acodia (notot ,max(noq3+noq4,1))    !< local workarray under codiagonal
       real(kind=dp), intent(inout)  ::bcodia (notot ,max(noq3+noq4,1))    !< local workarray upper codiagonal
-      integer(kind=int_32) ::nvert  (  2   ,noseg ) !< Number of vertical cells per column, entry point in ivert
-      integer(kind=int_32) ::ivert  (noseg )        !< Number of vertical columns
-      integer(kind=int_32), intent(in   )  ::nocons                 !< Number of constants used
+      integer(kind=int_wp) ::nvert  (  2   ,noseg ) !< Number of vertical cells per column, entry point in ivert
+      integer(kind=int_wp) ::ivert  (noseg )        !< Number of vertical columns
+      integer(kind=int_wp), intent(in   )  ::nocons                 !< Number of constants used
       character(20), intent(in   ) :: coname (nocons)        !< Constant names
-      real(kind=sp), intent(in   )  ::const  (nocons)        !< Constants
+      real(kind=real_wp), intent(in   )  ::const  (nocons)        !< Constants
 
 !     Local variables     :
 
-      integer(kind=int_32) ::i, j, k         ! general loop counter
-      integer(kind=int_32) ::noqh            ! total number of horizontal interfaces
-      integer(kind=int_32) ::noqv            ! total number of vertical interfaces in the water
-      integer(kind=int_32) ::iq              ! loop counter exchanges
-      integer(kind=int_32) ::iq2, iq3        ! help variables to identify first or second pointers
-      integer(kind=int_32) ::iqv             ! help variables in vertical arrays
-      integer(kind=int_32) ::isys            ! loop counter substance
-      integer(kind=int_32) ::iseg, iseg2     ! loopcounter computational volumes
-      integer(kind=int_32) ::ifrom  , ito    ! from and to volume numbers
+      integer(kind=int_wp) ::i, j, k         ! general loop counter
+      integer(kind=int_wp) ::noqh            ! total number of horizontal interfaces
+      integer(kind=int_wp) ::noqv            ! total number of vertical interfaces in the water
+      integer(kind=int_wp) ::iq              ! loop counter exchanges
+      integer(kind=int_wp) ::iq2, iq3        ! help variables to identify first or second pointers
+      integer(kind=int_wp) ::iqv             ! help variables in vertical arrays
+      integer(kind=int_wp) ::isys            ! loop counter substance
+      integer(kind=int_wp) ::iseg, iseg2     ! loopcounter computational volumes
+      integer(kind=int_wp) ::ifrom  , ito    ! from and to volume numbers
       real(kind=dp) ::vfrom  , vto    ! from   and to   volumes
-      integer(kind=int_32) ::ifrom_1, ito_1  ! from-1 and to+1 volume numbers
+      integer(kind=int_wp) ::ifrom_1, ito_1  ! from-1 and to+1 volume numbers
       real(kind=dp) ::cfrm_1 , cto_1  ! from-1 and to+1 concentration values
-      integer(kind=int_32) ::ipb             ! pointer in the mass balance dump array
-      integer(kind=int_32) ::iqd             ! help variable for dump pointers
+      integer(kind=int_wp) ::ipb             ! pointer in the mass balance dump array
+      integer(kind=int_wp) ::iqd             ! help variable for dump pointers
       real(kind=dp) ::a               ! this area
       real(kind=dp) ::q               ! flow for this exchange
       real(kind=dp) ::e               ! didpersion for this exchange
@@ -185,43 +185,43 @@
       logical       abound          ! is it a boundary?
       logical       wetting         ! are cells becoming wet?
       logical   , save :: sw_settling   ! if true, settling should be dealt with upwind
-      integer(kind=int_32), save  ::init = 0      ! first call ?
+      integer(kind=int_wp), save  ::init = 0      ! first call ?
       character        :: cdummy        !
-      integer(kind=int_32) ::idummy        !
-      real(kind=sp) ::rdummy        !
+      integer(kind=int_wp) ::idummy        !
+      real(kind=real_wp) ::rdummy        !
 
-      integer(kind=int_32),              save  ::nob       ! number of baskets for transportables
-      integer(kind=int_32),  allocatable,save  ::its  (:)  ! baskets accumulator cells
-      integer(kind=int_32),  allocatable,save  ::itf  (:)  ! baskets accumulator flows    , nob+2 stays dry
+      integer(kind=int_wp),              save  ::nob       ! number of baskets for transportables
+      integer(kind=int_wp),  allocatable,save  ::its  (:)  ! baskets accumulator cells
+      integer(kind=int_wp),  allocatable,save  ::itf  (:)  ! baskets accumulator flows    , nob+2 stays dry
       real(kind=dp),  allocatable,save  ::dt   (:)         ! delta time value of baskets  , nob+1 becomes wet
-      integer(kind=int_32),  allocatable, save  ::iqsep(:)! separation point flows in 3rd direction
-      integer(kind=int_32), save  ::nosegl            ! number of cells per layer
-      integer(kind=int_32) ::isums, isumf             ! accumulators
-      integer(kind=int_32) ::ibox, nb                 ! help variable for boxes
-      integer(kind=int_32) ::iofs, ioff               ! offsets in the arrays
-      integer(kind=int_32) ::fbox, lbox, nbox         ! box range
+      integer(kind=int_wp),  allocatable, save  ::iqsep(:)! separation point flows in 3rd direction
+      integer(kind=int_wp), save  ::nosegl            ! number of cells per layer
+      integer(kind=int_wp) ::isums, isumf             ! accumulators
+      integer(kind=int_wp) ::ibox, nb                 ! help variable for boxes
+      integer(kind=int_wp) ::iofs, ioff               ! offsets in the arrays
+      integer(kind=int_wp) ::fbox, lbox, nbox         ! box range
       real(kind=dp) ::fact                            ! interpolation factor for volumes
-      integer(kind=int_32) ::istep, nstep             ! fractional step variables
-      integer(kind=int_32) ::is1, is2, if1, if2       ! loop variables per box
-      integer(kind=int_32) ::ih1, ih2                 ! help variables parallellism
-      integer(kind=int_32) ::ilay                     ! loop counter layers
-      integer(kind=int_32) ::maxlay                   ! maximum number of layers observed in this model
-      integer(kind=int_32) ::bmax                     ! maximum box number in a column
-      integer(kind=int_32) ::changed, remained, iter  ! flooding help variables
+      integer(kind=int_wp) ::istep, nstep             ! fractional step variables
+      integer(kind=int_wp) ::is1, is2, if1, if2       ! loop variables per box
+      integer(kind=int_wp) ::ih1, ih2                 ! help variables parallellism
+      integer(kind=int_wp) ::ilay                     ! loop counter layers
+      integer(kind=int_wp) ::maxlay                   ! maximum number of layers observed in this model
+      integer(kind=int_wp) ::bmax                     ! maximum box number in a column
+      integer(kind=int_wp) ::changed, remained, iter  ! flooding help variables
       real(kind=dp),  allocatable, save  ::low(:),dia(:),upr(:)  !  matrix of one column
       logical             massbal                     ! set .true. if iaflag eq 1
       logical   , save :: report                      ! write iteation reports in monitoring file
-      integer(kind=int_32) ::ierr2                    !
-      real(kind=sp) ::acc_remained, acc_changed       ! For reporting: accumulated/averaged reporting parameters
+      integer(kind=int_wp) ::ierr2                    !
+      real(kind=real_wp) ::acc_remained, acc_changed       ! For reporting: accumulated/averaged reporting parameters
       logical          :: vertical_upwind             ! Set .true. for upwind scheme in the vertical
-      integer(kind=int_32) ::ithandl = 0
-      integer(kind=int_32) ::ithand1 = 0
-      integer(kind=int_32) ::ithand2 = 0
-      integer(kind=int_32) ::ithand3 = 0
-      integer(kind=int_32) ::ithand4 = 0
-      integer(kind=int_32) ::ithand5 = 0
-      integer(kind=int_32) ::ithand6 = 0
-      integer(kind=int_32) ::ithand7 = 0
+      integer(kind=int_wp) ::ithandl = 0
+      integer(kind=int_wp) ::ithand1 = 0
+      integer(kind=int_wp) ::ithand2 = 0
+      integer(kind=int_wp) ::ithand3 = 0
+      integer(kind=int_wp) ::ithand4 = 0
+      integer(kind=int_wp) ::ithand5 = 0
+      integer(kind=int_wp) ::ithand6 = 0
+      integer(kind=int_wp) ::ithand7 = 0
       if ( timon ) call timstrt ( "dlwq19", ithandl )
 
 !         Initialisations

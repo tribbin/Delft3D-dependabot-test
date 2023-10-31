@@ -41,10 +41,10 @@
 
       real(kind=dp) ::a(1:ia,1:mt),b(*),c(*),d(*),x(*),p(*)
       real(kind=dp) ::xopt, bpivot, bmin, cpivot, apivot, aipj, cj, aijp, bi, ap, cjpap
-      integer(kind=int_32) ::lib(*),ier,lsc(*),iopt(*),irs(*), nqslp
-      integer(kind=int_32) ::i, j, k, l, ia, mt, ip, jp, jpneg
-      integer(kind=int_32) ::ineg, iter, itflag, ihelp1, ihelp2
-      integer(kind=int_32) ::nr, nc, method
+      integer(kind=int_wp) ::lib(*),ier,lsc(*),iopt(*),irs(*), nqslp
+      integer(kind=int_wp) ::i, j, k, l, ia, mt, ip, jp, jpneg
+      integer(kind=int_wp) ::ineg, iter, itflag, ihelp1, ihelp2
+      integer(kind=int_wp) ::nr, nc, method
 
       data nqslp /0/
 
@@ -57,7 +57,7 @@
          go to 340
       end if
 
-! Initiate control integer(kind=int_32) ::s, copy arrays and set signs for constraints.
+! Initiate control integer(kind=int_wp) ::s, copy arrays and set signs for constraints.
    10 continue
       ier = 0
       irs(2) = 0

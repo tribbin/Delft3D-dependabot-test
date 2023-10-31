@@ -55,25 +55,25 @@
 
 !     declaration of arguments
 
-      integer(kind=int_32), intent(in   ) ::  notot          !< nr of substances
+      integer(kind=int_wp), intent(in   ) ::  notot          !< nr of substances
       character(20)         , intent(in   ) :: syname(notot) !< substance names
       type(GridPointerColl) , intent(in   ) :: GridPs        !< collection of all grid definitions
-      integer(kind=int_32), intent(inout) ::  isysg (notot)  !< process gridnr of substances
-      integer(kind=int_32), intent(inout) ::  ierr           !< cummulative error count
+      integer(kind=int_wp), intent(inout) ::  isysg (notot)  !< process gridnr of substances
+      integer(kind=int_wp), intent(inout) ::  ierr           !< cummulative error count
 
 !     local declarations
 
-      integer(kind=int_32) ::  itoken            ! integer token from input
-      integer(kind=int_32) ::  idummy            ! dummy which content is not used
-      real(kind=sp) ::  adummy            ! dummy which content is not used
+      integer(kind=int_wp) ::  itoken            ! integer token from input
+      integer(kind=int_wp) ::  idummy            ! dummy which content is not used
+      real(kind=real_wp) ::  adummy            ! dummy which content is not used
       character(len=255)      :: ctoken           ! character token from input
       character               :: cdummy           ! dummy which content is not used
-      integer(kind=int_32) ::  itype             ! type of input to be needded
-      integer(kind=int_32) ::  ierr2             ! local error indication
-      integer(kind=int_32) ::  sysused(notot)    ! work array substance selection
-      integer(kind=int_32) ::  isys              ! index substance
-      integer(kind=int_32) ::  i_grid            ! index grid in collection
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  itype             ! type of input to be needded
+      integer(kind=int_wp) ::  ierr2             ! local error indication
+      integer(kind=int_wp) ::  sysused(notot)    ! work array substance selection
+      integer(kind=int_wp) ::  isys              ! index substance
+      integer(kind=int_wp) ::  i_grid            ! index grid in collection
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "read_sub_procgrid", ithndl )
 
 !     some init

@@ -42,90 +42,90 @@
 
       ! arguments          i/o description
 
-      real(kind=sp) :: pmsa(*)      !i/o process manager system array, window of routine to process library
-      real(kind=sp) :: fl(*)        ! o  array of fluxes made by this process in mass/volume/time
-      integer(kind=int_32) :: ipoint(*)    ! i  array of pointers in pmsa to get and store the data
-      integer(kind=int_32) :: increm(*)    ! i  increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer(kind=int_32) :: noseg        ! i  number of computational elements in the whole model schematisation
-      integer(kind=int_32) :: noflux       ! i  number of fluxes, increment in the fl array
-      integer(kind=int_32) :: iexpnt(4,*)  ! i  from, to, from-1 and to+1 segment numbers of the exchange surfaces
-      integer(kind=int_32) :: iknmrk(*)    ! i  active-inactive, surface-water-bottom, see manual for use
-      integer(kind=int_32) :: noq1         ! i  nr of exchanges in 1st direction, only horizontal dir if irregular mesh
-      integer(kind=int_32) :: noq2         ! i  nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer(kind=int_32) :: noq3         ! i  nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer(kind=int_32) :: noq4         ! i  nr of exchanges in the bottom (bottom layers, specialist use only)
+      real(kind=real_wp) :: pmsa(*)      !i/o process manager system array, window of routine to process library
+      real(kind=real_wp) :: fl(*)        ! o  array of fluxes made by this process in mass/volume/time
+      integer(kind=int_wp) :: ipoint(*)    ! i  array of pointers in pmsa to get and store the data
+      integer(kind=int_wp) :: increm(*)    ! i  increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_wp) :: noseg        ! i  number of computational elements in the whole model schematisation
+      integer(kind=int_wp) :: noflux       ! i  number of fluxes, increment in the fl array
+      integer(kind=int_wp) :: iexpnt(4,*)  ! i  from, to, from-1 and to+1 segment numbers of the exchange surfaces
+      integer(kind=int_wp) :: iknmrk(*)    ! i  active-inactive, surface-water-bottom, see manual for use
+      integer(kind=int_wp) :: noq1         ! i  nr of exchanges in 1st direction, only horizontal dir if irregular mesh
+      integer(kind=int_wp) :: noq2         ! i  nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_wp) :: noq3         ! i  nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_wp) :: noq4         ! i  nr of exchanges in the bottom (bottom layers, specialist use only)
 
       ! from pmsa array
 
-      real(kind=sp) :: depth        ! i  depth of segment                               (m)
-      real(kind=sp) :: totaldepth   ! i  total depth water column                       (m)
-      real(kind=sp) :: localdepth   ! i  depth from water surface to bottom of segment  (m)
-      real(kind=sp) :: hmax         ! i  maxmimum length roots                          (m)
-      real(kind=sp) :: delt         ! i  delt                                           (d)
-      real(kind=sp) :: nh4          ! i  nh4                                         (g/m3)
-      real(kind=sp) :: aap          ! i  aap                                         (g/m3)
-      real(kind=sp) :: so4          ! i  so4                                         (g/m3)
-      real(kind=sp) :: no3          ! i  no3                                         (g/m3)
-      real(kind=sp) :: po4          ! i  po4                                         (g/m3)
-      real(kind=sp) :: sud          ! i  sud                                         (g/m3)
-      real(kind=sp) :: s1_nh4       ! i  nh4 in sediment                             (g/m3)
-      real(kind=sp) :: s1_aap       ! i  aap in sediment                             (g/m3)
-      real(kind=sp) :: s1_so4       ! i  so4 in sediment                             (g/m3)
-      real(kind=sp) :: s1_no3       ! i  no3 in sediment                             (g/m3)
-      real(kind=sp) :: s1_po4       ! i  po4 in sediment                             (g/m3)
-      real(kind=sp) :: s1_sud       ! i  sud in sediment                             (g/m3)
-      real(kind=sp) :: inicovvbxx   ! i  percentage coverage                            (%)
-      real(kind=sp) :: vbxxnavail   ! i  available nitrogen                          (g/m2)
-      real(kind=sp) :: vbxxpavail   ! i  available phosphorus                        (g/m2)
-      real(kind=sp) :: vbxxsavail   ! i  available sulfur                            (g/m2)
-      real(kind=sp) :: fnvbxxup     ! i  2d uptake flux                            (g/m2/d)
-      real(kind=sp) :: fpvbxxup     ! i  2d uptake flux                            (g/m2/d)
-      real(kind=sp) :: fsvbxxup     ! i  2d uptake flux                            (g/m2/d)
-      real(kind=sp) :: fn1vbxxupy   ! o  3d uptake flux                            (g/m2/d)
-      real(kind=sp) :: fn2vbxxupy   ! o  3d uptake flux                            (g/m2/d)
-      real(kind=sp) :: fp1vbxxupy   ! o  3d uptake flux                            (g/m2/d)
-      real(kind=sp) :: fp2vbxxupy   ! o  3d uptake flux                            (g/m2/d)
-      real(kind=sp) :: fs1vbxxupy   ! o  3d uptake flux                            (g/m2/d)
-      real(kind=sp) :: fs2vbxxupy   ! o  3d uptake flux                            (g/m2/d)
-      real(kind=sp) :: s1_fn1vbxxupy   ! o  uptake flux sediment                   (g/m2/d)
-      real(kind=sp) :: s1_fn2vbxxupy   ! o  uptake flux sediment                   (g/m2/d)
-      real(kind=sp) :: s1_fp1vbxxupy   ! o  uptake flux sediment                   (g/m2/d)
-      real(kind=sp) :: s1_fp2vbxxupy   ! o  uptake flux sediment                   (g/m2/d)
-      real(kind=sp) :: s1_fs1vbxxupy   ! o  uptake flux sediment                   (g/m2/d)
-      real(kind=sp) :: s1_fs2vbxxupy   ! o  uptake flux sediment                   (g/m2/d)
-      real(kind=sp) :: fl_fn1vbxxupy   ! o  3d uptake flux N pool 1                (g/m3/d)
-      real(kind=sp) :: fl_fn2vbxxupy   ! o  3d uptake flux N pool 2                (g/m3/d)
-      real(kind=sp) :: fl_fp1vbxxupy   ! o  3d uptake flux P pool 1                (g/m3/d)
-      real(kind=sp) :: fl_fp2vbxxupy   ! o  3d uptake flux P pool 2                (g/m3/d)
-      real(kind=sp) :: fl_fs1vbxxupy   ! o  3d uptake flux S pool 1                (g/m3/d)
-      real(kind=sp) :: fl_fs2vbxxupy   ! o  3d uptake flux S pool 2                (g/m3/d)
+      real(kind=real_wp) :: depth        ! i  depth of segment                               (m)
+      real(kind=real_wp) :: totaldepth   ! i  total depth water column                       (m)
+      real(kind=real_wp) :: localdepth   ! i  depth from water surface to bottom of segment  (m)
+      real(kind=real_wp) :: hmax         ! i  maxmimum length roots                          (m)
+      real(kind=real_wp) :: delt         ! i  delt                                           (d)
+      real(kind=real_wp) :: nh4          ! i  nh4                                         (g/m3)
+      real(kind=real_wp) :: aap          ! i  aap                                         (g/m3)
+      real(kind=real_wp) :: so4          ! i  so4                                         (g/m3)
+      real(kind=real_wp) :: no3          ! i  no3                                         (g/m3)
+      real(kind=real_wp) :: po4          ! i  po4                                         (g/m3)
+      real(kind=real_wp) :: sud          ! i  sud                                         (g/m3)
+      real(kind=real_wp) :: s1_nh4       ! i  nh4 in sediment                             (g/m3)
+      real(kind=real_wp) :: s1_aap       ! i  aap in sediment                             (g/m3)
+      real(kind=real_wp) :: s1_so4       ! i  so4 in sediment                             (g/m3)
+      real(kind=real_wp) :: s1_no3       ! i  no3 in sediment                             (g/m3)
+      real(kind=real_wp) :: s1_po4       ! i  po4 in sediment                             (g/m3)
+      real(kind=real_wp) :: s1_sud       ! i  sud in sediment                             (g/m3)
+      real(kind=real_wp) :: inicovvbxx   ! i  percentage coverage                            (%)
+      real(kind=real_wp) :: vbxxnavail   ! i  available nitrogen                          (g/m2)
+      real(kind=real_wp) :: vbxxpavail   ! i  available phosphorus                        (g/m2)
+      real(kind=real_wp) :: vbxxsavail   ! i  available sulfur                            (g/m2)
+      real(kind=real_wp) :: fnvbxxup     ! i  2d uptake flux                            (g/m2/d)
+      real(kind=real_wp) :: fpvbxxup     ! i  2d uptake flux                            (g/m2/d)
+      real(kind=real_wp) :: fsvbxxup     ! i  2d uptake flux                            (g/m2/d)
+      real(kind=real_wp) :: fn1vbxxupy   ! o  3d uptake flux                            (g/m2/d)
+      real(kind=real_wp) :: fn2vbxxupy   ! o  3d uptake flux                            (g/m2/d)
+      real(kind=real_wp) :: fp1vbxxupy   ! o  3d uptake flux                            (g/m2/d)
+      real(kind=real_wp) :: fp2vbxxupy   ! o  3d uptake flux                            (g/m2/d)
+      real(kind=real_wp) :: fs1vbxxupy   ! o  3d uptake flux                            (g/m2/d)
+      real(kind=real_wp) :: fs2vbxxupy   ! o  3d uptake flux                            (g/m2/d)
+      real(kind=real_wp) :: s1_fn1vbxxupy   ! o  uptake flux sediment                   (g/m2/d)
+      real(kind=real_wp) :: s1_fn2vbxxupy   ! o  uptake flux sediment                   (g/m2/d)
+      real(kind=real_wp) :: s1_fp1vbxxupy   ! o  uptake flux sediment                   (g/m2/d)
+      real(kind=real_wp) :: s1_fp2vbxxupy   ! o  uptake flux sediment                   (g/m2/d)
+      real(kind=real_wp) :: s1_fs1vbxxupy   ! o  uptake flux sediment                   (g/m2/d)
+      real(kind=real_wp) :: s1_fs2vbxxupy   ! o  uptake flux sediment                   (g/m2/d)
+      real(kind=real_wp) :: fl_fn1vbxxupy   ! o  3d uptake flux N pool 1                (g/m3/d)
+      real(kind=real_wp) :: fl_fn2vbxxupy   ! o  3d uptake flux N pool 2                (g/m3/d)
+      real(kind=real_wp) :: fl_fp1vbxxupy   ! o  3d uptake flux P pool 1                (g/m3/d)
+      real(kind=real_wp) :: fl_fp2vbxxupy   ! o  3d uptake flux P pool 2                (g/m3/d)
+      real(kind=real_wp) :: fl_fs1vbxxupy   ! o  3d uptake flux S pool 1                (g/m3/d)
+      real(kind=real_wp) :: fl_fs2vbxxupy   ! o  3d uptake flux S pool 2                (g/m3/d)
 
       ! local declarations
 
-      integer(kind=int_32) :: iseg         !    local loop counter for computational element loop
-      real(kind=sp) :: z2           !    height bottom segment from bottom              (m)
-      real(kind=sp) :: z1           !    height top segment from bottom                 (m)
-      integer(kind=int_32) :: ikmrk1
-      integer(kind=int_32) :: ikmrk2
-      real(kind=sp) :: zm           !    watersurface to top macropyte                  (-)
-      real(kind=sp) :: frlay        !    fraction witin layer                           (-)
-      integer(kind=int_32) :: iq           !    loop counter
-      integer(kind=int_32) :: ifrom        !    from segment
-      integer(kind=int_32) :: ito          !    from segment
-      integer(kind=int_32) :: iflux        !    index in the fl array
-      real(kind=sp) :: pnvbxxup     !    2d uptake percentage n pool 1 and 2            (-)
-      real(kind=sp) :: ppvbxxup     !    2d uptake percentage p pool 1 and 2            (-)
-      real(kind=sp) :: psvbxxup     !    2d uptake percentage s pool 1 and 2            (-)
-      real(kind=sp) :: hroot        !    effective root length                          (m)
-      real(kind=sp) :: hsed         !    total thickness of the sediment layers         (m)
-      real(kind=sp) :: factor       !    auxiliary variable
+      integer(kind=int_wp) :: iseg         !    local loop counter for computational element loop
+      real(kind=real_wp) :: z2           !    height bottom segment from bottom              (m)
+      real(kind=real_wp) :: z1           !    height top segment from bottom                 (m)
+      integer(kind=int_wp) :: ikmrk1
+      integer(kind=int_wp) :: ikmrk2
+      real(kind=real_wp) :: zm           !    watersurface to top macropyte                  (-)
+      real(kind=real_wp) :: frlay        !    fraction witin layer                           (-)
+      integer(kind=int_wp) :: iq           !    loop counter
+      integer(kind=int_wp) :: ifrom        !    from segment
+      integer(kind=int_wp) :: ito          !    from segment
+      integer(kind=int_wp) :: iflux        !    index in the fl array
+      real(kind=real_wp) :: pnvbxxup     !    2d uptake percentage n pool 1 and 2            (-)
+      real(kind=real_wp) :: ppvbxxup     !    2d uptake percentage p pool 1 and 2            (-)
+      real(kind=real_wp) :: psvbxxup     !    2d uptake percentage s pool 1 and 2            (-)
+      real(kind=real_wp) :: hroot        !    effective root length                          (m)
+      real(kind=real_wp) :: hsed         !    total thickness of the sediment layers         (m)
+      real(kind=real_wp) :: factor       !    auxiliary variable
 
-      integer(kind=int_32), parameter ::  npnt = 31            ! number of pointers
-      integer(kind=int_32) ::  ipnt(npnt)           ! local work array for the pointering
-      integer(kind=int_32) ::  ibotseg              ! bottom segment for macrophyte
-      integer(kind=int_32) ::  ilay                 ! index into layers
+      integer(kind=int_wp), parameter ::  npnt = 31            ! number of pointers
+      integer(kind=int_wp) ::  ipnt(npnt)           ! local work array for the pointering
+      integer(kind=int_wp) ::  ibotseg              ! bottom segment for macrophyte
+      integer(kind=int_wp) ::  ilay                 ! index into layers
 
-      real(kind=sp) ::  hcum(0:nolay)
+      real(kind=real_wp) ::  hcum(0:nolay)
 
        ! accumulate mass in the rooting zone in the pool of the bottom segment
 

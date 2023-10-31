@@ -47,29 +47,29 @@
 !
 !     NAME    KIND     LENGTH      FUNCT.  DESCRIPTION
 !     ---------------------------------------------------------
-!     LUN     INTEGER(kind=int_32) ::*           INPUT   unit numbers output files
+!     LUN     INTEGER(kind=int_wp) ::*           INPUT   unit numbers output files
 !     LCHAR   CHAR*(*) *           INPUT   names of output files
-!     CONC    REAL(kind=sp) ::NOTOT*?     INPUT   concentration values
-!     ITIME   INTEGER(kind=int_32) ::1           INPUT   present time in clock units
+!     CONC    REAL(kind=real_wp) ::NOTOT*?     INPUT   concentration values
+!     ITIME   INTEGER(kind=int_wp) ::1           INPUT   present time in clock units
 !     MNAME   CHAR*40  4           INPUT   model identhification
 !     SNAME   CHAR*20  NOTOT       INPUT   names of substances
-!     NOTOT   INTEGER(kind=int_32) ::1           INPUT   total number of systems
-!     NOSEG   INTEGER(kind=int_32) ::1           INPUT   total number of segments
+!     NOTOT   INTEGER(kind=int_wp) ::1           INPUT   total number of systems
+!     NOSEG   INTEGER(kind=int_wp) ::1           INPUT   total number of segments
 !
 !
       use m_open_waq_files
       use timers
 
-      real(kind=sp) ::CONC  ( NOTOT, NOSEG )
+      real(kind=real_wp) ::CONC  ( NOTOT, NOSEG )
       CHARACTER*20  SNAME ( * )
       CHARACTER*40  MNAME ( * )
       CHARACTER*(*) LCHAR ( * )
       CHARACTER*255 LCHARMAP
-      integer(kind=int_32) ::lun(*)
+      integer(kind=int_wp) ::lun(*)
       
-      integer(kind=int_32) ::i, j, k, itime
-      integer(kind=int_32) ::noseg, notot, nonan, ierr
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::i, j, k, itime
+      integer(kind=int_wp) ::noseg, notot, nonan, ierr
+      integer(kind=int_wp) ::ithandl = 0
       
             
       if ( timon ) call timstrt ( "dlwq13", ithandl )

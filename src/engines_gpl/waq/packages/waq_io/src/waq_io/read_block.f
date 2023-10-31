@@ -61,12 +61,12 @@
 
 !     declaration of arguments
 
-      integer(kind=int_32), intent(inout) ::  lun(*)        !< unit numbers used
+      integer(kind=int_wp), intent(inout) ::  lun(*)        !< unit numbers used
       character(len=*)      , intent(inout) :: lchar(*)     !< filenames
-      integer(kind=int_32), intent(inout) ::  filtype(*)    !< type of binary file
+      integer(kind=int_wp), intent(inout) ::  filtype(*)    !< type of binary file
       type(inputfilestack)  , intent(inout) :: inpfil       !< input file strucure with include stack and flags
-      integer(kind=int_32), intent(in) ::  ioutpt        !< level of reporting to ascii output file
-      integer(kind=int_32), intent(in) ::  iwidth        !< width of output
+      integer(kind=int_wp), intent(in) ::  ioutpt        !< level of reporting to ascii output file
+      integer(kind=int_wp), intent(in) ::  iwidth        !< width of output
       type(t_dlwq_item)     , intent(inout) :: substances   !< delwaq substances list
       type(t_dlwq_item)     , intent(inout) :: constants    !< delwaq constants list
       type(t_dlwq_item)     , intent(inout) :: parameters   !< delwaq parameters list
@@ -75,8 +75,8 @@
       type(t_dlwq_item)     , intent(inout) :: segments     !< delwaq segments name list
       type(GridPointerColl) , intent(in)    :: GridPs       !< collection off all grid definitions
       type(t_dlwqdata)      , intent(out)   :: data_block   !< data block to be filled
-      integer(kind=int_32), intent(out) ::  ierr          !< output error count
-      integer(kind=int_32), intent(inout) ::  iwar          !< cumulative warning count
+      integer(kind=int_wp), intent(out) ::  ierr          !< output error count
+      integer(kind=int_wp), intent(inout) ::  iwar          !< cumulative warning count
 
 !     local declarations
 
@@ -88,25 +88,25 @@
       type(t_dlwq_item)                     :: types        ! delwaq (item-) type list, not relevant here for boundaries, loads
       type(t_fdata)                         :: odsdata      ! funtion data block to be read
       type(t_fdata)                         :: fdata        ! funtion data block to be read
-      integer(kind=int_32) ::  ierr2         ! local error indicator (ierr2 = 2, end of block)
-      integer(kind=int_32) ::  i_base_grid   ! index of base grid
-      integer(kind=int_32) ::  igrid         ! index of input grid
-      integer(kind=int_32) ::  noseg         ! number of segments
-      integer(kind=int_32) ::  noseg_org     ! original number of segments
-      integer(kind=int_32) ::  i             ! loop counter
-      integer(kind=int_32) ::  noits         ! number of scale factors / columns sybstances
-      integer(kind=int_32) ::  noits_loc     ! number of scale factors locations
-      integer(kind=int_32) ::  ndim1         ! first dimension matrix
-      integer(kind=int_32) ::  ndim2         ! second dimension matrix
-      real(kind=sp) ::  amiss         ! missing value
-      integer(kind=int_32) ::  t_asked       ! type of token asked
-      integer(kind=int_32) ::  itype         ! type of token
+      integer(kind=int_wp) ::  ierr2         ! local error indicator (ierr2 = 2, end of block)
+      integer(kind=int_wp) ::  i_base_grid   ! index of base grid
+      integer(kind=int_wp) ::  igrid         ! index of input grid
+      integer(kind=int_wp) ::  noseg         ! number of segments
+      integer(kind=int_wp) ::  noseg_org     ! original number of segments
+      integer(kind=int_wp) ::  i             ! loop counter
+      integer(kind=int_wp) ::  noits         ! number of scale factors / columns sybstances
+      integer(kind=int_wp) ::  noits_loc     ! number of scale factors locations
+      integer(kind=int_wp) ::  ndim1         ! first dimension matrix
+      integer(kind=int_wp) ::  ndim2         ! second dimension matrix
+      real(kind=real_wp) ::  amiss         ! missing value
+      integer(kind=int_wp) ::  t_asked       ! type of token asked
+      integer(kind=int_wp) ::  itype         ! type of token
       character(len=256)                    :: ctoken       ! character token from input
-      integer(kind=int_32) ::  itoken        ! integer token from input
-      real(kind=sp) ::  rtoken        ! real token from input
+      integer(kind=int_wp) ::  itoken        ! integer token from input
+      real(kind=real_wp) ::  rtoken        ! real token from input
       character                             :: cdummy       ! dummy not used
-      integer(kind=int_32) ::  idummy        ! dummy not used
-      real(kind=sp) ::  rdummy        ! dummy not used
+      integer(kind=int_wp) ::  idummy        ! dummy not used
+      real(kind=real_wp) ::  rdummy        ! dummy not used
       character(len=256)                    :: adummy       ! dummy not used
       character(len=10)                     :: callr        ! kind of item
       character(len=10)                     :: strng1       ! kind of item
@@ -118,9 +118,9 @@
       integer(kind=int_64) ::  filesize      ! Reported size of the file
 
       logical       dtflg1 , dtflg2, dtflg3
-      integer(kind=int_32) :: chkflg , itfact 
-      integer(kind=int_32) ::  nocol         ! number of columns in input
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) :: chkflg , itfact
+      integer(kind=int_wp) ::  nocol         ! number of columns in input
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "read_block", ithndl )
 
       call getcom ( '-nosegfuncheck', 0, lfound, idummy, rdummy, adummy, ierr2)
@@ -701,15 +701,15 @@
 
 
       character(len=*), intent(in)     :: filename
-      integer(kind=int_32), intent(in) ::  nodata 
-      integer(kind=int_32), intent(in) ::  type 
+      integer(kind=int_wp), intent(in) ::  nodata
+      integer(kind=int_wp), intent(in) ::  type
       integer(kind=int_64), intent(out) ::  filesize
-      integer(kind=int_32), intent(out) ::  ierr
+      integer(kind=int_wp), intent(out) ::  ierr
  
-      integer(kind=int_32) ::  norcd, i 
-      integer(kind=int_32) ::  lun 
-      integer(kind=int_32) ::  time 
-      real(kind=sp), dimension(:), allocatable  ::  data 
+      integer(kind=int_wp) ::  norcd, i
+      integer(kind=int_wp) ::  lun
+      integer(kind=int_wp) ::  time
+      real(kind=real_wp), dimension(:), allocatable  ::  data
       character(14)                   :: strng
 
       integer(kind=int_64) ::  recordsize

@@ -68,12 +68,12 @@
       IMPLICIT REAL (A-H,J-Z)
       IMPLICIT INTEGER (I)
 
-      INTEGER(kind=int_32) ::NOSEG , NOFLUX, NOQ1  , NOQ2  , NOQ3  ,  NOQ4
-      INTEGER(kind=int_32) ::IPOINT(*)       , INCREM(*),
+      INTEGER(kind=int_wp) ::NOSEG , NOFLUX, NOQ1  , NOQ2  , NOQ3  ,  NOQ4
+      INTEGER(kind=int_wp) ::IPOINT(*)       , INCREM(*),
      +         IEXPNT(4,*)     , IKNMRK(*)
-      REAL(kind=sp) ::PMSA(*)         , FL(*)
+      REAL(kind=real_wp) ::PMSA(*)         , FL(*)
 
-      REAL(kind=sp) ::KSOL , KPRC   , FSOL   , FPRC  , FRR   ,
+      REAL(kind=real_wp) ::KSOL , KPRC   , FSOL   , FPRC  , FRR   ,
      +         TEMP , TMPSOL , TMPPRC , TCSOL , TCPRC ,
      +         CPHD , CPHPR  , CPHDE  , POROS ,
      +         DELT

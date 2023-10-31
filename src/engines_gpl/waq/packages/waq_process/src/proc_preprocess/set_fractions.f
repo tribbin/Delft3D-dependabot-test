@@ -58,21 +58,21 @@
 
       ! arguments
 
-      integer(kind=int_32), intent(in   )  ::lurep                  !< unit number report file
-      integer(kind=int_32), intent(in   )  ::notot                  !< number of substances
+      integer(kind=int_wp), intent(in   )  ::lurep                  !< unit number report file
+      integer(kind=int_wp), intent(in   )  ::notot                  !< number of substances
       character(len=*)    , intent(in   ) :: syname(*)              !< substance names
-      integer(kind=int_32), intent(in   )  ::nomult                 !< number of multiple substances
-      integer(kind=int_32), intent(in   )  ::imultp(2,nomult)       !< multiple substance administration
+      integer(kind=int_wp), intent(in   )  ::nomult                 !< number of multiple substances
+      integer(kind=int_wp), intent(in   )  ::imultp(2,nomult)       !< multiple substance administration
       type(procespropcoll), intent(inout) :: procesdef              !< the proces definition
       type(itempropcoll)  , intent(inout) :: allitems               !< all items of the proces system
-      integer(kind=int_32), intent(inout)  ::no_act                 !< number of activated processes
+      integer(kind=int_wp), intent(inout)  ::no_act                 !< number of activated processes
       character(len=*)    , intent(inout) :: actlst(*)              !< list of activated processes
-      integer(kind=int_32), intent(inout)  ::nbpr                   !< number of processes
+      integer(kind=int_wp), intent(inout)  ::nbpr                   !< number of processes
 
       ! local
 
       type(sfracsprop)                    :: sfracs          ! substance fraction properties
-      integer(kind=int_32) ::ithndl = 0      ! handle for performance timer
+      integer(kind=int_wp) ::ithndl = 0      ! handle for performance timer
       if (timon) call timstrt( "set_fractions", ithndl )
 
       ! set the fractions structure

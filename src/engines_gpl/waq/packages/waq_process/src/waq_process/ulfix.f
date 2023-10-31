@@ -43,66 +43,66 @@
 
 !     arguments
 
-      real(kind=sp) ::pmsa(*)            !I/O Process Manager System Array, window of routine to process library
-      real(kind=sp) ::fl(*)              ! O  Array of fluxes made by this process in mass/volume/time
-      integer(kind=int_32) ::ipoint( * )        ! I  Array of pointers in pmsa to get and store the data
-      integer(kind=int_32) ::increm( * )        ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer(kind=int_32) ::noseg              ! I  Number of computational elements in the whole model schematisation
-      integer(kind=int_32) ::noflux             ! I  Number of fluxes, increment in the fl array
-      integer(kind=int_32) ::iexpnt(4,*)        ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
-      integer(kind=int_32) ::iknmrk(*)          ! I  Active-Inactive, Surface-water-bottom, see manual for use
-      integer(kind=int_32) ::noq1               ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
-      integer(kind=int_32) ::noq2               ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer(kind=int_32) ::noq3               ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer(kind=int_32) ::noq4               ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
+      real(kind=real_wp) ::pmsa(*)            !I/O Process Manager System Array, window of routine to process library
+      real(kind=real_wp) ::fl(*)              ! O  Array of fluxes made by this process in mass/volume/time
+      integer(kind=int_wp) ::ipoint( * )        ! I  Array of pointers in pmsa to get and store the data
+      integer(kind=int_wp) ::increm( * )        ! I  Increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_wp) ::noseg              ! I  Number of computational elements in the whole model schematisation
+      integer(kind=int_wp) ::noflux             ! I  Number of fluxes, increment in the fl array
+      integer(kind=int_wp) ::iexpnt(4,*)        ! I  From, To, From-1 and To+1 segment numbers of the exchange surfaces
+      integer(kind=int_wp) ::iknmrk(*)          ! I  Active-Inactive, Surface-water-bottom, see manual for use
+      integer(kind=int_wp) ::noq1               ! I  Nr of exchanges in 1st direction (the horizontal dir if irregular mesh)
+      integer(kind=int_wp) ::noq2               ! I  Nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_wp) ::noq3               ! I  Nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_wp) ::noq4               ! I  Nr of exchanges in the bottom (bottom layers, specialist use only)
 
 !     pmsa array
 
-      real(kind=sp) ::tau                ! I  total bottom shear stress                          (N/m2)
-      real(kind=sp) ::taucrulva          ! I  critical shear stress for resuspension ULVA        (N/m2)
-      real(kind=sp) ::fixgrad            ! I  gradient of fixation versus shear stress           (-)
-      real(kind=sp) ::delt               ! I  timestep for processes                             (d)
-      real(kind=sp) ::depth              ! I  depth of segment                                   (m)
-      real(kind=sp) ::volume             ! I  volume of computational cell                       (m3)
-      real(kind=sp) ::bloomalg           ! I  algae concentration                                (gC/m3)
-      real(kind=sp) ::frfixedalg         ! O  fraction of algae fixed                            (-)
+      real(kind=real_wp) ::tau                ! I  total bottom shear stress                          (N/m2)
+      real(kind=real_wp) ::taucrulva          ! I  critical shear stress for resuspension ULVA        (N/m2)
+      real(kind=real_wp) ::fixgrad            ! I  gradient of fixation versus shear stress           (-)
+      real(kind=real_wp) ::delt               ! I  timestep for processes                             (d)
+      real(kind=real_wp) ::depth              ! I  depth of segment                                   (m)
+      real(kind=real_wp) ::volume             ! I  volume of computational cell                       (m3)
+      real(kind=real_wp) ::bloomalg           ! I  algae concentration                                (gC/m3)
+      real(kind=real_wp) ::frfixedalg         ! O  fraction of algae fixed                            (-)
 
 !     fluxes
 
-      real(kind=sp) ::dsedresalg  ! F  sedimentation flux algae (gC) in fl array:         (gC/m3/d)
+      real(kind=real_wp) ::dsedresalg  ! F  sedimentation flux algae (gC) in fl array:         (gC/m3/d)
 
 !     local variables
 
-      integer(kind=int_32), parameter  ::ntyp_m = 30        ! number of algae types expected in pmsa
-      integer(kind=int_32), parameter  ::nipfix =  7        ! first number of entries in pmsa independent of number of algae
-      integer(kind=int_32), parameter  ::nipvar =  2        ! number of input entries in pmsa dependent of number of algae
-      integer(kind=int_32) ::ifix(ntyp_m)       ! fix flag >0 suspended <0 corresponding fixed, copied from pmsa
-      integer(kind=int_32) ::jfix               ! fix flag >0 suspended <0 corresponding fixed other algae
-      integer(kind=int_32) ::ialg_fixed(ntyp_m) ! if present number of corresponding fixed type
-      integer(kind=int_32) ::nosegw             ! number of segments in the water
-      integer(kind=int_32) ::nosegl             ! number of segments per layer
-      integer(kind=int_32) ::iseg               ! segment number
-      integer(kind=int_32) ::isegl              ! segment number top layer (=column number)
-      integer(kind=int_32) ::isegb              ! segment number of bottom segment of the column
-      integer(kind=int_32) ::nolay              ! number of layers
-      integer(kind=int_32) ::ilay               ! layer number
-      integer(kind=int_32) ::ilayb              ! layer number of bottom segment of the column
-      integer(kind=int_32) ::ialg               ! algae type (suspended)
-      integer(kind=int_32) ::ialg2              ! algae type
-      integer(kind=int_32) ::jalg               ! algae type (fixed)
-      real(kind=sp) ::msusp              ! mass suspended over the column (gC)
-      real(kind=sp) ::mfix               ! mass fixed over the column (gC)
-      real(kind=sp) ::mtot               ! total mass over the column (gC)
-      real(kind=sp) ::frac               ! fraction of suspended mass in a layer (-)
-      integer(kind=int_32) ::ikmrk2             ! second segment attribute
-      integer(kind=int_32) ::ip                 ! index pointer in pmsa
-      integer(kind=int_32) ::ipp                ! index pointer in pmsa
-      integer(kind=int_32) ::ip1,ip2,ip3,ip4,ip5! index pointers in pmsa
-      integer(kind=int_32) ::ip6,ip7            ! index pointers in pmsa
-      integer(kind=int_32) ::in1,in2,in3,in4,in5! increments in pmsa
-      integer(kind=int_32) ::in6,in7            ! increments in pmsa
-      integer(kind=int_32) ::io1                ! index pointers in pmsa first output parameter
-      integer(kind=int_32) ::ino1               ! increment first output parameter
+      integer(kind=int_wp), parameter  ::ntyp_m = 30        ! number of algae types expected in pmsa
+      integer(kind=int_wp), parameter  ::nipfix =  7        ! first number of entries in pmsa independent of number of algae
+      integer(kind=int_wp), parameter  ::nipvar =  2        ! number of input entries in pmsa dependent of number of algae
+      integer(kind=int_wp) ::ifix(ntyp_m)       ! fix flag >0 suspended <0 corresponding fixed, copied from pmsa
+      integer(kind=int_wp) ::jfix               ! fix flag >0 suspended <0 corresponding fixed other algae
+      integer(kind=int_wp) ::ialg_fixed(ntyp_m) ! if present number of corresponding fixed type
+      integer(kind=int_wp) ::nosegw             ! number of segments in the water
+      integer(kind=int_wp) ::nosegl             ! number of segments per layer
+      integer(kind=int_wp) ::iseg               ! segment number
+      integer(kind=int_wp) ::isegl              ! segment number top layer (=column number)
+      integer(kind=int_wp) ::isegb              ! segment number of bottom segment of the column
+      integer(kind=int_wp) ::nolay              ! number of layers
+      integer(kind=int_wp) ::ilay               ! layer number
+      integer(kind=int_wp) ::ilayb              ! layer number of bottom segment of the column
+      integer(kind=int_wp) ::ialg               ! algae type (suspended)
+      integer(kind=int_wp) ::ialg2              ! algae type
+      integer(kind=int_wp) ::jalg               ! algae type (fixed)
+      real(kind=real_wp) ::msusp              ! mass suspended over the column (gC)
+      real(kind=real_wp) ::mfix               ! mass fixed over the column (gC)
+      real(kind=real_wp) ::mtot               ! total mass over the column (gC)
+      real(kind=real_wp) ::frac               ! fraction of suspended mass in a layer (-)
+      integer(kind=int_wp) ::ikmrk2             ! second segment attribute
+      integer(kind=int_wp) ::ip                 ! index pointer in pmsa
+      integer(kind=int_wp) ::ipp                ! index pointer in pmsa
+      integer(kind=int_wp) ::ip1,ip2,ip3,ip4,ip5! index pointers in pmsa
+      integer(kind=int_wp) ::ip6,ip7            ! index pointers in pmsa
+      integer(kind=int_wp) ::in1,in2,in3,in4,in5! increments in pmsa
+      integer(kind=int_wp) ::in6,in7            ! increments in pmsa
+      integer(kind=int_wp) ::io1                ! index pointers in pmsa first output parameter
+      integer(kind=int_wp) ::ino1               ! increment first output parameter
 
       ! some init
 

@@ -42,62 +42,62 @@
 
 !     arguments            i/o description
 
-      real(kind=sp) ::pmsa(*)     !i/o process manager system array, window of routine to process library
-      real(kind=sp) ::fl(*)       ! o  array of fluxes made by this process in mass/volume/time
-      integer(kind=int_32) ::ipoint(*)   ! i  array of pointers in pmsa to get and store the data
-      integer(kind=int_32) ::increm(*)   ! i  increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer(kind=int_32) ::noseg       ! i  number of computational elements in the whole model schematisation
-      integer(kind=int_32) ::noflux      ! i  number of fluxes, increment in the fl array
-      integer(kind=int_32) ::iexpnt(4,*) ! i  from, to, from-1 and to+1 segment numbers of the exchange surfaces
-      integer(kind=int_32) ::iknmrk(*)   ! i  active-inactive, surface-water-bottom, see manual for use
-      integer(kind=int_32) ::noq1        ! i  nr of exchanges in 1st direction, only horizontal dir if irregular mesh
-      integer(kind=int_32) ::noq2        ! i  nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer(kind=int_32) ::noq3        ! i  nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer(kind=int_32) ::noq4        ! i  nr of exchanges in the bottom (bottom layers, specialist use only)
+      real(kind=real_wp) ::pmsa(*)     !i/o process manager system array, window of routine to process library
+      real(kind=real_wp) ::fl(*)       ! o  array of fluxes made by this process in mass/volume/time
+      integer(kind=int_wp) ::ipoint(*)   ! i  array of pointers in pmsa to get and store the data
+      integer(kind=int_wp) ::increm(*)   ! i  increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_wp) ::noseg       ! i  number of computational elements in the whole model schematisation
+      integer(kind=int_wp) ::noflux      ! i  number of fluxes, increment in the fl array
+      integer(kind=int_wp) ::iexpnt(4,*) ! i  from, to, from-1 and to+1 segment numbers of the exchange surfaces
+      integer(kind=int_wp) ::iknmrk(*)   ! i  active-inactive, surface-water-bottom, see manual for use
+      integer(kind=int_wp) ::noq1        ! i  nr of exchanges in 1st direction, only horizontal dir if irregular mesh
+      integer(kind=int_wp) ::noq2        ! i  nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_wp) ::noq3        ! i  nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_wp) ::noq4        ! i  nr of exchanges in the bottom (bottom layers, specialist use only)
 
       ! from pmsa array
 
-      real(kind=sp) ::depth       ! i  depth of segment                               (m)
-      real(kind=sp) ::totaldepth  ! i  total depth water column                       (m)
-      real(kind=sp) ::localdepth  ! i  depth from water surface to bottom of segment  (m)
-      real(kind=sp) ::swmacdis    ! i  switch gr. distr.vb   (1)cont. (2)lin. (3)exp. (-)
-      real(kind=sp) ::hmax        ! i  maxmimum lenght macrophytes                    (m)
-      real(kind=sp) ::ffac        ! i  form factor macropyhyte                        (m)
-      integer(kind=int_32) ::nvbxx       ! i  number of vb fractions to be distributed       (-)
-      real(kind=sp) ::vb          ! i  macrophyte submerged                          (gc)
-      real(kind=sp) ::delt        ! i  time step                                      (d)
-      real(kind=sp) ::frbmlay     ! o  fraction bm per layer                          (-)
-      real(kind=sp) ::bmlayvb     ! o  biomass layer vb                              (gc)
+      real(kind=real_wp) ::depth       ! i  depth of segment                               (m)
+      real(kind=real_wp) ::totaldepth  ! i  total depth water column                       (m)
+      real(kind=real_wp) ::localdepth  ! i  depth from water surface to bottom of segment  (m)
+      real(kind=real_wp) ::swmacdis    ! i  switch gr. distr.vb   (1)cont. (2)lin. (3)exp. (-)
+      real(kind=real_wp) ::hmax        ! i  maxmimum lenght macrophytes                    (m)
+      real(kind=real_wp) ::ffac        ! i  form factor macropyhyte                        (m)
+      integer(kind=int_wp) ::nvbxx       ! i  number of vb fractions to be distributed       (-)
+      real(kind=real_wp) ::vb          ! i  macrophyte submerged                          (gc)
+      real(kind=real_wp) ::delt        ! i  time step                                      (d)
+      real(kind=real_wp) ::frbmlay     ! o  fraction bm per layer                          (-)
+      real(kind=real_wp) ::bmlayvb     ! o  biomass layer vb                              (gc)
 
       ! local declarations
 
-      integer(kind=int_32) ::iseg        !    local loop counter for computational element loop
-      real(kind=sp) ::z2          !    height bottom segment from bottom              (m)
-      real(kind=sp) ::z1          !    height top segment from bottom                 (m)
-      integer(kind=int_32) ::ikmrk1
-      integer(kind=int_32) ::ikmrk2
-      real(kind=sp) ::zm          !    watersurface to top macropyte                  (-)
-      real(kind=sp) ::a           !    lineair factor a (ax + b)                      (-)
-      real(kind=sp) ::b           !    lineair factor b (ax + b)                      (-)
-      integer(kind=int_32) ::iq          !    loop counter
-      integer(kind=int_32) ::ifrom       !    from segment
-      integer(kind=int_32) ::ito         !    from segment
-      integer(kind=int_32) ::iflux       !    index in the fl array
+      integer(kind=int_wp) ::iseg        !    local loop counter for computational element loop
+      real(kind=real_wp) ::z2          !    height bottom segment from bottom              (m)
+      real(kind=real_wp) ::z1          !    height top segment from bottom                 (m)
+      integer(kind=int_wp) ::ikmrk1
+      integer(kind=int_wp) ::ikmrk2
+      real(kind=real_wp) ::zm          !    watersurface to top macropyte                  (-)
+      real(kind=real_wp) ::a           !    lineair factor a (ax + b)                      (-)
+      real(kind=real_wp) ::b           !    lineair factor b (ax + b)                      (-)
+      integer(kind=int_wp) ::iq          !    loop counter
+      integer(kind=int_wp) ::ifrom       !    from segment
+      integer(kind=int_wp) ::ito         !    from segment
+      integer(kind=int_wp) ::iflux       !    index in the fl array
 
-      integer(kind=int_32), parameter            ::nipfix =  9         ! first number of entries in pmsa independent of number of parameters
-      integer(kind=int_32), parameter            ::nopfix =  1         ! first output entries in pmsa independent of number of parameters
-      integer(kind=int_32), parameter            ::nivar  =  1         ! number of variable inputs per nvbxx
-      integer(kind=int_32), parameter            ::novar  =  1         ! number of variable outputs per nvbxx
-      integer(kind=int_32) ::npnt                ! number of pointers
-      integer(kind=int_32) ::ivbxx               ! loop counter nvbxx
-      integer(kind=int_32), allocatable          ::ipnt(:)             ! local work array for the pointering
-      integer(kind=int_32) ::ibotseg             ! bottom segment for macrophyte
+      integer(kind=int_wp), parameter            ::nipfix =  9         ! first number of entries in pmsa independent of number of parameters
+      integer(kind=int_wp), parameter            ::nopfix =  1         ! first output entries in pmsa independent of number of parameters
+      integer(kind=int_wp), parameter            ::nivar  =  1         ! number of variable inputs per nvbxx
+      integer(kind=int_wp), parameter            ::novar  =  1         ! number of variable outputs per nvbxx
+      integer(kind=int_wp) ::npnt                ! number of pointers
+      integer(kind=int_wp) ::ivbxx               ! loop counter nvbxx
+      integer(kind=int_wp), allocatable          ::ipnt(:)             ! local work array for the pointering
+      integer(kind=int_wp) ::ibotseg             ! bottom segment for macrophyte
 
       logical                      :: alt_delwaqg         ! Use the classical layered sediment approach (.false.) or the
                                                           ! new one (process DelwaqG, .true.)
-      integer(kind=int_32) ::ilay                ! Layer index
-      integer(kind=int_32) ::isx                 ! Index into sedconc
-      integer(kind=int_32), dimension(16), save  ::isidx =             ! List of indices into the sedconc array, mirrors the fluxes
+      integer(kind=int_wp) ::ilay                ! Layer index
+      integer(kind=int_wp) ::isx                 ! Index into sedconc
+      integer(kind=int_wp), dimension(16), save  ::isidx =             ! List of indices into the sedconc array, mirrors the fluxes
      &     [is_POC1, is_POC2, is_POC3, is_PON1, is_PON2, is_PON3,
      &      is_POP1, is_POP2, is_POP3, is_POS1, is_POS2, is_POS3,
      &      is_POC4, is_PON4, is_POP4, is_POS4]           ! Note: using POC4 instead of POC5 - omission in DelwaqG?

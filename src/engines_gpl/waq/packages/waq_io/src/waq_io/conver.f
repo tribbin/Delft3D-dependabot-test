@@ -53,21 +53,21 @@
 
 !     kind           function         name             Descriptipon
 
-      integer(kind=int_32), intent(in   ) ::  nobrk           !< number of breakpoints
-      integer(kind=int_32), intent(inout) ::  ibrk (nobrk)    !< breakpoint to convert
-      integer(kind=int_32), intent(in   ) ::  ifact           !< factor between time scales
+      integer(kind=int_wp), intent(in   ) ::  nobrk           !< number of breakpoints
+      integer(kind=int_wp), intent(inout) ::  ibrk (nobrk)    !< breakpoint to convert
+      integer(kind=int_wp), intent(in   ) ::  ifact           !< factor between time scales
       logical      , intent(in   ) :: dtflg          !< if true then 'date'-format
       logical      , intent(in   ) :: dtflg3         !< if true then YYDDDHH
 
 !     Local
 
-      integer(kind=int_32) :: isec     ! seconds
-      integer(kind=int_32) :: imin     ! minutes
-      integer(kind=int_32) :: ihour    ! hours
-      integer(kind=int_32) :: iday     ! days
-      integer(kind=int_32) :: iyear    ! years
-      integer(kind=int_32) :: i        ! loop counter
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) :: isec     ! seconds
+      integer(kind=int_wp) :: imin     ! minutes
+      integer(kind=int_wp) :: ihour    ! hours
+      integer(kind=int_wp) :: iday     ! days
+      integer(kind=int_wp) :: iyear    ! years
+      integer(kind=int_wp) :: i        ! loop counter
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "conver", ithndl )
 
       if ( dtflg ) then

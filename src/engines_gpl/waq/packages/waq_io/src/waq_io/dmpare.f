@@ -73,62 +73,62 @@
 
 !     kind           function         name                Descriptipon
 
-      integer(kind=int_32), intent(in   ) ::  lun     (*)        !< array with unit numbers
-      integer(kind=int_32), intent(in   ) ::  ndmpar             !< number of dump areas
-      integer(kind=int_32), intent(in   ) ::  ntdmps             !< number of volumes in dump array
-      integer(kind=int_32), intent(in   ) ::  noq                !< total number of exchange
-      integer(kind=int_32), intent(in   ) ::  noseg              !< total number of computation volumes
-      integer(kind=int_32), intent(in   ) ::  nobnd              !< number of open boundaries
-      integer(kind=int_32), intent(in   ) ::  ipoint  (4,noq)    !< exchange pointers
-      integer(kind=int_32), intent(  out) ::  ntdmpq             !< total number exchanges in dump area
-      integer(kind=int_32), intent(  out) ::  ndmpq              !< number exchanges dumped
-      integer(kind=int_32), intent(  out) ::  ndmps              !< number segments dumped
-      integer(kind=int_32), intent(in   ) ::  noraai             !< number of transects
-      integer(kind=int_32), intent(in   ) ::  ntraaq             !< total number of exchanges in transects
-      integer(kind=int_32), intent(in   ) ::  nsegdmp (ndmpar)   !< number of volumes per area
-      integer(kind=int_32), intent(inout) ::  isegdmp (ntdmps)   !< volume numbers
-      integer(kind=int_32), intent(in   ) ::  nexcraai(noraai)   !< number of exchanges per transect
-      integer(kind=int_32), intent(in   ) ::  iexcraai(ntraaq)   !< exchange numbers
-      integer(kind=int_32), intent(in   ) ::  ioptraai(ntraaq)   !< exchange accumulation option
-      integer(kind=int_32), intent(inout) ::  ierr               !< cumulative error count
-      integer(kind=int_32), intent(inout) ::  iwar               !< cumulative warning count
+      integer(kind=int_wp), intent(in   ) ::  lun     (*)        !< array with unit numbers
+      integer(kind=int_wp), intent(in   ) ::  ndmpar             !< number of dump areas
+      integer(kind=int_wp), intent(in   ) ::  ntdmps             !< number of volumes in dump array
+      integer(kind=int_wp), intent(in   ) ::  noq                !< total number of exchange
+      integer(kind=int_wp), intent(in   ) ::  noseg              !< total number of computation volumes
+      integer(kind=int_wp), intent(in   ) ::  nobnd              !< number of open boundaries
+      integer(kind=int_wp), intent(in   ) ::  ipoint  (4,noq)    !< exchange pointers
+      integer(kind=int_wp), intent(  out) ::  ntdmpq             !< total number exchanges in dump area
+      integer(kind=int_wp), intent(  out) ::  ndmpq              !< number exchanges dumped
+      integer(kind=int_wp), intent(  out) ::  ndmps              !< number segments dumped
+      integer(kind=int_wp), intent(in   ) ::  noraai             !< number of transects
+      integer(kind=int_wp), intent(in   ) ::  ntraaq             !< total number of exchanges in transects
+      integer(kind=int_wp), intent(in   ) ::  nsegdmp (ndmpar)   !< number of volumes per area
+      integer(kind=int_wp), intent(inout) ::  isegdmp (ntdmps)   !< volume numbers
+      integer(kind=int_wp), intent(in   ) ::  nexcraai(noraai)   !< number of exchanges per transect
+      integer(kind=int_wp), intent(in   ) ::  iexcraai(ntraaq)   !< exchange numbers
+      integer(kind=int_wp), intent(in   ) ::  ioptraai(ntraaq)   !< exchange accumulation option
+      integer(kind=int_wp), intent(inout) ::  ierr               !< cumulative error count
+      integer(kind=int_wp), intent(inout) ::  iwar               !< cumulative warning count
 
 !     Local variables
 
-      integer(kind=int_32) :: lurep                        !  output report file
-      integer(kind=int_32) :: itel                         !  counter to run through isegdmp array
-      integer(kind=int_32) :: idump                        !  loop counter monitoring areas
-      integer(kind=int_32) :: iraai                        !  loop counter monitoring transects
-      integer(kind=int_32) :: nsc                          !  number of volumes in that monitoring area
-      integer(kind=int_32) :: nq                           !  number of exchanges in mon. area or transect
-      integer(kind=int_32) :: idmpq                        !  loop counter number of exchanges in mon. area or transect
-      integer(kind=int_32) :: iseg                         !  volume number
-      integer(kind=int_32) :: is                           !  volume number within an area
-      integer(kind=int_32) :: iq                           !  exchange number
-      integer(kind=int_32) :: iqr                          !  exchange number within a transect
-      integer(kind=int_32) :: i                            !  loop counter
-      integer(kind=int_32) :: ips2                         !  help variable to save offset
-      integer(kind=int_32) :: is2                          !  counter within the offset
-      integer(kind=int_32) :: ivan                         !  help variable 'from' volume number
-      integer(kind=int_32) :: inaar                        !  help variable 'to' volume number
-      integer(kind=int_32) :: max_ntdmpq                   !  maximum dimension of the ntdmpq array
-      integer(kind=int_32) :: mxnqseg                      !  maximum exchanges of any segment
-      integer(kind=int_32) :: iqs                          !  loop counter exchanges per segment
-      integer(kind=int_32) :: ierr2                        !  local error variable
+      integer(kind=int_wp) :: lurep                        !  output report file
+      integer(kind=int_wp) :: itel                         !  counter to run through isegdmp array
+      integer(kind=int_wp) :: idump                        !  loop counter monitoring areas
+      integer(kind=int_wp) :: iraai                        !  loop counter monitoring transects
+      integer(kind=int_wp) :: nsc                          !  number of volumes in that monitoring area
+      integer(kind=int_wp) :: nq                           !  number of exchanges in mon. area or transect
+      integer(kind=int_wp) :: idmpq                        !  loop counter number of exchanges in mon. area or transect
+      integer(kind=int_wp) :: iseg                         !  volume number
+      integer(kind=int_wp) :: is                           !  volume number within an area
+      integer(kind=int_wp) :: iq                           !  exchange number
+      integer(kind=int_wp) :: iqr                          !  exchange number within a transect
+      integer(kind=int_wp) :: i                            !  loop counter
+      integer(kind=int_wp) :: ips2                         !  help variable to save offset
+      integer(kind=int_wp) :: is2                          !  counter within the offset
+      integer(kind=int_wp) :: ivan                         !  help variable 'from' volume number
+      integer(kind=int_wp) :: inaar                        !  help variable 'to' volume number
+      integer(kind=int_wp) :: max_ntdmpq                   !  maximum dimension of the ntdmpq array
+      integer(kind=int_wp) :: mxnqseg                      !  maximum exchanges of any segment
+      integer(kind=int_wp) :: iqs                          !  loop counter exchanges per segment
+      integer(kind=int_wp) :: ierr2                        !  local error variable
 
 !     Local arrays
 
-      integer(kind=int_32), allocatable ::  iqdmp(:)      !  pointer from exchange nr to condensed array
-      integer(kind=int_32), allocatable ::  nqdmp(:)      !  per monitoring area the number of exchanges
-      integer(kind=int_32), allocatable ::  isdmp(:)      !  pointer from volume nr to condensed array
-      integer(kind=int_32), pointer ::  ipdmpq   (:)  !  array with consecutive interface numbers
-      integer(kind=int_32), pointer ::  p2_ipdmpq(:)  !  help pointer to expand the consecutive array
+      integer(kind=int_wp), allocatable ::  iqdmp(:)      !  pointer from exchange nr to condensed array
+      integer(kind=int_wp), allocatable ::  nqdmp(:)      !  per monitoring area the number of exchanges
+      integer(kind=int_wp), allocatable ::  isdmp(:)      !  pointer from volume nr to condensed array
+      integer(kind=int_wp), pointer ::  ipdmpq   (:)  !  array with consecutive interface numbers
+      integer(kind=int_wp), pointer ::  p2_ipdmpq(:)  !  help pointer to expand the consecutive array
       logical   , allocatable :: indmp(:)     !  is the segment in the current area
-      integer(kind=int_32), allocatable ::  nqseg(:)      !  number of exchanges per segment
-      integer(kind=int_32), allocatable ::  iqseg(:,:)    !  exchanges per segment
-      integer(kind=int_32) ::  ithndl = 0 
-      integer(kind=int_32) ::  ithndl1= 0 
-      integer(kind=int_32) ::  ithndl2= 0
+      integer(kind=int_wp), allocatable ::  nqseg(:)      !  number of exchanges per segment
+      integer(kind=int_wp), allocatable ::  iqseg(:,:)    !  exchanges per segment
+      integer(kind=int_wp) ::  ithndl = 0
+      integer(kind=int_wp) ::  ithndl1= 0
+      integer(kind=int_wp) ::  ithndl2= 0
  
       if ( ndmpar .eq. 0 .and. noraai .eq. 0 ) return
       if (timon) call timstrt( "dmpare", ithndl )

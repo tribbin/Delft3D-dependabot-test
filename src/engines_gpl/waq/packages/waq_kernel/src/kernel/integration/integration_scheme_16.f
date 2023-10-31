@@ -97,10 +97,10 @@
 !
 !     NAME    KIND     LENGTH   FUNC.  DESCRIPTION
 !     ---------------------------------------------------------
-!     A       REAL(kind=sp) ::*      LOCAL  real(kind=sp) ::workspace array
-!     J       INTEGER(kind=int_32) ::*      LOCAL  integer(kind=int_32) ::workspace array
+!     A       REAL(kind=real_wp) ::*      LOCAL  real(kind=real_wp) ::workspace array
+!     J       INTEGER(kind=int_wp) ::*      LOCAL  integer(kind=int_wp) ::workspace array
 !     C       CHARACTER  *      LOCAL  character workspace array
-!     LUN     INTEGER(kind=int_32) ::*      INPUT  array with unit numbers
+!     LUN     INTEGER(kind=int_wp) ::*      INPUT  array with unit numbers
 !     LCHAR   CHAR*(*)   *      INPUT  filenames
 !
       use m_dlwqg3
@@ -132,8 +132,8 @@
       use m_actions
       use m_sysn          ! System characteristics
       use m_sysi          ! Timer characteristics
-      use m_sysa          ! Pointers in real(kind=sp) ::array workspace
-      use m_sysj          ! Pointers in integer(kind=int_32) ::array workspace
+      use m_sysa          ! Pointers in real(kind=real_wp) ::array workspace
+      use m_sysj          ! Pointers in integer(kind=int_wp) ::array workspace
       use m_sysc          ! Pointers in character array workspace
       use m_dlwqdata_save_restore
 
@@ -143,9 +143,9 @@
 !     Declaration of arguments
 !
       type(waq_data_buffer), target :: buffer      !< System total array space
-      INTEGER(kind=int_32), DIMENSION(*)        ::LUN
+      INTEGER(kind=int_wp), DIMENSION(*)        ::LUN
       CHARACTER*(*), DIMENSION(*) :: LCHAR
-      INTEGER(kind=int_32) ::ACTION
+      INTEGER(kind=int_wp) ::ACTION
       TYPE(DELWAQ_DATA), TARGET   :: DLWQD
       type(GridPointerColl)       :: GridPs               ! collection of all grid definitions
 
@@ -154,26 +154,26 @@
 !
 !     Local declarations
 !
-      REAL(kind=sp) ::RDUMMY(1)
+      REAL(kind=real_wp) ::RDUMMY(1)
       LOGICAL                :: IMFLAG , IDFLAG , IHFLAG
       LOGICAL                :: UPDATE , LREWIN
       LOGICAL                :: timon_old
-      INTEGER(kind=int_32) ::ISYS
-      INTEGER(kind=int_32) ::NSTEP
-      INTEGER(kind=int_32) ::sindex
+      INTEGER(kind=int_wp) ::ISYS
+      INTEGER(kind=int_wp) ::NSTEP
+      INTEGER(kind=int_wp) ::sindex
 
-      integer(kind=int_32), save           ::ithand1 = 0 ! Make this one "global"
-      integer(kind=int_32) ::noth
-      integer(kind=int_32) ::ith
+      integer(kind=int_wp), save           ::ithand1 = 0 ! Make this one "global"
+      integer(kind=int_wp) ::noth
+      integer(kind=int_wp) ::ith
 
-      integer(kind=int_32) ::ibnd
+      integer(kind=int_wp) ::ibnd
 
       !
       ! Variables specific to this method: leave them SAVEd
       !
-      integer(kind=int_32), save           ::ioptpc
-      integer(kind=int_32), save           ::iter
-      integer(kind=int_32), save           ::iscale
+      integer(kind=int_wp), save           ::ioptpc
+      integer(kind=int_wp), save           ::iter
+      integer(kind=int_wp), save           ::iscale
 
       associate ( a => buffer%rbuf, j => buffer%ibuf, c => buffer%chbuf )
 !
@@ -198,7 +198,7 @@
 !     solution method (GMRES).
 !     With such an iterative method, systems with multiple rhs cannot be solved
 !     (simultaneously). So we loop over the substances and solve each system
-!     individually. So RHS can be reduced to an REAL(kind=sp) ::array of size NOSEG+NOBND.
+!     individually. So RHS can be reduced to an REAL(kind=real_wp) ::array of size NOSEG+NOBND.
 !
 !     possible improvements:
 !

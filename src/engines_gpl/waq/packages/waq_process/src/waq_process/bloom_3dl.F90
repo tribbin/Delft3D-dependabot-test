@@ -45,16 +45,16 @@ contains
 !     SRSTOP, stops execution
 
 !     arguments
-      integer(kind=int_32)   ::noseg      ! input, total number of segments
-      integer(kind=int_32)   ::nosegw     ! input, number of segments in the water phase
-      integer(kind=int_32)   ::nosegl     ! input, number of segments per layer
-      integer(kind=int_32)   ::nolay      ! input, number of layers
-      integer(kind=int_32)   ::ngro       ! input, number of BLOOM algae groups
-      integer(kind=int_32)   ::ntyp       ! input, number of BLOOM algae types
+      integer(kind=int_wp)   ::noseg      ! input, total number of segments
+      integer(kind=int_wp)   ::nosegw     ! input, number of segments in the water phase
+      integer(kind=int_wp)   ::nosegl     ! input, number of segments per layer
+      integer(kind=int_wp)   ::nolay      ! input, number of layers
+      integer(kind=int_wp)   ::ngro       ! input, number of BLOOM algae groups
+      integer(kind=int_wp)   ::ntyp       ! input, number of BLOOM algae types
 
 !     local decalarations
-      integer(kind=int_32)   ::ierr_alloc ! error number memory allocation
-      integer(kind=int_32)   ::lunrep     ! unit number report file
+      integer(kind=int_wp)   ::ierr_alloc ! error number memory allocation
+      integer(kind=int_wp)   ::lunrep     ! unit number report file
 
       noseg_3dl  = noseg
       nosegl_3dl = nosegl
@@ -91,11 +91,11 @@ contains
 
 !     arguments
       real(kind=dp)    ::effi       ! output, average effieciency
-      integer(kind=int_32)   ::itype      ! input , index number of BLOOM algae type
+      integer(kind=int_wp)   ::itype      ! input , index number of BLOOM algae type
 
 !     local decalarations
-      integer(kind=int_32)   ::ilay       ! layer counter
-      integer(kind=int_32)   ::iseg       ! segment number
+      integer(kind=int_wp)   ::ilay       ! layer counter
+      integer(kind=int_wp)   ::iseg       ! segment number
       real(kind=dp)    ::flay       ! time factor in a specific layer
       real(kind=dp)    ::elay       ! efficiency in a specific layer
 
@@ -139,8 +139,8 @@ contains
       real(kind=dp)    ::surf       ! input , corrected irradiation
       real(kind=dp)    ::exttot     ! input , total extinction
       real(kind=dp)    ::dep        ! input , depth of the layer
-      integer(kind=int_32)   ::igroup     ! input , index number of BLOOM algae group
-      integer(kind=int_32)   ::itype      ! input , index number of BLOOM algae type
+      integer(kind=int_wp)   ::igroup     ! input , index number of BLOOM algae group
+      integer(kind=int_wp)   ::itype      ! input , index number of BLOOM algae type
 
 !     local decalarations
       real(kind=dp)    ::phi_s      ! x value tabulated function at surface

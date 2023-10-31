@@ -54,39 +54,39 @@
 
       implicit none
 
-      real(kind=sp) ::pmsa  ( * ) , fl    (*)
-      integer(kind=int_32) ::ipoint( * ) , increm(*) , noseg , noflux,
+      real(kind=real_wp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_wp) ::ipoint( * ) , increm(*) , noseg , noflux,
      +         iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 !
 !     local declarations
 !
-      integer(kind=int_32) ::ierr_alloc      , lunrep
-      integer(kind=int_32) ::ip1   , ip2   , ip3   , ip4   , ip5   ,
+      integer(kind=int_wp) ::ierr_alloc      , lunrep
+      integer(kind=int_wp) ::ip1   , ip2   , ip3   , ip4   , ip5   ,
      +         ip6   , ip7   , ip8   , ip9   , ip10  ,
      +         ip11  , ip12  , ip13  , ip14  , ip15
-      integer(kind=int_32) ::in1   , in2   , in3   , in4   , in5   ,
+      integer(kind=int_wp) ::in1   , in2   , in3   , in4   , in5   ,
      +         in6   , in7   , in8   , in9   , in10  ,
      +         in11  , in12  , in13  , in14  , in15
-      integer(kind=int_32) ::idt   , nolay , nosegl, noq   , noq12 ,
+      integer(kind=int_wp) ::idt   , nolay , nosegl, noq   , noq12 ,
      +         ilay  , isegl , iseg  , ifrom , ito   ,
      +         nosub , isub  , iq    , iqtest, ikmrk1,
      +         nosegw, ikmrk2, itime
-      real(kind=sp) ::disp  , area  , lenfr , lento , al    ,
+      real(kind=real_wp) ::disp  , area  , lenfr , lento , al    ,
      +         e     , diag  , codiag, rhs   , volume,
      +         delt  , period
 
       logical                  :: lfound
       character                :: cdummy
-      real(kind=sp) ::rdummy
+      real(kind=real_wp) ::rdummy
       logical                  :: l_initial
       logical, save            :: l_restart
       character(len=256)       :: file_initial
       character(len=256), save :: file_restart
-      integer(kind=int_32) ::ilun
-      integer(kind=int_32) ::nosegi
-      integer(kind=int_32) ::nolayi
-      integer(kind=int_32) ::idummy
-      integer(kind=int_32) ::ierr2
+      integer(kind=int_wp) ::ilun
+      integer(kind=int_wp) ::nosegi
+      integer(kind=int_wp) ::nolayi
+      integer(kind=int_wp) ::idummy
+      integer(kind=int_wp) ::ierr2
 !
       ip1  = ipoint( 1)
       ip2  = ipoint( 2)

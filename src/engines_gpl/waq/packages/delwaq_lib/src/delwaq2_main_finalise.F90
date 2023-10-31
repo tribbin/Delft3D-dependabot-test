@@ -38,9 +38,9 @@ subroutine delwaq2_main_finalise(action, lunrep, rundat)
     use m_dattim
 
     implicit none
-    integer(kind=int_32), intent(in) ::  action 
+    integer(kind=int_wp), intent(in) ::  action
     character(len=20), intent(in)                 :: rundat
-    integer(kind=int_32), intent(in) ::  lunrep
+    integer(kind=int_wp), intent(in) ::  lunrep
 
     !     Finalise - only if the full computation was done
     if ((action == action_fullcomputation).or.(action == action_finalisation)) then

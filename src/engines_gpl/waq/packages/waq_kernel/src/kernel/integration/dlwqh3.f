@@ -53,22 +53,22 @@
 
 !     Kind        Function         Name                  Description
 
-      integer(kind=int_32), intent(in   )  ::noseg               ! Number of computational volumes
-      integer(kind=int_32), intent(in   )  ::nosys               ! Number of transported substances
-      integer(kind=int_32), intent(in   )  ::notot               ! Total number of substances
-      integer(kind=int_32), intent(in   )  ::nobnd               ! Number of boundaries
-      integer(kind=int_32), intent(in   )  ::isys                ! This substance
-      real(kind=sp), intent(in   )  ::deriv(notot,noseg)  ! Derivatives
-      real(kind=sp), intent(in   )  ::bound(nosys,nobnd)  ! Open boundary values
+      integer(kind=int_wp), intent(in   )  ::noseg               ! Number of computational volumes
+      integer(kind=int_wp), intent(in   )  ::nosys               ! Number of transported substances
+      integer(kind=int_wp), intent(in   )  ::notot               ! Total number of substances
+      integer(kind=int_wp), intent(in   )  ::nobnd               ! Number of boundaries
+      integer(kind=int_wp), intent(in   )  ::isys                ! This substance
+      real(kind=real_wp), intent(in   )  ::deriv(notot,noseg)  ! Derivatives
+      real(kind=real_wp), intent(in   )  ::bound(nosys,nobnd)  ! Open boundary values
       real(kind=dp), intent(inout)  ::rhs  (noseg+nobnd)  ! Right hand side of the equation
       real(kind=dp), intent(in   )  ::diag (noseg+nobnd)  ! diagonal for scaling
       real(kind=dp), intent(  out)  ::sol  (noseg+nobnd)  ! initial guess for solution
 
 !     Local variables
 
-      integer(kind=int_32) ::iseg       ! loop counter
+      integer(kind=int_wp) ::iseg       ! loop counter
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqh3", ithandl )
 
 !        initialize the rhs and apply row scaling

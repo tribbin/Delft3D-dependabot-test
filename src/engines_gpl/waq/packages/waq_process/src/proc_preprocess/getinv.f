@@ -53,60 +53,60 @@
       ! declaration of arguments
 
       type(procespropcoll)      :: procesdef       ! all processes
-      integer(kind=int_32) ::notot           ! number of substances
+      integer(kind=int_wp) ::notot           ! number of substances
       character(len=*)          :: syname(*)       ! substance name
-      integer(kind=int_32) ::nocons          ! number of constants
+      integer(kind=int_wp) ::nocons          ! number of constants
       type(t_dlwq_item)   , intent(inout) :: constants       !< delwaq constants list
-      integer(kind=int_32) ::nopa            ! number of parameters
+      integer(kind=int_wp) ::nopa            ! number of parameters
       character(len=*)          :: paname(*)       ! parameter names
-      integer(kind=int_32) ::nofun           ! number of functions
+      integer(kind=int_wp) ::nofun           ! number of functions
       character(len=*)          :: funame(*)       ! function names
-      integer(kind=int_32) ::nosfun          ! number of segment functions
+      integer(kind=int_wp) ::nosfun          ! number of segment functions
       character(len=*)          :: sfname(*)       ! segment function names
-      integer(kind=int_32) ::nodisp          ! number of dispersions
+      integer(kind=int_wp) ::nodisp          ! number of dispersions
       character(len=*)          :: diname(*)       ! dispersion names
-      integer(kind=int_32) ::novelo          ! number of velocities
+      integer(kind=int_wp) ::novelo          ! number of velocities
       character(len=*)          :: vename(*)       ! velocity names
-      integer(kind=int_32) ::nmis            ! number of missing inpu items
-      real(kind=sp) ::defaul(*)       ! default values array
-      integer(kind=int_32) ::noloc           ! number of local values
-      integer(kind=int_32) ::nodef           ! number of default
+      integer(kind=int_wp) ::nmis            ! number of missing inpu items
+      real(kind=real_wp) ::defaul(*)       ! default values array
+      integer(kind=int_wp) ::noloc           ! number of local values
+      integer(kind=int_wp) ::nodef           ! number of default
       character(len=*)          :: dename(*)       ! default names
       type(outputcoll)          :: outputs         ! output structure
-      integer(kind=int_32) ::ndspx           ! number of dispersions
-      integer(kind=int_32) ::nvelx           ! number of velocities
-      integer(kind=int_32) ::nlocx           ! number of local values on exchanges
+      integer(kind=int_wp) ::ndspx           ! number of dispersions
+      integer(kind=int_wp) ::nvelx           ! number of velocities
+      integer(kind=int_wp) ::nlocx           ! number of local values on exchanges
       character(len=*)          :: locnam(*)       ! local values names
-      integer(kind=int_32), intent(in)     ::refday          ! reference day, varying from 1 till 365
+      integer(kind=int_wp), intent(in)     ::refday          ! reference day, varying from 1 till 365
 
       ! local decalarations
 
-      integer(kind=int_32) ::nproc           ! number of processes
-      integer(kind=int_32) ::iproc           ! loop counter processes
-      integer(kind=int_32) ::iproc2          ! second loop counter processes
+      integer(kind=int_wp) ::nproc           ! number of processes
+      integer(kind=int_wp) ::iproc           ! loop counter processes
+      integer(kind=int_wp) ::iproc2          ! second loop counter processes
       type(procesprop), pointer :: proc1           ! process description
       type(procesprop), pointer :: proc2           ! description second process
-      integer(kind=int_32) ::i_input         ! index input item
-      integer(kind=int_32) ::ioutput         ! index output item
-      integer(kind=int_32) ::iou             ! index output item
-      integer(kind=int_32) ::ioux            ! index output item
-      integer(kind=int_32) ::nrout           ! number of outputs
-      integer(kind=int_32) ::iflux           ! index flux
-      integer(kind=int_32) ::ivalip          ! index variable in pmsa
-      integer(kind=int_32) ::ioff            ! offset for values in pmsa
-      integer(kind=int_32) ::ioffx           ! offset for values in pmsa
-      integer(kind=int_32) ::idef            ! index defualt
-      integer(kind=int_32) ::nfl             ! flux counter
+      integer(kind=int_wp) ::i_input         ! index input item
+      integer(kind=int_wp) ::ioutput         ! index output item
+      integer(kind=int_wp) ::iou             ! index output item
+      integer(kind=int_wp) ::ioux            ! index output item
+      integer(kind=int_wp) ::nrout           ! number of outputs
+      integer(kind=int_wp) ::iflux           ! index flux
+      integer(kind=int_wp) ::ivalip          ! index variable in pmsa
+      integer(kind=int_wp) ::ioff            ! offset for values in pmsa
+      integer(kind=int_wp) ::ioffx           ! offset for values in pmsa
+      integer(kind=int_wp) ::idef            ! index defualt
+      integer(kind=int_wp) ::nfl             ! flux counter
       character(len=20)         :: valnam          ! variable name
       character(len=50)         :: valtxt          ! variable description
       character(len=100)        :: line            ! output buffer
       character(len=100)        :: line1           ! output buffer
       character(len=100)        :: line2           ! output buffer
-      integer(kind=int_32), parameter         ::nopred = 6      ! number of predefined defaults
-      real(kind=sp), parameter            ::rmis0  = -888.  ! missing but no matter (set to 0.0)
-      integer(kind=int_32) ::i_star          ! index of * in name
-      integer(kind=int_32) ::ithndl = 0      ! handle for performance timer
-      integer(kind=int_32) ::refDayFound = -1 ! check for RefDay default
+      integer(kind=int_wp), parameter         ::nopred = 6      ! number of predefined defaults
+      real(kind=real_wp), parameter            ::rmis0  = -888.  ! missing but no matter (set to 0.0)
+      integer(kind=int_wp) ::i_star          ! index of * in name
+      integer(kind=int_wp) ::ithndl = 0      ! handle for performance timer
+      integer(kind=int_wp) ::refDayFound = -1 ! check for RefDay default
 
       if (timon) call timstrt( "getinv", ithndl )
 

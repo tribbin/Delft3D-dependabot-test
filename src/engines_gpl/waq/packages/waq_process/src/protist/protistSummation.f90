@@ -52,16 +52,16 @@ contains
    !
    implicit none
 
-   real(kind=sp)      ::pmsa  ( * ) , fl    (*)
-   integer(kind=int_32)   ::ipoint( * ) , increm(*) , noseg , noflux, &
+   real(kind=real_wp)      ::pmsa  ( * ) , fl    (*)
+   integer(kind=int_wp)   ::ipoint( * ) , increm(*) , noseg , noflux, &
                iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 
-   integer(kind=int_32), allocatable ::ipnt(:)          ! Local work array for the pointering
-   integer(kind=int_32)   ::ioffset, ioffsetoutput        ! Offsets for input and start of output
-   integer(kind=int_32)   ::ipointLength
-   integer(kind=int_32)   ::iseg, isum, iinpt
-   integer(kind=int_32)   ::nrsums
-   integer(kind=int_32), allocatable ::nrinputs(:)
+   integer(kind=int_wp), allocatable ::ipnt(:)          ! Local work array for the pointering
+   integer(kind=int_wp)   ::ioffset, ioffsetoutput        ! Offsets for input and start of output
+   integer(kind=int_wp)   ::ipointLength
+   integer(kind=int_wp)   ::iseg, isum, iinpt
+   integer(kind=int_wp)   ::nrsums
+   integer(kind=int_wp), allocatable ::nrinputs(:)
 
    real(kind=dp)   ::total
    real(kind=dp), allocatable ::conversionfactor(:)

@@ -46,11 +46,11 @@
 
       implicit none
 
-      integer(kind=int_32) ::jt(mt),nonuni(*),nonun(*),irs(*),lib(*)
+      integer(kind=int_wp) ::jt(mt),nonuni(*),nonun(*),irs(*),lib(*)
       real(kind=dp) ::x(*),xdef(*),bio(*), xopt, biomax, dbio
-      integer(kind=int_32) ::npause=0
-      integer(kind=int_32) ::ii, ii1, ii2, ii2max, inow, int, jjj, jnow
-      integer(kind=int_32) ::k, klx, linf, nin, numun, numuni
+      integer(kind=int_wp) ::npause=0
+      integer(kind=int_wp) ::ii, ii1, ii2, ii2max, inow, int, jjj, jnow
+      integer(kind=int_wp) ::k, klx, linf, nin, numun, numuni
       
       save
 

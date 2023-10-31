@@ -65,12 +65,12 @@
       ! arguments
 
       character(len=*)                  :: pdffil                 !< proces defintion file
-      integer(kind=int_32), intent(in   )  ::lunrep                 !< report file
-      real(kind=sp), intent(  out)  ::versio                 !< version number proces defintion file
-      integer(kind=int_32), intent(  out)  ::serial                 !< serial number proces defintion file
-      integer(kind=int_32), intent(inout)  ::noinfo                 !< cummulative information count
-      integer(kind=int_32), intent(inout)  ::nowarn                 !< cummulative warning count
-      integer(kind=int_32), intent(inout)  ::nerror                 !< cummulative error count
+      integer(kind=int_wp), intent(in   )  ::lunrep                 !< report file
+      real(kind=real_wp), intent(  out)  ::versio                 !< version number proces defintion file
+      integer(kind=int_wp), intent(  out)  ::serial                 !< serial number proces defintion file
+      integer(kind=int_wp), intent(inout)  ::noinfo                 !< cummulative information count
+      integer(kind=int_wp), intent(inout)  ::nowarn                 !< cummulative warning count
+      integer(kind=int_wp), intent(inout)  ::nerror                 !< cummulative error count
 
       ! common declarations
 
@@ -78,7 +78,7 @@
 !
 !     declaration of file identification group
 !
-      real(kind=sp) ::vfform
+      real(kind=real_wp) ::vfform
       character*20  rundat
       character*40  fform      , conten      ,
      +              source
@@ -86,23 +86,23 @@
 !
 !     local variables
 !
-      integer(kind=int_32) ::iconf           , ilen            ,
+      integer(kind=int_wp) ::iconf           , ilen            ,
      +              iend            , i               ,
      +              ierror
-      integer(kind=int_32) ::deffds
+      integer(kind=int_wp) ::deffds
       character*1   coding, access
       logical       lexi
       character*256 fildef, fildat
       character*256 filext
-      integer(kind=int_32) ::extpos, extlen
+      integer(kind=int_wp) ::extpos, extlen
 !
 !     external nefis functions
 !
-      integer(kind=int_32) ::clsnef
+      integer(kind=int_wp) ::clsnef
      +         ,crenef
       external  clsnef
      +         ,crenef
-      integer(kind=int_32) ::ithndl = 0      ! handle for performance timer
+      integer(kind=int_wp) ::ithndl = 0      ! handle for performance timer
       if (timon) call timstrt( "rd_tabs", ithndl )
 !
 !     initialize proces definition file

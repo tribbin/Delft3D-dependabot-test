@@ -52,7 +52,7 @@
 !
 !
       DIMENSION IAR(*)
-      integer(kind=int_32) ::I , NOTOT , NSTRT , IAR
+      integer(kind=int_wp) ::I , NOTOT , NSTRT , IAR
 !
       DO 10 I=NOTOT,NSTRT,-1
          IAR(I+1) = IAR(I)

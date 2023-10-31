@@ -65,22 +65,22 @@
 
       IMPLICIT NONE
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
-      INTEGER(kind=int_32) ::IP1   , IP2   , IP3   , IP4   , IP5   ,
+      INTEGER(kind=int_wp) ::IP1   , IP2   , IP3   , IP4   , IP5   ,
      +         IP6   , IP7   , IP8   , IP9   , IP10  ,
      +         IN1   , IN2   , IN3   , IN4   , IN5   ,
      +         IN6   , IN7   , IN8   , IN9   , IN10
-      INTEGER(kind=int_32) ::ISEG
-      INTEGER(kind=int_32) ::IACTION
-      INTEGER(kind=int_32) ::ATTRIB
-      REAL(kind=sp) ::TSTART, TSTOP , TIME  , DELT  , TCOUNT
-      REAL(kind=sp) ::CDIFF
+      INTEGER(kind=int_wp) ::ISEG
+      INTEGER(kind=int_wp) ::IACTION
+      INTEGER(kind=int_wp) ::ATTRIB
+      REAL(kind=real_wp) ::TSTART, TSTOP , TIME  , DELT  , TCOUNT
+      REAL(kind=real_wp) ::CDIFF
 
-      INTEGER(kind=int_32), PARAMETER  ::MAXWARN = 50
-      INTEGER(kind=int_32), SAVE       ::NOWARN  = 0
+      INTEGER(kind=int_wp), PARAMETER  ::MAXWARN = 50
+      INTEGER(kind=int_wp), SAVE       ::NOWARN  = 0
 
       IP1 = IPOINT(1)
       IP2 = IPOINT(2)

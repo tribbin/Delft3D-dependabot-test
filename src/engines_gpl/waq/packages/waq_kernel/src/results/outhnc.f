@@ -51,52 +51,52 @@
 
 !     kind           function         name                    description
 
-      integer(kind=int_32), intent(inout)   ::ncidhis              ! NetCDF id of output history file
+      integer(kind=int_wp), intent(inout)   ::ncidhis              ! NetCDF id of output history file
       character(255), intent(in   ) :: hncnam               ! name NetCDF output history file
       character(255), intent(in   ) :: ugridf               ! name of NetCDF ugrid file
-      integer(kind=int_32), intent(inout)  ::timeid
-      integer(kind=int_32), intent(inout)  ::bndtimeid
-      integer(kind=int_32), intent(in   )  ::hncrec               ! present record in NetCDF file
-      integer(kind=int_32), intent(in   )  ::itime                ! present time in clock units
+      integer(kind=int_wp), intent(inout)  ::timeid
+      integer(kind=int_wp), intent(inout)  ::bndtimeid
+      integer(kind=int_wp), intent(in   )  ::hncrec               ! present record in NetCDF file
+      integer(kind=int_wp), intent(in   )  ::itime                ! present time in clock units
       character(40), intent(in   ) :: moname(4)            ! model identification
-      integer(kind=int_32), intent(in   )  ::idump(nodump)        ! segment number of monitoring points and areas
+      integer(kind=int_wp), intent(in   )  ::idump(nodump)        ! segment number of monitoring points and areas
       character(*),  intent(in   ) :: duname(nodump)       ! names of monitoring points and areas
-      integer(kind=int_32), intent(in   )  ::nodump               ! number of monitoring points and areas
-      integer(kind=int_32), intent(in   )  ::notot1               ! number of variables in conc1
-      real(kind=sp), intent(in   )  ::conc1 (notot1,*)     ! values
+      integer(kind=int_wp), intent(in   )  ::nodump               ! number of monitoring points and areas
+      integer(kind=int_wp), intent(in   )  ::notot1               ! number of variables in conc1
+      real(kind=real_wp), intent(in   )  ::conc1 (notot1,*)     ! values
       character(20), intent(in   ) :: synam1(notot1)       ! names of variables in conc1
       character(100), intent(in   ) :: sysnm1(notot1)       ! standard names of variables in conc1
       character(40), intent(in   ) :: syuni1(notot1)       ! units of variables in conc1
       character(60), intent(in   ) :: sydsc1(notot1)       ! decriptions of variables in conc1
-      integer(kind=int_32), intent(inout)  ::wqid1(notot1,2)      ! NetCDF ids of variables in conc1
-      integer(kind=int_32), intent(in   )  ::notot2               ! number of variables in conc2
-      real(kind=sp), intent(in   )  ::conc2 (notot2,nodump)! values
+      integer(kind=int_wp), intent(inout)  ::wqid1(notot1,2)      ! NetCDF ids of variables in conc1
+      integer(kind=int_wp), intent(in   )  ::notot2               ! number of variables in conc2
+      real(kind=real_wp), intent(in   )  ::conc2 (notot2,nodump)! values
       character(20), intent(in   ) :: synam2(notot2)       ! names of variables in conc2
       character(100), intent(in   ) :: sysnm2(notot2)       ! standard names of variables in conc2
       character(40), intent(in   ) :: syuni2(notot2)       ! units of variables in conc2
       character(60), intent(in   ) :: sydsc2(notot2)       ! decriptions of variables in conc2
-      integer(kind=int_32), intent(inout)  ::wqid2(notot2,2)      ! NetCDF ids of variables in conc2
-      integer(kind=int_32), intent(in   )  ::lunut                ! unit number monitoring file
+      integer(kind=int_wp), intent(inout)  ::wqid2(notot2,2)      ! NetCDF ids of variables in conc2
+      integer(kind=int_wp), intent(in   )  ::lunut                ! unit number monitoring file
 
       character(len=len(synam1))   :: name
 
-      integer(kind=int_32) ::iseg                   ! loop counter for segments
-      integer(kind=int_32) ::k                      ! loop counter for substances
-      real(kind=sp) ::amiss  = -999.0       ! missing value indicator
+      integer(kind=int_wp) ::iseg                   ! loop counter for segments
+      integer(kind=int_wp) ::k                      ! loop counter for substances
+      real(kind=real_wp) ::amiss  = -999.0       ! missing value indicator
 
-      integer(kind=int_32) ::ncid
-      integer(kind=int_32) ::varid, varidout, meshid, meshidout, ntimeid, wqid, noseglmesh, nolaymesh
-      integer(kind=int_32) ::nostations_id, name_length_id
-      integer(kind=int_32) ::inc_error, ierr, nolay, iout
-      integer(kind=int_32) ::xtype
-      integer(kind=int_32) ::ndims
+      integer(kind=int_wp) ::ncid
+      integer(kind=int_wp) ::varid, varidout, meshid, meshidout, ntimeid, wqid, noseglmesh, nolaymesh
+      integer(kind=int_wp) ::nostations_id, name_length_id
+      integer(kind=int_wp) ::inc_error, ierr, nolay, iout
+      integer(kind=int_wp) ::xtype
+      integer(kind=int_wp) ::ndims
       logical, allocatable                  :: sumconc1(:), sumconc2(:)
-      integer(kind=int_32), dimension(nf90_max_var_dims)  ::dimids
-      integer(kind=int_32), dimension(nf90_max_dims)      ::dimsizes
-!      integer(kind=int_32) ::naggr
-      integer(kind=int_32), allocatable   ::aggr
+      integer(kind=int_wp), dimension(nf90_max_var_dims)  ::dimids
+      integer(kind=int_wp), dimension(nf90_max_dims)      ::dimsizes
+!      integer(kind=int_wp) ::naggr
+      integer(kind=int_wp), allocatable   ::aggr
 
-      integer(kind=int_32) ::values(8)
+      integer(kind=int_wp) ::values(8)
       character(len=40) :: timestamp
       character(len=40) :: t0string
       character(len=40) :: uuid
@@ -104,15 +104,15 @@
       character(len=nf90_max_name) :: mesh_name
       character(len=nf90_max_name) :: dimname
 
-      integer(kind=int_32) ::i, j, id, cnt, errcnt
-      integer(kind=int_32) ::type_ugrid
+      integer(kind=int_wp) ::i, j, id, cnt, errcnt
+      integer(kind=int_wp) ::type_ugrid
       logical :: success
-      real(kind=sp), dimension(:), allocatable  ::dlwq_values
+      real(kind=real_wp), dimension(:), allocatable  ::dlwq_values
       character(len=nf90_max_name) :: altname
 
-      integer(kind=int_32) ::station_names_id, station_x_id, station_y_id, station_z_id
+      integer(kind=int_wp) ::station_names_id, station_x_id, station_y_id, station_z_id
 
-      integer(kind=int_32), dimension(3)              ::coord_id
+      integer(kind=int_wp), dimension(3)              ::coord_id
       character(len=25), dimension(5,4) :: station_property = reshape(
      &    [ 'variableName             ', 'standard_name            ',
      &      'long_name                ', 'unit                     ', 'units                    ',
@@ -125,7 +125,7 @@
      &    [5,4] )
 
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "outhnc", ithandl )
 
 !     Check if there are any monitoring points/areas
@@ -500,7 +500,7 @@
       character(len=*), intent(in) :: string
       character(len=len(string))   :: nospaces
 
-      integer(kind=int_32) ::i
+      integer(kind=int_wp) ::i
 
       nospaces = adjustl(string)
       do i = 1,len_trim(nospaces)

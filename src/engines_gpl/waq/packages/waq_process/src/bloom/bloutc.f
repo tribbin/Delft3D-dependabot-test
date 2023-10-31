@@ -35,7 +35,7 @@
       
       implicit none
 
-      integer(kind=int_32) ::dump
+      integer(kind=int_wp) ::dump
 
       idump  = dump
 

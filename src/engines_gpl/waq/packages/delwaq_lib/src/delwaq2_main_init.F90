@@ -40,16 +40,16 @@ subroutine delwaq2_main_init(dlwqd, itota, itoti, itotc, argc, argv )
   implicit none
 
   ! Arguments
-  integer(kind=int_32) :: imaxa , imaxi , imaxc
+  integer(kind=int_wp) :: imaxa , imaxi , imaxc
 
-  integer(kind=int_32), intent(in) ::  argc 
+  integer(kind=int_wp), intent(in) ::  argc
   character(len=*), dimension(argc), intent(in) :: argv
   type(delwaq_data), target                     :: dlwqd
   type(GridPointerColl), pointer                :: GridPs               ! collection of all grid definitions
 
-  integer(kind=int_32), intent(inout) ::  itota 
-  integer(kind=int_32), intent(inout) ::  itoti 
-  integer(kind=int_32), intent(inout) ::  itotc
+  integer(kind=int_wp), intent(inout) ::  itota
+  integer(kind=int_wp), intent(inout) ::  itoti
+  integer(kind=int_wp), intent(inout) ::  itotc
 
   call dhstore_command( argv )
 

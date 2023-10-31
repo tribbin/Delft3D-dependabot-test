@@ -71,18 +71,18 @@
 !
       IMPLICIT NONE
 !
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
-      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9
-      INTEGER(kind=int_32) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9
-      INTEGER(kind=int_32) ::IFLUX  , ISEG   , ILUMON
+      INTEGER(kind=int_wp) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9
+      INTEGER(kind=int_wp) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9
+      INTEGER(kind=int_wp) ::IFLUX  , ISEG   , ILUMON
 !
-      REAL(kind=sp) ::CSUD   , COX
-      REAL(kind=sp) ::K0OXI  , KOXI   , COXC
-      REAL(kind=sp) ::POROS  , KTOXI  , TEMP   , TEMPC  , TEMP20
-      REAL(kind=sp) ::DELT   , FLUXOX
+      REAL(kind=real_wp) ::CSUD   , COX
+      REAL(kind=real_wp) ::K0OXI  , KOXI   , COXC
+      REAL(kind=real_wp) ::POROS  , KTOXI  , TEMP   , TEMPC  , TEMP20
+      REAL(kind=real_wp) ::DELT   , FLUXOX
       LOGICAL  FIRST
       SAVE     FIRST
       DATA     FIRST /.TRUE./

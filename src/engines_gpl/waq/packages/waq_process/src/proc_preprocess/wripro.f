@@ -52,53 +52,53 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     NPROC   INTEGER(kind=int_32) ::1     INPUT   Number of called processes
-!     NSVAR   INTEGER(kind=int_32) ::*     INPUT   Number of variables per proces
-!     IFLUX   INTEGER(kind=int_32) ::*     INPUT   Pointer in FLUX per proces inst.
-!     NIPMSA  INTEGER(kind=int_32) ::1     INPUT   Length IPMSA
-!     IPMSA   INTEGER(kind=int_32) ::*     INPUT   Pointer in SSA per proces inst.
-!     IPSSA   INTEGER(kind=int_32) ::*     INPUT   Pointer to SSA per proces inst.
-!     NOLOC   INTEGER(kind=int_32) ::1     INPUT   Number of local variables
-!     NODEF   INTEGER(kind=int_32) ::1     INPUT   Number of used defaults
-!     DEFAUL  REAL(kind=sp) ::*     INPUT   Default values
+!     NPROC   INTEGER(kind=int_wp) ::1     INPUT   Number of called processes
+!     NSVAR   INTEGER(kind=int_wp) ::*     INPUT   Number of variables per proces
+!     IFLUX   INTEGER(kind=int_wp) ::*     INPUT   Pointer in FLUX per proces inst.
+!     NIPMSA  INTEGER(kind=int_wp) ::1     INPUT   Length IPMSA
+!     IPMSA   INTEGER(kind=int_wp) ::*     INPUT   Pointer in SSA per proces inst.
+!     IPSSA   INTEGER(kind=int_wp) ::*     INPUT   Pointer to SSA per proces inst.
+!     NOLOC   INTEGER(kind=int_wp) ::1     INPUT   Number of local variables
+!     NODEF   INTEGER(kind=int_wp) ::1     INPUT   Number of used defaults
+!     DEFAUL  REAL(kind=real_wp) ::*     INPUT   Default values
 !     PRONAM  CHA*(*)       *     INPUT   Name of called module
-!     NFLUX   INTEGER(kind=int_32) ::1     INPUT   total number of fluxes
-!     LUWRKP  INTEGER(kind=int_32) ::1     INPUT   unit number proces work file
-!     VERSIO  INTEGER(kind=int_32) ::1     INPUT   Versie number of program
-!     STOCHI  REAL(kind=sp) ::NOTOT*NFLUX  INPUT   Proces stochiometry
-!     NOTOT   INTEGER(kind=int_32) ::1     INPUT   Number of substances
-!     NOSYS   INTEGER(kind=int_32) ::1     INPUT   Number of active substances
-!     NDSPX   INTEGER(kind=int_32) ::1     INPUT   Number of extra dispersion array
-!     NVELX   INTEGER(kind=int_32) ::1     INPUT   Number of extra velocity array
-!     NLOCX   INTEGER(kind=int_32) ::1     INPUT   No.loc.var.exhange level
-!     DSTO    INTEGER(kind=int_32) ::NOSYS,*     INPUT   dispersion stochi matrix
-!     VSTO    INTEGER(kind=int_32) ::NOSYS,*     INPUT   velocity stochi matrix
-!     NDSPN   INTEGER(kind=int_32) ::1     INPUT   Number of new dispersion array
-!     IDPNW   INTEGER(kind=int_32) ::NOSYS     INPUT   Pointers to new dispersion array
-!     NVELN   INTEGER(kind=int_32) ::1     INPUT   Number of new velocity array
-!     IVPNW   INTEGER(kind=int_32) ::NOSYS     INPUT   Pointers to new velocity array
-!     PROGRD  INTEGER(kind=int_32) ::1     INPUT   Grid number for active processes
-!     PRONDT  INTEGER(kind=int_32) ::1     INPUT   Step size for active processes
+!     NFLUX   INTEGER(kind=int_wp) ::1     INPUT   total number of fluxes
+!     LUWRKP  INTEGER(kind=int_wp) ::1     INPUT   unit number proces work file
+!     VERSIO  INTEGER(kind=int_wp) ::1     INPUT   Versie number of program
+!     STOCHI  REAL(kind=real_wp) ::NOTOT*NFLUX  INPUT   Proces stochiometry
+!     NOTOT   INTEGER(kind=int_wp) ::1     INPUT   Number of substances
+!     NOSYS   INTEGER(kind=int_wp) ::1     INPUT   Number of active substances
+!     NDSPX   INTEGER(kind=int_wp) ::1     INPUT   Number of extra dispersion array
+!     NVELX   INTEGER(kind=int_wp) ::1     INPUT   Number of extra velocity array
+!     NLOCX   INTEGER(kind=int_wp) ::1     INPUT   No.loc.var.exhange level
+!     DSTO    INTEGER(kind=int_wp) ::NOSYS,*     INPUT   dispersion stochi matrix
+!     VSTO    INTEGER(kind=int_wp) ::NOSYS,*     INPUT   velocity stochi matrix
+!     NDSPN   INTEGER(kind=int_wp) ::1     INPUT   Number of new dispersion array
+!     IDPNW   INTEGER(kind=int_wp) ::NOSYS     INPUT   Pointers to new dispersion array
+!     NVELN   INTEGER(kind=int_wp) ::1     INPUT   Number of new velocity array
+!     IVPNW   INTEGER(kind=int_wp) ::NOSYS     INPUT   Pointers to new velocity array
+!     PROGRD  INTEGER(kind=int_wp) ::1     INPUT   Grid number for active processes
+!     PRONDT  INTEGER(kind=int_wp) ::1     INPUT   Step size for active processes
 !
       use timers       !   performance timers
 
-      INTEGER(kind=int_32) ::NPROC , NIPMSA, NOLOC , NODEF , NFLUX ,
+      INTEGER(kind=int_wp) ::NPROC , NIPMSA, NOLOC , NODEF , NFLUX ,
      +            LUWRKP, NOTOT , NOSYS , NDSPX , NVELX ,
      +            NLOCX , NDSPN , NVELN , NOVAR , nrref
-      INTEGER(kind=int_32) ::NSVAR(*) , IFLUX(*) ,
+      INTEGER(kind=int_wp) ::NSVAR(*) , IFLUX(*) ,
      +            PRVVAR(*), PRVTYP(*),
      +            IDPNW(*) , IVPNW(*) ,
      +            PROGRD(*), PRONDT(*),
      +            VARARR(*), VARIDX(*),
      +            VARTDA(*), VARDAG(*),
      +            VARTAG(*), VARAGG(*), proref(*)
-      REAL(kind=sp) ::VERSIO
-      REAL(kind=sp) ::DEFAUL(*), STOCHI(*),
+      REAL(kind=real_wp) ::VERSIO
+      REAL(kind=real_wp) ::DEFAUL(*), STOCHI(*),
      +            DSTO(*)  , VSTO(*)
       CHARACTER*10 PRONAM(*)
       
-      integer(kind=int_32) ::k
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::k
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "wripro", ithndl )
 !
       WRITE (LUWRKP) VERSIO

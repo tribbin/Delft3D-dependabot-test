@@ -48,15 +48,15 @@
 !     Name     Type   Library
 !     ------   -----  ------------
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER(kind=int_32) ::LUNREP
+      INTEGER(kind=int_wp) ::LUNREP
 
-      INTEGER(kind=int_32) ::IP1 , IP2 , IP3 , IP4 , IP5 , IP6
-      REAL(kind=sp) ::DEPTH , ADEPTH
-      INTEGER(kind=int_32) ::TELLER, NAVERA, NSWITS, ISEG
+      INTEGER(kind=int_wp) ::IP1 , IP2 , IP3 , IP4 , IP5 , IP6
+      REAL(kind=real_wp) ::DEPTH , ADEPTH
+      INTEGER(kind=int_wp) ::TELLER, NAVERA, NSWITS, ISEG
       LOGICAL  FIRST
       SAVE     FIRST
       DATA     FIRST /.TRUE./

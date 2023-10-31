@@ -33,9 +33,9 @@
 !
 !     Determine largest common denominator
 !
-      INTEGER(kind=int_32) ::NONUMB, IGGD, I, IN
-      INTEGER(kind=int_32) ::NUMBRS(NONUMB)
-      INTEGER(kind=int_32) ::MINNUM
+      INTEGER(kind=int_wp) ::NONUMB, IGGD, I, IN
+      INTEGER(kind=int_wp) ::NUMBRS(NONUMB)
+      INTEGER(kind=int_wp) ::MINNUM
 
       MINNUM = NUMBRS(1)
       DO I = 2 , NONUMB

@@ -56,7 +56,7 @@ end subroutine unit_tests
 !
 subroutine test_recognise_nans
 
-    real(kind=sp) ::  x
+    real(kind=real_wp) ::  x
 
     x = log10( -1.0 )
 
@@ -75,11 +75,11 @@ end subroutine test_recognise_nans
 !
 subroutine test_dlwq13_no_nans
 
-    integer(kind=int_32), parameter ::  notot = 10 
-    integer(kind=int_32), parameter ::  noseg = 23 
-    real(kind=sp), dimension(notot,noseg) ::  conc 
-    integer(kind=int_32) ::  itime 
-    integer(kind=int_32), dimension(30) ::  lun 
+    integer(kind=int_wp), parameter ::  notot = 10
+    integer(kind=int_wp), parameter ::  noseg = 23
+    real(kind=real_wp), dimension(notot,noseg) ::  conc
+    integer(kind=int_wp) ::  itime
+    integer(kind=int_wp), dimension(30) ::  lun
     character(len=255), dimension(30) :: lchar
     character(len=40), dimension(4)   :: mname
     character(len=20), dimension(10)  :: sname
@@ -114,11 +114,11 @@ end subroutine test_dlwq13_no_nans
 !
 subroutine test_dlwq13_with_nans
 
-    integer(kind=int_32), parameter ::  notot = 10 
-    integer(kind=int_32), parameter ::  noseg = 23 
-    real(kind=sp), dimension(notot,noseg) ::  conc 
-    integer(kind=int_32) ::  itime 
-    integer(kind=int_32), dimension(30) ::  lun 
+    integer(kind=int_wp), parameter ::  notot = 10
+    integer(kind=int_wp), parameter ::  noseg = 23
+    real(kind=real_wp), dimension(notot,noseg) ::  conc
+    integer(kind=int_wp) ::  itime
+    integer(kind=int_wp), dimension(30) ::  lun
     character(len=255), dimension(30) :: lchar
     character(len=40), dimension(4)   :: mname
     character(len=20), dimension(10)  :: sname

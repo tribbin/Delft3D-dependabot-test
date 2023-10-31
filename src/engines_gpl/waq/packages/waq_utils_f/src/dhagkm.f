@@ -54,10 +54,10 @@
 !
 !     Declaration of arguments
 !
-      INTEGER(kind=int_32) :: NOSEG , NODIM2, NOGRID
-      INTEGER(kind=int_32) :: GRDNOS(NOGRID)
-      INTEGER(kind=int_32) :: GRDSEG(NOSEG,NOGRID)
-      INTEGER(kind=int_32) :: IKNMRK(NOSEG,NODIM2,NOGRID)
+      INTEGER(kind=int_wp) :: NOSEG , NODIM2, NOGRID
+      INTEGER(kind=int_wp) :: GRDNOS(NOGRID)
+      INTEGER(kind=int_wp) :: GRDSEG(NOSEG,NOGRID)
+      INTEGER(kind=int_wp) :: IKNMRK(NOSEG,NODIM2,NOGRID)
 !
 !     Local declaration
 !
@@ -69,7 +69,7 @@
 !     K2_G1   INTEGER  1          LOCAL   Kenmerk 2 base grid
 !     K2_G2   INTEGER  1          LOCAL   Kenmerk 2 coarser grid
 !
-      INTEGER(kind=int_32) :: IGRID , ISEG  , ISEG2 , K1_G1 , K1_G2 ,
+      INTEGER(kind=int_wp) :: IGRID , ISEG  , ISEG2 , K1_G1 , K1_G2 ,
      +               K2_G1 , K2_G2
 !
 !     Set kenmerk array for all coarser grids

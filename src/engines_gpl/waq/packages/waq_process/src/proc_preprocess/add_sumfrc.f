@@ -42,24 +42,24 @@
 
       ! declaration of arguments
 
-      integer(kind=int_32) ::lunrep          ! report file
+      integer(kind=int_wp) ::lunrep          ! report file
       type(procespropcoll)      :: procesdef       ! the process definition
       type(itempropcoll)        :: allitems        ! all items of the proces system
       type(sfracsprop)          :: sfracs          ! substance fraction properties
-      integer(kind=int_32) ::no_act          ! number of active processes
+      integer(kind=int_wp) ::no_act          ! number of active processes
       character(len=*)          :: actlst(*)       ! active processes names
-      integer(kind=int_32) ::nbpr            ! number of processes
+      integer(kind=int_wp) ::nbpr            ! number of processes
 
       ! local decalarations
 
       type(procesprop)          :: proc            ! one process definition
       type(itemprop)            :: item            ! one item
-      integer(kind=int_32) ::isys            ! loop counter substances
-      integer(kind=int_32) ::iret            ! index in collection
-      integer(kind=int_32) ::ifrac           ! fraction number
+      integer(kind=int_wp) ::isys            ! loop counter substances
+      integer(kind=int_wp) ::iret            ! index in collection
+      integer(kind=int_wp) ::ifrac           ! fraction number
       character(len=3)          :: suffix          ! suffix
-      integer(kind=int_32) ::ierr_alloc      ! error indication
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::ierr_alloc      ! error indication
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "add_sumfrc", ithndl )
 
       ! loop over the substances with fractions

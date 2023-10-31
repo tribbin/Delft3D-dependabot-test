@@ -54,22 +54,22 @@
 
       IMPLICIT REAL (A-H,J-Z)
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
 !     from PMSA array
 
-      INTEGER(kind=int_32) ::SWEMERSION         ! 3  in  switch indicating submersion(0) or emersion (1)
-      INTEGER(kind=int_32) ::XTRDIF             ! 4  in  extra diffusion factor in sediment during emersion (-)
+      INTEGER(kind=int_wp) ::SWEMERSION         ! 3  in  switch indicating submersion(0) or emersion (1)
+      INTEGER(kind=int_wp) ::XTRDIF             ! 4  in  extra diffusion factor in sediment during emersion (-)
 
-      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10, IP11, IP12
-      INTEGER(kind=int_32) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9, IN10, IN11, IN12
-      REAL(kind=sp) ::FRDISU, FRDOCU, FRDISD, FRDOCD,
+      INTEGER(kind=int_wp) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10, IP11, IP12
+      INTEGER(kind=int_wp) ::IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8, IN9, IN10, IN11, IN12
+      REAL(kind=real_wp) ::FRDISU, FRDOCU, FRDISD, FRDOCD,
      J         FRPAR , VRESU , VSEDI , VBURI ,
      J         VBTUR , VBIRR , FRDIS , VSEEP
       LOGICAL  NEWBOT
-      INTEGER(kind=int_32) ::IKMRKN, IKMRKV, IVAN  , INAAR , IQ
+      INTEGER(kind=int_wp) ::IKMRKN, IKMRKV, IVAN  , INAAR , IQ
 
       IP1   = IPOINT( 1)
       IP2   = IPOINT( 2)

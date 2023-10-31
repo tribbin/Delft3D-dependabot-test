@@ -51,14 +51,14 @@
 !
 !     NAME    KIND      LENGTH  FUNCT.  DESCRIPTION
 !     ----    -----     ------  ------- -----------
-!     LUNREP  INTEGER(kind=int_32) ::1  INPUT   unit number report file
-!     NOKEY   INTEGER(kind=int_32) ::1  INPUT   number of keywords for this process
+!     LUNREP  INTEGER(kind=int_wp) ::1  INPUT   unit number report file
+!     NOKEY   INTEGER(kind=int_wp) ::1  INPUT   number of keywords for this process
 !     KEYNAM  CHAR*20    NOKEY  INPUT   keyword name
 !     KEYVAL  CHAR*20    NOKEY  INPUT   keyword value
 !     aProcesProp               OUTPUT  properties for this proces
 !     AllItems                  INPUT   all items known to the proces system
-!     IERR    INTEGER(kind=int_32) ::1  IN/OUT  cummulative error count
-!     NOWARN  INTEGER(kind=int_32) ::1  IN/OUT  cummulative warning count
+!     IERR    INTEGER(kind=int_wp) ::1  IN/OUT  cummulative error count
+!     NOWARN  INTEGER(kind=int_wp) ::1  IN/OUT  cummulative warning count
 !
       use m_zoek
       use m_srstop
@@ -72,7 +72,7 @@
 !
 !     Declaration of arguments
 !
-      INTEGER(kind=int_32) ::LUNREP, NOKEY , IPROC , IERR  , NOWARN, item_ind
+      INTEGER(kind=int_wp) ::LUNREP, NOKEY , IPROC , IERR  , NOWARN, item_ind
       LOGICAL       DTFLG1 , DTFLG3
       CHARACTER*20  KEYNAM(NOKEY), KEYVAL(NOKEY)
       type(ProcesProp)      :: aProcesProp         ! output statistical proces definition
@@ -80,14 +80,14 @@
 !
 !     Local declarations
 !
-      INTEGER(kind=int_32) ::IERR_ALLOC, IKEY  , ISLEN     , IERR2 , IRET
-      integer(kind=int_32) ::istart , iperiod
-      INTEGER(kind=int_32),      ALLOCATABLE  ::ISUSED(:)
+      INTEGER(kind=int_wp) ::IERR_ALLOC, IKEY  , ISLEN     , IERR2 , IRET
+      integer(kind=int_wp) ::istart , iperiod
+      INTEGER(kind=int_wp),      ALLOCATABLE  ::ISUSED(:)
       CHARACTER*20  KEY       , SUFFIX  , NAME, item_name
       CHARACTER*50  item_desc
-      REAL(kind=sp) ::PERIOD, default_value 
+      REAL(kind=real_wp) ::PERIOD, default_value
       type(ItemProp)        :: aItemProp            ! one item
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "setday", ithndl )
 !
 !     init
@@ -431,9 +431,9 @@
          TYPE(ProcesProp), INTENT(OUT) :: process_prop ! output statistical proces definition
          CHARACTER(LEN=20), INTENT(IN) :: item_name
          CHARACTER(LEN=50), INTENT(IN) :: item_desc
-         INTEGER(kind=int_32), INTENT(IN)  ::item_ind, item_type
-         INTEGER(kind=int_32) ::iret
-         REAL(kind=sp), INTENT(IN)  ::default_value 
+         INTEGER(kind=int_wp), INTENT(IN)  ::item_ind, item_type
+         INTEGER(kind=int_wp) ::iret
+         REAL(kind=real_wp), INTENT(IN)  ::default_value
 
          item_prop%name    = item_name
          item_prop%default = default_value

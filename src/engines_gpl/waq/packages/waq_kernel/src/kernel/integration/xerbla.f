@@ -34,9 +34,9 @@
       use timers
 
 *     ..    Scalar Arguments ..
-      INTEGER(kind=int_32) ::INFO
+      INTEGER(kind=int_wp) ::INFO
       CHARACTER*6        SRNAME
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "xerbla", ithandl )
 *     ..
 *

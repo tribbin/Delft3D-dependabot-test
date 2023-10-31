@@ -44,15 +44,15 @@ module dlwq_netcdf
     end interface
 
     logical :: dlwqnc_debug = .false.
-    integer(kind=int_32), parameter  ::dlwqnc_deflate = 5
-    integer(kind=int_32), parameter  ::dlwqnc_type2d = -999
-    integer(kind=int_32), parameter  ::dlwqnc_type1d = -111
+    integer(kind=int_wp), parameter  ::dlwqnc_deflate = 5
+    integer(kind=int_wp), parameter  ::dlwqnc_type2d = -999
+    integer(kind=int_wp), parameter  ::dlwqnc_type1d = -111
 
-    integer(kind=int_32), parameter  ::type_ugrid_face_crds          = 1 ! Names used by UNTRIM
-    integer(kind=int_32), parameter  ::type_ugrid_node_crds          = 2 ! Names used by D-Flow-FM for 2d meshes
-    integer(kind=int_32), parameter  ::type_ugrid_mesh1d             = 3 ! Names used by D-Flow-FM for 1d meshes
-    integer(kind=int_32), parameter  ::type_ugrid_network            = 4 ! Names used by D-Flow-FM for networks
-    integer(kind=int_32), parameter  ::type_ugrid_network_geometry   = 5 ! Names used by D-Flow-FM for network geometries
+    integer(kind=int_wp), parameter  ::type_ugrid_face_crds          = 1 ! Names used by UNTRIM
+    integer(kind=int_wp), parameter  ::type_ugrid_node_crds          = 2 ! Names used by D-Flow-FM for 2d meshes
+    integer(kind=int_wp), parameter  ::type_ugrid_mesh1d             = 3 ! Names used by D-Flow-FM for 1d meshes
+    integer(kind=int_wp), parameter  ::type_ugrid_network            = 4 ! Names used by D-Flow-FM for networks
+    integer(kind=int_wp), parameter  ::type_ugrid_network_geometry   = 5 ! Names used by D-Flow-FM for network geometries
 
     logical, save, private :: warning_message  = .false. ! Because of optional attributes (UGRID standard)
 
@@ -81,8 +81,8 @@ function dlwqnc_lowercase( name ) result(name_lower)
     character(len=*)         :: name
     character(len=len(name)) :: name_lower
 
-    integer(kind=int_32), parameter        ::offset = iachar('a') - iachar('A')
-    integer(kind=int_32)                   ::i, asc
+    integer(kind=int_wp), parameter        ::offset = iachar('a') - iachar('A')
+    integer(kind=int_wp)                   ::i, asc
 
     do i = 1,len(name)
         asc = iachar(name(i:i))
@@ -118,27 +118,27 @@ integer function dlwqnc_find_meshes_by_att( ncid, varid2d, type_ugrid, varid1d, 
 
    implicit none
 
-   integer(kind=int_32), intent(in) ::ncid
-   integer(kind=int_32), intent(out) ::varid2d
-   integer(kind=int_32), intent(out) ::type_ugrid
-   integer(kind=int_32), intent(out) ::varid1d
-   integer(kind=int_32), intent(out) ::varidnetwork
-   integer(kind=int_32), intent(out) ::varidnetwork_geometry
+   integer(kind=int_wp), intent(in) ::ncid
+   integer(kind=int_wp), intent(out) ::varid2d
+   integer(kind=int_wp), intent(out) ::type_ugrid
+   integer(kind=int_wp), intent(out) ::varid1d
+   integer(kind=int_wp), intent(out) ::varidnetwork
+   integer(kind=int_wp), intent(out) ::varidnetwork_geometry
 
    character(len=256)                     :: attribute
    character(len=256)                     :: expected_value
 
-   integer(kind=int_32)                                 ::nvars
-   integer(kind=int_32)                                 ::ierror
-   integer(kind=int_32)                                 ::ivar
-   integer(kind=int_32)                                 ::ivar2
+   integer(kind=int_wp)                                 ::nvars
+   integer(kind=int_wp)                                 ::ierror
+   integer(kind=int_wp)                                 ::ivar
+   integer(kind=int_wp)                                 ::ivar2
 
    character(len=nf90_max_name)           :: varname
    logical                                :: delwaq_role
    character(len=:), allocatable          :: cf_role
    character(len=:), allocatable          :: edge_geometry
    logical                                :: mesh_topology
-   integer(kind=int_32)                                 ::topology_dimension
+   integer(kind=int_wp)                                 ::topology_dimension
    logical                                :: network
 
    allocate(character(len=0) :: cf_role)
@@ -276,11 +276,11 @@ end function dlwqnc_find_meshes_by_att
 integer function dlwqnc_copy_var_atts( ncidin, ncidout, varidin, varidout )
     integer, intent(in)            :: ncidin, ncidout, varidin, varidout
 
-    integer(kind=int_32)                         ::ierror
-    integer(kind=int_32)                         ::i
+    integer(kind=int_wp)                         ::ierror
+    integer(kind=int_wp)                         ::i
 
     character(len=nf90_max_name)   :: attname
-    integer(kind=int_32)                         ::natts
+    integer(kind=int_wp)                         ::natts
 
     dlwqnc_copy_var_atts = -1
 
@@ -331,18 +331,18 @@ end function dlwqnc_copy_var_atts
 integer function dlwqnc_copy_mesh( ncidin, ncidout, meshidin, mesh_name, type_ugrid )
     integer, intent(in)               :: ncidin, ncidout, meshidin
     character(len=*), intent(in)      :: mesh_name
-    integer(kind=int_32), intent(in) ::type_ugrid
+    integer(kind=int_wp), intent(in) ::type_ugrid
 
-    integer(kind=int_32)                            ::meshidout, varidin, varidout
-    integer(kind=int_32)                            ::ierror
-    integer(kind=int_32), dimension(10) ::ierrorn
-    integer(kind=int_32)                            ::meshvalue
-    integer(kind=int_32)                            ::i, k
-    integer(kind=int_32)                            ::xtype, length, attnum, crs_value
+    integer(kind=int_wp)                            ::meshidout, varidin, varidout
+    integer(kind=int_wp)                            ::ierror
+    integer(kind=int_wp), dimension(10) ::ierrorn
+    integer(kind=int_wp)                            ::meshvalue
+    integer(kind=int_wp)                            ::i, k
+    integer(kind=int_wp)                            ::xtype, length, attnum, crs_value
 
     character(len=nf90_max_name)      :: varname
-    integer(kind=int_32)                            ::natts
-    integer(kind=int_32), dimension(nf90_max_dims) ::dimsizes
+    integer(kind=int_wp)                            ::natts
+    integer(kind=int_wp), dimension(nf90_max_dims) ::dimsizes
 
     dlwqnc_copy_mesh = -1
 
@@ -549,11 +549,11 @@ integer function dlwqnc_read_dims( ncidin, dimsizes )
     integer, intent(in)                :: ncidin
     integer, intent(out), dimension(:) :: dimsizes
 
-    integer(kind=int_32)                             ::ierror
-    integer(kind=int_32)                             ::dimid, dimidnew
+    integer(kind=int_wp)                             ::ierror
+    integer(kind=int_wp)                             ::dimid, dimidnew
 
     character(len=nf90_max_name)       :: dimname
-    integer(kind=int_32)                             ::dimvalue
+    integer(kind=int_wp)                             ::dimvalue
 
     dlwqnc_read_dims = -1
 
@@ -589,11 +589,11 @@ integer function dlwqnc_copy_dims( ncidin, ncidout, dimsizes )
     integer, intent(in)                :: ncidin, ncidout
     integer, intent(out), dimension(:) :: dimsizes
 
-    integer(kind=int_32)                             ::ierror
-    integer(kind=int_32)                             ::dimid, dimidnew
+    integer(kind=int_wp)                             ::ierror
+    integer(kind=int_wp)                             ::dimid, dimidnew
 
     character(len=nf90_max_name)       :: dimname
-    integer(kind=int_32)                             ::dimvalue
+    integer(kind=int_wp)                             ::dimvalue
 
     dlwqnc_copy_dims = -1
 
@@ -640,20 +640,20 @@ recursive function dlwqnc_copy_associated( ncidin, ncidout, meshidin, meshidout,
     use io_ugrid
     use netcdf_utils, only: ncu_get_att
 
-    integer(kind=int_32), intent(in) ::ncidin, ncidout, meshidin, meshidout
+    integer(kind=int_wp), intent(in) ::ncidin, ncidout, meshidin, meshidout
     character(len=*), intent(in)      :: attribute
-    integer(kind=int_32), intent(in) , dimension(:) :: dimsizes
+    integer(kind=int_wp), intent(in) , dimension(:) :: dimsizes
     logical, intent(in), optional     :: use_attrib
 
-    integer(kind=int_32)                                ::dlwqnc_result
+    integer(kind=int_wp)                                ::dlwqnc_result
 
-    integer(kind=int_32)                                ::ierror
-    integer(kind=int_32)                                ::ierr
-    integer(kind=int_32)                                ::i, j
-    integer(kind=int_32)                                ::xtype, length, attnum
-    integer(kind=int_32)                                ::oldvarid, newvarid
-    integer(kind=int_32)                                ::ndims
-    integer(kind=int_32), dimension(nf90_max_var_dims) ::dimids, newdimids
+    integer(kind=int_wp)                                ::ierror
+    integer(kind=int_wp)                                ::ierr
+    integer(kind=int_wp)                                ::i, j
+    integer(kind=int_wp)                                ::xtype, length, attnum
+    integer(kind=int_wp)                                ::oldvarid, newvarid
+    integer(kind=int_wp)                                ::ndims
+    integer(kind=int_wp), dimension(nf90_max_var_dims) ::dimids, newdimids
 
     character(len=:), allocatable  :: att_value
     character(len=nf90_max_name)   :: varname
@@ -811,16 +811,16 @@ end function dlwqnc_copy_associated
 integer function dlwqnc_copy_int_var( ncidin, ncidout, varin, varout, ndims, dimids, dimsizes )
 !   use ISO_C_BINDING
 
-    integer(kind=int_32), intent(in) ::ncidin, ncidout, varin, varout, ndims
-    integer(kind=int_32), intent(in) , dimension(:)     :: dimids, dimsizes
+    integer(kind=int_wp), intent(in) ::ncidin, ncidout, varin, varout, ndims
+    integer(kind=int_wp), intent(in) , dimension(:)     :: dimids, dimsizes
 
-    integer(kind=int_32)                                ::sz, sz1
-    integer(kind=int_32)                                ::ierror
-    integer(kind=int_32)                                ::ierr
-    integer(kind=int_32)                                ::i
+    integer(kind=int_wp)                                ::sz, sz1
+    integer(kind=int_wp)                                ::ierror
+    integer(kind=int_wp)                                ::ierr
+    integer(kind=int_wp)                                ::i
 
-    integer(kind=int_32), dimension(:), allocatable ::value
-    integer(kind=int_32), dimension(:,:), allocatable ::value2d
+    integer(kind=int_wp), dimension(:), allocatable ::value
+    integer(kind=int_wp), dimension(:,:), allocatable ::value2d
 
     dlwqnc_copy_int_var = -1
 
@@ -854,13 +854,13 @@ end function dlwqnc_copy_int_var
 integer function dlwqnc_copy_int64_var( ncidin, ncidout, varin, varout, ndims, dimids, dimsizes )
 !   use ISO_C_BINDING
 
-    integer(kind=int_32), intent(in) ::ncidin, ncidout, varin, varout, ndims
-    integer(kind=int_32), intent(in) , dimension(:)     :: dimids, dimsizes
+    integer(kind=int_wp), intent(in) ::ncidin, ncidout, varin, varout, ndims
+    integer(kind=int_wp), intent(in) , dimension(:)     :: dimids, dimsizes
 
-    integer(kind=int_32)                                ::sz, sz1
-    integer(kind=int_32)                                ::ierror
-    integer(kind=int_32)                                ::ierr
-    integer(kind=int_32)                                ::i
+    integer(kind=int_wp)                                ::sz, sz1
+    integer(kind=int_wp)                                ::ierror
+    integer(kind=int_wp)                                ::ierr
+    integer(kind=int_wp)                                ::i
 
     integer(kind = int64), dimension(:)  , allocatable    :: value
     integer(kind = int64), dimension(:,:), allocatable  :: value2d
@@ -898,13 +898,13 @@ integer function dlwqnc_copy_real_var( ncidin, ncidout, varin, varout, ndims, di
     integer, intent(in)                   :: ncidin, ncidout, varin, varout, ndims
     integer, intent(in), dimension(:)     :: dimids, dimsizes
 
-    integer(kind=int_32)                                ::sz
-    integer(kind=int_32)                                ::ierror
-    integer(kind=int_32)                                ::ierr
-    integer(kind=int_32)                                ::i
+    integer(kind=int_wp)                                ::sz
+    integer(kind=int_wp)                                ::ierror
+    integer(kind=int_wp)                                ::ierr
+    integer(kind=int_wp)                                ::i
 
-    real(kind=sp), dimension(:), allocatable ::value
-    real(kind=sp), dimension(:,:), allocatable ::value2d
+    real(kind=real_wp), dimension(:), allocatable ::value
+    real(kind=real_wp), dimension(:,:), allocatable ::value2d
 
     dlwqnc_copy_real_var = -1
 
@@ -944,10 +944,10 @@ integer function dlwqnc_copy_double_var( ncidin, ncidout, varin, varout, ndims, 
     integer, intent(in)                   :: ncidin, ncidout, varin, varout, ndims
     integer, intent(in), dimension(:)     :: dimids, dimsizes
 
-    integer(kind=int_32)                                ::sz
-    integer(kind=int_32)                                ::ierror
-    integer(kind=int_32)                                ::ierr
-    integer(kind=int_32)                                ::i
+    integer(kind=int_wp)                                ::sz
+    integer(kind=int_wp)                                ::ierror
+    integer(kind=int_wp)                                ::ierr
+    integer(kind=int_wp)                                ::i
 
     real(kind=dp) , dimension(:), allocatable   :: value
     real(kind=dp) , dimension(:,:), allocatable :: value2d
@@ -989,12 +989,12 @@ end function dlwqnc_copy_double_var
 integer function dlwqnc_copy_char_var( ncidin, ncidout, varin, varout, ndims, dimids, dimsizes )
 !   use ISO_C_BINDING
 
-    integer(kind=int_32), intent(in) ::ncidin, ncidout, varin, varout, ndims
-    integer(kind=int_32), intent(in) , dimension(:)     :: dimids, dimsizes
+    integer(kind=int_wp), intent(in) ::ncidin, ncidout, varin, varout, ndims
+    integer(kind=int_wp), intent(in) , dimension(:)     :: dimids, dimsizes
 
-    integer(kind=int_32)                                ::dim1, dim2
-    integer(kind=int_32)                                ::ierror
-    integer(kind=int_32)                                ::ierr
+    integer(kind=int_wp)                                ::dim1, dim2
+    integer(kind=int_wp)                                ::ierror
+    integer(kind=int_wp)                                ::ierr
 
     character(len=:), dimension(:), allocatable :: value
 
@@ -1043,11 +1043,11 @@ integer function dlwqnc_write_wqtime( ncidout, timeid, bndtimeid, record, time )
     integer, intent(in) :: record
     integer, intent(in) :: time
 
-    integer(kind=int_32)                ::ierror
-    integer(kind=int_32), dimension(1) ::values
-    integer(kind=int_32), dimension(2) ::start
-    integer(kind=int_32), dimension(2) ::count
-    integer(kind=int_32), dimension(2) ::bndtime
+    integer(kind=int_wp)                ::ierror
+    integer(kind=int_wp), dimension(1) ::values
+    integer(kind=int_wp), dimension(2) ::start
+    integer(kind=int_wp), dimension(2) ::count
+    integer(kind=int_wp), dimension(2) ::bndtime
 
     dlwqnc_write_wqtime = nf90_noerr
 
@@ -1100,9 +1100,9 @@ integer function dlwqnc_write_wqvariable_3d( ncidout, wqid, record, values )
     integer, intent(in) :: record
     real, dimension(:,:), intent(in) :: values
 
-    integer(kind=int_32)                ::ierror
-    integer(kind=int_32), dimension(3) ::start
-    integer(kind=int_32), dimension(3) ::count
+    integer(kind=int_wp)                ::ierror
+    integer(kind=int_wp), dimension(3) ::start
+    integer(kind=int_wp), dimension(3) ::count
 
     dlwqnc_write_wqvariable_3d = nf90_noerr
 
@@ -1121,9 +1121,9 @@ integer function dlwqnc_write_wqvariable_2d( ncidout, wqid, record, values )
     integer, intent(in) :: record
     real, dimension(:), intent(in) :: values
 
-    integer(kind=int_32)                ::ierror
-    integer(kind=int_32), dimension(2) ::start
-    integer(kind=int_32), dimension(2) ::count
+    integer(kind=int_wp)                ::ierror
+    integer(kind=int_wp), dimension(2) ::start
+    integer(kind=int_wp), dimension(2) ::count
 
     dlwqnc_write_wqvariable_2d = nf90_noerr
 
@@ -1152,16 +1152,16 @@ end function dlwqnc_write_wqvariable_2d
 integer function dlwqnc_create_wqtime( ncidout, t0string, timeid, bndtimeid, ntimeid )
     integer, intent(in)           :: ncidout
     character(len=*), intent(in)  :: t0string
-    integer(kind=int_32), intent(out) ::timeid
-    integer(kind=int_32), intent(out) ::bndtimeid
+    integer(kind=int_wp), intent(out) ::timeid
+    integer(kind=int_wp), intent(out) ::bndtimeid
 
-    integer(kind=int_32)                        ::ierror
-    integer(kind=int_32)                        ::ntimeid
-    integer(kind=int_32)                        ::twoid
+    integer(kind=int_wp)                        ::ierror
+    integer(kind=int_wp)                        ::ntimeid
+    integer(kind=int_wp)                        ::twoid
     character(len=30)             :: t0_date_time
     character(len=nf90_max_name)  :: name
-    integer(kind=int_32)                        ::dimvalue
-    integer(kind=int_32)                        ::k
+    integer(kind=int_wp)                        ::dimvalue
+    integer(kind=int_wp)                        ::k
 
     dlwqnc_create_wqtime = nf90_noerr
 
@@ -1273,22 +1273,22 @@ end function dlwqnc_create_wqtime
 integer function dlwqnc_create_wqvariable( ncidout, mesh_name, wqname, longname, stdname, unit, ntimeid, noseglid, nolayid, wqid )
     use netcdf_utils, only: ncu_get_att
 
-    integer(kind=int_32), intent(in) ::ncidout
+    integer(kind=int_wp), intent(in) ::ncidout
     character(len=*), intent(in)               :: mesh_name
     character(len=*), intent(in)               :: wqname
     character(len=*), intent(in)               :: longname
     character(len=*), intent(in)               :: stdname
     character(len=*), intent(in)               :: unit
-    integer(kind=int_32), intent(in) ::ntimeid
-    integer(kind=int_32), intent(in) ::noseglid
-    integer(kind=int_32), intent(in) ::nolayid
-    integer(kind=int_32), intent(out) ::wqid
+    integer(kind=int_wp), intent(in) ::ntimeid
+    integer(kind=int_wp), intent(in) ::noseglid
+    integer(kind=int_wp), intent(in) ::nolayid
+    integer(kind=int_wp), intent(out) ::wqid
 
-    integer(kind=int_32)                                     ::i
-    integer(kind=int_32)                                     ::k, k2
-    integer(kind=int_32)                                     ::ierror
-    integer(kind=int_32)                                     ::meshid
-    integer(kind=int_32)                                     ::dimvalue
+    integer(kind=int_wp)                                     ::i
+    integer(kind=int_wp)                                     ::k, k2
+    integer(kind=int_wp)                                     ::ierror
+    integer(kind=int_wp)                                     ::meshid
+    integer(kind=int_wp)                                     ::dimvalue
     character(len=nf90_max_name)               :: name
     character(len=nf90_max_name)               :: name2D
     character(len=nf90_max_name), dimension(5) :: dimname
@@ -1507,16 +1507,16 @@ end function dlwqnc_create_wqvariable
 integer function dlwqnc_create_layer_dim( ncidout, mesh_name, nolay, thickness, nolayid )
     integer, intent(in)              :: ncidout
     character(len=*), intent(in)     :: mesh_name
-    integer(kind=int_32), intent(in) ::nolay
-    real(kind=sp), dimension(:), intent(in) ::thickness
-    integer(kind=int_32), intent(out) ::nolayid
+    integer(kind=int_wp), intent(in) ::nolay
+    real(kind=real_wp), dimension(:), intent(in) ::thickness
+    integer(kind=int_wp), intent(out) ::nolayid
 
-    integer(kind=int_32)                           ::i, k
-    integer(kind=int_32)                           ::ierror
-    integer(kind=int_32)                           ::varlayid, cumlayid
+    integer(kind=int_wp)                           ::i, k
+    integer(kind=int_wp)                           ::ierror
+    integer(kind=int_wp)                           ::varlayid, cumlayid
     character(len=nf90_max_name)     :: name
-    real(kind=sp), dimension(size(thickness)) :: z_centre
-    real(kind=sp)                              ::z_sum
+    real(kind=real_wp), dimension(size(thickness)) :: z_centre
+    real(kind=real_wp)                              ::z_sum
 
     character(len=20), dimension(5) :: attname =  &
         (/ 'long_name    ',    'units        ',    'axis         ',    'positive     ',    'standard_name' /)
@@ -1625,8 +1625,8 @@ integer function dlwqnc_create_delwaq_dims( ncidout, nosegl, nolay, dimids, dims
     integer, intent(in)                  :: ncidout, nosegl, nolay
     integer, intent(inout), dimension(:) :: dimids, dimsizes
 
-    integer(kind=int_32)             ::inc_error
-    integer(kind=int_32)             ::varid
+    integer(kind=int_wp)             ::inc_error
+    integer(kind=int_wp)             ::varid
     character(len=200) :: coordinate_names
     character(len=100) :: name
 

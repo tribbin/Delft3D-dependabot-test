@@ -73,13 +73,13 @@
 !
       IMPLICIT REAL (A-H,J-Z)
 !
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( 23 ) , INCREM(23) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( 23 ) , INCREM(23) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
-      INTEGER(kind=int_32) ::IP(23)
-      INTEGER(kind=int_32) ::IFLUX , ISEG
-      REAL(kind=sp) ::AH_380, EXT   , PAC  , SECCH, AIM1  , AIM2  , AIM3  ,
+      INTEGER(kind=int_wp) ::IP(23)
+      INTEGER(kind=int_wp) ::IFLUX , ISEG
+      REAL(kind=real_wp) ::AH_380, EXT   , PAC  , SECCH, AIM1  , AIM2  , AIM3  ,
      J         POC1  , POC2  , POC3  , POC4  , CHLORP, DIEP1 , DIEP2 ,
      J         CORCHL, C_DET , C_GL1 , C_GL2 , HELHUM, TAU   , ANGLE ,
      J         DETCDM, GLOEIR, DETRIC, EXTIO , EXTP_D, D_1   , SW_UITZ

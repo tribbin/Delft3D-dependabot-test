@@ -77,17 +77,17 @@
       implicit none
 
       real(kind=dp) ::x(*),bio(*),sumnut(mn),aroot(*)
-      integer(kind=int_32) ::irs (*),jkmax(*),swblsa, i, j, k
+      integer(kind=int_wp) ::irs (*),jkmax(*),swblsa, i, j, k
       character(8) :: cdate
       character(1) :: errind
       
-      integer(kind=int_32) ::inhib
-      integer(kind=int_32) ::irerun
-      integer(kind=int_32) ::ni
-      integer(kind=int_32) ::index
-      integer(kind=int_32) ::irmax
-      integer(kind=int_32) ::mof
-      integer(kind=int_32) ::infeas
+      integer(kind=int_wp) ::inhib
+      integer(kind=int_wp) ::irerun
+      integer(kind=int_wp) ::ni
+      integer(kind=int_wp) ::index
+      integer(kind=int_wp) ::irmax
+      integer(kind=int_wp) ::mof
+      integer(kind=int_wp) ::infeas
       real(kind=dp) ::exttot
       real(kind=dp) ::extb
       real(kind=dp) ::extrem

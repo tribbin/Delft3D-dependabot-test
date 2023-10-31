@@ -46,7 +46,7 @@
 !
 !     Declaration of arguments
 !
-      INTEGER(kind=int_32) ::NOCHR , IC , NN
+      INTEGER(kind=int_wp) ::NOCHR , IC , NN
       CHARACTER*(*) STR1  , STR2
 !
 !     Local declaration

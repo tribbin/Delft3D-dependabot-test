@@ -71,8 +71,8 @@
       use m_actions
       use m_sysn          ! System characteristics
       use m_sysi          ! Timer characteristics
-      use m_sysa          ! Pointers in real(kind=sp) ::array workspace
-      use m_sysj          ! Pointers in integer(kind=int_32) ::array workspace
+      use m_sysa          ! Pointers in real(kind=real_wp) ::array workspace
+      use m_sysj          ! Pointers in integer(kind=int_wp) ::array workspace
       use m_sysc          ! Pointers in character array workspace
       use m_dlwqdata_save_restore
 
@@ -83,9 +83,9 @@ C
 C     Declaration of arguments
 C
       type(waq_data_buffer), target :: buffer      !< System total array space
-      INTEGER(kind=int_32), DIMENSION(*)        ::LUN
+      INTEGER(kind=int_wp), DIMENSION(*)        ::LUN
       CHARACTER*(*), DIMENSION(*) :: LCHAR
-      INTEGER(kind=int_32) ::ACTION
+      INTEGER(kind=int_wp) ::ACTION
       TYPE(DELWAQ_DATA), TARGET   :: DLWQD
       type(GridPointerColl)       :: GridPs               ! collection of all grid definitions
 
@@ -94,22 +94,22 @@ C     Local declarations
 C
       LOGICAL         IMFLAG , IDFLAG , IHFLAG
       LOGICAL         LREWIN , LDUMM2
-      REAL(kind=sp) ::RDUMMY(1)
-      INTEGER(kind=int_32) ::NSTEP
-      INTEGER(kind=int_32) ::IBND
-      INTEGER(kind=int_32) ::ISYS
-      INTEGER(kind=int_32) ::IERROR
+      REAL(kind=real_wp) ::RDUMMY(1)
+      INTEGER(kind=int_wp) ::NSTEP
+      INTEGER(kind=int_wp) ::IBND
+      INTEGER(kind=int_wp) ::ISYS
+      INTEGER(kind=int_wp) ::IERROR
 
-      INTEGER(kind=int_32) ::LAREA
-      INTEGER(kind=int_32) ::LDISP
-      INTEGER(kind=int_32) ::LDIFF
-      INTEGER(kind=int_32) ::LFLOW
-      INTEGER(kind=int_32) ::LNOQ
-      INTEGER(kind=int_32) ::LQDMP
-      INTEGER(kind=int_32) ::LVELO
-      INTEGER(kind=int_32) ::LXPNT
-      INTEGER(kind=int_32) ::sindex
-      integer(kind=int_32) ::i
+      INTEGER(kind=int_wp) ::LAREA
+      INTEGER(kind=int_wp) ::LDISP
+      INTEGER(kind=int_wp) ::LDIFF
+      INTEGER(kind=int_wp) ::LFLOW
+      INTEGER(kind=int_wp) ::LNOQ
+      INTEGER(kind=int_wp) ::LQDMP
+      INTEGER(kind=int_wp) ::LVELO
+      INTEGER(kind=int_wp) ::LXPNT
+      INTEGER(kind=int_wp) ::sindex
+      integer(kind=int_wp) ::i
 
       associate ( a => buffer%rbuf, j => buffer%ibuf, c => buffer%chbuf )
 

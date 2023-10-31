@@ -83,16 +83,16 @@
       use timers       !   performance timers
       use m_cnvtim
 
-      INTEGER(kind=int_32) :: IIMAX  , IRMAX, I 
+      INTEGER(kind=int_wp) :: IIMAX  , IRMAX, I
       CHARACTER*(*) LCH(LSTACK) , CHULP
       CHARACTER*1   CCHAR
       DIMENSION     IAR(*) , ILUN( LSTACK )
       LOGICAL       NEWREC , DTFLG1 , DTFLG3, IGNORE
-      integer(kind=int_32) :: ihulp 
-      integer(kind=int_32) ::  ithndl = 0 
-      integer(kind=int_32) ::  ittim, nobrk, itel, itel2, ierr3, itype 
-      integer(kind=int_32) ::  lunut, ilun, iposr, npos, ierr, itfact 
-      integer(kind=int_32) ::  iar, notot, nototc, lstack, iopt 
+      integer(kind=int_wp) :: ihulp
+      integer(kind=int_wp) ::  ithndl = 0
+      integer(kind=int_wp) ::  ittim, nobrk, itel, itel2, ierr3, itype
+      integer(kind=int_wp) ::  lunut, ilun, iposr, npos, ierr, itfact
+      integer(kind=int_wp) ::  iar, notot, nototc, lstack, iopt
       real       :: rar(:), rhulp
       
       if (timon) call timstrt( "dlwq5d", ithndl )

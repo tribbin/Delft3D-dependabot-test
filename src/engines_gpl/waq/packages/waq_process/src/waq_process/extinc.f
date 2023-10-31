@@ -49,8 +49,8 @@
 !
       IMPLICIT NONE
 !
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT(41) , INCREM(41) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT(41) , INCREM(41) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 !
 !     Local declaration
@@ -76,7 +76,7 @@
       REAL(kind=dp) ::POC2    ! R*8 1 I medium decomposing detritus                  [gC/m3]
       REAL(kind=dp) ::POC3    ! R*8 1 I slow decomposing detritus                    [gC/m3]
       REAL(kind=dp) ::POC4    ! R*8 1 I refractory detritus                          [gC/m3]
-      INTEGER(kind=int_32) ::SW_UIT  ! Extinction by UITZICHT on (1) or Off (0)              [-]
+      INTEGER(kind=int_wp) ::SW_UIT  ! Extinction by UITZICHT on (1) or Off (0)              [-]
       REAL(kind=dp) ::DOC     ! R*8 1 I dissolved organic carbon                     [gC/m3]
       REAL(kind=dp) ::ADOC    ! R*8 1 I Specific extinction of DOC                   [m2/gC]
       REAL(kind=dp) ::DIEP1   ! R*8 1 I argument UITZICHT
@@ -99,10 +99,10 @@
 !
       REAL(kind=dp) ::CHLORP, DETRIC, GLOEIR, AH_380
       REAL(kind=dp) ::SECCHI, D_1   , EXTP_D, EXTDET, EXTGL, EXTHUM
-      INTEGER(kind=int_32) ::IFLUX, ISEG
+      INTEGER(kind=int_wp) ::IFLUX, ISEG
 !
-      INTEGER(kind=int_32) ::IPNT(41)
-      INTEGER(kind=int_32) ::NR_MES
+      INTEGER(kind=int_wp) ::IPNT(41)
+      INTEGER(kind=int_wp) ::NR_MES
       SAVE     NR_MES
       DATA     NR_MES / 0 /
 !

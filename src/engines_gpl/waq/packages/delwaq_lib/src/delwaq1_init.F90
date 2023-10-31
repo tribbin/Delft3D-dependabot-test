@@ -44,7 +44,7 @@ contains
 
         implicit none
 
-        integer(kind=int_32), intent(in) ::  argc
+        integer(kind=int_wp), intent(in) ::  argc
         character(len=*), dimension(argc), intent(in) :: argv
 
         !     Special system init

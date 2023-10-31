@@ -47,26 +47,26 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     NOGRID  INTEGER(kind=int_32) ::1     INPUT   Number of grids
-!     NOTOTG  INTEGER(kind=int_32) ::1     INPUT   Number of substances for this grid
-!     GRDREF  INTEGER(kind=int_32) ::NOGRID   INPUT   Reference grid number
-!     PROSYS  INTEGER(kind=int_32) ::NOTOTG   INPUT   Substance numbers for this process
-!     GRPATH  INTEGER(kind=int_32) ::NOGRID   LOCAL   Reference path to base grid
-!     IPGRID  INTEGER(kind=int_32) ::1     OUTPUT  Grid number set for this process
+!     NOGRID  INTEGER(kind=int_wp) ::1     INPUT   Number of grids
+!     NOTOTG  INTEGER(kind=int_wp) ::1     INPUT   Number of substances for this grid
+!     GRDREF  INTEGER(kind=int_wp) ::NOGRID   INPUT   Reference grid number
+!     PROSYS  INTEGER(kind=int_wp) ::NOTOTG   INPUT   Substance numbers for this process
+!     GRPATH  INTEGER(kind=int_wp) ::NOGRID   LOCAL   Reference path to base grid
+!     IPGRID  INTEGER(kind=int_wp) ::1     OUTPUT  Grid number set for this process
 !
 !     Declaration of arguments
 !
       use timers       !   performance timers
 
-      INTEGER(kind=int_32) ::NOGRID, NOTOTG, IPGRID
-      INTEGER(kind=int_32) ::GRDREF(NOGRID), PROSYS(NOTOTG),
+      INTEGER(kind=int_wp) ::NOGRID, NOTOTG, IPGRID
+      INTEGER(kind=int_wp) ::GRDREF(NOGRID), PROSYS(NOTOTG),
      +                    GRPATH(NOGRID)
 !
 !     Local declarations
 !
-      INTEGER(kind=int_32) ::NPATH , IPATH , IGRID , IGSYS , NCHECK
+      INTEGER(kind=int_wp) ::NPATH , IPATH , IGRID , IGSYS , NCHECK
       
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::ithndl = 0
       if (timon) call timstrt( "setgr2", ithndl )
 !
 !     Check number of substances for this grid

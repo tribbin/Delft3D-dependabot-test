@@ -46,8 +46,8 @@ cf   *                  elmdes    ,elmtps    ,nbytsg    ,elmnam    ,
 cf   *                  celidt    ,wrilog    ,error     ,buffr     )
 !-----------------------------------------------------------------------
 !
-      integer(kind=int_32) ::elmdms( 6, *),nbytsg(    *)
-      integer(kind=int_32) ::celidt,nelems,error,nfid
+      integer(kind=int_wp) ::elmdms( 6, *),nbytsg(    *)
+      integer(kind=int_wp) ::celidt,nelems,error,nfid
 !
       character*(*)   buffr(*)
       character*(*)   elmnms(nelems),elmtps(nelems)
@@ -58,16 +58,16 @@ cf   *                elmqty(    *),elmunt(    *),elmdes(     *)
 !
 !-local declarations
 !
-      integer(kind=int_32) ::start ,stopp ,incr
+      integer(kind=int_wp) ::start ,stopp ,incr
       parameter      (start =     1,stopp =    2,incr   =    3)
 !
-      integer(kind=int_32) ::buflen,elmndm
-      integer(kind=int_32) ::i     ,j     ,n
-      integer(kind=int_32) ::ierror
-      integer(kind=int_32) ::lelmnr,ind
+      integer(kind=int_wp) ::buflen,elmndm
+      integer(kind=int_wp) ::i     ,j     ,n
+      integer(kind=int_wp) ::ierror
+      integer(kind=int_wp) ::lelmnr,ind
 !
-      integer(kind=int_32) ::fd_nef
-      integer(kind=int_32) ::elmdim(    5),uindex(    3)
+      integer(kind=int_wp) ::fd_nef
+      integer(kind=int_wp) ::elmdim(    5),uindex(    3)
 !
       character*2     access
       character*1     coding
@@ -79,7 +79,7 @@ cf   *                elmqty(    *),elmunt(    *),elmdes(     *)
 !
 !-External Functions
 !
-      integer(kind=int_32) ::clsnef, credat, crenef, defcel, defelm,
+      integer(kind=int_wp) ::clsnef, credat, crenef, defcel, defelm,
      *                defgrp, getels, inqelm, neferr, putels
       external        clsnef, credat, crenef, defcel, defelm,
      *                defgrp, getels, inqelm, neferr, putels

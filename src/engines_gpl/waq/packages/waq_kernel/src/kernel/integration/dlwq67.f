@@ -45,16 +45,16 @@
 !
 !     NAME    KIND       LENGTH       FUNCT.  DESCRIPTION
 !     ----    -----      ------       ------- -----------
-!     AMAT    REAL(kind=sp) ::(JTRACK*2+1)*NOSEG IN/OUT  matrix to invert
-!     NOSEG   INTEGER(kind=int_32) ::1         INPUT   number of segments
-!     JTRACK  INTEGER(kind=int_32) ::1         INPUT   number of codiagonals
+!     AMAT    REAL(kind=real_wp) ::(JTRACK*2+1)*NOSEG IN/OUT  matrix to invert
+!     NOSEG   INTEGER(kind=int_wp) ::1         INPUT   number of segments
+!     JTRACK  INTEGER(kind=int_wp) ::1         INPUT   number of codiagonals
 !
       use timers
 
-      real(kind=sp) ::AMAT(*)
-      integer(kind=int_32) ::noseg, jtrack
-      integer(kind=int_32) ::ISEG, ISTEP, ISET
-      integer(kind=int_32) ::ithandl = 0
+      real(kind=real_wp) ::AMAT(*)
+      integer(kind=int_wp) ::noseg, jtrack
+      integer(kind=int_wp) ::ISEG, ISTEP, ISET
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwq67", ithandl )
 !
 !         set the diagonal

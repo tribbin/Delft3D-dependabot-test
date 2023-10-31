@@ -92,18 +92,18 @@
 !
       IMPLICIT NONE
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10,
+      INTEGER(kind=int_wp) ::IP1, IP2, IP3, IP4, IP5, IP6, IP7, IP8, IP9, IP10,
      +         IP11, IP12, IP13, IP14, IP15, IP16
-      INTEGER(kind=int_32) ::IFLUX, ISEG, IKMRK2
-      REAL(kind=sp) ::ZERMIN, ORG, FDIS, MINRC, MINTC
-      INTEGER(kind=int_32) ::IVERSN, ISWOXY, ISWDEG
-      REAL(kind=sp) ::ZDEGMP, ORGMP, FDFREE, FDDOC, KDEGO, KDEGR, KTDEG,
+      INTEGER(kind=int_wp) ::IFLUX, ISEG, IKMRK2
+      REAL(kind=real_wp) ::ZERMIN, ORG, FDIS, MINRC, MINTC
+      INTEGER(kind=int_wp) ::IVERSN, ISWOXY, ISWDEG
+      REAL(kind=real_wp) ::ZDEGMP, ORGMP, FDFREE, FDDOC, KDEGO, KDEGR, KTDEG,
      +         KDEG, FTOTR
-      REAL(kind=sp) ::TEMP, CRTEMP, TEMPC, TEMP20, VOLUME, DEPTH
+      REAL(kind=real_wp) ::TEMP, CRTEMP, TEMPC, TEMP20, VOLUME, DEPTH
       LOGICAL  SEDIME
 !
       IP1  = IPOINT( 1 )

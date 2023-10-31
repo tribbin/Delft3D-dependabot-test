@@ -57,12 +57,12 @@
 
       IMPLICIT NONE
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
 
-      INTEGER(kind=int_32) ::IP1, IP2, IP3, IP4, IFLUX, ISEG
-      REAL(kind=sp) ::CONCWA, CONCTR, DECAYR, ARGUM, AGE, FDECAY
+      INTEGER(kind=int_wp) ::IP1, IP2, IP3, IP4, IFLUX, ISEG
+      REAL(kind=real_wp) ::CONCWA, CONCTR, DECAYR, ARGUM, AGE, FDECAY
 
       IP1  = IPOINT( 1)
       IP2  = IPOINT( 2)

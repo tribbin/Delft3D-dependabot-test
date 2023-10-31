@@ -40,29 +40,29 @@ contains
 
       ! declaration of arguments
 
-      integer(kind=int_32), intent(in) ::  nveln                            ! number of new velocities
-      integer(kind=int_32), intent(in) ::  nvelx                            ! number of velocities from processes
-      integer(kind=int_32), intent(in) ::  nosys                            ! number of active substances
-      integer(kind=int_32), intent(in) ::  noq                              ! number of exchanges
-      real(kind=sp), intent(inout) ::  velonw(nveln,noq)                ! new velocity array
-      integer(kind=int_32), intent(in) ::  ivpnew(nosys)                    ! pointer to new velo array (actually only input)
-      real(kind=sp), intent(in) ::  velx(nvelx,noq)                  ! velocities from processes
-      real(kind=sp), intent(in) ::  vsto(nosys,nvelx)                ! factor for velocities
+      integer(kind=int_wp), intent(in) ::  nveln                            ! number of new velocities
+      integer(kind=int_wp), intent(in) ::  nvelx                            ! number of velocities from processes
+      integer(kind=int_wp), intent(in) ::  nosys                            ! number of active substances
+      integer(kind=int_wp), intent(in) ::  noq                              ! number of exchanges
+      real(kind=real_wp), intent(inout) ::  velonw(nveln,noq)                ! new velocity array
+      integer(kind=int_wp), intent(in) ::  ivpnew(nosys)                    ! pointer to new velo array (actually only input)
+      real(kind=real_wp), intent(in) ::  velx(nvelx,noq)                  ! velocities from processes
+      real(kind=real_wp), intent(in) ::  vsto(nosys,nvelx)                ! factor for velocities
 
       ! local declarations
 
-      integer(kind=int_32) ::  isys                             ! index substances
-      integer(kind=int_32) ::  isys2                            ! index substances
-      integer(kind=int_32) ::  ivnw                             ! index new velocities
-      integer(kind=int_32) ::  ivx                              ! index velocities from process
-      integer(kind=int_32) ::  ivp                              ! index velocities from input
-      integer(kind=int_32) ::  iq                               ! index exchange
-      integer(kind=int_32) ::  ivpnew_loc(nosys)                ! local copy of ivpnew
+      integer(kind=int_wp) ::  isys                             ! index substances
+      integer(kind=int_wp) ::  isys2                            ! index substances
+      integer(kind=int_wp) ::  ivnw                             ! index new velocities
+      integer(kind=int_wp) ::  ivx                              ! index velocities from process
+      integer(kind=int_wp) ::  ivp                              ! index velocities from input
+      integer(kind=int_wp) ::  iq                               ! index exchange
+      integer(kind=int_wp) ::  ivpnew_loc(nosys)                ! local copy of ivpnew
       logical                   :: lfirst                          ! first velocity in combination of velocities
       logical                   :: update                          ! update of the combined velocity needed
-      real(kind=sp) ::  factor                           ! factor for susbtance velocity combination
+      real(kind=real_wp) ::  factor                           ! factor for susbtance velocity combination
 
-      integer(kind=int_32), save ::  ithndl = 0 
+      integer(kind=int_wp), save ::  ithndl = 0
       if (timon) call timstrt( "wq_processes_velocities", ithndl )
 
       ! local copy of ivpnew

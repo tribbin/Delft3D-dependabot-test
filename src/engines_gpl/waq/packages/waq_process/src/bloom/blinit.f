@@ -40,7 +40,7 @@
       implicit none
 
 !     Local variables
-      integer(kind=int_32) ::i, j                ! indexes
+      integer(kind=int_wp) ::i, j                ! indexes
 
 !     Convert BLOOM II specific units to DLWQWQ specific units
 !

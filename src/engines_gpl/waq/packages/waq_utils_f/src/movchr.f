@@ -52,7 +52,7 @@
 !
 !
       CHARACTER*(*) CAR(*)
-      integer(kind=int_32) ::NSTRT , NOTOT , I
+      integer(kind=int_wp) ::NSTRT , NOTOT , I
 !
       DO 10 I=NOTOT,NSTRT,-1
          CAR(I+1) = CAR(I)

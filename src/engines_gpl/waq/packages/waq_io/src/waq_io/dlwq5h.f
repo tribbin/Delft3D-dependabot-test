@@ -72,12 +72,12 @@
       character*(*) cnames(*)
       dimension     iar(*)
       character*20  chulp,  message_type
-      integer(kind=int_32) ::  ithndl = 0 
-      integer(kind=int_32) ::  i1, i3, i4, i5 
-      integer(kind=int_32) ::  lunut, i, icnt, ioffc, iorder, ntt, idmnr, nitm, nodim 
-      integer(kind=int_32) ::  itmnr, noitm, i2, iar, ioffd, ishft, ioffi, iods
+      integer(kind=int_wp) ::  ithndl = 0
+      integer(kind=int_wp) ::  i1, i3, i4, i5
+      integer(kind=int_wp) ::  lunut, i, icnt, ioffc, iorder, ntt, idmnr, nitm, nodim
+      integer(kind=int_wp) ::  itmnr, noitm, i2, iar, ioffd, ishft, ioffi, iods
        
-      integer(kind=int_32) ::  ierr, iwar
+      integer(kind=int_wp) ::  ierr, iwar
       
        
       ierr = -1

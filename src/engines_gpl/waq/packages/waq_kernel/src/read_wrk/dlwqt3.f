@@ -49,21 +49,21 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     ITIME   INTEGER(kind=int_32) ::1     INPUT   Model timer
-!     IPERIO  INTEGER(kind=int_32) ::NRHARM    IN/OUT  harmonic periods
-!     APHASE  REAL(kind=sp) ::NRHARM    IN/OUT  harmonic phases
-!     AVALUE  REAL(kind=sp) ::NOSUB*NRHARM IN/OUT  amplitudes for NOSUB values
-!     NRHARM  INTEGER(kind=int_32) ::1     INPUT   number of harmonic records
-!     NOSUB   INTEGER(kind=int_32) ::1     INPUT   number of values in an item
-!     NOSPAC  INTEGER(kind=int_32) ::1     OUTPUT  space occupied by harmonics
-!     IPOINT  INTEGER(kind=int_32) ::?     INPUT   pointer to output array
-!     NPOINT  INTEGER(kind=int_32) ::1     OUTPUT  last pointer in IPOINT
-!     RESULT  REAL(kind=sp) ::NOSUB*?    OUTPUT  function values at ITIME
+!     ITIME   INTEGER(kind=int_wp) ::1     INPUT   Model timer
+!     IPERIO  INTEGER(kind=int_wp) ::NRHARM    IN/OUT  harmonic periods
+!     APHASE  REAL(kind=real_wp) ::NRHARM    IN/OUT  harmonic phases
+!     AVALUE  REAL(kind=real_wp) ::NOSUB*NRHARM IN/OUT  amplitudes for NOSUB values
+!     NRHARM  INTEGER(kind=int_wp) ::1     INPUT   number of harmonic records
+!     NOSUB   INTEGER(kind=int_wp) ::1     INPUT   number of values in an item
+!     NOSPAC  INTEGER(kind=int_wp) ::1     OUTPUT  space occupied by harmonics
+!     IPOINT  INTEGER(kind=int_wp) ::?     INPUT   pointer to output array
+!     NPOINT  INTEGER(kind=int_wp) ::1     OUTPUT  last pointer in IPOINT
+!     RESULT  REAL(kind=real_wp) ::NOSUB*?    OUTPUT  function values at ITIME
 !     LUNTXT  CHAR*(*)      1     INPUT   text with unitnumber
-!     LUNIN   INTEGER(kind=int_32) ::1     INPUT   unit number intermediate file
-!     LUNOUT  INTEGER(kind=int_32) ::1     INPUT   unit number monitor file
-!     ISFLAG  INTEGER(kind=int_32) ::1     INPUT   = 1, 'DDHHMMSS' format
-!     IFFLAG  INTEGER(kind=int_32) ::1     INPUT   = 1, first invocation
+!     LUNIN   INTEGER(kind=int_wp) ::1     INPUT   unit number intermediate file
+!     LUNOUT  INTEGER(kind=int_wp) ::1     INPUT   unit number monitor file
+!     ISFLAG  INTEGER(kind=int_wp) ::1     INPUT   = 1, 'DDHHMMSS' format
+!     IFFLAG  INTEGER(kind=int_wp) ::1     INPUT   = 1, first invocation
 !     UPDATE  LOGICAL       1     OUTPUT  set to T if function is updated
 !                                         else set to F
 !
@@ -85,21 +85,21 @@
       use m_srstop
       use timers
 
-      real(kind=sp), PARAMETER  ::TWOPI = 6.28319
-      integer(kind=int_32) ::IPERIO(*) , IPOINT(*)
-      real(kind=sp) ::APHASE(*) , AVALUE(*) , RESULT(NOSUB,*)
-      integer(kind=int_32) ::ITIME  , NRHARM , NOSUB  , NOSPAC , NPOINT ,
+      real(kind=real_wp), PARAMETER  ::TWOPI = 6.28319
+      integer(kind=int_wp) ::IPERIO(*) , IPOINT(*)
+      real(kind=real_wp) ::APHASE(*) , AVALUE(*) , RESULT(NOSUB,*)
+      integer(kind=int_wp) ::ITIME  , NRHARM , NOSUB  , NOSPAC , NPOINT ,
      *              LUNIN  , LUNOUT , ISFLAG , IFFLAG
 
       CHARACTER*(*) LUNTXT
       LOGICAL       UPDATE
 
 
-      integer(kind=int_32) ::k, notot
-      integer(kind=int_32) ::irec, itel, ib, ih, ihstop, istart, i1, i2, iv
-      real(kind=sp) ::func
+      integer(kind=int_wp) ::k, notot
+      integer(kind=int_wp) ::irec, itel, ib, ih, ihstop, istart, i1, i2, iv
+      real(kind=real_wp) ::func
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dlwqt3", ithandl )
 !
 !         are there harmonics? is this the initialisation phase?

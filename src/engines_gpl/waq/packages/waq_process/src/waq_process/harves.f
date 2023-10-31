@@ -42,47 +42,47 @@
 
       ! arguments
 
-      real(kind=sp) ::pmsa(*)     !i/o process manager system array, window of routine to process library
-      real(kind=sp) ::fl(*)       ! o  array of fluxes made by this process in mass/volume/time
-      integer(kind=int_32) ::ipoint( 10) ! i  array of pointers in pmsa to get and store the data
-      integer(kind=int_32) ::increm( 10) ! i  increments in ipoint for segment loop, 0=constant, 1=spatially varying
-      integer(kind=int_32) ::noseg       ! i  number of computational elements in the whole model schematisation
-      integer(kind=int_32) ::noflux      ! i  number of fluxes, increment in the fl array
-      integer(kind=int_32) ::iexpnt(4,*) ! i  from, to, from-1 and to+1 segment numbers of the exchange surfaces
-      integer(kind=int_32) ::iknmrk(*)   ! i  active-inactive, surface-water-bottom, see manual for use
-      integer(kind=int_32) ::noq1        ! i  nr of exchanges in 1st direction, only horizontal dir if irregular mesh
-      integer(kind=int_32) ::noq2        ! i  nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
-      integer(kind=int_32) ::noq3        ! i  nr of exchanges in 3rd direction, vertical direction, pos. downward
-      integer(kind=int_32) ::noq4        ! i  nr of exchanges in the bottom (bottom layers, specialist use only)
+      real(kind=real_wp) ::pmsa(*)     !i/o process manager system array, window of routine to process library
+      real(kind=real_wp) ::fl(*)       ! o  array of fluxes made by this process in mass/volume/time
+      integer(kind=int_wp) ::ipoint( 10) ! i  array of pointers in pmsa to get and store the data
+      integer(kind=int_wp) ::increm( 10) ! i  increments in ipoint for segment loop, 0=constant, 1=spatially varying
+      integer(kind=int_wp) ::noseg       ! i  number of computational elements in the whole model schematisation
+      integer(kind=int_wp) ::noflux      ! i  number of fluxes, increment in the fl array
+      integer(kind=int_wp) ::iexpnt(4,*) ! i  from, to, from-1 and to+1 segment numbers of the exchange surfaces
+      integer(kind=int_wp) ::iknmrk(*)   ! i  active-inactive, surface-water-bottom, see manual for use
+      integer(kind=int_wp) ::noq1        ! i  nr of exchanges in 1st direction, only horizontal dir if irregular mesh
+      integer(kind=int_wp) ::noq2        ! i  nr of exchanges in 2nd direction, noq1+noq2 gives hor. dir. reg. grid
+      integer(kind=int_wp) ::noq3        ! i  nr of exchanges in 3rd direction, vertical direction, pos. downward
+      integer(kind=int_wp) ::noq4        ! i  nr of exchanges in the bottom (bottom layers, specialist use only)
 
       ! variables from pmsa array
 
-      real(kind=sp) ::cgrazer     ! i  calculated concentration of grazer                 (gC/m3)
-      real(kind=sp) ::zharvegr    ! i  harvest flux of grazer                             (gC/m2/d)
-      real(kind=sp) ::pharvegr    ! i  fraction harvest of grazer  per timestep           (-)
-      real(kind=sp) ::tgrazer     ! i  threshold concentration of grazer                  (gC/m3)
-      integer(kind=int_32) ::grunitsw    ! i  use gC/m3 (0) or gC/m2 (1) for grazer              (-)
-      real(kind=sp) ::delt        ! i  timestep for processes                             (d)
-      real(kind=sp) ::volume      ! i  volume of computational cell                       (m3)
-      real(kind=sp) ::depth       ! i  depth of segment                                   (m)
-      real(kind=sp) ::aharvegr    ! o  actual harvest flux grazer                         (gC/m2/d)
-      real(kind=sp) ::bharvegr    ! o  cumulated harvest flux grazer                      (gC)
+      real(kind=real_wp) ::cgrazer     ! i  calculated concentration of grazer                 (gC/m3)
+      real(kind=real_wp) ::zharvegr    ! i  harvest flux of grazer                             (gC/m2/d)
+      real(kind=real_wp) ::pharvegr    ! i  fraction harvest of grazer  per timestep           (-)
+      real(kind=real_wp) ::tgrazer     ! i  threshold concentration of grazer                  (gC/m3)
+      integer(kind=int_wp) ::grunitsw    ! i  use gC/m3 (0) or gC/m2 (1) for grazer              (-)
+      real(kind=real_wp) ::delt        ! i  timestep for processes                             (d)
+      real(kind=real_wp) ::volume      ! i  volume of computational cell                       (m3)
+      real(kind=real_wp) ::depth       ! i  depth of segment                                   (m)
+      real(kind=real_wp) ::aharvegr    ! o  actual harvest flux grazer                         (gC/m2/d)
+      real(kind=real_wp) ::bharvegr    ! o  cumulated harvest flux grazer                      (gC)
 
       ! local variables
 
-      integer(kind=int_32), parameter  ::max_message = 1000 ! maximum messages on insufficient biomass attention this is for all instnces of this process
-      integer(kind=int_32), save       ::nr_message  = 0    ! actual number of messages on insufficient biomass attention this is for all instnces of this process
-      integer(kind=int_32) ::lunrep             ! unit number report file
-      integer(kind=int_32) ::nosegw             ! number of segment in the water
-      integer(kind=int_32) ::nolay              ! number of layers
-      integer(kind=int_32) ::nosegl             ! number of segment per layer
-      integer(kind=int_32) ::ikol               ! column number = segment number top layer
-      integer(kind=int_32) ::ilay               ! layer number
-      integer(kind=int_32) ::iseg               ! segment number
-      real(kind=sp) ::tot_cgrazer        ! total grazer over the column     (gC/m2)
-      real(kind=sp) ::tot_depth          ! column depth                     (m)
-      real(kind=sp) ::harvest            ! harvest                          (gC/m2)
-      real(kind=sp) ::fharvest           ! fraction harvest of total        (-)
+      integer(kind=int_wp), parameter  ::max_message = 1000 ! maximum messages on insufficient biomass attention this is for all instnces of this process
+      integer(kind=int_wp), save       ::nr_message  = 0    ! actual number of messages on insufficient biomass attention this is for all instnces of this process
+      integer(kind=int_wp) ::lunrep             ! unit number report file
+      integer(kind=int_wp) ::nosegw             ! number of segment in the water
+      integer(kind=int_wp) ::nolay              ! number of layers
+      integer(kind=int_wp) ::nosegl             ! number of segment per layer
+      integer(kind=int_wp) ::ikol               ! column number = segment number top layer
+      integer(kind=int_wp) ::ilay               ! layer number
+      integer(kind=int_wp) ::iseg               ! segment number
+      real(kind=real_wp) ::tot_cgrazer        ! total grazer over the column     (gC/m2)
+      real(kind=real_wp) ::tot_depth          ! column depth                     (m)
+      real(kind=real_wp) ::harvest            ! harvest                          (gC/m2)
+      real(kind=real_wp) ::fharvest           ! fraction harvest of total        (-)
 
       ! initialisation
 

@@ -64,47 +64,47 @@
 !     Kind                  Function         Name                  Description
 
       type(ProcesPropColl), intent(inout) :: procesdef       ! all processes
-      integer(kind=int_32)             , intent(in   ) ::notot           ! number of substances
+      integer(kind=int_wp)             , intent(in   ) ::notot           ! number of substances
       character(20)       , intent(in   ) :: syname(notot)   ! substance names
-      integer(kind=int_32)             , intent(in   ) ::nocons          ! number of constants
+      integer(kind=int_wp)             , intent(in   ) ::nocons          ! number of constants
       type(t_dlwq_item)   , intent(inout) :: constants       !< delwaq constants list
-      integer(kind=int_32)             , intent(in   ) ::nopa            ! number of parameters
+      integer(kind=int_wp)             , intent(in   ) ::nopa            ! number of parameters
       character(20)       , intent(in   ) :: paname(nopa)    ! parameter names
-      integer(kind=int_32)             , intent(in   ) ::nofun           ! number of functions
+      integer(kind=int_wp)             , intent(in   ) ::nofun           ! number of functions
       character(20)       , intent(in   ) :: funame(nofun)   ! function names
-      integer(kind=int_32)             , intent(in   ) ::nosfun          ! number of segment functions
+      integer(kind=int_wp)             , intent(in   ) ::nosfun          ! number of segment functions
       character(20)       , intent(in   ) :: sfname(nosfun)  ! segment function names
-      integer(kind=int_32),  pointer    , intent(  out) :: proref(:,:)     ! input items to be resolved for each process
-      integer(kind=int_32)             , intent(  out) ::nrref           ! maximum nr of references to be resolved
-      integer(kind=int_32)             , intent(inout) ::nowarn          ! number of warnings
-      integer(kind=int_32)             , intent(inout) ::nothread        ! number of threads to be used
-      integer(kind=int_32)             , intent(in   ) ::nopred          ! number of predefined items
-      integer(kind=int_32)             , intent(in   ) ::noloc           ! number of items in local array
-      integer(kind=int_32)             , intent(in   ) ::nodef           ! number of items in default array
+      integer(kind=int_wp),  pointer    , intent(  out) :: proref(:,:)     ! input items to be resolved for each process
+      integer(kind=int_wp)             , intent(  out) ::nrref           ! maximum nr of references to be resolved
+      integer(kind=int_wp)             , intent(inout) ::nowarn          ! number of warnings
+      integer(kind=int_wp)             , intent(inout) ::nothread        ! number of threads to be used
+      integer(kind=int_wp)             , intent(in   ) ::nopred          ! number of predefined items
+      integer(kind=int_wp)             , intent(in   ) ::noloc           ! number of items in local array
+      integer(kind=int_wp)             , intent(in   ) ::nodef           ! number of items in default array
 
 !     Local declarations
 
-      integer(kind=int_32)                                 ::noproc          ! nr of processes ( = ProcesDef%cursize )
-      integer(kind=int_32)                                 ::iproc1, iproc2  ! process loop counters
+      integer(kind=int_wp)                                 ::noproc          ! nr of processes ( = ProcesDef%cursize )
+      integer(kind=int_wp)                                 ::iproc1, iproc2  ! process loop counters
       type(ProcesProp)    , pointer       :: proc1           ! the process with sequence nr iproc1
       type(ProcesProp)    , pointer       :: proc2           ! the process with sequence nr iproc2
-      integer(kind=int_32)                                 ::iout            ! loop counter for process outputs
-      integer(kind=int_32)                                 ::iin             ! loop counter for process inputs
-      integer(kind=int_32)                                 ::nitem           ! number of needed items
-      integer(kind=int_32)                                 ::ioff            ! offset to flux array
-      integer(kind=int_32)                                 ::nfl             ! number of fluxes till this process
+      integer(kind=int_wp)                                 ::iout            ! loop counter for process outputs
+      integer(kind=int_wp)                                 ::iin             ! loop counter for process inputs
+      integer(kind=int_wp)                                 ::nitem           ! number of needed items
+      integer(kind=int_wp)                                 ::ioff            ! offset to flux array
+      integer(kind=int_wp)                                 ::nfl             ! number of fluxes till this process
       character(100)                         line            ! output buffer
-      integer(kind=int_32)                                 ::iprocs          ! counter of the saved ordered processes
-      integer(kind=int_32)                                 ::nproc           ! incremental start value or process ordering
-      integer(kind=int_32)                                 ::naproc          ! nr of active processes
-      integer(kind=int_32)                                 ::ifound          ! result of search routine >0 if found
-      integer(kind=int_32)                                 ::k               ! help variable
-      integer(kind=int_32)             , allocatable ::profreq(:)      ! nr of used forward references per process
-      integer(kind=int_32)             , allocatable ::prorder(:)      ! final order of execution of processes
-      integer(kind=int_32)             , allocatable ::needed (:)      ! nr of needer backward references pewr process
-      integer(kind=int_32)             , allocatable ::work   (:)      ! work array to sort the processes
+      integer(kind=int_wp)                                 ::iprocs          ! counter of the saved ordered processes
+      integer(kind=int_wp)                                 ::nproc           ! incremental start value or process ordering
+      integer(kind=int_wp)                                 ::naproc          ! nr of active processes
+      integer(kind=int_wp)                                 ::ifound          ! result of search routine >0 if found
+      integer(kind=int_wp)                                 ::k               ! help variable
+      integer(kind=int_wp)             , allocatable ::profreq(:)      ! nr of used forward references per process
+      integer(kind=int_wp)             , allocatable ::prorder(:)      ! final order of execution of processes
+      integer(kind=int_wp)             , allocatable ::needed (:)      ! nr of needer backward references pewr process
+      integer(kind=int_wp)             , allocatable ::work   (:)      ! work array to sort the processes
       type(ProcesProp)    , allocatable   :: cProces(:)      ! work array to rearrange the processes
-      integer(kind=int_32)  ::ithndl = 0
+      integer(kind=int_wp)  ::ithndl = 0
       if (timon) call timstrt( "partab", ithndl )
 
 !         initial allocations
@@ -370,20 +370,20 @@
       character(20)       , intent(in   ) :: valnam
       character(20)       , intent(in   ) :: input
 
-      integer(kind=int_32)             , intent(in   ) ::notot           ! number of substances
+      integer(kind=int_wp)             , intent(in   ) ::notot           ! number of substances
       character(20)       , intent(in   ) :: syname(notot)   ! substance names
-      integer(kind=int_32)             , intent(in   ) ::nocons          ! number of constants
+      integer(kind=int_wp)             , intent(in   ) ::nocons          ! number of constants
       type(t_dlwq_item)   , intent(inout) :: constants       ! delwaq constants list
-      integer(kind=int_32)             , intent(in   ) ::nopa            ! number of parameters
+      integer(kind=int_wp)             , intent(in   ) ::nopa            ! number of parameters
       character(20)       , intent(in   ) :: paname(nopa)    ! parameter names
-      integer(kind=int_32)             , intent(in   ) ::nofun           ! number of functions
+      integer(kind=int_wp)             , intent(in   ) ::nofun           ! number of functions
       character(20)       , intent(in   ) :: funame(nofun)   ! function names
-      integer(kind=int_32)             , intent(in   ) ::nosfun          ! number of segment functions
+      integer(kind=int_wp)             , intent(in   ) ::nosfun          ! number of segment functions
       character(20)       , intent(in   ) :: sfname(nosfun)  ! segment function names
 !
-      integer(kind=int_32)                                 ::status          ! value to be returned by function
-      integer(kind=int_32)                                 ::ifound          ! result of search routine >0 if found
-      integer(kind=int_32)                                 ::ivalip          ! >0 if valnam was a valid item in user input
+      integer(kind=int_wp)                                 ::status          ! value to be returned by function
+      integer(kind=int_wp)                                 ::ifound          ! result of search routine >0 if found
+      integer(kind=int_wp)                                 ::ivalip          ! >0 if valnam was a valid item in user input
       character(20)                          locnam          ! local copy of valnam
       character(100)                         line            ! output buffer
 !

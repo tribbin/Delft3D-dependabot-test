@@ -47,12 +47,12 @@
 
       implicit none
 
-      real(kind=sp) ::pmsa  ( * ) , fl    (*)
-      integer(kind=int_32) ::ipoint( 2 ) , increm(2) , noseg , noflux,
+      real(kind=real_wp) ::pmsa  ( * ) , fl    (*)
+      integer(kind=int_wp) ::ipoint( 2 ) , increm(2) , noseg , noflux,
      +         iexpnt(4,*) , iknmrk(*) , noq1, noq2, noq3, noq4
 
-      integer(kind=int_32) ::ipnt(2), iflux, iseg
-      real(kind=sp) ::conctr, decayr, fdecay
+      integer(kind=int_wp) ::ipnt(2), iflux, iseg
+      real(kind=real_wp) ::conctr, decayr, fdecay
 
       ipnt = ipoint
       iflux = 0

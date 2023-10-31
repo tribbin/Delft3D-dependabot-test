@@ -57,30 +57,30 @@
 
 !     kind           function         name             Descriptipon
 
-      integer(kind=int_32), intent(in   ) ::  lun   (*)          !< array with unit numbers
-      integer(kind=int_32), intent(in   ) ::  noseg              !< number of volumes
-      integer(kind=int_32), intent(in   ) ::  noq                !< number of exchanges from input
-      integer(kind=int_32), intent(in   ) ::  noqt               !< total number of exchanges
-      integer(kind=int_32), intent(in   ) ::  intsrt             !< integration option
-      integer(kind=int_32), intent(in   ) ::  ioutpt             !< flag for more or less output
+      integer(kind=int_wp), intent(in   ) ::  lun   (*)          !< array with unit numbers
+      integer(kind=int_wp), intent(in   ) ::  noseg              !< number of volumes
+      integer(kind=int_wp), intent(in   ) ::  noq                !< number of exchanges from input
+      integer(kind=int_wp), intent(in   ) ::  noqt               !< total number of exchanges
+      integer(kind=int_wp), intent(in   ) ::  intsrt             !< integration option
+      integer(kind=int_wp), intent(in   ) ::  ioutpt             !< flag for more or less output
       type(GridPointerColl)        GridPs            !< Structure with grid info
-      integer(kind=int_32), intent(  out) ::  nobnd              !< number of open boundaries
-      integer(kind=int_32), intent(  out) ::  jtrack             !< number of codiagonals
-      integer(kind=int_32), intent(inout) ::  ipoint(4,noqt)     !< exchange pointers
-      integer(kind=int_32), intent(inout) ::  ierr               !< cumulative error   count
-      integer(kind=int_32), intent(inout) ::  iwar               !< cumulative warning count
+      integer(kind=int_wp), intent(  out) ::  nobnd              !< number of open boundaries
+      integer(kind=int_wp), intent(  out) ::  jtrack             !< number of codiagonals
+      integer(kind=int_wp), intent(inout) ::  ipoint(4,noqt)     !< exchange pointers
+      integer(kind=int_wp), intent(inout) ::  ierr               !< cumulative error   count
+      integer(kind=int_wp), intent(inout) ::  iwar               !< cumulative warning count
 
 !     local declarations
 
-      integer(kind=int_32), allocatable ::  ibnd(:,:)      !  boundary pointer structure
-      integer(kind=int_32) :: ierr2      ! local error count
-      integer(kind=int_32) :: iwar2      ! local warning count
-      integer(kind=int_32) :: iwar2_old  ! local warning count help variable
-      integer(kind=int_32) :: iq         ! loop counter exchanges
-      integer(kind=int_32) :: ip1, ip2   ! from and to pointers
-      integer(kind=int_32) :: i          ! loop counter
-      integer(kind=int_32) :: lunut      ! output report file
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp), allocatable ::  ibnd(:,:)      !  boundary pointer structure
+      integer(kind=int_wp) :: ierr2      ! local error count
+      integer(kind=int_wp) :: iwar2      ! local warning count
+      integer(kind=int_wp) :: iwar2_old  ! local warning count help variable
+      integer(kind=int_wp) :: iq         ! loop counter exchanges
+      integer(kind=int_wp) :: ip1, ip2   ! from and to pointers
+      integer(kind=int_wp) :: i          ! loop counter
+      integer(kind=int_wp) :: lunut      ! output report file
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "bound", ithndl )
 
       ierr2 = 0

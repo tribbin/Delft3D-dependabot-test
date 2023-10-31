@@ -53,30 +53,30 @@
 
 !     Kind        Function         Name                  Description
 
-      integer(kind=int_32), intent(in   )  ::ntrace               ! dimension of matrix (length of diagonal)
-      integer(kind=int_32), intent(in   )  ::nolay                ! number of layers in the vertical
-      integer(kind=int_32), intent(in   )  ::nsegl                ! number of volumes per layer
-      integer(kind=int_32), intent(in   )  ::nomat                ! number of off-diagonal entries matrix
+      integer(kind=int_wp), intent(in   )  ::ntrace               ! dimension of matrix (length of diagonal)
+      integer(kind=int_wp), intent(in   )  ::nolay                ! number of layers in the vertical
+      integer(kind=int_wp), intent(in   )  ::nsegl                ! number of volumes per layer
+      integer(kind=int_wp), intent(in   )  ::nomat                ! number of off-diagonal entries matrix
       real(kind=dp), intent(in   )  ::amat  (  nomat )     ! off-diagonal entries matrix
-      integer(kind=int_32), intent(in   )  ::imat  (  nomat )     ! collumn nrs of off-diagonal entries matrix
+      integer(kind=int_wp), intent(in   )  ::imat  (  nomat )     ! collumn nrs of off-diagonal entries matrix
       real(kind=dp), intent(in   )  ::diag  (  ntrace)     ! diagonal entries of matrix
-      integer(kind=int_32), intent(in   )  ::idiag (0:ntrace)     ! start of rows in amat
+      integer(kind=int_wp), intent(in   )  ::idiag (0:ntrace)     ! start of rows in amat
       real(kind=dp), intent(  out)  ::x     (  ntrace)     ! x = M^{-1} y
       real(kind=dp), intent(in   )  ::rhs   (  ntrace)     ! right hand side of this iteration only
       real(kind=dp), intent(inout)  ::triwrk(  nolay )     ! work array for vertical double sweep
-      integer(kind=int_32), intent(in   )  ::iadd                 ! offset for vertical off-diagonals
-      integer(kind=int_32), intent(in   )  ::iexseg(  ntrace)     ! = 0 if volume is fully explicit
+      integer(kind=int_wp), intent(in   )  ::iadd                 ! offset for vertical off-diagonals
+      integer(kind=int_wp), intent(in   )  ::iexseg(  ntrace)     ! = 0 if volume is fully explicit
 
 !        local variables
 
       real(kind=dp) ::pivot                ! multiplier in double sweep vertical
-      integer(kind=int_32) ::isegl                ! this volume of one layer
-      integer(kind=int_32) ::iseg                 ! this volume
-      integer(kind=int_32) ::ilay                 ! this layer
-      integer(kind=int_32) ::jcol                 ! collumn counter for off-diagonals
-      integer(kind=int_32) ::ilow, ihigh          ! loop boundaries
+      integer(kind=int_wp) ::isegl                ! this volume of one layer
+      integer(kind=int_wp) ::iseg                 ! this volume
+      integer(kind=int_wp) ::ilay                 ! this layer
+      integer(kind=int_wp) ::jcol                 ! collumn counter for off-diagonals
+      integer(kind=int_wp) ::ilow, ihigh          ! loop boundaries
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "usolve", ithandl )
 
 !        First copy rhs into x

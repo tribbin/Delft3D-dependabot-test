@@ -38,9 +38,9 @@ subroutine delwaq2( argc, argv, errorcode )
       use m_actions
       implicit none
     
-      integer(kind=int_32), intent(in) ::  argc 
+      integer(kind=int_wp), intent(in) ::  argc
       character(len=*), dimension(argc), intent(in) :: argv
-      integer(kind=int_32), intent(out) ::  errorcode
+      integer(kind=int_wp), intent(out) ::  errorcode
  
       type(delwaq_data)                             :: dlwqd
 

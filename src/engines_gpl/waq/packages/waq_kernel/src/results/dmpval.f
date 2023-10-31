@@ -41,24 +41,24 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     NDMPAR  INTEGER(kind=int_32) ::1     INPUT   Number of dump areas
-!     IPDMP   INTEGER(kind=int_32) ::*     INPUT   pointer structure dump area's
-!     VALSEG  REAL(kind=sp) ::*     INPUT   values on segment grid
-!     VALDMP  REAL(kind=sp) ::*     INPUT   values on dump grid
+!     NDMPAR  INTEGER(kind=int_wp) ::1     INPUT   Number of dump areas
+!     IPDMP   INTEGER(kind=int_wp) ::*     INPUT   pointer structure dump area's
+!     VALSEG  REAL(kind=real_wp) ::*     INPUT   values on segment grid
+!     VALDMP  REAL(kind=real_wp) ::*     INPUT   values on dump grid
 !
 !     Declaration of arguments
 !
       use timers
 
-      INTEGER(kind=int_32) ::NDMPAR
-      INTEGER(kind=int_32) ::IPDMP(*)
-      REAL(kind=sp) ::VALSEG(*)
-      REAL(kind=sp) ::VALDMP(*)
+      INTEGER(kind=int_wp) ::NDMPAR
+      INTEGER(kind=int_wp) ::IPDMP(*)
+      REAL(kind=real_wp) ::VALSEG(*)
+      REAL(kind=real_wp) ::VALDMP(*)
 !
 !     Local declarations
 !
-      INTEGER(kind=int_32) ::ITEL  , IDUMP , NSC   , ISC   , ISEG
-      integer(kind=int_32) ::ithandl = 0
+      INTEGER(kind=int_wp) ::ITEL  , IDUMP , NSC   , ISC   , ISEG
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "dmpval", ithandl )
 
 !     Loop over the dump area's, sum value

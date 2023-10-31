@@ -53,10 +53,10 @@
 !     Name     Type   Library
 !     ------   -----  ------------
 
-      REAL(kind=sp) ::PMSA  ( * ) , FL    (*)
-      INTEGER(kind=int_32) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
+      REAL(kind=real_wp) ::PMSA  ( * ) , FL    (*)
+      INTEGER(kind=int_wp) ::IPOINT( * ) , INCREM(*) , NOSEG , NOFLUX,
      +         IEXPNT(4,*) , IKNMRK(*) , NOQ1, NOQ2, NOQ3, NOQ4
-      INTEGER(kind=int_32) ::MAXSTA,MAXVAR, IP , NP, ISEG, i
+      INTEGER(kind=int_wp) ::MAXSTA,MAXVAR, IP , NP, ISEG, i
 !
 !     aantal meteo stations
 !
@@ -72,16 +72,16 @@
       PARAMETER (NP=5)
 
 
-      real(kind=sp), DIMENSION(MAXSTA)  ::RAD, VWIND, DIR, HUM,
+      real(kind=real_wp), DIMENSION(MAXSTA)  ::RAD, VWIND, DIR, HUM,
      +                           TEMP, PRES, SUN
 
-      real(kind=sp), DIMENSION(MAXSTA)  ::X, Y
+      real(kind=real_wp), DIMENSION(MAXSTA)  ::X, Y
 
       DIMENSION IP((MAXSTA+1)* MAXVAR +  MAXSTA*2 + NP)
-      real(kind=sp), DIMENSION(MAXSTA)  ::DIST, WFAC
+      real(kind=real_wp), DIMENSION(MAXSTA)  ::DIST, WFAC
 
-      integer(kind=int_32) ::icalcsw, inear
-      real(kind=sp) ::scale, nostat, xseg, yseg, sum, sum2, min
+      integer(kind=int_wp) ::icalcsw, inear
+      real(kind=real_wp) ::scale, nostat, xseg, yseg, sum, sum2, min
 
       DO 10 I=1, (MAXSTA + 1)  * MAXVAR +  MAXSTA*2 + NP
         IP(I) = IPOINT(I)

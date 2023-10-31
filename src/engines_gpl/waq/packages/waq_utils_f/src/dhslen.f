@@ -54,7 +54,7 @@
 !
 !     ISLEN   INTEGER  1          LOCAL   length of variable
 !
-      INTEGER(kind=int_32) ::ISLEN, I
+      INTEGER(kind=int_wp) ::ISLEN, I
 !
       ISLEN = LEN(STRING)
       ILEN  = 1

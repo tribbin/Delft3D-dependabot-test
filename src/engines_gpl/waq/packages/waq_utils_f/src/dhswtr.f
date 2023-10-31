@@ -46,7 +46,7 @@
 !     NOQ3    INTEGER       1     INPUT   Number of exchanges in 3 dir.
 !     IOK     LOGICAL       1     OUTPUT  dimension match indicator
 !
-      INTEGER(kind=int_32) ::ISWITR, NOQ3
+      INTEGER(kind=int_wp) ::ISWITR, NOQ3
       LOGICAL IOK
 !
 !     Local

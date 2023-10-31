@@ -65,21 +65,21 @@
 !     kind           function         name             Descriptipon
 
       logical      , intent(in   ) :: dtflg1         !< 'date'-format
-      integer(kind=int_32), intent(  out) ::  it1             !< start time
-      integer(kind=int_32), intent(  out) ::  it2             !< stop  time
-      integer(kind=int_32), intent(  out) ::  it3             !< time step
-      integer(kind=int_32), intent(in   ) ::  noopt           !< kind of timer
+      integer(kind=int_wp), intent(  out) ::  it1             !< start time
+      integer(kind=int_wp), intent(  out) ::  it2             !< stop  time
+      integer(kind=int_wp), intent(  out) ::  it3             !< time step
+      integer(kind=int_wp), intent(in   ) ::  noopt           !< kind of timer
       logical      , intent(in   ) :: dtflg3         !< yydddhh instead of ddhhmmss
-      integer(kind=int_32), intent(  out) ::  ierr            !< not zero if error
+      integer(kind=int_wp), intent(  out) ::  ierr            !< not zero if error
 
 !     Local
 
-      integer(kind=int_32) :: itype           !  help variable for tokenized reading
+      integer(kind=int_wp) :: itype           !  help variable for tokenized reading
       character*255 cdummy         !  help variable for tokenized reading
       character*12  txt(3)
-      integer(kind=int_32) :: ierr2           !  local error variable
+      integer(kind=int_wp) :: ierr2           !  local error variable
       data          txt / ' Monitoring ',' Output     ',' History    ' /
-      integer(kind=int_32) ::  ithndl = 0 
+      integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "timer", ithndl )
 
 !       Read timings

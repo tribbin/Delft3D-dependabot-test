@@ -48,30 +48,30 @@
 !
 !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
 !     ----    -----    ------     ------- -----------
-!     NOSYS   INTEGER(kind=int_32) ::1     INPUT   Total number of active substances
-!     NDMPQ   INTEGER(kind=int_32) ::1     INPUT   Number of dump exchanges
-!     NORAAI  INTEGER(kind=int_32) ::1     INPUT   Number of raaien
-!     NTRAAQ  INTEGER(kind=int_32) ::1     INPUT   Total number of exch. in raaien
-!     IORAAI  INTEGER(kind=int_32) ::*     INPUT   Output option for raai
-!     NQRAAI  INTEGER(kind=int_32) ::*     INPUT   Number of exchanges in raai
-!     IQRAAI  INTEGER(kind=int_32) ::*     INPUT   Exchanges in raai
-!     IQDMP   INTEGER(kind=int_32) ::*     INPUT   Exchange to dumped exchange pointer
-!     DMPQ    REAL(kind=sp) ::NOSYS*NDMPQ*? INPUT   mass balance dumped exchange
-!     TRRAAI  REAL(kind=sp) ::NOTOT*NDMPAR*6 IN/OUT  Cummulative transport over raai
+!     NOSYS   INTEGER(kind=int_wp) ::1     INPUT   Total number of active substances
+!     NDMPQ   INTEGER(kind=int_wp) ::1     INPUT   Number of dump exchanges
+!     NORAAI  INTEGER(kind=int_wp) ::1     INPUT   Number of raaien
+!     NTRAAQ  INTEGER(kind=int_wp) ::1     INPUT   Total number of exch. in raaien
+!     IORAAI  INTEGER(kind=int_wp) ::*     INPUT   Output option for raai
+!     NQRAAI  INTEGER(kind=int_wp) ::*     INPUT   Number of exchanges in raai
+!     IQRAAI  INTEGER(kind=int_wp) ::*     INPUT   Exchanges in raai
+!     IQDMP   INTEGER(kind=int_wp) ::*     INPUT   Exchange to dumped exchange pointer
+!     DMPQ    REAL(kind=real_wp) ::NOSYS*NDMPQ*? INPUT   mass balance dumped exchange
+!     TRRAAI  REAL(kind=real_wp) ::NOTOT*NDMPAR*6 IN/OUT  Cummulative transport over raai
 !
 !     Declaration of arguments
 !
       use timers
 
-      INTEGER(kind=int_32) ::NOSYS , NDMPQ , NORAAI, NTRAAQ
-      INTEGER(kind=int_32) ::IORAAI(*)             , NQRAAI(*)       ,
+      INTEGER(kind=int_wp) ::NOSYS , NDMPQ , NORAAI, NTRAAQ
+      INTEGER(kind=int_wp) ::IORAAI(*)             , NQRAAI(*)       ,
      +              IQRAAI(*)             , IQDMP(*)
-      REAL(kind=sp) ::DMPQ(NOSYS,NDMPQ,*)   , TRRAAI(NOSYS,*)
+      REAL(kind=real_wp) ::DMPQ(NOSYS,NDMPQ,*)   , TRRAAI(NOSYS,*)
 
 !     local
-      integer(kind=int_32) ::itel1, isys, iraai, nqc, iopt, iqc, iq, ipq
+      integer(kind=int_wp) ::itel1, isys, iraai, nqc, iopt, iqc, iq, ipq
 
-      integer(kind=int_32) ::ithandl = 0
+      integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "raatra", ithandl )
 !
 !     Local declarations

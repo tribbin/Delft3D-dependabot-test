@@ -73,11 +73,11 @@
       CHARACTER*20          :: PARDEF(MAXDEF) , PARLST(MAXLST) , PARUNI(MAXLST)
       DIMENSION             :: IPRTYP(MAXLST) , IPRCOD(MAXLST)
       LOGICAL               :: SETALL
-      integer(kind=int_32) ::  lun 
-      integer(kind=int_32) ::  MAXK 
-      integer(kind=int_32) ::  k, i1, i2, i3 
-      integer(kind=int_32) ::  ierror, notot, nodump, nrlst, iprcod, iprtyp 
-      integer(kind=int_32) ::  itype, maxdef, itmdep, locdep, maxlst, lang
+      integer(kind=int_wp) ::  lun
+      integer(kind=int_wp) ::  MAXK
+      integer(kind=int_wp) ::  k, i1, i2, i3
+      integer(kind=int_wp) ::  ierror, notot, nodump, nrlst, iprcod, iprtyp
+      integer(kind=int_wp) ::  itype, maxdef, itmdep, locdep, maxlst, lang
  !
 !         Open the DELWAQ .HIS file
 !

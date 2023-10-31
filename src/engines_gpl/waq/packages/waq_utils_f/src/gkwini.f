@@ -32,14 +32,14 @@
       subroutine gkwini ( lu , group , keywrd , value )
 !
       use timers
-      integer(kind=int_32) ::lu
+      integer(kind=int_wp) ::lu
       character*(*) group, keywrd, value
 
       logical       gropen, grclos
       character*256 lline , groupl, keywrl, valuel
-      integer(kind=int_32) ::lgrpin, lkeyin, lvalin,
+      integer(kind=int_wp) ::lgrpin, lkeyin, lvalin,
      j              il    , ierr  , lcomp , index
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::ithndl = 0
       if ( timon ) call timstrt( "gkwini", ithndl )
 
       rewind (lu)
@@ -136,10 +136,10 @@
       CHARACTER*(*) TOKEN
       CHARACTER*1   CL,CT
       CHARACTER*10  CFORMA
-      INTEGER(kind=int_32) ::IN,IL,IERR
-      INTEGER(kind=int_32) ::I1,I2
+      INTEGER(kind=int_wp) ::IN,IL,IERR
+      INTEGER(kind=int_wp) ::I1,I2
 
-      integer(kind=int_32) ::ithndl = 0
+      integer(kind=int_wp) ::ithndl = 0
       if ( timon ) call timstrt( "gettko", ithndl )
 
       TOKEN = ' '
@@ -208,16 +208,16 @@
 
       SUBROUTINE CHARFO ( CFORMA , IL )
       CHARACTER*(*) CFORMA
-      INTEGER(kind=int_32) ::IL
+      INTEGER(kind=int_wp) ::IL
       CFORMA = ' '
       WRITE ( CFORMA , '(''(A'',I3.3,'')'')' ) IL
       RETURN
       END
       subroutine gi_ini ( lu , group , keywrd , ivalue , found)
-      integer(kind=int_32) ::lu
+      integer(kind=int_wp) ::lu
       character*(*) group, keywrd
       logical, optional :: found
-      integer(kind=int_32) ::ivalue, ierr
+      integer(kind=int_wp) ::ivalue, ierr
 
       ! local decalarations
 
@@ -238,10 +238,10 @@
       return
       end
       subroutine gr_ini ( lu , group , keywrd , rvalue, found )
-      integer(kind=int_32) ::lu , ierr
+      integer(kind=int_wp) ::lu , ierr
       character*(*) group, keywrd
       logical, optional :: found
-      real(kind=sp) ::rvalue
+      real(kind=real_wp) ::rvalue
 
       ! local decalarations
 
@@ -262,7 +262,7 @@
       return
       end
       subroutine gl_ini ( lu , group , keywrd , lvalue, found )
-      integer(kind=int_32) ::lu
+      integer(kind=int_wp) ::lu
       character*(*) group, keywrd
       logical, optional :: found
       logical       lvalue
@@ -270,7 +270,7 @@
       ! local decalarations
 
       character*256 value
-      integer(kind=int_32) ::ifound
+      integer(kind=int_wp) ::ifound
 
       call gkwini ( lu , group , keywrd , value )
 
