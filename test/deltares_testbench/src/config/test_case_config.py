@@ -6,7 +6,7 @@ Copyright (C)  Stichting Deltares, 2023
 
 
 # Test case configuration
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from src.config.file_check import FileCheck
 from src.config.location import Location
@@ -18,7 +18,7 @@ class TestCaseConfig:
     def __init__(self):
         self.__name: str = ""
         self.__path: str = ""
-        self.__dependency: str = ""
+        self.__dependency: Optional[Tuple[str, str]] = None
         self.__locations: List[Location] = []
         self.__shell: Optional[ProgramConfig] = None
         self.__shell_arguments = []
@@ -53,12 +53,12 @@ class TestCaseConfig:
         self.__path = value
 
     @property
-    def dependency(self) -> str:
+    def dependency(self) -> Optional[Tuple[str, str]]:
         """relative paths for test case"""
         return self.__dependency
 
     @dependency.setter
-    def dependency(self, value: str):
+    def dependency(self, value: Optional[Tuple[str, str]]):
         self.__dependency = value
 
     @property
