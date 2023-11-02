@@ -72,5 +72,5 @@ post_build_target(${executable_name}
 install(TARGETS ${executable_name} RUNTIME DESTINATION bin)
 
 if(UNIX)
-    install(PROGRAMS ${CMAKE_SOURCE_DIR}/../engines_gpl/part/scripts/run_dpart.sh DESTINATION bin)
+    install(PROGRAMS ${CMAKE_SOURCE_DIR}/../engines_gpl/part/resources/scripts/run_dpart.sh DESTINATION bin)
 endif(UNIX)

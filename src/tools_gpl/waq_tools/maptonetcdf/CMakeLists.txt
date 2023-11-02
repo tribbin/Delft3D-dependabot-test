@@ -92,5 +92,5 @@ post_build_target (${executable_name}
 
 install(TARGETS ${executable_name} RUNTIME  DESTINATION bin)
 if (UNIX)
-    install(PROGRAMS ${CMAKE_SOURCE_DIR}/../tools_gpl/maptonetcdf/scripts/run_maptonetcdf.sh  DESTINATION bin)
+    install(PROGRAMS ${CMAKE_SOURCE_DIR}/../tools_gpl/waq_tools/maptonetcdf/resources/scripts/run_maptonetcdf.sh  DESTINATION bin)
 endif(UNIX)
