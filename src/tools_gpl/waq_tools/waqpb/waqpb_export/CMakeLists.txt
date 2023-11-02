@@ -50,5 +50,5 @@ post_build_target (${executable_name}
 
 install(TARGETS ${executable_name} RUNTIME  DESTINATION bin)
 if (UNIX)
-    install(PROGRAMS ${CMAKE_SOURCE_DIR}/../tools_gpl/waq_tools/waqpb/resources/scripts/run_waqpb_export.sh  DESTINATION bin)
+    install(PROGRAMS ${CMAKE_CURRENT_LIST_DIR}/../resources/scripts/run_waqpb_export.sh  DESTINATION bin)
 endif(UNIX)
