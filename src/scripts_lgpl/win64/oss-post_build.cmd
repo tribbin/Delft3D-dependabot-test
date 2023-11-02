@@ -429,11 +429,11 @@ rem =============================================================
     set destination_csv=%~2
     set destination_sub="!destination!\subFiles"
 
-    call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\bloom.spe"                                             !destination!
-    call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\proc_def.dat"                                          !destination!
-    call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\proc_def.def"                                          !destination!
-    call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\csvFiles\*"                                            !destination_csv!
-    call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\subFiles\*"                                            !destination_sub!
+    call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\process_lib\bloom.spe"                                   !destination!
+    call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\process_lib\proc_def.dat"                                !destination!
+    call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\process_lib\proc_def.def"                                !destination!
+    call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\process_lib\csvFiles\*"                                  !destination_csv!
+    call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\process_lib\subFiles\*"                                  !destination_sub!
 
 goto :endproc
 
@@ -1159,7 +1159,7 @@ rem ==========================
     call :copyFile "!build_dir!\waq_plugin_wasteload\!configuration!\waq_plugin_wasteload.*"      !dest_bin!
 
     if "%configuration%" == "Release" (
-        call :copyFile "!checkout_src_root!\engines_gpl\waq\scripts\run_delwaq.bat"               !dest_scripts!
+        call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\scripts\run_delwaq.bat"     !dest_scripts!
     )
 
     rem profiling information
@@ -1187,7 +1187,7 @@ rem ==========================
     call :copyFile "!build_dir!\waq_plugin_wasteload\!configuration!\waq_plugin_wasteload.*"        !dest_bin!
 
     if "%configuration%" == "Release" (
-        call :copyFile "!checkout_src_root!\engines_gpl\waq\scripts\run_delwaq.bat"                 !dest_scripts!
+        call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\scripts\run_delwaq.bat"       !dest_scripts!
     )
 
     rem profiling information
@@ -1305,7 +1305,7 @@ rem ==========================
         call :copyDwaqDependentRuntimeLibraries                                                 !dest_share!
         call :copyFile "!build_dir!\delpar\!configuration!\delpar.exe"                          !dest_bin!
 
-        call :copyFile "!checkout_src_root!\engines_gpl\part\scripts\run_dpart.bat"             !dest_scripts!
+        call :copyFile "!checkout_src_root!\engines_gpl\part\reources\scripts\run_dpart.bat"    !dest_scripts!
     )
 
     rem profiling information
@@ -1331,7 +1331,7 @@ rem ==========================
     call :copyFile "!build_dir!\waqmerge\!configuration!\waqmerge.exe"                          !dest_bin!
 
     if "%configuration%" == "Release" (
-        call :copyFile "!checkout_src_root!\tools_gpl\waqmerge\scripts\run_waqmerge.bat"        !dest_scripts!
+        call :copyFile "!checkout_src_root!\tools_gpl\waq_tools\waqmerge\resources\scripts\run_waqmerge.bat"        !dest_scripts!
     )
 goto :endproc
 
@@ -1353,7 +1353,7 @@ rem ==========================
     call :copyFile "!build_dir!\ddcouple\!configuration!\ddcouple.exe"                            !dest_bin!
 
     if "%configuration%" == "Release" (
-        call :copyFile "!checkout_src_root!\tools_gpl\ddcouple\scripts\run_ddcouple.bat"          !dest_scripts!
+        call :copyFile "!checkout_src_root!\tools_gpl\waq_tools\ddcouple\resources\scripts\run_ddcouple.bat"          !dest_scripts!
     )
 goto :endproc
 
@@ -1375,8 +1375,8 @@ rem ==========================
     call :copyFile "!build_dir!\agrhyd\!configuration!\agrhyd.exe"                                !dest_bin!
 
     if "%configuration%" == "Release" (
-        call :copyFile "!checkout_src_root!\tools_gpl\agrhyd\default\agrhyd.ini"                  !dest_default!
-        call :copyFile "!checkout_src_root!\tools_gpl\agrhyd\scripts\run_agrhyd.bat"              !dest_scripts!
+        call :copyFile "!checkout_src_root!\tools_gpl\waq_tools\agrhyd\resources\default\agrhyd.ini"                  !dest_default!
+        call :copyFile "!checkout_src_root!\tools_gpl\waq_tools\agrhyd\resources\scripts\run_agrhyd.bat"              !dest_scripts!
     )
 
 goto :endproc
@@ -1399,7 +1399,7 @@ rem ==========================
     call :copyFile "!build_dir!\maptonetcdf\!configuration!\maptonetcdf.exe"                      !dest_bin!
 
     if "%configuration%" == "Release" (
-        call :copyFile "!checkout_src_root!\tools_gpl\maptonetcdf\scripts\run_maptonetcdf.bat"    !dest_scripts!
+        call :copyFile "!checkout_src_root!\tools_gpl\waq_tools\maptonetcdf\resources\scripts\run_maptonetcdf.bat"    !dest_scripts!
     )
 
 goto :endproc
