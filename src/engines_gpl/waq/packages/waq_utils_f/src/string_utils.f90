@@ -31,7 +31,7 @@ module m_string_utils
     implicit none
 
     private
-    public join_strings, contains_any, contains_only_valid_chars
+    public join_strings, contains_any, contains_only_valid_chars, starts_with_valid_char
 
     contains
 
@@ -100,5 +100,24 @@ module m_string_utils
             end if
         end do
     end function contains_only_valid_chars
+
+    logical function starts_with_valid_char(names_array, valid_start_characters)
+        !< Returns .true. if the firt character of each string name of <names_array> is contained in the string <valid_characters>.
+        !< Otherwise, it returns .false.
+        character(*), dimension(:), intent(in) :: names_array            !< Array with all names to validate
+        character(*), intent(in)               :: valid_start_characters !< Characters permitted as start of names
+    
+        integer                            :: i
+
+        starts_with_valid_char = .true.
+        do i = 1, size(names_array)
+            if (verify(names_array(i)(1:1), valid_start_characters)/=0) then
+                starts_with_valid_char = .false.
+                write(*,*) "Error: invalid character found at the start of:"
+                write(*,*) names_array(i)
+                write(*,*) '^'
+            end if
+        end do
+    end function starts_with_valid_char
 
 end module m_string_utils

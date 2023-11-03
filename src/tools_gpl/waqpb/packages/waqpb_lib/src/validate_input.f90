@@ -28,7 +28,8 @@
 !
 module m_validate_input
 
-    use m_string_utils, only: join_strings, contains_any, contains_only_valid_chars
+    use m_string_utils, only: join_strings, contains_any, contains_only_valid_chars, &
+                              starts_with_valid_char
 
     implicit none
 
@@ -57,12 +58,18 @@ module m_validate_input
         !< If not, detailed information is sent to the user screen, and the program stops.
         character(*), dimension(:), intent(in) :: names_array !< Array with all names to validate
 
-        character(67) :: valid_characters = & 
+        character(52) :: valid_start_characters = & 
+        "abcdefghijklmnopqrstuvwxyz" // &
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"       !< Characters permitted as start of names
+
+        character(63) :: valid_characters = & 
         "abcdefghijklmnopqrstuvwxyz" // &
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ" // &
-        "0123456789_+-*/"                       !< Characters permitted in names
+        "0123456789_"                       !< Characters permitted in names
 
-
+         if (.not.starts_with_valid_char(names_array, valid_start_characters)) then
+            stop "Program stopped. Invalid characters found at start of name. Only the following characters are allowed:" // valid_start_characters
+         end if
         if (.not. contains_only_valid_chars(names_array, valid_characters)) then
             stop "Program stopped. Invalid characters found. Only the following characters are allowed:" // valid_characters
         end if
