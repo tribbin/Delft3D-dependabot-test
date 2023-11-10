@@ -115,8 +115,8 @@
       character( *), intent(inout) :: sname(*)      !< substances names
       character( *), intent(inout) :: aname(*)      !< ID's of the boundaries/wastes
       character( *), intent(in   ) :: atype(*)      !< Types of the boundaries/wastes
-      integer  ( 4), intent(in   ) :: ntitm         !< number of bounds/wastes
-      integer  ( 4), intent(in   ) :: ntdim         !< number of substances
+      integer  ( 4), intent(inout) :: ntitm         !< number of bounds/wastes
+      integer  ( 4), intent(inout) :: ntdim         !< number of substances
       integer  ( 4), intent(in   ) :: nttype        !< number of boundary/waste types
       real     ( 8), intent(inout) :: drar (*)      !< Double precision workspace
       logical      , intent(in   ) :: dtflg1        !< 'date'-format 1st time scale

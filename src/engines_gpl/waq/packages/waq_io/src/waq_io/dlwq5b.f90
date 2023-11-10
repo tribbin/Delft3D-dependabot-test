@@ -27,64 +27,54 @@ module m_dlwq5b
     contains
 
 
-    subroutine dlwq5b(lunut , iposr , npos , cchar , car    ,&
-                      iar   , icmax , iimax, aname , atype  ,&
-                      ntitm , nttype, noitm, noits , chkflg ,&
-                      callr , ilun  , lch  , lstack, itype  ,&
-                      rar   , nconst, itmnr, chulp , ioutpt, &
-                      ierr  , iwar)
-!     Parameters    :
-!
-!     Name    Kind     Length     Funct.  Description
-!     ---------------------------------------------------------
-!     aname   char*20    *         input   Id's of the boundaries/wastes
-!     ntitm   integer    1         input   Number of bounds/wastes
-!     nttype  integer    1         input   Number of bound/waste types
-!     noitm   integer    1         output  Number of items read
-!     noits   integer    1         output  Number of items for scale
-!     callr   char*(6)   1         input   Calling subject
-!     ilun    integer   lstack     in/out  Unitnumb include stack
-!     lch     char*(*)  lstack     in/out  File name stack, 4 deep
-!     lstack  integer    1         input   Include file stack size
-!     itype   integer    1         output  Type of the token at exit
-!     rar     real       *         output  Array with real values
-!     nconst  real       *         output  Number of those values
-!     chulp   char*(*)   1         output  Input string at end of routine
-!     ioutpt  integer    1         input   Output file option
-!     ierr    integer    1         output  Error indicator
-!     iwar    integer    1         output  Cumulative warning count
-!
-!
-    use m_string_utils, only: index_in_array, join_strings
+    subroutine dlwq5b(lunut, iposr , npos , cchar , car    ,&
+                      iar  , icmax , iimax, aname , atype  ,&
+                      ntitm, nttype, noitm, noits , chkflg ,&
+                      callr, ilun  , lch  , lstack, itype  ,&
+                      rar  , nconst, itmnr, chulp , ioutpt, &
+                      error_ind , iwar)
 
+                      use m_string_utils, only: index_in_array, join_strings
     use m_movint
     use m_movchr
-    use timers       !   performance timers
+    use timers
 
-    integer, intent(in   ) :: icmax  !< Max. Char workspace dimension
-    integer, intent(in   ) :: iimax  !< Max. Int. Workspace dimension
-    integer, intent(in   ) :: chkflg !< Check on input or add items
-    integer, intent(in   ) :: lunut  !< Unit Formatted Output File
-    integer, intent(inout) :: iposr  !< Start position on input line
-    integer, intent(in   ) :: npos   !< Nr of significant characters
-    integer, intent(  out) :: iar(:) !< Integer workspace
-    !integer, intent(in   ) :: ntitm  !< Number of bounds/wastes 
-    
-    character(1), intent(in   ) :: cchar    !< Comment character
-    character(*), intent(  out) :: car(*)   !< Character workspace
-    character(*), intent(inout) :: aname(*) !< Id's of the boundaries/wastes
-    character(*), intent(in) :: atype(*) !< Types of the boundaries/wastes
+!   Arguments
+    integer, intent(in   )       :: icmax        !< Max. Char workspace dimension
+    integer, intent(in   )       :: iimax        !< Max. Int. Workspace dimension
+    integer, intent(in   )       :: chkflg       !< Check on input or add items
+    integer, intent(in   )       :: lunut        !< Unit Formatted Output File
+    integer, intent(inout)       :: iposr        !< Start position on input line
+    integer, intent(in   )       :: npos         !< Nr of significant characters
+    integer, intent(  out)       :: iar(:)       !< Integer workspace
+    integer, intent(inout)       :: ntitm        !< Number of bounds/wastes
+    integer, intent(in   )       :: nttype       !< Number of bound/waste types
+    integer, intent(  out)       :: noitm        !< Number of items read
+    integer, intent(  out)       :: noits        !< Number of items for scale
+    integer, intent(inout)       :: ilun(lstack) !< Unitnumb include stack
+    integer, intent(in   )       :: lstack       !< Include file stack size
+    integer, intent(  out)       :: itype        !< Type of the token read ('at exit')
+    integer, intent(  out)       :: nconst       !< Number of values in rar
+    integer, intent(in   )       :: ioutpt       !< Output file option
+    integer, intent(  out)       :: error_ind    !< Error indicator
+    integer, intent(  out)       :: iwar         !< Cumulative warning count
 
-    character(*) lch(lstack) , chulp
-    character*1   callr*10
-    logical       usefor, setnam, comput, signon
+    real, intent(  out)          :: rar(:)       !< Array with real values
+
+    character(1),  intent(in   ) :: cchar        !< Comment character
+    character(*),  intent(  out) :: car(*)       !< Character workspace
+    character(*),  intent(inout) :: aname(*)     !< Id's of the boundaries/wastes
+    character(*),  intent(in   ) :: atype(*)     !< Types of the boundaries/wastes
+    character(10), intent(in   ) :: callr        !< Calling subject
+    character(*),  intent(inout) :: lch(lstack)  !< File name stack, 4 deep
+    character(*),  intent(  out) :: chulp        !< Input string at end of routine
+
+    ! Local variables
+    logical    :: usefor, setnam, comput, signon
     integer(4) :: ithndl = 0
-    integer    :: i, ihulp, ierr, iabs, ifound, i2
-    integer    :: namset, ioutpt, icm, nttype, iwar, lstack
-    real       :: vrsion
-    integer    :: itmnr, ioff, ioffc, ntitm, nconst, itype, ilun(lstack)
-    integer    :: noitm, noits, ioffi
-    real       :: rar(:), rhulp
+    integer    :: i, ihulp, ifound, i2, namset, icm
+    integer    :: itmnr, ioff, ioffc, ioffi
+    real       :: rhulp
     character(*), parameter :: operations(6) = ['*', '/', '+', '-', 'MIN', 'MAX']
     character(*), parameter :: keywords(24) = ['BLOCK'       ,&
                                               'LINEAR'       ,&
@@ -127,38 +117,38 @@ module m_dlwq5b
     ioffi  = 0
     nconst = 0
     !
-    ! Get a token string (and return if something else was found)
+    ! Get a token string (and return if any error was found)
 10  itype = -3
     if (signon .or. (usefor .and. setnam)) itype = 0
     call rdtok1(lunut, ilun, lch  , lstack, cchar,&
                 iposr, npos, chulp, ihulp , rhulp,&
-                itype, ierr)
-    if (ierr .ne. 0) goto 9999
+                itype, error_ind)
+    if (error_ind .ne. 0) goto 9999
 
     
     ! if a keyword was met
-    if (iabs(itype) == 1 .and. (any(keywords == trim(chulp)))) then
+    if (abs(itype) == 1 .and. (any(keywords == trim(chulp)))) then
         if (usefor) then
             write (lunut, 1035) chulp
-            goto 40
+            goto 40 !error and return
         else
-            goto 9999
+            goto 9999 ! return
         end if
     end if
 
     ! if computation
-    if (iabs(itype) == 1 .and. (any(operations == trim(chulp)))) then
+    if (abs(itype) == 1 .and. (any(operations == trim(chulp)))) then
         if (.not. comput) then
             write (lunut , 1070)
-            goto 40
+            goto 40 !error and return
         end if
         if (signon) then
             write (lunut , 1080)
-            goto 40
+            goto 40 !error and return
         end if
         noitm = noitm + 1
         noits = noits + 1
-        call movint (iar   , itmnr+noitm , itmnr+noitm*2)
+        call movint(iar   , itmnr+noitm , itmnr+noitm*2)
         iar(itmnr+noitm+noitm) = 0
         select case(chulp)
             case ('*')
@@ -179,7 +169,7 @@ module m_dlwq5b
     end if
 
     ! if an item used in computations
-    if (iabs(itype) == 1 .and. signon) then
+    if (abs(itype) == 1 .and. signon) then
         do 15 i=1, itmnr-1
             if (iar(i) == -1300000000) goto 15
             ifound = index_in_array(chulp, car(i+ioff:i+ioff))
@@ -229,7 +219,7 @@ module m_dlwq5b
     end if
 
     ! if a number is used in computations
-    if (iabs(itype) == 2 .or. iabs(itype) == 3) then
+    if (abs(itype) == 2 .or. abs(itype) == 3) then
         if (setnam .or. signon) then
             nconst = nconst + 1
             rar(nconst) = rhulp
@@ -280,7 +270,7 @@ module m_dlwq5b
     end if
 
     !if a local redirection of the name of an item or substance
-    if (iabs(itype) == 1 .and. chulp == 'USEFOR') then
+    if (abs(itype) == 1 .and. chulp == 'USEFOR') then
         if (usefor) then
             write (lunut , 1035) chulp
             goto 40
@@ -453,9 +443,9 @@ module m_dlwq5b
             noits = noits + 1
             itmnr = itmnr + 1
             icm = itmnr + noitm + ioff
-            call movint (iar   , itmnr       , itmnr+noitm*2)
-            call movint (iar   , itmnr+noitm , itmnr+noitm*2)
-            call movchr (car   , itmnr+ioff  , icm)
+            call movint(iar, itmnr      , itmnr+noitm*2)
+            call movint(iar, itmnr+noitm, itmnr+noitm*2)
+            call movchr(car, itmnr+ioff , icm)
             iar (itmnr) = ihulp
             iar (itmnr + noitm) = itmnr
             iar (itmnr + noitm + noitm) = noits
@@ -483,7 +473,7 @@ module m_dlwq5b
             else
                 if (ioutpt >= 3 .and. .not. usefor)&
                 write (lunut , 1030) callr, itmnr, callr, -ihulp,&
-                                                         atype(-ihulp)
+                                     atype(-ihulp)
                 chulp = atype(-ihulp)
             end if
             car (itmnr + ioff) = chulp
@@ -496,7 +486,7 @@ module m_dlwq5b
         end if
     end if
 !
-   40 ierr = 1
+   40 error_ind = 1
  9999 if (timon) call timstop(ithndl)
       return
 !

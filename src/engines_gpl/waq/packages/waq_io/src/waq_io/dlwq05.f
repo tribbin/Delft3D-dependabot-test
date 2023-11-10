@@ -80,9 +80,9 @@
       real     ( 4), intent(inout) :: rar(irmax)        !< real    workspace
       integer  ( 4), intent(inout) :: nrftot(*)         !< number of function items
       integer  ( 4), intent(inout) :: nrharm(*)         !< number of harmonic items
-      integer  ( 4), intent(in   ) :: nobnd             !< number of open model boundaries
+      integer  ( 4), intent(inout) :: nobnd             !< number of open model boundaries
       integer  ( 4), intent(in   ) :: notot             !< total number of substances
-      integer  ( 4), intent(in   ) :: nosys             !< number of transported substances
+      integer  ( 4), intent(inout) :: nosys             !< number of transported substances
       integer  ( 4), intent(  out) :: nobtyp            !< number of open model boundary types
       integer  ( 4), intent(in   ) :: iimax             !< size of the integer workspace
       logical      , intent(in   ) :: dtflg1            !< 'date'-format 1st timescale

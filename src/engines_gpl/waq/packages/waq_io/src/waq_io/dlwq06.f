@@ -332,9 +332,10 @@
 !          now get the values
 
       allocate( drar(irmax) )             ! this array is 100 mb lp
-      call dlwq5a ( lun    , lchar  , 15     , iwidth , icmax  ,
-     &              car    , iimax  , iar    , irmax  , rar    ,
-     &              sname  , wstid  , wsttype, nowst  , notot+1,
+      idummy = notot+1
+      call dlwq5a ( lun    , lchar  , 15     , iwidth , icmax ,
+     &              car    , iimax  , iar    , irmax  , rar   ,
+     &              sname  , wstid  , wsttype, nowst  , idummy,
      &              nowtyp , drar   , dtflg1 , dtflg3 , 
      &              ioutpt , ierr2  , ierr   , iwar   )
       deallocate( drar )
