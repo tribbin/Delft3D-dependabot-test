@@ -76,30 +76,31 @@ module m_dlwq5b
     integer    :: itmnr, ioff, ioffc, ioffi
     real       :: rhulp
     character(*), parameter :: operations(6) = ['*', '/', '+', '-', 'MIN', 'MAX']
-    character(*), parameter :: keywords(24) = ['BLOCK'       ,&
-                                              'LINEAR'       ,&
-                                              'ITEM'         ,&
-                                              'IDENTICALITEM',&
-                                              'USEDATA_ITEM' ,&
-                                              'FORITEM'      ,&
-                                              'DATA_ITEM'    ,&
-                                              'CONCEN'       ,&
-                                              'DATA'         ,&
-                                              'TIME_DELAY'   ,&
-                                              'ODS_FILE'     ,&
-                                              'BINARY_FILE'  ,&
-                                              'ABSOLUTE'     ,&
-                                              'TIME'         ,&
-                                              'HARMONICS'    ,&
-                                              'FOURIERS'     ,&
-                                              'SCALE'        ,&
-                                              'DEFAULTS'     ,&
-                                              'ALL'          ,&
-                                              'SEGMENTS'     ,&
-                                              'CONSTANTS'    ,&
-                                              'PARAMETERS'   ,&
-                                              'FUNCTIONS'    ,&
-                                              'SEG_FUNCTIONS' ]
+    character(*), parameter :: keywords(25) = ['BLOCK'        ,&
+                                              'LINEAR'        ,&
+                                              'ITEM'          ,&
+                                              'IDENTICALITEM' ,&
+                                              'USEDATA_ITEM'  ,&
+                                              'FORITEM'       ,&
+                                              'DATA_ITEM'     ,&
+                                              'CONCEN'        ,&
+                                              'CONCENTRATIONS',&
+                                              'DATA'          ,&
+                                              'TIME_DELAY'    ,&
+                                              'ODS_FILE'      ,&
+                                              'BINARY_FILE'   ,&
+                                              'ABSOLUTE'      ,&
+                                              'TIME'          ,&
+                                              'HARMONICS'     ,&
+                                              'FOURIERS'      ,&
+                                              'SCALE'         ,&
+                                              'DEFAULTS'      ,&
+                                              'ALL'           ,&
+                                              'SEGMENTS'      ,&
+                                              'CONSTANTS'     ,&
+                                              'PARAMETERS'    ,&
+                                              'FUNCTIONS'     ,&
+                                              'SEG_FUNCTIONS'  ]
 
     if (timon) call timstrt("dlwq5b", ithndl)
 
