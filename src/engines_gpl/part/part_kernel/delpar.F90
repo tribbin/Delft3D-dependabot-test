@@ -362,9 +362,9 @@ contains
       implicit none                  ! force explicit typing
       save
 
-      integer(ip)         :: itime   , lunpr, lunfil, lunini
-      integer(ip)         :: nosubud , noth
-      integer(ip)         :: ilp, isp, iext, nores, noras
+      integer(int_wp )         :: itime   , lunpr, lunfil, lunini
+      integer(int_wp )         :: nosubud , noth
+      integer(int_wp )         :: ilp, isp, iext, nores, noras
       real(sp)            :: dtstep, pctprogress
       logical             :: update
       character(len=*)    :: ifnam

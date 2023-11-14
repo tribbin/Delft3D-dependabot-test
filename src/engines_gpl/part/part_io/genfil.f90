@@ -55,7 +55,7 @@ contains
 !
 !     local scalars
 !
-      integer(ip)      :: iext , ipath , k , lenfil , lnpath
+      integer(int_wp )      :: iext , ipath , k , lenfil , lnpath
       integer(4) ithndl              ! handle to time this subroutine
       data       ithndl / 0 /
       if ( timon ) call timstrt( "genfil", ithndl )
@@ -90,5 +90,3 @@ contains
       return
       end subroutine
 end module
-
-

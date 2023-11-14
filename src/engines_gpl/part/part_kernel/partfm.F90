@@ -69,9 +69,9 @@ use m_fm_write_unc
 
    implicit none
 
-   integer(ip), intent(in) :: lunpr
-   integer(ip)             :: ierror, ntimes, ictimes, npload, ipartload
-   integer(ip)             :: lunmem, istat, itime, ilay, Ldot, ipart, iload, idye, iinsti, ndpart
+   integer(int_wp ), intent(in) :: lunpr
+   integer(int_wp )             :: ierror, ntimes, ictimes, npload, ipartload
+   integer(int_wp )             :: lunmem, istat, itime, ilay, Ldot, ipart, iload, idye, iinsti, ndpart
    double precision        :: dtcontp, totcload
    double precision        :: rseed = 0.5d0
    double precision        :: dpangle, dxp, dyp, dradius, xx, yy

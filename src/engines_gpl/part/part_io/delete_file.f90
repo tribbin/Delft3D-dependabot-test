@@ -50,12 +50,12 @@ contains
 !     ierror  integer       1     output  error indication
 !
       character(len=*) :: filnam
-      integer  (ip)    :: ierror
+      integer  (int_wp )    :: ierror
 !
 !     local
 !
-      integer(ip) :: iolun, ilun
-      logical(ip) :: lopen, lexist
+      integer(int_wp ) :: iolun, ilun
+      logical(int_wp ) :: lopen, lexist
       integer(4) ithndl              ! handle to time this subroutine
       data       ithndl / 0 /
       if ( timon ) call timstrt( "delete_file", ithndl )

@@ -31,8 +31,8 @@ module fileinfo
 !
       use precision_part                                       ! single and double precision
 
-      integer(ip)  , parameter          :: nfiles =  100
-      integer(ip)                       :: lunit(nfiles) = 0    ! logical unit numbers for in-/output files
+      integer(int_wp )  , parameter          :: nfiles =  100
+      integer(int_wp )                       :: lunit(nfiles) = 0    ! logical unit numbers for in-/output files
       character(len=256)                :: fname(nfiles) = ' '  ! file names for in-/output files
       character(len=255)                :: filebase             ! base for filenames
       character(len=255)                :: partinifile          ! part FM initial particles file

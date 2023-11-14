@@ -28,14 +28,14 @@ module dd_prepare_mod
      &                        conn    )
       use precision_part       ! single and double precision
       use typos           ! the derived types
-      integer  ( ip), intent(in   ) :: lunut             !< output report file
-      integer  ( ip), intent(in   ) :: nmax              !< first dimension of the grid
-      integer  ( ip), intent(in   ) :: mmax              !< second dimension of the grid
-      integer  ( ip), intent(inout) :: lgrid (nmax,mmax) !< the active grid matrix
-      integer  ( ip), intent(in   ) :: nbmax             !< maximum number of real boundaries
-      integer  ( ip), intent(in   ) :: ndoms             !< number of domains
-      integer  ( ip), intent(in   ) :: nbnds             !< number of DD-boundaries
-      integer  ( ip), intent(  out) :: nconn             !< number of connection points
+      integer  ( int_wp ), intent(in   ) :: lunut             !< output report file
+      integer  ( int_wp ), intent(in   ) :: nmax              !< first dimension of the grid
+      integer  ( int_wp ), intent(in   ) :: mmax              !< second dimension of the grid
+      integer  ( int_wp ), intent(inout) :: lgrid (nmax,mmax) !< the active grid matrix
+      integer  ( int_wp ), intent(in   ) :: nbmax             !< maximum number of real boundaries
+      integer  ( int_wp ), intent(in   ) :: ndoms             !< number of domains
+      integer  ( int_wp ), intent(in   ) :: nbnds             !< number of DD-boundaries
+      integer  ( int_wp ), intent(  out) :: nconn             !< number of connection points
       type (domain) , intent(in   ) :: doms  (ndoms)     !< the domains
       type (boundp) , intent(in   ) :: bnds  (nbnds)     !< the domain boundaries
       type (pnt   ) , pointer       :: conn  ( : )       !< the array with connectivity points
@@ -88,14 +88,14 @@ end module
 
 !     kind           function         name                 description
 
-      integer  ( ip), intent(in   ) :: lunut             !< output report file
-      integer  ( ip), intent(in   ) :: nmax              !< first dimension of the grid
-      integer  ( ip), intent(in   ) :: mmax              !< second dimension of the grid
-      integer  ( ip), intent(inout) :: lgrid (nmax,mmax) !< the active grid matrix
-      integer  ( ip), intent(in   ) :: nbmax             !< maximum number of real boundaries
-      integer  ( ip), intent(in   ) :: ndoms             !< number of domains
-      integer  ( ip), intent(in   ) :: nbnds             !< number of DD-boundaries
-      integer  ( ip), intent(  out) :: nconn             !< number of connection points
+      integer  ( int_wp ), intent(in   ) :: lunut             !< output report file
+      integer  ( int_wp ), intent(in   ) :: nmax              !< first dimension of the grid
+      integer  ( int_wp ), intent(in   ) :: mmax              !< second dimension of the grid
+      integer  ( int_wp ), intent(inout) :: lgrid (nmax,mmax) !< the active grid matrix
+      integer  ( int_wp ), intent(in   ) :: nbmax             !< maximum number of real boundaries
+      integer  ( int_wp ), intent(in   ) :: ndoms             !< number of domains
+      integer  ( int_wp ), intent(in   ) :: nbnds             !< number of DD-boundaries
+      integer  ( int_wp ), intent(  out) :: nconn             !< number of connection points
       type (domain) , intent(in   ) :: doms  (ndoms)     !< the domains
       type (boundp) , intent(in   ) :: bnds  (nbnds)     !< the domain boundaries
       type (pnt   ) , pointer       :: conn  ( : )       !< the array with connectivity points

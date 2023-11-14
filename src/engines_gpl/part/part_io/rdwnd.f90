@@ -64,8 +64,8 @@ contains
       integer      , intent(in   ) :: nmax              !< first index
       integer      , intent(in   ) :: mmax              !< second index
       integer      , intent(in   ) :: noseg             !< dimension of linear arrays
-      real     (rp), intent(in   ) :: xb    (nmax,mmax) !< x-cco values
-      real     (rp), intent(in   ) :: yb    (nmax,mmax) !< y-cco values
+      real     (real_wp), intent(in   ) :: xb    (nmax,mmax) !< x-cco values
+      real     (real_wp), intent(in   ) :: yb    (nmax,mmax) !< y-cco values
       integer      , intent(in   ) :: lgrida(nmax,mmax) !< active grid table
       integer      , intent(  out) :: ierr              !< if non-zero then error
 

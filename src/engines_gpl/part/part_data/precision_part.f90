@@ -26,9 +26,6 @@ module precision_part
     implicit none
 
     private
-    public :: ip, rp, sp, dp
-
-    integer, parameter :: ip = int_wp   ! precision of normal integers
-    integer, parameter :: rp = real_wp      ! precision of normal reals
+    public :: int_wp , real_wp, sp, dp
 
 end module precision_part
