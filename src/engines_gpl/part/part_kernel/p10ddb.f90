@@ -50,7 +50,7 @@ contains
 
 !     logical unit numbers  :
 
-      use precision_part       ! single and double precision
+      use m_waq_precision       ! single and double precision
       use typos           ! the derived types
       use timers          ! performance timers
 

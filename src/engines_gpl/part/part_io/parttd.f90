@@ -60,7 +60,7 @@ contains
 
 !     subroutines called    : stop_exit, stops execution
 
-      use precision_part         ! single/double precision
+      use m_waq_precision         ! single/double precision
       use timers
 
       implicit none

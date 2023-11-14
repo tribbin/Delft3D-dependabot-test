@@ -25,7 +25,7 @@ module vert_swimm_tidal_mod
 !
 !  data definition module(s)
 !
-use precision_part          ! single/double precision
+use m_waq_precision          ! single/double precision
 use timers
 !
 !  module procedure(s)

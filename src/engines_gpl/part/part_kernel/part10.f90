@@ -72,7 +72,7 @@ contains
 !
 !  data definition module(s)
 !
-      use precision_part        ! single/double precision
+      use m_waq_precision        ! single/double precision
       use timers           ! performance timer
       use typos
       use grid_search_mod
@@ -1780,7 +1780,7 @@ contains
 !     subroutine to keep a particle near the surface in z-layer models
       subroutine update_k_near_top(lun2, kp, ktopold, ktopnew, zp, locdep, n0old, n0, zsurf)
 
-      use precision_part
+      use m_waq_precision
 
       implicit none
 

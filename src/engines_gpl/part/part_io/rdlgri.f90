@@ -60,7 +60,7 @@ contains
 
 !     functions   called    : none.
 
-      use precision_part               ! single and double precision
+      use m_waq_precision               ! single and double precision
       use timers
       use rd_token                ! tokenized reading like in DELWAQ
       use partmem

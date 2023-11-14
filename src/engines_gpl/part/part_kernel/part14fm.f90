@@ -45,7 +45,7 @@ module part14fm_mod
 !>
 !>         The routine has been derived from part14
 
-      use precision_part          ! single/double precision
+      use m_waq_precision          ! single/double precision
       use timers
       use grid_search_mod
       use spec_feat_par

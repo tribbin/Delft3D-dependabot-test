@@ -50,7 +50,7 @@ contains
 
 !     subroutines called    : part07 - searches for cell and coordinates
 
-      use precision_part
+      use m_waq_precision
       use timers
       use grid_search_mod
 

@@ -326,7 +326,7 @@ contains
       use m_rdccol
       use m_getdps
       use m_monsys
-      use precision_part                  ! single/double precision
+      use m_waq_precision                  ! single/double precision
       use timers
       use fileinfo  , lun=> lunit    ! logical unit numbers for files
       use spec_feat_par

@@ -516,7 +516,7 @@ end subroutine read_particles_release_file
 
 !> add released particles
 subroutine add_particles_from_release_file(time0)
-   use precision_part
+   use m_waq_precision
    use partmem, only: nopart, mpart
    use partmem, only: iptime
    use m_particles
@@ -585,7 +585,7 @@ subroutine part06fm ( lun    , nodye  , nocont , xwaste ,      &
 !     Note : we need to be careful about the names nwaste and mwaste, nwaste
 !            is actually a dummy in the case of unstructured grids
 
-      use precision_part
+      use m_waq_precision
       use timers
 
       implicit none

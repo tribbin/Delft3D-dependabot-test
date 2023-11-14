@@ -60,7 +60,7 @@ contains
 !                  at z=0.0 of the top layer (k=1)
 !
       use m_skip_comments
-      use precision_part ! single/double precision
+      use m_waq_precision ! single/double precision
       use timers
       use get_key_mod
       use grid_search_mod

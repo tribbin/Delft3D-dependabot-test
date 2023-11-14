@@ -64,7 +64,7 @@ contains
 !     vx      real        1       local   velocity in x direction
 !     vy      real        1       local   velocity in y direction
 !
-      use precision_part    ! single/double precision
+      use m_waq_precision    ! single/double precision
       use timers
       implicit none    ! force explicit typing
 

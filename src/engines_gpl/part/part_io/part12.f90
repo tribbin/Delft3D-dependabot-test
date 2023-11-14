@@ -60,7 +60,7 @@ contains
 
 !     functions   called    : none.
 
-      use precision_part          ! single and double precision
+      use m_waq_precision          ! single and double precision
       use m_part_modeltypes       ! part model definitions
       use timers
       use filldm_mod         ! explicit interface

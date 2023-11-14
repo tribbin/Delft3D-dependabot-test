@@ -30,7 +30,7 @@ module parths_mod
 !
 use m_stop_exit
 use m_part11
-use precision_part            ! single and double precision
+use m_waq_precision            ! single and double precision
 use m_part_modeltypes         ! part model definitions
 use timers
 use openfl_mod

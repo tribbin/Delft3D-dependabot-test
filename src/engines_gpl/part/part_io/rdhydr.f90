@@ -32,7 +32,7 @@ module rdhydr_mod
       use m_parttd
       use m_dlwqfl
       use m_dlwqbl
-      use precision_part      ! single and double precision
+      use m_waq_precision      ! single and double precision
       use timers
 !
 !  module procedure(s)

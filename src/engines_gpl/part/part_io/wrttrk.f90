@@ -121,7 +121,7 @@ contains
 !-----------------------------------------------------------------------
 !
 !
-      use precision_part       ! single and double precision
+      use m_waq_precision       ! single and double precision
       use timers
       use putget_mod      ! explicit interface
       use filldm_mod      ! explicit interface

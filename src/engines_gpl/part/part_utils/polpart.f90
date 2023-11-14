@@ -38,7 +38,7 @@ contains
 !     method     : read a single polygon from a tekal formated file (only the first is used!)
 !
       use m_skip_comments
-      use precision_part ! single/double precision
+      use m_waq_precision ! single/double precision
       use timers
       use m_stop_exit
 

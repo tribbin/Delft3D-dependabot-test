@@ -23,7 +23,7 @@
 
 module tidal_state_mod
 
-use precision_part               ! single/double precision
+use m_waq_precision               ! single/double precision
 implicit none
 
 contains

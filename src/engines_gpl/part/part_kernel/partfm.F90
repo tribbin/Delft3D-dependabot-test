@@ -47,7 +47,7 @@ use m_fm_write_unc
    use m_fm_particles_in_grid
    use m_fm_handle_mesh
    use m_rdpart
-   use precision_part
+   use m_waq_precision
    use MessageHandling
    use partmem
    use m_part_mesh

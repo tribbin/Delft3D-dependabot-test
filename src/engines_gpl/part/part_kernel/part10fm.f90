@@ -36,7 +36,7 @@ contains
 !                 (per time step)
 !
 !     system administration : frank kleissen
-      use precision_part
+      use m_waq_precision
       use partmem, only: nopart, modtyp, drand, oil, nfract, wpart, iptime, abuoy, t0buoy, ldiffh, nosubs, mpart
       use m_part_mesh
       use m_particles

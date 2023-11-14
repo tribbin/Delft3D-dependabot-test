@@ -33,7 +33,7 @@ contains
 !     Does a boom catch a particle in it's path from xold, yold to xnew, ynew?
 !     And if it does, does it bounce without crossing another part of the boom?
 
-      use precision_part      ! single/double precision
+      use m_waq_precision      ! single/double precision
       use timers
 
       implicit none

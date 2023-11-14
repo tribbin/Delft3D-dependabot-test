@@ -48,7 +48,7 @@ subroutine getdps ( lunpr  , lundp  , lnam   , nmax   , mmax   ,      &
 !          particle tracking, this file may be missing
 !          in other cases (see itrack)
 
-      use precision_part      ! single and double precision
+      use m_waq_precision      ! single and double precision
       use timers
       use fileinfo       ! file information for all input/output files
       use openfl_mod     ! explicit interface for subroutine calls

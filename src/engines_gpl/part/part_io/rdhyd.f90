@@ -44,7 +44,7 @@ use m_stop_exit
 
 !       Logical units     : lun1 = the hydrodynamic .hyd file
 
-      use precision_part       ! flexible size definition
+      use m_waq_precision       ! flexible size definition
       use typos           ! the derived types
       use hydmod
       use timers          ! performance timers

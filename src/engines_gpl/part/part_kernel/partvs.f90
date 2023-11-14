@@ -66,7 +66,7 @@ contains
 !     functions   called    : none.
 
       use m_stop_exit
-      use precision_part    ! single/double precision
+      use m_waq_precision    ! single/double precision
       use spec_feat_par
       use timers
       use m_part_modeltypes

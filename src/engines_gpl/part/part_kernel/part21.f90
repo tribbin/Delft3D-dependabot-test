@@ -29,7 +29,7 @@ module part21_mod
 !
 use m_stop_exit
 use m_part11
-use precision_part           ! single/double precision
+use m_waq_precision           ! single/double precision
       use timers
 !
 !  module procedure(s)

@@ -55,7 +55,7 @@ contains
 
 !     Functions   called    : none
 
-      use precision_part               ! single/double precision
+      use m_waq_precision               ! single/double precision
       use partmem, only: zmodel, laytop , laybot , zlbot
       use timers
       use, intrinsic :: ieee_arithmetic, only : ieee_value, ieee_quiet_nan

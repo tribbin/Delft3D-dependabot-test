@@ -30,7 +30,7 @@ module alloc_mod
 !  data definition module(s)
 !
       use m_stop_exit
-      use precision_part, only: int_wp , dp, sp               ! single and double precision
+      use m_waq_precision, only: int_wp , dp, sp               ! single and double precision
       implicit none   ! force explicit typing
 
       integer(int_wp ), private :: lunmem        ! output unit memory allocation

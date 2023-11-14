@@ -44,7 +44,7 @@ contains
 !>
 !>         The routine has been adapted from part09 to accommodate flexible mesh.
 
-      use precision_part          ! single/double precision
+      use m_waq_precision          ! single/double precision
       use timers
       use grid_search_mod
       use spec_feat_par

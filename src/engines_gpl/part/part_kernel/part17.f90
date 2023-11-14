@@ -53,7 +53,7 @@ contains
 
 !     Logical units         : none
 
-      use precision_part    ! single/double precision
+      use m_waq_precision    ! single/double precision
       use timers       ! to time the performance
       implicit none    ! explicit typing
 

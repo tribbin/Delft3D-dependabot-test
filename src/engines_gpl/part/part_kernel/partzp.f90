@@ -30,7 +30,7 @@ contains
       subroutine partzp (lunpr, nopart, nmax, mmax, mnmax2, nolay, mpart, npart, kpart, zpart, &
                          lgrid, laytopp, laytop, locdepp, locdep, itime, itstrtp)
 
-      use precision_part    ! single/double precision
+      use m_waq_precision    ! single/double precision
       use timers
       implicit none    ! explicit typing
 

@@ -52,7 +52,7 @@ contains
 !     functions   called    :
 
       use m_stop_exit
-      use precision_part    ! single/double precision
+      use m_waq_precision    ! single/double precision
       use timers
       use m_waq_timespace    ! meteo module ?
 

@@ -148,7 +148,7 @@ use m_part11
 
 !     Subroutines called    : part11 - make concentrations on a detailed plot grid
 
-      use precision_part         ! single/double precision
+      use m_waq_precision         ! single/double precision
       use timers            ! to time the performance
       use grid_search_mod   ! explicit interface
       use alloc_mod         ! to allocate arrays

@@ -51,7 +51,7 @@ contains
 !                           lun2 = delpar report file
 
       use rd_token        ! tokenized reading like in DELWAQ
-      use precision_part  ! flexible size definition
+      use m_waq_precision  ! flexible size definition
       use timers          ! performance timers
       use partmem         ! <== this is the data-block that is filled by this routine
       use m_part_modeltypes       ! part model definitions
@@ -2538,7 +2538,7 @@ contains
 !
       use get_key_mod
       use openfl_mod      ! explicit interface
-      use precision_part       ! flexible size definition
+      use m_waq_precision       ! flexible size definition
       implicit none           !   force explicit typing
       integer, parameter                  :: max_len_line=200
       integer, parameter                  :: max_len_key=20
@@ -2591,7 +2591,7 @@ contains
 !
       use get_key_mod
       use openfl_mod      ! explicit interface
-      use precision_part       ! flexible size definition
+      use m_waq_precision       ! flexible size definition
       implicit none           !   force explicit typing
       integer, parameter                  :: max_len_line=200
       integer, parameter                  :: max_len_key=20
@@ -2672,7 +2672,7 @@ subroutine getdim_asc ( lun , asc_file , npart_ini, nrowsmax , &
 
       use get_key_mod
       use openfl_mod          ! explicit interface
-      use precision_part      ! flexible size definition
+      use m_waq_precision      ! flexible size definition
       implicit none           ! force explicit typing
 
       integer, parameter                  :: max_len_line=200

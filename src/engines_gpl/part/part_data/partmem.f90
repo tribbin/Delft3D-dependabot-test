@@ -33,7 +33,7 @@ module partmem
 
 !     Created             : July    2011 by Leo Postma
 
-      use precision_part       ! single/double precision
+      use m_waq_precision       ! single/double precision
       use hydmod
       use typos           ! the derived types
 
@@ -330,7 +330,7 @@ module partmem
 end module partmem
 
 module m_part_regular
-      use precision_part       ! single/double precision
+      use m_waq_precision       ! single/double precision
       integer       (int_wp        ) ,  pointer, dimension(:       ) :: npart
       real          (sp       ) ,  pointer, dimension(:       ) :: xpart
       real          (sp       ) ,  pointer, dimension(:       ) :: ypart
@@ -344,7 +344,7 @@ module spec_feat_par
 
       !     special feature parameters
 
-      use precision_part      ! single and double precision
+      use m_waq_precision      ! single and double precision
 
 !     vertical bounce
       logical                                                   :: vertical_bounce

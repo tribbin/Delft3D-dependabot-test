@@ -135,7 +135,7 @@ use m_stop_exit
 
 !     Subroutines called    : part11 - make concentrations on a detailed plot grid
 
-      use precision_part         ! single/double precision
+      use m_waq_precision         ! single/double precision
       use partmem
       use m_part_transport
       use m_particles, laypart => kpart

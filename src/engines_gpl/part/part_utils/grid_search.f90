@@ -37,7 +37,7 @@ module grid_search_mod
 !
 !  data definition module(s)
 !
-use precision_part               ! single/double precision
+use m_waq_precision               ! single/double precision
 use timers
 use random_generator
 !
@@ -225,7 +225,7 @@ contains
                              ycor    , nrowsmax, xpol    , ypol    , xpart   ,     &
                              ypart   , npart   , mpart)
 
-      use precision_part ! single/double precision
+      use m_waq_precision ! single/double precision
       use pinpok_mod
       use timers
 
@@ -633,7 +633,7 @@ subroutine bilin5(xa        ,ya        ,x0        ,y0        ,w         , &
 !!--pseudo code and references--------------------------------------------------
 ! NONE
 !!--declarations----------------------------------------------------------------
-    use precision_part
+    use m_waq_precision
     implicit none
 !
 ! Global variables

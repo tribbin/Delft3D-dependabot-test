@@ -29,7 +29,7 @@ module openfl_mod
 !  data definition module(s)
 !
 use m_stop_exit
-use precision_part              ! single and double precision
+use m_waq_precision              ! single and double precision
 use timers
 !
 !  module procedure(s)

@@ -28,7 +28,7 @@ module writrk_mod
 !
 !  data definition module(s)
 !
-use precision_part       ! single and double precision
+use m_waq_precision       ! single and double precision
 use timers
 !
 !  module procedure(s)
