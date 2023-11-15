@@ -348,7 +348,7 @@ module m_dlwq5b
         end if
 
         ! CHULP equals an item-NAME
-        i2 = index_in_array(chulp, aname(1:ntitm))
+        i2 = index_in_array(chulp(1:len(aname(1))), aname(1:ntitm))
         if (i2 >= 1) then
             noitm = noitm + 1
             noits = noits + 1
@@ -370,7 +370,7 @@ module m_dlwq5b
         end if
 
         ! CHULP equals an item-TYPE. IAR now is negative.
-        i2 = index_in_array(chulp,atype(1:nttype))
+        i2 = index_in_array(chulp(1:len(atype(1))),atype(1:nttype))
         if (i2 >= 1) then
             noitm = noitm + 1
             noits = noits + 1

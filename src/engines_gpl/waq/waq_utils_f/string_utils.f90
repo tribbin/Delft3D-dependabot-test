@@ -134,9 +134,9 @@ module m_string_utils
         
         do i = 1, size(array_of_strings)
             if (present(case_sensitive) .and. case_sensitive) then
-                found = trim(string_to_find) == (array_of_strings(i))
+                found = string_to_find == array_of_strings(i)
             else
-                found = trim(str_tolower(string_to_find)) == trim(str_tolower(array_of_strings(i)))
+                found = str_tolower(string_to_find) == str_tolower(array_of_strings(i))
             end if
             if (found) then
                 location = i
