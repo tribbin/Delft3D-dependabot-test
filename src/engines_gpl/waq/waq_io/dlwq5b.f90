@@ -24,6 +24,11 @@ module m_dlwq5b
 
     implicit none
 
+    interface shift_subarray
+    module procedure shift_int_subarray, shift_char_subarray
+    end interface
+
+
     contains
 
 
@@ -31,7 +36,7 @@ module m_dlwq5b
                       iar  , icmax , iimax, aname , atype  ,&
                       ntitm, nttype, noitm, noits , chkflg ,&
                       callr, ilun  , lch  , lstack, itype  ,&
-                      rar  , nconst, itmnr, chulp , ioutpt, &
+                      rar  , nconst, itmnr, parsed_str , ioutpt, &
                       error_ind , iwar)
 
     use m_string_utils, only: index_in_array, join_strings
@@ -67,14 +72,14 @@ module m_dlwq5b
     character(*),  intent(in   ) :: atype(*)     !< Types of the boundaries/wastes
     character(10), intent(in   ) :: callr        !< Calling subject
     character(*),  intent(inout) :: lch(lstack)  !< File name stack, 4 deep
-    character(*),  intent(  out) :: chulp        !< Input string at end of routine
+    character(*),  intent(  out) :: parsed_str   !< Input string at end of routine
 
     ! Local variables
-    logical    :: usefor, setnam, comput, signon
+    logical    :: usefor, setnam, comput, operator_on
     integer(4) :: ithndl = 0
-    integer    :: i, ihulp, ifound, i2, namset, icm
+    integer    :: i, parsed_int, ifound, i2, namset, icm
     integer    :: itmnr, ioff, ioffc, ioffi
-    real       :: rhulp
+    real       :: parsed_real
     character(*), parameter :: operations(6) = ['*', '/', '+', '-', 'MIN', 'MAX']
     character(*), parameter :: keywords(24) = ['BLOCK'        ,&
                                               'BINARY_FILE'   ,&
@@ -108,7 +113,7 @@ module m_dlwq5b
     usefor = .false.
     setnam = .false.
     comput = .false.
-    signon = .false.
+    operator_on = .false.
     noitm  = 0
     noits  = 0
     itmnr  = 0
@@ -119,9 +124,9 @@ module m_dlwq5b
     !
     ! Get a token string (and return if any error was found)
 10  itype = -3
-    if (signon .or. (usefor .and. setnam)) itype = 0
+    if (operator_on .or. (usefor .and. setnam)) itype = 0
     call rdtok1(lunut, ilun, lch  , lstack, cchar,&
-                iposr, npos, chulp, ihulp , rhulp,&
+                iposr, npos, parsed_str, parsed_int , parsed_real,&
                 itype, error_ind)
     if (error_ind .ne. 0) then
         ! stop timer and return
@@ -130,10 +135,10 @@ module m_dlwq5b
     end if
 
     
-    ! if a keyword was met
-    if (abs(itype) == 1 .and. (any(keywords == trim(chulp)))) then
+    ! if type==1 and a keyword was met
+    if (abs(itype) == 1 .and. (any(keywords == trim(parsed_str)))) then
         if (usefor) then
-            write (lunut, 1035) chulp
+            write (lunut, 1035) parsed_str
             goto 40 !error and return
         else
             ! stop timer and return
@@ -142,13 +147,13 @@ module m_dlwq5b
         end if
     end if
 
-    ! if computation
-    if (abs(itype) == 1 .and. (any(operations == trim(chulp)))) then
+    ! if type==1 and computation was met
+    if (abs(itype) == 1 .and. (any(operations == trim(parsed_str)))) then
         if (.not. comput) then
             write (lunut , 1070)
             goto 40 !error and return
         end if
-        if (signon) then
+        if (operator_on) then
             write (lunut , 1080)
             goto 40 !error and return
         end if
@@ -156,7 +161,7 @@ module m_dlwq5b
         noits = noits + 1
         call movint(iar   , itmnr + noitm , itmnr + noitm * 2)
         iar(itmnr + noitm + noitm) = 0
-        select case(chulp)
+        select case(parsed_str)
             case ('*')
                 iar(itmnr + noitm) = -1000000
             case ('/')
@@ -170,100 +175,50 @@ module m_dlwq5b
             case ('MAX')
                 iar(itmnr + noitm) = -1200000000
         end select
-        signon = .true.
+        operator_on = .true.
         goto 10
     end if
 
     ! if an item used in computations
-    if (abs(itype) == 1 .and. signon) then
+    if (abs(itype) == 1 .and. operator_on) then
         do 15 i=1, itmnr-1
             if (iar(i) == -1300000000) goto 15
-            ifound = index_in_array(chulp, car(i+ioff:i+ioff))
+            ifound = index_in_array(parsed_str, car(i+ioff:i+ioff))
             if (ifound == 1) then
                 noits = noits - 1
                 i2 = iar(itmnr + noitm)
-                select case(i2)
-                    case (-1000000)
-                        write(lunut,1120)i,chulp
-                    case (-10000000)
-                        write(lunut,1110)i,chulp
-                    case (-100000000)
-                        write(lunut,1100)i,chulp
-                    case (-1000000000)
-                        write(lunut,1090)i,chulp
-                    case (-1100000000)
-                        write(lunut,1092)i,chulp
-                    case (-1200000000)
-                        write(lunut,1094)i,chulp
-                end select
+                call log_item_number_name(i2, lunut, i, parsed_str)
                 iar(itmnr + noitm) = i2 + i
                 car(itmnr + noitm + ioff) = '&$&$SYSTEM_NAME&$&$!'
-                signon = .false.
+                operator_on = .false.
                 goto 10
             end if
         15 end do
         i2 = iar(itmnr + noitm)
-        select case(i2)
-            case (-1000000)
-                write(lunut,1130)chulp
-            case (-10000000)
-                write(lunut,1140)chulp
-            case (-100000000)
-                write(lunut,1150)chulp
-            case (-1000000000)
-                write(lunut,1160)chulp
-            case (-1100000000)
-                write(lunut,1162)chulp
-            case (-1200000000)
-                write(lunut,1164)chulp
-        end select
-
+        call log_local_substitution(i2, lunut, parsed_str)
         iar (itmnr + noitm + noitm) = noits
-        car (itmnr + noitm + ioff) = chulp
-        signon = .false.
+        car (itmnr + noitm + ioff) = parsed_str
+        operator_on = .false.
         goto 10
     end if
 
     ! if a number is used in computations
     if (abs(itype) == 2 .or. abs(itype) == 3) then
-        if (setnam .or. signon) then
+        if (setnam .or. operator_on) then
             nconst = nconst + 1
-            rar(nconst) = rhulp
+            rar(nconst) = parsed_real
             noits = noits - 1
             i2 = iar(itmnr + noitm)
             car(itmnr + noitm+ioff) = '&$&$SYSTEM_NAME&$&$!'
-            if (signon) then
-                select case (i2)
-                    case (-1000000)
-                        write(lunut,1170)rhulp
-                    case (-10000000)
-                        write(lunut,1180)rhulp
-                    case (-100000000)
-                        write(lunut,1190)rhulp
-                    case (-1000000000)
-                        write(lunut,1200)rhulp
-                    case (-1100000000)
-                        write(lunut,1210)rhulp
-                    case (-1200000000)
-                        write(lunut,1220)rhulp
-                end select
+            if (operator_on) then
+                call log_number_in_operation(i2, lunut, parsed_real)
                iar(itmnr + noitm) = i2 - nconst
-               signon = .false.
+               operator_on = .false.
             end if
             if (setnam) then
                 namset = iar(itmnr)
-                if (namset > 0 .and. ioutpt >= 3) then
-                    write (lunut , 1001) callr, itmnr, callr, namset ,&
-                                         aname(namset) , rhulp
-                else if (namset == 0 .and. ioutpt >= 3) then
-                    write (lunut , 1001) callr, itmnr, callr, namset ,&
-                                         'FLOW'        , rhulp
-                else if (namset == -1300000000 .and. ioutpt >= 3) then
-                    write (lunut , 1001) callr, itmnr, callr, namset ,&
-                                         'Ignored'     , rhulp
-                else if (ioutpt >= 3) then
-                    write (lunut , 1011) callr, itmnr, callr,-namset ,&
-                                         atype(-namset) , rhulp
+                if (ioutpt >= 3) then
+                    call log_name_substitution(namset, lunut, aname, callr, itmnr, atype, parsed_real, parsed_str, .true.)
                 end if
                iar(itmnr + noitm) =  -nconst
                iar(itmnr + noitm+noitm) = 0
@@ -276,9 +231,9 @@ module m_dlwq5b
     end if
 
     !if a local redirection of the name of an item or substance
-    if (abs(itype) == 1 .and. chulp == 'USEFOR') then
+    if (abs(itype) == 1 .and. parsed_str == 'USEFOR') then
         if (usefor) then
-            write (lunut , 1035) chulp
+            write (lunut , 1035) parsed_str
             goto 40 !error and return
         else
             usefor = .true.
@@ -299,22 +254,10 @@ module m_dlwq5b
         if (usefor .and. setnam) then
             namset = iar(itmnr)
             if (ioutpt>=3) then
-                if (namset>0) then
-                    write (lunut , 1000) callr , itmnr , callr , namset ,&
-                                      aname(namset) , chulp
-                else if (namset==0) then
-                    write (lunut , 1000) callr , itmnr , callr , namset ,&
-                                      'FLOW'        , chulp
-                else if (namset == -1300000000) then
-                    write (lunut , 1000) callr , itmnr , callr , namset ,&
-                                      'Ignored'     , chulp
-                else
-                    write (lunut , 1010) callr , itmnr , callr ,-namset ,&
-                                      atype(-namset) , chulp
-                end if
+                call log_name_substitution(namset, lunut, aname, callr, itmnr, atype, parsed_real, parsed_str, .false.)
             end if
             iar(itmnr + noitm + noitm) = noits
-            car(itmnr + noitm + ioff) = chulp
+            car(itmnr + noitm + ioff) = parsed_str
             usefor = .false.
             setnam = .false.
             ! it is now possible to compute
@@ -322,16 +265,14 @@ module m_dlwq5b
             goto 10
         end if
         ! fill in a string value if an empty string is provided
-        if (chkflg      == -1 .and. chulp(1:20) == repeat(' ', 20)) then
-            chulp = 'Item-'
-            write (chulp(6:12) , '(I7)') noitm+1
+        if (chkflg      == -1 .and. parsed_str(1:20) == repeat(' ', 20)) then
+            parsed_str = 'Item-'
+            write (parsed_str(6:12) , '(I7)') noitm+1
         end if
         ! FLOW is only valid as CONCENTR. and item number is 0
-        ifound = index_in_array(chulp, ['FLOW                '])
+        ifound = index_in_array(parsed_str, ['FLOW                '])
         if (ifound == 1 .and. callr == 'CONCENTR. ') then
-            noitm = noitm + 1
-            noits = noits + 1
-            itmnr = itmnr + 1
+            call update_counters(noitm, noits, itmnr)
             icm = itmnr + noitm + ioff
             call movint(iar, itmnr      , itmnr + noitm*2)
             call movint(iar, itmnr + noitm, itmnr + noitm*2)
@@ -339,8 +280,8 @@ module m_dlwq5b
             iar (itmnr) =  0
             iar (itmnr + noitm) = itmnr
             iar (itmnr + noitm + noitm) = noits
-            car (itmnr + ioff) = chulp
-            car (itmnr + noitm + ioff) = chulp
+            car (itmnr + ioff) = parsed_str
+            car (itmnr + noitm + ioff) = parsed_str
             if (usefor) setnam = .true.
             if (ioutpt >= 3 .and. .not. usefor)&
             write (lunut , 1020) callr , itmnr , callr , 0 , 'FLOW'
@@ -348,45 +289,41 @@ module m_dlwq5b
         end if
 
         ! CHULP equals an item-NAME
-        i2 = index_in_array(chulp(1:len(aname(1))), aname(1:ntitm))
-        if (i2 >= 1) then
-            noitm = noitm + 1
-            noits = noits + 1
-            itmnr = itmnr + 1
+        ifound = index_in_array(parsed_str(1:len(aname(1))), aname(1:ntitm))
+        if (ifound >= 1) then
+            call update_counters(noitm, noits, itmnr)
             icm = itmnr + noitm + ioff
-            call movint(iar, itmnr      , itmnr + noitm*2)
+            call movint(iar, itmnr        , itmnr + noitm*2)
             call movint(iar, itmnr + noitm, itmnr + noitm*2)
             call movchr(car, itmnr+ioff , icm)
-            iar(itmnr) =  i2
+            iar(itmnr) =  ifound
             iar(itmnr + noitm) = itmnr
             iar(itmnr + noitm + noitm) = noits
-            car(itmnr + ioff) = chulp
-            car(itmnr + noitm + ioff) = chulp
+            car(itmnr + ioff) = parsed_str
+            car(itmnr + noitm + ioff) = parsed_str
             if (usefor) setnam = .true.
             if (ioutpt >= 3 .and. .not. usefor) then
-                write (lunut , 1020) callr, itmnr, callr, i2, aname(i2)
+                write (lunut , 1020) callr, itmnr, callr, ifound, aname(ifound)
             end if
             goto 10
         end if
 
         ! CHULP equals an item-TYPE. IAR now is negative.
-        i2 = index_in_array(chulp(1:len(atype(1))),atype(1:nttype))
-        if (i2 >= 1) then
-            noitm = noitm + 1
-            noits = noits + 1
-            itmnr = itmnr + 1
+        ifound = index_in_array(parsed_str(1:len(atype(1))),atype(1:nttype))
+        if (ifound >= 1) then
+            call update_counters(noitm, noits, itmnr)
             icm = itmnr + noitm + ioff
             call movint(iar, itmnr      , itmnr + noitm*2)
             call movint(iar, itmnr + noitm, itmnr + noitm*2)
             call movchr(car, itmnr+ioff , icm)
-            iar(itmnr) = -i2
+            iar(itmnr) = -ifound
             iar(itmnr + noitm) = itmnr
             iar(itmnr + noitm + noitm) = noits
-            car(itmnr + ioff) = chulp
-            car(itmnr + noitm + ioff) = chulp
+            car(itmnr + ioff) = parsed_str
+            car(itmnr + noitm + ioff) = parsed_str
             if (usefor) setnam = .true.
             if (ioutpt >= 3 .and. .not. usefor) then
-                write (lunut , 1030) callr, itmnr, callr, i2, atype(i2)
+                write (lunut , 1030) callr, itmnr, callr, ifound, atype(ifound)
             end if
             goto 10
         end if
@@ -396,31 +333,31 @@ module m_dlwq5b
         ! JVB stick to just a warning keep on reading IAR = 0?, or used for flow??
 
         if (chkflg == 1) then
-            noitm = noitm + 1
-            noits = noits + 1
-            itmnr = itmnr + 1
+            call update_counters(noitm, noits, itmnr)
             icm = itmnr + noitm + ioff
-            call movint(iar, itmnr      , itmnr + noitm*2)
-            call movint(iar, itmnr + noitm, itmnr + noitm*2)
-            call movchr(car, itmnr+ioff , icm)
+            call shift_subarray(iar, itmnr      , itmnr + noitm*2)
+            !call movint(iar, itmnr      , itmnr + noitm*2)
+            call shift_subarray(iar, itmnr + noitm, itmnr + noitm*2)
+            !call movint(iar, itmnr + noitm, itmnr + noitm*2)
+            call shift_subarray(car(:icm+1), itmnr+ioff , icm) 
+            !call movchr(car, itmnr+ioff , icm)
             iar (itmnr) = -1300000000
             iar (itmnr + noitm) = 1300000000
             iar (itmnr + noitm + noitm) = noits
-            car (itmnr + ioff) = chulp
-            car (itmnr + noitm + ioff) = chulp
+            car (itmnr + ioff) = parsed_str
+            car (itmnr + noitm + ioff) = parsed_str
             if (usefor) setnam = .true.
-            write(lunut , 1040) callr, itmnr, chulp
+            write(lunut , 1040) callr, itmnr, parsed_str
             iwar = iwar + 1
             goto 10
         else
-
             ! Now a new name is added to the list of names
             !        the rest is moved upward since it is all 1 array
             ntitm = ntitm + 1
             ioff  = ioff  + 1
             icm   = icmax + ntitm
             call movchr (aname, ntitm, icm)
-            aname(ntitm) = chulp
+            aname(ntitm) = parsed_str
             ! plus normal procedure
             noitm = noitm + 1
             noits = noits + 1
@@ -432,8 +369,8 @@ module m_dlwq5b
             iar(itmnr) = ntitm
             iar(itmnr + noitm) = itmnr
             iar(itmnr + noitm + noitm) = noits
-            car(itmnr + ioff) = chulp
-            car(itmnr + noitm + ioff) = chulp
+            car(itmnr + ioff) = parsed_str
+            car(itmnr + noitm + ioff) = parsed_str
             if (usefor) setnam = .true.
             if (ioutpt >= 3 .and. .not. usefor) then
                 write (lunut , 1020) callr, itmnr, callr, ntitm, aname(ntitm)
@@ -444,50 +381,48 @@ module m_dlwq5b
 
     ! If no item name was given, but an item number
     if (itype == 2) then
-        if (ihulp <=  ntitm .and. ihulp >= -nttype) then
-            noitm = noitm + 1
-            noits = noits + 1
-            itmnr = itmnr + 1
+        if (parsed_int <=  ntitm .and. parsed_int >= -nttype) then
+            call update_counters(noitm, noits, itmnr)
             icm = itmnr + noitm + ioff
             call movint(iar, itmnr      , itmnr + noitm*2)
             call movint(iar, itmnr + noitm, itmnr + noitm*2)
             call movchr(car, itmnr+ioff , icm)
-            iar (itmnr) = ihulp
+            iar (itmnr) = parsed_int
             iar (itmnr + noitm) = itmnr
             iar (itmnr + noitm + noitm) = noits
             if (callr == 'segment') then
-                if (ihulp <= 0) then
-                    write (lunut , 1060) ihulp
+                if (parsed_int <= 0) then
+                    write (lunut , 1060) parsed_int
                     goto 40 !error and return
                 end if
                 if (ioutpt >= 3 .and. .not. usefor)&
-                    write (lunut , 1015) callr, itmnr, callr,  ihulp
-                write (chulp , '(''Segment '',I8)') ihulp
-            else if (ihulp == 0 .and. callr .ne. 'CONCENTR. ') then
-                write (lunut , 1060) ihulp
+                    write (lunut , 1015) callr, itmnr, callr,  parsed_int
+                write (parsed_str , '(''Segment '',I8)') parsed_int
+            else if (parsed_int == 0 .and. callr .ne. 'CONCENTR. ') then
+                write (lunut , 1060) parsed_int
                 goto 40 !error and return
-            else if (ihulp > 0) then
+            else if (parsed_int > 0) then
                 if (ioutpt >= 3 .and. .not. usefor)&
-                    write (lunut , 1020) callr, itmnr, callr,  ihulp,&
-                                                         aname(ihulp)
-                chulp = aname(ihulp)
-            else if (ihulp == 0 .and. callr == 'CONCENTR. ') then
+                    write (lunut , 1020) callr, itmnr, callr,  parsed_int,&
+                                                         aname(parsed_int)
+                parsed_str = aname(parsed_int)
+            else if (parsed_int == 0 .and. callr == 'CONCENTR. ') then
                 if (ioutpt >= 3 .and. .not. usefor)&
-                write (lunut , 1020) callr, itmnr, callr, ihulp,&
+                write (lunut , 1020) callr, itmnr, callr, parsed_int,&
                                                           'FLOW'
-                chulp = 'FLOW'
+                parsed_str = 'FLOW'
             else
                 if (ioutpt >= 3 .and. .not. usefor)&
-                write (lunut , 1030) callr, itmnr, callr, -ihulp,&
-                                     atype(-ihulp)
-                chulp = atype(-ihulp)
+                write (lunut , 1030) callr, itmnr, callr, -parsed_int,&
+                                     atype(-parsed_int)
+                parsed_str = atype(-parsed_int)
             end if
-            car (itmnr + ioff) = chulp
-            car (itmnr + noitm + ioff) = chulp
+            car (itmnr + ioff) = parsed_str
+            car (itmnr + noitm + ioff) = parsed_str
             if (usefor) setnam = .true.
             goto 10
         else
-            write (lunut , 1060) ihulp
+            write (lunut , 1060) parsed_int
             goto 40 !error and return
         end if
     end if
@@ -496,14 +431,14 @@ module m_dlwq5b
       if (timon) call timstop(ithndl)
       return
 !
- 1000 format(' Input ',A,' nr:',I5,' is ',A,' nr:',I5,' with ID  : ',&
-               A20,' and local substitution: ',A20)
- 1001 format(' Input ',A,' nr:',I5,' is ',A,' nr:',I5,' with ID  : ',&
-               A20,' and local substitution: ',E15.6)
- 1010 format(' Input ',A,' nr:',I5,' is ',A,' type:',I5,&
-               ' with type: ',A20,' and local substitution: ',A20)
- 1011 format(' Input ',A,' nr:',I5,' is ',A,' type:',I5,&
-               ' with type: ',A20,' and local substitution: ',E15.6)
+! 1000 format(' Input ',A,' nr:',I5,' is ',A,' nr:',I5,' with ID  : ',&
+!               A20,' and local substitution: ',A20)
+! 1001 format(' Input ',A,' nr:',I5,' is ',A,' nr:',I5,' with ID  : ',&
+!               A20,' and local substitution: ',E15.6)
+! 1010 format(' Input ',A,' nr:',I5,' is ',A,' type:',I5,&
+!               ' with type: ',A20,' and local substitution: ',A20)
+! 1011 format(' Input ',A,' nr:',I5,' is ',A,' type:',I5,&
+!               ' with type: ',A20,' and local substitution: ',E15.6)
  1015 format(' Input ',A,' nr:',I5,' is ',A,' nr:',I5)
  1020 format(' Input ',A,' nr:',I5,' is ',A,' nr:',I5,' with ID  : ',&
                A20)
@@ -517,26 +452,152 @@ module m_dlwq5b
  1070 format(' ERROR: multiplication is only allowed in USEFOR',&
                ' context !')
  1080 format(' ERROR: arithmetics should be separated by items !')
- 1090 format(' Subtracted by item nr: ',I6,' Name: ',A20)
- 1092 format(' Minimum value is item nr: ',I6,' Name: ',A20)
- 1094 format(' Maximum value is item nr: ',I6,' Name: ',A20)
- 1100 format(' Summed with item nr: ',I6,' Name: ',A20)
- 1110 format(' Divided by item nr: ',I6,' Name: ',A20)
- 1120 format(' Multiplied by item nr: ',I6,' Name: ',A20)
- 1130 format(' Multiplied by local substitution: ',A20)
- 1140 format(' Divided by local substitution: ',A20)
- 1150 format(' Summed with local substitution: ',A20)
- 1160 format(' Subtracted by local substitution: ',A20)
- 1162 format(' Minimum value is local substitution: ',A20)
- 1164 format(' Maximum value is local substitution: ',A20)
  1169 format(' Substituted by: ',E15.6)
- 1170 format(' Multiplied by: ',E15.6)
- 1180 format(' Divided by: ',E15.6)
- 1190 format(' Summed with: ',E15.6)
- 1200 format(' Subtracted by: ',E15.6)
- 1210 format(' Minimum value is: ',E15.6)
- 1220 format(' Maximum value is: ',E15.6)
-!
+
     end subroutine dlwq5b
+
+    subroutine update_counters(counter_a, counter_b, counter_c)
+        integer, intent(inout) :: counter_a, counter_b, counter_c
+        
+        integer i
+
+        counter_a = counter_a + 1
+        counter_b = counter_b + 1
+        counter_c = counter_c + 1
+    end subroutine update_counters
+
+    subroutine shift_int_subarray(total_array, start_shift, end_shift)
+        integer, dimension(:), intent(inout) :: total_array
+        integer, intent(in) :: start_shift, end_shift
+
+        integer i
+        do i = end_shift, start_shift, -1
+            total_array(i+1) = total_array(i)
+        end do
+    end subroutine shift_int_subarray
+
+    subroutine shift_char_subarray(total_array, start_shift, end_shift)
+        character(len=*), dimension(:), intent(inout) :: total_array
+        integer, intent(in) :: start_shift, end_shift
+
+        integer i
+        do i = end_shift, start_shift, -1
+            total_array(i+1) = total_array(i)
+        end do
+    end subroutine shift_char_subarray
+
+    subroutine log_local_substitution(index, log_unit, string)
+        integer, intent(in) :: index
+        integer, intent(in) :: log_unit 
+        character(20), intent(in) :: string
+
+        character(20) :: message_start
+
+        select case(index)
+            case (-1000000)
+                message_start = ' Multiplied by'
+            case (-10000000)
+                message_start = ' Divided by'
+            case (-100000000)
+                message_start = ' Added with'
+            case (-1000000000)
+                message_start = ' Subtracted by'
+            case (-1100000000)
+                message_start = ' Minimum value is'
+            case (-1200000000)
+                message_start = ' Maximum value is'
+        end select
+        write(log_unit, '(2A,A20)') trim(message_start), ' local substitution: ', string
+    end subroutine log_local_substitution
+
+
+    subroutine log_item_number_name(index, log_unit, item_number, string)
+        integer, intent(in) :: index
+        integer, intent(in) :: log_unit
+        integer, intent(in) :: item_number
+        character(20), intent(in) :: string
+
+        character(20) :: message_start
+
+        select case(index)
+            case (-1000000)
+                message_start = ' Multiplied by'
+            case (-10000000)
+                message_start = ' Divided by'
+            case (-100000000)
+                message_start = ' Added with'
+            case (-1000000000)
+                message_start = ' Subtracted by'
+            case (-1100000000)
+                message_start = ' Minimum value is'
+            case (-1200000000)
+                message_start = ' Maximum value is'
+        end select
+        write(log_unit, '(2A,I6,A7, A20)') trim(message_start), ' item nr: ', item_number, ' Name: ', string
+    end subroutine log_item_number_name
+
+    subroutine log_number_in_operation(index, log_unit, number)
+        integer, intent(in) :: index
+        integer, intent(in) :: log_unit 
+        real, intent(in)    :: number
+
+        character(20) :: message_start
+
+        select case(index)
+            case (-1000000)
+                message_start = ' Multiplied by: '
+            case (-10000000)
+                message_start = ' Divided by: '
+            case (-100000000)
+                message_start = ' Added with: '
+            case (-1000000000)
+                message_start = ' Subtracted by: '
+            case (-1100000000)
+                message_start = ' Minimum value is: '
+            case (-1200000000)
+                message_start = ' Maximum value is: '
+        end select
+        write(log_unit, '(A,E15.6,A20)') trim(message_start), number
+    end subroutine log_number_in_operation
+
+    subroutine log_name_substitution(index, log_unit, all_ids, callr, itmnr, all_types, target_real, target_char, real_substitution)
+        integer, intent(in) :: index
+        integer, intent(in) :: log_unit
+        integer, intent(in) :: itmnr
+        real, intent(in)    :: target_real
+        character(*), intent(in) :: callr
+        character(*), intent(in) :: target_char
+        logical, intent(in) :: real_substitution
+        character(*),  intent(inout) :: all_ids(*)       !< Id's of the boundaries/wastes
+        character(*),  intent(in   ) :: all_types(*)     !< Types of the boundaries/wastes
+
+        character(20) :: name
+        character(28) :: substitution
+        character(4)  :: id_or_type
+        integer :: name_set
+
+        id_or_type = 'ID  '
+        name_set = index
+        select case(index)
+            case(1:)
+                name = all_ids(index)
+            case(0)
+                name = 'FLOW'
+            case(-1300000000)
+                name = 'Ignored'
+            case default
+                id_or_type = 'type'
+                name_set = -index
+                name = all_types(-index)
+        end select
+        if (real_substitution) then
+            write(substitution, '(A20)') target_real
+        else
+            substitution = target_char
+        end if
+        write(log_unit, '(3A,I5,2A,I5,3A,A20,A,A20)') ' Input ', callr, ' nr:', itmnr, ' is ', callr, &
+                        name_set , ' with ', trim(id_or_type), '  : ', name , ' and local substitution: ',  substitution
+        end subroutine log_name_substitution
+
 
 end module m_dlwq5b

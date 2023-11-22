@@ -186,7 +186,7 @@ subroutine delwaq1_read_input_data()
                   ierr         )
     write ( lunrep,'(//'' Messages presented in this .lst file:'')')
     write ( lunrep,'( /'' Number of WARNINGS            :'',I6)') iwar
-    write ( lunrep,'(  '' Number of ERRORS during input :'',I6)') ierr
+    write ( lunrep,'(  '' Number of ERRORS during input :'',I6)') ierr ! here, ierr = 0
     write ( lunrep,'(  '' '')')
 
     call dlwqp1 ( lun          , lchar        , &

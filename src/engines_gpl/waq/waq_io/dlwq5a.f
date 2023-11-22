@@ -130,7 +130,7 @@
 
 !     Local declarations
 
-      character     callr*10, calit*10, caldit*10, strng1*10, strng2*10,
+      character     calit*10, caldit*10, strng1*10, strng2*10,
      *              strng3*10
       integer       iorder   , noitm , nodim , iflag  , itype ,
      +              ittim    , chkflg, ident , nottc  , lunwr2,
@@ -163,7 +163,6 @@
       lunwr2 = lun(iu)
       ifilsz = 0
       jfilsz = 0
-      callr  = 'CONCENTR. '
       strng2 = 'Substance'
       ipro   = 0
       itfacw = 1
@@ -391,20 +390,20 @@
          icm    = icmax - ioff
          iim    = iimax - ioff
          if ( ident .le. 1) then
-            call dlwq5b ( lunut    , iposr , npos  , cchar , car(ioff:),
-     *                    iar(ioff:), icm   , iim   , aname , atype    ,
-     *                    ntitm    , nttype, noitm , noits , chkflg   ,
-     *                    calit    , ilun  , lch   , lstack,
-     *                    itype    , rar   , nconst, itmnr , chulp    ,
-     *                                       ioutpt, ierr2 , iwar     )
+            call dlwq5b ( lunut     , iposr , npos , cchar , car(ioff:),
+     *                    iar(ioff:), icm   , iim  , aname , atype     ,
+     *                    ntitm     , nttype, noitm, noits , chkflg    ,
+     *                    calit     , ilun  , lch  , lstack, itype     ,
+     *                    rar       , nconst, itmnr, chulp , ioutpt    ,
+     *                    ierr2     , iwar)
          else
-            call dlwq5b ( lunut    , iposr , npos  , cchar , car(ioff:),
-     *                    iar(ioff:), icm   , iim   , dlwq_data_items%name(1:ndata_items) ,
-     *                    dlwq_data_items%name(1:ndata_items) , ndata_items,
-     *                    ndata_items      , noitm , noits , chkflg   ,
-     *                    caldit   , ilun  , lch   , lstack,
-     *                    itype    , rar   , nconst, itmnr , chulp    ,
-     *                                       ioutpt, ierr2 , iwar     )
+            call dlwq5b ( lunut      , iposr      , npos , cchar , car(ioff:),
+     *                    iar(ioff:) , icm        , iim  , dlwq_data_items%name(1:ndata_items),
+     *                                                      dlwq_data_items%name(1:ndata_items),
+     *                    ndata_items, ndata_items, noitm, noits , chkflg,
+     *                    caldit     , ilun       , lch  , lstack, itype,
+     *                    rar        , nconst     , itmnr, chulp , ioutpt,
+     *                    ierr2 , iwar     )
             if (noitm.ne.1) then
                write ( lunut , 1045 )
                ierr2 = 1
@@ -475,11 +474,11 @@
          chkflg = 1
          icm    = icmax - ioff
          iim    = iimax - ioff
-         call dlwq5b ( lunut    , iposr , npos  , cchar , car(ioff:),
-     *                 iar(ioff:), icm   , iim   , sname , atype    ,
-     *                 ntdim    ,   0   , nodim , nodis , chkflg   ,
-     *                 callr    , ilun  , lch   , lstack,
-     *                 itype    , rar   , nconst, idmnr , chulp    ,
+         call dlwq5b ( lunut       , iposr , npos  , cchar , car(ioff:),
+     *                 iar(ioff:)  , icm   , iim   , sname , atype    ,
+     *                 ntdim       ,   0   , nodim , nodis , chkflg   ,
+     *                 'CONCENTR. ', ilun  , lch   , lstack,
+     *                 itype       , rar   , nconst, idmnr , chulp    ,
      *                                    ioutpt, ierr2 , iwar     )
          nocol = nodis
          if ( ierr2 .ne. 0 ) goto 510
