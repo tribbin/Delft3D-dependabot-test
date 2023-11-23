@@ -279,7 +279,7 @@ contains
       character(len=len_trim(output_config%input_value)) :: valuestring
       integer :: ierr
       valuestring = output_config%input_value
-      
+
       do while (len_trim(valuestring) > 0) 
          ierr = parse_next_stat_type_from_valuestring(valuestring, item%operation_type, item%moving_average_window)
          if (ierr /= SO_NOERR) then
