@@ -77,7 +77,7 @@ module m_dlwq5b
 
 !   Local variables
     logical    :: usefor_on, substitution_on, can_compute, operator_on
-    logical    :: must_log
+    logical    :: logging_on
     logical    :: show_must_go_on
     integer(4) :: ithndl = 0
     integer    :: i, parsed_int, ifound, i2, name_index, icm
@@ -119,7 +119,7 @@ module m_dlwq5b
     can_compute = .false.
     operator_on = .false.
     show_must_go_on = .true.
-    must_log = (ioutpt >= 3)
+    logging_on = (ioutpt >= 3)
     noitm  = 0
     noits  = 0
     itmnr  = 0
@@ -129,7 +129,7 @@ module m_dlwq5b
     nconst = 0
     !
     ! Get a token string (and return if any error was found)
-    do
+    read_and_process: do
         itype = -3
         if (operator_on .or. (usefor_on .and. substitution_on)) itype = 0
         call rdtok1(lunut, ilun, lch  , lstack, cchar,&
@@ -139,10 +139,8 @@ module m_dlwq5b
             call finish(ithndl)
             return
         end if
-
-        scenarios : block
-            ! Scenario: type==1 and a keyword was met
-            if (abs(itype) == 1 .and. (any(keywords == trim(parsed_str)))) then
+        ! Scenario: type==1 and a keyword was met
+        if (abs(itype) == 1 .and. (any(keywords == trim(parsed_str)))) then
                 if (usefor_on) then
                     write (lunut, 1035) parsed_str
                     call error_and_finish(error_ind, ithndl)
@@ -151,10 +149,10 @@ module m_dlwq5b
                     call finish(ithndl)
                     return
                 end if
-            end if
-        
-            ! Scenario: type==1 and computation was met
-            if (abs(itype) == 1 .and. (any(operations == trim(parsed_str)))) then
+        end if
+    
+        ! Scenario: type==1 and computation was met
+        if (abs(itype) == 1 .and. (any(operations == trim(parsed_str)))) then
                 if (.not. can_compute) then
                     write (lunut , 1070)
                     call error_and_finish(error_ind, ithndl)
@@ -184,12 +182,11 @@ module m_dlwq5b
                         iar(itmnr + noitm) = -1200000000
                 end select
                 operator_on = .true.
-                !goto 10
-                exit scenarios
-            end if
-        
-            ! Scenario: an item used in computations
-            if (abs(itype) == 1 .and. operator_on) then
+                cycle read_and_process
+        end if
+    
+        ! Scenario: an item used in computations
+        if (abs(itype) == 1 .and. operator_on) then
                 do i=1, itmnr-1
                     if (iar(i) == -1300000000) cycle
                     ifound = index_in_array(parsed_str, car(i+ioff:i+ioff))
@@ -200,8 +197,7 @@ module m_dlwq5b
                         iar(itmnr + noitm) = i2 + i
                         car(itmnr + noitm + ioff) = '&$&$SYSTEM_NAME&$&$!'
                         operator_on = .false.
-                        ! goto 10
-                        exit scenarios
+                        cycle read_and_process
                     end if
                 end do
                 i2 = iar(itmnr + noitm)
@@ -209,12 +205,11 @@ module m_dlwq5b
                 iar (itmnr + noitm + noitm) = noits
                 car (itmnr + noitm + ioff) = parsed_str
                 operator_on = .false.
-                ! goto 10
-                exit scenarios
-            end if
-        
-            ! Scenario: a number (int, 2, or real, 3) is used in computations
-            if (  (abs(itype) == 2 .or. abs(itype) == 3) .and. &
+                cycle read_and_process
+        end if
+    
+        ! Scenario: a number (int, 2, or real, 3) is used in computations
+        if (  (abs(itype) == 2 .or. abs(itype) == 3) .and. &
                   (substitution_on .or. operator_on) ) then
                 nconst = nconst + 1
                 rar(nconst) = parsed_real
@@ -222,7 +217,7 @@ module m_dlwq5b
                 i2 = iar(itmnr + noitm)
                 car(itmnr + noitm + ioff) = '&$&$SYSTEM_NAME&$&$!'
                 if (operator_on) then
-                    if (must_log) then
+                    if (logging_on) then
                         call log_number_in_operation(i2, lunut, parsed_real)
                     end if
                     iar(itmnr + noitm) = i2 - nconst
@@ -230,7 +225,7 @@ module m_dlwq5b
                 end if
                 if (substitution_on) then
                     name_index = iar(itmnr)
-                    if (must_log) then
+                    if (logging_on) then
                         call log_name_substitution(name_index, lunut, aname, caller, itmnr, atype, parsed_real, parsed_str, .true.)
                     end if
                     iar(itmnr + noitm) =  -nconst
@@ -239,12 +234,11 @@ module m_dlwq5b
                     substitution_on = .false.
                     can_compute     = .true.
                 end if
-                !goto 10
-                exit scenarios
-            end if
-        
-            ! Scenario: a local redirection of the name of an item or substance
-            if (abs(itype) == 1 .and. parsed_str == 'USEFOR') then
+                cycle read_and_process
+        end if
+    
+        ! Scenario: a local redirection of the name of an item or substance
+        if (abs(itype) == 1 .and. parsed_str == 'USEFOR') then
                 if (usefor_on) then
                     write (lunut , 1035) parsed_str
                     call error_and_finish(error_ind, ithndl)
@@ -252,16 +246,14 @@ module m_dlwq5b
                 else
                     usefor_on = .true.
                     substitution_on = .false.
-                    !goto 10
-                    exit scenarios
+                    cycle read_and_process
                 end if
-            end if
-
-            ! Scenario:
-            if (itype == 1) then
+        end if
+        ! Scenario:
+        if (itype == 1) then
                 if (usefor_on .and. substitution_on) then
                     name_index = iar(itmnr)
-                    if (must_log) then
+                    if (logging_on) then
                         call log_name_substitution(name_index, lunut, aname, caller, itmnr, atype, parsed_real, parsed_str, .false.)
                     end if
                     iar(itmnr + noitm + noitm) = noits
@@ -270,8 +262,7 @@ module m_dlwq5b
                     substitution_on = .false.
                     ! it is now possible to compute
                     can_compute = .true.
-                    !goto 10
-                    exit scenarios
+                    cycle read_and_process
                 end if
                 ! fill in a string value if an empty string is provided
                 if (chkflg == -1 .and. parsed_str(1:20) == repeat(' ', 20)) then
@@ -292,11 +283,10 @@ module m_dlwq5b
                     car (itmnr + ioff) = parsed_str
                     car (itmnr + noitm + ioff) = parsed_str
                     if (usefor_on) substitution_on = .true.
-                    if (must_log .and. .not. usefor_on) then
+                    if (logging_on .and. .not. usefor_on) then
                         write (lunut , 1020) caller , itmnr , caller , 0 , 'FLOW'
                     end if
-                    !goto 10
-                    exit scenarios
+                    cycle read_and_process
                 end if
             
                 ! parsed_str == item-NAME
@@ -313,11 +303,10 @@ module m_dlwq5b
                     car(itmnr + ioff) = parsed_str
                     car(itmnr + noitm + ioff) = parsed_str
                     if (usefor_on) substitution_on = .true.
-                    if (must_log .and. .not. usefor_on) then
+                    if (logging_on .and. .not. usefor_on) then
                         write (lunut , 1020) caller, itmnr, caller, ifound, aname(ifound)
                     end if
-                    !goto 10
-                    exit scenarios
+                    cycle read_and_process
                 end if
             
                 ! parsed_str == item-TYPE. IAR now is negative.
@@ -334,11 +323,10 @@ module m_dlwq5b
                     car(itmnr + ioff) = parsed_str
                     car(itmnr + noitm + ioff) = parsed_str
                     if (usefor_on) substitution_on = .true.
-                    if (must_log .and. .not. usefor_on) then
+                    if (logging_on .and. .not. usefor_on) then
                         write (lunut , 1030) caller, itmnr, caller, ifound, atype(ifound)
                     end if
-                    !goto 10
-                    exit scenarios
+                    cycle read_and_process
                 end if
             
                 ! If only existing names or types are allowed then
@@ -362,8 +350,7 @@ module m_dlwq5b
                     if (usefor_on) substitution_on = .true.
                     write(lunut , 1040) caller, itmnr, parsed_str
                     iwar = iwar + 1
-                    !goto 10
-                    exit scenarios
+                    cycle read_and_process
                 else
                     ! Now a new name is added to the list of names
                     !        the rest is moved upward since it is all 1 array
@@ -386,16 +373,14 @@ module m_dlwq5b
                     car(itmnr + ioff) = parsed_str
                     car(itmnr + noitm + ioff) = parsed_str
                     if (usefor_on) substitution_on = .true.
-                    if (must_log .and. .not. usefor_on) then
+                    if (logging_on .and. .not. usefor_on) then
                         write (lunut , 1020) caller, itmnr, caller, ntitm, aname(ntitm)
                     end if
-                    !goto 10
-                    exit scenarios
+                    cycle read_and_process
                 end if
-            end if
-
-            ! Scenario: no item name was given, but an item number
-            if (itype == 2) then
+        end if
+        ! Scenario: no item name was given, but an item number
+        if (itype == 2) then
                 if (parsed_int <=  ntitm .and. parsed_int >= -nttype) then
                     call update_counters(noitm, noits, itmnr)
                     icm = itmnr + noitm + ioff
@@ -411,7 +396,7 @@ module m_dlwq5b
                             call error_and_finish(error_ind, ithndl)
                             return
                         end if
-                        if (must_log .and. .not. usefor_on) then
+                        if (logging_on .and. .not. usefor_on) then
                             write (lunut , 1015) caller, itmnr, caller,  parsed_int
                         end if
                         write (parsed_str , '(''Segment '',I8)') parsed_int
@@ -420,19 +405,19 @@ module m_dlwq5b
                         call error_and_finish(error_ind, ithndl)
                         return
                     else if (parsed_int > 0) then
-                        if (must_log .and. .not. usefor_on) then
+                        if (logging_on .and. .not. usefor_on) then
                             write (lunut , 1020) caller, itmnr, caller,  parsed_int,&
                                                                  aname(parsed_int)
                         end if
                         parsed_str = aname(parsed_int)
                     else if (parsed_int == 0 .and. caller == 'CONCENTR. ') then
-                        if (must_log .and. .not. usefor_on) then
+                        if (logging_on .and. .not. usefor_on) then
                             write (lunut , 1020) caller, itmnr, caller, parsed_int,&
                                                                   'FLOW'
                         end if
                         parsed_str = 'FLOW'
                     else
-                        if (must_log .and. .not. usefor_on) then
+                        if (logging_on .and. .not. usefor_on) then
                             write (lunut , 1030) caller, itmnr, caller, -parsed_int,&
                                              atype(-parsed_int)
                         end if
@@ -441,16 +426,14 @@ module m_dlwq5b
                     car (itmnr + ioff) = parsed_str
                     car (itmnr + noitm + ioff) = parsed_str
                     if (usefor_on) substitution_on = .true.
-                    !goto 10
-                    exit scenarios
+                    cycle read_and_process
                 else
                     write (lunut , 1060) parsed_int
                     call error_and_finish(error_ind, ithndl)
                     return
                 end if
-            end if
-        end block scenarios
-    end do
+        end if
+    end do read_and_process
 !
 ! 1000 format(' Input ',A,' nr:',I5,' is ',A,' nr:',I5,' with ID  : ',&
 !               A20,' and local substitution: ',A20)
