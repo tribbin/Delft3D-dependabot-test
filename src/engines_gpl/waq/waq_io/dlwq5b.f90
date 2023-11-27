@@ -78,7 +78,6 @@ module m_dlwq5b
 !   Local variables
     logical    :: usefor_on, substitution_on, can_compute, operator_on
     logical    :: logging_on
-    logical    :: show_must_go_on
     integer(4) :: ithndl = 0
     integer    :: i, parsed_int, ifound, i2, name_index, icm
     integer    :: itmnr, ioff, ioffc, ioffi
@@ -118,7 +117,6 @@ module m_dlwq5b
     substitution_on = .false.
     can_compute = .false.
     operator_on = .false.
-    show_must_go_on = .true.
     logging_on = (ioutpt >= 3)
     noitm  = 0
     noits  = 0
@@ -132,15 +130,17 @@ module m_dlwq5b
     read_and_process: do
         itype = -3
         if (operator_on .or. (usefor_on .and. substitution_on)) itype = 0
-        call rdtok1(lunut, ilun, lch  , lstack, cchar,&
+        call rdtok1(lunut, ilun, lch,        lstack,      cchar,&
                     iposr, npos, parsed_str, parsed_int , parsed_real,&
                     itype, error_ind)
         if (error_ind .ne. 0) then
             call finish(ithndl)
             return
         end if
-        ! Scenario: type==1 and a keyword was met
-        if (abs(itype) == 1 .and. (any(keywords == trim(parsed_str)))) then
+
+        if (abs(itype) == 1) then
+            ! Scenario: type==1 and a keyword was met
+            if (any(keywords == trim(parsed_str))) then
                 if (usefor_on) then
                     write (lunut, 1035) parsed_str
                     call error_and_finish(error_ind, ithndl)
@@ -149,10 +149,10 @@ module m_dlwq5b
                     call finish(ithndl)
                     return
                 end if
-        end if
-    
-        ! Scenario: type==1 and computation was met
-        if (abs(itype) == 1 .and. (any(operations == trim(parsed_str)))) then
+            end if
+
+            ! Scenario: type==1 and computation was met
+            if (any(operations == trim(parsed_str))) then
                 if (.not. can_compute) then
                     write (lunut , 1070)
                     call error_and_finish(error_ind, ithndl)
@@ -183,10 +183,10 @@ module m_dlwq5b
                 end select
                 operator_on = .true.
                 cycle read_and_process
-        end if
-    
-        ! Scenario: an item used in computations
-        if (abs(itype) == 1 .and. operator_on) then
+            end if
+        
+            ! Scenario: an item used in computations
+            if (operator_on) then
                 do i=1, itmnr-1
                     if (iar(i) == -1300000000) cycle
                     ifound = index_in_array(parsed_str, car(i+ioff:i+ioff))
@@ -206,8 +206,151 @@ module m_dlwq5b
                 car (itmnr + noitm + ioff) = parsed_str
                 operator_on = .false.
                 cycle read_and_process
-        end if
+            end if
+
+            ! Scenario: a local redirection of the name of an item or substance
+            if (parsed_str == 'USEFOR') then
+                if (usefor_on) then
+                    write (lunut , 1035) parsed_str
+                    call error_and_finish(error_ind, ithndl)
+                    return
+                else
+                    usefor_on = .true.
+                    substitution_on = .false.
+                    cycle read_and_process
+                end if
+            end if
     
+            ! Scenario:
+            if (usefor_on .and. substitution_on) then
+                name_index = iar(itmnr)
+                if (logging_on) then
+                    call log_name_substitution(name_index, lunut, aname, caller, itmnr, atype, parsed_real, parsed_str, .false.)
+                end if
+                iar(itmnr + noitm + noitm) = noits
+                car(itmnr + noitm + ioff) = parsed_str
+                usefor_on = .false.
+                substitution_on = .false.
+                ! it is now possible to compute
+                can_compute = .true.
+                cycle read_and_process
+            end if
+
+            ! fill in a string value if an empty string is provided
+            if (chkflg == -1 .and. parsed_str(1:20) == repeat(' ', 20)) then
+                parsed_str = 'Item-'
+                write (parsed_str(6:12) , '(I7)') noitm+1
+            end if
+            ! FLOW is only valid as CONCENTR. and item number is 0
+            ifound = index_in_array(parsed_str, ['FLOW                '])
+            if (ifound == 1 .and. caller == 'CONCENTR. ') then
+                call update_counters(noitm, noits, itmnr)
+                icm = itmnr + noitm + ioff
+                call movint(iar, itmnr      , itmnr + noitm*2)
+                call movint(iar, itmnr + noitm, itmnr + noitm*2)
+                call movchr(car, itmnr+ioff , icm)
+                iar (itmnr) =  0
+                iar (itmnr + noitm) = itmnr
+                iar (itmnr + noitm + noitm) = noits
+                car (itmnr + ioff) = parsed_str
+                car (itmnr + noitm + ioff) = parsed_str
+                if (usefor_on) substitution_on = .true.
+                if (logging_on .and. .not. usefor_on) then
+                    write (lunut , 1020) caller , itmnr , caller , 0 , 'FLOW'
+                end if
+                cycle read_and_process
+            end if
+        
+            ! parsed_str == item-NAME
+            ifound = index_in_array(parsed_str(1:len(aname(1))), aname(1:ntitm))
+            if (ifound >= 1) then
+                call update_counters(noitm, noits, itmnr)
+                icm = itmnr + noitm + ioff
+                call movint(iar, itmnr        , itmnr + noitm*2)
+                call movint(iar, itmnr + noitm, itmnr + noitm*2)
+                call movchr(car, itmnr+ioff , icm)
+                iar(itmnr) =  ifound
+                iar(itmnr + noitm) = itmnr
+                iar(itmnr + noitm + noitm) = noits
+                car(itmnr + ioff) = parsed_str
+                car(itmnr + noitm + ioff) = parsed_str
+                if (usefor_on) substitution_on = .true.
+                if (logging_on .and. .not. usefor_on) then
+                    write (lunut , 1020) caller, itmnr, caller, ifound, aname(ifound)
+                end if
+                cycle read_and_process
+            end if
+        
+            ! parsed_str == item-TYPE. IAR now is negative.
+            ifound = index_in_array(parsed_str(1:len(atype(1))),atype(1:nttype))
+            if (ifound >= 1) then
+                call update_counters(noitm, noits, itmnr)
+                icm = itmnr + noitm + ioff
+                call movint(iar, itmnr      , itmnr + noitm*2)
+                call movint(iar, itmnr + noitm, itmnr + noitm*2)
+                call movchr(car, itmnr+ioff , icm)
+                iar(itmnr) = -ifound
+                iar(itmnr + noitm) = itmnr
+                iar(itmnr + noitm + noitm) = noits
+                car(itmnr + ioff) = parsed_str
+                car(itmnr + noitm + ioff) = parsed_str
+                if (usefor_on) substitution_on = .true.
+                if (logging_on .and. .not. usefor_on) then
+                    write (lunut , 1030) caller, itmnr, caller, ifound, atype(ifound)
+                end if
+                cycle read_and_process
+            end if
+        
+            ! If only existing names or types are allowed then
+            !        this is the place for an error massage
+            ! JVB stick to just a warning keep on reading IAR = 0?, or used for flow??
+        
+            if (chkflg == 1) then
+                call update_counters(noitm, noits, itmnr)
+                icm = itmnr + noitm + ioff
+                call shift_subarray(iar, itmnr      , itmnr + noitm*2)
+                !call movint(iar, itmnr      , itmnr + noitm*2)
+                call shift_subarray(iar, itmnr + noitm, itmnr + noitm*2)
+                !call movint(iar, itmnr + noitm, itmnr + noitm*2)
+                call shift_subarray(car(:icm+1), itmnr+ioff , icm) 
+                !call movchr(car, itmnr+ioff , icm)
+                iar (itmnr) = -1300000000
+                iar (itmnr + noitm) = 1300000000
+                iar (itmnr + noitm + noitm) = noits
+                car (itmnr + ioff) = parsed_str
+                car (itmnr + noitm + ioff) = parsed_str
+                if (usefor_on) substitution_on = .true.
+                write(lunut , 1040) caller, itmnr, parsed_str
+                iwar = iwar + 1
+            else
+                ! Now a new name is added to the list of names
+                !        the rest is moved upward since it is all 1 array
+                ntitm = ntitm + 1
+                ioff  = ioff  + 1
+                icm   = icmax + ntitm
+                call movchr(aname, ntitm, icm)
+                aname(ntitm) = parsed_str
+                ! plus normal procedure
+                noitm = noitm + 1
+                noits = noits + 1
+                itmnr = itmnr + 1
+                icm = itmnr + noitm + ioff
+                call movint(iar, itmnr      , itmnr + noitm*2)
+                call movint(iar, itmnr + noitm, itmnr + noitm*2)
+                call movchr(car, itmnr+ioff , icm)
+                iar(itmnr) = ntitm
+                iar(itmnr + noitm) = itmnr
+                iar(itmnr + noitm + noitm) = noits
+                car(itmnr + ioff) = parsed_str
+                car(itmnr + noitm + ioff) = parsed_str
+                if (usefor_on) substitution_on = .true.
+                if (logging_on .and. .not. usefor_on) then
+                    write (lunut , 1020) caller, itmnr, caller, ntitm, aname(ntitm)
+                end if
+            end if
+            cycle read_and_process
+        end if
+        
         ! Scenario: a number (int, 2, or real, 3) is used in computations
         if (  (abs(itype) == 2 .or. abs(itype) == 3) .and. &
                   (substitution_on .or. operator_on) ) then
@@ -235,149 +378,6 @@ module m_dlwq5b
                     can_compute     = .true.
                 end if
                 cycle read_and_process
-        end if
-    
-        ! Scenario: a local redirection of the name of an item or substance
-        if (abs(itype) == 1 .and. parsed_str == 'USEFOR') then
-                if (usefor_on) then
-                    write (lunut , 1035) parsed_str
-                    call error_and_finish(error_ind, ithndl)
-                    return
-                else
-                    usefor_on = .true.
-                    substitution_on = .false.
-                    cycle read_and_process
-                end if
-        end if
-        ! Scenario:
-        if (itype == 1) then
-                if (usefor_on .and. substitution_on) then
-                    name_index = iar(itmnr)
-                    if (logging_on) then
-                        call log_name_substitution(name_index, lunut, aname, caller, itmnr, atype, parsed_real, parsed_str, .false.)
-                    end if
-                    iar(itmnr + noitm + noitm) = noits
-                    car(itmnr + noitm + ioff) = parsed_str
-                    usefor_on = .false.
-                    substitution_on = .false.
-                    ! it is now possible to compute
-                    can_compute = .true.
-                    cycle read_and_process
-                end if
-                ! fill in a string value if an empty string is provided
-                if (chkflg == -1 .and. parsed_str(1:20) == repeat(' ', 20)) then
-                    parsed_str = 'Item-'
-                    write (parsed_str(6:12) , '(I7)') noitm+1
-                end if
-                ! FLOW is only valid as CONCENTR. and item number is 0
-                ifound = index_in_array(parsed_str, ['FLOW                '])
-                if (ifound == 1 .and. caller == 'CONCENTR. ') then
-                    call update_counters(noitm, noits, itmnr)
-                    icm = itmnr + noitm + ioff
-                    call movint(iar, itmnr      , itmnr + noitm*2)
-                    call movint(iar, itmnr + noitm, itmnr + noitm*2)
-                    call movchr(car, itmnr+ioff , icm)
-                    iar (itmnr) =  0
-                    iar (itmnr + noitm) = itmnr
-                    iar (itmnr + noitm + noitm) = noits
-                    car (itmnr + ioff) = parsed_str
-                    car (itmnr + noitm + ioff) = parsed_str
-                    if (usefor_on) substitution_on = .true.
-                    if (logging_on .and. .not. usefor_on) then
-                        write (lunut , 1020) caller , itmnr , caller , 0 , 'FLOW'
-                    end if
-                    cycle read_and_process
-                end if
-            
-                ! parsed_str == item-NAME
-                ifound = index_in_array(parsed_str(1:len(aname(1))), aname(1:ntitm))
-                if (ifound >= 1) then
-                    call update_counters(noitm, noits, itmnr)
-                    icm = itmnr + noitm + ioff
-                    call movint(iar, itmnr        , itmnr + noitm*2)
-                    call movint(iar, itmnr + noitm, itmnr + noitm*2)
-                    call movchr(car, itmnr+ioff , icm)
-                    iar(itmnr) =  ifound
-                    iar(itmnr + noitm) = itmnr
-                    iar(itmnr + noitm + noitm) = noits
-                    car(itmnr + ioff) = parsed_str
-                    car(itmnr + noitm + ioff) = parsed_str
-                    if (usefor_on) substitution_on = .true.
-                    if (logging_on .and. .not. usefor_on) then
-                        write (lunut , 1020) caller, itmnr, caller, ifound, aname(ifound)
-                    end if
-                    cycle read_and_process
-                end if
-            
-                ! parsed_str == item-TYPE. IAR now is negative.
-                ifound = index_in_array(parsed_str(1:len(atype(1))),atype(1:nttype))
-                if (ifound >= 1) then
-                    call update_counters(noitm, noits, itmnr)
-                    icm = itmnr + noitm + ioff
-                    call movint(iar, itmnr      , itmnr + noitm*2)
-                    call movint(iar, itmnr + noitm, itmnr + noitm*2)
-                    call movchr(car, itmnr+ioff , icm)
-                    iar(itmnr) = -ifound
-                    iar(itmnr + noitm) = itmnr
-                    iar(itmnr + noitm + noitm) = noits
-                    car(itmnr + ioff) = parsed_str
-                    car(itmnr + noitm + ioff) = parsed_str
-                    if (usefor_on) substitution_on = .true.
-                    if (logging_on .and. .not. usefor_on) then
-                        write (lunut , 1030) caller, itmnr, caller, ifound, atype(ifound)
-                    end if
-                    cycle read_and_process
-                end if
-            
-                ! If only existing names or types are allowed then
-                !        this is the place for an error massage
-                ! JVB stick to just a warning keep on reading IAR = 0?, or used for flow??
-            
-                if (chkflg == 1) then
-                    call update_counters(noitm, noits, itmnr)
-                    icm = itmnr + noitm + ioff
-                    call shift_subarray(iar, itmnr      , itmnr + noitm*2)
-                    !call movint(iar, itmnr      , itmnr + noitm*2)
-                    call shift_subarray(iar, itmnr + noitm, itmnr + noitm*2)
-                    !call movint(iar, itmnr + noitm, itmnr + noitm*2)
-                    call shift_subarray(car(:icm+1), itmnr+ioff , icm) 
-                    !call movchr(car, itmnr+ioff , icm)
-                    iar (itmnr) = -1300000000
-                    iar (itmnr + noitm) = 1300000000
-                    iar (itmnr + noitm + noitm) = noits
-                    car (itmnr + ioff) = parsed_str
-                    car (itmnr + noitm + ioff) = parsed_str
-                    if (usefor_on) substitution_on = .true.
-                    write(lunut , 1040) caller, itmnr, parsed_str
-                    iwar = iwar + 1
-                    cycle read_and_process
-                else
-                    ! Now a new name is added to the list of names
-                    !        the rest is moved upward since it is all 1 array
-                    ntitm = ntitm + 1
-                    ioff  = ioff  + 1
-                    icm   = icmax + ntitm
-                    call movchr(aname, ntitm, icm)
-                    aname(ntitm) = parsed_str
-                    ! plus normal procedure
-                    noitm = noitm + 1
-                    noits = noits + 1
-                    itmnr = itmnr + 1
-                    icm = itmnr + noitm + ioff
-                    call movint(iar, itmnr      , itmnr + noitm*2)
-                    call movint(iar, itmnr + noitm, itmnr + noitm*2)
-                    call movchr(car, itmnr+ioff , icm)
-                    iar(itmnr) = ntitm
-                    iar(itmnr + noitm) = itmnr
-                    iar(itmnr + noitm + noitm) = noits
-                    car(itmnr + ioff) = parsed_str
-                    car(itmnr + noitm + ioff) = parsed_str
-                    if (usefor_on) substitution_on = .true.
-                    if (logging_on .and. .not. usefor_on) then
-                        write (lunut , 1020) caller, itmnr, caller, ntitm, aname(ntitm)
-                    end if
-                    cycle read_and_process
-                end if
         end if
         ! Scenario: no item name was given, but an item number
         if (itype == 2) then
