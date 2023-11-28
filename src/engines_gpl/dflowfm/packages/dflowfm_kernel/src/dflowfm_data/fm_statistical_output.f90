@@ -1476,6 +1476,7 @@ private
       use m_sediment
       use m_statistical_callback
       use m_transport, only: NUMCONST_MDU, ITRA1, ITRAN, ISED1, ISEDN, const_names, const_units, NUMCONST, itemp, isalt
+      use m_sediment, only: stmpar
       use m_longculverts, only: nlongculverts
       USE m_monitoring_crosssections, only: ncrs
       use m_monitoring_runupgauges, only: nrug
@@ -1493,6 +1494,7 @@ private
       integer :: lenunitstr
       character(len=20)  :: unitstr
       character(len=255) :: conststr
+      
       
       ntot = numobs + nummovobs
     
@@ -1942,7 +1944,16 @@ private
          ! Basic flow quantities
          !
          function_pointer => aggregate_obscrs_data
-         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_OBSCRS_DISCHARGE),     obscrs_data(:,1), function_pointer)
+         if (jased == 4 .and. stmpar%lsedtot > 0) then
+            numseddata = 2 + stmpar%lsedtot
+         else
+            numseddata = 0
+         end if
+
+         if (.not. allocated(obscrs_data)) then
+            allocate(obscrs_data(ncrs, 5 + 2*NUMCONST_MDU + numseddata)) ! First 5 are for IPNT_Q1C:IPNT_HUA
+         endif
+         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_OBSCRS_DISCHARGE),     null(), function_pointer)
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_OBSCRS_DISCHARGE_CUM), obscrs_data(:,2))
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_OBSCRS_AREA),          obscrs_data(:,3))
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_OBSCRS_VELOCITY),      obscrs_data(:,4))
