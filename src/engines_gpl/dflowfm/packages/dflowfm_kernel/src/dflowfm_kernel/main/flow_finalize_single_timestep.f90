@@ -83,9 +83,11 @@ integer, intent(out) :: iresult
 !          alternative: move this to flow_externaloutput
    call timstrt('update HIS data DtUser', handle_extra(75))
    if (ti_his > 0) then
+
+      call updateValuesOnObservationStations()
+
       if (comparereal(time1, time_his, eps10)>=0) then
          !do_fourier = do_fourier .or. (md_fou_step == 2)
-         call updateValuesOnObservationStations()
          if (jampi == 1) then
             call updateValuesOnCrossSections_mpi(time1)
             call updateValuesOnRunupGauges_mpi()
