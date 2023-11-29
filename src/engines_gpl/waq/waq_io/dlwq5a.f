@@ -37,7 +37,8 @@
 
       subroutine dlwq5a ( lun    , lchar  , iu     , iwidth , icmax  ,
      &                    car    , iimax  , iar    , irmax  , rar    ,
-     &                    sname  , aname  , atype  , ntitm  , ntdim  ,
+     &                    sname  , aname  , atype  , bc_wl_count  ,
+     &                    substances_count  ,
      &                    nttype , drar   , dtflg1 , dtflg3 , 
      &                    ioutpt , ierr2  , ierr   , iwar   )
 
@@ -103,31 +104,29 @@
 
       implicit none
 
-      integer(kind=int_wp), intent(inout) ::  lun  (*)       !< array with unit numbers
-      character( *), intent(inout) :: lchar(*)      !< filenames
-      integer(kind=int_wp), intent(in   ) ::  iu             !< index in LUN array of workfile
-      integer(kind=int_wp), intent(in   ) ::  iwidth         !< width of the output file
-      integer(kind=int_wp), intent(in   ) ::  icmax          !< maximum size of character workspace
-      character( *), intent(inout) :: car  (icmax)  !< character workspace
-      integer(kind=int_wp), intent(in   ) ::  iimax          !< maximum size of integer workspace
-      integer(kind=int_wp), intent(inout) ::  iar  (iimax)   !< integer workspace
-      integer(kind=int_wp), intent(in   ) ::  irmax          !< maximum size of real workspace
-      real(kind=real_wp), intent(inout) ::  rar  (irmax)   !< real workspace
-      character( *), intent(inout) :: sname(*)      !< substances names
-      character( *), intent(inout) :: aname(*)      !< ID's of the boundaries/wastes
-      character( *), intent(in   ) :: atype(*)      !< Types of the boundaries/wastes
-      integer(kind=int_wp), intent(inout) ::  ntitm          !< number of bounds/wastes
-      integer(kind=int_wp), intent(inout) ::  ntdim          !< number of substances
-      integer(kind=int_wp), intent(in   ) ::  nttype         !< number of boundary/waste types
-      real(kind=dp), intent(inout) ::  drar (*)       !< Double precision workspace
-      logical      , intent(in   ) :: dtflg1        !< 'date'-format 1st time scale
-      logical      , intent(in   ) :: dtflg3        !< 'date'-format (F;ddmmhhss,T;yydddhh)
-      integer(kind=int_wp), intent(in   ) ::  ioutpt         !< how extensive will the output be
-      integer(kind=int_wp), intent(  out) ::  ierr2          !< return code of this routine
-      integer(kind=int_wp), intent(inout) ::  ierr           !< cumulative error   count
-      integer(kind=int_wp), intent(inout) ::  iwar           !< cumulative warning count
-
-
+      integer(kind=int_wp), intent(inout) :: lun  (*)      !< array with unit numbers
+      character( *),        intent(inout) :: lchar(*)      !< filenames
+      integer(kind=int_wp), intent(in   ) :: iu            !< index in LUN array of workfile
+      integer(kind=int_wp), intent(in   ) :: iwidth        !< width of the output file
+      integer(kind=int_wp), intent(in   ) :: icmax         !< maximum size of character workspace
+      character( *),        intent(inout) :: car  (icmax)  !< character workspace
+      integer(kind=int_wp), intent(in   ) :: iimax         !< maximum size of integer workspace
+      integer(kind=int_wp), intent(inout) :: iar  (iimax)  !< integer workspace
+      integer(kind=int_wp), intent(in   ) :: irmax         !< maximum size of real workspace
+      real(kind=real_wp),   intent(inout) :: rar  (irmax)  !< real workspace
+      character( *),        intent(inout) :: sname(:)      !< substances names
+      character( *),        intent(inout) :: aname(:)      !< ID's of the boundaries/wastes
+      character( *),        intent(in   ) :: atype(:)      !< Types of the boundaries/wastes
+      integer(kind=int_wp), intent(inout) :: bc_wl_count         !< number of bounds/wastes
+      integer(kind=int_wp), intent(inout) :: substances_count         !< number of substances
+      integer(kind=int_wp), intent(in   ) :: nttype        !< number of boundary/waste types
+      real(kind=dp),        intent(inout) :: drar (*)      !< Double precision workspace
+      logical      ,        intent(in   ) :: dtflg1        !< 'date'-format 1st time scale
+      logical      ,        intent(in   ) :: dtflg3        !< 'date'-format (F;ddmmhhss,T;yydddhh)
+      integer(kind=int_wp), intent(in   ) :: ioutpt        !< how extensive will the output be
+      integer(kind=int_wp), intent(  out) :: ierr2         !< return code of this routine
+      integer(kind=int_wp), intent(inout) :: ierr          !< cumulative error   count
+      integer(kind=int_wp), intent(inout) :: iwar          !< cumulative warning count
 
 !     Local declarations
 
@@ -135,7 +134,7 @@
      *              strng3*10
       integer(kind=int_wp) :: iorder   , noitm , nodim , iflag  , itype ,
      +              ittim    , chkflg, ident , nottc  , lunwr2,
-     +              ifilsz   , jfilsz, ipro  , itfacw , iopt  ,
+     +              file_size_1   , file_size_2, ipro  , itfacw , iopt  ,
      +              nobrk    , itel  , ioerr , iblock , k     ,
      +              i        , ihulp , ioff  , icm    , iim   ,
      +              noits    , nconst, itmnr, iitm   , nocol ,
@@ -162,8 +161,8 @@
 !
       lunut  = lun(29)
       lunwr2 = lun(iu)
-      ifilsz = 0
-      jfilsz = 0
+      file_size_1 = 0
+      file_size_2 = 0
       strng2 = 'Substance'
       ipro   = 0
       itfacw = 1
@@ -219,12 +218,12 @@
          strng1 = 'wasteload'
          iblock = 6
       endif
-      write ( lunwr2 ) ntitm, ntdim
-      write ( lunwr2 ) 1, 0, ntdim, (k,k=1,ntdim), 1, 0
+      write ( lunwr2 ) bc_wl_count, substances_count
+      write ( lunwr2 ) 1, 0, substances_count, (k,k=1,substances_count), 1, 0
       write ( lunwr2 ) 1
-      write ( lunwr2 ) 0, ( 0.0 , i=1,ntdim )
-      ifilsz = ifilsz + 2 + 3 + ntdim + 3 + 1
-      jfilsz = jfilsz + ntdim
+      write ( lunwr2 ) 0, ( 0.0 , i=1,substances_count )
+      file_size_1 = file_size_1 + 2 + 3 + substances_count + 3 + 1
+      file_size_2 = file_size_2 + substances_count
 !
 !          Get a token string (and return if something else was found)
 !
@@ -321,7 +320,7 @@
          iim    = iimax - ioff
          call dlwq5b ( lunut    , iposr , npos  , cchar , car(ioff:),
      *                 iar(ioff:), icm   , iim   , aname , atype    ,
-     *                 ntitm    , nttype, noitm , noits , chkflg   ,
+     *                 bc_wl_count    , nttype, noitm , noits , chkflg   ,
      *                 calit    , ilun  , lch   , lstack,
      *                 itype    , rar   , nconst, itmnr , chulp    ,
      *                                    ioutpt, ierr2 , iwar     )
@@ -390,17 +389,17 @@
          chkflg = 1
          icm    = icmax - ioff
          iim    = iimax - ioff
-         if ( ident .le. 1) then
+         if ( ident .le. 1) then ! ITEM, IDENTICALITEM
             call dlwq5b ( lunut     , iposr , npos , cchar , car(ioff:),
      *                    iar(ioff:), icm   , iim  , aname , atype     ,
-     *                    ntitm     , nttype, noitm, noits , chkflg    ,
+     *                    bc_wl_count     , nttype, noitm, noits , chkflg    ,
      *                    calit     , ilun  , lch  , lstack, itype     ,
      *                    rar       , nconst, itmnr, chulp , ioutpt    ,
      *                    ierr2     , iwar)
-         else
+         else ! DATA_ITEM
             call dlwq5b ( lunut      , iposr      , npos , cchar , car(ioff:),
      *                    iar(ioff:) , icm        , iim  , dlwq_data_items%name(1:ndata_items),
-     *                                                      dlwq_data_items%name(1:ndata_items),
+     *                                                     dlwq_data_items%name(1:ndata_items),
      *                    ndata_items, ndata_items, noitm, noits , chkflg,
      *                    caldit     , ilun       , lch  , lstack, itype,
      *                    rar        , nconst     , itmnr, chulp , ioutpt,
@@ -477,7 +476,7 @@
          iim    = iimax - ioff
          call dlwq5b ( lunut       , iposr , npos  , cchar , car(ioff:),
      *                 iar(ioff:)  , icm   , iim   , sname , atype    ,
-     *                 ntdim       ,   0   , nodim , nodis , chkflg   ,
+     *                 substances_count       ,   0   , nodim , nodis , chkflg   ,
      *                 'CONCENTR. ', ilun  , lch   , lstack,
      *                 itype       , rar   , nconst, idmnr , chulp    ,
      *                                    ioutpt, ierr2 , iwar     )
@@ -553,7 +552,7 @@
             call dlwqj3 ( lunwr2 , lunut   , iwidth , nobrk  , iar    ,
      *                    rar(nts:),rar(nr2:), itmnr  , idmnr  , iorder ,
      *                    scale  , .true.  , binfil , iopt   , ipro   ,
-     *                    itfacw , dtflg1  , dtflg3 , ifilsz , jfilsz ,
+     *                    itfacw , dtflg1  , dtflg3 , file_size_1 , file_size_2 ,
      *                    sname  , strng1  , strng2 , strng3 , ioutpt )
          endif
          if ( ierr2 .eq. 2 ) goto 530
@@ -608,7 +607,7 @@
          call dlwqj3 ( lunwr2 , lunut   , iwidth , nobrk  , iar    ,
      *                 rar(nts:),rar(nr2:), itmnr  , idmnr  , iorder ,
      *                 scale  , ods     , binfil , iopt   , ipro   ,
-     *                 itfacw , dtflg1  , dtflg3 , ifilsz , jfilsz ,
+     *                 itfacw , dtflg1  , dtflg3 , file_size_1 , file_size_2 ,
      *                 sname  , strng1  , strng2 , strng3 , ioutpt )
          if ( ierr2 .eq. 2 ) then
             ierr2 = -2
@@ -682,8 +681,8 @@
             ilun(i) =  0
          endif
   520 continue
-  530 newrsp = newrsp + jfilsz
-      newisp = newisp + ifilsz
+  530 newrsp = newrsp + file_size_2
+      newisp = newisp + file_size_1
       call check  ( chulp  , iwidth , iblock , ierr2  , ierr   )
   540 if ( timon ) call timstop( ithndl )
       return

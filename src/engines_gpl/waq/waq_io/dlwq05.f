@@ -92,7 +92,7 @@
       integer(kind=int_wp), intent(inout) ::  ierr               !< cumulative error   count
       integer(kind=int_wp), intent(inout) ::  iwar               !< cumulative warning count
       logical      , intent(in   ) :: dtflg3            !< 'date'-format (F;ddmmhhss,T;yydddhh)
-      character(20), intent(inout) :: sname(*)          !< array with substance names
+      character(20), intent(inout) :: sname(:)          !< array with substance names
       integer(kind=int_wp), intent(in   ) ::  icmax              !< size of the character workspace
       integer(kind=int_wp), intent(in   ) ::  ioutpt             !< flag for more or less output
 
