@@ -506,14 +506,8 @@ module m_ec_item
          endif
          !
          ! timesteps < t0 : not supported
-
-         ! TODO EM: if we are doing harmonics, we need to read and possibly remap
-         !          quantity source values here!!
-         if (associated(item%hframe)) then
-            success = .true.
-            !return
-         else if (item%quantityPtr%constant) then
-            ! TODO EM: Check if we shouldn't be remapping this case as well?
+         if (item%quantityPtr%constant) then
+            ! TODO EM: Check if we shouldn't be remapping values in this case.
             success = .true.
             return
          else if (comparereal(item%sourceT1FieldPtr%timesteps, timesteps%mjd(), 1.0D-10) == 0) then
@@ -573,11 +567,8 @@ module m_ec_item
          if (associated(fileReaderPtr)) then
             if (.not. fileReaderPtr%end_of_data) then
                if (associated(item%hframe)) then
-                  ! TODO: Read and remap source amplitudes (Time input will be ignored)
-                  if (.not.ecFileReaderReadNextRecord(fileReaderPtr, timesteps%mjd())) then
-                      success = .false.
-                      return
-                  end if
+                  ! Read and remap source amplitudes (Time input will be ignored)
+                  success = ecFileReaderReadNextRecord(fileReaderPtr, timesteps%mjd())
                else
                   do ! read next record untill t0<=timesteps<=t1
                      if (ecFileReaderReadNextRecord(fileReaderPtr, timesteps%mjd())) then

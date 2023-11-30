@@ -235,7 +235,7 @@ module m_ec_filereader
                         fieldPtrA => fileReaderPtr%items(1)%ptr%sourceT1FieldPtr
                         fileReaderPtr%items(1)%ptr%sourceT1FieldPtr => fileReaderPtr%items(1)%ptr%sourceT0FieldPtr
                         fileReaderPtr%items(1)%ptr%sourceT0FieldPtr => fieldPtrA
-                     endif
+                     end if
                   end if
                   if (fileReaderPtr%nItems>1) then          ! RL: in the case of multiple items for this filereader
                      allocate(values(fileReaderPtr%bc%numcols))
@@ -254,7 +254,9 @@ module m_ec_filereader
                         itemPtr%sourceT1FieldPtr => itemPtr%sourceT0FieldPtr
                         itemPtr%sourceT0FieldPtr => fieldPtrA
                      end do
-                     if (allocated(values)) deallocate(values)
+                     if (allocated(values)) then
+                        deallocate(values)
+                     end if
                   end if
                case (BC_FUNC_HARMONIC)
                   ! Fourier values are calculated, so T1 is set arbitrarily, increasably high.
@@ -330,7 +332,7 @@ module m_ec_filereader
                success = .true.
             case (provFile_fourier)
                success = .true.
-               if(allocated(fileReaderPtr%items(1)%ptr%sourceT0FieldPtr%astro_components)) then ! Astronomical case
+               if (allocated(fileReaderPtr%items(1)%ptr%sourceT0FieldPtr%astro_components)) then ! Astronomical case
                   success = ecTimeFrameRealHpTimestepsToDateTime(timesteps, yyyymmdd, hhmmss)
                   n_invalid_components = (ecFileReaderLookupAstroComponents(fileReaderPtr))
                   do i = 1, size(fileReaderPtr%items(1)%ptr%sourceT1FieldPtr%arr1d)
@@ -354,70 +356,61 @@ module m_ec_filereader
                   do i=1, fileReaderPtr%nItems
                      fileReaderPtr%items(i)%ptr%sourceT1FieldPtr%timesteps = fileReaderPtr%items(i)%ptr%sourceT1FieldPtr%timesteps + 10000.0_hp
                   end do
-               endif
+               end if
             case (provFile_netcdf)
                qname = fileReaderPtr%items(1)%ptr%quantityPtr%name
                call str_lower(qname)
                itemPtr => fileReaderPtr%items(1)%ptr
-               ! TODO EM: FIX ME!!
                if (associated(itemPtr%hframe)) then
-                  ! This is a harmonics file, read the variable because we actually don't have time steps.
-                  ! Store variable data in T0 field to also set up working space for harmonics.
-                  if ( .not.ecNetcdfReadVariable(fileReaderPtr, itemPtr, 0) ) then
-                     return
-                  end if
-                  ! Store variable data in the T1 field, to be used as source amplitude values.
-                  if ( .not.ecNetcdfReadVariable(fileReaderPtr, itemPtr, 1) ) then
-                     return
-                  end if
-                  success = .true.
-                  return ! EM: I would rather 'exit' here except that's not supported in <F2008.
-               end if
-               if (itemPtr%sourceT0FieldPtr%timesndx < 0) then
-                  t0t1 = 0
-                  timesndx  = ecNetcdfGetTimeIndexByTime(fileReaderPtr, timesteps)           ! timesteps is MJD in the new EC-module ? CHECK!
-               elseif (itemPtr%sourceT0FieldPtr%timesndx > itemPtr%sourceT1FieldPtr%timesndx) then
-                  t0t1 = 1
-                  timesndx = itemPtr%sourceT0FieldPtr%timesndx + 1
+                  ! This is a harmonics file, read all the variable values because we actually don't have time steps.
+                  success = ecNetcdfReadVariable(fileReaderPtr, itemPtr)
                else
-                  t0t1 = 0
-                  timesndx = itemPtr%sourceT1FieldPtr%timesndx + 1
-               endif
-               if(fileReaderPtr%one_time_field) then
-                  t0t1 = -1
-                  do i=1, fileReaderPtr%nItems
-                     success = ecNetcdfReadBlock(fileReaderPtr, fileReaderPtr%items(i)%ptr, t0t1, fileReaderPtr%items(i)%ptr%elementSetPtr%nCoordinates)
-                     if (t0t1 == 0) then
-                        ! flip t0 and t1
-                        fieldPtrA => fileReaderPtr%items(i)%ptr%sourceT1FieldPtr
-                        fileReaderPtr%items(i)%ptr%sourceT1FieldPtr => fileReaderPtr%items(i)%ptr%sourceT0FieldPtr
-                        fileReaderPtr%items(i)%ptr%sourceT0FieldPtr => fieldPtrA
-                     endif
-                  end do
-               else
-                  do i=1, fileReaderPtr%nItems
-                     success = ecNetcdfReadNextBlock(fileReaderPtr, fileReaderPtr%items(i)%ptr, t0t1, timesndx)
-                     if (.not.success) then
-                         return
-                     end if
-                  end do
-                  if (itemPtr%sourceT1FieldPtr%timesndx < 0) then
+                  if (itemPtr%sourceT0FieldPtr%timesndx < 0) then
+                     t0t1 = 0
+                     timesndx  = ecNetcdfGetTimeIndexByTime(fileReaderPtr, timesteps)           ! timesteps is MJD in the new EC-module ? CHECK!
+                  else if (itemPtr%sourceT0FieldPtr%timesndx > itemPtr%sourceT1FieldPtr%timesndx) then
                      t0t1 = 1
-                     timesndx = timesndx + 1
+                     timesndx = itemPtr%sourceT0FieldPtr%timesndx + 1
+                  else
+                     t0t1 = 0
+                     timesndx = itemPtr%sourceT1FieldPtr%timesndx + 1
+                  end if
+                  if(fileReaderPtr%one_time_field) then
+                     t0t1 = -1
+                     do i=1, fileReaderPtr%nItems
+                        success = ecNetcdfReadBlock(fileReaderPtr, fileReaderPtr%items(i)%ptr, t0t1, fileReaderPtr%items(i)%ptr%elementSetPtr%nCoordinates)
+                        if (t0t1 == 0) then
+                           ! flip t0 and t1
+                           fieldPtrA => fileReaderPtr%items(i)%ptr%sourceT1FieldPtr
+                           fileReaderPtr%items(i)%ptr%sourceT1FieldPtr => fileReaderPtr%items(i)%ptr%sourceT0FieldPtr
+                           fileReaderPtr%items(i)%ptr%sourceT0FieldPtr => fieldPtrA
+                        end if
+                     end do
+                  else
                      do i=1, fileReaderPtr%nItems
                         success = ecNetcdfReadNextBlock(fileReaderPtr, fileReaderPtr%items(i)%ptr, t0t1, timesndx)
+                        if (.not.success) then
+                           return
+                        end if
                      end do
-                  endif
-                  if (t0t1 == 0) then
-                     ! flip t0 and t1
-                     do i=1, fileReaderPtr%nItems
+                     if (itemPtr%sourceT1FieldPtr%timesndx < 0) then
+                        t0t1 = 1
+                        timesndx = timesndx + 1
+                        do i=1, fileReaderPtr%nItems
+                           success = ecNetcdfReadNextBlock(fileReaderPtr, fileReaderPtr%items(i)%ptr, t0t1, timesndx)
+                        end do
+                     end if
+                     if (t0t1 == 0) then
                         ! flip t0 and t1
-                        fieldPtrA => fileReaderPtr%items(i)%ptr%sourceT1FieldPtr
-                        fileReaderPtr%items(i)%ptr%sourceT1FieldPtr => fileReaderPtr%items(i)%ptr%sourceT0FieldPtr
-                        fileReaderPtr%items(i)%ptr%sourceT0FieldPtr => fieldPtrA
-                     end do
+                        do i=1, fileReaderPtr%nItems
+                           ! flip t0 and t1
+                           fieldPtrA => fileReaderPtr%items(i)%ptr%sourceT1FieldPtr
+                           fileReaderPtr%items(i)%ptr%sourceT1FieldPtr => fileReaderPtr%items(i)%ptr%sourceT0FieldPtr
+                           fileReaderPtr%items(i)%ptr%sourceT0FieldPtr => fieldPtrA
+                        end do
+                     end if
                   end if
-               endif
+               end if
             case (provFile_svwp, provFile_svwp_weight, provFile_curvi_weight, provFile_samples, &
                   provFile_triangulationmagdir, provFile_poly_tim, provFile_grib)
                ! NOTE for provFile_samples: don't support readNextRecord, because sample data is read once by ecSampleReadAll upon init.
@@ -426,11 +419,10 @@ module m_ec_filereader
                call setECMessage("ERROR: ec_filereader::ecFileReaderReadNextRecord: Unknown file type.")
                do i=1, fileReaderPtr%nItems
                   if (fileReaderPtr%items(i)%ptr%sourceT1FieldPtr%timesteps<fileReaderPtr%items(i)%ptr%sourceT0FieldPtr%timesteps) then
-                  call setECMessage('Non-progressive time variable detected in file: '//trim(fileReaderPtr%fileName))
-                  success = .False.
-                  return
-               end if
-            end do
+                     call setECMessage('Non-progressive time variable detected in file: '//trim(fileReaderPtr%fileName))
+                     return
+                  end if
+               end do
          end select
       end function ecFileReaderReadNextRecord
 

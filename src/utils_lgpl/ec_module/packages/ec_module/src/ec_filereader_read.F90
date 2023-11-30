@@ -709,10 +709,13 @@ module m_ec_filereader_read
          integer, dimension(:), pointer          :: ja         ! CRS sparsity pattern, column numbers
 
          integer                                 :: n_cols, n_rows
-
+         logical                                 :: has_time       ! flag if we (should) have a time axis
+         logical                                 :: has_harmonics  ! flag if we have harmonics
          !
          success = .false.
          fieldPtr => null()
+         has_time = (fileReaderPtr%tframe%nr_timesteps > 0)
+         has_harmonics = associated(fileReaderPtr%hframe)
 
          dmiss_nc = item%quantityPtr%fillvalue
          varid = item%quantityPtr%ncid
@@ -732,10 +735,15 @@ module m_ec_filereader_read
             return
          end if
          !
-         ! - 3 - Check for the presence of times, indicating the presence of further data blocks.
-         if (fileReaderPtr%tframe%nr_timesteps <= 0) then
-            call setECMessage("Empty NetCDF time dimension in "//trim(fileReaderPtr%filename)//".")
+         ! - 2a - Check for the presence of times, indicating the presence of further data blocks.
+         if (.not. has_time .and. .not. has_harmonics) then
+            call setECMessage("Empty NetCDF time dimension and no harmonic components in "//trim(fileReaderPtr%filename)//".")
             return
+         end if
+         !
+         ! - 2b - In case of harmonics, just always read at the start of the file.
+         if (.not. has_time .and. has_harmonics) then
+            timesndx = 1
          end if
          !
          ! ===================
@@ -743,18 +751,18 @@ module m_ec_filereader_read
          ! ===================
          ! - 0 - Determine if the timesteps of the field to be updated are still below the last time in the file
 
-         if (timesndx>fileReaderPtr%tframe%nr_timesteps) then
+         if (has_time .and. timesndx > fileReaderPtr%tframe%nr_timesteps) then
             mintime = ecSupportTimeIndexToMJD(fileReaderPtr%tframe, 1)
             maxtime = ecSupportTimeIndexToMJD(fileReaderPtr%tframe, int(fileReaderPtr%tframe%nr_timesteps))
             call real2string(cnumber1, '(f12.2)', mintime)
             call real2string(cnumber2, '(f12.2)', maxtime)
             call setECMessage('   Valid range: ' // trim(cnumber1) // ' to ' // trim(cnumber2))
             call setECMessage("Data block requested outside valid time window in "//trim(fileReaderPtr%filename)//".")
-            if (.True.) then                                       ! TODO : pass if extrapolation (constant value) is allowed here, now always allowed
-                fieldPtr%timesteps = huge(fieldPtr%timesteps)      ! set time to infinity
-                fieldPtr%timesndx = timesndx
+            if (.true.) then                                      ! TODO : pass if extrapolation (constant value) is allowed here, now always allowed
+               fieldPtr%timesteps = huge(fieldPtr%timesteps)      ! set time to infinity
+               fieldPtr%timesndx = timesndx
             else
-                return
+               return
             endif
          else
             col0 = fieldPtr%bbox(1)
@@ -765,20 +773,18 @@ module m_ec_filereader_read
             ncol = col1 - col0 + 1
             nlay = item%elementSetPtr%n_layers
 
-            Ndatasize = ncol*nrow
+            Ndatasize = ncol * nrow
 
             n_cols = item%elementSetPtr%n_cols
             n_rows = item%elementSetPtr%n_rows
-            issparse = 0
-
-            if ( fieldPtr%issparse == 1 ) then
+            issparse = fieldPtr%issparse
+            if (issparse == 1) then
                ia => fieldPtr%ia
                ja => fieldPtr%ja
-               issparse = fieldPtr%issparse
                Ndatasize = ia(n_rows+1)-1
             end if
 
-            ! 1. Create storage for the field data if still unallocated and set to missing value
+            ! - 1 - Create storage for the field data if still unallocated and set to missing value
             if (.not.allocated(fieldPtr%arr1d)) then
                allocate(fieldPtr%arr1d(Ndatasize*max(nlay,1)), stat = istat)
                if (istat /= 0) then
@@ -794,22 +800,22 @@ module m_ec_filereader_read
 
             valid_field = (col1 == 0 .and. row1 == 0)
             do while (.not.valid_field)
-               ! - 3 - Read a scalar data block.
+               ! - 2 - Read a scalar data block.
                if (item%elementSetPtr%nCoordinates == 0) then
                   ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, fieldPtr%arr1dPtr, start=(/timesndx/), count=(/1/))
-                  if (ierror.ne.NF90_NOERR) then         ! handle exception
+                  if (ierror.ne.NF90_NOERR) then
                      call setECMessage("NetCDF:'"//trim(nf90_strerror(ierror))//"' in "//trim(fileReaderPtr%filename)//".")
                      return
                   end if
-                  valid_field = (fieldPtr%arr1dPtr(1)/=dmiss_nc)
+                  valid_field = (fieldPtr%arr1dPtr(1)/=dmiss_nc) ! TODO: Check why this is set, as it is effectively ignored below.
                end if      ! reading scalar data block
                !
-               ! - 4 - Read a grid data block.
-               valid_field = .False.
-
-               if ( issparse.ne.1 ) then
+               ! - 3 - Read a grid data block.
+               valid_field = .false.
+               !
+               if (issparse /= 1) then
                   allocate(data_block(ncol, nrow), stat = istat)
-                  if (istat/=0) then
+                  if (istat /= 0) then
                      write(message,'(a,i0,a,i0,a)') 'Allocating temporary array of ',ncol,' x ',nrow,' elements.'
                      call setECMessage(trim(message))
                      call setECMessage("Allocation of data_block (data from NetCDF) failed.")
@@ -822,19 +828,31 @@ module m_ec_filereader_read
                      call read_data_sparse(fileReaderPtr%fileHandle, varid, n_cols, n_rows, item%elementSetPtr%n_layers, &
                                            timesndx, fileReaderPtr%relndx, ia, ja, Ndatasize, fieldPtr%arr1dPtr, ierror)
                      if (ecSupportNetcdfCheckError(ierror, 'Error reading quantity '//trim(item%quantityptr%name)//' from sparse data. ', fileReaderPtr%filename)) then
-                         valid_field = .true.
+                        valid_field = .true.
                      else
-                         return
+                        return
                      endif
                   else
                      if (item%elementSetPtr%n_layers == 0) then
                         if (item%elementSetPtr%ofType == elmSetType_samples) then
-                           ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/col0, timesndx/), count=(/ncol, 1/))
+                           if (has_harmonics) then
+                              ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/col0/), count=(/ncol/))
+                           else
+                              ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/col0, timesndx/), count=(/ncol, 1/))
+                           end if
                         else
-                           ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/col0, row0, timesndx/), count=(/ncol, nrow, 1/))
+                           if (has_harmonics) then
+                              ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/col0, row0/), count=(/ncol, nrow/))
+                           else
+                              ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/col0, row0, timesndx/), count=(/ncol, nrow, 1/))
+                           end if
                         end if
                         if (ierror /= 0) then
-                           call setECMessage("Error retrieving time index ", timesndx)
+                           if (has_harmonics) then
+                              call setECMessage("Error retrieving component data")
+                           else
+                              call setECMessage("Error retrieving time index ", timesndx)
+                           end if
                            return
                         end if
                         ! copy data to source Field's 1D array, store (X1Y1, X1Y2, ..., X1Yn_rows, X2Y1, XYy2, ..., Xn_colsY1, ...)
@@ -843,33 +861,49 @@ module m_ec_filereader_read
                               fieldPtr%arr1dPtr( (i-1)*ncol +  j ) = data_block(j,i)
                            end do
                         end do
-                        valid_field = .True.
+                        valid_field = .true.
                      else
                         ! copy data to source Field's 1D array, store (X1Y1, X1Y2, ..., X1Yn_rows, X2Y1, XYy2, ..., Xn_colsY1, ...)
                         do k=1, item%elementSetPtr%n_layers
-                           ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/col0, row0, k, timesndx/), count=(/ncol, nrow, 1, 1/))
+                           if (has_harmonics) then
+                              ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/col0, row0, k/), count=(/ncol, nrow, 1/))
+                           else
+                              ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/col0, row0, k, timesndx/), count=(/ncol, nrow, 1, 1/))
+                           end if
                            do i=1, nrow
                               do j=1, ncol
                                  fieldPtr%arr1dPtr( (k-1)*ncol*nrow + (i-1)*ncol +  j ) = data_block(j,i)
-                                 valid_field = .True.
+                                 valid_field = .true.
                               end do
                            end do
                         end do
                      end if
                   end if
-                  if (ierror /= 0) return
+                  if (ierror /= 0) then
+                     return
+                  end if
                end if
-               if (.not.valid_field) then
+               if (has_time .and. .not.valid_field) then
                   timesndx = timesndx+1
+               else
+                   valid_field = .true.  ! Make sure we exit immediately (in case of harmonics)
                end if
             end do         ! loop while fields invalid
 
-            ! - 2 - Update the source Field's timesteps variable.
-            fieldPtr%timesteps = ecSupportTimeIndexToMJD(fileReaderPtr%tframe, timesndx)
-            fieldPtr%timesndx = timesndx
+            ! - (optional) - Update the source Field's timesteps variable.
+            if (has_time) then
+               fieldPtr%timesteps = ecSupportTimeIndexToMJD(fileReaderPtr%tframe, timesndx)
+               fieldPtr%timesndx = timesndx
+            else if (has_harmonics) then
+               if (t0t1 == 0) then
+                  fieldPtr%timesteps = -ec_huge_hp
+               else if (t0t1 == 1) then
+                  fieldPtr%timesteps = ec_huge_hp
+               end if
+            end if
          endif
 
-         ! - 3 - Apply the scale factor and offset
+         ! - 4 - Apply the scale factor and offset
          if (item%quantityPtr%factor /= 1.0_hp .or. item%quantityPtr%offset /= 0.0_hp) then
             do i=1, size(fieldPtr%arr1dPtr)
                if ( fieldPtr%arr1dPtr(i) /= dmiss_nc ) then
@@ -877,8 +911,8 @@ module m_ec_filereader_read
                end if
             end do
          end if
-
-         ! Deallocate temporary datablock
+         !
+         ! - 5 - Deallocate temporary datablock
          if (allocated(data_block)) deallocate(data_block, stat = istat)
          !
          success = .true.
@@ -888,172 +922,22 @@ module m_ec_filereader_read
 
       !> Read all the variable data from a NetCDF file, irrespective of times.
       !> This is used to read quantity amplitude data in case of harmonic data.
-      ! TODO: This function has a lot of overlap with ReadNextBlock, maybe we can refactor shared functionality.
-      function ecNetcdfReadVariable(fileReaderPtr, item, t0t1) result(success)
+      !> Both T0 and T1 are created and filled. T0 holds the amplitude data
+      !> while T1 will be later used to hold calculated values each timestep.
+      function ecNetcdfReadVariable(fileReaderPtr, item) result(success)
          use netcdf
          !
          logical                      :: success       !< function status
          type(tEcFileReader), pointer :: fileReaderPtr !< intent(in)
-         type(tEcItem), intent(in)    :: item         !< Item containing quantity1, intent(inout)
-         integer,       intent(in)    :: t0t1          !< read into Field T0 or T1 (0,1).
+         type(tEcItem), intent(in)    :: item          !< Item containing quantity1, intent(inout)
          !
-         type(tEcField), pointer                 :: fieldPtr         !< Field to update
-         integer                                 :: ierror           !< return status of NetCDF method call
-         integer                                 :: varid            !< NetCDF id of NetCDF variable
-         integer                                 :: i, j, k          !< loop counters
-         real(hp), dimension(:,:), allocatable   :: data_block       !< 2D slice of NetCDF variable's data
-         integer                                 :: istat            !< allocation status
-         real(hp)                                :: dmiss_nc         !< local netcdf missing
-
-         logical                                 :: valid_field
-         character(len=20)                       :: cnumber1         !< number converted to string for error message
-         character(len=20)                       :: cnumber2         !< idem
-         integer                                 :: nlay
-         integer                                 :: Ndatasize
-
-         integer                                 :: issparse   ! data in CRS format (1) or not (0)
-         integer, dimension(:), pointer          :: ia         ! CRS sparsity pattern, startpointers
-         integer, dimension(:), pointer          :: ja         ! CRS sparsity pattern, column numbers
-
-         integer                                 :: n_cols, n_rows
-
+         integer                      :: timesndx
          !
-         success = .false.
-         fieldPtr => null()
-
-         dmiss_nc = item%quantityPtr%fillvalue
-         varid = item%quantityPtr%ncid
-         !
-         !
-         ! =============
-         ! sanity checks
-         ! =============
-         !
-         ! - 1 - Source T0 or T1 Field specified
-         if (t0t1 == 0) then
-            fieldPtr => item%sourceT0FieldPtr
-         else if (t0t1 == 1) then
-            fieldPtr => item%sourceT1FieldPtr
-         else
-            call setECMessage("Invalid source Field specified in ecNetcdfReadVariable.")
-            return
+         timesndx = 1 ! Dummy time index.
+         success = ecNetcdfReadNextBlock(fileReaderPtr, item, 0, timesndx)
+         if (success) then
+            success = ecNetcdfReadNextBlock(fileReaderPtr, item, 1, timesndx)
          end if
-         !
-         !
-         ! ===================
-         ! update source Field
-         ! ===================
-         n_cols = item%elementSetPtr%n_cols
-         n_rows = item%elementSetPtr%n_rows
-
-         Ndatasize = n_cols*n_rows
-
-         nlay = item%elementSetPtr%n_layers
-
-         issparse = 0
-
-         if ( fieldPtr%issparse == 1 ) then
-            ia => fieldPtr%ia
-            ja => fieldPtr%ja
-            issparse = fieldPtr%issparse
-            Ndatasize = ia(n_rows+1)-1
-         end if
-
-         ! - 2 - Create storage for the field data if still unallocated and set to missing value
-         if (.not.allocated(fieldPtr%arr1d)) then
-            allocate(fieldPtr%arr1d(Ndatasize*max(nlay,1)), stat = istat)
-            if (istat /= 0) then
-               call setECMessage("ERROR: ec_filereader_read::ecNetcdfReadVariable: Unable to allocate additional memory.")
-               write(message,'(a,i0,a,i0,a,i0,a,i0,a)') 'Failed to create storage for item ',item%id,': (',n_cols,'x',n_rows,'x',nlay,').'
-               call setECMessage(trim(message))
-               return
-            else
-               fieldPtr%arr1d = ec_undef_hp
-               fieldPtr%arr1dPtr => fieldPtr%arr1d
-            end if
-         end if
-
-         valid_field = .false.
-         do while (.not.valid_field)
-            ! - 3 - Read a scalar data block.
-            if (item%elementSetPtr%nCoordinates == 0) then
-               ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, fieldPtr%arr1dPtr, start=(/1/), count=(/1/))
-               if (ierror.ne.NF90_NOERR) then         ! handle exception
-                  call setECMessage("NetCDF:'"//trim(nf90_strerror(ierror))//"' in "//trim(fileReaderPtr%filename)//".")
-                  return
-               end if
-               valid_field = (fieldPtr%arr1dPtr(1)/=dmiss_nc)
-            end if      ! reading scalar data block
-            !
-            ! - 4 - Read a grid data block.
-            valid_field = .False.
-            if ( issparse.ne.1 ) then
-               allocate(data_block(n_cols, n_rows), stat = istat)
-               if (istat/=0) then
-                  write(message,'(a,i0,a,i0,a)') 'Allocating temporary array of ',n_cols,' x ',n_rows,' elements.'
-                  call setECMessage(trim(message))
-                  call setECMessage("Allocation of data_block (data from NetCDF) failed.")
-                  return
-               end if
-            end if
-
-            if (item%elementSetPtr%nCoordinates > 0) then
-               if (issparse == 1) then
-                  call read_data_sparse(fileReaderPtr%fileHandle, varid, n_cols, n_rows, item%elementSetPtr%n_layers, &
-                                        1, fileReaderPtr%relndx, ia, ja, Ndatasize, fieldPtr%arr1dPtr, ierror)
-                   if (ecSupportNetcdfCheckError(ierror, 'Error reading quantity '//trim(item%quantityptr%name)//' from sparse data. ', fileReaderPtr%filename)) then
-                      valid_field = .true.
-                   else
-                      return
-                   endif
-               else
-                  if (item%elementSetPtr%n_layers == 0) then
-                     if (item%elementSetPtr%ofType == elmSetType_samples) then
-                        ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/1/), count=(/n_cols/))
-                     else
-                        ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/1, 1/), count=(/n_cols, n_rows/))
-                     end if
-                     if (ierror /= 0) then
-                        call setECMessage("Error retrieving variable data.")
-                        return
-                     end if
-                     ! copy data to source Field's 1D array, store (X1Y1, X1Y2, ..., X1Yn_rows, X2Y1, XYy2, ..., Xn_colsY1, ...)
-                     do i=1, n_rows
-                        do j=1, n_cols
-                           fieldPtr%arr1dPtr( (i-1)*n_cols +  j ) = data_block(j,i)
-                        end do
-                     end do
-                     valid_field = .True.
-                  else
-                     ! copy data to source Field's 1D array, store (X1Y1, X1Y2, ..., X1Yn_rows, X2Y1, XYy2, ..., Xn_colsY1, ...)
-                     do k=1, item%elementSetPtr%n_layers
-                        ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/1, 1, k/), count=(/n_cols, n_rows, 1/))
-                        do i=1, n_rows
-                           do j=1, n_cols
-                              fieldPtr%arr1dPtr( (k-1)*n_cols*n_rows + (i-1)*n_cols +  j ) = data_block(j,i)
-                              valid_field = .True.
-                           end do
-                        end do
-                     end do
-                  end if
-               end if
-               if (ierror /= 0) return
-            end if
-         end do    ! loop while fields invalid
-
-         ! - 3 - Apply the scale factor and offset
-         if (item%quantityPtr%factor /= 1.0_hp .or. item%quantityPtr%offset /= 0.0_hp) then
-            do i=1, size(fieldPtr%arr1dPtr)
-               if ( fieldPtr%arr1dPtr(i) /= dmiss_nc ) then
-                  fieldPtr%arr1dPtr(i) = fieldPtr%arr1dPtr(i) * item%quantityPtr%factor + item%quantityPtr%offset
-               end if
-            end do
-         end if
-
-         ! Deallocate temporary datablock
-         if (allocated(data_block)) deallocate(data_block, stat = istat)
-         !
-         success = .true.
       end function ecNetcdfReadVariable
 
       ! =======================================================================
