@@ -92,9 +92,9 @@
       use m_cnvtim
 
       integer(kind=int_wp) :: i_max
-      character*(*) lch   (lstack) , chulp , names_to_check(*)
+      character*(*) lch   (lstack) , chulp , names_to_check(:)
       character     cchar*1 , strng*8
-      dimension     i_array(*) , ilun( lstack )
+      dimension     i_array(:) , ilun( lstack )
       logical       dtflg1 , dtflg3 , first, must_read_more
       integer(kind=INT64)  :: ihulp8
       integer(kind=int_wp) ::  ithndl = 0
