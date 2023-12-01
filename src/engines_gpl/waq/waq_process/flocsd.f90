@@ -112,8 +112,8 @@ contains
          viscosity   = pmsa( ipnt(  9) )
          delt        = pmsa( ipnt( 10) )
          total_depth = pmsa( ipnt( 11) )
-         local_depth = pmsa( ipnt( 12) ) 0.5 * pmsa( ipnt( 13) )  ! The "average" depth of the segment,
-                                                                  ! not the bottom level
+         local_depth = pmsa( ipnt( 12) ) - 0.5 * pmsa( ipnt( 13) )  ! The "average" depth of the segment,
+                                                                    ! not the bottom level
 
          ! only for active water segments
 
@@ -166,6 +166,11 @@ contains
       inwmac = increm(17)
       ipwmic = ipoint(18)
       inwmic = increm(18)
+
+      ip15   = ipoint(15)
+      ip16   = ipoint(16)
+      in15   = increm(15)
+      in16   = increm(16)
 
       !
       ! Horizontal exchanges - set to zero

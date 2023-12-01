@@ -24,8 +24,8 @@
 !  Stichting Deltares. All rights reserved.
 !
 !-------------------------------------------------------------------------------
-!  
-!  
+!
+!
 !
 !!--description-----------------------------------------------------------------
 !
@@ -42,7 +42,7 @@ use m_waq_precision
     implicit none
 
     integer(kind=int_wp), parameter, private  ::  fp = kind(1.0)
- 
+
     integer(kind=int_wp), parameter, private  ::  FLOC_MANNING_DYER    = 1
     integer(kind=int_wp), parameter, private  ::  FLOC_CHASSAGNE_SAFAR = 2
     integer(kind=int_wp), parameter, private  ::  FLOC_VERNEY_ETAL     = 3   ! Note: not implemented yet
@@ -290,6 +290,12 @@ subroutine macro_floc_settling_chassagne( spm, tau, totaldepth, localdepth, grav
 
     ws_macro = 0.095_fp * grav * factor1 * factor2 * factor3 * exp( - factor4 ** 0.463_fp )
 
+    !
+    ! Settling flux for both macro flocs
+    ! (Convert to m/s - the settling velocities as calculated above are in mm/s)
+    !
+    ws_macro      = 0.001_fp * ws_macro
+
 end subroutine macro_floc_settling_chassagne
 
 
@@ -348,6 +354,12 @@ subroutine micro_floc_settling_chassagne( tau, totaldepth, localdepth, grav, vis
     factor4  = ustar_micro / ustar * sqrt(zcorr/zlocal)
 
     ws_micro = 0.5372_fp * grav * factor1 * factor3 * exp( - factor4 ** 0.66_fp )
+
+    !
+    ! Settling flux for both macro flocs
+    ! (Convert to m/s - the settling velocities as calculated above are in mm/s)
+    !
+    ws_micro      = 0.001_fp * ws_micro
 
 end subroutine micro_floc_settling_chassagne
 
