@@ -139,7 +139,7 @@ module m_dlwq5b
             return
         end if
 
-        if (abs(itype) == 1) then
+        if (itype == 1) then
             ! Scenario: type==1 and a keyword was met
             if (any(keywords == trim(parsed_str))) then
                 if (usefor_on) then
@@ -353,7 +353,7 @@ module m_dlwq5b
         end if
         
         ! Scenario: a number (int, 2, or real, 3) is used in computations
-        if (abs(itype) == 2 .or. abs(itype) == 3) then
+        if (itype == 2 .or. itype == 3) then
             if (substitution_on .or. operator_on) then
                 nconst = nconst + 1
                 rar(nconst) = parsed_real
