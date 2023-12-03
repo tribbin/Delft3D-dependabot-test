@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine getequilibriumtransportrates(kk, seq, wse, mx, hsk)       ! get them for flowcell kk or ban kk
  use m_flowgeom
@@ -53,8 +53,8 @@
  double precision :: qsseq,garciaeinstein, effic, bav, caver, botsu, qsseqcheck, eincheck, eincheck2
  double precision :: qssevr84 ,vr84rel, deltaa, seqbed
  double precision :: blmax, hpr,dzz,wu2,wid,ar,hyr, zbu
- double precision :: erodable, sumlay, hseqb, aa , dmorfacL, dh, ustar2swart, ustw2, astar, fw, qeng, cf
- integer          :: j, kj, n, k, kg, nn, n1, L,  jabanhydrad = 0, kb
+ double precision :: erodable, sumlay, hseqb, aa , dmorfacL, dh, ustar2swart, ustw2, astar, fw, qeng, cf, wa, z00
+ integer          :: j, kj, n, k, kg, nn, n1, L, LL,  jabanhydrad = 0, kb
 
  integer :: ndraw
  COMMON /DRAWTHIS/ ndraw(50)
@@ -146,17 +146,29 @@
 
  ueff        = ucur ; beta = 1d0 ; twave = 0d0                     !
  ustar2swart = sqcf*sqcf*Ueff*Ueff
- if (jawave > 0 .and. ueff > 0d0) then
+ if (jawave > 0 .and. ueff > 0d0 .and. .not. flowWithoutWaves) then
     if (twav(k) > 1d-2) then
        twave = twav(k)
        uwave = uorb(k)                                             ! (m/s) for jased == 2, tauwav contains uorb
+       do nn = 1,nd(k)%lnx
+          LL = abs( nd(n)%ln(nn) )
+          if (hu(LL) > 0d0) then
+             ar  = au(LL)*dx(LL)
+             wa  = wa + ar       ! area  weigthed
+             z00 = z00 + ar*hu(LL)*exp(-1d0 - vonkar*cz/sag)   ! z0ucur, to avoid double counting
+          endif
+       enddo
+       if (wa > 0) then
+          z00 = z00 / wa
+       endif
+       z00 = max(z00,epsz0)
 
        beta  = ucur   / ( ucur + uwave )                           ! ( )
 
        Ueff  = Ucur   +    0.4d0*uwave                             ! (m/s) SvR 2007
 
        if (MxgrKrone > 0) then
-          call Swart(Twave, uwave, z0wav, fw, ustw2)
+          call Swart(Twave, uwave, z00, fw, ustw2)
           ustar2swart = ustar2swart + ustw2                        ! Swart
        endif
 

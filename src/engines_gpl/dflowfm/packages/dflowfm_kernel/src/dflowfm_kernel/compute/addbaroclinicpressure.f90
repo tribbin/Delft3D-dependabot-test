@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,21 +27,33 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine addbaroclinicpressure()
 use m_flowgeom
 use m_flow
+use m_flowtimes
+
+use m_transport, only: NUMCONST, ISALT, ITEMP, ISED1, ISEDN, ITRA1, ITRAN, ITRAN0, constituents
+
 implicit none
-integer                    :: L,LL,Lb,Lt,n
+integer                    :: L,LL,Lb,Lt,n, k, lnxbc
+
+if (jabarocterm==0) return
+
+if (jabarocponbnd == 0) then 
+   lnxbc = lnxi
+else
+   lnxbc = lnx             
+endif
 
 if (jabarocterm == 1) then
 
    !$OMP PARALLEL DO       &
    !$OMP PRIVATE(LL,Lb,Lt)
 
-   do LL = 1,lnxi
+   do LL = 1,lnxbc
       if (hu(LL) == 0d0) cycle
       call getLbotLtop(LL,Lb,Lt)
       if (Lt < Lb) then
@@ -56,8 +68,7 @@ else if (jabarocterm == 2 .or. jabarocterm == 3 .or. kmx == 0) then
 
    !$OMP PARALLEL DO       &
    !$OMP PRIVATE(LL,Lb,Lt)
-
-   do LL = 1,lnxi
+   do LL = 1,lnxbc
       if (hu(LL) == 0d0) cycle
       call getLbotLtop(LL,Lb,Lt)
       if (Lt < Lb) then
@@ -65,32 +76,81 @@ else if (jabarocterm == 2 .or. jabarocterm == 3 .or. kmx == 0) then
       endif
       call addbaroc2(LL,Lb,Lt)
     enddo
-
-   !$OMP END PARALLEL DO
+    !$OMP END PARALLEL DO
 
  else
 
     rvdn = 0d0 ; grn = 0d0
 
-   !$OMP PARALLEL DO       &
-   !$OMP PRIVATE(n)
-    do n = 1,ndx
-       call addbarocn(n)
-    enddo
-   !$OMP END PARALLEL DO
+    if (jabaroczlaybed == 0) then       ! org now back for full backward compat.
 
-   !$OMP PARALLEL DO       &
-   !$OMP PRIVATE(LL,Lb,Lt)
-    do LL = 1,lnxi
-      if (hu(LL) == 0d0) cycle
-      call getLbotLtop(LL,Lb,Lt)
-      if (Lt < Lb) then
-          cycle
-      endif
-      call addbarocL(LL,Lb,Lt)
-    enddo
-   !$OMP END PARALLEL DO
+       !$OMP PARALLEL DO       &
+       !$OMP PRIVATE(n)
+       do n = 1,ndx
+          call addbarocnorg(n)
+       enddo
+       !$OMP END PARALLEL DO
+    
+       !$OMP PARALLEL DO       &
+       !$OMP PRIVATE(LL,Lb,Lt)
+       do LL = 1,lnxbc
+         if (hu(LL) == 0d0) cycle
+         call getLbotLtop(LL,Lb,Lt)
+         if (Lt < Lb) then
+             cycle
+         endif
+         call addbarocLorg(LL,Lb,Lt)
+       enddo
+       !$OMP END PARALLEL DO
 
+    else                                ! these are the routines we want to keep if all ink is dry
+
+       if (jarhointerfaces == 1) then   
+
+          !$OMP PARALLEL DO       &
+          !$OMP PRIVATE(n)
+          do n = 1,ndx
+             call addbarocnrho_w(n)
+          enddo
+          !$OMP END PARALLEL DO
+
+          !$OMP PARALLEL DO       &
+          !$OMP PRIVATE(LL,Lb,Lt)
+          do LL = 1,lnxbc
+             if (hu(LL) == 0d0) cycle
+             call getLbotLtop(LL,Lb,Lt)
+             if (Lt < Lb) then
+                 cycle
+             endif
+             call addbarocLrho_w(LL,Lb,Lt)
+          enddo
+          !$OMP END PARALLEL DO
+
+       else
+
+          !$OMP PARALLEL DO       &
+          !$OMP PRIVATE(n)
+          do n = 1,ndx
+             call addbarocn(n)
+          enddo
+          !$OMP END PARALLEL DO
+    
+          !$OMP PARALLEL DO       &
+          !$OMP PRIVATE(LL,Lb,Lt)
+          do LL = 1,lnxbc
+             if (hu(LL) == 0d0) cycle
+             call getLbotLtop(LL,Lb,Lt)
+             if (Lt < Lb) then
+                cycle
+             endif
+             call addbarocL(LL,Lb,Lt)
+          enddo
+          !$OMP END PARALLEL DO
+  
+       endif
+
+    endif
+  
  endif
 
  end subroutine addbaroclinicpressure

@@ -1,7 +1,7 @@
 module m_readstructures
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify              
 !  it under the terms of the GNU Affero General Public License as               
@@ -25,8 +25,8 @@ module m_readstructures
 !  Stichting Deltares. All rights reserved.
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !-------------------------------------------------------------------------------
 
    use MessageHandling
@@ -34,29 +34,22 @@ module m_readstructures
    use m_network
    use m_CrossSections
    use m_1d_structures
-   use m_Weir
    use m_Universal_Weir
    use m_Culvert
    use m_Bridge
    use m_pump
-   use m_Orifice
    use m_General_Structure
-   use m_ExtraResistance
    use m_Dambreak
 
    use properties
-   use m_hash_list
    use m_hash_search
    use m_tables
-   use m_read_table
 
    implicit none
 
    private
 
    public readStructures
-   public read_structure_cache
-   public write_structure_cache
    public readPump
    public readDambreak
    public allowedFlowDirtoInt
@@ -97,9 +90,8 @@ module m_readstructures
       type(t_network),  intent(inout)    :: network        !< The network data structure into whose Structure Set the file(s) will be read.
       character(len=*), intent(in   )    :: structurefiles !< File name(s) to be read. Separate multiple files by semicolon: "file with spaces 1.ini;file2.ini;file 3.ini".
    
-      integer  :: isemi, ispace
-      character(len=CharLn) :: file
-      character(len=CharLn) :: inputFiles
+      character(len=IdLen) :: file
+      character(len=IdLen) :: inputFiles
       
       inputFiles = structurefiles
       do while (len_trim(inputfiles) > 0) 
@@ -136,64 +128,37 @@ module m_readstructures
       type(tree_data), pointer                               :: md_ptr 
       integer                                                :: istat
       integer                                                :: numstr
-      integer                                                :: i, j
+      integer                                                :: i
       character(len=:), allocatable                          :: str_buf
 
       character(len=IdLen)                                   :: typestr
       character(len=IdLen)                                   :: st_id
       character(len=IdLen)                                   :: branchID
       
-      logical                                                :: isPillarBridge
-
-      integer                                                :: iCompound
-      character(len=IdLen)                                   :: compoundName
-      character(len=IdLen), allocatable, dimension(:)        :: structureNames
-      
       integer                                                :: iStrucType
-      integer                                                :: istru
       type(t_structure), pointer                             :: pstru
-      type(t_compound), pointer                              :: pcompound
-      integer                                                :: nweir
-      integer                                                :: nculvert
-      integer                                                :: norifice
-      integer                                                :: ngenstru
-      integer                                                :: nbridge
-      integer                                                :: ngate
-      integer                                                :: numStructures
-
-      integer                                                :: pos
-      integer                                                :: ibin = 0
-      character(len=Charln)                                  :: binfile
-      logical                                                :: file_exist
       integer                                                :: major, minor, ierr
       
       success = .true.
-      pos = index(structureFile, '.', back = .true.)
-      binfile = structureFile(1:pos)//'cache'
-      inquire(file=binfile, exist=file_exist)
-      if (doReadCache .and. file_exist) then
-         open(newunit=ibin, file=binfile, status='old', form='unformatted', access='stream', action='read', iostat=istat)
-         if (istat /= 0) then
-            call setmessage(LEVEL_FATAL, 'Error opening Structure Cache file')
-            ibin = 0
-         endif
-         call read_structure_cache(ibin, network)
-         close(ibin)
-         ibin = 0
-         return
-      endif
 
       call tree_create(trim(structurefile), md_ptr, maxlenpar)
       call prop_file('ini',trim(structurefile),md_ptr,istat)
+      
+      msgbuf = 'Reading '//trim(structurefile)//'.'
+      call msg_flush()
       
       ! check FileVersion
       ierr = 0
       major = 1
       minor = 0
       call prop_get_version_number(md_ptr, major = major, minor = minor, success = success1)
-      ! by exception, we backwards-support majorVersion=1 (for orifice and weir)
+      if (.not. success1) then
+         msgbuf = ' Early return, file '//trim(structurefile)//' is a 2D3D structure file, it will be read by function flow_init_structurecontrol.'
+         call msg_flush()
+         return
+      endif
       ! For now majorVersion = 2.xx is supported for all structures, except for the bridge. 
-      if ((major /= StructureFileMajorVersion .and. major /= 1 .and. major /= 2) .or. (major == StructureFileMajorVersion .and. minor > StructureFileMinorversion)) then
+      if ((major /= StructureFileMajorVersion .and. major /= 2) .or. (major == StructureFileMajorVersion .and. minor > StructureFileMinorversion)) then
          write (msgbuf, '(a,i0,".",i2.2,a,i0,".",i2.2,a)') 'Unsupported format of structure file detected in '''//trim(structurefile)//''': v', major, minor, '. Current format: v',StructureFileMajorVersion,StructureFileMinorVersion,'. Ignoring this file.'
          call err_flush()
          ierr = 1
@@ -270,8 +235,8 @@ module m_readstructures
                success = success .and. check_input_result(success1, st_id, 'numCoordinates')
                if (success) then
                   allocate(pstru%xCoordinates(pstru%numCoordinates), pstru%yCoordinates(pstru%numCoordinates), stat = istat)
-                  write (*,*) 'readStructureFile, allocate(pstru%xCoordinates(', pstru%numCoordinates, ') and y), stat=', istat
-                  
+                  call aerr( 'readStructureFile:pstru%x/y coordinates', istat, 2*pstru%numCoordinates)
+
                   call prop_get(md_ptr%child_nodes(i)%node_ptr, '', 'xCoordinates', pstru%xCoordinates, &
                                 pstru%numCoordinates, success1)
                   success = success .and. check_input_result(success1, st_id, 'xCoordinates')
@@ -290,14 +255,8 @@ module m_readstructures
             
             select case (iStrucType)
             case (ST_WEIR)
-               if (major ==1) then 
-                  ! support for version 1.0 structure files weirs as weir 
-                  call readWeir(pstru%weir, md_ptr%child_nodes(i)%node_ptr, success)
-               else
-                  ! support for version >= 2.0 structure files weirs as general structure
-                  call readWeirAsGenstru(pstru%generalst, md_ptr%child_nodes(i)%node_ptr, st_id, network%forcinglist, success)
-               endif
-                  
+               ! support for version >= 2.0 structure files weirs as general structure
+               call readWeirAsGenstru(pstru%generalst, md_ptr%child_nodes(i)%node_ptr, st_id, network%forcinglist, success)
             case (ST_UNI_WEIR)
                call readUniversalWeir(pstru%uniweir, md_ptr%child_nodes(i)%node_ptr, st_id, success)
             case (ST_CULVERT)
@@ -312,13 +271,8 @@ module m_readstructures
             case (ST_PUMP)
                call readPump(pstru%pump, md_ptr%child_nodes(i)%node_ptr, st_id, network%forcinglist, success)
             case (ST_ORIFICE, ST_GATE)
-               if (major ==1) then 
-                  ! support for version 1.0 structure files weirs as weir 
-                  call readOrifice(pstru%orifice, md_ptr%child_nodes(i)%node_ptr, success)
-               else
-                  ! support for version >= 2.0 structure files weirs as general structure
-                  call readOrificeAsGenstru(pstru%generalst, md_ptr%child_nodes(i)%node_ptr, st_id, network%forcinglist, success)
-               endif
+               ! support for version >= 2.0 structure files weirs as general structure
+               call readOrificeAsGenstru(pstru%generalst, md_ptr%child_nodes(i)%node_ptr, st_id, network%forcinglist, success)
             case (ST_GENERAL_ST)
                call readGeneralStructure(pstru%generalst, md_ptr%child_nodes(i)%node_ptr, st_id, network%forcinglist, success)
             case (ST_DAMBREAK)
@@ -534,343 +488,7 @@ module m_readstructures
          
       enddo
    end subroutine finishreading
-   
-   
-   subroutine read_structure_cache(ibin, network)
-   
-      type(t_network), intent(inout)         :: network
-      integer, intent(in)                    :: ibin
-      
-      type(t_structure), pointer             :: pstr
-      integer                                :: i
-      integer                                :: j
-
-      read(ibin) network%sts%count
-      network%sts%growsby = network%sts%count + 2
-      call realloc(network%sts)
-
-      read(ibin) (network%sts%countByType(i), i = 1, ST_MAX_TYPE)
-      
-      read(ibin) network%sts%compoundCount
-      read(ibin) network%sts%hasExtraResistance
-
-      do i = 1, network%sts%Count
-      
-         pstr => network%sts%struct(i)
-         
-         read(ibin) pstr%id
-         read(ibin) pstr%name
-         read(ibin) pstr%type
-         read(ibin) pstr%ibran
-         read(ibin) pstr%linknumbers(1)
-         read(ibin) pstr%xCoordinates(1)
-         read(ibin) pstr%yCoordinates(1)
-         read(ibin) pstr%chainage
-         read(ibin) pstr%compound
-         
-         select case(pstr%type)
-            case(ST_WEIR)
-               allocate(pstr%weir)
-               read(ibin) pstr%weir%allowedflowdir
-               read(ibin) pstr%weir%crestlevel
-               read(ibin) pstr%weir%crestwidth
-               read(ibin) pstr%weir%dischargecoeff
-               read(ibin) pstr%weir%latdiscoeff
-               read(ibin) pstr%weir%crestlevel
-               read(ibin) pstr%weir%cmu
-               
-            case(ST_ORIFICE)
-               allocate(pstr%orifice)
-               read(ibin) pstr%orifice%allowedflowdir
-               read(ibin) pstr%orifice%crestlevel
-               read(ibin) pstr%orifice%crestwidth
-               read(ibin) pstr%orifice%contrcoeff
-               read(ibin) pstr%orifice%latcontrcoeff
-               read(ibin) pstr%orifice%openlevel
-               read(ibin) pstr%orifice%uselimitflowpos
-               read(ibin) pstr%orifice%limitflowpos
-               read(ibin) pstr%orifice%uselimitflowneg
-               read(ibin) pstr%orifice%limitflowneg
-               
-            case(ST_PUMP)
-               allocate(pstr%pump)
-               read(ibin) pstr%pump%direction
-               read(ibin) pstr%pump%nrstages
-            
-               allocate(pstr%pump%capacity(pstr%pump%nrstages))
-               allocate(pstr%pump%ss_onlevel(pstr%pump%nrstages))
-               allocate(pstr%pump%ss_offlevel(pstr%pump%nrstages))
-               allocate(pstr%pump%ds_onlevel(pstr%pump%nrstages))
-               allocate(pstr%pump%ds_offlevel(pstr%pump%nrstages))
-               allocate(pstr%pump%ss_trigger(pstr%pump%nrstages))
-               allocate(pstr%pump%ds_trigger(pstr%pump%nrstages))
-               
-               read(ibin) (pstr%pump%capacity(j), j = 1, pstr%pump%nrstages)
-               read(ibin) (pstr%pump%ss_onlevel(j), j = 1, pstr%pump%nrstages)
-               read(ibin) (pstr%pump%ss_offlevel(j), j = 1, pstr%pump%nrstages)
-               read(ibin) (pstr%pump%ds_onlevel(j), j = 1, pstr%pump%nrstages)
-               read(ibin) (pstr%pump%ds_offlevel(j), j = 1, pstr%pump%nrstages)
-               read(ibin) (pstr%pump%ss_trigger(j), j = 1, pstr%pump%nrstages)
-               read(ibin) (pstr%pump%ds_trigger(j), j = 1, pstr%pump%nrstages)
-            
-               call read_table_cache(ibin, pstr%pump%reducfact)
-               
-               ! Initialize Parameters for Pump
-               pstr%pump%actual_stage      = 0
-               pstr%pump%discharge         = 0.0d0
-               pstr%pump%is_active         = .true.
-               pstr%pump%pump_head         = 0.0d0
-               pstr%pump%reduction_factor  = 1.0d0
-               pstr%pump%ss_level          = 0.0d0
-               pstr%pump%ds_level          = 0.0d0
-               pstr%pump%current_capacity  = 0.0d0
-            
-            case(ST_CULVERT)
-               allocate(pstr%culvert)
-               read(ibin) pstr%culvert%leftlevel
-               read(ibin) pstr%culvert%rightlevel
-               read(ibin) pstr%culvert%crosssectionnr
-               pstr%culvert%pcross => network%crs%cross(pstr%culvert%crosssectionnr)
-               read(ibin) pstr%culvert%allowedflowdir
-               read(ibin) pstr%culvert%length
-               read(ibin) pstr%culvert%inletlosscoeff
-               read(ibin) pstr%culvert%outletlosscoeff
-               read(ibin) pstr%culvert%has_valve
-               if (pstr%culvert%has_valve) then
-                   read(ibin) pstr%culvert%valveOpening
-                   call read_table_cache(ibin, pstr%culvert%losscoeff)
-               endif
-            
-            case(ST_UNI_WEIR)
-               allocate(pstr%uniweir)
-               read(ibin) pstr%uniweir%allowedflowdir
-               read(ibin) pstr%uniweir%crestlevel
-               read(ibin) pstr%uniweir%dischargecoeff
-            
-               read(ibin) pstr%uniweir%yzcount
-               
-               allocate(pstr%uniweir%y(pstr%uniweir%yzcount))
-               allocate(pstr%uniweir%z(pstr%uniweir%yzcount))
-
-               read(ibin) (pstr%uniweir%y(j), j = 1, pstr%uniweir%yzcount)
-               read(ibin) (pstr%uniweir%z(j), j = 1, pstr%uniweir%yzcount)
-               
-            case(ST_BRIDGE)
-               allocate(pstr%bridge)
-               read(ibin) pstr%bridge%allowedflowdir
-               read(ibin) pstr%bridge%bedLevel
-               read(ibin) pstr%bridge%pillarwidth
-               read(ibin) pstr%bridge%formfactor
-               read(ibin) pstr%bridge%useOwnCrossSection
-               read(ibin) pstr%bridge%crosssectionnr
-               if (pstr%bridge%useOwnCrossSection) then
-                  pstr%bridge%pcross => network%crs%cross(pstr%bridge%crosssectionnr)
-               endif
-               read(ibin) pstr%bridge%bedFrictionType
-               read(ibin) pstr%bridge%bedFriction
-               read(ibin) pstr%bridge%length
-               read(ibin) pstr%bridge%inletlosscoeff
-               read(ibin) pstr%bridge%outletlosscoeff
-            
-            case(ST_GENERAL_ST)
-               allocate(pstr%generalst)
-               read(ibin) pstr%generalst%wu1
-               read(ibin) pstr%generalst%zu1
-               read(ibin) pstr%generalst%wu2
-               read(ibin) pstr%generalst%zu2
-               read(ibin) pstr%generalst%ws
-               read(ibin) pstr%generalst%zs
-               read(ibin) pstr%generalst%wd1
-               read(ibin) pstr%generalst%zd1
-               read(ibin) pstr%generalst%wd2
-               read(ibin) pstr%generalst%zd2
-               read(ibin) pstr%generalst%gateloweredgelevel
-               read(ibin) pstr%generalst%cgf_pos
-               read(ibin) pstr%generalst%cgd_pos
-               read(ibin) pstr%generalst%cwf_pos
-               read(ibin) pstr%generalst%cwd_pos
-               read(ibin) pstr%generalst%mugf_pos
-               read(ibin) pstr%generalst%cgf_neg
-               read(ibin) pstr%generalst%cgd_neg
-               read(ibin) pstr%generalst%cwf_pos
-               read(ibin) pstr%generalst%cwd_neg
-               read(ibin) pstr%generalst%mugf_neg
-               read(ibin) pstr%generalst%extraresistance
-            
-         end select
-      
-      enddo
  
-      call read_hash_list_cache(ibin, network%sts%hashlist_weir)
-      call read_hash_list_cache(ibin, network%sts%hashlist_culvert)
-      call read_hash_list_cache(ibin, network%sts%hashlist_bridge)
-      call read_hash_list_cache(ibin, network%sts%hashlist_pump)
-
-      ! Allocate and Initialize Restart Data, will be filled when Reading Restart File
-      if (network%sts%count > 0) then
-         allocate(network%sts%restartData(network%sts%count, CFiHighestParameter))
-         network%sts%restartData = missingValue
-      endif
-      
-   end subroutine read_structure_cache
-
-   subroutine write_structure_cache(ibin, sts)
-   
-      type(t_structureSet), intent(in)    :: sts
-      integer, intent(in)                 :: ibin
-      
-      integer                    :: i
-      integer                    :: j
-      type(t_structure), pointer :: pstr
-
-      write(ibin) sts%Count
-
-      write(ibin) (sts%countByType(i), i = 1, ST_MAX_TYPE)
-      
-      write(ibin) sts%compoundCount
-      write(ibin) sts%hasExtraResistance
-
-      do i = 1, sts%Count
-      
-         pstr => sts%struct(i)
-         
-         write(ibin) pstr%id
-         write(ibin) pstr%name
-         write(ibin) pstr%type
-         write(ibin) pstr%ibran
-         write(ibin) pstr%linknumbers(1)
-         write(ibin) pstr%xCoordinates(1)
-         write(ibin) pstr%yCoordinates(1)
-         write(ibin) pstr%chainage
-         write(ibin) pstr%compound
-         
-         select case(pstr%type)
-            case(ST_WEIR)
-               write(ibin) pstr%weir%allowedflowdir
-               write(ibin) pstr%weir%crestlevel
-               write(ibin) pstr%weir%crestwidth
-               write(ibin) pstr%weir%dischargecoeff
-               write(ibin) pstr%weir%latdiscoeff
-               write(ibin) pstr%weir%crestlevel
-               write(ibin) pstr%weir%cmu
-               
-            case(ST_ORIFICE)
-               write(ibin) pstr%orifice%allowedflowdir
-               write(ibin) pstr%orifice%crestlevel
-               write(ibin) pstr%orifice%crestwidth
-               write(ibin) pstr%orifice%contrcoeff
-               write(ibin) pstr%orifice%latcontrcoeff
-               write(ibin) pstr%orifice%openlevel
-               write(ibin) pstr%orifice%uselimitflowpos
-               write(ibin) pstr%orifice%limitflowpos
-               write(ibin) pstr%orifice%uselimitflowneg
-               write(ibin) pstr%orifice%limitflowneg
-               
-            case(ST_PUMP)
-               write(ibin) pstr%pump%direction
-               write(ibin) pstr%pump%nrstages
-            
-               write(ibin) (pstr%pump%capacity(j), j = 1, pstr%pump%nrstages)
-               write(ibin) (pstr%pump%ss_onlevel(j), j = 1, pstr%pump%nrstages)
-               write(ibin) (pstr%pump%ss_offlevel(j), j = 1, pstr%pump%nrstages)
-               write(ibin) (pstr%pump%ds_onlevel(j), j = 1, pstr%pump%nrstages)
-               write(ibin) (pstr%pump%ds_offlevel(j), j = 1, pstr%pump%nrstages)
-               write(ibin) (pstr%pump%ss_trigger(j), j = 1, pstr%pump%nrstages)
-               write(ibin) (pstr%pump%ds_trigger(j), j = 1, pstr%pump%nrstages)
-            
-               call write_table_cache(ibin, pstr%pump%reducfact)
-            
-            case(ST_CULVERT)
-               write(ibin) pstr%culvert%leftlevel
-               write(ibin) pstr%culvert%rightlevel
-               write(ibin) pstr%culvert%crosssectionnr      
-               write(ibin) pstr%culvert%allowedflowdir
-               write(ibin) pstr%culvert%length
-               write(ibin) pstr%culvert%inletlosscoeff
-               write(ibin) pstr%culvert%outletlosscoeff
-               write(ibin) pstr%culvert%has_valve
-               if (pstr%culvert%has_valve) then
-                  write(ibin) pstr%culvert%valveOpening
-                  call write_table_cache(ibin, pstr%culvert%losscoeff)
-               endif
-      
-            case(ST_UNI_WEIR)
-               write(ibin) pstr%uniweir%allowedflowdir
-               write(ibin) pstr%uniweir%crestlevel
-               write(ibin) pstr%uniweir%dischargecoeff
-            
-               write(ibin) pstr%uniweir%yzcount
-               write(ibin) (pstr%uniweir%y(j), j = 1, pstr%uniweir%yzcount)
-               write(ibin) (pstr%uniweir%z(j), j = 1, pstr%uniweir%yzcount)
-               
-            case(ST_BRIDGE)
-               write(ibin) pstr%bridge%allowedflowdir
-               write(ibin) pstr%bridge%bedLevel
-               write(ibin) pstr%bridge%pillarwidth
-               write(ibin) pstr%bridge%formfactor
-               write(ibin) pstr%bridge%useOwnCrossSection
-               write(ibin) pstr%bridge%crosssectionnr
-               write(ibin) pstr%bridge%bedFrictionType
-               write(ibin) pstr%bridge%bedFriction
-               write(ibin) pstr%bridge%length
-               write(ibin) pstr%bridge%inletlosscoeff
-               write(ibin) pstr%bridge%outletlosscoeff
-            
-            case(ST_GENERAL_ST)
-               write(ibin) pstr%generalst%wu1
-               write(ibin) pstr%generalst%zu1
-               write(ibin) pstr%generalst%wu2
-               write(ibin) pstr%generalst%zu2
-               write(ibin) pstr%generalst%ws
-               write(ibin) pstr%generalst%zs
-               write(ibin) pstr%generalst%wd1
-               write(ibin) pstr%generalst%zd1
-               write(ibin) pstr%generalst%wd2
-               write(ibin) pstr%generalst%zd2
-               write(ibin) pstr%generalst%gateLowerEdgeLevel
-               write(ibin) pstr%generalst%cgf_pos
-               write(ibin) pstr%generalst%cgd_pos
-               write(ibin) pstr%generalst%cwf_pos
-               write(ibin) pstr%generalst%cwd_pos
-               write(ibin) pstr%generalst%mugf_pos
-               write(ibin) pstr%generalst%cgf_neg
-               write(ibin) pstr%generalst%cgd_neg
-               write(ibin) pstr%generalst%cwf_neg
-               write(ibin) pstr%generalst%cwd_neg
-               write(ibin) pstr%generalst%mugf_neg
-               write(ibin) pstr%generalst%extraresistance
-
-         end select
-      
-      enddo
- 
-      call write_hash_list_cache(ibin, sts%hashlist_weir)
-      call write_hash_list_cache(ibin, sts%hashlist_culvert)
-      call write_hash_list_cache(ibin, sts%hashlist_bridge)
-      call write_hash_list_cache(ibin, sts%hashlist_pump)
-      
-   end subroutine write_structure_cache
-
-   
-   subroutine readWeir(weir, md_ptr, success)
-   
-      type(t_weir), pointer, intent(inout)     :: weir
-      type(tree_data), pointer, intent(in)     :: md_ptr
-      logical, intent(inout)                   :: success 
-
-      allocate(weir)
-
-      call prop_get_double(md_ptr, 'structure', 'crestlevel', weir%crestlevel, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'crestwidth', weir%crestwidth, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'dischargecoeff', weir%dischargecoeff, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'latdiscoeff', weir%latdiscoeff, success)
-
-      weir%cmu            = weir%dischargecoeff * weir%latdiscoeff
-
-      if (success) call prop_get_integer(md_ptr, 'structure', 'allowedflowdir', weir%allowedflowdir, success)
-
-   end subroutine readWeir
-
 
    !> Read specific data for the universal weir structure.
    !! The common fields for the structure (e.g. branchId) must have been read elsewhere.
@@ -1014,6 +632,7 @@ module m_readstructures
          
       icross = AddCrossSection(network%crs, network%CSDefinitions, 0, 0.0d0, CrsDefIndx, 0.0d0, &
                                bedFrictionType, bedFriction, groundFrictionType, groundFriction)
+      network%crs%cross(icross)%csid = 'CS_Culvert_'//trim(st_id)
       network%crs%cross(icross)%branchid = -1
          
       culvert%pcross         => network%crs%cross(icross)
@@ -1118,13 +737,25 @@ module m_readstructures
       character(len=IdLen)                       :: CrsDefID
       integer                                    :: CrsDefIndx
       integer                                    :: icross
-      logical                                    :: isPillarBridge
       logical                                    :: success1
       double precision                           :: shift  
       
       
       success = .true.
       allocate(bridge)
+      
+      bridge%bedLevel           = 0.0d0
+      bridge%pillarwidth        = 0d0
+      bridge%formfactor         = 0d0
+      bridge%allowedflowdir     = 0
+      bridge%useOwnCrossSection = .false.
+      bridge%pcross             => null()
+      bridge%crosssectionnr     = 0
+      bridge%bedFrictionType    = 0
+      bridge%bedFriction        = 0.0d0
+      bridge%length             = 0.0d0
+      bridge%inletlosscoeff     = 0d0
+      bridge%outletlosscoeff    = 0d0
 
       call prop_get_string(md_ptr, 'structure', 'allowedFlowDir', txt, success1)
       success = success .and. check_input_result(success1, st_id, 'allowedFlowDir')
@@ -1132,38 +763,20 @@ module m_readstructures
       
       ! Make distinction between a pillar bridge and a standard bridge
       
-      bridge%pillarwidth = 0d0
       call prop_get_double(md_ptr, '', 'pillarWidth', bridge%pillarwidth, success1)
       if (success1) then
          ! pillar bridge
-         call setMessage(LEVEL_ERROR, 'Error Reading Bridge '''//trim(st_id)//''': pillar bridge is currently unsupported. Only standard bridge is supported.')
-         success = .false.
-         ! UNST-2907: pillar bridge support removed. Keep code below for future re-enabling.
-         !call prop_get_double(md_ptr, '', 'formFactor', bridge%formfactor, success1)
-         !success = success .and. check_input_result(success1, st_id, 'formFactor')
-         !
-         !bridge%bedLevel           = 0.0d0
-         !bridge%useOwnCrossSection = .false.
-         !bridge%pcross             => null()
-         !bridge%crosssectionnr     = 0
-         !bridge%bedFrictionType    = 0
-         !bridge%groundFrictionType = 0
-         !bridge%bedFriction        = 0.0d0
-         !bridge%groundFriction     = 0.0d0
-         !bridge%length             = 0.0d0
-         !bridge%inletlosscoeff     = 0.0d0
-         !bridge%outletlosscoeff    = 0.0d0
-         
-      else
-         ! Standard bridge
-         call prop_get_string(md_ptr, '', 'csDefId', CrsDefID, success1)
-         success = success .and. check_input_result(success1, st_id, 'csDefId')
-         if (success) then
-            CrsDefIndx = hashsearch(network%CSDefinitions%hashlist, CrsDefID)
-            if (CrsDefIndx <= 0) then
-               call setMessage(LEVEL_ERROR, 'Error Reading Bridge '''//trim(st_id)//''': Cross-Section Definition '''//trim(CrsDefID)// ''' not found.')
-               success = .false.
-            endif
+         call prop_get_double(md_ptr, '', 'formFactor', bridge%formfactor, success1)
+         success = success .and. check_input_result(success1, st_id, 'formFactor')
+      endif
+      
+      ! Standard bridge
+      call prop_get_string(md_ptr, '', 'csDefId', CrsDefID, success1)
+      if (success1) then
+         CrsDefIndx = hashsearch(network%CSDefinitions%hashlist, CrsDefID)
+         if (CrsDefIndx <= 0) then
+            call setMessage(LEVEL_ERROR, 'Error Reading Bridge '''//trim(st_id)//''': Cross-Section Definition '''//trim(CrsDefID)// ''' not found.')
+            success = .false.
          endif
          
          call prop_get_string(md_ptr, '', 'frictionType', txt, success1)
@@ -1183,7 +796,8 @@ module m_readstructures
             icross = AddCrossSection(network%crs, network%CSDefinitions, 0, 0.0d0, CrsDefIndx, 0.0d0, &
                                      bridge%bedFrictionType, bridge%bedFriction, groundFrictionType = -1, groundFriction = -1d0)
             network%crs%cross(icross)%branchid = -1
-         
+            network%crs%cross(icross)%csid = 'CS_Bridge_'//trim(st_id)
+
             bridge%useOwnCrossSection = .true.
             bridge%pcross             => network%crs%cross(icross)
             bridge%crosssectionnr     = icross
@@ -1206,10 +820,6 @@ module m_readstructures
          
          call prop_get_double(md_ptr, '', 'outletLossCoeff', bridge%outletlosscoeff, success1)
          success = success .and. check_input_result(success1, st_id, 'outletLossCoeff')
-         
-         
-         bridge%pillarwidth = 0.0d0
-         bridge%formfactor  = 0.0d0
 
       endif
       
@@ -1231,36 +841,46 @@ module m_readstructures
 
       allocate(dambr)
 
-      call prop_get_double(md_ptr, 'Structure', 'StartLocationX',  dambr%startLocationX, success)
+      call prop_get_double(md_ptr, 'Structure', 'StartLocationX',  dambr%startLocationX, localsuccess)
+      success = success .and. check_input_result(localsuccess, st_id, 'StartLocationX')
       if (.not. success) return
 
-      call prop_get_double(md_ptr, 'Structure', 'StartLocationY',  dambr%startLocationY, success)
+      call prop_get_double(md_ptr, 'Structure', 'StartLocationY',  dambr%startLocationY, localsuccess)
+      success = success .and. check_input_result(localsuccess, st_id, 'StartLocationY')
       if (.not. success) return
 
-      call prop_get_integer(md_ptr, 'Structure', 'Algorithm', dambr%algorithm, success)
+      call prop_get_integer(md_ptr, 'Structure', 'Algorithm', dambr%algorithm, localsuccess)
+      success = success .and. check_input_result(localsuccess, st_id, 'Algorithm')
       if (.not. success) return
 
-      call prop_get_double(md_ptr, 'Structure', 'CrestLevelIni', dambr%crestLevelIni, success)
+      call prop_get_double(md_ptr, 'Structure', 'CrestLevelIni', dambr%crestLevelIni, localsuccess)
+      success = success .and. check_input_result(localsuccess, st_id, 'CrestLevelIni')
       if (.not. success) return
          
       if (dambr%algorithm == 2) then
          
-         call prop_get_double(md_ptr, 'Structure', 'BreachWidthIni', dambr%breachWidthIni, success)
+         call prop_get_double(md_ptr, 'Structure', 'BreachWidthIni', dambr%breachWidthIni, localsuccess)
+         success = success .and. check_input_result(localsuccess, st_id, 'BreachWidthIni')
          if (.not. success) return
 
-         call prop_get_double(md_ptr, 'Structure', 'CrestLevelMin', dambr%crestLevelMin, success)
+         call prop_get_double(md_ptr, 'Structure', 'CrestLevelMin', dambr%crestLevelMin, localsuccess)
+         success = success .and. check_input_result(localsuccess, st_id, 'CrestLevelMin')
          if (.not. success) return
 
-         call prop_get_double(md_ptr, 'Structure', 'TimeToBreachToMaximumDepth', dambr%timeToBreachToMaximumDepth, success)
+         call prop_get_double(md_ptr, 'Structure', 'TimeToBreachToMaximumDepth', dambr%timeToBreachToMaximumDepth, localsuccess)
+         success = success .and. check_input_result(localsuccess, st_id, 'TimeToBreachToMaximumDepth')
          if (.not. success) return
 
-         call prop_get_double(md_ptr, 'Structure', 'F1', dambr%f1, success)
+         call prop_get_double(md_ptr, 'Structure', 'F1', dambr%f1, localsuccess)
+         success = success .and. check_input_result(localsuccess, st_id, 'F1')
          if (.not. success) return
 
-         call prop_get_double(md_ptr, 'Structure', 'F2', dambr%f2, success)
+         call prop_get_double(md_ptr, 'Structure', 'F2', dambr%f2, localsuccess)
+         success = success .and. check_input_result(localsuccess, st_id, 'F2')
          if (.not. success) return
 
-         call prop_get_double(md_ptr, 'Structure', 'Ucrit', dambr%ucrit, success)
+         call prop_get_double(md_ptr, 'Structure', 'Ucrit', dambr%ucrit, localsuccess)
+         success = success .and. check_input_result(localsuccess, st_id, 'Ucrit')
          if (.not. success) return
          
          ! optional extra fields
@@ -1281,11 +901,13 @@ module m_readstructures
       if (dambr%algorithm == 3) then
          ! UNST-3308: NOTE that only the .tim filename is read below. It is NOT added to the network%forcinglist.
          !            All time-space handling of the dambreak is still done in kernel.
-         call prop_get_string(md_ptr, 'Structure', 'DambreakLevelsAndWidths', dambr%levelsAndWidths, success)
+         call prop_get_string(md_ptr, 'Structure', 'DambreakLevelsAndWidths', dambr%levelsAndWidths, localsuccess)
+         success = success .and. check_input_result(localsuccess, st_id, 'DambreakLevelsAndWidths')
          if (.not. success) return         
       endif
 
-      call prop_get_double(md_ptr, 'Structure', 'T0', dambr%t0, success)
+      call prop_get_double(md_ptr, 'Structure', 'T0', dambr%t0, localsuccess)
+      success = success .and. check_input_result(localsuccess, st_id, 'T0')
       if (.not. success) return
       
       call setCoefficents(dambr)
@@ -1444,13 +1066,13 @@ module m_readstructures
       logical,          optional,   intent(inout) :: success     
       
       integer           :: istat   
-      character(CharLn) :: tmpstr, structuretype
+      character(IdLen) :: tmpstr, structuretype
       logical           :: success1
       
       call prop_get_string(md_ptr, '', key, tmpstr, success1)
       if (success1) then
          read(tmpstr, *, iostat = istat) value
-         if (istat /= 0) then ! No number, so assume it was a filename
+         if (istat /= 0 .or. index(tmpstr,'/') == 1) then ! No number or a string starting with '/': assume it was a filename
             forcinglist%Count = forcinglist%Count+1
             if (forcinglist%Count > forcinglist%Size) then
                call realloc(forcinglist)
@@ -1471,58 +1093,6 @@ module m_readstructures
       
    end subroutine get_value_or_addto_forcinglist
    
-   subroutine readOrifice(orifice, md_ptr, success)
-   
-      type(t_orifice), pointer, intent(inout)     :: orifice
-      type(tree_data), pointer, intent(in)        :: md_ptr
-      logical, intent(inout)                      :: success 
-      
-      double precision :: area, height
-   
-      allocate(orifice)
-      
-      call prop_get_double(md_ptr, 'structure', 'crestlevel', orifice%crestlevel, success)
-      if (success) then
-         call prop_get_double(md_ptr, 'structure', 'crestwidth', orifice%crestwidth, success)
-         if (success) call prop_get_double(md_ptr, 'structure', 'openlevel', orifice%openlevel, success)
-      else
-         success = .true.
-         orifice%crestlevel = 0d0
-         area = 0d0
-         call prop_get_double(md_ptr, 'structure', 'bottomlevel', orifice%crestlevel, success)
-         call prop_get_double(md_ptr, 'structure', 'area',         area, success)
-         height = sqrt(area)
-         orifice%crestwidth = height
-         orifice%openlevel = orifice%crestlevel+height
-      endif
-      
-      if (success) call prop_get_integer(md_ptr, 'structure', 'allowedflowdir', orifice%allowedflowdir, success)
-
-      if (success) call prop_get_double(md_ptr, 'structure', 'contractioncoeff', orifice%contrcoeff, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'latcontrcoeff', orifice%latcontrcoeff, success)
-
-      if (success) then
-         call prop_get_logical(md_ptr, 'structure', 'uselimitflowpos', orifice%uselimitflowpos, success)
-         if (success) then
-            call prop_get_double(md_ptr, 'structure', 'limitflowpos', orifice%limitflowpos, success)
-         else
-            orifice%uselimitflowpos = .false.
-            success = .true.
-         endif
-      endif
-      
-      if (success) then
-         call prop_get_logical(md_ptr, 'structure', 'uselimitflowneg', orifice%uselimitflowneg, success)
-         if (success) then
-            call prop_get_double(md_ptr, 'structure', 'limitflowneg', orifice%limitflowneg, success)
-         else
-            orifice%uselimitflowneg = .false.
-            success = .true.
-         endif
-      endif
-   
-   end subroutine readOrifice
-
    !> Read the weir parameters and define a general structure.
    !! The common fields for the structure (e.g. branchId) must have been read elsewhere.
    subroutine readWeirAsGenStru(generalst, md_ptr, st_id, forcinglist, success)
@@ -1880,51 +1450,5 @@ module m_readstructures
       end select
       
    end function allowedFlowDirToString
-
-
-   !> Read the general structure parameters for version 1.00 files
-   subroutine readGeneralStructure_v100(generalst, md_ptr, success)
-   
-      type(t_GeneralStructure), pointer, intent(inout)     :: generalst     !< general structure to be read into 
-      type(tree_data), pointer, intent(in)                 :: md_ptr        !< ini tree pointer with user input.
-      logical, intent(inout)                               :: success 
-      
-      allocate(generalst)
-
-      allocate(generalst%fu(3,1), generalst%ru(3,1), generalst%au(3,1))
-      allocate(generalst%widthcenteronlink(1), generalst%gateclosedfractiononlink(1), generalst%sOnCrest(1), generalst%state(3,1))
-      generalst%numlinks = 1
-      generalst%gateclosedfractiononlink(1) = 1d0
-      generalst%gatedoorheight = huge(1d0)
-      generalst%velheight = .true.
-      call prop_get_double(md_ptr, 'structure', 'widthLeftW1', generalst%wu1, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'widthleftWsdl',  generalst%wu2, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'widthcenter',    generalst%ws, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'widthrightWsdr', generalst%wd1, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'widthrightW2',   generalst%wd2, success)
-                                                                               
-      if (success) call prop_get_double(md_ptr, 'structure', 'levelleftZb1',   generalst%zu1, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'levelleftZbsl',  generalst%zu2, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'levelcenter',    generalst%zs, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'levelrightZbsr', generalst%zd1, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'levelrightZb2',  generalst%zd2, success)
-
-      if (success) call prop_get_double(md_ptr, 'structure', 'gateLowerEdgeLevel', generalst%gateLowerEdgeLevel, success)
-
-      if (success) call prop_get_double(md_ptr, 'structure', 'posfreegateflowcoeff',  generalst%cgf_pos, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'posdrowngateflowcoeff', generalst%cgd_pos, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'posfreeweirflowcoeff',  generalst%cwf_pos, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'posdrownweirflowcoeff', generalst%cwd_pos, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'poscontrcoeffreegate',  generalst%mugf_pos, success)
-      
-      if (success) call prop_get_double(md_ptr, 'structure', 'negfreegateflowcoeff',  generalst%cgf_neg, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'negdrowngateflowcoeff', generalst%cgd_neg, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'negfreeweirflowcoeff',  generalst%cwf_pos, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'negdrownweirflowcoeff', generalst%cwd_neg, success)
-      if (success) call prop_get_double(md_ptr, 'structure', 'negcontrcoeffreegate',  generalst%mugf_neg, success)
-      
-      if (success) call prop_get_double(md_ptr, 'structure', 'extraresistance', generalst%extraresistance, success)
-     
-   end subroutine readGeneralStructure_v100
   
 end module m_readstructures

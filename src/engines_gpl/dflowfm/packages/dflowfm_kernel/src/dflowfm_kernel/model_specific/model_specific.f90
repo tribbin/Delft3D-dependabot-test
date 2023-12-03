@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 !> @file model_specific.f90
 !! A set of predefined routines that may contain model-specific actions.
 !! Selection is based on global md_ident, and subroutines are automatically
@@ -52,6 +52,7 @@ subroutine textflowspecific()
     use m_equatorial, only : ampliforced, amplifreeL, amplitotal, ndxforced, ndxfreeL, ndtforced, ndtfreeL, cflforced, cflfreeL, tforce, tfreeL, amplicomp
     use m_statistics
     use m_monitoring_crosssections
+    use time_module, only : seconds_to_datetimestring
     implicit none
 
     double precision, external :: znod
@@ -427,6 +428,7 @@ CALL ICTEXT(TRIM(TEX),5,33,NCOLANA)
 end subroutine riverfloodwave
 
 subroutine weirtheo(j12)
+use time_module, only : seconds_to_datetimestring
 use m_flow
 use m_flowgeom
 use unstruc_colors
@@ -516,9 +518,9 @@ if (ncgentst > 0) then
          call findqorifice12(gateheight,crestheight,z1,z2lab,qg12,zg12,regime,num,qcrit) 
         ! if (num .ne. 50) then 
             qsimple     = gateheight*sqrt( 2d0*g*(z1-z3) )
-            tim = 1440d0*k - 23*60 ; call maketime(datetime, tim*60d0)
+            tim = 1440d0*k - 23*60 ; call seconds_to_datetimestring(datetime, refdat, tim*60d0)
             write(mou2,'(A,20F8.3)') datetime, qglab*10d0, qg*10d0, qg12*10d0, gateheight, crestheight, z1, z3, z2, qglab, qg, qg12, qg/qglab, qg12/qglab, zg/gateheight, zg12/gateheight   
-            tim = 1440d0*k         ; call maketime(datetime, tim*60d0)
+            tim = 1440d0*k         ; call seconds_to_datetimestring(datetime, refdat, tim*60d0)
             write(mou2,'(A,20F8.3)') datetime, qglab*10d0, qg*10d0, qg12*10d0, gateheight, crestheight, z1, z3, z2, qglab, qg, qg12, qg/qglab, qg12/qglab, zg/gateheight, zg12/gateheight  
         ! endif   
       enddo   
@@ -651,7 +653,7 @@ integer           :: num
 character(len=132):: tex, regime
 
 
-hup = s0(64); hdown= s0(62) ; agate = zgate(1)
+hup = s0(17); hdown= s0(13) ; agate = zgate(1)
 if (hup > hdown + 0.0001) then
 
    call findqorifice(agate,0d0,hup,hdown,qgate,z2,zg,regime,num,qcrit)
@@ -725,6 +727,7 @@ subroutine poiseuille(init)
  hev = vicouv                   ! horizontal eddy viscosity
 
  c0  = -0.5d0*ag*bedslope       ! g*i/2
+ c2  = 0.0
 
  b   = 100d0                    ! channel width
 

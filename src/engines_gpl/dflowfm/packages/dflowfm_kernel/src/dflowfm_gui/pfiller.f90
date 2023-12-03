@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
     SUBROUTINE PFILLER(X,Y,N_,NCOL,NCLR)
     use unstruc_opengl
@@ -58,8 +58,8 @@
           xr(i) = xx ; yr(i) = yy
        enddo
     else
-       xr(1:N) = x(1:N)
-       yr(1:N) = y(1:N)
+    xr(1:N) = x(1:N)
+    yr(1:N) = y(1:N)
     endif
 
     CALL PFILLERCORE(xr,yr,N)

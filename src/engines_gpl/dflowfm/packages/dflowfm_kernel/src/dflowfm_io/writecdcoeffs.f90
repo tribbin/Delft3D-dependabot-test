@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,14 +27,14 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine writeCdcoeffs()
  use unstruc_model
  use m_wind
  use m_waves
- use m_flow,     only : jawave
+ use m_flow,     only : jawave, flowWithoutWaves
  use m_flowgeom, only : ndx
  implicit none
 
@@ -60,12 +60,14 @@
  else if (icdtyp == 7) then
     write (msgbu, '(a)') '* Hans Hersbach, July 2010, ECMWF fit (CHarnock plus viscous term), (e.g. Charnock=0.018 and alfvisc=0.11)'
  else if (icdtyp == 8) then
+    write (msgbu, '(a)')  '* Charnock 1955 (2 parameters, Charnock plus viscous, e.g. 0.025     0.11)'
+ else if (icdtyp == 9) then
     write (msgbu, '(a)') '* Garratt, 1977 (fixed parameters)'
  endif
 
  write (msgbu, '(a)')     '* column 1 : Wind speed               (m/s) '
  write (msgbu, '(a)')     '* column 2 : Resulting Cd coefficient (   ) '
- if (jawave > 0) then
+ if (jawave > 0 .and. .not. flowWithoutWaves) then
     write (msgbu, '(a)')  '* column 3 : Hwav                     (m  ) '
     write (msgbu, '(a)')  '* column 4 : Twav                     (s  ) '
     write (msgbu, '(a)')  '61  4'
@@ -73,7 +75,7 @@
     write (msgbu, '(a)')  '61  2'
  endif
 
- if (jawave > 0) then
+ if (jawave > 0 .and. .not. flowWithoutWaves) then
     fetchL = 20000d0
     fetchD = 4d0
     allocate ( hwavsav(ndx), twavsav(ndx) )
@@ -81,24 +83,24 @@
  endif
 
  uwi = 0.1d0
- if (jawave > 0) then
+ if (jawave > 0 .and. .not. flowWithoutWaves) then
     call hurdlestive (Uwi, fetchL, fetchD, Hsig, Tsig)
     hwav = hsig ; twav = tsig
  endif
  call setcdwcoefficient(uwi, Cd10, 1)
- if (jawave > 0) then
+ if (jawave > 0 .and. .not. flowWithoutWaves) then
     write(msgbu, '(4F14.6)') uwi, Cd10, hsig, tsig
  else
     write(msgbu, '(2F14.6)') uwi, Cd10
  endif
 
  uwi = 0.2d0
- if (jawave > 0) then
+ if (jawave > 0 .and. .not. flowWithoutWaves) then
     call hurdlestive (Uwi, fetchL, fetchD, Hsig, Tsig)
     hwav = hsig ; twav = tsig
  endif
  call setcdwcoefficient(uwi, Cd10, 1)
- if (jawave > 0) then
+ if (jawave > 0 .and. .not. flowWithoutWaves) then
     write(msgbu, '(4F14.6)') uwi, Cd10, hsig, tsig
  else
     write(msgbu, '(2F14.6)') uwi, Cd10
@@ -106,12 +108,12 @@
 
  do k = 1, 28
     uwi = uwi + 0.2d0
-    if (jawave > 0) then
+    if (jawave > 0 .and. .not. flowWithoutWaves) then
        call hurdlestive (Uwi, fetchL, fetchD, Hsig, Tsig)
        hwav = hsig ; twav = tsig
     endif
     call setcdwcoefficient(uwi, Cd10, 1)
-    if (jawave > 0) then
+    if (jawave > 0 .and. .not. flowWithoutWaves) then
        write(msgbu, '(4F14.6)') uwi, Cd10, hsig, tsig
     else
        write(msgbu, '(2F14.6)') uwi, Cd10
@@ -120,26 +122,26 @@
 
  do k = 1, 24
     uwi = uwi + 1.0d0
-    if (jawave > 0) then
+    if (jawave > 0 .and. .not. flowWithoutWaves) then
        call hurdlestive (Uwi, fetchL, fetchD, Hsig, Tsig)
        hwav = hsig ; twav = tsig
     endif
     call setcdwcoefficient(uwi, Cd10, 1)
-    if (jawave > 0) then
+    if (jawave > 0 .and. .not. flowWithoutWaves) then
        write(msgbu, '(4F14.6)') uwi, Cd10, hsig, tsig
     else
        write(msgbu, '(2F14.6)') uwi, Cd10
     endif
  enddo
 
- do k = 1, 7
+ do k = 1, 8
     uwi = uwi + 10d0
-    if (jawave > 0) then
+    if (jawave > 0 .and. .not. flowWithoutWaves) then
        call hurdlestive (Uwi, fetchL, fetchD, Hsig, Tsig)
        hwav = hsig ; twav = tsig
     endif
     call setcdwcoefficient(uwi, Cd10, 1)
-    if (jawave > 0) then
+    if (jawave > 0 .and. .not. flowWithoutWaves) then
        write(msgbu, '(4F14.6)') uwi, Cd10, hsig, tsig
     else
        write(msgbu, '(2F14.6)') uwi, Cd10
@@ -148,7 +150,7 @@
 
  call doclose(msgbu)
 
- if (jawave > 0) then
+ if (jawave > 0 .and. .not. flowWithoutWaves) then
     hwav = hwavsav ; twav = twavsav
     deallocate (hwavsav, twavsav)
  endif

@@ -1,40 +1,43 @@
 !----- AGPL --------------------------------------------------------------------
-!                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
-!                                                                               
-!  This file is part of Delft3D (D-Flow Flexible Mesh component).               
-!                                                                               
-!  Delft3D is free software: you can redistribute it and/or modify              
-!  it under the terms of the GNU Affero General Public License as               
-!  published by the Free Software Foundation version 3.                         
-!                                                                               
-!  Delft3D  is distributed in the hope that it will be useful,                  
-!  but WITHOUT ANY WARRANTY; without even the implied warranty of               
-!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                
-!  GNU Affero General Public License for more details.                          
-!                                                                               
-!  You should have received a copy of the GNU Affero General Public License     
-!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.             
-!                                                                               
-!  contact: delft3d.support@deltares.nl                                         
-!  Stichting Deltares                                                           
-!  P.O. Box 177                                                                 
-!  2600 MH Delft, The Netherlands                                               
-!                                                                               
-!  All indications and logos of, and references to, "Delft3D",                  
-!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting 
+!
+!  Copyright (C)  Stichting Deltares, 2017-2023.
+!
+!  This file is part of Delft3D (D-Flow Flexible Mesh component).
+!
+!  Delft3D is free software: you can redistribute it and/or modify
+!  it under the terms of the GNU Affero General Public License as
+!  published by the Free Software Foundation version 3.
+!
+!  Delft3D  is distributed in the hope that it will be useful,
+!  but WITHOUT ANY WARRANTY; without even the implied warranty of
+!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!  GNU Affero General Public License for more details.
+!
+!  You should have received a copy of the GNU Affero General Public License
+!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.
+!
+!  contact: delft3d.support@deltares.nl
+!  Stichting Deltares
+!  P.O. Box 177
+!  2600 MH Delft, The Netherlands
+!
+!  All indications and logos of, and references to, "Delft3D",
+!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
-!                                                                               
+!
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+!
+!
 
 module m_fm_wq_processes
-   use precision
+   use m_rd_sub
+   use m_dhnoseg
+   use precision, only: fp, prec, fhp, pntrsize, hp, long
+   use m_waq_precision, only : sp
    use processes_input
    use processes_pointers
-   use dlwq_data
+   use dlwq_hyd_data
    use processet
    use output
 
@@ -109,7 +112,7 @@ module m_fm_wq_processes
    character(len=NAMWAQLEN), dimension(:), allocatable :: wqbotunits        !< water quality bottom variable units
    integer,  allocatable, dimension(:,:)     :: id_wqb                      !< wqbot id's in map-file
    integer,  allocatable, dimension(:,:)     :: id_wqb3d                    !< 3d wqbot id's in map-file
-   real(hp), allocatable, dimension(:,:)     :: wqbot                       !< water quality bottom variable values in double precission
+   real(hp), allocatable, dimension(:,:)     :: wqbot                       !< water quality bottom variable values in double precision
 
    type(outputcoll)                          :: outputs                     !< output structure
    integer,  allocatable, dimension(:,:)     :: id_waq                      !< waq output id's in map-file
@@ -132,15 +135,18 @@ module m_fm_wq_processes
    integer                                   :: isffmlayer                  !< pointer to fmlayer         segment function
    integer                                   :: isffmktop                   !< pointer to fmktop          segment function
    integer                                   :: isffmkbot                   !< pointer to fmkbot          segment function
+   integer                                   :: isfwaveheight               !< pointer to wave height     segment function
+   integer                                   :: isfwavelength               !< pointer to wave length     segment function
+   integer                                   :: isfwaveperiod               !< pointer to wave period     segment function
 !
 !     Balance output
 !
-   integer                                   :: ibflag                      !< if 1 then mass balance output
-   real(hp), allocatable, dimension(:,:,:)   :: flxdmp                      !< Fluxes at dump segments
-   real(hp), allocatable, dimension(:,:,:)   :: flxdmpreduce                !< Fluxes at dump segments
-   real(hp), allocatable, dimension(:,:,:)   :: flxdmptot                   !< Total fluxes at dump segments
+   integer                                         :: ibflag                      !< if 1 then mass balance output
+   real(hp), allocatable, dimension(:,:,:), target :: flxdmp                      !< Fluxes at dump segments
+   real(hp), allocatable, dimension(:,:,:)         :: flxdmpreduce                !< Fluxes at dump segments
+   real(hp), allocatable, dimension(:,:,:), target :: flxdmptot                   !< Total fluxes at dump segments
 
-   integer                                   :: nomon                       !< number of mass balance areas
-   character(len=NAMWAQLEN),allocatable      :: monname(:)                  !< parameter names
-   integer, allocatable                      :: mondef(:,:)                 !< monitoring area definition
+   integer                                         :: nomon                       !< number of mass balance areas
+   character(len=NAMWAQLEN),allocatable            :: monname(:)                  !< parameter names
+   integer, allocatable                            :: mondef(:,:)                 !< monitoring area definition
 end module m_fm_wq_processes

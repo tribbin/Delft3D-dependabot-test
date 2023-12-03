@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  !> Resets the current flow- and time-state, but keeps al active parameter settings.
  !! To be called upon flow_modelinit().
@@ -40,6 +40,7 @@
  use m_flowparameters
  use m_statistics
  use m_flowgeom
+ use m_modelbounds
  use m_flowtimes
  use waq
  use m_waves
@@ -47,6 +48,8 @@
  use m_sobekdfm
  use m_save_ugrid_state, only: reset_save_ugrid_state
  use m_longculverts, only: reset_longculverts
+ use m_sedtrails_data
+ use m_nearfield, only: reset_nearfieldData
  implicit none
 
     ! Only reset counters and other scalars, allocatables should be
@@ -60,6 +63,11 @@
 
     ! Reset some flow (rest is done in flow_geominit())
     call reset_flowgeom()
+    
+    ! Sedtrails
+    call sedtrails_resetdata()
+
+    call reset_modelbounds()
 
     call reset_flowexternalforcings()
 
@@ -86,5 +94,7 @@
     call reset_sedtra()
 
     call reset_hydrology_data()
+
+    call reset_nearfieldData()
 
  end subroutine resetFlow

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
   SUBROUTINE NETLINKVALS(MET,NCOL)
 
@@ -197,7 +197,7 @@
                 V = DBDISTANCE( XK(K1), YK(K1), XK(K2), YK(K2), jsferic, jasfer3D, dmiss)
                 if (v > 0) then
                    V = (zk(k2) - zk(k1)) / v
-                endif
+            end if
             end if
         ENDIF
         RLIN(L) = V

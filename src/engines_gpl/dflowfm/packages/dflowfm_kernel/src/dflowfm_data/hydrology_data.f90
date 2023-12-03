@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Module for storing the optional hydrology state variables
 module m_hydrology_data
@@ -77,7 +77,7 @@ module m_hydrology_data
 
    double precision                      :: infiltcapuni           !< [m s-1] Uniform infiltration capacity. Only used if infiltrationmodel == 2 (DFM_HYD_INFILT_CONST).
    double precision, allocatable, target :: infilt(:)              !< [m3 s-1] Actual infiltration flux at current time {"location": "face", "shape": ["ndx"]}
-   double precision, allocatable, target :: infiltcap0(:)          !< [m s-1] Maximum infiltration capacity on each cell at previous timestep {"location": "face", "shape": ["ndx"]}
+   double precision, allocatable, target :: infiltcap0(:)          !< [mm h-1] Maximum infiltration capacity on each cell at previous timestep {"location": "face", "shape": ["ndx"]}
    double precision, allocatable, target :: infiltcap(:)           !< [m s-1] Maximum infiltration capacity on each cell {"location": "face", "shape": ["ndx"]}
    double precision, allocatable         :: infiltcaproofs(:)      !< temporary of the same
 
@@ -86,7 +86,6 @@ module m_hydrology_data
    double precision, allocatable, target :: HortonMaxInfCap(:)     !< [mm/hr] Maximum infiltration capacity in Horton's equation {"location": "face", "shape": ["ndx"]}
    double precision, allocatable, target :: HortonDecreaseRate(:)  !< [1/hr]  Decrease rate in Horton's equation {"location": "face", "shape": ["ndx"]}
    double precision, allocatable, target :: HortonRecoveryRate(:)  !< [1/hr]  Recovery rate in Horton's equation {"location": "face", "shape": ["ndx"]}
-   double precision, allocatable, target :: HortonStateTime(:)     !< [hr]    Time in hours since start of decreasing/recovery mode {"location": "face", "shape": ["ndx"]}
    integer         , allocatable, target :: HortonState(:)         !< [-]     Infiltration capacity state (one of HORTON_CAPSTAT_(NOCHANGE|RECOVERY|INCREASE)) {"location": "face", "shape": ["ndx"]}
 
    !

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,28 +27,28 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine setkbotktop(jazws0)                                        ! initialise vertical coordinates
  use m_netw
  use m_flowgeom
  use m_flow
  use m_flowtimes
- use m_transport, only: NUMCONST, Constituents, ISALT, ITEMP, ISED1, ISEDN, ITRA1, itraN, itrac2const
+ use m_transport, only: Constituents, ISALT, ITEMP
 
  implicit none
 
  integer          :: jazws0
 
- integer          :: k2, kb, k, n, kk, nL, nR, nlayb, nlayt, nrlay, ktx, kL, ndz, i
- integer          :: ktmn, ktmx, kt0, kt1, kt2, kt3, LL, L, Lb, Lt, n1,n2, kb1,kb2,ki,kt, kkk, kwaq, Ltn, Ldn
- double precision :: zkk, h0, zks, zkz, sigm, hdz, toplaymint, volkt, savolkt, tevolkt, dtopsi
- double precision :: w1, w2, w3, h1, h2, h3, dz1, dz2, dz3, zw1, zw2, zw3, bL1, bL2, bL3, ht1, ht2, ht3
-integer          :: k1, k3, kb3, Lt1, Lt2, Lt3, Ld1, Ld2, Ld3, kk1, kk2, kk3
+ integer          :: k2, kb, k, n, kk, nL, nR, nlayb, nrlay, ktx
+ integer          :: kt0, kt1, kt2, kt3, LL, L, Lb, Lt, n1,n2, kb1, kb2, kt, kkk, kwaq, Ldn
+ double precision :: zkk, h0, toplaymint, volkt, savolkt, tevolkt, dtopsi
+ double precision :: w1, w2, w3, h1, h2, h3, zw1, zw2, zw3, bL1, bL2, bL3, ht1, ht2, ht3
+integer          :: k1, k3, kb3, kk1, kk2, kk3
 
  integer          :: numbd, numtp, j
- double precision :: drhok, dzk, a, aa, h00, zsl, aaa, sig, dsig, dsig0
+ double precision :: drhok, a, aa, h00, zsl, aaa, sig, dsig, dsig0
 
  if (kmx == 0) return
 
@@ -355,8 +355,16 @@ integer          :: k1, k3, kb3, Lt1, Lt2, Lt3, Ld1, Ld2, Ld3, kk1, kk2, kk3
        ! zws(kt-1) = 0.5d0*(zws(kt) + zws(kt-2))   ! toplayers equal thickness
     endif
 
-    do kk  = kb,kt ! x
-       vol1(kk) = ba(n)*(zws(kk) - zws(kk-1))    ! just for now here
+    if (keepzlay1bedvol == 1) then                 ! inconsistent control volumes in baroclinic terms   
+       vol1(kb) = ba(n)*(zws(kb) - bl(n))          ! transport and momentum volumes not too big anymore 
+       vol1(n)  = vol1(n) + vol1(kb)
+       kb1 = kb+1
+     else                                          ! Default, transport and momentum volumes too big     
+       kb1 = kb                                    ! consistent with control volumes in baroclinic terms
+    endif 
+
+    do kk  = kb1,kt ! x
+       vol1(kk) = ba(n)*(zws(kk) - zws(kk-1))      ! just for now here
        vol1(n)  = vol1(n) + vol1(kk)
     enddo
 
@@ -364,13 +372,13 @@ integer          :: k1, k3, kb3, Lt1, Lt2, Lt3, Ld1, Ld2, Ld3, kk1, kk2, kk3
     if (kt0 > kt) then
         volkt   = vol0(kt)
 
-        if (jasal > 0) savolkt = volkt*sa1(kt)
+        if (jasal > 0) savolkt = volkt*constituents(isalt, kt) 
         if (jatem > 0) tevolkt = volkt*constituents(itemp, kt)
 
         do kkk  = kt0 , kt+1, -1                 ! old volumes above present ktop are lumped in ktop
            volkt     = volkt + vol0(kkk)
            vol0(kt)  = volkt
-           if (jasal > 0) savolkt   = savolkt  + vol0(kkk)*sa1(kkk)
+           if (jasal > 0) savolkt   = savolkt  + vol0(kkk)*constituents(isalt, kkk) 
            if (jatem > 0) tevolkt   = tevolkt  + vol0(kkk)*constituents(itemp, kkk)
            if (ti_waq > 0) then
               do kwaq = kkk, kt + 1, -1
@@ -381,9 +389,9 @@ integer          :: k1, k3, kb3, Lt1, Lt2, Lt3, Ld1, Ld2, Ld3, kk1, kk2, kk3
         enddo
         if (volkt > 0) then
            if (jasal > 0) then
-              sa1(kt) = savolkt/volkt
+              constituents(isalt, kt) = savolkt/volkt
               if (ktx > kt) then
-                 sa1(kt+1:ktx) = sa1(kt)
+                 constituents(isalt, kt+1:ktx) = constituents(isalt, kt)
               endif
            endif
            if (jatem > 0) then

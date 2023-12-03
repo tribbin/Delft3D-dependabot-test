@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  !> this module contains the real flow times, only to be managed by setting times in module m_usertimes
  module m_flowtimes
@@ -58,7 +58,7 @@
  double precision                  :: dts         !< internal computational timestep (s)
  double precision                  :: dtsc        !< max timstep of limiting point kkcflmx, zero if larger than dt_max
  double precision                  :: dtfacmax    !< max dts increase factor
- double precision                  :: dti         !< clinverse  computational timestep (1/s)
+ double precision                  :: dti         !< inverse  computational timestep (1/s)
  double precision                  :: dtprev      !< previous computational timestep (s)  (1s is a bit like sobek)
  double precision                  :: dtmin       !< dt < dtmin : surely crashed
  double precision                  :: dtminbreak  !< smallest allowed timestep (in s), checked on a sliding average of several timesteps in validation routine.
@@ -95,8 +95,11 @@
  double precision                  :: ti_wavs     !< averaging interval spatial wave quantities
  double precision                  :: ti_wave     !< averaging interval spatial wave quantities
  double precision                  :: ti_sed      !< averaging interval sedmor quantities (s)
- double precision                  :: ti_seds     !< averaging interval sedmor wave quantities
- double precision                  :: ti_sede     !< averaging interval sedmor wave quantities
+ double precision                  :: ti_seds     !< averaging interval sedmor quantities
+ double precision                  :: ti_sede     !< averaging interval sedmor quantities
+ double precision                  :: ti_st       !< averaging interval sedtrails quantities (s)
+ double precision                  :: ti_sts      !< averaging interval sedtrails wave quantities
+ double precision                  :: ti_ste      !< averaging interval sedtrails wave quantities
  double precision                  :: ti_xls      !< history interval (s) xls
  double precision                  :: ti_rst      !< restart interval (s)
  double precision                  :: ti_rsts     !< Start of restart output period (as assigned in mdu-file) (s)
@@ -131,6 +134,7 @@
  double precision                  :: time_map      !< Map output interval
  double precision                  :: time_wav      !< Time-avg'd output interval xb JRE
  double precision                  :: time_sed      !< Time-avg'd output interval sedmor
+ double precision                  :: time_st       !< Time-avg'd output interval sedtrails
  double precision                  :: time_his      !< Next time for his output
  double precision                  :: time_xls      !< Next time for his output
  double precision                  :: time_rst      !< Next time for restart output
@@ -156,18 +160,20 @@
  integer                           :: it_rst      !< Nr of snapshots presently in rst file
  integer                           :: it_waq      !< Nr of snapshots presently in delwaq files.
  integer                           :: it_stat     !< Nr of simulation statistics presently in log file.
+ integer                           :: it_st       !< Nr of simulation statistics presently in sedtrails output file.
  ! for performance timings
  logical                           :: debugtimeon     !< timing yes or no
  integer                           :: handle_user     !< timer handle for user timesteps
  integer                           :: handle_steps    !< timer handle for timesteps
  integer                           :: handle_umod     !< timer handle for set-umod
  integer                           :: handle_sol      !< timer handle for conj-grad
- integer                           :: handle_furu     !< timer handle for conj-grad
+ integer                           :: handle_furu     !< timer handle for furu
  integer                           :: handle_all      !< timer handle for steps + plots
  integer                           :: handle_inistep  !< timer handle for inistep
  integer                           :: handle_iniext   !< timer handle for init externalforcings
  integer                           :: handle_ext      !< timer handle for externalforcings
  integer                           :: handle_extbnd   !< timer handle for externalforcingsonbnd
+ integer                           :: handle_fetch    !< timer handle for externalforcings fetch model																									  
  integer                           :: handle_extra(90)!< timer handles for extra timers
 
  double precision                  :: dsetb       !< number of setbacks ()
@@ -196,6 +202,7 @@ contains
 !! For a reinit prior to flow computation, call reset_flowtimes() instead.
 subroutine default_flowtimes()
     refdat      = '20010101'        !< Reference date (e.g., '20090101'). All times (tstart_user, tend_user, etc.) are w.r.t. to this date.
+    irefdate    =  20010101
     Tzone       = 0d0
     dt_user     = 120d0             !< User specified time step (s) for external forcing update.
     dt_nodal    = 21600d0           !< User specified time step (s) for nodal factors update.
@@ -221,17 +228,25 @@ subroutine default_flowtimes()
     fhr         = 1d0/3600d0        !< Factor sec hrs
     fday        = 1d0/(3600d0*24d0) !< Factor sec day
 
-    ti_map      = 1200d0            !< map interval (s)
     ti_wav      = 1200d0            !< wave avg'ing interval (s), 20 minutes okay default  JRE
     ti_wavs     = 0d0
     ti_wave     = 0d0
-    ti_maps     = 0d0               !< start interval (s)
-    ti_mape     = 0d0               !< end   interval (s)
+    ti_map      = 1200d0            !< map interval (s)
+    ti_maps     = 0d0               !< Start map output (s)
+    ti_mape     = 0d0               !< End   map output (s)
     ti_his      = 120d0             !< history interval (s)
-    ti_seds     = 0d0
-    ti_sede     = 0d0
-    ti_xls      = 0d0               !< history interval (s) xls
-    ti_rst      = 24d0*3600d0       !< restart interval (s)
+    ti_hiss     = 0d0               !< Start history output (s)
+    ti_hise     = 0d0               !< End   history output (s)
+    ti_sed      = 0d0               !< Time-avg'd output interval sedmor (s), (Default: off)
+    ti_seds     = 0d0               !< Start time-avg'd output sedmor (s)
+    ti_sede     = 0d0               !< End   time-avg'd output sedmor (s)
+    ti_st       = 3600d0            !< Time-avg'd output interval sedtrails
+    ti_sts      = 0d0               !< Start time-avg'd output sedtrails
+    ti_ste      = 0d0               !< End   time-avg'd output sedtrails
+    ti_xls      = 0d0               !< history interval (s) xls, (Default: off)
+    ti_rst      = 24d0*3600d0       !< Restart interval (s)
+    ti_rsts     = 0d0               !< Start restart output (s)
+    ti_rste     = 0d0               !< End   restart output (s)
     ti_mba      = 0d0
     ti_waq      = 0d0               !< delwaq interval (s) (Default: off)
     ti_waqproc  = 0d0
@@ -240,7 +255,9 @@ subroutine default_flowtimes()
     ti_split    = 0d0               !< Time interval for time splitting of output files.
     ti_split_unit= 's'              !< Unit for time partitioning interval
 
-    ti_classmap           = -999d0  !< default no class map
+    ti_classmap           = 0d0     !< Class map interval (s), (Default: off)
+    ti_classmaps          = 0d0     !< Start class map output (s)
+    ti_classmape          = 0d0     !< End   class map output (s)
     map_classes_ucdirstep = -999d0  !< default no step size given for classes of flow direction
     if (allocated(map_classes_ucdir)) deallocate(map_classes_ucdir)
 
@@ -262,6 +279,7 @@ subroutine reset_flowtimes()
    use Timers
     dtprev       = dt_init           !< previous computational timestep (s)  (1s is a bit like sobek)
     dts          = dt_init           !< internal computational timestep (s)
+    dti          = 1d0/dts           !< inverse  computational timestep (1/s)
     !tfac         = 1d0               !< Time unit in seconds JRE: disabled, and handled in readMDU
     time0        = 0d0               !< current   julian (s) of s0
     time1        = 0d0               !< current   julian (s) of s1  ! and of course, time1 = time0 + dt
@@ -274,6 +292,7 @@ subroutine reset_flowtimes()
     time_map     = tstart_user       !< next time for map output
     time_wav     = tstart_user       !< same, wav
     time_sed     = tstart_user       !< same, morstats
+    time_st      = tstart_user       !< same, sedtrails
     time_his     = tstart_user       !< next time for his output
     time_xls     = tstart_user       !< next time for his output
     time_rst     = tstart_user       !< next time for restart output
@@ -303,6 +322,7 @@ subroutine reset_flowtimes()
     it_map       = 0                 !< Nr of snapshots presently in map file
     it_wav       = 0                 !< Nr of snapshots presently in time-avg'd file JRE
     it_sed       = 0                 !< Nr of snapshots presently in time-avg'd sed file JRE
+    it_st        = 0                 !< Nr of snapshots presently in time-avg'd sedtrails file JRE
     it_map_tec   = 0                 !< Nr of snapshots presently in map file
     it_his       = 0                 !< Nr of snapshots presently in his file
     it_inc       = 0                 !< Nr of lines     presently in inc file
@@ -316,7 +336,12 @@ subroutine reset_flowtimes()
     debugtimeon   = .false.          !< timing yes or no
 
     dsetb         = 0                !< number of setbacks ()
-    alfsmo        = 1d0              !<
+    if (tlfsmo > 0d0 ) then          !  Smoothing period
+        alfsmo = 0d0                 !  Smoothing factor
+    else 
+        alfsmo = 1d0                 
+    endif
+
 end subroutine reset_flowtimes
 
 subroutine reset_timers()
@@ -335,6 +360,7 @@ subroutine reset_timers()
    handle_iniext  = 0
    handle_ext     = 0
    handle_extbnd  = 0
+   handle_fetch   = 0					 
    handle_extra   = 0
 
    call timstrt('All', handle_all)

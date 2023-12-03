@@ -1,7 +1,7 @@
 module system_utils
 !----- LGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2021.                                
+!  Copyright (C)  Stichting Deltares, 2011-2023.                                
 !                                                                               
 !  This library is free software; you can redistribute it and/or                
 !  modify it under the terms of the GNU Lesser General Public                   
@@ -25,8 +25,8 @@ module system_utils
 !  Stichting Deltares. All rights reserved.                                     
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !-------------------------------------------------------------------------------
 !
 !   Support for low level system routines
@@ -34,7 +34,7 @@ module system_utils
 !-------------------------------------------------------------------------------
 !
 
-#if (defined(HAVE_CONFIG_H))
+#if (defined(__linux__))
     character(5), parameter :: ARCH = 'linux'
     character(3), parameter :: SCRIPT_EXTENSION = '.sh'
     character(3), parameter :: SHARED_LIB_PREFIX = 'lib'
@@ -42,7 +42,7 @@ module system_utils
     character(1), parameter :: FILESEP = '/'
 
     character(1), parameter :: FILESEP_OTHER_ARCH = '\'
-#else
+#else    
     character(7), parameter :: ARCH = 'windows'
     character(4), parameter :: SCRIPT_EXTENSION = '.bat'
     character(0), parameter :: SHARED_LIB_PREFIX = ''
@@ -50,7 +50,7 @@ module system_utils
     character(1), parameter :: FILESEP = '\'
 
     character(1), parameter :: FILESEP_OTHER_ARCH = '/'
-#endif
+#endif    
 
 contains
 
@@ -258,7 +258,7 @@ function makedir(dirname) result(istat)
    
     slash = char(47)
     lslash = index (pathstr,slash)
-    if (lslash .eq. 0) then
+    if (lslash == 0) then
        slash = char(92)
     endif
 
@@ -272,7 +272,7 @@ function makedir(dirname) result(istat)
        return
     end if
 
-    if ( slash .eq. char(47)) then
+    if ( slash == char(47)) then
 !      linux
        command = "mkdir -p "//trim(dirname)
     else

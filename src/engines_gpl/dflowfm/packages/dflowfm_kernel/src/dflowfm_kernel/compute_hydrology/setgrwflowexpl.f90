@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine setgrwflowexpl() ! groundwater flow explicit
  use m_flowgeom
@@ -47,9 +47,8 @@
  qingrw = 0d0 ; qoutgrw = 0d0; Volgrw = 0d0
 
  if (infiltrationmodel == DFM_HYD_INFILT_HORTON) then  ! Horton's infiltration equation
-    infiltcap0 = infiltcap/mmphr_to_mps
     ierr = infiltration_horton_formula(ndx, HortonMinInfCap, HortonMaxInfCap, HortonDecreaseRate, HortonRecoveryRate, infiltcap0, infiltcap, &
-                                       dts, HortonStateTime, hs, rain, HortonState)
+                                       dts, hs, rain, jarain, HortonState)
     infiltcap = infiltcap*mmphr_to_mps
  end if
 

@@ -1,70 +1,79 @@
 !----- AGPL --------------------------------------------------------------------
-!                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
-!                                                                               
-!  This file is part of Delft3D (D-Flow Flexible Mesh component).               
-!                                                                               
-!  Delft3D is free software: you can redistribute it and/or modify              
-!  it under the terms of the GNU Affero General Public License as               
-!  published by the Free Software Foundation version 3.                         
-!                                                                               
-!  Delft3D  is distributed in the hope that it will be useful,                  
-!  but WITHOUT ANY WARRANTY; without even the implied warranty of               
-!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                
-!  GNU Affero General Public License for more details.                          
-!                                                                               
-!  You should have received a copy of the GNU Affero General Public License     
-!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.             
-!                                                                               
-!  contact: delft3d.support@deltares.nl                                         
-!  Stichting Deltares                                                           
-!  P.O. Box 177                                                                 
-!  2600 MH Delft, The Netherlands                                               
-!                                                                               
-!  All indications and logos of, and references to, "Delft3D",                  
-!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting 
+!
+!  Copyright (C)  Stichting Deltares, 2017-2023.
+!
+!  This file is part of Delft3D (D-Flow Flexible Mesh component).
+!
+!  Delft3D is free software: you can redistribute it and/or modify
+!  it under the terms of the GNU Affero General Public License as
+!  published by the Free Software Foundation version 3.
+!
+!  Delft3D  is distributed in the hope that it will be useful,
+!  but WITHOUT ANY WARRANTY; without even the implied warranty of
+!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!  GNU Affero General Public License for more details.
+!
+!  You should have received a copy of the GNU Affero General Public License
+!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.
+!
+!  contact: delft3d.support@deltares.nl
+!  Stichting Deltares
+!  P.O. Box 177
+!  2600 MH Delft, The Netherlands
+!
+!  All indications and logos of, and references to, "Delft3D",
+!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
-!                                                                               
+!
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  !> Initializes the entire current model (geometry, boundaries, initial state)
  !! @return Error status: error (/=0) or not (0)
  integer function flow_modelinit() result(iresult)                     ! initialise flowmodel
  use timers
- use m_flowgeom,    only: jaFlowNetChanged, ndx, lnx, kfs, ndxi
+ use m_flowgeom,    only: jaFlowNetChanged, ndx, lnx
  use waq,           only: reset_waq
- use m_flow,        only: zws, zws0, kmx, jasecflow, lnkx
+ use m_flow,        only: kmx, jasecflow, iperot
  use m_flowtimes
  use m_wind, only: numlatsg
- use network_data,  only: netstat, NETSTAT_CELLS_DIRTY
+ use network_data,  only: NETSTAT_CELLS_DIRTY
  use gridoperations, only: make1D2Dinternalnetlinks
  use m_partitioninfo
  use m_timer
  use m_flowtimes
- use unstruc_model ! , only: md_ident, md_restartfile,  writeMDUFilepointer, md_foufile, md_flowgeomfile, md_snapshotdir, md_numthreads
+ use unstruc_model 
  use unstruc_files, only: mdia
  use unstruc_netcdf
  use MessageHandling
- use m_flowparameters, only: jawave, jatrt, jacali, jacreep, jatransportmodule, jamd1dfile
+ use m_flowparameters, only: jawave, jatrt, jacali, jacreep, flowWithoutWaves, jasedtrails, jajre, modind, jaextrapbl 
  use dfm_error
  use m_fm_wq_processes, only: jawaqproc
  use m_vegetation
  use m_hydrology, only: jadhyd, init_hydrology
- use m_integralstats
- use m_xbeach_data, only: instat, newstatbc, bccreated
+ use m_integralstats, is_is_numndvals=>is_numndvals
+ use m_xbeach_data, only: bccreated
  use m_oned_functions
- use unstruc_display, only : ntek, jaGUI
+ use m_nearfield, only: reset_nearfieldData
  use m_alloc
  use m_bedform
  use m_fm_update_crosssections, only: fm_update_mor_width_area, fm_update_mor_width_mean_bedlevel
  use unstruc_netcdf_map_class
  use unstruc_caching
+ use m_monitoring_crosssections, only: ncrs, fill_geometry_arrays_crs
+ use m_setucxcuy_leastsquare, only: reconst2ndini
+ use m_flowexternalforcings, only: nwbnd
+ use m_sedtrails_network
+ use m_sedtrails_netcdf, only: sedtrails_loadNetwork
+ use m_sedtrails_stats, only: default_sedtrails_stats, alloc_sedtrails_stats
+ use unstruc_display, only : ntek, jaGUI
+ use m_debug
+ use m_flow_flowinit
+ use m_pre_bedlevel, only: extrapolate_bedlevel_at_boundaries
  use m_fm_icecover, only: fm_ice_alloc, fm_ice_echo
-
- !use m_mormerge
+ 
  !
  ! To raise floating-point invalid, divide-by-zero, and overflow exceptions:
  ! Activate the following line (See also statements below)
@@ -72,9 +81,9 @@
  !
  implicit none
 
- integer              :: jw, istat, L, ierr
- integer, external    :: flow_flowinit
+ integer              :: istat, L, ierr
  integer, external    :: init_openmp
+ integer, external    :: set_model_boundingbox
  !
  ! To raise floating-point invalid, divide-by-zero, and overflow exceptions:
  ! Activate the following 3 lines, See also statements below
@@ -82,7 +91,6 @@
  !NEW_FPE_FLAGS = FPE_M_TRAP_OVF + FPE_M_TRAP_DIV0 + FPE_M_TRAP_INV
  !OLD_FPE_FLAGS = FOR_SET_FPE (NEW_FPE_FLAGS)
  !
-
  iresult = DFM_GENERICERROR
 
  call datum2(rundat2)
@@ -92,7 +100,7 @@
     call makedir(getoutputdir('waq'))  ! No problem if it exists already.
  end if
 
-  call timstrt('Basic init', handle_extra(1)) ! Basic steps
+ call timstrt('Basic init', handle_extra(1)) ! Basic steps
 
  md_snapshotdir =  trim(getoutputdir())                  ! plot output to outputdir
  ! Make sure output dir for plot files exists
@@ -112,16 +120,21 @@
 
  call reset_waq()
 
+ call reset_nearfieldData()
+
  call timstop(handle_extra(1)) ! End basic steps
 
+ if (jagui == 1) then 
+    call timini()  ! this seems to work, initimer and timini pretty near to each other 
+ endif
+
 ! JRE
- call timstrt('Xbeach input init', handle_extra(2)) ! Wave input
  if (jawave == 4) then
+    call timstrt('Surfbeat input init', handle_extra(2)) ! Wave input
     bccreated = .false.       ! for reinit
     call xbeach_wave_input()  ! will set swave and lwave
+    call timstop(handle_extra(2)) ! End wave input
  endif
- call timstop(handle_extra(2)) ! End wave input
-
 
  call timstrt('Make internal links      ', handle_extra(3)) ! Internal links
  if (md_jamake1d2dlinks == 1) then
@@ -139,12 +152,12 @@
  call mess(LEVEL_INFO,'Initializing flow model geometry...')
  if ( jampi.eq.0 ) then
     call flow_geominit(0)                                ! initialise flow geometry based upon present network, time independent
-                                                         ! make directional wave grid
+                                                         ! make directional wave grid for surfbeat model
 
     call mess(LEVEL_INFO,'Done initializing flow model geometry.')
 
     if (ndx == 0) then
-      call mess(LEVEL_WARN,'ndx == 0, please check MDU-file')
+      call mess(LEVEL_WARN,'Model initialization has resulted in an empty model (0 gridcells/points). Is input grid correct?')
       iresult = DFM_MODELNOTINITIALIZED
       goto 1234
     end if
@@ -179,6 +192,9 @@
        goto 1234
     end if
  end if
+ 
+ iresult = set_model_boundingbox()
+ 
  call timstop(handle_extra(4)) ! End flow geometry
 
 
@@ -194,18 +210,24 @@
 
  if (javeg > 0) then
     ! NOTE: AvD: hardcoded for now: if vegetation is on, maintain max shear stresses for Peter and Jasper.
-    is_numndvals = 3
+    is_is_numndvals = 3
  end if
-
+ 
+ if (my_rank == fetch_proc_rank .and. (jawave == 1 .or. jawave == 2) ) then
+    ! All helpers need no further model initialization. 
+     call tauwavefetch(0d0)
+     iresult = DFM_USERINTERRUPT
+     return
+ endif
  ! 3D: flow_allocflow will set kmxn, kmxL and kmxc arrays
  call timstrt('Flow allocate arrays          ', handle_extra(37)) ! alloc flow
  call flow_allocflow()                               ! allocate   flow arrays
  call timstop(handle_extra(37)) ! end alloc flow
  !
- if (jawave > 0) then
+ if (jawave > 0 .and. .not. flowWithoutWaves) then
     call alloc9basicwavearrays()
  endif
- if (jawave > 2 .or. (jased > 0 .and. stm_included)) then
+ if (jawave > 2) then
     call flow_waveinit()
  endif
  ! Construct a default griddim struct for D3D subroutines, i.e. sedmor or trachytopes
@@ -216,7 +238,7 @@
  call timstop(handle_extra(7)) ! End flow griddim
 
  call timstrt('Bed forms init (1)  ', handle_extra(8)) ! Bed forms
- if ((jased > 0 .and. stm_included) .or. bfm_included .or. jatrt > 0 ) then
+ if ((jased > 0 .and. stm_included) .or. bfm_included .or. jatrt > 0 .or. (jawave>0 .and. modind==9)) then
     call flow_bedforminit(1)        ! bedforms stage 1: datastructure init
  endif
  call timstop(handle_extra(8)) ! End bed forms
@@ -227,14 +249,14 @@
  call timstop(handle_extra(9)) ! End 1d roughness
 
  ! need number of fractions for allocation of sed array
-  call timstrt('Sedimentation Morphology init', handle_extra(10)) ! sedmor
+  call timstrt('Sediment transport and morphology init', handle_extra(10)) ! sedmor
  if ( len_trim(md_sedfile) > 0 ) then
       call flow_sedmorinit ()
  endif
  call timstop(handle_extra(10)) ! End sedmor
 
  call timstrt('Bed forms init (2)  ', handle_extra(11)) ! bedform
- if ((jased > 0 .and. stm_included) .or. bfm_included ) then
+ if ((jased > 0 .and. stm_included) .or. bfm_included .or. jatrt > 0) then
     call flow_bedforminit(2)        ! bedforms  stage 2: parameter read and process
  endif
  call timstop(handle_extra(11)) ! End bedform
@@ -257,8 +279,10 @@
  end if
  call timstop(handle_extra(12)) ! vertical administration
 
+#ifdef _OPENMP
  ierr = init_openmp(md_numthreads, jampi)
- 
+#endif
+
  call timstrt('Net link tree 0     ', handle_extra(13)) ! netlink tree 0
  if ((jatrt == 1) .or. (jacali == 1)) then
      call netlink_tree(0)
@@ -282,6 +306,10 @@
      call netlink_tree(1)
  endif
  call timstop(handle_extra(16)) ! netlink tree 1
+ 
+  if (iperot == -1) then
+     call reconst2ndini ()
+  endif
 
  !! flow1d -> dflowfm update
  call timstrt('Save 1d             ', handle_extra(17)) ! save 1d
@@ -298,18 +326,15 @@
  call timstop(handle_extra(18)) ! end waq processes init
 
  call timstrt('Transport init      ', handle_extra(19)) ! transport module
- if ( jatransportmodule.ne.0 ) then
-    call ini_transport()
- end if
+ call ini_transport()
  call timstop(handle_extra(19)) ! end transport module
 
-! initialize part
- call timstrt('Part init           ', handle_extra(20)) ! part init
- call ini_part(1, md_partfile, md_partrelfile, md_partjatracer, md_partstarttime, md_parttimestep, md_part3Dtype)
- call timstop(handle_extra(20)) ! end part init
 
  call timstrt('Observations init   ', handle_extra(21)) ! observations init
  call flow_obsinit()                                 ! initialise stations and cross sections on flow grid + structure his (1st call required for call to flow_trachy_update)
+ if (ncrs > 0) then
+    call fill_geometry_arrays_crs()
+ end if
  call timstop(handle_extra(21)) ! end observations init
 
  call timstrt('Ice init', handle_extra(84)) ! ice
@@ -344,7 +369,11 @@
     if ( jawaqproc .eq. 1 ) then
        call fm_wq_processes_ini_proc()
        jawaqproc = 2
-       call fm_wq_processes_step(ti_waqproc,tstart_user)
+       if (ti_waqproc > 0d0) then
+          call fm_wq_processes_step(ti_waqproc,tstart_user)
+       else
+          call fm_wq_processes_step(dt_init,tstart_user)
+       endif
     endif
  endif
  call timstop(handle_extra(18)) ! end waq processes init
@@ -368,24 +397,16 @@
  endif
  call timstop(handle_extra(26)) ! end dredging init
 
- call timstrt('Xbeach init         ', handle_extra(27)) ! Xbeach init
- if (jawave .eq. 4) then
-    call xbeach_wave_init()
-
-    if ( trim(instat).eq.'stat' .or. trim(instat)=='stat_table') then   ! for stationary solver: initialize with stationary field
-       !call xbeach_stationary()
-       call xbeach_solve_wave_stationary(iresult)
-       newstatbc   = 0
-       if ( jaGUI.eq.1 ) then                                          ! this part is for online visualisation
-          if (ntek > 0) then
-             if (mod(int(dnt_user),ntek) .eq. 0) then
-                call wave_makeplotvars()                                ! Potentially only at ntek interval
+ if (jawave .eq. 4 .and. jajre .eq. 1) then
+    call timstrt('Surfbeat init         ', handle_extra(27)) ! Surfbeat init
+    if (jampi==0) then
+       if (nwbnd==0) then
+          call mess(LEVEL_ERROR, 'unstruc::flow_modelinit - No wave boundary defined for surfbeat model. Do you use the correct ext file?')
              end if
           endif
-       endif
-    end if
- end if
- call timstop(handle_extra(27)) ! end Xbeach init
+    call xbeach_wave_init()
+    call timstop(handle_extra(27))
+ endif
 
  call timstrt('Observations init 2 ', handle_extra(28)) ! observations init 2
  call flow_obsinit()                                 ! initialise stations and cross sections on flow grid + structure his (2nd time required to fill values in observation stations)
@@ -398,20 +419,22 @@
  call timstrt('Trachy update       ', handle_extra(30)) ! trachy update
  if (jatrt == 1) then
     call flow_trachyupdate()                         ! Perform a trachy update step to correctly set initial field quantities
- endif                                               ! Generally flow_trachyupdate() is called from flow_setexternalforcings()
+ endif                                               ! Generally flow_trachyupdate() is called from set_external_forcings()
  call timstop(handle_extra(30)) ! end trachy update
 
  call timstrt('Set friction values for MOR        ', handle_extra(31)) ! set fcru mor
  if ((jased>0) .and. stm_included) then
-    if (jamd1dfile == 0) then
-       call set_frcu_mor(1)        !otherwise frcu_mor is set in getprof_1d()
-    endif
+    call set_frcu_mor(1)        !otherwise frcu_mor is set in getprof_1d()
     call set_frcu_mor(2)
  endif
  call timstop(handle_extra(31)) ! end set fcru mor
 
- call flow_initimestep(1, iresult)                   ! 1 also sets zws0
+! Initialise debug array
+ !if (jawritedebug) then
+ !  call init_debugarr(lnx,stmpar%lsedtot)
+ !endif
 
+ call flow_initimestep(1, iresult)                   ! 1 also sets zws0
 
  jaFlowNetChanged = 0
 
@@ -423,8 +446,17 @@
  endif
  call timstop(handle_extra(33)) ! end Fourier init
 
-
-
+ ! Initialise sedtrails statistics
+  if (jasedtrails>0) then
+    call default_sedtrails_stats()
+    call alloc_sedtrails_stats()
+  endif
+ 
+ ! Extrapolate bed level
+ if (jaextrapbl == 1) then
+     call extrapolate_bedlevel_at_boundaries()
+ endif
+ 
  call timstrt('MDU file pointer    ', handle_extra(34)) ! writeMDUFilepointer
  call mess(LEVEL_INFO, '** Model initialization was successful **')
  call mess(LEVEL_INFO, '* Active Model definition:')! Print model settings in diagnostics file.
@@ -442,6 +474,15 @@
     end if
  end if
  call timstop(handle_extra(35)) ! end write flowgeom ugrid
+ 
+ if (jasedtrails>0) then
+    call default_sedtrails_geom()
+    call sedtrails_loadNetwork(md_sedtrailsfile, istat, 0)
+    if (istat>0) then
+       call mess(LEVEL_ERROR,'unstruc_model::loadModel - Could not load sedtrails network.')
+    endif 
+   call sedtrails_get_grid_on_network()   
+ endif   
 
  ! store the grid-based information in the cache file
  call timstrt('Remainder           ', handle_extra(36)) ! remainder
@@ -451,11 +492,9 @@
  call writesomeinitialoutput()
 
  iresult = DFM_NOERR
+
+
  return
 1234 continue
-!  BEGIN DEBUG
-   !call dum_makesal()
-   !call dum_makeflowfield()
-!  END DEBUG
 
 end function flow_modelinit

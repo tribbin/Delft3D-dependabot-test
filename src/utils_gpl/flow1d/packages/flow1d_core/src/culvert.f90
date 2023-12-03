@@ -1,7 +1,7 @@
 module m_Culvert
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify              
 !  it under the terms of the GNU Affero General Public License as               
@@ -25,8 +25,8 @@ module m_Culvert
 !  Stichting Deltares. All rights reserved.
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !-------------------------------------------------------------------------------
 
    use m_CrossSections
@@ -94,7 +94,7 @@ contains
                               
    !> 
    subroutine ComputeCulvert(culvert, fum, rum, aum, dadsm, kfum, cmustr, s1m1, s1m2, qm,  &
-                             q0m, u1m, u0m, dxm, dt, wetdown, infuru)
+                             q0m, u1m, u0m, dxm, dt, wetdown)
       use m_Roughness
       
       implicit none
@@ -112,12 +112,11 @@ contains
       double precision, intent(  out)              :: cmustr
       double precision, intent(inout)              :: u0m
       double precision, intent(inout)              :: u1m
-      double precision, intent(in   )              :: s1m2         !< left waterlevel s(m)          sleft
-      double precision, intent(in   )              :: s1m1         !< right waterlevel s(m+1)       sright
+      double precision, intent(in   )              :: s1m1         !< left waterlevel s(m)          sleft
+      double precision, intent(in   )              :: s1m2         !< right waterlevel s(m+1)       sright
       double precision, intent(in   )              :: dxm
       double precision, intent(in   )              :: dt
       double precision, intent(in   )              :: wetdown
-      logical,          intent(in   )              :: infuru
          
       ! Local variables
       type(t_CrossSection)           :: CrossSection
@@ -130,17 +129,12 @@ contains
       double precision               :: bu
       double precision               :: cmus
       double precision               :: cu
-      double precision               :: d00
-      double precision               :: d11
       double precision               :: dc                  !< hc_2 critical depth
       double precision               :: culvertCrest
       double precision               :: inflowCrest         !< zc_1 (at upstream water level)
       double precision               :: outflowCrest        !< zc_2 (at downstream water level)
       double precision               :: du
-      double precision               :: fr
-      double precision               :: uest
       double precision               :: gl_thickness
-      double precision               :: dummy
       double precision               :: dpt                 !< upstream water depth
       double precision               :: openingfac
       double precision               :: valveOpening
@@ -158,6 +152,8 @@ contains
       double precision               :: exitloss
       double precision               :: frictloss
       double precision               :: totalLoss
+      double precision               :: dlim
+      double precision :: dxlocal
 
       ! Culvert Type
       
@@ -197,36 +193,6 @@ contains
       gl_thickness = getGroundLayer(CrossSection)
 
       ! Check on Valve
-      if (culvert%has_valve .and. ((culvert%valveOpening - gl_thickness) < thresholdDry)) then
-         kfum  = 0
-         fum   = 0.0d0
-         rum   = 0.0d0
-         u1m   = 0.0d0
-         u0m   = 0.0d0
-         qm    = 0.0d0
-         q0m   = 0.0d0
-         culvert%state = 0
-         return
-      endif
-
-      if ((smax - culvertCrest - gl_thickness) < thresholdDry) then
-         kfum = 0
-      else
-         kfum = 1
-      endif
-
-      if (kfum==0) then 
-         kfum  = 0
-         fum   = 0.0d0
-         rum   = 0.0d0
-         u1m   = 0.0d0
-         u0m   = 0.0d0
-         qm    = 0.0d0
-         q0m   = 0.0d0
-         culvert%state = 0
-         return
-      endif
-      
       !     First find out the critical depth that can be used in free flow equations
       !     pjo, 13-04-2000, ars 4952, when flow direction changes, critical
       !     depth is taken as zero.
@@ -310,40 +276,28 @@ contains
       aum    = culvertArea
       dadsm  = wWidth
 
-      uest = u1m
-
       if (isfreeflow) then
          
-         if (dir==1) then
-            d11 = s1m1 - outflowCrest - gl_thickness - dc
-         else
-            d11 = s1m2 - outflowCrest - gl_thickness - dc
-         endif
-            
-         d00 = max(1.0d-10, smax - smin)
-            
-         cu = cmus * cmus * 2.0d0 * gravity * d11 / (dxm * d00)
+         dlim = dir * ( smin -dc-outflowcrest)
             
       else
          
-         cu = cmus * cmus * 2.0d0 * gravity / dxm
+         dlim = 0d0
             
       endif
-         
-      uest = sqrt(abs(cu*(smax-smin)*dxm))
-      fr = abs(uest) / dxm
-         
-      bu = 1.0d0 / dt + fr
-      du = u0m / dt
-         
-      fum = cu / bu
-      rum = du / bu
          
       if (isfreeflow) then
          culvert%state = 1
       else
          culvert%state = 2
       endif
+
+      dxlocal = max(culvert%length, dxm)
+      bu = dxlocal/dt + abs(u1m)/(2d0*(cmus**2))
+      cu = gravity
+      du = dxlocal*u1m/dt 
+      fum = cu / bu
+      rum = (du + cu*dlim)/ bu 
     
    end subroutine ComputeCulvert
 

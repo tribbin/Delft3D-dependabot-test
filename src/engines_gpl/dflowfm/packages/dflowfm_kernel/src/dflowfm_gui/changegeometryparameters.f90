@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    SUBROUTINE CHANGEgeometryPARAMETERS()
    use m_netw
@@ -39,7 +39,7 @@
    use m_wind
    use unstruc_display
    use m_fixedweirs
-   use unstruc_version_module, only : unstruc_company, unstruc_program
+   use dflowfm_version_module, only : company, product_name
    implicit none
 
    integer :: numpar, numfld, numparactual, numfldactual
@@ -152,7 +152,7 @@
    CALL IWinAction('FPC')
    CALL IWinOpen(IXP,IYP,IW,1)
    CALL ITEXTCOLOURN(LBLFOR,LBLBCK)
-   CALL IWinOutCentre(1,trim(unstruc_company)//'-'//trim(unstruc_program)// ' PARAMETER FORM')
+   CALL IWinOutCentre(1,trim(company)//'-'//trim(product_name)// ' PARAMETER FORM')
    CALL ITEXTCOLOURN(HLPFOR,HLPBCK)
 !
 !  Explain keyfunctions in bottom window
@@ -288,8 +288,6 @@
                  kmx = max(kmx,mxlayz) ; iadvec = 33
               endif
            endif
-
-           if (kmx == 0 .and. ja_timestep_auto .ne. 0) ja_timestep_auto = 1
 
            if (ibedlevtyp .ne. 3) then
               jaconveyance2D = -1

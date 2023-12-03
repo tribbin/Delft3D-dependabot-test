@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    SUBROUTINE MAKENET(japaramscreen)
 
@@ -41,7 +41,8 @@
    use geometry_module, only: pinpok
    use gridoperations
    use m_flowparameters, only : bedslope
-
+   use m_mergenodes
+   
    implicit none
 
    integer, intent(in) :: japaramscreen !< Load parameter screen or not (1/0)
@@ -57,7 +58,7 @@
 
 
    if (japaramscreen == 1) then
-      ntyp = 7 ; nrx = 32 ; bedslope = 1d-4
+      !ntyp = 7 ; nrx = 32 ; bedslope = 1d-4
       CALL MAKENETPARAMETERS()
    end if
 

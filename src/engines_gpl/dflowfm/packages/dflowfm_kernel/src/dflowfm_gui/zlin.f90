@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  double precision function zlin(LL)                   ! get various values at flow links
  use m_flow
@@ -55,6 +55,7 @@
  L  = LL
  if (kmx > 0) then
     call getLtoplot(LL,L)
+    if (L < 0) return
  endif
 
  linval = ndraw(29)
@@ -67,7 +68,11 @@
  else if (  linval == 5) then
     zlin = au(L)
  else if (  linval == 6) then
+    if (hu(LL)>epshu) then
     zlin = hu(L)
+    else
+       zlin = dmiss
+    endif
  else if (  linval == 7) then
     zlin = frcu(LL)
 
@@ -110,7 +115,9 @@
     zlin = suu(L)
  else if ( linval == 22) then
     if (javeg == 0) then
+       if (jaconveyance2D >= 1) then
        zlin = aifu(LL) ! ccr(lv2(LL))
+       endif
     else
         k1 = ln(1,L) ; k2 = ln(2,L)
         if (diaveg(k1) > 0 .and. diaveg(k2) > 0) then
@@ -138,11 +145,17 @@
         endif
     endif
  else if ( linval == 25) then
+    if (jawind>0) then
     zlin = wx(LL)
+    endif
  else if ( linval == 26) then
+    if (jawind>0) then
     zlin = wy(LL)
+    endif
  else if ( linval == 27) then
-    zlin = wdsu(LL)
+   if (jawind>0) then
+    zlin = wdsu_x(LL) ; jamapwindstress = 1
+   endif
  else if ( linval == 28) then
     zlin = dabs(cosphiu(LL))
  else if ( linval == 29) then
@@ -150,9 +163,9 @@
  else if ( linval == 30) then
     zlin = v(L)
  else if ( linval == 31) then
-    zlin = Fu(L)
+    zlin = fu(L)
  else if ( linval == 32) then
-    zlin = Ru(L)
+    zlin = ru(L)
  else if ( linval == 33) then
     zlin = iadv(LL)
  else if ( linval == 34) then
@@ -191,7 +204,7 @@
     zlin = ustb(LL)
  else if ( linval == 45) then
     if (jawind > 0 .and. kmx > 0 ) then
-       zlin = ustw(L)
+       zlin = ustw(LL)
     else if (L < ltop(LL) ) then
        k1 = ln(1,L)    ; k2  = ln(2,L)
        n1 = ln(1,LL)   ; zb1 = zws(kbot(n1)-1)
@@ -200,13 +213,21 @@
        omega2 = qw(k2) / a1(ln(2,LL))
 
        zlin   = 0.5d0*omega1 + 0.5d0*omega2 + 0.5d0*(u0(L)+u0(L+1))*( zws(k2)-zb2 - (zws(k1)-zb1) )*dxi(LL)
-    else
-       zlin   = -999
     endif
  else if ( linval == 46) then
-    zlin = hu(L) - hu(L-1)
+    if (hu(LL)>epshu)  then
+       zlin = hu(L) - hu(L-1)
+    endif
  else if ( linval == 47) then
-    zlin = frculin(LL)
+    if (jafrculin>0) then
+       zlin = frculin(LL)
+    else
+       zlin=dmiss
+    endif
+ else if (linval==48) then
+    if (jawave>2 .and. jawave<5) then
+       zlin=wavfu(L)
+    endif
  else if (linval == 54 .and. stm_included) then
     select case (sedparopt)
        case (1)
@@ -242,6 +263,14 @@
              dum = dum+sedtra%e_sswn(LL,lll)+sedtra%e_sbwn(LL,lll) +sedtra%e_sbcn(LL,lll)
           end do
           zlin = dum
+       case (6)
+          dum=0d0
+          do lll = 1, stmpar%lsedtot
+             dum = dum+bermslopecontrib(LL,lll)
+          end do
+          zlin=dum
+       case (7)
+          zlin=bermslopeindex(LL)
     end select
  else if ( linval == 49) then
     zlin = Ltop(LL) - Lbot(LL) + 1 ; zlin=max(zlin,0d0)

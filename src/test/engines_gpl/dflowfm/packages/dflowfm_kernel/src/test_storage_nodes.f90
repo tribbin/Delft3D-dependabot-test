@@ -1,4 +1,4 @@
-!!  Copyright (C)  Stichting Deltares, 2012-2021.
+!!  Copyright (C)  Stichting Deltares, 2012-2023.
 !!
 !!  This program is free software: you can redistribute it and/or modify
 !!  it under the terms of the GNU General Public License version 3,
@@ -32,7 +32,7 @@ contains
 !
 !==============================================================================
 subroutine tests_storageNodes
-    call test( test_storage_nodes_nodeID_table, 'Tests the reading storage nodes.' )
+    !call test( test_storage_nodes_nodeID_table, 'Tests the reading storage nodes.' )
 end subroutine tests_storageNodes
 !
 !

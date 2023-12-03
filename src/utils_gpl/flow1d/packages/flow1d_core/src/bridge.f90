@@ -1,7 +1,7 @@
 module m_Bridge
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify              
 !  it under the terms of the GNU Affero General Public License as               
@@ -25,8 +25,8 @@ module m_Bridge
 !  Stichting Deltares. All rights reserved.
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !-------------------------------------------------------------------------------
    
    ! Modules
@@ -102,14 +102,12 @@ contains
       double precision                          :: crestLevel
       double precision                          :: depth
       double precision                          :: chezyBridge
-      double precision                          :: wArea
-      double precision                          :: wPerimiter
-      double precision                          :: wWidth
+      double precision                          :: wPerimeter
       double precision                          :: hydrRadius
-      double precision                          :: dummy
       double precision                          :: frictloss
       double precision                          :: exitLoss
       double precision                          :: totalLoss
+      double precision                          :: pillarLoss
       double precision                          :: cu
       double precision                          :: fr
       double precision                          :: bu
@@ -119,13 +117,11 @@ contains
       cmus         = 1.0d0
       gl_thickness = 0.0d0
       chezyBridge  = 0.0d0
-      wArea        = 0.0d0
-      wPerimiter   = 0.0d0
-      wWidth       = 0.0d0
+      wPerimeter   = 0.0d0
       hydrRadius   = 0.0d0
-      dummy        = 0.0d0
       frictloss    = 0.0d0
       exitLoss     = 0.0d0
+      pillarLoss   = 0.0d0
       totalLoss    = 0.0d0
       cu           = 0.0d0
       fr           = 0.0d0
@@ -163,41 +159,12 @@ contains
          return
       endif
       
-      if (.not. bridge%useOwnCrossSection) then
-         !
-         ! NOTE: Under UNST-2907 the pillar bridge support was removed from readBridge().
-         !       Computational code below is kept for future re-enabling or complete removal.
-         !
-         ! Pillar Bridge; wetted profile at upstream side
-         aum   = wetup
-
-         if (bridge%pillarwidth > 1.0d-5) then
-
-            depth = smax - bobup  ! Already corrected for Ground Layer and positive
+      aum   = wetup
+      depth = smax - bobup 
       
-            aum = aum - bridge%pillarwidth * depth
-            if (aum <= 0.0d0) kfum = 0
-
-            dadsm = dadsm - bridge%pillarwidth   !hk: Only true if pillar length equals link length
-            if (dadsm <= 0.0d0) then
-               kfum = 0
-            endif
-            
-            if (kfum == 0) then
-               fum = 0.0
-               rum = 0.0
-               return
-            endif
-
-            ! Upstream wetted area - wetted area under the bridge would give wetted area for pillars
-            if ((wetup - aum) > 0.0d0) then
-               cmus = cmus / dsqrt(bridge%formfactor * (wetup - aum) / wetup)
-            endif
-       
-         endif
+      if (bridge%useOwnCrossSection) then
       
-      else
-         ! standard bridge
+         ! abutment bridge definition
          
          gl_thickness = getGroundLayer(bridge%pcross)
       
@@ -208,52 +175,61 @@ contains
          endif
          bridge%bedLevel_actual = crestLevel
 
-         if ((smax - crestLevel - gl_thickness) < thresholdDry) then
-            kfum = 0
-         elseif ((smax - crestLevel - gl_thickness) > thresholdFlood) then
-            kfum = 1
+         depth = smax - crestLevel
+         call GetCSParsFlow(bridge%pcross, depth, aum, wPerimeter, dadsm)   
+         if (bridge%pcross%closed .and. smax > getHighest1dLevel(bridge%pcross)) then
+            depth = getHighest1dLevel(bridge%pcross) - crestLevel
          endif
+
+         bridge%flowArea = aum
+         
+         ! in case the flow area is limited by the upstream flow area, the hydraulic radius
+         ! is still based on the cross section of the bridge
+         hydrRadius = aum / wPerimeter
+         
+         ! Limit the flow area to the upstream flow area
+         if (changeStructureDimensions) then
+            aum = min(aum, wetup)
+         endif
+
+         bridge%flowArea_actual = aum
+         
+
+         ! Friction Loss
+         chezyBridge = getchezy(bridge%pcross%frictionTypePos(1), bridge%pcross%frictionValuePos(1), aum/wPerimeter, depth, 1d0)
+         frictLoss = 2.0d0 * gravity * bridge%length / (chezyBridge * chezyBridge * hydrRadius)
+
+         ! Exit Loss
+         exitLoss = bridge%outletlosscoeff * ((max((1.0d0 - aum / wetdown), 0.0d0))**2)
+         exitLoss = max(exitLoss, 0.0d0)
+      endif
+
+      if (bridge%pillarwidth > 1.0d-5) then
+      
+         ! pilllar bridge definition
+
+         dadsm = dadsm - bridge%pillarwidth   !hk: Only true if pillar length equals link length
+         if (dadsm <= 0.0d0) then
+            kfum = 0
+         endif
+         
+         pillarLoss = bridge%formfactor * (bridge%pillarwidth * depth) / aum
+         aum = aum - bridge%pillarwidth * depth
+         if (aum <= 0.0d0) kfum = 0
+         
          if (kfum == 0) then
             fum = 0.0
             rum = 0.0
             return
          endif
-
-         ! Initialize = bridge%pcross
-         depth = smax - crestLevel
-         call GetCSParsFlow(bridge%pcross, depth, wArea, wPerimiter, wWidth)   
-         bridge%flowArea = wArea
          
-         ! in case the flow area is limited by the upstream flow area, the hydraulic radius
-         ! is still based on the cross section of the bridge
-         hydrRadius = wArea / wPerimiter
-         
-         ! Limit the flow area to the upstream flow area
-         if (changeStructureDimensions) then
-            wArea = min(wArea, wetup)
-         endif
-
-         bridge%flowArea_actual = wArea
-         
-
-         ! Friction Loss
-         chezyBridge = getchezy(bridge%pcross%frictionTypePos(1), bridge%pcross%frictionValuePos(1), warea/wPerimiter, depth, 1d0)
-         frictLoss = 2.0d0 * gravity * bridge%length / (chezyBridge * chezyBridge * hydrRadius)
-
-         ! Exit Loss
-         exitLoss = bridge% outletlosscoeff * ((max((1.0d0 - wArea / wetdown), 0.0d0))**2)
-         exitLoss = max(exitLoss, 0.0d0)
-         
-         totalLoss = bridge%inletlosscoeff + frictLoss + exitLoss
-         totalLoss = max(totalLoss, 0.01d0)
-         
-         cmus = 1.0d0 / sqrt(totalLoss)
-         cmus = min(cmus, 1.0d0)    ! Limit to maximum of 1.0
-
-         aum   = wArea
-         dadsm = wWidth
       endif
 
+      totalLoss = bridge%inletlosscoeff + frictLoss + exitLoss + pillarloss
+      totalLoss = max(totalLoss, 0.01d0)
+      
+      cmus = 1.0d0 / sqrt(totalLoss)
+      cmus = min(cmus, 1.0d0)    ! Limit to maximum of 1.0
 
       cu = cmus * cmus * 2  *gravity / dxm
       fr = abs(u1m) / dxm

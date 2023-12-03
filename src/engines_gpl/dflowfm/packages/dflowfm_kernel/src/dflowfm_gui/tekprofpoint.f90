@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine tekprofpoint()
  use m_flowgeom
@@ -37,7 +37,7 @@
  implicit none
  integer :: k, nn
  if (klprof > 0 .and. nplot.gt.0 ) then
-     call cirr(xz(nplot), yz(nplot), klprof)
+     call cirr(xz(nplot), yz(nplot), ncolblack) !klprof)
 
      ! k    = nplot
      ! nn   = size( nd(k)%x )

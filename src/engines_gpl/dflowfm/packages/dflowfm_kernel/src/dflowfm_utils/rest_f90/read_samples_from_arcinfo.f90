@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Read samples from an ASCII file.
 !! Samples are being stored in a global dataset of m_samples.
@@ -58,8 +58,8 @@ subroutine read_samples_from_arcinfo(filnam, jadoorladen, japrompt)  ! reaasc
     if (mca <= 0 .or. nca <= 0) then
         call message('No samples read from file ', filnam, ' ')
         return
-    else if (mca*nca > maxsamarc) then  ! todo: check if this line can be removed
-        return 
+    else if (mca*nca > maxsamarc) then
+        return
     end if
 
     call savesam()

@@ -15,28 +15,29 @@ if(NOT TARGET deltares_common_mpi)
     add_subdirectory(${checkout_src_root}/${deltares_common_mpi_module} deltares_common_mpi)
 endif()
 
-# Waq
-if(NOT TARGET waq_utils_c)
-    add_subdirectory(${checkout_src_root}/${waq_utils_c_module} waq_utils_c)
+# triangle
+if(NOT TARGET triangle_c)
+    add_subdirectory(${checkout_src_root}/${triangle_c_module} triangle_c)
 endif()
 
-if(NOT TARGET waq_utils_f)
-    add_subdirectory(${checkout_src_root}/${waq_utils_f_module} waq_utils_f)
+# gridgeom
+if(NOT TARGET gridgeom)
+    add_subdirectory(${checkout_src_root}/${gridgeom_module} gridgeom)
 endif()
 
-if(NOT TARGET waq_kernel)
-    add_subdirectory(${checkout_src_root}/${waq_kernel_module} waq_kernel)
+if(NOT TARGET gridgeom_dll)
+    add_subdirectory(${checkout_src_root}/${gridgeom_dll_module} gridgeom_dll)
 endif()
 
-if(NOT TARGET wq_processes)
-    add_subdirectory(${checkout_src_root}/${wq_processes_module} wq_processes)
+# Third party libraries
+# kdtree2
+if(NOT TARGET kdtree2)
+    add_subdirectory(${checkout_src_root}/${kdtree_module} kdtree2)
 endif()
 
-if(NOT TARGET waq_plugin_wasteload)
-    add_subdirectory(${checkout_src_root}/${waq_plugin_wasteload_module} waq_plugin_wasteload)
+if(NOT TARGET kdtree_wrapper)
+    add_subdirectory(${checkout_src_root}/${kdtree_wrapper_module} kdtree_wrapper)
 endif()
-
-
 
 # Tools_gpl
 # Mormerge
@@ -45,48 +46,23 @@ if(NOT TARGET mormerge)
 endif()
 
 # dfmoutput
-if(NOT TARGET dfmoutput)
+if(NOT (TARGET dfmoutput OR NO_FM_TOOLS))
     add_subdirectory(${checkout_src_root}/${dfmoutput_module} dfmoutput)
 endif()
 
-# Waqpb
-if(NOT TARGET waqpb_lib)
-    add_subdirectory(${checkout_src_root}/${waqpb_lib_module} waqpb_lib)
+# dfm_volume_tool
+if(NOT (TARGET dfm_volume_tool OR NO_FM_TOOLS))
+    add_subdirectory(${checkout_src_root}/${dfm_volume_tool_module} dfm_volume_tool)
 endif()
 
-if(NOT TARGET waqpb_import)
-    add_subdirectory(${checkout_src_root}/${waqpb_import_module} waqpb_import)
+# dfm_api_access
+if(NOT (TARGET dfm_api_access OR NO_FM_TOOLS))
+    add_subdirectory(${checkout_src_root}/${dfm_api_access_module} dfm_api_access)
 endif()
 
-if(NOT TARGET waqpb_export)
-    add_subdirectory(${checkout_src_root}/${waqpb_export_module} waqpb_export)
-endif()
-
-# Waq_run_processes
-if(NOT TARGET waq_run_processes_version_number)
-    add_subdirectory(${checkout_src_root}/${waq_run_processes_version_number_module} waq_run_processes_version_number)
-endif()
-
-if(NOT TARGET waq_run_processes)
-    add_subdirectory(${checkout_src_root}/${waq_run_processes_module} waq_run_processes)
-endif()
-
-# duprol2delwaq
-if(NOT TARGET duprol2delwaq)
-    add_subdirectory(${checkout_src_root}/${duprol2delwaq_module} duprol2delwaq)
-endif()
-
-# Datsel
-if(NOT TARGET datsel_version_number)
-    add_subdirectory(${checkout_src_root}/${datsel_version_number_module} datsel_version_number)
-endif()
-
-if(NOT TARGET datsel_f)
-    add_subdirectory(${checkout_src_root}/${datsel_f_module} datsel_f)
-endif()
-
-if(NOT TARGET datsel)
-    add_subdirectory(${checkout_src_root}/${datsel_module} datsel)
+# cosumo_bmi
+if(NOT TARGET cosumo_bmi)
+    add_subdirectory(${checkout_src_root}/${cosumo_bmi_module} cosumo_bmi)
 endif()
 
 # Third party
@@ -121,6 +97,10 @@ if(NOT TARGET io_netcdf)
     add_subdirectory(${checkout_src_root}/${io_netcdf_module} io_netcdf)
 endif()
 
+if(NOT TARGET io_netcdf_data)
+    add_subdirectory(${checkout_src_root}/${io_netcdf_data_module} io_netcdf_data)
+endif()
+
 # Nefis
 if(NOT TARGET nefis)
     add_subdirectory(${checkout_src_root}/${nefis_module} nefis)
@@ -146,4 +126,9 @@ endif()
 
 if(NOT TARGET esmfsm)
     add_subdirectory(${checkout_src_root}/${esmfsm_module} esmfsm)
+endif()
+
+# ec_module
+if(NOT TARGET ec_module)
+    add_subdirectory(${checkout_src_root}/${ec_module} ec_module)
 endif()

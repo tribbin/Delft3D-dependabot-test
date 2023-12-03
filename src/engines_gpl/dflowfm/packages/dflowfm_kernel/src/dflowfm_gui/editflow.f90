@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
      SUBROUTINE EDITflow(MODE,KEY,NL)
       use m_netw
@@ -43,6 +43,8 @@
       use gridoperations
       use unstruc_display, only: idisLink, dis_info_1d_link, nhlFlowLink
       use m_inquire_flowgeom
+      use m_transport, only: NUMCONST, ISALT, ITEMP, ISED1, ISEDN, ITRA1, ITRAN, ITRAN0, constituents, itrac2const, const_names, const_units
+
       implicit none
       integer :: MODE, KEY, kb , kt ,k, NL
       integer :: newmode
@@ -115,7 +117,7 @@
                call tekprofs()
                call textflow()
             endif
-            CALL DISND(KK)
+            CALL DISND(KK, 1)
          ELSE IF (NPUT .EQ. 52 .or. NPUT .EQ. 57 ) THEN   ! LINK mode
             call isflowlink(xp, yp, LL)
 
@@ -213,7 +215,7 @@
          if (jasal > 0) then
             call getkbotktop(nplot,kb , kt )
             k = kb + kplot - 1
-            sa1(k) = sa1(k) + 1d0
+            constituents(isalt,k) = constituents(isalt,k) + 1d0
          endif
       ELSE IF (KEY .EQ. 43 .or. KEY .EQ. 140) THEN     ! -
          CALL KPLOTPLUSMIN(-1)
@@ -264,7 +266,7 @@
             call tekprofs()
             call textflow()
          endif
-         CALL DISND(KK)
+         CALL DISND(KK, 1)
       ENDIF
 !
       GOTO 10

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine setau()                                  ! get wet cross-sections at u points, after limiters, setau = vol12D with japerim == 1
  use m_flowgeom
@@ -277,13 +277,13 @@
     if ( jatimer.eq.1 ) call stoptimer(IMPIREDUCE)
  end if
 
- do nq = 1,nqbnd
+ do nq = 1, nqbnd
     at = at_all(nq)
     if (at .ne. 0) then
        do n  = L1qbnd(nq), L2qbnd(nq)
           L  = kbndu(3,n)
 !          zbndu(n) = (zbndu(n)*hu(L)**FAC23)/at
-           zbndu(n) = (zbndq(n)*huqbnd(n)**FAC23)/at
+           zbndq(n) = (zbndq(n)*huqbnd(n)**FAC23)/at
        enddo
     endif
  enddo

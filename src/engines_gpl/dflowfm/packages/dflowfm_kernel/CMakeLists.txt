@@ -1,21 +1,27 @@
 # Set version file variables
 # Note that the CMAKE_CURRENT_SOURCE_DIR has a path to THIS CMakeLists location
-set(svn_version_path ${CMAKE_CURRENT_SOURCE_DIR}/../../) # Trace back to the DFlowFM path
-set(ini_version_file ${CMAKE_CURRENT_SOURCE_DIR}/../../res/version_number.ini)
-set(fortran_version_file ${CMAKE_CURRENT_SOURCE_DIR}/src/unstruc_version.F90)
+
+# Set the DFlow FM component path
+set(dflowfm_path "${CMAKE_CURRENT_SOURCE_DIR}/../../")
 
 # Include directories that are required as references
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Set the directory of where the source code is located
-set(src_path src) 
-
-# Generate the F90 version file
-generate_version_files(${fortran_version_file} ${checkout_src_root} ${ini_version_file} TRUE)
-set(svn_version_file ${fortran_version_file}.svn)
+set(src_path src)
 
 # Gather the source files
 set(headers include/blasfm.h)
+
+# Set version file variables
+set(dflowfm_version_header_path ${dflowfm_path}/version)
+set(version_include_dir ${CMAKE_SOURCE_DIR}/../version_includes)
+set(dflowfm_version_path ${src_path}/dflowfm_version)
+set(fortran_version_files ${dflowfm_version_path}/dflowfm_version.F90
+                          ${dflowfm_version_path}/static_version_info.F90)
+
+set_source_files_properties(${fortran_version_files}
+                            PROPERTIES COMPILE_OPTIONS "${file_preprocessor_flag}")
 
 set(dflowfm_data_path ${src_path}/dflowfm_data)
 get_fortran_source_files(${dflowfm_data_path} dflowfm_data)
@@ -32,7 +38,6 @@ list(REMOVE_ITEM dflowfm_io ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_io_path}/io_op
 set(dflowfm_kernel_path ${src_path}/dflowfm_kernel)
 set(dflowfm_kernel_compute_path ${dflowfm_kernel_path}/compute)
 set(dflowfm_kernel_compute_hydrology_path ${dflowfm_kernel_path}/compute_hydrology)
-set(dflowfm_kernel_compute_particles_path ${dflowfm_kernel_path}/compute_particles)
 set(dflowfm_kernel_compute_sediment_path ${dflowfm_kernel_path}/compute_sediment)
 set(dflowfm_kernel_compute_sediment_netnode_based_path ${dflowfm_kernel_path}/compute_sediment/netnode_based)
 set(dflowfm_kernel_compute_transport_path ${dflowfm_kernel_path}/compute_transport)
@@ -49,7 +54,6 @@ set(dflowfm_kernel_timespace_path ${dflowfm_kernel_path}/timespace)
 get_fortran_source_files(${dflowfm_kernel_path} dflowfm_kernel)
 get_fortran_source_files(${dflowfm_kernel_compute_path} dflowfm_kernel_compute)
 get_fortran_source_files(${dflowfm_kernel_compute_hydrology_path} dflowfm_kernel_compute_hydrology)
-get_fortran_source_files(${dflowfm_kernel_compute_particles_path} dflowfm_kernel_compute_particles)
 get_fortran_source_files(${dflowfm_kernel_compute_sediment_path} dflowfm_kernel_compute_sediment)
 get_fortran_source_files(${dflowfm_kernel_compute_sediment_netnode_based_path} dflowfm_kernel_compute_sediment_netnode_based)
 get_fortran_source_files(${dflowfm_kernel_compute_transport_path} dflowfm_kernel_compute_transport)
@@ -79,14 +83,13 @@ get_fortran_source_files(${dflowfm_utils_path} dflowfm_utils)
 get_fortran_source_files(${dflowfm_utils_path}/rest_f90 dflowfm_utils_rest_f90)
 get_fortran_source_files(${dflowfm_utils_path}/to_deltares_common dflowfm_utils_to_deltares_common)
 
-list(REMOVE_ITEM dflowfm_utils ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_utils_path}/solve_parms.F90
-                               ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_utils_path}/solve_petsc_v34.F90)
+list(REMOVE_ITEM dflowfm_utils ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_utils_path}/solve_parms.F90)
 
 get_fortran_source_files(${src_path}/to_thirdparty to_thirdparty)
 
 # Define library
 set(library_name dflowfm_kernel)
-set(library_source_list     ${fortran_version_file}
+set(library_source_list     ${fortran_version_files}
                             ${headers}
                             ${dflowfm_data}
                             ${dflowfm_gui}
@@ -94,7 +97,6 @@ set(library_source_list     ${fortran_version_file}
                             ${dflowfm_kernel}
                             ${dflowfm_kernel_compute}
                             ${dflowfm_kernel_compute_hydrology}
-                            ${dflowfm_kernel_compute_particles}
                             ${dflowfm_kernel_compute_sediment}
                             ${dflowfm_kernel_compute_sediment_netnode_based}
                             ${dflowfm_kernel_compute_transport}
@@ -113,21 +115,13 @@ set(library_source_list     ${fortran_version_file}
                             ${dflowfm_utils_to_deltares_common}
                             ${to_thirdparty})
 
-add_library(${library_name}  ${svn_version_file} ${ini_version_file} ${library_source_list})
+add_library(${library_name} ${library_source_list})
 
 # Add dependencies
 if (UNIX)
     # the `pkg_check_modules` function is created with this call
     find_package(PkgConfig REQUIRED)
-
-    # these calls create special `PkgConfig::<MODULE>` variables
-    pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET netcdf)
-    pkg_check_modules(NETCDF_FTN REQUIRED IMPORTED_TARGET netcdf-fortran)
-    pkg_check_modules(GDAL REQUIRED IMPORTED_TARGET gdal)
     pkg_check_modules(PETSC REQUIRED IMPORTED_TARGET PETSc)
-    pkg_check_modules(PROJ REQUIRED IMPORTED_TARGET proj)
-
-
 
     set(oss_dependencies    deltares_common
                             deltares_common_c
@@ -141,41 +135,38 @@ if (UNIX)
                             ice_data
                             ice_io
                             io_netcdf
+                            io_netcdf_data
                             kdtree_wrapper
                             kdtree2
-                            fortranc
                             fortrangis
                             libsigwatch
                             md5digest
                             md5
+                            metis
                             metisoptions
                             morphology_data
                             morphology_io
                             morphology_kernel
                             morphology_plugins_c
+                            netcdf4
+                            netcdff
                             polypack
-                            shp
                             trachytopes_io
                             trachytopes_kernel
                             triangle_c
+                            waq_definition
+                            wq_processes
                             waq_process
+                            waq_hyd_data
                             waq_utils_c
                             waq_utils_f
-                            wq_processes
                             interacter_stub)
 
     oss_include_libraries(${library_name} oss_dependencies)
     target_link_libraries(${library_name} ${oss_dependencies}
-         PkgConfig::GDAL
-         PkgConfig::NETCDF
-         PkgConfig::NETCDF_FTN
          PkgConfig::PETSC
-         PkgConfig::PROJ)
+         uuid)
 
-
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include"
-                        ${mpich2_path}
-                        ${tecplot_path})
 endif(UNIX)
 
 if (WIN32)
@@ -191,6 +182,7 @@ set(oss_dependencies    deltares_common
                         ice_data
                         ice_io
                         io_netcdf
+                        io_netcdf_data
                         kdtree_wrapper
                         kdtree2
                         fortrangis
@@ -207,11 +199,12 @@ set(oss_dependencies    deltares_common
                         netcdff
                         petsc
                         polypack
-                        shp
                         trachytopes_io
                         trachytopes_kernel
                         triangle_c
+                        waq_definition
                         waq_process
+                        waq_hyd_data
                         waq_utils_c
                         waq_utils_f
                         wq_processes)
@@ -225,38 +218,41 @@ set(oss_dependencies    deltares_common
 oss_include_libraries(${library_name} oss_dependencies)
 target_link_libraries(${library_name} ${oss_dependencies})
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include"
-                    ${mpich2_path}
-                    ${tecplot_path}
-                    ${petsc_path})
+include_directories(${petsc_path})
 endif(WIN32)
 
-
-# Define prebuild event
-prebuild_version_number(${library_name} ${fortran_version_file} 
-                                        ${checkout_src_root} 
-                                        ${ini_version_file} 
-                                        ON)
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include"
+                        ${mpi_include_path}
+                        ${tecplot_path}
+                        ${version_include_dir}
+                        ${dflowfm_version_path}
+                        ${dflowfm_version_header_path})
 
 # Define additional compilation flags
 
-set_source_files_properties(${fortran_version_file}
+set_source_files_properties(${fortran_version_files}
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_data_path}/partition.F90
+                            ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_gui_path}/menuv1.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_gui_path}/setwor.F90
+                            ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_gui_path}/viewport.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_io_path}/read_commandline.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_io_path}/writesomefinaloutput.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_io_path}/wrwaq.F90
+                            ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_io_path}/tecplot.F90
+                            ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_io_path}/unc_write_his.F90
+                            ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_io_path}/unc_write_shp.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_kernel_compute_path}/filter.F90
-                            ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_kernel_compute_particles_path}/sendrecv_particledata.F90
-                            ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_kernel_compute_particles_path}/update_particles.F90
-                            ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_kernel_compute_waves_surbeat_path}/xbeach_filefunctions.F90
+                            ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_kernel_compute_waves_surfbeat_path}/xbeach_filefunctions.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_kernel_prepost_path}/flow_modelinit.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_kernel_prepost_path}/inidat.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_kernel_prepost_path}/print_help_commandline.F90
+                            ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_kernel_prepost_path}/fill_onlyWetLinks.F90
+                            ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_kernel_prepost_path}/set_model_boundingbox.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_kernel_timespace_path}/timespaceinitialfield_mpi.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_manager_path}/inctime_user.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_manager_path}/dfm_signals.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_manager_path}/flow_externaloutput.F90
+                            ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_utils_path}/filez.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_utils_path}/solve_petsc.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_utils_path}/solve_guus.F90
                             ${CMAKE_CURRENT_SOURCE_DIR}/${dflowfm_utils_path}/saadf.F90
@@ -271,25 +267,25 @@ set_source_files_properties(${fortran_version_file}
                             PROPERTIES COMPILE_OPTIONS "${file_preprocessor_flag}")
 
 # Set additional compilation properties, specific for Debug mode
-target_compile_options(${library_name} PRIVATE "$<$<CONFIG:Debug>:${check_bounds_flag}>")
+target_compile_options(${library_name} PRIVATE "$<$<CONFIG:Debug>:${check_pointers_flag}>")
+target_compile_options(${library_name} PRIVATE "$<$<CONFIG:Debug>:${floating_point_exception_flag}>")
 
-# Define preprocessor definitions 
+# Define preprocessor definitions
 if (WIN32)
     set_target_properties(${library_name} PROPERTIES COMPILE_FLAGS ${openmp_flag})
     if(WITH_INTERACTER)
         # Add HAVE_DISPLAY=1
-        target_compile_definitions(${library_name} PRIVATE "WIN32;HAVE_TECPLOT;HAVE_METIS;HAVE_POLYPACK;HAVE_MPI;HAVE_PROJ;HAVE_SHAPELIB;HAVE_GDAL;HAVE_PETSC;HAVE_OPENGL;HAVE_DISPLAY=1")
+        target_compile_definitions(${library_name} PRIVATE "WIN32;HAVE_TECPLOT;HAVE_METIS;HAVE_POLYPACK;HAVE_MPI;HAVE_PETSC;HAVE_OPENGL;HAVE_DISPLAY=1")
     else()
-        target_compile_definitions(${library_name} PRIVATE "WIN32;HAVE_TECPLOT;HAVE_METIS;HAVE_POLYPACK;HAVE_MPI;HAVE_PROJ;HAVE_SHAPELIB;HAVE_GDAL;HAVE_PETSC;HAVE_OPENGL;HAVE_DISPLAY=0")
+        target_compile_definitions(${library_name} PRIVATE "WIN32;HAVE_TECPLOT;HAVE_METIS;HAVE_POLYPACK;HAVE_MPI;HAVE_PETSC;HAVE_OPENGL;HAVE_DISPLAY=0")
     endif()
 endif(WIN32)
 
 if (UNIX)
     target_link_libraries(${library_name} ${oss_dependencies})
-    target_compile_definitions(${library_name} PRIVATE "HAVE_METIS;HAVE_POLYPACK;HAVE_MPI;HAVE_PROJ;HAVE_SHAPELIB;HAVE_GDAL;HAVE_PETSC")
+    target_compile_definitions(${library_name} PRIVATE "HAVE_METIS;HAVE_POLYPACK;HAVE_MPI;HAVE_PETSC")
 endif(UNIX)
 
 # Create the folder structure in vfproj
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${library_source_list})
 set_target_properties (${library_name} PROPERTIES FOLDER engines_gpl/dflowfm)
-

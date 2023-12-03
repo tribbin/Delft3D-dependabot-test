@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Toplevel setnodadm routine wraps:
 !! * original setnodadm(), for network_data administration.
@@ -38,27 +38,47 @@
 subroutine setnodadm(jacrosscheck_)
    use gridoperations
    use m_network
-   use m_save_ugrid_state, only: contactnlinks, contactnetlinks
+   use m_save_ugrid_state, only: contactnlinks, contactnetlinks, netlink2contact, hashlist_contactids
    use network_data
    use unstruc_channel_flow
+   use m_alloc
 
    integer, intent(in   ) :: jacrosscheck_ !< Whether or not to remove any crossing netlinks.
 
-   integer :: L, LL, Lnew
+   integer :: L, LL, Lnew, Ltoberemoved, Linc
 
 
    call setnodadm_grd_op(10+jacrosscheck_)
 
    ! Update netlink numbers for all 1d2d contacts, after netlinks may have been permuted:
+   ! Also, contruct now the complete inverse mapping from net links to contacts
+   call realloc(netlink2contact, numl1d, keepExisting = .false., fill = 0)
    if (contactnlinks > 0) then
+      Ltoberemoved = 1 ! used later, for checking if the length is 0
       do LL=1,contactnlinks
          L = contactnetlinks(LL)
          Lnew = Lperminv(L)
          contactnetlinks(LL) = Lnew
-      end do
+
+         netlink2contact(Lnew) = LL
+
+         ! Check if this link's length is 0.
+         ! If L is in array LC (filled in subroutine setnodadm_grd_op), then this link has 0 length and we write a warning message.
+         do Linc = Ltoberemoved, nlinkremoved
+            if (LC(Linc) > L) then ! Link numbers in LC are ascending, so link L will not be present in the remaining LC values.
+               exit
+            else if (LC(Linc) == L) then ! 1D2D link #LL was removed by setnodadm_grd_op()
+               write (msgbuf, '(a,a,a)') '1D2D contact link ''', trim(hashlist_contactids%id_list(LL)), ''' has length of 0, this link will be ignored (removed).'
+               call warn_flush()
+
+               Ltoberemoved = Linc + 1 ! remember for next LL loop.
+               exit
+            end if
+         end do ! Linc
+      end do ! LL
    end if
 
-   if (lc(1) /=0) then
+   if (nlinkremoved > 0) then
       call update_flow1d_admin(network, lc)
    endif
 

@@ -31,8 +31,10 @@ include: yum
     DESCRIPTION Delft3D Open Source. Computational cores: D-Flow FM, D-Water Quality, D-FeedBack Control and D-Waves. Usage: See Installation_manual.pdf shipped with the Windows distribution.
     MAINTAINER delft3d.support@deltares.nl
     LICENSE Affero General Public License
+    LICENSEFILE /opt/delft3dfm_latest/license/License.pdf
     ITERATION <singularityVersionNumberDelft3DFM>
     MPI_LIBRARY Without MPI library, please refer to your local ones
+    SINGULARITY <singularityVersionNumberSingularity>
 
 %post
     echo "Installing required packages..."
@@ -45,8 +47,9 @@ include: yum
     echo "Determining package version..."
     echo "VERSION ${VERSION}" >> "$SINGULARITY_LABELS"
 
-    echo "Preparing deployment..."
+    echo "Installing RPM..."
     rm -rf /opt/delft3dfm_$VERSION \
         && rpm -i /opt/tmp/delft3dfm-cli-hmwq_*.rpm --nofiledigest \
         && ln -s /opt/delft3dfm_$VERSION /opt/delft3dfm_latest \
         && rm /opt/delft3dfm_latest/lnx64/lib/libmpi* \
+        && rm -rf /opt/tmp/

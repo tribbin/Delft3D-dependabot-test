@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Computes the velocity magnitude in cell centers, typically used for output only.
 !! All arrays via input arguments, not via use m_flow.
@@ -59,4 +59,4 @@ subroutine getucmag(N, ucxi, ucyi, ucmago)
       enddo
    end if
 
-end subroutine getucmag
+   end subroutine getucmag

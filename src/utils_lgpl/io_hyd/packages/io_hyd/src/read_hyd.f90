@@ -1,31 +1,31 @@
 !----- GPL ---------------------------------------------------------------------
-!                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2021.                                
-!                                                                               
-!  This program is free software: you can redistribute it and/or modify         
-!  it under the terms of the GNU General Public License as published by         
-!  the Free Software Foundation version 3.                                      
-!                                                                               
-!  This program is distributed in the hope that it will be useful,              
-!  but WITHOUT ANY WARRANTY; without even the implied warranty of               
-!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                
-!  GNU General Public License for more details.                                 
-!                                                                               
-!  You should have received a copy of the GNU General Public License            
-!  along with this program.  If not, see <http://www.gnu.org/licenses/>.        
-!                                                                               
-!  contact: delft3d.support@deltares.nl                                         
-!  Stichting Deltares                                                           
-!  P.O. Box 177                                                                 
-!  2600 MH Delft, The Netherlands                                               
-!                                                                               
-!  All indications and logos of, and references to, "Delft3D" and "Deltares"    
-!  are registered trademarks of Stichting Deltares, and remain the property of  
-!  Stichting Deltares. All rights reserved.                                     
-!                                                                               
+!
+!  Copyright (C)  Stichting Deltares, 2011-2023.
+!
+!  This program is free software: you can redistribute it and/or modify
+!  it under the terms of the GNU General Public License as published by
+!  the Free Software Foundation version 3.
+!
+!  This program is distributed in the hope that it will be useful,
+!  but WITHOUT ANY WARRANTY; without even the implied warranty of
+!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!  GNU General Public License for more details.
+!
+!  You should have received a copy of the GNU General Public License
+!  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
+!  contact: delft3d.support@deltares.nl
+!  Stichting Deltares
+!  P.O. Box 177
+!  2600 MH Delft, The Netherlands
+!
+!  All indications and logos of, and references to, "Delft3D" and "Deltares"
+!  are registered trademarks of Stichting Deltares, and remain the property of
+!  Stichting Deltares. All rights reserved.
+!
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!
+!
 
       subroutine read_hyd(hyd)
 
@@ -33,7 +33,12 @@
 
       ! global declarations
 
+      use m_zoek
+      use m_monsys
+      use time_module
+      use m_get_filepath_and_pathlen
       use hydmod
+      use m_write_error_message
       use rd_token       ! tokenized reading
 
       implicit none
@@ -44,7 +49,7 @@
 
       ! local declarations
 
-      integer, parameter  :: nokey   = 81           ! number of keywords in hyd file
+      integer, parameter  :: nokey   = 84           ! number of keywords in hyd file
       character(len=40)   :: key(nokey)             ! keywords in the hyd file
       integer             :: ikey                   ! index keyword (first level)
       integer             :: ikey2                  ! index keyword (second level)
@@ -81,9 +86,8 @@
       integer             :: is                     ! second
       integer             :: idate                  ! date
       integer             :: itime                  ! time
-      real*8              :: julian                 ! julian function
       logical, parameter  :: untileol = .true.      ! read until the end of the line
-      
+
       key(1)  = 'task'
       key(2)  = 'geometry'
       key(3)  = 'horizontal-aggregation'
@@ -165,6 +169,9 @@
       key(79) = 'file-creation-date'
       key(80) = 'sink-sources'
       key(81) = 'end-sink-sources'
+      key(82) = 'z-layers'
+      key(83) = 'z-layers-ztop'
+      key(84) = 'z-layers-zbot'
 
       ft_dat = ft_bin
       call getmlu(lunrep)
@@ -181,7 +188,7 @@
       ierr = 0
 
       hyd%description = ' '
-      call dhpath ( hyd%file_hyd%name, filpath, pathlen)
+      call get_filepath_and_pathlen ( hyd%file_hyd%name, filpath, pathlen)
 
       hyd%wasteload_coll%cursize = 0
       hyd%wasteload_coll%maxsize = 0
@@ -224,6 +231,8 @@
       hyd%noq3 = 0
       hyd%noq4 = 0
       hyd%noq  = 0
+      hyd%zbot = -999.0
+      hyd%ztop = -999.0
 !
 
       ! loop over all the tokens in the file
@@ -235,7 +244,7 @@
          if (itype .ne. 1) then
              goto 900
          end if
-         
+
          call zoek ( ctoken, nokey , key , 30 , ikey )
          if ( ikey .eq. 1 ) then
 
@@ -266,6 +275,18 @@
                write(lunrep,'(2a)') ' geometry =',trim(ctoken)
             endif
 
+            ! layer type
+            hyd%layer_type = HYD_LAYERS_SIGMA ! Always assume sigma layers, unless otherwise stated
+            if ( gettoken( ctoken, ierr) .eq. 0 ) then
+               call zoek ( ctoken, nokey , key , 30 , ikey2 )
+               if ( ikey2 .eq. 82 ) then
+                  hyd%layer_type = HYD_LAYERS_Z
+               else
+                  if ( puttoken( ctoken ) .ne. 0 ) goto 900
+               end if
+            else
+               if ( puttoken( ctoken ) .ne. 0 ) goto 900
+            end if
          elseif ( ikey .eq. 6 ) then
             ! description
             i_desc = 0
@@ -285,7 +306,7 @@
             ! convert to julian
             read (hyd%hyd_ref(1:8),'(i8)') idate
             read (hyd%hyd_ref(9:14),'(i6)') itime
-            hyd%time_ref = julian ( idate , itime )
+            hyd%time_ref = julian_with_leapyears ( idate , itime )
 
          elseif ( ikey .eq. 9 ) then
             ! hydrodynamic start
@@ -488,6 +509,14 @@
             if ( gettoken(hyd%file_dps%name, ierr) .ne. 0 ) goto 900
             hyd%file_dps%name = trim(filpath)//hyd%file_dps%name
 
+         elseif ( ikey .eq. 83) then
+            ! ztop
+            if ( gettoken( hyd%ztop, ierr) .ne. 0 ) goto 900
+
+         elseif ( ikey .eq. 84) then
+            ! ztop
+            if ( gettoken( hyd%zbot, ierr) .ne. 0 ) goto 900
+
          elseif ( ikey .eq. 48) then
             ! hydrodynamic-layers
             allocate(hyd%hyd_layers(hyd%kmax))
@@ -622,9 +651,9 @@
             ! file-created-by string.
             if (gettoken(line, untileol, ierr) .ne. 0 ) goto 900
             hyd%created_by = line(1:80)
-             
+
          elseif ( ikey .eq. 79) then
-            ! file-creation-date 
+            ! file-creation-date
             if (gettoken(line, untileol, ierr) .ne. 0 ) goto 900
             hyd%creation_date = line(1:40)
 
@@ -632,7 +661,7 @@
             ! sink-sources
             do
                if ( gettoken(ctoken, idummy, rdummy, itype, ierr) .ne. 0 ) goto 900
-                  if(itype==1) then 
+                  if(itype==1) then
                      ! look for end-domains keyword
                      call zoek ( ctoken, nokey , key , 30 , ikey2 )
                      if ( ikey2 .eq. 81 ) exit
@@ -647,7 +676,7 @@
 !               i_domain = domain_coll_add(hyd%domain_coll, domain)
             enddo
 
-         else    
+         else
             ! unknown keyword, ignore until the end of the line
             if (gettoken(line, untileol, ierr) .ne. 0 ) goto 900
 
@@ -669,5 +698,5 @@
       endif
 
       return
- 900  call dherrs('error reading hyd file ('//trim(key(ikey))//')')
+ 900  call write_error_message('error reading hyd file ('//trim(key(ikey))//')')
       end subroutine read_hyd

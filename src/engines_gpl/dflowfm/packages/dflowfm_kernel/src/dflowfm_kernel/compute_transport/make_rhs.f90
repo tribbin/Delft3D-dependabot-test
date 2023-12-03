@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,13 +27,14 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> compose right-hand side
 subroutine make_rhs(NUMCONST, thetavert, Ndkx, Lnkx, kmx, vol1, kbot, ktop, Lbot, Ltop, sumhorflux, fluxver, source, sed, nsubsteps, jaupdate, ndeltasteps, rhs)
    use m_flowgeom, only: Ndxi, Ndx, Lnx, Ln, ba  ! static mesh information
    use m_flowtimes, only: dts
+   use m_flowparameters, only: epshu, testdryflood
    use timers
 
    implicit none
@@ -71,23 +72,7 @@ subroutine make_rhs(NUMCONST, thetavert, Ndkx, Lnkx, kmx, vol1, kbot, ktop, Lbot
    if (timon) call timstrt ( "make_rhs", ithndl )
 
    dt_loc = dts
-
-!   rhs = 0d0
-!
-!!  add horizontal fluxes to right-hand side
-!   do LL=1,Lnx
-!      Lb = Lbot(LL)
-!      Lt = Ltop(LL)
-!      do L=Lb,Lt
-!!        get neighboring flownodes
-!         k1 = ln(1,L)
-!         k2 = ln(2,L)
-!         do j=1,NUMCONST
-!            rhs(j,k1) = rhs(j,k1) - fluxhor(j,L)
-!            rhs(j,k2) = rhs(j,k2) + fluxhor(j,L)
-!         end do
-!      end do
-!   end do
+   rhs = 0d0
 
    if ( kmx.gt.0 ) then
 !     add vertical fluxes, sources, storage term and time derivative to right-hand side
@@ -107,17 +92,13 @@ subroutine make_rhs(NUMCONST, thetavert, Ndkx, Lnkx, kmx, vol1, kbot, ktop, Lbot
          kt = ktop(kk)
          do k=kb,kt
             dvoli = 1d0/max(vol1(k),dtol)
+            if (testdryflood == 2 ) dvoli = 1d0/max(vol1(k),epshu*ba(kk))
 
             do j=1,NUMCONST
- !              rhs(j,k) = ((rhs(j,k) - (1d0-thetavert(j))*(fluxver(j,k) - fluxver(j,k-1)) - sed(j,k)*sq(k)) * dvoli + source(j,k))*dts + sed(j,k)
-
 
                rhs(j,k) = ((sumhorflux(j,k)/ndeltasteps(kk) - (1d0-thetavert(j))*(fluxver(j,k) - fluxver(j,k-1))) * dvoli + source(j,k))*dt_loc + sed(j,k)
                sumhorflux(j,k) = 0d0
 
-               ! BEGIN DEBUG
-               ! rhs(j,k) = source(j,k)*dts + sed(j,k)
-               ! END DEBUG
             end do
 
          end do
@@ -132,6 +113,7 @@ subroutine make_rhs(NUMCONST, thetavert, Ndkx, Lnkx, kmx, vol1, kbot, ktop, Lbot
 
          do k=1,Ndxi
             dvoli = 1d0/max(vol1(k),dtol)
+            if (testdryflood == 2 ) dvoli = 1d0/max(vol1(k),epshu*ba(k))
 
             do j=1,NUMCONST
                 rhs(j,k) = (sumhorflux(j,k) * dvoli + source(j,k)) * dts + sed(j,k)
@@ -152,6 +134,7 @@ subroutine make_rhs(NUMCONST, thetavert, Ndkx, Lnkx, kmx, vol1, kbot, ktop, Lbot
             end if
 
             dvoli = 1d0/max(vol1(k),dtol)
+            if (testdryflood == 2 ) dvoli = 1d0/max(vol1(k),epshu*ba(k))
 
             do j=1,NUMCONST
                 rhs(j,k) = (sumhorflux(j,k)/ndeltasteps(k) * dvoli + source(j,k)) * dt_loc + sed(j,k)

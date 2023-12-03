@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine getymxpar(modind,tauwav, taucur, fw, cdrag, abscos, ypar, ymxpar)
  implicit none
@@ -87,7 +87,7 @@ subroutine getymxpar(modind,tauwav, taucur, fw, cdrag, abscos, ypar, ymxpar)
     ymxpar = 1d0
  else
     xpar = taucur/(taucur + tauwav)
-    if (xpar<1.0D-8 .or. modind==9) then
+    if (xpar<1.0D-8 .or. modind>8) then
        ypar   = 0d0
        ymxpar = 1d0
     else

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,11 +27,12 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine s1nod()                                  ! nodes in continuity eq
  use precision_basics
+ use time_module, only : seconds_to_datetimestring
  use m_plotdots
  use MessageHandling
  use m_flow
@@ -43,22 +44,23 @@
  use m_alloc
  use m_sobekdfm
  use unstruc_channel_flow
- use unstruc_display, only : ntek, jaGUI
+ use iso_c_utils, only : MAXSTRINGLEN
  use m_fm_icecover, only : ice_apply_pressure, ice_p
 
  implicit none
 
  integer          :: n
- integer          :: kb , k2 , L, k, LL, LS, itpbn
- integer          :: kbk, k2k, Lk, ibr
- double precision :: dtiba, hh, zb, dir, dtgh, alf
+ integer          :: kb , k2 , L, k, LL, itpbn
+ integer          :: ibr
+ double precision :: dtiba, hh, zb, dtgh
  double precision :: sqrtgfh, cffu, rowsum, fuL, ruL, huL, hep
  integer          :: i, ierr
  character(len=2) :: dim_text
  double precision, parameter :: HBMIN = 1d-3
  double precision, pointer, dimension(:)  :: gridPointsChainages
  type(t_branch), pointer, dimension(:)    :: branch
- logical :: domainCheck
+ logical                                  :: domainCheck
+ character(len=MAXSTRINGLEN)              :: msgbufpar   ! can not use msgbuf, as each OpenMP thread must have it's own
 
  !bbr = bb + dti*a1     !m2/s
  !ddr = dd + dti*a1*s1  !m3/s
@@ -109,14 +111,14 @@
        else
           dim_text = '1D'
        endif
-       write(msgbuf,'(a, i0, a)') 'The surface area of '//dim_text//'-node with node number ''', n, ''' is equal to 0'
-       call setMessage(LEVEL_WARN, msgbuf)
+       write(msgbufpar,'(a, i0, a)') 'The surface area of '//dim_text//'-node with node number ''', n, ''' is equal to 0'
+       call setMessage(LEVEL_WARN, msgbufpar)
        call SetMessage(-1, 'This might lead to a SAAD error in the solve process' )
-       write(msgbuf, '(a)') 'Current time is: '
-       call maketime(msgbuf(18:), time1)
-       call setMessage(-1, msgbuf)
-       write(msgbuf,'(a,f10.2,a,f10.2,a)') 'The location of the node is at (',xz(n),',',yz(n),')'
-       call setMessage(-1, msgbuf)
+       write(msgbufpar, '(a)') 'Current time is: '
+       call seconds_to_datetimestring(msgbufpar(18:), refdat, time1)
+       call setMessage(-1, msgbufpar)
+       write(msgbufpar,'(a,f10.2,a,f10.2,a)') 'The location of the node is at (',xz(n),',',yz(n),')'
+       call setMessage(-1, msgbufpar)
        L = -1
        if (n > ndx2d .and. network%loaded) then
           do i = 1, nd(n)%lnx
@@ -140,8 +142,8 @@
             else
                k = LL+1
             endif
-            write(msgbuf,'(a, f9.2)') 'The gridpoint lies at branch with id ''' //trim(branch(ibr)%id)// ''' at chainage: ', gridPointsChainages(k)
-            call setMessage(-1, msgbuf)
+            write(msgbufpar,'(a, f9.2)') 'The gridpoint lies at branch with id ''' //trim(branch(ibr)%id)// ''' at chainage: ', gridPointsChainages(k)
+            call setMessage(-1, msgbufpar)
          endif
       endif
       call adddot(xz(n), yz(n), colournumber = 247)
@@ -162,9 +164,6 @@
     endif                                            ! then also setback s1 !
  enddo
  !$OMP END PARALLEL DO
-
- ! compute riemann bnd mean state
- ! call  riemann_setmean()
 
  ! compute right-hand sides
  do n  = 1, nbndz                                    ! overrides for waterlevel boundaries

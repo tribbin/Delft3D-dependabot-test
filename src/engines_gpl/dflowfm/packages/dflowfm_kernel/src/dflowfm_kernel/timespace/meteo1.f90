@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 module m_itdate
    character(len=8) :: refdat
    integer          :: itdate      !< should be user specified for (asc routines)
@@ -243,8 +243,8 @@ contains
    !! The (external forcing) file is opened elsewhere and read block-by-block
    !! by consecutive calls to this routine.
    subroutine readprovider(minp,qid,filename,filetype,method,operand,transformcoef,ja,varname,smask, maxSearchRadius)
-     use m_strucs, only: generalkeywrd_old, numgeneralkeywrd
-     use MessageHandling, only : LEVEL_INFO, mess
+     use m_flowexternalforcings, only: NTRANSFORMCOEF
+     use MessageHandling, only : LEVEL_WARN, LEVEL_INFO, mess
      ! globals
      integer,           intent(in)            :: minp             !< File handle to already opened input file.
      integer,           intent(out)           :: filetype         !< File type of current quantity.
@@ -262,6 +262,36 @@ contains
      character (len=maxnamelen)       :: rec, keywrd
      integer                          :: l1, l2, jaopt, k, extrapolation
      logical, save                    :: alreadyPrinted = .false.  !< flag to avoid printing the same message many times
+     
+     integer, parameter :: NUMGENERALKEYWRD_OLD = 26
+     character(len=256) :: generalkeywrd_old(NUMGENERALKEYWRD_OLD) = (/ character(len=256) :: &
+      'widthleftW1',             & ! ( 1)
+      'levelleftZb1',            & ! ( 2)
+      'widthleftWsdl',           & ! ( 3)
+      'levelleftZbsl',           & ! ( 4)
+      'widthcenter',             & ! ( 5)
+      'levelcenter',             & ! ( 6)
+      'widthrightWsdr',          & ! ( 7)
+      'levelrightZbsr',          & ! ( 8)
+      'widthrightW2',            & ! ( 9)
+      'levelrightZb2',           & ! (10)
+      'gateheight',              & ! (11)
+      'gateheightintervalcntrl', & ! (12)
+      'pos_freegateflowcoeff',   & ! (13)
+      'pos_drowngateflowcoeff',  & ! (14)
+      'pos_freeweirflowcoeff',   & ! (15)
+      'pos_drownweirflowcoeff',  & ! (16)
+      'pos_contrcoeffreegate',   & ! (17)
+      'neg_freegateflowcoeff',   & ! (18)
+      'neg_drowngateflowcoeff',  & ! (19)
+      'neg_freeweirflowcoeff',   & ! (20)
+      'neg_drownweirflowcoeff',  & ! (21)
+      'neg_contrcoeffreegate',   & ! (22)
+      'extraresistance',         & ! (23)
+      'dynstructext',            & ! (24)
+      'gatedoorheight',          & ! (25)
+      'door_opening_width'       & ! (26)
+     /)
 
      if (minp == 0) then
         ja = 0
@@ -362,141 +392,15 @@ contains
      else
         return
      end if
-   
-     transformcoef = -999d0
-   
-     keywrd = 'VALUE'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(1)
-     end if
-   
-     keywrd = 'FACTOR'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(2)
-     end if
-   
-     keywrd = 'LAYER'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(3)
-     end if
 
-     keywrd = 'IFRCTYP'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(3)
-     end if
-   
-     keywrd = 'AVERAGINGTYPE'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(4)
-     end if
+     call readTransformcoefficients(minp, transformcoef)
 
-     keywrd = 'TRACERFALLVELOCITY'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(4)
-     end if
-
-     keywrd = 'TRACERDECAYTIME'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(5)
-     end if
-
-     keywrd = 'RELATIVESEARCHCELLSIZE'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(5)
-     end if
-
-     keywrd = 'EXTRAPOLTOL' 
-     call zoekopt(minp, rec, trim(keywrd), jaopt) 
-     if (jaopt == 1) then 
-         read (rec,*) transformcoef(6) 
-     end if 
-
-     keywrd = 'PERCENTILEMINMAX'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(7)
-     end if
-     
-     ! constant keywrd = 'DISCHARGE'/'SALINITY'/'TEMPERATURE' removed, now always via time series, in future also via new ext [discharge]
-
-     keywrd = 'AREA' ! Area for source-sink pipe
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(4)
-     end if
-     
-     keywrd = 'TREF' ! relaxation time for riemann boundary
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-        read (rec,*) transformcoef(7)
-     end if
-!
-     
-     keywrd = 'NUMMIN' ! minimum number of points in averaging
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-        read (rec,*) transformcoef(8)
-     end if
-     
-     keywrd = 'startlevelsuctionside' 
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-        read (rec,*) transformcoef(4)
-     end if
-
-     keywrd = 'stoplevelsuctionside' 
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-        read (rec,*) transformcoef(5)
-     end if
-
-     keywrd = 'startleveldeliveryside' 
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-        read (rec,*) transformcoef(6)
-     end if
-
-     keywrd = 'stopleveldeliveryside' 
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-        read (rec,*) transformcoef(7)
-     end if
-     
-     keywrd = 'UNIFORMSALINITYABOVEZ'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(3)
-     end if
-
-     keywrd = 'UNIFORMSALINITYBELOWZ'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(4)
-     end if
-     
- 
-     keywrd = 'UNIFORMVALUEABOVEZ'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(13)
-     end if
-
-     keywrd = 'UNIFORMVALUEBELOWZ'
-     call zoekopt(minp, rec, trim(keywrd), jaopt)
-     if (jaopt == 1) then
-         read (rec,*) transformcoef(14)
-     end if
-     
-    if (qid == 'generalstructure') then 
-        do k = 1,numgeneralkeywrd        ! generalstructure 
+     if (qid == 'generalstructure') then 
+        call mess(LEVEL_WARN, 'Keyword [generalstructure] is not supported in the external forcing file. &
+                               Please use a structure file <*.ini> instead.')
+        if (NUMGENERALKEYWRD_OLD < NTRANSFORMCOEF) call mess(LEVEL_WARN,'Not all expected keywords are provided.')
+        if (NUMGENERALKEYWRD_OLD > NTRANSFORMCOEF) call mess(LEVEL_WARN,'More keywords provided than expected.')
+        do k = 1,NUMGENERALKEYWRD_OLD
            call readandchecknextrecord(minp, rec, generalkeywrd_old(k), jaopt)
            if (jaopt == 1) then
                L1 = index(rec,'=') + 1
@@ -513,6 +417,78 @@ contains
    
    end subroutine readprovider
    !
+   subroutine readTransformcoefficients(minp, transformcoef)
+     integer,       intent(in) :: minp
+     real(kind=hp), intent(out) :: transformcoef(:)
+
+     type tKeyInt
+        character(len=32) :: key
+        integer           :: value
+     end type tKeyInt
+
+     character(len=maxnamelen) :: rec
+     integer                   :: jaopt, i, ierr
+     type(tKeyInt)             :: pairs(21)
+
+     ! constant keywrd = 'DISCHARGE'/'SALINITY'/'TEMPERATURE' removed, now always via time series, in future also via new ext [discharge]
+
+     transformcoef = -999d0
+
+     pairs(1)%key =  'VALUE'
+     pairs(1)%value = 1
+     pairs(2)%key =  'FACTOR'
+     pairs(2)%value = 2
+     pairs(3)%key =  'LAYER'
+     pairs(3)%value = 3
+     pairs(4)%key =  'IFRCTYP'
+     pairs(4)%value = 3
+     pairs(5)%key =  'AVERAGINGTYPE'
+     pairs(5)%value = 4
+     pairs(6)%key = 'TRACERFALLVELOCITY'
+     pairs(6)%value = 4
+     pairs(7)%key =  'TRACERDECAYTIME'
+     pairs(7)%value = 5
+     pairs(8)%key =  'RELATIVESEARCHCELLSIZE'
+     pairs(8)%value = 5
+     pairs(9)%key =  'EXTRAPOLTOL'
+     pairs(9)%value = 6
+     pairs(10)%key =  'PERCENTILEMINMAX'
+     pairs(10)%value = 7
+     pairs(11)%key =  'AREA' ! Area for source-sink pipe
+     pairs(11)%value = 4
+     pairs(12)%key =  'TREF' ! relaxation time for riemann boundary
+     pairs(12)%value = 7
+     pairs(13)%key =  'NUMMIN' ! minimum number of points in averaging
+     pairs(13)%value = 8
+     pairs(14)%key =  'startlevelsuctionside'
+     pairs(14)%value = 4
+     pairs(15)%key =  'stoplevelsuctionside'
+     pairs(15)%value = 5
+     pairs(16)%key =  'startleveldeliveryside'
+     pairs(16)%value = 6
+     pairs(17)%key =  'stopleveldeliveryside'
+     pairs(17)%value = 7
+     pairs(18)%key =  'UNIFORMSALINITYABOVEZ'
+     pairs(18)%value = 3
+     pairs(19)%key =  'UNIFORMSALINITYBELOWZ'
+     pairs(19)%value = 4
+     pairs(20)%key =  'UNIFORMVALUEABOVEZ'
+     pairs(20)%value = 13
+     pairs(21)%key =  'UNIFORMVALUEBELOWZ'
+     pairs(21)%value = 14
+
+     do i = 1, size(pairs)
+        call zoekopt(minp, rec, trim(pairs(i)%key), jaopt)
+        if (jaopt == 1) then
+            read (rec,*, iostat=ierr) transformcoef(pairs(i)%value)
+            if (ierr /= 0) then
+                call readerror('reading '//trim(pairs(i)%key)//' but getting ', rec, minp)
+            end if
+        end if
+     end do
+
+    end subroutine readTransformcoefficients
+
    !
    ! ==========================================================================
    !> 
@@ -537,20 +513,26 @@ contains
    !
    !
    ! ==========================================================================
-   !> 
-   subroutine read1polylin(minp,xs,ys,ns,pliname)
+   !> Reads a single polyline from an open file.
+   !! Assumes two-column data with x,y pairs.
+   subroutine read1polylin(minp,xs,ys,ns,pliname, has_more_records)
       use m_alloc
-      integer          :: minp                          ! unit number of poly file
-      double precision, allocatable :: xs(:)            ! x-coordinates read from file    
-      double precision, allocatable :: ys(:)            ! y-coordinates read from file
-      integer                       :: ns               ! number of pli-points
-      character(len=:),allocatable,optional :: pliname  ! Optional, name (identifier) of pli
-   
+      integer,                                 intent(inout) :: minp     !< Unit number of poly file (already opened), will be closed after successful read.
+      double precision, allocatable,           intent(  out) :: xs(:)    !< x-coordinates read from file    
+      double precision, allocatable,           intent(  out) :: ys(:)    !< y-coordinates read from file
+      integer,                                 intent(  out) :: ns       !< Number of pli-points read
+      character(len=:), allocatable, optional, intent(  out) :: pliname  !< (Optional) Name (identifier) of the polyline read
+      logical,                       optional, intent(  out) :: has_more_records !< (Optional) Whether or not more polyline data exists in the remainder of the file, after reading this one polyline.
+
       character (len=maxnamelen)   :: rec
       integer                      :: k
    
       ns = 0
-   
+
+      if (present(has_more_records)) then
+         has_more_records = .false.
+      end if
+
    10 read(minp,'(a)',end = 999) rec
       if  (rec(1:1) == '*' ) goto 10
       if (present(pliname)) then
@@ -577,6 +559,10 @@ contains
          read(rec ,*    ,err = 777) xs(k), ys(k)
       enddo
    
+      if (present(has_more_records)) then
+         has_more_records = polyfile_has_more_records(minp)
+      end if
+
       call doclose(minp)
    
       return
@@ -592,17 +578,55 @@ contains
        return
    
    end subroutine read1polylin
+
+   
+   
+   !> Determine whether there is more data still left in the open polyfile.
+   !! Returns .true. when more non-whitepace/non-comment lines exist beyond
+   !! the current file pointer position.
+   !! After checking, 'backspaces' the filepointer to the first new data position.
+   function polyfile_has_more_records(minp) result(has_more)
+      integer, intent(inout) :: minp     !< Unit number of poly file, already open, filepointer can be anywhere in the file.
+      logical                :: has_more !< Result, whether or not more polyline data may exist in the remainder of the file.
+   
+      character (len=maxnamelen)   :: rec
+   
+      has_more = .false.
+
+      do
+         read(minp,'(a)',end = 999) rec
+         if (rec(1:1) == '*') then
+            cycle
+         end if
+         
+         if (len_trim(rec) == 0) then
+            cycle
+         else
+            ! We encountered a non-comment line, non-whitespace line before EOF
+            has_more = .true.
+            backspace(minp)
+            exit
+         end if
+      end do
+
+      return
+   
+   999 continue
+      ! EOF reached, simply return (.false.)
+      return
+   
+   end function polyfile_has_more_records
    !
    !
    ! ==========================================================================
    !> 
    subroutine settimespacerefdat(refda, jul00, tz, timjan)
    use m_itdate
+   use m_julday
    character (len=8) :: refda
    integer           :: jul00
    double precision  :: tz, timjan
    
-   integer, external :: julday
    integer           :: juljan
    
    refdat = refda
@@ -634,21 +658,24 @@ contains
    !
    ! ==========================================================================
    !> 
-   subroutine meteo_tidepotential(jul0, TIME , xz , yz , Np, TIDEP, ndx, dstart, dstop , eps) ! call schrama's routines on reduced set
+   subroutine meteo_tidepotential(jul0, TIME , dstart, dstop , eps) ! call schrama's routines on reduced set
    use m_sferic
    use m_flowparameters, only: jatidep, jaselfal, jamaptidep
    use m_partitioninfo
-   integer                                             :: jul0, ndx                                       ! interpolate results in ndx 
-   integer,                              intent(in)    :: Np      !< number of potentials in tidep
-   double precision, dimension(Np, Ndx), intent(inout) :: tidep   !< potentials, first is total
-   double precision                                    :: time, dstart, dstop , eps
-   double precision                                    :: xz(ndx), yz(ndx), xx(4), yy(4)!, DAREA, DLENGTH, DLENMX
-                                                       
+   use m_flow
+   use m_flowgeom
+   integer                                             :: jul0    ! interpolate results in ndx 
+   integer                                             :: Np      !< number of potentials in tidep
+ 
+   double precision                                    :: time, dstart, dstop , eps, dxx, dyy
+   double precision                                    :: xx(4), yy(4)!, DAREA, DLENGTH, DLENMX
+                                                     
    double precision, allocatable, save                 :: xz2(:,:),  yz2(:,:), td2(:,:), self(:,:), avhs(:,:)!, area(:,:)
    double precision                                    :: xmn, xmx, ymn, ymx, di, dj, f11,f21,f12,f22  
-                                                       
-   integer                                             :: i,j,n,ierr, m1,m2,n1,n2
-                                                       
+                  
+   double precision, allocatable, save                 :: td2_x(:,:), td2_y(:,:)   
+                                     
+   integer                                             :: i,j,n,ierr, m1,m2,n1,n2 , L                                                       
    integer, save                                       :: ndx2
    integer, save                                       :: i1
    integer, save                                       :: i2
@@ -656,6 +683,8 @@ contains
    integer, save                                       :: j2
    integer, save                                       :: INI    = 0
    
+   np = size(tidep,1)
+
    if (INI == 0 ) then 
        INI = 1  
    
@@ -669,8 +698,12 @@ contains
    
       i1  = floor(xmn); i2 = floor(xmx) + 1
       j1  = floor(ymn); j2 = floor(ymx) + 1
+      if (jatidep == 2) then ! gradient intp., one extra
+         i1 = i1-1 ; i2 = i2+1
+         j1 = j1-1 ; j2 = j2+1
+      endif
       
-      if ( jaselfal .eq.1 .or. jaselfal .eq.2 ) then
+      if ( jaselfal .eq.1 .and. jampi == 1) then
 !        globally reduce i1, i2, j1, j2
          i1 = -i1
          j1 = -j1
@@ -684,9 +717,16 @@ contains
       allocate ( xz2(i1:i2,j1:j2), stat=ierr)   ! tot aerr 
       allocate ( yz2(i1:i2,j1:j2), stat=ierr)  
       allocate ( td2(i1:i2,j1:j2), stat=ierr)
+
+      if (jatidep > 1) then ! gradient intp.
+         if (allocated(td2_x)) deallocate(td2_x, td2_y)  
+         allocate ( td2_x(i1:i2,j1:j2), stat=ierr)
+         allocate ( td2_y(i1:i2,j1:j2), stat=ierr)
+      endif  
+
       td2 = 0d0
    
-      if ((jaselfal == 1) .OR. (jaselfal == 2)) then
+      if (jaselfal > 0) then
 !         if (allocated(self) ) deallocate ( self, avhs, area ) MVL ask Camille
          if (allocated(self) ) deallocate ( self, avhs )
          allocate ( self(i1:i2,j1:j2), stat=ierr)  
@@ -716,13 +756,13 @@ contains
    
    end if       
    
-   if ( jatidep.gt.0 ) then      
+   if ( jatidep > 0) then      
       call tforce( jul0, TIME , xz2 , yz2 , Td2, ndx2, dstart, dstop , eps) 
    else
       td2 = 0d0   ! safety
    end if
          
-   if ((jaselfal == 1) .OR. (jaselfal == 2)) then 
+   if (jaselfal > 0) then 
       call aggregatewaterlevels(avhs, i1,i2,j1,j2 )
       
       call selfattraction(avhs, self, i1,i2,j1,j2, jaselfal ) 
@@ -738,7 +778,7 @@ contains
       f22 = (    di)*(    dj)
       f12 = (1d0-di)*(    dj)
    
-      if ((jaselfal == 1) .OR. (jaselfal == 2)) then 
+      if (jaselfal > 0) then 
             
          tidep(1,n) = ( td2(m1,n1) + self(m1,n1) )*f11 +    &
                       ( td2(m2,n1) + self(m2,n1) )*f21 +    &
@@ -760,6 +800,42 @@ contains
       endif
    enddo
    
+   if ( jatidep > 1) then ! gradient intp., get gradient  
+
+      dyy = 2d0*ra*dg2rd
+      do j = j1+1,j2-1 
+         dxx  = dyy*cos(yz2(i1,j))
+         do i = i1+1,i2-1
+            td2_x(i,j) = ( td2(i+1,j) - td2(i-1,j) ) / dxx 
+            td2_y(i,j) = ( td2(i,j+1) - td2(i,j-1) ) / dyy 
+            if (jaselfal >0) then 
+               td2_x(i,j) = td2_x(i,j) + ( self(i+1,j) - self(i-1,j) ) / dxx 
+               td2_y(i,j) = td2_y(i,j) + ( self(i,j+1) - self(i,j-1) ) / dyy 
+            endif 
+         enddo
+      enddo
+
+      do L = 1,Lnx
+         m1  = floor(xu(L))     ; m2 = m1+1 
+         n1  = floor(yu(L))     ; n2 = n1+1
+         di  = xu(L) - m1   
+         dj  = yu(L) - n1
+         f11 = (1d0-di)*(1d0-dj)
+         f21 = (    di)*(1d0-dj)
+         f22 = (    di)*(    dj)
+         f12 = (1d0-di)*(    dj)
+            
+         tidef(L) = csu(L)*( td2_x(m1,n1)*f11 +    &
+                             td2_x(m2,n1)*f21 +    &
+                             td2_x(m2,n2)*f22 +    &
+                             td2_x(m1,n2)*f12 )    &
+                  + snu(L)*( td2_y(m1,n1)*f11 +    &
+                             td2_y(m2,n1)*f21 +    &
+                             td2_y(m2,n2)*f22 +    &
+                             td2_y(m1,n2)*f12 )
+      enddo
+     
+   endif
 
    end subroutine meteo_tidepotential
    
@@ -1067,7 +1143,6 @@ contains
    end subroutine findleftright
    
    subroutine selfattraction(avhs, self, i1,i2,j1,j2, jaselfal )
-   use m_partitioninfo, only: my_rank
    implicit none
    
    ! Input\Output parameter
@@ -1078,7 +1153,7 @@ contains
    ! Local parameters
    double precision, parameter :: Me=5.9726d24, R=6371d3, g=9.81d0, pi=4d0*atan(1.0), rhow=1.0240164d3 ,rhoe=3d0*Me/(4d0*pi*R*R*R)
    integer :: nlat, nlon, n15, lsave, lwork, ldwork, lwk, liwk, lshaec, lshsec
-   integer :: i, j, ierror, isym, nt, l, mdab, ndab, k1, k2
+   integer :: i, j, ierror, isym, nt, l, mdab, ndab, k1
 !   double precision, dimension(0:1024) :: llnh, llnk
    double precision, dimension(:),   allocatable :: llnh, llnk
    double precision, dimension(:),   allocatable :: work, wk, iwk, wshaec, wshsec
@@ -5652,6 +5727,7 @@ contains
      integer                         :: JACROS
      integer                         :: ierr
      double precision                :: SL,SM,XCR,YCR,CRP
+     logical                         :: has_more_pli
    
      num = 0
    
@@ -5660,8 +5736,13 @@ contains
      if (filetype == poly_tim) then
 
         call oldfil(minp, filename)
-        call read1polylin(minp,xs,ys,ns,pliname)
-   
+        call read1polylin(minp,xs,ys,ns,pliname, has_more_records=has_more_pli)
+        
+        if (has_more_pli) then
+           call mess(LEVEL_WARN, 'While reading polyline file '''//trim(filename)//''': multiple polylines are not supported in a single file.')
+           call mess(LEVEL_WARN, 'Only using first polyline '''//trim(pliname)//''' and ignoring the rest.')
+        end if
+
         if (.not. allocated(kcs)) then
           allocate(kcs(ns))
         else if (ns > size(kcs)) then
@@ -5683,9 +5764,8 @@ contains
                        cycle
                     end if
                  end if
-
                  if (usemask .and. kc(m) .eq. -1 ) then
-                   write(errormessage,'(a,i8.8,a,f12.4,a,f12.4,a)') 'Boundary link ',m,' already claimed [',(x(m)+xyen(1,m))/2.,',',(y(m)+xyen(2,m))/2.,']'
+                    write(errormessage,'(a,i8.8,a,f12.4,a,f12.4,a)') 'Boundary link ',m,' already claimed [',(x(m)+xyen(1,m))/2.,',',(y(m)+xyen(2,m))/2.,']'
                     call mess(LEVEL_WARN, errormessage)
                     cycle
                  else
@@ -5780,12 +5860,8 @@ contains
      integer,          optional, intent(inout) :: lftopol(:)  !< (Optional) Mapping array from flow links to the polyline index that intersected that flow link (only relevant when loc_spec_type==LOCTP_POLYLINE_FILE or LOCTP_POLYLINE_XY).
      integer,          optional, intent(in   ) :: sortLinks   !< (Optional) Whether or not to sort the found flow links along the polyline path. (only relevant when loc_spec_type==LOCTP_POLYGON_FILE or LOCTP_POLYGON_XY).
 
-     !locals 
-     integer :: minp, L, Lstart, Lend, k1, k2, ja, opts, ierr, inp
-     double precision :: xa, ya, xb, yb,xm, ym, CRPM, dist 
-     double precision, allocatable, dimension(:) :: distsStartPoly, sortedDistsStartPoly
-     integer, allocatable, dimension(:):: sortedIndexses, tempLinkArray !< the sorted indexes
-     double precision, allocatable :: xpltest(:)
+     !locals
+     integer :: minp, L, Lstart, Lend, opts, ierr, inp
 
      integer :: linktype_
 
@@ -6035,7 +6111,7 @@ contains
    
    ! b = factor*b + offset ! todo doorplussen
    
-   if (operand == 'O') then              ! Override, regardless of what was specified before 
+   if (operand == 'O' .or. operand == 'V') then              ! Override, regardless of what was specified before 
       a = b
    else if (operand == 'A') then         ! Add, means: only if nothing was specified before   
       if (a == dmiss_default ) then 
@@ -6062,7 +6138,7 @@ contains
    use kdtree2Factory
    use m_samples
    use m_netw
-   use m_flowgeom, only : xz, yz, ln2lne, Ln, Lnx, Wu1Duni
+   use m_flowgeom, only : ln2lne, Ln, Lnx, Wu1Duni
    use m_partitioninfo
    use unstruc_netcdf
    use m_flowexternalforcings, only: qid
@@ -6114,7 +6190,7 @@ contains
 
    double precision                :: zz
 
-   integer                         :: n6 , L, Lk, n, nn, n1, n2, i
+   integer                         :: n6 , L, Lk, n, n1, n2, i
    integer                         :: ierror, jakc
    integer                         :: jakdtree=1
 
@@ -6390,10 +6466,12 @@ contains
    dn = (y - y0)/dya ; n = int(dn) ; an = dn - n ; n = n + 1
    z  = dmiss
    if (m < mca .and. n < nca .and. m >= 1 .and. n >= 1) then 
-      z  =        am  *        an    * d(m+1 , n+1) + &
-           (1d0 - am) *        an    * d(m   , n+1) + &
-           (1d0 - am) * (1d0 - an)   * d(m   , n  ) + &
-                  am  * (1d0 - an)   * d(m+1 , n  ) 
+      if (d(m,n) .ne. dmiss .and. d(m+1,n) .ne. dmiss .and. d(m,n+1) .ne. dmiss .and. d(m+1,n+1) .ne. dmiss) then  
+         z  =        am  *        an    * d(m+1 , n+1) + &
+              (1d0 - am) *        an    * d(m   , n+1) + &
+              (1d0 - am) * (1d0 - an)   * d(m   , n  ) + &
+                     am  * (1d0 - an)   * d(m+1 , n  )
+      endif 
    endif
 
    end subroutine bilinarcinfo
@@ -6453,15 +6531,12 @@ contains
       integer     ,     intent(in)    :: method     ! time/space interpolation method
       character(1),     intent(in)    :: operand    ! file name for meteo data file
       double precision, intent(in)    :: transformcoef(:) !< Transformation coefficients
-   
-      double precision, allocatable   :: xpli(:), ypli(:)
-      integer                         :: maxpli = 10000
-      integer                         :: minp0, inside, npli,k
-    
-      success = .false. 
-                  
+      integer                         :: minp0, inside, k
+
+      success = .false.
+
       call oldfil(minp0, filename)
-      if (filetype == inside_polygon) then       ! polyfil 
+      if (filetype == inside_polygon) then       ! polyfil
 
          call savepol()
          call reapol(minp0, 0)
@@ -6508,7 +6583,6 @@ module m_meteo
    use m_flowexternalforcings
    use processes_input, only: nofun, funame, funinp, nosfunext, sfunname, sfuninp
    use unstruc_messages
-   use time_module
    use m_observations
    use string_module
    use m_sediment, only: stm_included, stmpar
@@ -6529,15 +6603,25 @@ module m_meteo
    integer, target :: item_windy                                             !< Unique Item id of the ext-file's 'windy' quantity's y-component.
    integer, target :: item_windxy_x                                          !< Unique Item id of the ext-file's 'windxy' quantity's x-component.
    integer, target :: item_windxy_y                                          !< Unique Item id of the ext-file's 'windxy' quantity's y-component.
+  
+   integer, target :: item_stressx                                           !< Unique Item id of the ext-file's 'stressx' quantity's x-component.
+   integer, target :: item_stressy                                           !< Unique Item id of the ext-file's 'stressy' quantity's y-component.
+   integer, target :: item_stressxy_x                                        !< Unique Item id of the ext-file's 'stressxy_x' quantity's x-component.
+   integer, target :: item_stressxy_y                                        !< Unique Item id of the ext-file's 'stressxy_y' quantity's y-component.
+   
+   integer, target :: item_frcu                                              !< Unique Item id of the ext-file's 'frcu' quantity's component.
+      
    integer, target :: item_apwxwy_p                                          !< Unique Item id of the ext-file's 'airpressure_windx_windy' quantity 'p'.
    integer, target :: item_apwxwy_x                                          !< Unique Item id of the ext-file's 'airpressure_windx_windy' quantity 'x'.
    integer, target :: item_apwxwy_y                                          !< Unique Item id of the ext-file's 'airpressure_windx_windy' quantity 'y'.
-   integer, target :: item_apwxwy_c                                          !< Unique Item id of the ext-file's 'space var Charnock' quantity 'C'.
+   integer, target :: item_apwxwy_c                                          !< Unique Item id of the ext-file's 'airpressure_windx_windy_charnock' quantity 'c' (space var Charnock).
+   integer, target :: item_charnock                                          !< Unique Item id of the ext-file's 'space var Charnock' quantity 'C'.
    integer, target :: item_waterlevelbnd                                     !< Unique Item id of the ext-file's 'waterlevelbnd' quantity's ...-component.
    integer, target :: item_atmosphericpressure                               !< Unique Item id of the ext-file's 'atmosphericpressure' quantity
    integer, target :: item_sea_ice_area_fraction                             !< Unique Item id of the ext-file's 'sea_ice_area_fraction' quantity
    integer, target :: item_sea_ice_thickness                                 !< Unique Item id of the ext-file's 'sea_ice_thickness' quantity
    integer, target :: item_velocitybnd                                       !< Unique Item id of the ext-file's 'velocitybnd' quantity
+   integer, target :: item_dischargebnd                                      !< Unique Item id of the ext-file's 'discharge' quantity
    integer, target :: item_salinitybnd                                       !< Unique Item id of the ext-file's 'salinitybnd' quantity
    integer, target :: item_temperaturebnd                                    !< Unique Item id of the ext-file's 'temperaturebnd' quantity
    integer, target :: item_sedimentbnd                                       !< Unique Item id of the ext-file's 'sedimentbnd' quantity
@@ -6546,6 +6630,7 @@ module m_meteo
    integer, target :: item_normalvelocitybnd                                 !< Unique Item id of the ext-file's 'normalvelocitybnd' quantity
    integer, target :: item_rainfall                                          !< Unique Item id of the ext-file's 'rainfall' quantity
    integer, target :: item_rainfall_rate                                     !< Unique Item id of the ext-file's 'rainfall_rate' quantity
+   integer, target :: item_airdensity                                        !< Unique Item id of the ext-file's 'airdensity' quantity
    integer, target :: item_qhbnd                                             !< Unique Item id of the ext-file's 'qhbnd' quantity
    integer, target :: item_shiptxy                                           !< Unique Item id of the ext-file's 'shiptxy' quantity
    integer, target :: item_movingstationtxy                                  !< Unique Item id of the ext-file's 'movingstationtxy' quantity
@@ -6586,7 +6671,7 @@ module m_meteo
    integer, target :: item_hac_airtemperature                                !< Unique Item id of the ext-file's 'airtemperature' quantity
    integer, target :: item_hac_cloudiness                                    !< Unique Item id of the ext-file's 'cloudiness' quantity
 
-   integer, target :: item_humidity                                          !< 'humidity' quantity
+   integer, target :: item_humidity                                          !< 'humidity' (or 'dewpoint') quantity
    integer, target :: item_airtemperature                                    !< 'airtemperature' quantity
    integer, target :: item_cloudiness                                        !< 'cloudiness' quantity
    integer, target :: item_solarradiation                                    !< 'solarradiation' quantity
@@ -6604,6 +6689,7 @@ module m_meteo
    integer, target :: item_my                                                !< Unique Item id of the ext-file's 'item_my' quantity
    integer, target :: item_dissurf                                           !< Unique Item id of the ext-file's 'item_dissurf' quantity
    integer, target :: item_diswcap                                           !< Unique Item id of the ext-file's 'item_diswcap' quantity
+   integer, target :: item_distot                                            !< Unique Item id of the ext-file's 'item_distot'  quantity
    integer, target :: item_ubot                                              !< Unique Item id of the ext-file's 'item_ubot' quantity
 
    integer, target :: item_nudge_tem                                         !< 3D temperature for nudging
@@ -6639,15 +6725,25 @@ module m_meteo
       item_windy                                 = ec_undef_int
       item_windxy_x                              = ec_undef_int
       item_windxy_y                              = ec_undef_int
+ 
+      item_stressx                               = ec_undef_int
+      item_stressy                               = ec_undef_int
+      item_stressxy_x                            = ec_undef_int
+      item_stressxy_y                            = ec_undef_int
+
+      item_frcu                                  = ec_undef_int
+            
       item_apwxwy_p                              = ec_undef_int
       item_apwxwy_x                              = ec_undef_int
       item_apwxwy_y                              = ec_undef_int
       item_apwxwy_c                              = ec_undef_int
+      item_charnock                              = ec_undef_int
       item_waterlevelbnd                         = ec_undef_int
       item_atmosphericpressure                   = ec_undef_int
       item_sea_ice_area_fraction                 = ec_undef_int
       item_sea_ice_thickness                     = ec_undef_int
       item_velocitybnd                           = ec_undef_int
+      item_dischargebnd                          = ec_undef_int
       item_salinitybnd                           = ec_undef_int
       item_temperaturebnd                        = ec_undef_int
       item_sedimentbnd                           = ec_undef_int
@@ -6656,6 +6752,7 @@ module m_meteo
       item_normalvelocitybnd                     = ec_undef_int
       item_rainfall                              = ec_undef_int
       item_rainfall_rate                         = ec_undef_int
+      item_airdensity                            = ec_undef_int
       item_qhbnd                                 = ec_undef_int
       item_shiptxy                               = ec_undef_int
       item_movingstationtxy                      = ec_undef_int
@@ -6709,6 +6806,7 @@ module m_meteo
       item_my                                    = ec_undef_int
       item_dissurf                               = ec_undef_int
       item_diswcap                               = ec_undef_int
+      item_distot                                = ec_undef_int
       item_ubot                                  = ec_undef_int
       item_dambreakLevelsAndWidthsFromTable      = ec_undef_int 
       item_subsiduplift                          = ec_undef_int
@@ -6840,6 +6938,8 @@ module m_meteo
       select case (operand)
          case ('O')
             ec_operand = operand_replace
+         case ('V')
+            ec_operand = operand_replace_if_value
          case ('+')
             ec_operand = operand_add
          case default
@@ -6893,7 +6993,7 @@ module m_meteo
       integer, external :: findname
       
       success = .true.
-      
+
       itemPtr1 => null()
       itemPtr2 => null()
       itemPtr3 => null()
@@ -6909,7 +7009,7 @@ module m_meteo
          case ('windy')
             itemPtr1 => item_windy
             dataPtr1 => wy
-         case ('windxy', 'stressxy')
+         case ('windxy')
             itemPtr1 => item_windxy_x
             dataPtr1 => wx
             itemPtr2 => item_windxy_y
@@ -6920,6 +7020,20 @@ module m_meteo
          case ('sea_ice_thickness')
             itemPtr1 => item_sea_ice_thickness
             dataPtr1 => ice_h
+         case ('stressx')
+            itemPtr1 => item_stressx
+            dataPtr1 => wdsu_x
+         case ('stressy')
+            itemPtr1 => item_stressy
+            dataPtr1 => wdsu_y
+         case ('stressxy')
+            itemPtr1 => item_stressxy_x
+            dataPtr1 => wdsu_x
+            itemPtr2 => item_stressxy_y
+            dataPtr2 => wdsu_y
+         case ('friction_coefficient_time_dependent')
+            itemPtr1 => item_frcu
+            dataPtr1 => frcu
          case ('airpressure_windx_windy', 'airpressure_stressx_stressy')
             itemPtr1 => item_apwxwy_p
             dataPtr1 => patm
@@ -6936,6 +7050,9 @@ module m_meteo
             dataPtr3 => ec_pwxwy_y
             itemPtr4 => item_apwxwy_c
             dataPtr4 => ec_pwxwy_c
+         case ('charnock')
+            itemPtr1 => item_charnock
+            dataPtr1 => ec_charnock
          case ('waterlevelbnd', 'neumannbnd', 'riemannbnd', 'outflowbnd')
             itemPtr1 => item_waterlevelbnd
             dataPtr1 => zbndz
@@ -6943,7 +7060,7 @@ module m_meteo
             itemPtr1 => item_velocitybnd
             dataPtr1 => zbndu
          case ('dischargebnd')
-            itemPtr1 => item_velocitybnd
+            itemPtr1 => item_dischargebnd
             dataPtr1 => zbndq
          case ('salinitybnd')
             itemPtr1 => item_salinitybnd
@@ -6957,10 +7074,10 @@ module m_meteo
          case ('tangentialvelocitybnd')
             itemPtr1 => item_tangentialvelocitybnd
             dataPtr1 => zbndt
-        case ('uxuyadvectionvelocitybnd')
+         case ('uxuyadvectionvelocitybnd')
             itemPtr1 => item_uxuyadvectionvelocitybnd
             dataPtr1 => zbnduxy
-        case ('normalvelocitybnd')
+         case ('normalvelocitybnd')
             itemPtr1 => item_normalvelocitybnd
             dataPtr1 => zbndn
          case ('airpressure','atmosphericpressure')
@@ -6972,6 +7089,9 @@ module m_meteo
          case ('rainfall_rate')
             itemPtr1 => item_rainfall_rate
             dataPtr1 => rain
+         case ('airdensity')
+            itemPtr1 => item_airdensity
+            dataPtr1 => airdensity 
          case ('qhbnd')
             itemPtr1 => item_qhbnd
             dataPtr1 => qhbndz
@@ -7063,9 +7183,12 @@ module m_meteo
             dataPtr3 => clou
             itemPtr4 => item_dacs_solarradiation 
             dataPtr4 => qrad
-         case ('humidity')
+         case ('humidity')      
             itemPtr1 => item_humidity
-            dataPtr1 => rhum                 ! Relative humidity 
+            dataPtr1 => rhum                 ! Relative humidity                
+         case ('dewpoint')                   
+            itemPtr1 => item_humidity
+            dataPtr1 => rhum                 ! Relative humidity array used to store dewpoints              
          case ('airtemperature')
             itemPtr1 => item_airtemperature
             dataPtr1 => tair
@@ -7082,46 +7205,65 @@ module m_meteo
             itemPtr2 => item_nudge_sal
             dataPtr2 => nudge_sal 
             itemPtr1 => item_nudge_tem
-            dataPtr1 => nudge_tem            ! Relative humidity array used to store dewpoints
+            dataPtr1 => nudge_tem
          case ('discharge_salinity_temperature_sorsin')
             itemPtr1 => item_discharge_salinity_temperature_sorsin
-            dataPtr1 => qstss
-         case ('hrms')
+            ! Do not point to array qstss here.
+            ! qstss might be reallocated after initialization (when coupled to Cosumo) 
+            ! and must be an argument when calling ec_gettimespacevalue.
+            nullify(dataPtr1)
+         case ('hrms', 'wavesignificantheight')
             itemPtr1 => item_hrms
             dataPtr1 => hwavcom
-         case ('tp', 'tps', 'rtp')
+            jamapwav_hwav = 1
+         case ('tp', 'tps', 'rtp', 'waveperiod')
             itemPtr1 => item_tp
             dataPtr1 => twav
-         case ('dir')
+            jamapwav_twav = 1
+         case ('dir', 'wavedirection')
             itemPtr1 => item_dir
             dataPtr1 => phiwav
-         case ('fx')
+            jamapwav_phiwav = 1
+         case ('fx','xwaveforce')
             itemPtr1 => item_fx
             dataPtr1 => sxwav
-         case ('fy')
+            jamapwav_sxwav = 1
+         case ('fy','ywaveforce')
             itemPtr1 => item_fy
             dataPtr1 => sywav
-         case ('wsbu')
+            jamapwav_sywav = 1
+        case ('wsbu')
             itemPtr1 => item_wsbu
             dataPtr1 => sbxwav
+            jamapwav_sxbwav = 1
          case ('wsbv')
             itemPtr1 => item_wsbv
             dataPtr1 => sbywav
+            jamapwav_sybwav = 1
          case ('mx')
             itemPtr1 => item_mx
             dataPtr1 => mxwav
+            jamapwav_mxwav = 1
          case ('my')
             itemPtr1 => item_my
             dataPtr1 => mywav
-         case ('dissurf')
+            jamapwav_mywav = 1
+         case ('dissurf','freesurfacedissipation')
             itemPtr1 => item_dissurf
             dataPtr1 => dsurf
-         case ('diswcap')
+            jamapwav_dsurf = 1
+         case ('diswcap','whitecappingdissipation')
             itemPtr1 => item_diswcap
             dataPtr1 => dwcap
+            jamapwav_dwcap = 1
+         case ('totalwaveenergydissipation')
+            itemPtr1 => item_distot
+            dataPtr1 => distot
+            jamapwav_distot = 1
          case ('ubot')
             itemPtr1 => item_ubot
             dataPtr1 => uorbwav            
+            jamapwav_uorb = 1
          case ('tracerbnd')
             ! get tracer (boundary) number
             itrac = findname(numtracers, trnames, trname)
@@ -7275,7 +7417,7 @@ module m_meteo
                                             multuni1,  multuni2,  multuni3,  multuni4)
       use m_ec_module, only: ecFindFileReader, ec_filetype_to_conv_type ! TODO: Refactor this private data access (UNST-703).
       use m_ec_filereader_read, only: ecParseARCinfoMask
-      use m_flow, only: kmx, kbot, ktop
+      use m_flowparameters, only: jawave
       use m_sferic, only: jsferic
       use m_missing, only: dmiss
       use m_flowtimes, only: refdate_mjd
@@ -7675,8 +7817,8 @@ module m_meteo
          if (success) success = ecSetConverterElement(ecInstancePtr, converterId, n_qhbnd)
          ! Each qhbnd polytim file replaces exactly one element in the target data array.
          ! Converter will put qh value in target_array(n_qhbnd)
-      case ('windx', 'windy', 'windxy', 'stressxy', 'airpressure', 'atmosphericpressure', 'airpressure_windx_windy', &
-            'airpressure_windx_windy_charnock', 'airpressure_stressx_stressy','humidity','airtemperature','cloudiness','solarradiation', 'longwaveradiation' )
+      case ('windx', 'windy', 'windxy', 'stressxy', 'airpressure', 'atmosphericpressure', 'airpressure_windx_windy','airdensity', &
+            'airpressure_windx_windy_charnock', 'charnock', 'airpressure_stressx_stressy','humidity','dewpoint','airtemperature','cloudiness','solarradiation', 'longwaveradiation')
          if (present(srcmaskfile)) then 
             if (ec_filetype == provFile_arcinfo .or. ec_filetype == provFile_curvi) then
                if (.not.ecParseARCinfoMask(srcmaskfile, srcmask, fileReaderPtr)) then
@@ -7887,6 +8029,15 @@ module m_meteo
          case ('hrms', 'tp', 'tps', 'rtp', 'dir', 'fx', 'fy', 'wsbu', 'wsbv', 'mx', 'my', 'dissurf','diswcap','ubot')
             ! the name of the source item created by the file reader will be the same as the ext.force. quant name
             sourceItemName = target_name
+            ! this file contains wave data
+            if(jawave==3) then
+                ! wave data is read from a com.nc file produced by D-Waves which contains one time field only
+                fileReaderPtr%one_time_field = .true.
+            endif
+            case ('wavesignificantheight', 'waveperiod', 'wavedirection', 'xwaveforce', 'ywaveforce', &
+                  'freesurfacedissipation','whitecappingdissipation', 'totalwaveenergydissipation')
+             ! the name of the source item created by the file reader will be the same as the ext.force. quant name
+            sourceItemName = varname
          case ('airpressure', 'atmosphericpressure')
             if (ec_filetype == provFile_arcinfo) then
                sourceItemName = 'wind_p'
@@ -7931,6 +8082,20 @@ module m_meteo
                call mess(LEVEL_FATAL, 'm_meteo::ec_addtimespacerelation: Unsupported filetype for quantity windy.')
                return
             end if
+         case ('stressx')
+            if (ec_filetype == provFile_netcdf) then
+               sourceItemName = 'surface_downward_eastward_stress'
+            else
+               call mess(LEVEL_FATAL, 'm_meteo::ec_addtimespacerelation: stressx only implemented for NetCDF.')
+               return
+            end if
+         case ('stressy')
+            if (ec_filetype == provFile_netcdf) then
+               sourceItemName = 'surface_downward_northward_stress'
+            else
+               call mess(LEVEL_FATAL, 'm_meteo::ec_addtimespacerelation: stressy only implemented for NetCDF.')
+               return
+            end if
          case ('stressxy')
             if (ec_filetype == provFile_netcdf) then
                sourceItemId   = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'surface_downward_eastward_stress')
@@ -7948,6 +8113,23 @@ module m_meteo
             if (success) success = ecAddConnectionTargetItem(ecInstancePtr, connectionId, item_windxy_y)
             if (success) success = ecAddItemConnection(ecInstancePtr, item_windxy_x, connectionId)
             if (success) success = ecAddItemConnection(ecInstancePtr, item_windxy_y, connectionId)
+        case ('charnock')
+            if (ec_filetype == provFile_netcdf) then
+               sourceItemId   = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'charnock')
+               if (success) success = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId)
+            else
+               call mess(LEVEL_FATAL, 'm_meteo::ec_addtimespacerelation: Unsupported filetype for quantity '//trim(target_name)//'.')
+               return
+            end if
+            if (success) success = ecAddConnectionTargetItem(ecInstancePtr, connectionId, item_charnock)
+            if (success) success = ecAddItemConnection(ecInstancePtr, item_charnock, connectionId)
+         case ('friction_coefficient_time_dependent')
+             if (ec_filetype == provFile_netcdf) then
+               sourceItemName = 'friction_coefficient' 
+            else
+               call mess(LEVEL_FATAL, 'm_meteo::ec_addtimespacerelation: friction_coefficient_time_dependent only implemented for NetCDF.')
+               return
+            end if
          case ('windxy')
             ! special case: m:n converter, (for now) handle here in case switch
             if (ec_filetype == provFile_unimagdir) then
@@ -8056,7 +8238,7 @@ module m_meteo
             end if
          case ('humidity_airtemperature_cloudiness')
             ! special case: m:n converter, (for now) handle seperately
-            if (ec_filetype == provFile_curvi .or. ec_filetype == provFile_uniform) then
+            if (ec_filetype == provFile_curvi .or. ec_filetype == provFile_uniform .or. ec_filetype == provFile_netcdf) then
                if (ec_filetype == provFile_curvi) then
                   sourceItemId   = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'curvi_source_item_1')
                   sourceItemId_2 = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'curvi_source_item_2')
@@ -8073,6 +8255,16 @@ module m_meteo
                      goto 1234
                   end if
                   success = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId)
+               else if (ec_filetype == provFile_netcdf) then
+                  sourceItemId   = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'relative_humidity')
+                  sourceItemId_2 = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'air_temperature')
+                  sourceItemId_3 = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'cloud_area_fraction')
+                  if (sourceItemId == ec_undef_int .or. sourceItemId_2 == ec_undef_int .or. sourceItemId_3 == ec_undef_int) then
+                     goto 1234 
+                  end if
+                  success              = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId)
+                  if (success) success = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId_2)
+                  if (success) success = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId_3)
                end if
                if (success) success = ecAddConnectionTargetItem(ecInstancePtr, connectionId, item_hac_humidity)
                if (success) success = ecAddConnectionTargetItem(ecInstancePtr, connectionId, item_hac_airtemperature)
@@ -8184,6 +8376,8 @@ module m_meteo
             if (success) success = ecAddItemConnection(ecInstancePtr, item_dacs_solarradiation, connectionId)
          case ('humidity')
             sourceItemName = 'relative_humidity'
+         case ('dewpoint')
+            sourceItemName = 'dew_point_temperature'
          case ('airtemperature')
             if (ec_filetype == provFile_uniform) then
                sourceItemId = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'uniform_item')
@@ -8193,11 +8387,29 @@ module m_meteo
                success = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId)
                if (success) success = ecAddConnectionTargetItem(ecInstancePtr, connectionId, item_airtemperature)
                if (success) success = ecAddItemConnection(ecInstancePtr, item_airtemperature, connectionId)
+            elseif (ec_filetype == provFile_netcdf) then
+               sourceItemId = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'air_temperature')
+               success              = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId)
+               if (success) success = ecAddConnectionTargetItem(ecInstancePtr, connectionId, item_airtemperature)
+               if (success) success = ecAddItemConnection(ecInstancePtr, item_airtemperature, connectionId)
+               if (.not. success) then
+                  goto 1234
+               end if
             else
                sourceItemName = 'air_temperature'
             end if
          case ('cloudiness')
-            sourceItemName = 'cloudfraction'
+            sourceItemName = 'cloud_area_fraction'
+         case ('airdensity')
+            if (ec_filetype == provFile_netcdf) then
+               sourceItemId   = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'air_density')
+               success = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId)
+            else
+               call mess(LEVEL_FATAL, 'm_meteo::ec_addtimespacerelation: Unsupported filetype for quantity '//trim(target_name)//'.')
+               return
+            end if
+            if (success) success = ecAddConnectionTargetItem(ecInstancePtr, connectionId, item_airdensity)
+            if (success) success = ecAddItemConnection(ecInstancePtr, item_airdensity, connectionId)
          case ('solarradiation')
             if (ec_filetype == provFile_netcdf) then
                sourceItemName = 'surface_net_downward_shortwave_flux'
@@ -8359,10 +8571,11 @@ module m_meteo
       vectorMaxTgt = itemPtrTgt%quantityPtr%vectorMax
       if (vectorMaxSrc /= vectorMaxTgt) then
          success = .false.
-         select case (itemPtrTgt%quantityPtr%name)   
+         select case (itemPtrTgt%quantityPtr%name)
          case ('discharge_salinity_temperature_sorsin')
             write(msg,'(a,i0,a,i0,a)') 'Wrong number of data columns in a discharge_salinity_temperature_sorsin time series: ', vectorMaxTgt, ' requested, ',vectorMaxSrc,' provided.'
-            call mess(LEVEL_ERROR,  trim(msg)) 
+            msg = trim(msg) // " With source file '" // trim(itemPtrSrc%elementsetPtr%name) // "'"
+            call mess(LEVEL_ERROR,  trim(msg))
          case default
             call mess(LEVEL_WARN, "There was a problem with a source of type " // trim(itemPtrSrc%quantityPtr%name) &
                     // " with source file '" // trim(itemPtrSrc%elementsetPtr%name) // "'")
@@ -8402,11 +8615,11 @@ module m_meteo
          end if
          it = it + 1
       end do
+      success = .true.
    end function ec_gettimeseries_by_itemID
-   
-   
+
    ! ==========================================================================
-   
+
    !> Convenience wrapper around ec_gettimespacevalue_by_itemID.
    function ec_gettimespacevalue_by_name(instancePtr, group_name, timesteps) result(success)
       use m_flowtimes
@@ -8424,6 +8637,9 @@ module m_meteo
       if (trim(group_name) == 'rainfall_rate') then
          if (.not.ec_gettimespacevalue_by_itemID(instancePtr, item_rainfall_rate, irefdate, tzone, tunit, timesteps)) return
       end if
+      if (trim(group_name) == 'airdensity') then
+         if (.not.ec_gettimespacevalue_by_itemID(instancePtr, item_airdensity, irefdate, tzone, tunit, timesteps)) return
+      end if
       if (trim(group_name) == 'humidity_airtemperature_cloudiness') then
          if (.not.ec_gettimespacevalue_by_itemID(instancePtr, item_hac_humidity, irefdate, tzone, tunit, timesteps)) return
       end if
@@ -8436,10 +8652,16 @@ module m_meteo
       if (trim(group_name) == 'dewpoint_airtemperature_cloudiness_solarradiation') then
          if (.not.ec_gettimespacevalue_by_itemID(instancePtr, item_dacs_dewpoint, irefdate, tzone, tunit, timesteps)) return
       end if
+      if (trim(group_name) == 'dewpoint') then
+         if (.not.ec_gettimespacevalue_by_itemID(instancePtr, item_humidity, irefdate, tzone, tunit, timesteps)) return ! Relative humidity array used to store dewpoints
+         if (.not.ec_gettimespacevalue_by_itemID(instancePtr, item_airtemperature, irefdate, tzone, tunit, timesteps)) return ! update tair for conversion of dewpoint to humidity
+      end if
       
       if ((trim(group_name) == 'dewpoint_airtemperature_cloudiness' .and. item_dac_dewpoint/=ec_undef_int)    &
           .or.       & 
-          (trim(group_name) == 'dewpoint_airtemperature_cloudiness_solarradiation' .and. item_dacs_dewpoint/=ec_undef_int)) then
+          (trim(group_name) == 'dewpoint_airtemperature_cloudiness_solarradiation' .and. item_dacs_dewpoint/=ec_undef_int)    &
+          .or.       &
+          (trim(group_name) == 'dewpoint' .and. item_humidity/=ec_undef_int)) then
           ! Conversion of dewpoint to relative humidity
           ptd => rhum
           prh => rhum

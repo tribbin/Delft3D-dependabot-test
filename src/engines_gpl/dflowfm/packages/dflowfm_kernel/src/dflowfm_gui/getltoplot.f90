@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine getLtoplot(kk,k)
  use m_flowgeom
@@ -41,6 +41,9 @@ subroutine getLtoplot(kk,k)
      k = min(k, Ltop(kk) )
  else
      k = Lbot(kk) + kmxL(kk) - kplot
-     k = max(k, Lbot(kk) )
+     !k = max(k, Lbot(kk) )
+     if ( k < Lbot(kk) ) then
+          k = -1
+     endif 
  endif
  end subroutine getLtoplot

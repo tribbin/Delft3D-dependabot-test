@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    subroutine fm_erosed()
    !!--description-----------------------------------------------------------------
@@ -57,23 +57,23 @@
    use bedcomposition_module
    use morphology_data_module
    use sediment_basics_module
-   use m_physcoef, only: ag, vonkar, sag, ee, backgroundsalinity, backgroundwatertemperature,dicoww
-   use m_sediment, only: stmpar, sedtra, stm_included, mtd, vismol, jatranspvel, sbcx_raw,sbcy_raw,sswx_raw,sswy_raw,sbwx_raw,sbwy_raw
-   use m_flowgeom, only: ndxi, bl, kfs, lnxi, lnx, ln, dxi, ndx, csu, snu, wcx1, wcx2, wcy1, wcy2, acl, nd, csu, snu, wcl, xz, yz, xu, yu, wu, wu_mor
-   use m_flow, only: s0, s1, u1, u0, v, ucx, ucy, kbot, ktop, kmx, kmxn, plotlin, sa1, tem1, zws, hs, ucxq, ucyq, layertype, &
-      iturbulencemodel, z0urou, frcu, ifrcutp, hu, spirint, spiratx, spiraty, u_to_umain, qa, frcu_mor, taus, ucx_mor, ucy_mor
+   use m_physcoef, only: ag, vonkar, sag, ee, backgroundsalinity, backgroundwatertemperature, vismol
+   use m_sediment, only: stmpar, sedtra, stm_included, mtd, jatranspvel, sbcx_raw,sbcy_raw,sswx_raw,sswy_raw,sbwx_raw,sbwy_raw
+   use m_flowgeom, only: bl, lnxi, lnx, ln, dxi, ndx, csu, snu, wcx1, wcx2, wcy1, wcy2, acl, nd, csu, snu, wcl
+   use m_flow, only: s0, s1, u1, kmx, zws, hs, &
+      iturbulencemodel, z0urou, ifrcutp, hu, spirint, spiratx, spiraty, u_to_umain, frcu_mor, javeg,jabaptist,cfuhi, epshs, taubxu, epsz0
    use m_flowtimes, only: julrefdat, dts, time1
    use unstruc_files, only: mdia
-   use unstruc_channel_flow, only: network, t_branch, t_node, nt_LinkNode
+   use unstruc_channel_flow, only: t_branch, t_node, nt_LinkNode
    use message_module, only: write_error
    use MessageHandling, only: LEVEL_INFO, LEVEL_FATAL, mess, setmessage
-   use m_transport, only: ised1, numconst, constituents
+   use m_transport, only: ised1, constituents, isalt, itemp
    use dfparall
    use m_alloc
    use m_missing
    use m_physcoef, only: frcuni, ifrctypuni
    use m_turbulence, only: vicwws, turkinepsws, rhowat
-   use m_flowparameters, only: jasal, jatem, jawave, epshs, jasecflow, eps10, jasourcesink, v2dwbl
+   use m_flowparameters, only: jasal, jatem, jawave, jasecflow, jasourcesink, v2dwbl, flowWithoutWaves, epshu
    use m_fm_erosed
    use m_bedform
    use m_xbeach_data
@@ -82,22 +82,19 @@
    use m_tables, only: interpolate
    use m_partitioninfo
    use compbsskin_module, only: compbsskin, get_alpha_fluff
+   use m_debug
+   use m_sand_mud
    !
    implicit none
    !
    real(fp)                                       :: eps = 1.0e-6_fp
    logical                                        :: scour = .false.
-   logical                                        :: ubot_from_com != .true. !! promoted approach, so only option in FM
+   logical                                        :: ubot_from_com
    logical                                        :: flmd2l = .false.
    logical                                        :: wave
 
    integer                              , pointer :: iunderlyr
    real(prec)       , dimension(:,:)    , pointer :: bodsed
-   type(t_nodefraction)                 , pointer :: pFrac
-   type(t_noderelation)                 , pointer :: pNodRel
-   type(t_branch)                       , pointer :: pbr
-   type(t_node)                         , pointer :: pnod
-
    !
    ! Local parameters
    !
@@ -111,13 +108,7 @@
    ! Local variables
    !
    integer                       :: i
-   integer                       :: ibr
-   integer                       :: iFrac
-   integer                       :: iNodeRel
-   integer                       :: inod
    integer                       :: istat
-   integer                       :: ised
-   integer                       :: ierror
    integer                       :: j
    integer                       :: k
    integer                       :: k2d
@@ -130,9 +121,9 @@
    logical                       :: error
    integer                       :: klc
    integer                       :: kmaxlc
-   integer                       :: k1, k2, k3, k4
-   logical                       :: suspfrac  ! suspended component sedtyp(l)/=SEDTYP_NONCOHESIVE_TOTALLOAD
-   real(fp)                      :: sigdif    ! Prandtl-Schmidt; to do: change to array
+   integer                       :: k1, k2
+   logical                       :: suspfrac  ! includes suspended transport via advection-diffusion equation
+   logical                       :: javegczu
    real(fp)                      :: afluff
    real(fp)                      :: aks_ss3d
    real(fp)                      :: caks
@@ -154,14 +145,12 @@
    real(fp)                      :: rc
    real(fp)                      :: mfltot
    real(fp)                      :: salinity
-   real(fp)                      :: sinkfluff
    real(fp)                      :: sinktot
    real(fp)                      :: sourfluff
    real(fp)                      :: spirintnm   ! local variable for spiral flow intensity
    real(fp)                      :: taks
    real(fp)                      :: taks0
    real(fp)                      :: tauadd
-   real(fp)                      :: tauc
    real(fp)                      :: tdss      ! temporary variable for dss
    real(fp)                      :: temperature
    real(fp), dimension(max(kmx,1))      :: thicklc
@@ -182,13 +171,11 @@
    real(fp)                      :: velm
    real(fp)                      :: vlocal
    real(fp)                      :: vmean
-   real(fp)                      :: z0cur
    real(fp)                      :: z0rou
    real(fp)                      :: zvelb
-   real(fp)                      :: tsalmax
    real(fp)                      :: poros
    real(fp)                      :: wstau                 ! dummy for erosilt
-   real(fp), dimension(:), allocatable :: Evel            ! erosion velocity [m/s]
+   real(fp), dimension(:), allocatable :: evel            ! erosion velocity [m/s]
    real(fp), dimension(0:kmax2d) :: dcww2d
    real(fp), dimension(0:kmax2d) :: sddf2d
    real(fp), dimension(0:kmax2d) :: ws2d
@@ -203,41 +190,21 @@
       & 0.0391, 0.0325, 0.0269, 0.0223, 0.0185, 0.0154, 0.0127, 0.0106, 0.0088,&
       & 0.0073, 0.0060, 0.0050 /)
 
-   real(fp), dimension(max(kmx,1))      :: concin3d
-   real(fp), dimension(kmax2d)   :: concin2d
-   character(256)                :: errmsg
-   character(256)                :: msg
-   double precision              :: cz_dum, zcc, maxdepfrac
-   double precision              :: ML, hloc, twothird
-   double precision              :: dcfin, dcf
-   double precision              :: ubot
-   integer                       :: idummy = 0
-   integer                       :: ierr, kk, kkk, Lf, kmxvel, kb, kt, snL, csL
-   integer                       :: Ldir
-   double precision, allocatable :: dzdx(:), dzdy(:), u1_tmp(:), ucxq_tmp(:), ucyq_tmp(:)
-   double precision, allocatable :: z0rouk(:), z0curk(:), deltas(:), ua(:), va(:)
-   double precision              :: dzdn, dzds
-   integer                       :: mout
-   double precision              :: z0u, czu
-   double precision              :: facCheck
-   integer                       :: nrd_idx
-   double precision              :: expQ
-   double precision              :: expW
-   double precision              :: facQ
-   double precision              :: facW
-   double precision              :: qb1d, wb1d, sb1d
-   double precision              :: sbrratio, qbrratio, Qbr1, Qbr2
+   real(fp), dimension(max(kmx,1))     :: concin3d
+   real(fp), dimension(kmax2d)         :: concin2d
+   character(256)                      :: errmsg
+   double precision                    :: zcc, maxdepfrac
+   double precision                    :: ubot
+   integer                             :: ierr, kk, Lf, kmxvel, kb, kt
+   double precision, allocatable       :: dzdx(:), dzdy(:), u1_tmp(:), ucxq_tmp(:), ucyq_tmp(:)
+   double precision, allocatable       :: z0rouk(:), z0curk(:), deltas(:), ua(:), va(:)
+   double precision                    :: dzdn, dzds
+   double precision                    :: z0u, czu
    !
    real(fp), dimension(:), allocatable :: localpar        !< local array for sediment transport parameters
-   real(fp), dimension(:), allocatable :: qb_out          !< sum of outgoing discharge at 1d node
-   real(fp), dimension(:), allocatable :: width_out       !< sum of outgoing main channel widths
-   real(fp), dimension(:,:), allocatable :: sb_in         !< sum of incoming sediment transport at 1d node
-   integer, dimension(:,:,:), allocatable :: sb_dir       !< direction of transport at node (nnod, lsedtot, nbr) (-1 = incoming or no transport, +1 = outgoing)
-   integer, dimension(:), allocatable :: branInIDLn       !< ID of Incoming Branch (If there is only one) (nnod)
-   !
    !! executable statements -------------------------------------------------------
    !
-   !   exit the routine immediately if sediment transport (and morphology) is NOT included in the simulation
+   !   exit the routine immediately if sediment transport (and morphology) is not included in the simulation
    !
    error = .false.
    if (.not.stm_included) return
@@ -248,18 +215,10 @@
    if (istat == 0) allocate(localpar (npar), stat = istat)
    if (istat == 0) allocate(ua(1:ndx), va(1:ndx), stat=istat)
    if (istat == 0) allocate(z0rouk(1:ndx), z0curk(1:ndx), deltas(1:ndx), stat=istat)
-   if (istat == 0) allocate(qb_out(network%nds%Count), stat = istat)
-   if (istat == 0) allocate(width_out(network%nds%Count), stat = istat)
-   if (istat == 0) allocate(sb_in(network%nds%Count, lsedtot), stat = istat)
-   if (istat == 0) allocate(sb_dir(network%nds%Count, lsedtot, network%nds%maxnumberofconnections), stat = istat)
-   if (istat == 0) allocate(branInIDLn(network%nds%Count), stat = istat)
+   if ((istat == 0) .and. (.not. allocated(u1_tmp))) allocate(u1_tmp(1:lnx), ucxq_tmp(1:ndx), ucyq_tmp(1:ndx), stat=ierr)
 
    localpar = 0.0_fp
-   ua = 0d0; va = 0d0; z0rouk = 0d0; z0curk=0d0
-   qb_out = 0d0; width_out = 0d0; sb_in = 0d0; sb_dir = -1
-   BranInIDLn = 0
-
-   if ((istat == 0) .and. (.not. allocated(u1_tmp))) allocate(u1_tmp(1:lnx), ucxq_tmp(1:ndx), ucyq_tmp(1:ndx), stat=ierr)
+   ua = 0d0; va = 0d0; z0rouk = 0d0; z0curk=0d0; 
 
    if (istat /= 0) then
       error = .true.
@@ -267,10 +226,9 @@
       call mess(LEVEL_FATAL, errmsg)
    endif
    !
-   wave = jawave>0
+   wave = (jawave>0) .and. .not. flowWithoutWaves
    !
    ! Mass conservation; s1 is updated before entering fm_erosed
-   !hs = s1 - bl !improvement? - to check WO
    !
    if (varyingmorfac) then
       call updmorfac(stmpar%morpar, time1/3600.0_fp, julrefdat)
@@ -284,7 +242,7 @@
    !
    u1_tmp = u1 * u_to_umain
 
-   if (jatranspvel > 0 .and. jawave > 0) then
+   if (jatranspvel > 0 .and. jawave > 0 .and. .not. flowWithoutWaves) then
       u1_tmp = u1 - ustokes
       call setucxucy_mor (u1_tmp)
    else
@@ -298,14 +256,15 @@
    call init_1dinfo()
    call setucxqucyq_mor(u1_tmp, ucxq_tmp, ucyq_tmp)
    !
-
-   if (.not. (jawave==4 .or. jawave==3)) then
-      ktb=0d0     ! no roller turbulence
-   else
-      do k=1, ndx
-         call rollerturbulence(k)  ! sets ktb values
-      end do
-   end if
+   if (jawave>2) then
+      if ((.not. (jawave==4 .or. jawave==3 .or. jawave==6)) .or. flowWithoutWaves) then
+         ktb=0d0     ! no roller turbulence
+      else
+         do k=1, ndx
+            call rollerturbulence(k)  ! sets ktb values
+         end do
+      end if
+   endif
    !
    ! Determine total thickness of the mud layers
    ! to be used in computation of skin friction
@@ -321,7 +280,7 @@
    !     set default kmxsed layer
    !     set kfsed
    !
-   lstart = ised1 - 1
+   lstart = ISED1 - 1
    !
    ! Reset Sourse and Sinkse arrays for all (l,nm)
    !
@@ -400,36 +359,52 @@
    ! half of internal velocity in direction of any
    ! closed boundary or dry point.
    !
+   javegczu = (javeg==1 .and. jabaptist>1 .and. kmx==0 )
+   !
    do k = 1,ndx                            ! This interpolation is done by considering constant waterdepth per each flow-cell
       h1 = s1(k) - bl(k)                   ! To ensure to get the same results from interpolation based on constant frcu and ifrcutp in the cell centre
                                            ! with considering hs
-      z0curk(k) = eps10                    ! safety if nd(k)%lnx==0. Happens sometimes in case of thin dams
+      if (nd(k)%lnx==0) then
+         z0curk(k) = 1d-5                  ! safety if nd(k)%lnx==0. Happens sometimes in case of thin dams
+         cycle
+      endif
+
       do LL = 1,nd(k)%lnx
          Lf = nd(k)%ln(LL)
          L = abs( Lf )
-         if (frcu(L)>0) then
-            call getczz0(h1, frcu_mor(L), ifrcutp(L), czu, z0u)
+         if (javegczu) then 
+            if (cfuhi(L)>0d0) then         ! use bed contribution of baptist>1
+               czu = 1d0/(cfuhi(L)*max(hu(L),epshu))
+               czu = sqrt(czu*ag)
+            else
+               call getcz(hu(L), frcuni, ifrctypuni, czu, L)
+            endif
          else
-            call getczz0(h1, frcuni, ifrctypuni, czu, z0u)
-         end if
+            if (frcu_mor(L)>0) then
+               call getcz(hu(L), frcu_mor(L), ifrcutp(L), czu, L)
+            else
+               call getcz(hu(L), frcuni, ifrctypuni, czu, L)
+            end if
+         endif
+         !
+         z0u = hu(L)*exp(-vonkar*czu/sag - 1d0)         ! differs from delft3d
          if( Lf < 0 ) then
             z0curk(k) = z0curk(k)+wcl(1,L)*z0u
          else
             z0curk(k) = z0curk(k)+wcl(2,L)*z0u
          endif
       enddo
+      z0curk(k)=max(epsz0,z0curk(k))
    enddo
    !
-   !if (jawave>0) then
-      z0rouk = 0d0; taub = 0d0
-      do L=1,lnx
-         k1=ln(1,L); k2=ln(2,L)
-         z0rouk(k1) = z0rouk(k1)+wcl(1,L)*z0urou(L)
-         z0rouk(k2) = z0rouk(k2)+wcl(2,L)*z0urou(L)
-         taub(k1)   = taub(k1)+wcl(1,L)*taubxu(L)
-         taub(k2)   = taub(k2)+wcl(2,L)*taubxu(L)
-      end do
-   !endif
+   taub = 0d0
+   do L=1,lnx
+      k1=ln(1,L); k2=ln(2,L)
+      z0rouk(k1) = z0rouk(k1)+wcl(1,L)*z0urou(L)   
+      z0rouk(k2) = z0rouk(k2)+wcl(2,L)*z0urou(L)
+      taub(k1)   = taub(k1)+wcl(1,L)*taubxu(L)        
+      taub(k2)   = taub(k2)+wcl(2,L)*taubxu(L)        
+   end do
    !
    if (kmx > 0) then            ! 3D
       deltas = 0.05d0
@@ -441,7 +416,7 @@
             deltas(k1) =  deltas(k1) + wcl(1,L)*wblt(L)
             deltas(k2) =  deltas(k2) + wcl(2,L)*wblt(L)
          end do
-         maxdepfrac = 0.5d0                  !        cases where you want 2D velocity above the wbl, make sure 2nd criterion applies
+         maxdepfrac = 0.5d0                        ! cases where you want 2D velocity above the wbl, make sure 2nd criterion applies
       endif
       zcc = 0d0
 
@@ -547,21 +522,26 @@
       !
       call compdiam(frac      ,sedd50    ,sedd50    ,sedtyp    ,lsedtot   , &
          & logsedsig ,nseddia   ,logseddia ,ndx       ,1         , &
-         & ndx       ,xx        ,nxx       ,sedd50fld ,dm        , &
-         & dg        ,dxx       ,dgsd      )
+         & ndx       ,xx        ,nxx       ,max_mud_sedtyp, min_dxx_sedtyp, &
+         & sedd50fld ,dm        ,dg        ,dxx       ,dgsd      )
       !
       ! determine hiding & exposure factors
       !
       call comphidexp(frac      ,dm        ,ndx       ,lsedtot   , &
          & sedd50    ,hidexp    ,ihidexp   ,asklhe    , &
          & mwwjhe    ,1         ,ndx      )
+
+   !endif
+   !
+   ! TODO UNST-5545 adapt compsandfrac
+   !if (lsedtot > nmudfrac .and. ((lsedtot - nmudfrac > 1) .or. (nmudfrac > 0))) then
       !
       ! compute sand fraction
       !
-      call compsandfrac(frac   ,sedd50       ,ndx       ,lsedtot   , &
-         & sedtyp    ,sandfrac     ,sedd50fld , &
-         & 1         ,ndx         )
-   endif
+      call compsandfrac(frac, sedd50, ndx, lsedtot, sedtyp, &
+                      & max_mud_sedtyp, sandfrac, sedd50fld, &
+                      & 1, ndx)   
+   endif   
    !
    ! compute normal component of bed slopes at edges    (e_xxx refers to edges)
 
@@ -599,7 +579,7 @@
       ! Interpolate back to links
       k1 = ln(1,L); k2 = ln(2,L)
       !       e_dzdn(L) = acl(L)*(csu(L)*dzdx(k1) + snu(L)*dzdy(k1)) + (1d0-acl(L))*(csu(L)*dzdx(k2) + snu(L)*dzdy(k2))
-      e_dzdn(L) = -dxi(L)*(bl(ln(2,L))-bl(ln(1,L)))                                                              ! more accurate near boundaries
+      e_dzdn(L) = -dxi(L)*(bl(k2)-bl(k1))                                                              ! more accurate near boundaries
       e_dzdt(L) = acl(L)*(-snu(L)*dzdx(k1) + csu(L)*dzdy(k1))+(1d0-acl(L))*(-snu(L)*dzdx(k2) + csu(L)*dzdy(k2))  ! affected near boundaries due to interpolation
    end do
    !
@@ -617,21 +597,21 @@
       ! do not calculate sediment sources, sinks, and bed load
       ! transport in areas with very shallow water.
       !
-      if ((s1(nm)-bl(nm))<epshs) cycle     ! dry
+      if ((s1(nm)-bl(nm))<=epshu) cycle     ! dry
       !
       call getkbotktop(nm, kb, kt)
-      if (kfsed(nm) == 0) then             ! shallow but not dry
+      if (kfsed(nm) == 0) then              ! shallow but not dry, ie ]epshu sedthresh]
          !
          ! Very shallow water:
          ! set sediment diffusion coefficient
          ! and set zero equilibrium concentrations
          !
          if (kmx>0) then              ! 3D only
-            ! at layer interfaces, but not at bed and surface
-            do k = kb, kt-1
-               do l = 1, lsed
-                  !seddif(l, k) = vicwws(k)+dicoww        ! sigrhoi * vicwws(k) + difsed(l), with sigrhoi = 1d0
-                  seddif(l, k) = max(vicwws(k),dicoww)
+            ! at layer interfaces, but not at bed and surface  ! to check...
+            do l = 1,lsed
+               do k = kb, kt-1
+                  !seddif(l, k) = max(vicwws(k),dicoww)
+                  seddif(l, k) = vicwws(k)    ! background dico is added in solve_vertical
                enddo
             enddo
             !
@@ -655,10 +635,10 @@
          klc     = 1
          do k = kt,kb,-1                                ! counts from surface to bottom
             thicklc(klc)   = (zws(k)-zws(k-1))/h1       ! depth fraction, this works for z layers. If only sigma: m_flow::laycof can be used
-            klc=klc+1
+            klc            = klc+1
          enddo
-         siglc   = 0.0_fp
-         kmaxlc = klc-1                                 ! needed for z layers eventually. For sigma, equals kmx
+         siglc    = 0.0_fp
+         kmaxlc   = klc-1                                 ! needed for z layers eventually. For sigma, equals kmx
          siglc(1) = -0.5_fp*thicklc(1)
          do klc = 2, kmaxlc
             siglc(klc) = siglc(klc-1) - 0.5_fp*(thicklc(klc) + thicklc(klc-1))
@@ -693,7 +673,7 @@
          zvelb = h1/ee
       endif
       !
-      if (jawave > 0) then
+      if (jawave > 0 .and. .not. flowWithoutWaves) then
          ubot = uorb(nm)        ! array uitgespaard
       else
          ubot = 0d0
@@ -701,13 +681,13 @@
       !
       ! Calculate total (possibly wave enhanced) roughness
       !
-      if (jawave > 0) then
-         z0rou = z0rouk(nm)
+      if (jawave > 0 .and. .not. flowWithoutWaves) then
+         z0rou = max(epsz0,z0rouk(nm))
       else ! currents only
          z0rou = z0curk(nm)       ! currents+potentially trachy
       end if
       !
-      chezy = sag * log( 1.0_fp + h1/max(1.0d-10,ee*z0rou) ) / vonkar
+      chezy = sag * log(h1/ee/z0rou) / vonkar                          ! consistent with getczz0
       !
       ! bed shear stress as used in flow, or
       ! skin fiction following Soulsby; "Bed shear stress under
@@ -724,12 +704,21 @@
             afluff = 0d0
          endif
          !
-         call compbsskin(umean, vmean, h1, wave, uorb(nm), twav(nm), &
-                          & phiwav(nm), thcmud(nm), mudfrac(nm), taub(nm), &
-                          & rhowat(kbed), vismol, stmpar%sedpar, afluff)
+         if (wave) then
+            call compbsskin(umean, vmean, h1, wave, uorb(nm), twav(nm), &
+                             & phiwav(nm), thcmud(nm), mudfrac(nm), taub(nm), &
+                             & rhowat(kbed), vismol, stmpar%sedpar, afluff)
+         else
+            call compbsskin(umean, vmean, h1, wave, 0d0, 0d0, &
+                             & phiwav(nm), thcmud(nm), mudfrac(nm), taub(nm), &
+                             & rhowat(kbed), vismol, stmpar%sedpar, afluff)
+         endif
       endif
       !
-      ustarc = umod(nm)*vonkar/log(1.0_fp + zumod(nm)/max(z0rou,eps10))
+      ustarc = umod(nm)*vonkar/log(1.0_fp + zumod(nm)/max(z0rou,1d-5))
+      !
+      ! To be in line with rest of FM, this should be 
+      !ustarc = umod(nm)*vonkar/log(zumod(nm)/z0rou - 1d0)
       !
       !if (scour) then
       !
@@ -744,12 +733,12 @@
       ! sa0 and tem0 have no real meaning, sa1 and tem1 before transport are at the old time-level,
       ! while after transport they are at the new time-level
       if (jasal > 0) then
-         salinity =  sa1(kbed)                            ! r0(nm, kbed, lsal)
+         salinity = constituents(isalt, kbed)                            ! r0(nm, kbed, lsal)
       else
          salinity = backgroundsalinity
       endif
       if (jatem > 0) then
-         temperature =  tem1(kbed)                        ! r0(nm, kbed, ltem)
+         temperature =  constituents(itemp,kbed)                         ! r0(nm, kbed, ltem)
       else
          temperature = backgroundwatertemperature
       endif
@@ -765,7 +754,7 @@
       endif
       taks0 = max(aksfac*rc, 0.01d0*h1)
       !
-      if (jawave>0) then
+      if (jawave>0 .and. .not. flowWithoutWaves) then
          if (twav(nm)>0d0) then
             delr  = 0.025d0
             taks0 = max(0.5d0*delr, taks0)
@@ -801,12 +790,18 @@
          dll_reals(RP_TETA ) = real(phiwav(nm)   ,hp)
          dll_reals(RP_RLAMB) = real(rlabda(nm)   ,hp)
          dll_reals(RP_UORB ) = real(uorb(nm)     ,hp)
+         if (jawave>2) then
+            dll_reals(RP_KWTUR) = real(ktb(nm)     ,hp)
+         else
+            dll_reals(RP_KWTUR) = real(0.0_hp      ,hp)      ! array not allocated for fetch length models (choice of HK)
+         endif
       else
          dll_reals(RP_HRMS ) = 0.0_hp
          dll_reals(RP_TPEAK) = 0.0_hp
          dll_reals(RP_TETA ) = 0.0_hp
          dll_reals(RP_RLAMB) = 0.0_hp
          dll_reals(RP_UORB ) = 0.0_hp
+         dll_reals(RP_KWTUR) = 0.0_hp
       endif
       dll_reals(RP_D10MX) = real(dxx(nm,i10)    ,hp)
       dll_reals(RP_D15MX) = real(dxx(nm,i15)    ,hp)
@@ -836,12 +831,10 @@
       dll_reals(RP_VMEAN) = real(vmean     ,hp)
       dll_reals(RP_VELMN) = real(velm      ,hp)
       dll_reals(RP_USTAR) = real(ustarc    ,hp)
-      dll_reals(RP_KWTUR) = real(ktb(nm)   ,hp)
       dll_reals(RP_BLCHG) = real(dzbdt(nm) ,hp)   ! for dilatancy
       dll_reals(RP_DZDX)  = real(dzdx(nm)  ,hp)   ! for dilatancy
       dll_reals(RP_DZDY)  = real(dzdy(nm)  ,hp)   ! for dilatancy
       !
-
       if (max_integers < MAX_IP) then
          write(errmsg,'(a)') 'fm_erosed::Insufficient space to pass integer values to transport routine.'
          call mess(LEVEL_FATAL, errmsg)
@@ -890,24 +883,14 @@
          dll_integers(IP_ISED ) = l
          dll_strings(SP_USRFL)  = dll_usrfil(l)
          !
-         ! Set Prandtl-Schmidt number for suspended fractions
-         ! viscosity/diffusivity
-         !
-         if (l <= lsed) then
-            sigdif = tpsnumber(l)      ! has different meaning here, not to confuse with sigdif in m_turbulence
-            endif
-         !
-         if (sedtyp(l) == SEDTYP_COHESIVE) then
+         if (.not.has_bedload(tratyp(l))) then
             !
-            ! sediment type COHESIVE
+            ! sediment transport governed by erosion and deposition fluxes
             !
             dll_reals(RP_D50  ) = 0.0_hp
             dll_reals(RP_DSS  ) = 0.0_hp
             dll_reals(RP_DSTAR) = 0.0_hp
             dll_reals(RP_SETVL) = real(ws(kb, l)  ,hp)
-            !!             if (flmd2l) then           ! 2 layer fluid mud
-            !!                 par(11,l) = entr(nm)
-            !!             endif
             !
             if (kmx > 0) then
                klc = 0
@@ -928,9 +911,9 @@
                if (mfltot>0.0_fp) fracf = max(0.0_fp,mfluff(l,nm))/mfltot
             endif
             !
-            kmaxsd        = 1                       ! for mud fractions kmaxsd points to the grid cell at the bottom of the water column
-            thick0        = thicklc(kmaxsd) * h0
-            thick1        = thicklc(kmaxsd) * h1
+            kmaxsd        = 1                       ! for mud fractions kmaxsd points to the grid cell at the bottom of the water column 
+            thick0        = max(thicklc(kmaxsd) * h0, epshs)
+            thick1        = max(thicklc(kmaxsd) * h1, epshs)
             !
             call erosilt(thicklc        ,kmaxlc       , wslc        , mdia          , &
                        & thick1         ,thick1       , fixfac(nm,l), srcmax(nm, l) , &                         ! mass conservation
@@ -963,13 +946,14 @@
             if (kmx>0) then
                !
                ! For 3D model set sediment diffusion coefficient
-               ! NOTE THAT IF ALGEBRAIC OR K-L TURBULENCE MODEL IS USED THEN WAVES
+               ! NOTE THAT IF ALGEBRAIC TURBULENCE MODEL IS USED THEN WAVES
                ! ONLY AFFECT THE VERTICAL TURBULENT MIXING VIA THE ENHANCED BED
                ! ROUGHNESS
                !
                klc    = 0
                do k = kt, kb-1, -1
-                  seddif(l, k) = max(vicwws(k),dicoww)
+                  !seddif(l, k) = max(vicwws(k),dicoww)
+                  seddif(l, k) = vicwws(k)
                   klc=klc+1
                enddo
             endif
@@ -982,9 +966,9 @@
             cycle
          endif
          !
-         ! sediment type NONCOHESIVE_SUSPENDED or NONCOHESIVE_TOTALLOAD
+         ! sediment transport governed by bedoad vector and reference concentration
          !
-         suspfrac = sedtyp(l)/=SEDTYP_NONCOHESIVE_TOTALLOAD
+         suspfrac = has_advdiff(tratyp(l))
          !
          tsd  = -999.0_fp
          di50 = sedd50(l)
@@ -1019,7 +1003,7 @@
          endif
          !
          if (suspfrac) then
-            tsigmol = 1d0            !sigmol(ll)  ! Prandtl number for now == 1d0, to check
+            tsigmol = 1d0            ! molecular PS = 1d0
             tdss    = dss(nm, l)
             twsk    = ws(kb, l)      ! was kb-1, should be same in 3D (see fallve)
          else
@@ -1065,7 +1049,8 @@
                dcwwlc = 0.0_fp
                wslc   = 0.0_fp
                do kk = kt, kb-1, -1                        ! sigma convention
-                  dcwwlc(klc) = max(vicwws(kk),dicoww)     ! maximalisation is safety
+                  !dcwwlc(klc) = max(vicwws(kk),dicoww)     ! maximalisation is safety
+                  dcwwlc(klc) = vicwws(kk)                 !  background is added in solve_vertical
                   wslc(klc)   = ws(kk, l)
                   klc=klc+1
                enddo
@@ -1120,11 +1105,12 @@
                enddo
                rsedeq(nm, l)    = rsdqlc(kmaxsd)
                !
-               thick0 = thicklc(kmaxsd) * h0
-               thick1 = thicklc(kmaxsd) * h1
+               thick0 = max(thicklc(kmaxsd) * h0, epshu)
+               thick1 = max(thicklc(kmaxsd) * h1, epshu)
+               thick1 =thicklc(kmaxsd) * h1
                !
                call soursin_3d  (h1                ,thick1         ,thick1             ,              &      ! thick1 iso thick0 mass conservation
-                              &  siglc(kmaxsd)     ,thicklc(kmaxsd),constituents(l,kmxsed(nm,l))    , &
+                              &  siglc(kmaxsd)     ,thicklc(kmaxsd),constituents(ll,kmxsed(nm,l))    , &
                               &  vismol            ,tsigmol        ,seddif(l, kmxsed(nm,l)-1),        &
                               &  rhosol(l)         ,caks_ss3d      ,ws(kmxsed(nm,l),l)      ,         &
                               &  aks_ss3d          ,sourse(nm,l)   ,sour_im(nm,l)      ,              &
@@ -1205,8 +1191,9 @@
             rca(nm, l) = caks * rhosol(l)
          endif
       enddo ! next sediment fraction
-      ua(nm) = real(dll_reals(RP_UAU), fp)
-      va(nm) = real(dll_reals(RP_VAU), fp)
+      ua(nm) = real(dll_reals(RP_UAU), fp)                 ! cartesian
+      va(nm) = real(dll_reals(RP_VAU), fp)                 ! values checked 20230310 JRE    
+      !
    enddo ! next nm point
    !
    ! Distribute velocity asymmetry to links
@@ -1227,7 +1214,7 @@
    call fm_red_soursin()
 
    do l = 1,lsedtot                                   ! this is necessary for next calls to upwbed
-      if (sedtyp(l)/=SEDTYP_COHESIVE) then
+      if (has_bedload(tratyp(l))) then
          do nm = 1, ndx
             sxtot(nm, l) = sbcx(nm, l) + sbwx(nm, l) + sswx(nm, l)
             sytot(nm, l) = sbcy(nm, l) + sbwy(nm, l) + sswy(nm, l)
@@ -1251,226 +1238,23 @@
       call fm_upwbed(lsedtot, sbcx, sbcy, sxtot, sytot, e_sbcn, e_sbct)
    endif
    !
-   if (bedw>0.0_fp .and. jawave > 0) then
+   if (bedw>0.0_fp .and. jawave > 0 .and. .not. flowWithoutWaves) then
       !
       ! Upwind wave-related bed load load transports
       !
       call fm_upwbed(lsedtot, sbwx, sbwy, sxtot, sytot, e_sbwn, e_sbwt)
    endif
    !
-   if (susw>0.0_fp .and. jawave > 0) then
+   if (susw>0.0_fp .and. jawave > 0 .and. .not. flowWithoutWaves) then
       !
       ! Upwind wave-related suspended load transports
       !
       call fm_upwbed(lsedtot, sswx, sswy, sxtot, sytot, e_sswn, e_sswt)
    endif
    !
-   ! Bed-slope and sediment availability effects for
-   ! current-related bed load transport
-   !
-   if (bed > 0.0_fp) then
-      call fm_adjust_bedload(e_sbcn, e_sbct, .true.)
-   endif
-   !!
-   !! Determine incoming discharge and transport at nodes
-   !!
-   qb_out = 0d0; width_out = 0d0; sb_in = 0d0; sb_dir = 1
-   BranInIDLn = 0
-   do inod = 1, network%nds%Count
-      pnod => network%nds%node(inod)
-      if (pnod%numberofconnections > 1) then
-         k3 = pnod%gridnumber ! TODO: Not safe in parallel models (check gridpointsseq as introduced in UNST-5013)
-         do j=1,nd(k3)%lnx
-            L = iabs(nd(k3)%ln(j))
-            Ldir = sign(1,nd(k3)%ln(j))
-            !
-            wb1d = wu_mor(L)
-            !
-            if (u1(L)*Ldir < 0d0) then
-               ! Outgoing discharge
-               qb1d = -qa(L)*Ldir  ! replace with junction advection: to do WO
-               width_out(inod) = width_out(inod) + wb1d
-               qb_out(inod)    = qb_out(inod) + qb1d
-               do ised = 1, lsedtot
-                  sb_dir(inod, ised, j) = -1           ! set direction to outgoing
-               enddo
-            else
-               ! Incoming discharge
-               if (branInIDLn(inod) == 0) then
-                  branInIDLn(inod) = L
-               else
-                  branInIDLn(inod) = -444               ! multiple incoming branches
-               endif
-            endif
-         enddo
-      endif
-   enddo
-   !
-   ! Apply nodal relations to transport
-   !
-   do inod = 1, network%nds%Count
-      pnod => network%nds%node(inod)
-      if (pnod%numberofconnections == 1) cycle
-      if (pnod%nodeType == nt_LinkNode) then  ! connection node
-         k1 = pnod%gridnumber ! TODO: Not safe in parallel models (check gridpointsseq as introduced in UNST-5013)
-         do j=1,nd(k1)%lnx
-            L = iabs(nd(k1)%ln(j))
-            Ldir = sign(1,nd(k1)%ln(j))
-            !
-            wb1d = wu_mor(L)
-            do ised = 1, lsedtot
-               sb1d = e_sbcn(L, ised) * Ldir  ! first compute all outgoing sed. transport.
-               ! this works for one incoming branch TO DO: WO
-               if (sb_dir(inod, ised, j) == -1) then
-                  sb_in(inod, ised) = sb_in(inod, ised) + max(-wb1d*sb1d, 0.0_fp)  ! outgoing transport is negative
-               endif
-            enddo
-         enddo
-      endif
-   enddo
-   !
-   ! Determining sediment redistribution
-   !
-   ! loop over sediment fractions
-   do ised = 1, lsedtot
-
-      ! mor%nrd%nFractions = or 1 (One for All Fractions) or lsedtot (One for Every Fraction)
-      iFrac = min(ised, stmpar%nrd%nFractions)
-
-      pFrac => stmpar%nrd%nodefractions(iFrac)
-
-      do inod = 1, network%nds%Count
-         pnod => network%nds%node(inod)
-         if (pnod%nodeType == nt_LinkNode) then  ! connection node
-
-            facCheck = 0.d0
-
-            if (pnod%numberofconnections == 1) cycle
-
-
-            ! loop over branches and determine redistribution of incoming sediment
-            k3 = pnod%gridnumber ! TODO: Not safe in parallel models (check gridpointsseq as introduced in UNST-5013)
-            do j=1,nd(k3)%lnx
-               L = iabs(nd(k3)%ln(j))
-               Ldir = sign(1,nd(k3)%ln(j))
-               qb1d = -qa(L)*Ldir
-               wb1d = wu_mor(L)
-
-               ! Get Nodal Point Relation Data
-               nrd_idx = get_noderel_idx(inod, pFrac, pnod%gridnumber, branInIDLn(inod), pnod%numberofconnections)
-
-               pNodRel => pFrac%noderelations(nrd_idx)
-
-               if (sb_dir(inod, ised, j) == -1) then ! is outgoing
-
-                  if (qb_out(inod) > 0.0_fp) then
-
-                     if (pNodRel%Method == 'function') then
-
-                        expQ = pNodRel%expQ
-                        expW = pNodRel%expW
-
-                        facQ = (qb1d / qb_out(inod))**expQ
-                        facW = (wb1d / width_out(inod))**expW
-
-                        facCheck = facCheck + facQ * facW
-
-                        e_sbcn(L,ised) = -Ldir * facQ * facW * sb_in(inod, ised) / wu_mor(L)
-
-                     elseif (pNodRel%Method == 'table') then
-
-                        facCheck = 1.0d0
-
-                        if (L == pNodRel%BranchOut1Ln) then
-                           Qbr1 = qb1d
-                           Qbr2 = qb_out(inod) - qb1d
-                        elseif (L == pNodRel%BranchOut2Ln) then
-                           Qbr1 = qb_out(inod) - qb1d
-                           Qbr2 = qb1d
-                        else
-                           call SetMessage(LEVEL_FATAL, 'Unknown Branch Out (This should never happen!)')
-                        endif
-
-                        QbrRatio = Qbr1 / Qbr2
-
-                        SbrRatio = interpolate(pNodRel%Table, QbrRatio)
-
-                        if (L == pNodRel%BranchOut1Ln) then
-                           e_sbcn(L,ised) = -Ldir * SbrRatio * sb_in(inod, ised) / (1 + SbrRatio) / wu_mor(L)
-                           e_sbct(L,ised) = 0.0
-                        elseif (L == pNodRel%BranchOut2Ln) then
-                           e_sbcn(L,ised) = -Ldir * sb_in(inod, ised) / (1 + SbrRatio) / wu_mor(L)
-                           e_sbct(L,ised) = 0.0
-                        endif
-
-
-                     else
-                        call SetMessage(LEVEL_FATAL, 'Unknown Nodal Point Relation Method Specified')
-                     endif
-
-                  else
-                     e_sbcn(L,ised) = 0.0_fp
-                     e_sbct(L,ised) = 0.0
-                  endif
-
-               endif
-
-            enddo    ! Branches
-
-            ! Correct Total Outflow
-            if ((facCheck /= 1.0_fp) .and. (facCheck > 0.0_fp)) then
-               ! loop over branches and correct redistribution of incoming sediment
-               do j=1,nd(k3)%lnx
-                  L = iabs(nd(k3)%ln(j))
-                  if (sb_dir(inod, ised, j) == -1) then
-                     e_sbcn(L,ised) = e_sbcn(L,ised)/facCheck
-                  endif
-               enddo    ! Branches
-            endif
-         endif
-      enddo      ! Nodes
-
-   enddo    ! Fractions
-
-   !
-   ! Bed-slope and sediment availability effects for
-   ! wave-related bed load transport
-   !
-   if (bedw>0.0_fp .and. jawave > 0) then
-      call fm_adjust_bedload(e_sbwn, e_sbwt,.false.)
-   endif
-   !
-   ! Sediment availability effects for
-   ! wave-related suspended load transport
-   !
-   if (susw>0.0_fp .and. jawave > 0) then
-      call fm_adjust_bedload(e_sswn, e_sswt, .false.)
-   endif
-   !
-   if (duneavalan) then
-      call duneaval(error)         ! only on current related bed transport
-      if (error) then
-         write(errmsg,'(a)') 'fm_erosed::duneavalan returned an error. Check your inputs.'
-         call mess(LEVEL_FATAL, errmsg)
-      end if
-   end if
-   !
-   ! Summation of current-related and wave-related transports on links
-   !
-   e_sbn = 0d0
-   e_sbt = 0d0
-   do l = 1,lsedtot
-      if (sedtyp(l)/=SEDTYP_COHESIVE) then
-         do nm = 1, lnx
-            e_sbn(nm, l) = e_sbcn(nm, l) + e_sbwn(nm, l) + e_sswn(nm, l)
-            e_sbt(nm, l) = e_sbct(nm, l) + e_sbwt(nm, l) + e_sswt(nm, l)
-         enddo
-      endif
-   enddo
-   !
    ! Update sourse fluxes due to sand-mud interaction
    !
-   allocate(evel(lsedtot), stat=istat)
+   allocate(evel(lsed), stat=istat)
    do nm = 1, ndx
       if (pmcrit(nm)<0.0_fp) cycle
       if (mudfrac(nm)<=0.0_fp .or. mudfrac(nm)>=1.0_fp) cycle
@@ -1478,7 +1262,6 @@
       ! compute erosion velocities
       !
       evel = 0.0_fp
-      !call getkbotktop(nm, kb, kt)
       do l = 1, lsed
          ll = lstart + l
          kmaxsd = kmxsed(nm,l)              ! meaning of kmaxsd changes here!
@@ -1487,7 +1270,7 @@
       !
       ! recompute erosion velocities
       !
-      call sand_mud(lsed, evel, frac(nm,:), mudfrac(nm), sedtyp, pmcrit(nm))
+      call sand_mud(lsed, evel, frac(nm,:), mudfrac(nm), sedtyp, max_mud_sedtyp, pmcrit(nm))
       !
       ! recompute erosion fluxes
       ! only explicit part of erosion flux is changed
@@ -1523,12 +1306,6 @@
 
    deallocate(dzdx, dzdy, stat = istat)
    if (istat == 0) deallocate(localpar, stat = istat)
-   if (istat == 0) deallocate(qb_out, stat = istat)
-   if (istat == 0) deallocate(width_out, stat = istat)
-   if (istat == 0) deallocate(sb_in, stat = istat)
-   if (istat == 0) deallocate(sb_dir, stat = istat)
-   if (istat == 0) deallocate(BranInIDLn, stat = istat)
-
    if (istat /= 0) then
       error = .true.
       write(errmsg,'(a)') 'fm_erosed::error deallocating memory.'

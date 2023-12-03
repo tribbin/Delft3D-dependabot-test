@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> solve equations implicitly in vertical direction
 subroutine solve_vertical(NUMCONST, ISED1, ISEDN, limtyp, thetavert, Ndkx, Lnkx, kmx,    &
@@ -39,8 +39,10 @@ subroutine solve_vertical(NUMCONST, ISED1, ISEDN, limtyp, thetavert, Ndkx, Lnkx,
                           a, b, c, d, e, sol, rhs)
    use m_flowgeom,  only: Ndxi, Ndx, Lnx, Ln, ba, kfs, bl  ! static mesh information
    use m_flowtimes, only: dts
-   use m_flow,      only: epshsdif, s1, kmxn, xlozmidov, rhomean, rho, ag, a1, wsf  ! do not use m_flow, please put this in the argument list
+   use m_flow,      only: epshsdif, s1, kmxn, xlozmidov, rhomean, rho, ag, a1, wsf, jaimplicitfallvelocity  ! do not use m_flow, please put this in the argument list
+   use m_flowparameters, only: epshu, testdryflood
    use m_sediment,  only: mtd, jased, ws, sedtra, stmpar
+   use m_fm_erosed, only: tpsnumber
    use sediment_basics_module
    use timers
 
@@ -144,7 +146,9 @@ subroutine solve_vertical(NUMCONST, ISED1, ISEDN, limtyp, thetavert, Ndkx, Lnkx,
       do k=kb,kt-1   ! assume zero-fluxes at boundary and top
          n = k-kb+1  ! layer number
          dvol1i  = 1d0/max(vol1(k),dtol)                            ! dtol: safety
+         if (testdryflood == 2 ) dvol1i = 1d0/max(vol1(k),epshu*ba(kk)/max(kt-kb+1,1))
          dvol2i  = 1d0/max(vol1(k+1),dtol)                          ! dtol: safety
+         if (testdryflood == 2 ) dvol2i = 1d0/max(vol1(k+1),epshu*ba(kk)/max(kt-kb+1,1))
          dtba    = dt_loc*ba(kk)
          dtbazi  = dtba / max(1d-4, 0.5d0*(zws(k+1)-zws(k-1)) )     ! another safety check
 
@@ -161,8 +165,8 @@ subroutine solve_vertical(NUMCONST, ISED1, ISEDN, limtyp, thetavert, Ndkx, Lnkx,
 
 !           ! diffusion
             if (jased > 3 .and. j >= ISED1 .and. j <= ISEDN) then  ! sediment d3d
-               fluxfac = (mtd%seddif(j-ISED1+1,k))*dtbazi
-               ! D3D: vicmol/sigmol(l) + ozmid + seddif(nm, k, ls)/sigdif(l)
+               fluxfac = (ozmid + mtd%seddif(j-ISED1+1,k)/tpsnumber(j-ISED1+1) + difsed(j)          )*dtbazi
+                        ! i.w.  + vicwws/van rijn                              + background (dicoww)
             else
                fluxfac = (sigdifi(j)*vicwws(k) + difsed(j) + ozmid)*dtbazi
             end if
@@ -183,10 +187,14 @@ subroutine solve_vertical(NUMCONST, ISED1, ISEDN, limtyp, thetavert, Ndkx, Lnkx,
                 ! if ( .false. .and. thetavert(j).gt.0d0 ) then ! semi-implicit, use central scheme
                 ! END DEBUG
 
-                if (jased < 4) then
-                   qw_loc = qw(k) - wsf(j)*a1(kk)
-                else  if ( j.ge.ISED1 .and. j.le.ISEDN ) then
-                   qw_loc = qw(k) - mtd%ws(k,ISED1+j-1)*a1(kk)
+                if (jased > 0 .and. jaimplicitfallvelocity == 0) then ! explicit fallvelocity
+                   if (jased < 4) then
+                      qw_loc = qw(k) - wsf(j)*a1(kk)
+                   else  if ( j.ge.ISED1 .and. j.le.ISEDN ) then
+                      qw_loc = qw(k) - mtd%ws(k,j-ISED1+1)*a1(kk)
+                   endif
+                else 
+                   qw_loc = qw(k)
                 endif
 
                 fluxfac  = qw_loc*0.5d0*thetavert(j)*dt_loc
@@ -197,6 +205,28 @@ subroutine solve_vertical(NUMCONST, ISED1, ISEDN, limtyp, thetavert, Ndkx, Lnkx,
                 b(n,j)   = b(n,j)   + fluxfac*dvol1i
                 c(n,j)   = c(n,j)   + fluxfac*dvol1i
             end if
+
+            if (jased > 0 .and. jaimplicitfallvelocity == 1) then 
+               fluxfac = 0d0
+               if (jased > 3) then 
+                  if ( j.ge.ISED1 .and. j.le.ISEDN ) then
+                     fluxfac = mtd%ws(k,j-ISED1+1)*a1(kk)*dt_loc
+                  else
+                     fluxfac = wsf(j)*a1(kk)*dt_loc
+                  endif
+               else 
+                  fluxfac = wsf(j)*a1(kk)*dt_loc
+               endif
+
+               if (fluxfac > 0d0 ) then 
+                  c(n,j)   = c(n,j)   - fluxfac*dvol1i
+                  b(n+1,j) = b(n+1,j) + fluxfac*dvol2i
+               else if (fluxfac < 0d0 ) then 
+                  b(n,j)   = b(n,j)   - fluxfac*dvol1i
+                  a(n+1,j) = a(n+1,j) + fluxfac*dvol2i                   
+               endif
+
+            endif
 
          end do
       end do

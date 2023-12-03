@@ -16,8 +16,6 @@ function print_usage_info {
     echo "Options:"
     echo "-h, --help"
     echo "       print this help message and exit"
-    echo "--dockerparallel"
-    echo "       A parallel run inside docker"
     echo "<filename>"
     echo "       Delft3D-FLOW configuration filename, default config_d_hydro.xml"
     exit 1
@@ -32,7 +30,6 @@ function print_usage_info {
 ## Defaults
 NPART=0
 configfile=config_d_hydro.xml
-dockerprl=0
 D3D_HOME=
 ulimit -s unlimited
 
@@ -44,29 +41,25 @@ NPART="$1"
 shift
 while [[ $# -ge 1 ]]
 do
-key="$1"
-shift
+    key="$1"
+    shift
 
-case $key in
-    -h|--help)
-    print_usage_info
-    ;;
-    --dockerparallel)
-    dockerprl=1
-    ;;
-    --D3D_HOME)
-    D3D_HOME="$1"
-    shift
-    ;;
-	--NNODES)
-    NNODES="$1"
-    shift
-    ;;
-    *)
-    configfile="$key"
-    break
-    ;;
-esac
+    case $key in
+        -h|--help)
+        print_usage_info
+        ;;
+        --D3D_HOME)
+        D3D_HOME="$1"
+        shift
+        ;;
+        --NNODES)
+        NNODES="$1"
+        shift
+        ;;
+        *)
+        configfile="$key"
+        ;;
+    esac
 done
 
 
@@ -94,11 +87,25 @@ if [ ! -d $D3D_HOME ]; then
 fi
 export D3D_HOME
 
+
+# On Deltares systems only:
+if [ -f "/opt/apps/deltares/.nl" ]; then
+    # Try the following module load
+    module load intelmpi/21.2.0 &>/dev/null
+
+    # If not defined yet: Define I_MPI_FABRICS and FI_PROVIDER with proper values for Deltares systems
+    [ ! -z "$I_MPI_FABRICS" ] && echo "I_MPI_FABRICS is already defined" || export I_MPI_FABRICS=shm
+    [ ! -z "$FI_PROVIDER" ] && echo "FI_PROVIDER is already defined" || export FI_PROVIDER=tcp
+fi
+
+
 echo "    Configfile       : $configfile"
 echo "    D3D_HOME         : $D3D_HOME"
 echo "    Working directory: $workdir"
 echo "    nr of parts      : $NPART"
-echo "    Docker parallel  : $dockerprl"
+echo "    `type mpiexec`"
+echo "    FI_PROVIDER      : $FI_PROVIDER"
+echo "    I_MPI_FABRICS    : $I_MPI_FABRICS"
 echo 
 
     #
@@ -109,59 +116,21 @@ bindir=$D3D_HOME/bin
 libdir=$D3D_HOME/lib
 
 
+    #
+    # No adaptions needed below
+    #
 
 export LD_LIBRARY_PATH=$libdir:$LD_LIBRARY_PATH
 export PATH="$bindir:${PATH}"
 
-if [ $dockerprl -eq 1 ]; then
-    #
-    # Parallel in Docker
-    # Assumption: 1 node
-    export PATH=/usr/lib64/mpich/bin:$PATH
-    echo "Starting mpd..."
-    mpd &
-    mpdboot -n $NPART --rsh=/usr/bin/rsh
 
-    node_number=$NPART
-    while [ $node_number -ge 1 ]; do
-       node_number=`expr $node_number - 1`
-       ln -s /dev/null log$node_number.irlog
-    done
-
-    echo "executing:"
-    echo "mpirun -np $NPART $bindir/d_hydro $configfile"
-          mpirun -np $NPART $bindir/d_hydro $configfile
-else 
-    #
-    # Not in Docker
-    # Start mpi
-    export PATH="/opt/mpich2/bin:${PATH}"
-    export NHOSTS=$NPART
-    echo " ">$(pwd)/machinefile
-    mpd &
-    mpdboot -n $NHOSTS
-
-       # link mpich debug rubbish to /dev/null
-    node_number=$NPART
-    while test $node_number -ge 1
-    do
-       node_number=`expr $node_number - 1`
-       ln -s /dev/null log$node_number.irlog
-    done
-
-       # Run
-        echo "executing:"
-        echo "mpirun -np $NPART $bindir/d_hydro $configfile"
-        echo 
-    mpirun -np $NPART $bindir/d_hydro $configfile
-
-    rm -f log*.irlog
-fi
+# Run
+echo "executing:"
+echo "mpirun -np $NPART $bindir/d_hydro $configfile"
+      mpirun -np $NPART $bindir/d_hydro $configfile
+echo 
 
 
-if [[ $dockerprl -eq 1 ]]; then
-    mpdallexit
-fi
 
     # Wait until all child processes are finished
 wait

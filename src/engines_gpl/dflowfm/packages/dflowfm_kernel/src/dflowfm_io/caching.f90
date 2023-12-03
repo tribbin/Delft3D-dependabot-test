@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2021.
+!  Copyright (C)  Stichting Deltares, 2017-2023.
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
 !  Delft3D is free software: you can redistribute it and/or modify
@@ -26,8 +26,8 @@
 !
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 ! NOTES:
 ! - Observation points can be "moving" - these are excluded.
@@ -457,11 +457,11 @@ subroutine storeCachingFile( basename, usecaching )
     !
     ! Store the data for the long culverts
     !
-    if ( .not. allocated(longculverts) ) then
-        allocate( longculverts(0) )
-    endif
-    write( lun ) section(key_long_culverts), size(longculverts)
-    call storeLongCulverts( lun, longculverts )
+    !if ( .not. allocated(longculverts) ) then
+    !    allocate( longculverts(0) )
+    !endif
+    !write( lun ) section(key_long_culverts), size(longculverts)
+    !call storeLongCulverts( lun, longculverts )
 
     !
     ! We are done, so close the file
@@ -576,6 +576,7 @@ subroutine copyCachedCrossSections( linklist, ipol, success )
                 success        = .false.
                 exit
             endif
+            if ( np == 0 ) cycle
             if ( any( cache_cross_sections(i)%path%xp(1:np) /= crs(i)%path%xp(1:np) ) .or. &
                  any( cache_cross_sections(i)%path%yp(1:np) /= crs(i)%path%yp(1:np) ) ) then
                 success        = .false.

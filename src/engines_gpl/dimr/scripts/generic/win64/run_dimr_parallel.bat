@@ -1,14 +1,15 @@
 @ echo off
 title run_dimr_parallel
-    rem When using mpich2 for the first time on a machine:
-    rem Execute "smpd -install" as administrator:
-    rem     Preparation: Check that your Delft3D installation contains "...\x64\share\bin\smpd.exe". Optionally copy it to a local directory (it will run as a service).
-    rem     "Start" -> "All programs" -> "Accessories", right-click "Command Prompt", "Run as Administrator"
+    rem When using intelMPI for the first time on a machine:
+    rem Execute "hydra_service.exe -install" as administrator:
+    rem     Preparation: Check that your Delft3D installation contains "...\x64\share\bin\hydra_service.exe". Optionally copy it to a local directory (it will run as a service).
+    rem     "Windows Start button" -> type "cmd", right-click "Command Prompt" App, "Run as Administrator"
     rem     In this command box:
-    rem         cd ...\x64\share\bin
-    rem         smpd -install
-    rem     When there is an smpd already running on the machine, it must be ended first, using the Microsoft Task Manager, 
-    rem     or in the command  box: smpd -uninstall
+    rem         cd ...\x64\share\bin (or your local copy)
+    rem         hydra_service.exe -install
+    rem         mpiexec.exe -register -username <user> -password <password> -noprompt
+    rem     When there is an hydra_service/smpd already running on the machine, it must be ended first, using the Microsoft Task Manager,
+    rem     or in the command  box: hydra_service.exe -uninstall (smpd -uninstall)
 
     rem
     rem This script runs dimr in parallel mode on Windows
@@ -17,7 +18,7 @@ title run_dimr_parallel
     rem Usage example:
     rem Execute in the working directory:
     rem path\to\delft3d\installation\x64\dimr\scripts\run_dimr_parallel.bat
-    rem More examples: check run scripts in https://svn.oss.deltares.nl/repos/delft3d/trunk/examples/*
+    rem More examples: check run scripts in https://git.deltares.nl/oss/delft3d/-/tree/main/examples/*
 
 setlocal enabledelayedexpansion
 set debuglevel=-1
@@ -45,11 +46,11 @@ if [%2] EQU [-d] (
         set argfile=dimr_config.xml
         goto readyreading
     ) else (
-        set argfile=%4
+        set argfile=%~4
         goto readyreading
     )
 ) else (
-    set argfile=%2
+    set argfile=%~2
 )
 if [%3] EQU [-d] (
     set debuglevel=%4
@@ -60,7 +61,7 @@ if [%3] EQU [-d] (
 
     rem Check configfile
 echo Configfile:%argfile%
-if not exist %argfile% (
+if not exist "%argfile%" (
     echo ERROR: configfile "%argfile%" does not exist
     goto usage
 )
@@ -75,13 +76,12 @@ if  %debuglevel% EQU -1 (
     rem Sets the number of threads if it is not defined
 if defined OMP_NUM_THREADS (
 echo OMP_NUM_THREADS is already defined
-) else ( 
-   rem Getting and setting the number of physical cores  
+) else (
+   rem Getting and setting the number of physical cores
    for /F "tokens=2 delims==" %%C in ('wmic cpu get NumberOfCores /value ^| findstr NumberOfCores') do set NumberOfPhysicalCores=%%C
    set /A OMP_NUM_THREADS=!NumberOfPhysicalCores! - 2
    if /I OMP_NUM_THREADS LEQ 2 ( set OMP_NUM_THREADS=2 )
 )
-echo OMP_NUM_THREADS is %OMP_NUM_THREADS%
 
 echo number of partitions: %numpar%
 
@@ -111,6 +111,7 @@ set swanexedir=%D3D_HOME%\%ARCH%\swan\bin
 set swanbatdir=%D3D_HOME%\%ARCH%\swan\scripts
 set sharedir=%D3D_HOME%\%ARCH%\share\bin
 set waveexedir=%D3D_HOME%\%ARCH%\dwaves\bin
+set wandaexedir=%D3D_HOME%\%ARCH%\wanda\bin
 
 
     rem
@@ -118,9 +119,16 @@ set waveexedir=%D3D_HOME%\%ARCH%\dwaves\bin
     rem
 
     rem Run
-set PATH=%dimrexedir%;%delwaqexedir%;%dflowfmexedir%;%flow1dexedir%;%flow1d2dexedir%;%rtctoolsexedir%;%rrexedir%;%waveexedir%;%swanbatdir%;%swanexedir%;%esmfbatdir%;%esmfexedir%;%sharedir%
-echo executing: "%sharedir%\mpiexec.exe" -n %numpar% -localonly "%dimrexedir%\dimr.exe" %debugarg% %argfile%
-"%sharedir%\mpiexec.exe" -n %numpar% -localonly "%dimrexedir%\dimr.exe" %debugarg% %argfile%
+set PATH=%dimrexedir%;%delwaqexedir%;%dflowfmexedir%;%flow1dexedir%;%flow1d2dexedir%;%rtctoolsexedir%;%rrexedir%;%waveexedir%;%swanbatdir%;%swanexedir%;%esmfbatdir%;%esmfexedir%;%wandaexedir%;%sharedir%
+if exist %sharedir%\vars.bat (
+    echo executing: "%sharedir%\vars.bat"
+        call "%sharedir%\vars.bat"
+) else (
+    echo "WARNING: File not found: %sharedir%\vars.bat"
+    echo "         Problems may occur when using IntelMPI"
+)
+echo executing: "%sharedir%\mpiexec.exe" -n %numpar% -localonly "%dimrexedir%\dimr.exe" %debugarg% "%argfile%"
+                "%sharedir%\mpiexec.exe" -n %numpar% -localonly "%dimrexedir%\dimr.exe" %debugarg% "%argfile%"
 
 goto end
 

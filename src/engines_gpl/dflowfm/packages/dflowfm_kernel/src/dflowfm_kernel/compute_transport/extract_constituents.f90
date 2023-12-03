@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> extract constituent array
 subroutine extract_constituents()
@@ -41,10 +41,11 @@ subroutine extract_constituents()
    use m_missing
    use m_plotdots
    use timers
+   use m_flowtimes
 
    implicit none
 
-   integer :: i, iconst, k, kk, kt, k1, limmin, limmax
+   integer :: i, iconst, k, kk, limmin, limmax,  ll, kb, k1, kt, ii
    double precision :: dmin, tempmi
 
    integer(4) ithndl /0/
@@ -53,14 +54,7 @@ subroutine extract_constituents()
    limmin = 0
    
    do k=1,Ndkx
-      if ( ISALT.ne.0 ) then
-         sa1(k) = constituents(ISALT,k)
-      end if
-
-      !if ( ITEMP.ne.0 ) then
-         ! tem1(k) = constituents(ITEMP,k)
-      !end if
-
+ 
       if( jasecflow > 0 .and. jaequili == 0 .and. kmx == 0 ) then
          spirint(k) = constituents(ISPIR,k)
       endif
@@ -68,10 +62,31 @@ subroutine extract_constituents()
       if ( ISED1.ne.0 ) then
          do i=1,mxgr
             iconst = ISED1+i-1
+            if (constituents(iconst,k)<0d0) then
+               limmin = limmin + 1
+               constituents(iconst,k) = 0d0
+            endif
+            !
+            ! keep track of mass error because of concentration limitation
+            if (constituents(iconst,k)>upperlimitssc) then
+               limmax = limmax + 1
+               maserrsed = maserrsed + vol1(k)*(constituents(iconst,k)-upperlimitssc)
+               constituents(iconst,k) = upperlimitssc
+            endif
             sed(i,k) = constituents(iconst,k)
          end do
       end if
    end do
+   
+   if (ISED1.ne.0 .and. jalogtransportsolverlimiting>0) then
+      if (limmin>0) then
+         write(msgbuf , *) 'Negative ssc encountered and limited, number of cells = ' , limmin  ; call msg_flush()
+      endif
+      !
+      if (limmax>0) then
+         write(msgbuf , *) 'SSC overshoots encountered and limited to ', upperlimitssc, ', number of cells = ',  limmax  ; call msg_flush()
+      endif   
+   endif
 
    if (jatem .ne. 0) then
       if (tempmax .ne. dmiss) then ! tem is now positive
@@ -86,14 +101,13 @@ subroutine extract_constituents()
             write(msgbuf , *) 'Max. temperature limited, number of cells Limmax = ' , limmax  ; call msg_flush()
          endif
       endif
-      limmin = 0
-	  
+         limmin = 0
+     
       if (tempmin .ne. dmiss) then 
          k1 = 1 ; if (kmx > 0) k1 = Ndx + 1
          do k = k1, Ndkx
-            tempmi = ( -0.0575d0 - 2.154996d-4*constituents(isalt,k) ) * constituents(isalt,k)  
-            if (constituents(itemp,k) < tempmi) then
-                constituents(itemp,k) = tempmi
+            if (constituents(itemp,k) < tempmin) then
+                constituents(itemp,k) = tempmin
                 limmin   = limmin + 1
             endif
          enddo
@@ -109,6 +123,9 @@ subroutine extract_constituents()
             endif
          enddo
       endif
+      if (limmin .ne. 0) then
+         write(msgbuf , *) 'Min. temperature limited, number of cells Limmin = ' , limmin  ; call msg_flush()
+      endif
       if (limmin .ne. 0 .and. tempmin > -0.001d0) then     !! no warnings when negative temperatures are allowed
          write(msgbuf , *) 'Min. temperature limited, number of cells Limmin = ' , limmin  ; call msg_flush()
       endif
@@ -120,20 +137,17 @@ subroutine extract_constituents()
       do kk = 1, Ndxi
          if (salimax .ne. dmiss) then
             do k = kbot(kk),ktop(kk)
-               if (sa1(k) > salimax) then
-                  sa1(k)  = salimax
+               if (constituents(isalt,k) > salimax) then
+                   constituents(isalt,k) = salimax
                   limmax  = limmax + 1
                endif
             enddo
          endif
 
          do k = kbot(kk),ktop(kk)
-            if (sa1(k) < salimin) then
-               !if (sa1(k) < -1d-4) then
-               !   call adddot( xz(kk) , yz(kk), sa1(k) )
-               !endif
-               dmin    = min(dmin,sa1(k))
-               sa1(k)  = salimin
+            if (constituents(isalt,k) < salimin) then
+               dmin    = min(dmin,constituents(isalt,k))
+               constituents(isalt,k) = salimin
                limmin  = limmin + 1
             endif
          enddo
@@ -150,6 +164,24 @@ subroutine extract_constituents()
 
   if (jasal > 0 .and. maxitverticalforestersal > 0 .or. jatem > 0 .and. maxitverticalforestertem > 0) then
      call doforester()
+  endif
+  !
+  ! When a cell become dries, keep track of the mass in the water column in sscum array. This will be accounted
+  ! for in the bottom update when the cell becomes wet again. This prevents large concentration gradients and exploding bed levels.
+  if (stm_included) then
+     if (stmpar%morpar%bedupd .and. time1 >= tstart_user + stmpar%morpar%tmor*tfac) then
+        if (ISED1>0) then
+          do ll=1,mxgr
+             do k=1,ndx
+                if (hs(k)<stmpar%morpar%sedthr) then
+                   call getkbotktop(k,kb,kt)
+                   ssccum(ll,k) = ssccum(ll,k)+sum(constituents(ISED1+ll-1,kb:kt))/dts*bai_mor(k)*vol1(k)
+                   constituents(ISED1+ll-1,kb:kt) = 0d0
+                endif
+             enddo
+           enddo
+        endif
+     endif
   endif
 
   if (timon) call timstop( ithndl )

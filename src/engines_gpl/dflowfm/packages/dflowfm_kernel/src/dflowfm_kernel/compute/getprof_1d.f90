@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 ! =================================================================================================
 ! =================================================================================================
@@ -41,6 +41,8 @@ use m_missing
 use unstruc_channel_flow
 use m_crosssections
 use m_cross_helper
+use unstruc_model, only: md_restartfile
+use precision_basics
 
 implicit none
 integer          :: L, japerim, calcConv
@@ -59,7 +61,7 @@ double precision :: perimgr, perimgr2, alfg, czg, hpr
 
 double precision :: frcn, cz, cf, conv, af_sub(3), perim_sub(3), cz_sub(3)
 double precision :: q_sub(3)             ! discharge per segment
-integer          :: LL, ka, kb, itp, ifrctyp, ibndsect
+integer          :: LL, ka, kb, itp, itpa, ifrctyp, ibndsect
 integer          :: k1, k2
 integer          :: jacustombnd1d
 double precision :: u1L, q1L, s1L, dpt, factor, maxflowwidth
@@ -168,9 +170,9 @@ else if (abs(kcu(ll))==1 .and. network%loaded) then !flow1d used only for 1d cha
 endif
 
 
-! No flow1d cross input, OR a 1d2d link. Proceeed with conventional prof1D approach.
+! No flow1d cross input, OR a 1d2d link. Proceed with conventional prof1D approach.
 if (prof1D(1,LL) >= 0 ) then            ! direct profile based upon link value
-    ka    = 0; kb = 0                  ! do not use profiles
+    ka    = 0; kb = 0                   ! do not use profiles
     profw = prof1D(1,LL)
     profh = prof1D(2,LL)
     itp   = prof1D(3,LL)
@@ -184,6 +186,7 @@ else
     profh = profiles1D(ka)%height
     itp   = profiles1D(ka)%ityp
     alfa  = prof1d(3,LL)
+    itpa  = itp
 
     if (japerim == 1) then
        if (profiles1D(ka)%frccf .ne. dmiss .and. profiles1D(kb)%frccf .ne. dmiss .and.  &
@@ -206,22 +209,34 @@ endif
 if (abs(itp) == 1) then   ! pipe
     call pipe(hpr, profw, area, width, japerim, perim)
 else if (abs(itp) == 2) then   ! rectan, peri=wu + 2*hpr
-    call rectan  (hpr, profw, profh, area, width, japerim, perim)
+    call rectan  (hpr, profw, profh, area, width, japerim, perim, itp < 0)
 else if (abs(itp) == 3) then  ! rectan, peri=wu
     call rectan2D(hpr, profw, profh, area, width, japerim, perim)
 else if (abs(itp) == 100 .or. abs(itp) == 101) then  !                          itp >= 100, yzprof
    call yzprofile(hpr,ka,itp, area, width, japerim, frcn, ifrctyp, perim, cf )
 endif
 
+
 if (ka .ne. 0 .and. kb .ne. ka) then     ! interpolate in profiles
     profw = profiles1D(kb)%width
     profh = profiles1D(kb)%height
     itp   = profiles1D(kb)%ityp
 
+   if (abs(itpa)<100 .and. abs(itp)>99) then
+      ! doe hier backup cf
+      if (frcn > 0) then
+            hydrad  = area / perim                   ! hydraulic radius
+            call getcz(hydrad, frcn, ifrctyp, cz,L)
+            cf = ag/(hydrad*cz*cz)             ! see note on 2D conveyance in sysdoc5
+         else
+            cf = 0d0
+         endif
+   endif
+
     if (abs(itp) == 1) then                   ! pipe
        call pipe(hpr, profw, area2, width2, japerim, perim2)
     else if (abs(itp) == 2) then              ! rectan, peri=wu + 2*hpr
-       call rectan  (hpr, profw, profh, area2, width2, japerim, perim2)
+       call rectan  (hpr, profw, profh, area2, width2, japerim, perim2, itp < 0)
     else if (abs(itp) == 3) then              ! rectan, peri=wu
        call rectan2D(hpr, profw, profh, area2, width2, japerim, perim2)
     else if (abs(itp) == 100 .or. abs(itp) == 101) then ! >= 10, conveyance approach

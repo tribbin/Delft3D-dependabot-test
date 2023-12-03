@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> fill constituent array
 subroutine fill_constituents(jas) ! if jas == 1 do sources
@@ -39,7 +39,7 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
    use m_mass_balance_areas
    use m_partitioninfo
    use m_sferic, only: jsferic, fcorio
-   use m_flowtimes , only : dnt, dts
+   use m_flowtimes , only : dnt, dts, time1, tstart_user, tfac
    use unstruc_messages
    use m_flowparameters, only: janudge
    use m_missing
@@ -64,14 +64,7 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
    const_sink = 0d0
 
    do k=1,Ndkx
-      if ( ISALT.ne.0 ) then
-         constituents(ISALT,k) = sa1(k)
-      end if
-
-      !if ( ITEMP.ne.0 ) then
-      !    constituents(ITEMP,k) = tem1(k)
-      !end if
-
+ 
       if( jasecflow > 0 .and. jaequili == 0 .and. kmx == 0 ) then
          constituents(ISPIR,k) = spirint(k)
       endif
@@ -83,6 +76,22 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
          end do
       end if
    end do
+
+   if (stm_included) then
+      if (stmpar%morpar%bedupd .and. time1 >= tstart_user + stmpar%morpar%tmor*tfac) then
+         if ( ISED1.ne.0 ) then
+            do k=1,ndx
+               if (hs(k)<stmpar%morpar%sedthr) then
+                  do i=1,mxgr
+                     iconst = ISED1+i-1
+                     call getkbotktop(k,kb,kt)
+                     constituents(iconst,kb:kt) = 0d0
+                  end do
+               endif
+            end do
+         end if
+      endif
+   endif
 
    difsedu = 0d0 ; difsedw = 0d0 ; sigdifi = 0d0
 
@@ -140,6 +149,7 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
 !  sources
    do kk=1,Ndx
 
+ 
 !     nudging
       Trefi = 0d0
       if ( janudge.eq.1 .and. jas.eq.1 ) then
@@ -150,6 +160,7 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
       call getkbotktop(kk,kb,kt)
       do k=kb,kt
          dvoli = 1d0/max(vol1(k),dtol)
+         if (testdryflood == 2 ) dvoli = 1d0/max(vol1(k),epshu*ba(kk)/max(kt-kb+1,1))
 
 !        temperature
          if (jatem > 1) then
@@ -215,23 +226,24 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
                   iconst = i+ISED1-1
                   const_sour(iconst,kkk) = const_sour(iconst,kkk)+sedtra%sourse(kk,i)
                   const_sink(iconst,kkk) = const_sink(iconst,kkk)+sedtra%sinkse(kk,i)
+                  
                   if (stmpar%morpar%flufflyr%iflufflyr .gt. 0) then
                      const_sour(iconst,kkk) = const_sour(iconst,kkk) + stmpar%morpar%flufflyr%sourf(i,kk)
                      const_sink(iconst,kkk) = const_sink(iconst,kkk) + stmpar%morpar%flufflyr%sinkf(i,kk)
                   end if
 
-                 ! BEGIN DEBUG
-                 ! if ( constituents(iconst,kb)+dts*const_sour(iconst,kb).lt.0d0 ) then
-                 !    write(message, "('const. source < -const/dt, iconst=', I0, ', kk=', I0)") iconst, kk
-                 !    call mess(LEVEL_WARN, trim(message))
-                 ! end if
+                  ! BEGIN DEBUG
+                  !if ( constituents(iconst,kkk)+dts*const_sour(iconst,kkk).lt.0d0 ) then
+                  !   write(message, "('const. source < -const/dt, iconst=', I0, ', kk=', I0)") iconst, kk
+                  !   call mess(LEVEL_WARN, trim(message))
+                  !end if
                  ! END DEBUG
                end if
             end do
          end if
       end if
    end do
-   
+
    if (jamba > 0 .and. jatem > 0) then   ! Positive and negative sums for jamba, checking just once   
                                          
       do kk=1,Ndx

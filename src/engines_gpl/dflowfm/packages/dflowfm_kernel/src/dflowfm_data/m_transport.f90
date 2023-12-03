@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> transport of many (scalar) constituents is performed with the transport module
 !!   -constituents are stored in the constituents array
@@ -41,12 +41,13 @@
 !!   -tracers with boundary conditions (not necessarily all tracers) have their own numbering
 !!   -the tracer (with bc's) to consituent mapping is called "itrac2const"
 !!   -boundary condition related information of the tracers are stored in "bndtr" of type "bndtype"
-module m_transport
+
+module m_transportdata
    integer, parameter                            :: NAMLEN = 128
    integer                                       :: NUMCONST       ! Total number of constituents
    integer                                       :: NUMCONST_MDU   ! number of constituents as specified in mdu/ext file
-   integer                                       :: ISALT  ! salt
-   integer                                       :: ITEMP  ! temperature
+   integer, target                               :: ISALT  ! salt
+   integer, target                               :: ITEMP  ! temperature
    integer                                       :: ISED1  ! first sediment fraction
    integer                                       :: ISEDN  ! last  sediment fraction
    integer                                       :: ISPIR  ! secondary flow intensity
@@ -59,11 +60,17 @@ module m_transport
    integer,          dimension(:),   allocatable :: ifrac2const   ! constituent number of sediment fractions
    double precision, dimension(:,:), allocatable, target :: constituents    ! constituents, dim(NUMCONST,Ndkx)
 
-   character(len=NAMLEN), dimension(:), allocatable :: const_names    ! constituent names
+   character(len=NAMLEN), dimension(:), allocatable, target :: const_names    ! constituent names
    character(len=NAMLEN), dimension(:), allocatable :: const_units    ! constituent units
    character(len=NAMLEN), parameter                 :: DEFTRACER = 'default_tracer'
 
-   integer,          dimension(:,:), allocatable :: id_const   ! consituent id's in map-file
+   integer,          dimension(:,:), allocatable    :: id_const   ! consituent id's in map-file
+   integer                                          :: iconst_cur ! active constituent (for visualization)
+end module m_transportdata
+
+module m_transport
+ 
+   use m_transportdata                                       !separation to get rid of all those use only: checks
 
    double precision, dimension(:,:), allocatable :: fluxhor  ! horizontal fluxes
    double precision, dimension(:,:), allocatable :: fluxver  ! vertical   fluxes
@@ -86,9 +93,6 @@ module m_transport
    double precision, dimension(:,:), allocatable :: rhs      ! right-hand side, dim(NUMCONST,Ndkx)
    double precision, dimension(:,:), allocatable :: a,b,c,d  ! aj(i,j)*sed(j,k-1) + bj(i,j)*sed(j,k) + c(i,j)*sed(j,k+1) = d(i), i=k-kb+1
    double precision, dimension(:),   allocatable :: sol, e   ! solution and dummy array in tridag, respectively
-
-!  for visualisation
-   integer                                       :: iconst_cur ! active constituent (for visualization)
 
 !  for local timestepping
    double precision, dimension(:,:), allocatable :: sumhorflux    !< sum of horizontal fluxes, dim(NUMCONST,Ndkx)
@@ -113,6 +117,7 @@ module m_transport
    integer :: jalimitdtdiff
 
    double precision :: dsum
+   double precision :: maserrsed !< cumulative sediment mass error because of volume truncation in shallow areas
 
 
    double precision, dimension(:),   allocatable :: u1sed

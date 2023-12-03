@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> "Casulli"-type refinement of quads
 subroutine refinequads_casulli
@@ -44,21 +44,21 @@ subroutine refinequads_casulli
 
    type (tadm)                            :: adm        ! structure with administration
 
-   double precision                       :: xc, yc, x3, y3, x4, y4, xp, yp
+   double precision                       :: xc, yc, xp, yp
 
    integer                                :: Lstart
 
    integer                                :: ierror
 
-   integer                                :: k, k0, k1, k2, k3, k4, kstart, kend
-   integer                                :: kk, kkm1, kkp1, kkp2, kkk, L, L1, L2, Lm1
+   integer                                :: k, k0, k1, k2, k3, k4
+   integer                                :: kk, kkm1, kkp1, kkp2, kkk, L, Lm1
    integer                                :: link1, link2
    integer                                :: kcell, knode, knew, Lnew
-   integer                                :: N, Ncell, NL, NR, node1, node2
+   integer                                :: N, Ncell, node1, node2
 
    integer                                :: numL_old, numk_old
 
-   integer                                :: jatolan, NPL_bak
+   integer                                :: jatolan
 
    integer                                :: idirectional
 
@@ -761,14 +761,10 @@ subroutine refinequads_casulli
       integer, dimension(:,:), intent(inout) :: newnodes ! new-node administration
 
       integer                                :: L1, L2
-      integer                                :: k1, k2, kk, kk1, kk2, L, N
       integer                                :: iLR1, iLR2, iSE1, iSE2, ipoint1, ipoint2
-      integer                                :: i, j, icell
+      integer                                :: icell
 
-      double precision                       :: xc, yc
-      double precision                       :: vecprod, dx1, dx2
-
-      integer, external                      :: icommon
+      integer, external                      :: common_cell_for_two_net_links
 
 !     if L1.eq.0 or L2.eq.0 or L1.eq.L2 and L1 or L2 is a boundary link, store at the "ghost"-side
       L1 = L1_
@@ -788,7 +784,7 @@ subroutine refinequads_casulli
       end if
 
 !     find common cell
-      icell = icommon(L1,L2)
+      icell = common_cell_for_two_net_links(L1,L2)
       if ( icell.lt.1 ) then
          call qnerror('store_newnode: no cell found', ' ', ' ')
       end if
@@ -863,3 +859,5 @@ subroutine refinequads_casulli
    end function isleftright
 
 end subroutine refinequads_casulli
+
+    

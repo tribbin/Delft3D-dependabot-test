@@ -1,6 +1,6 @@
 !----- LGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2021.                                
+!  Copyright (C)  Stichting Deltares, 2011-2023.                                
 !                                                                               
 !  This library is free software; you can redistribute it and/or                
 !  modify it under the terms of the GNU Lesser General Public                   
@@ -23,8 +23,8 @@
 !  are registered trademarks of Stichting Deltares, and remain the property of  
 !  Stichting Deltares. All rights reserved.                                     
 
-!  $Id$
-!  $HeadURL$
+!  
+!  
 
 !> This module instantiates FileReaders and their source Items, just as a GUI/framework instantiates kernels and their target Items.
 !! @author adri.mourits@deltares.nl
@@ -370,16 +370,22 @@ module m_ec_provider
                      case ("rainfall",                                                    &
                            "rainfall_rate",                                               &
                            "airpressure_windx_windy", "airpressure_windx_windy_charnock", &
-                           "airpressure_stressx_stressy",                                 &
-                           "windxy", "stressxy", "windx", "windy",                        &
+                           "airpressure_stressx_stressy", "charnock",                     &
+                           "windxy", "stressxy", "windx", "windy", "stressx", "stressy",  &
                            "nudge_salinity_temperature",                                  &
                            "airpressure","atmosphericpressure",                           &
+                           "airtemperature", "humidity", "dewpoint", "cloudiness",        &
+                           "wind_speed", "wind_from_direction",                           &
+                           "airdensity",                                                  & 
                            "humidity_airtemperature_cloudiness",                          &
                            "humidity_airtemperature_cloudiness_solarradiation",           &
                            "dewpoint_airtemperature_cloudiness",                          &
                            "dewpoint_airtemperature_cloudiness_solarradiation",           &
                            "sea_ice_area_fraction", "sea_ice_thickness",                  &
-                           "solarradiation", "longwaveradiation")
+                           "solarradiation", "longwaveradiation", "wavesignificantheight", &
+                           "waveperiod", "friction_coefficient_time_dependent", "wavedirection", & 
+                           "xwaveforce", "ywaveforce", &
+                           "freesurfacedissipation","whitecappingdissipation","totalwaveenergydissipation")
                         success = ecProviderCreateNetcdfItems(instancePtr, fileReaderPtr, quantityname, varname)
                      case ("hrms","tp", "tps", "rtp","dir","fx","fy","wsbu","wsbv","mx","my","dissurf","diswcap","ubot") 
                         success = ecProviderCreateWaveNetcdfItems(instancePtr, fileReaderPtr, quantityname)
@@ -1125,9 +1131,16 @@ module m_ec_provider
          success = ecSupportOpenExistingFile(minp, grid_file)
          if (.not. success) return
          ! Read the file header.
+         !
+         ! There is the RGF4.0 format description, and there is reality in the testbench:
+         ! -There can be no comments, or comments
+         ! -There can be RGF3.0 files or older with the SPHERICAL keyword in a comment
+         ! -There can be no, 1, or 2 keywords
          elmSetType = elmSetType_Cartesian
 20       call GetLine(minp, rec, istat)
-         if (index (rec,'=') == 0) then
+         !
+         ! handle comment lines
+         if (index (rec,'*') > 0) then     ! read comment lines where spherical might occur
          
             ! Backwards compatible: first line could contain spherical keyword         
             if (index(rec, 'Spherical') >= 1  .or. &
@@ -1137,10 +1150,24 @@ module m_ec_provider
             endif
          
             goto 20
-         end if
-         
-         read(minp,*) mx, nx
-         read(minp,*) ! skips a line
+         ! no comment, but keyword
+         elseif (index(rec, '=') >= 1) then
+            if (index(rec, 'Spherical') >= 1  .or. &
+                index(rec, 'SPHERICAL') >= 1  ) then
+               ! grid has spherical coordinates.
+               elmSetType = elmSetType_spheric
+            endif
+            !    
+            if (index(rec, 'Missing') >= 1) then
+               ! do nothing
+            endif  
+            goto 20
+         ! Comments and keywords done, read ncols and nrows from last record read   
+         else
+            read(rec,*) mx, nx
+            read(minp,*) ! skips line with 0 0 0 
+         endif   
+
          ! Read the file body.
          allocate(x(mx*nx))
          allocate(y(mx*nx))
@@ -1887,6 +1914,13 @@ module m_ec_provider
                cycle
             else
                all_points_are_corr = .false.
+               ! For non-harmonic, check if the source side vectormax equals the one requested on the target side
+               if (fileReaderPtr%vectormax /= bcBlockPtr%quantity%vectormax) then
+                  call setECMessage("BC-File '"//trim(bctfilename)//"' quantity '"//trim(quantityname) &
+                                            // "' has the wrong vector rank, please check the vector definition.")
+                  mask(i) = 0
+                  exit
+               endif
             endif
             if (.not. ecProviderConnectSourceItemsToTargets(instancePtr, bcBlockPtr%func, id, itemId, i,        &
                                                      n_signals, maxlay, itemIDList, qname=quantityname)) then
@@ -2277,7 +2311,7 @@ module m_ec_provider
       end function ecProviderCreateSpiderwebItems
       
       ! =======================================================================
-      function ecProviderCreateTimeInterpolatedItem(instancePtr, sourceItemId, tgtNdx) result(itemId)
+      function ecProviderCreateTimeInterpolatedItem(instancePtr, sourceItemId, tgtNdx, arrayPtr, scalarPtr) result(itemId)
           use m_ec_item
           use m_ec_converter,  only: ecConverterSetType, ecConverterSetInterpolation, ecConverterSetOperand, ecConverterSetElement
           use m_ec_instance,   only: ecInstanceCreateConverter, ecInstanceCreateConnection, ecInstanceCreateItem, ecInstanceCreateField, ecInstanceCreateQuantity
@@ -2290,6 +2324,8 @@ module m_ec_provider
           type(tEcInstance), pointer    :: instancePtr    !< EC-instance
           integer, intent(in)           :: sourceItemId   !< Source item id, before temporal interpolation
           integer, intent(in), optional :: tgtNdx         !< Optional target index, 1 is assumed as default
+          real(hp), pointer, optional   :: arrayPtr(:)    !< Optional pointer to a target array somewhere else
+          real(hp), pointer, optional   :: scalarPtr      !< Optional pointer to a target scalar somewhere else
           integer                       :: targetItemId   !< Target item id, after temporal interpolation
           integer                       :: itemId         !< returned  target item ID, if successful, otherwise -1 
           type(tECItem), pointer        :: sourceItemPtr => null() 
@@ -2318,7 +2354,33 @@ module m_ec_provider
           fieldId = ecInstanceCreateField(instancePtr)
 
           arraySize = size(sourceItemPtr%sourceT0FieldPtr%arr1d)
-          if (.not. (ecFieldCreate1dArray(instancePtr, fieldId, arraySize))) return
+          if (present(arrayPtr)) then
+              if (.not.associated(arrayPtr)) then
+                  call setECMessage("ecProviderCreateTimeInterpolatedItem: pointer to target array unassociated.")
+                  return
+              end if
+              if (size(arrayPtr)/=arraySize) then               ! check size
+                  call setECMessage("ecProviderCreateTimeInterpolatedItem: reserved target size and source size do not match.")
+                  return
+              end if
+              if (.not.ecFieldSet1dArrayPointer(instancePtr, fieldId, arrayPtr)) then
+                  call setECMessage("ecProviderCreateTimeInterpolatedItem: setting pointer to target array failed.")
+                  return 
+              end if
+          else
+              if (.not. (ecFieldCreate1dArray(instancePtr, fieldId, arraySize))) return
+          end if
+
+          if (present(scalarPtr)) then
+              if (.not.associated(scalarPtr)) then
+                  call setECMessage("ecProviderCreateTimeInterpolatedItem: pointer to target scalar unassociated.")
+                  return
+              end if
+              if (.not.ecFieldSetScalarPointer(instancePtr, fieldId, scalarPtr)) then
+                  call setECMessage("ecProviderCreateTimeInterpolatedItem: setting pointer to target scalar failed.")
+                  return 
+              end if
+          end if
 
           if (.not. ecItemSetRole(instancePtr, targetItemId, itemType_target)) return
           if (.not. ecItemSetTargetField(instancePtr, targetItemId, fieldId)) return
@@ -2403,6 +2465,7 @@ module m_ec_provider
          character(len=NF90_MAX_NAME), dimension(:), allocatable :: coord_names           !< helper variable
          character(len=NF90_MAX_NAME)                            :: name                  !< helper variable
          character(len=NF90_MAX_NAME), dimension(4)              :: ncstdnames            !< helper variable : temp. list of standard names to search for in netcdf
+         character(len=NF90_MAX_NAME), dimension(1)              :: ncstdnames_fallback   !< idem
          character(len=NF90_MAX_NAME), dimension(:), allocatable :: ncvarnames            !< helper variable : temp. list of variable names to search for in netcdf
          character(len=NF90_MAX_NAME), dimension(:), allocatable :: nccustomnames         !< helper variable : temp. list of user-defined variables names to search for
          integer                                                 :: quantityId            !< helper variable 
@@ -2456,6 +2519,7 @@ module m_ec_provider
          ncstdnames(:) = '' 
          allocate(ncvarnames(4))  ! todo: error handling
          ncvarnames(:) = '' 
+         ncstdnames_fallback = ' '
          idvar = -1 
          select case (trim(quantityName))
          case ('rainfall') 
@@ -2475,6 +2539,12 @@ module m_ec_provider
             ncstdnames(1) = 'eastward_wind'
             ncvarnames(2) = 'v10'                            ! 10 meter northward wind
             ncstdnames(2) = 'northward_wind'
+         case ('stressx')
+            ncvarnames(1) = 'tauu'                           ! eastward wind stress
+            ncstdnames(1) = 'surface_downward_eastward_stress'
+         case ('stressy')
+            ncvarnames(1) = 'tauv'                           ! northward wind stress
+            ncstdnames(1) = 'surface_downward_northward_stress'
          case ('stressxy')
             ncvarnames(1) = 'tauu'                           ! eastward wind stress
             ncstdnames(1) = 'surface_downward_eastward_stress'
@@ -2483,6 +2553,10 @@ module m_ec_provider
          case ('airpressure','atmosphericpressure') 
             ncvarnames(1) = 'msl'                            ! mean sea-level pressure
             ncstdnames(1) = 'air_pressure'
+         case ('airdensity') 
+            ! UNST-6593: airdensity has variable name p140209 and no standard_name, will be changed in the future according to ECMWF. 
+            ncvarnames(1) = 'p140209'                        ! air density above sea
+            ncstdnames(1) = 'air_density'
          case ('airpressure_windx_windy') 
             ncvarnames(1) = 'msl'                            ! mean sea-level pressure
             ncstdnames(1) = 'air_pressure'
@@ -2506,6 +2580,32 @@ module m_ec_provider
             ncstdnames(3) = 'northward_wind'
             ncvarnames(4) = 'c'                              ! space varying Charnock coefficients
             ncstdnames(4) = 'charnock'
+         case ('charnock')
+            ncvarnames(1) = 'c'                              ! space varying Charnock coefficients
+            ncstdnames(1) = 'charnock'
+         case ('airtemperature')
+            ncvarnames(1) = 't2m'                            ! 2-meter air temperature
+            ncstdnames(1) = 'air_temperature'
+         case ('cloudiness')
+            ncvarnames(1) = 'tcc'                            ! cloud cover (fraction)
+            ncstdnames(1) = 'cloud_area_fraction'
+         case ('humidity')
+            ncstdnames(1) = 'humidity'
+            ncstdnames_fallback(1) = 'relative_humidity'
+         case ('dewpoint')
+            ncvarnames(1) = 'd2m'                            ! dew-point temperature
+            ncstdnames(1) = 'dew_point_temperature'
+         case ('wind_speed')
+            ncstdnames(1) = 'wind_speed'
+         case ('wind_from_direction')
+            ncstdnames(1) = 'wind_from_direction'
+         case ('humidity_airtemperature_cloudiness')
+            ncvarnames(1) = 'rhum'                           ! relative_humidity
+            ncstdnames(1) = 'relative_humidity'
+            ncvarnames(2) = 't2m'                            ! 2-meter air temperature
+            ncstdnames(2) = 'air_temperature'
+            ncvarnames(3) = 'tcc'                            ! cloud cover (fraction)
+            ncstdnames(3) = 'cloud_area_fraction'
          case ('dewpoint_airtemperature_cloudiness')
             ncvarnames(1) = 'd2m'                            ! dew-point temperature
             ncstdnames(1) = 'dew_point_temperature'
@@ -2525,6 +2625,7 @@ module m_ec_provider
          case ('solarradiation')
             ncvarnames(1) = 'ssr'                            ! outgoing SW radiation at the top-of-the-atmosphere
             ncstdnames(1) = 'surface_net_downward_shortwave_flux'
+            ncstdnames_fallback(1) = 'solar_irradiance'
          case ('longwaveradiation')
             ncvarnames(1) = 'strd'                           ! outgoing long wave radiation
             ncstdnames(1) = 'surface_net_downward_longwave_flux'
@@ -2535,9 +2636,36 @@ module m_ec_provider
             ncstdnames(2) = 'sea_water_salinity'
          case ('sea_ice_area_fraction','sea_ice_thickness')
             ncstdnames(1) = quantityName
-         case default                                        ! experiment: gather miscellaneous variables from an NC-file,
-            if (index(quantityName,'waqsegmentfunction')==1) then
-               ncvarnames(1) = quantityName
+         case ('friction_coefficient_time_dependent')
+            ncvarnames(1) = 'friction_coefficient' 
+            ncstdnames(1) = 'friction_coefficient' 
+         case ('wavesignificantheight')
+            ncvarnames(1) = 'hs'                             ! significant wave height
+            ncstdnames(1) = 'sea_surface_wave_significant_height'
+         case ('waveperiod')
+             ncvarnames(1) = varname                          ! wave period
+             ncstdnames(1) = varname
+         case ('wavedirection')
+             ncvarnames(1) = 'theta0'
+             ncstdnames(1) = 'sea_surface_wave_from_direction'
+         case ('xwaveforce')
+             ncvarnames(1) = 'xfor'
+             ncstdnames(1) = 'xfor'
+         case ('ywaveforce')
+             ncvarnames(1) = 'yfor'
+             ncstdnames(1) = 'yfor'
+         case ('freesurfacedissipation')
+             ncvarnames(1) = 'ssurf'
+             ncstdnames(1) = 'ssurf'
+         case ('whitecappingdissipation')
+             ncvarnames(1) = 'swcap'
+             ncstdnames(1) = 'swcap'
+         case ('totalwaveenergydissipation')
+             ncvarnames(1) = varname
+             ncstdnames(1) = varname    
+             case default                                        ! experiment: gather miscellaneous variables from an NC-file,
+             if (index(quantityName,'waqsegmentfunction')==1) then
+                 ncvarnames(1) = quantityName
                ncstdnames(1) = quantityName
             else if (index(quantityName,'initialtracer')==1) then
                ncvarnames(1) = quantityName(14:)
@@ -2594,6 +2722,9 @@ module m_ec_provider
 
          do i = 1, expectedLength
             call ecProviderSearchStdOrVarnames(fileReaderPtr, i, idvar, ncstdnames, ncvarnames, uservarnames = nccustomnames)
+            if (idvar <= 0 .and. ncstdnames_fallback(1) /= ' ') then
+               call ecProviderSearchStdOrVarnames(fileReaderPtr, i, idvar, ncstdnames_fallback, ncvarnames)
+            end if
             if (idvar <= 0) then                              ! Variable not found among standard names and variable names either
                if (allocated(nccustomnames)) then
                   nameVar = trim(nccustomnames(i))
@@ -2603,7 +2734,7 @@ module m_ec_provider
                call setECMessage("Variable '" // nameVar // "' not found in NetCDF file '"//trim(fileReaderPtr%filename))
                return
             endif
-            fileReaderPtr%standard_names(idvar)=ncstdnames(i)                 ! overwrite the standardname by the one rquired
+            fileReaderPtr%standard_names(idvar)=ncstdnames(i)                 ! overwrite the standardname by the one required
 
             ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, idvar, ndims=ndims)  ! get the number of dimensions
             if (allocated(coordids)) deallocate(coordids)                                 ! allocate space for the variable id's 
@@ -2673,6 +2804,9 @@ module m_ec_provider
                      endif 
                   endif 
                end if
+            else
+               call setECMessage("coordsystem is not set for EC instance")
+               return
             end if
 
             tgd_id = z_varid

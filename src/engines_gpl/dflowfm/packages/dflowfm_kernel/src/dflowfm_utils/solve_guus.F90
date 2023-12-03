@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,15 +27,15 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif 
 
  subroutine inireduce()
  use m_reduce
- use m_flowparameters, only: jajipjan
+ use m_flowparameters, only: Noderivedtypes
  use m_flowgeom
  use m_partitioninfo
  use m_flowparameters, only: icgsolver, ipre
@@ -114,7 +114,7 @@ else
 end if
 
 if (icgsolver .ne. 4) then 
-   jajipjan = 0
+   Noderivedtypes = 0
 endif   
 
 ! set preconditioner
@@ -250,15 +250,29 @@ endif
  return
  end subroutine mindegree
 
- subroutine ijtrue(i,j)
+ !> Put new fill in on stack of Gauss-CG solver
+ subroutine ijtrue(i, j)
  use m_reduce
  use m_alloc
- !
- ! this subroutine puts new fill in on stack
- !
  implicit none
- integer i,j,n,intbuf(2000),k1,k2,ierr
- logical logbuf(2000)
+ integer, intent(in) :: i !< First node number
+ integer, intent(in) :: j !< Second node number
+ integer :: n,k1,k2,ierr
+ integer :: cursize, minsize
+
+ if (allocated(intbuf)) then
+    cursize = size(intbuf)
+ else
+    cursize = 0
+ end if
+ minsize = max(2000, cursize, ij(i)%l, ij(j)%l)
+
+ if (cursize < minsize) then
+    ! Exponential growth to prevent 1000s of buffer realloc calls
+    minsize = ceiling(1.2*minsize)
+    call realloc(intbuf, minsize, stat = ierr, keepExisting = .false.)
+    call realloc(logbuf, minsize, stat = ierr, keepExisting = .false.)
+ end if
 
  k1 = ij(i)%l
  do n=1,ij(i)%l
@@ -519,15 +533,19 @@ endif
 
  call timstrt('Conjugate Gradient solver', handle_sol)
  
- if ( jatimer.eq.1 ) call starttimer(IGAUSSEL)
+ if ( jatimer.eq.1 ) then 
+     call starttimer(IGAUSSEL)
+ endif
 
- if (jajipjan >= 2) then 
+ if (Noderivedtypes >= 2) then 
     call gauss_eliminationjipjan( )
  else   
     call gauss_elimination ( )
  endif
     
- if ( jatimer.eq.1 ) call stoptimer(IGAUSSEL)
+ if ( jatimer.eq.1 ) then 
+     call stoptimer(IGAUSSEL)
+ endif
  
  if ( jatimer.eq.1 ) call starttimer(ICG)
  
@@ -540,7 +558,7 @@ endif
  else  if (icgsolver == 3) then
     call conjugategradient                (s1,ndx,ipre)  ! ipre = 0,1,2  ! no omp
  else  if (icgsolver == 4 .or. icgsolver == 44) then
-    if ( nocg.gt.10 .or. jajipjan == 5) then
+    if ( nocg.gt.10 .or. Noderivedtypes == 5) then
        if (icgsolver == 4) then  ! thread-safe
           call conjugategradientSAAD(ddr,s1,ndx,nocgiter,1,1,ierror)    ! Saad, always using omp and ILUD preconditioner
        else
@@ -593,7 +611,7 @@ endif
  
  if ( jatimer.eq.1 ) call starttimer(IGAUSSSU)
 
- if (jajipjan >= 1) then 
+ if (Noderivedtypes >= 1) then 
     call gauss_substitutionjipjan(s1,ndx)
  else
     call gauss_substitution(s1,ndx)
@@ -621,7 +639,7 @@ endif
  USE M_SAAD
  use m_flowgeom, only: kfs
  use MessageHandling
- use m_flowparameters, only : jajipjan
+ use m_flowparameters, only : Noderivedtypes
  use m_partitioninfo, only : jampi, sdmn, my_rank
  use m_netw, only: xzw, yzw
  use unstruc_model, only: md_ident
@@ -655,7 +673,7 @@ endif
 
  if ( jaini.eq.-1 .or. jaini.eq.1 ) then
      
-    if (jajipjan <= 2) then 
+    if (Noderivedtypes <= 2) then 
     
        do n=nogauss+1,nogauss+nocg
           ndn = noel(n)       ! guus index 
@@ -708,7 +726,7 @@ endif
     na  = 0                ! saad matrix non zero counter
     iao(1) = 1             !   
     
-    if (jajipjan <= 3) then 
+    if (Noderivedtypes <= 3) then 
   
        do n=nogauss+1,nogauss+nocg
           ndn = noel(n)       ! guus index
@@ -778,7 +796,7 @@ endif
     
  else ! always make rhs (eliminate ghostcells)
  
-    if (jajipjan <= 3) then       
+    if (Noderivedtypes <= 3) then       
        
        do n=nogauss+1,nogauss+nocg
           nn  = n - nogauss  ! saad index
@@ -1482,7 +1500,7 @@ subroutine conjugategradient_omp(s1,ndx,ipre)
    
  subroutine jipjanini()
  use m_reduce
- use m_flowparameters, only: jajipjan 
+ use m_flowparameters, only: Noderivedtypes 
  implicit none
 
  integer m,n,np, Ltot, j, iftot, k
@@ -1500,7 +1518,7 @@ subroutine conjugategradient_omp(s1,ndx,ipre)
     enddo
  enddo
  
- if (jajipjan >= 3) then 
+ if (Noderivedtypes >= 3) then 
     do n = nogauss+1,nogauss+nocg 
        ndn=noel0(n)
        np=row(ndn)%l                                                   
@@ -1531,7 +1549,7 @@ subroutine conjugategradient_omp(s1,ndx,ipre)
     enddo
  enddo
 
- if (jajipjan >= 3) then 
+ if (Noderivedtypes >= 3) then 
     do n = nogauss+1,nogauss+nocg 
        ndn=noel0(n)
        np=row(ndn)%l                                                   
@@ -1560,7 +1578,7 @@ subroutine conjugategradient_omp(s1,ndx,ipre)
     enddo
  enddo
 
- if (jajipjan >=5) then 
+ if (Noderivedtypes >=5) then 
     do n=1,nodtot
        if ( allocated(row(n)%a) ) deallocate (row(n)%a)
        if ( allocated(row(n)%j) ) deallocate (row(n)%j)
@@ -1698,7 +1716,7 @@ subroutine gauss_eliminationjipjan
  ! this subroutine finds an elimination order for Gaussian elimination based upon minimum degree algorithm
  use m_reduce
  use unstruc_messages
- use m_flowparameters, only : icgsolver, ipre, jajipjan
+ use m_flowparameters, only : icgsolver, ipre, Noderivedtypes
  use m_partitioninfo
 
  implicit none
@@ -1758,6 +1776,8 @@ subroutine gauss_eliminationjipjan
 
  deallocate(ij)
  deallocate(nbrstk, nodstk, nodbr2)
+ if (allocated(intbuf)) deallocate(intbuf)
+ if (allocated(logbuf)) deallocate(logbuf)
  if ( allocated( jagauss) ) deallocate(jagauss)
 
  call allocate_arrays()
@@ -1774,7 +1794,7 @@ subroutine gauss_eliminationjipjan
  end if
 #endif
  
- if (jajipjan >= 1) then 
+ if (Noderivedtypes >= 1) then 
     call jipjanini()
  endif   
 

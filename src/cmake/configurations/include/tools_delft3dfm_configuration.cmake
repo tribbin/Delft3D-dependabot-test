@@ -12,15 +12,20 @@ if(NOT TARGET dfmoutput)
     add_subdirectory(${checkout_src_root}/${dfmoutput_module} dfmoutput)
 endif()
 
-# Waqpb
-if(NOT TARGET waqpb_lib)
-    add_subdirectory(${checkout_src_root}/${waqpb_lib_module} waqpb_lib)
+# dfm_volume_tool
+if(NOT TARGET dfm_volume_tool)
+    add_subdirectory(${checkout_src_root}/${dfm_volume_tool_module} dfm_volume_tool)
 endif()
 
-if(NOT TARGET waqpb_import)
-    add_subdirectory(${checkout_src_root}/${waqpb_import_module} waqpb_import)
+# dfm_api_access
+if(NOT TARGET dfm_api_access)
+    add_subdirectory(${checkout_src_root}/${dfm_api_access_module} dfm_api_access)
 endif()
 
-if(NOT TARGET waqpb_export)
-    add_subdirectory(${checkout_src_root}/${waqpb_export_module} waqpb_export)
+# cosumo_bmi
+if(NOT TARGET cosumo_bmi)
+    add_subdirectory(${checkout_src_root}/${cosumo_bmi_module} cosumo_bmi)
 endif()
+
+# D-Waq tools
+include(${CMAKE_CURRENT_SOURCE_DIR}/configurations/include/dwaq/dwaq_tools.cmake)

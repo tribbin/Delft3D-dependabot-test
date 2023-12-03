@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine setbedlevelfromextfile()    ! setbedlevels()  ! check presence of old cell centre bottom level file
  use timespace_data
@@ -43,8 +43,8 @@ subroutine setbedlevelfromextfile()    ! setbedlevels()  ! check presence of old
  use string_module, only: strcmpi
  use unstruc_inifields, only: readIniFieldProvider, checkIniFieldFileVersion
  use dfm_error
-
  use unstruc_netcdf
+ 
  implicit none
 
  logical, external :: timespaceinitialfield_mpi
@@ -71,29 +71,14 @@ subroutine setbedlevelfromextfile()    ! setbedlevels()  ! check presence of old
  character(len=ini_key_len)      :: groupname
  character(len=255)              :: fnam
  character(len=255)              :: basedir
- integer :: major, minor
  integer :: i, iLocType
-
 
  kc_size_store = 0
  inifield_ptr => null()
 
- if (len_trim(md_xybfile) > 0) then 
-    inquire(file = md_xybfile, exist=jawel)
-    if (jawel) then                                   ! set tegeldiepte optie als bl file aanwezig
-        ! BathymetryFile available and used for initialisation of the bed levels
-        call oldfil(mxyb,md_xybfile)
-        call reabl(mxyb)
-        call mess(LEVEL_INFO, 'setbedlevelfromextfile: Setting bedlevel from file '''//trim(md_xybfile)//'''.')
-    else
-        ! BathymetryFile specified but not available     
-        call mess(LEVEL_FATAL, 'setbedlevelfromextfile: Bedlevel from file '''//trim(md_xybfile)//''' not found.')
-    endif     
- else
-     ! When no BathymetryFile, attempt to read cell centred bed levels directly from net file:
-     call setbedlevelfromnetfile()
-     call mess(LEVEL_INFO, 'setbedlevelfromextfile: Using bedlevel as specified in net-file.')
- endif
+ ! Attempt to read cell centred bed levels directly from net file:
+ call setbedlevelfromnetfile()
+ call mess(LEVEL_INFO, 'setbedlevelfromextfile: Using bedlevel as specified in net-file.')
 
  ! ibedlevtyp determines from which source data location the bed levels are used to derive bobs and bl.
  ! These types need to be mapped to one of three possible primitive locations (center/edge/corner).
@@ -231,13 +216,15 @@ bft:do ibathyfiletype=1,2
     end do bft ! ibathyfiletype=1,2
 
     ! Clean up *.ext file
-    rewind (mext)
+    if (mext /= 0) then
+       rewind (mext)
+    endif   
 
     ! Clean up *.ini file.
     call tree_destroy(inifield_ptr)
 
     ! Interpreted values for debugging.
-    if ( md_jasavenet == 1 ) then
+    if ( md_exportnet_bedlevel == 1 ) then
 !      save network
        select case (ibedlevtyp)
           case (3,4,5,6) ! primitime position = netnode, cell corner

@@ -1,7 +1,7 @@
 module m_network
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify              
 !  it under the terms of the GNU Affero General Public License as               
@@ -25,21 +25,21 @@ module m_network
 !  Stichting Deltares. All rights reserved.
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !-------------------------------------------------------------------------------
 
    use m_GlobalParameters
-   use networkTypes
+   use m_branch
    use m_forcinglist
    use m_crossSections
    use m_1d_structures
    use m_roughness
-   use m_trenches
-   use m_ExtraResistance
-   use m_df1d_transport
    use m_ObservCrossSections
    use m_compound
+   use m_spatial_data
+   use m_Storage
+   use m_ObservationPoints
    
    implicit none
 
@@ -50,15 +50,16 @@ module m_network
    public getFrictionValue
    public update_flow1d_admin
    public getRoughnessForProfile
-
+   
+   
    interface realloc
       module procedure realloc_1dadmin
    end interface realloc
 
-   interface dealloc
-      module procedure deallocNetwork
+    interface dealloc
+       module procedure deallocNetwork
       module procedure dealloc_1dadmin
-   end interface dealloc
+    end interface dealloc
    
 
    ! !TODO JN: zorg voor allocatie en initialisatie. en vullen van lin2ibr en lin2local uit adm%lin. -1 is missing value e.g. for a 2d link, length LINALL
@@ -73,15 +74,11 @@ module m_network
       type(t_chainage2cross), pointer :: line2cross(:,:) => null()         !< List containing cross section indices per flow link: (L,1) for gridpoint at 
                                                                            !< the start of the flow link, (L,2) for the flow link itself and (L,1) for gridpoint at 
                                                                            !< the end of the flow link.
-      type(t_chainage2cross), pointer :: gpnt2cross(:) => null()         !< list containing cross section indices per gridpoint-chainage at begin and end of a link
       logical, allocatable            :: hysteresis_for_summerdike(:,:)    !< array indicating for hysteresis in summerdikes
 
    end type
 
    type, public   :: t_network
-      integer                                   :: gridpointsCount         !< total number of gridpoints in network NDS%count - NDS%bndCount
-      integer                                   :: l1dall                  !< total number of links (internal, boundary and compound links)
-      integer                                   :: l1d                     !< total number of links (internal and boundary)
       integer                                   :: numk                    !< total number of links (internal and boundary)
       integer                                   :: numl                    !< total number of links (internal and boundary)
       logical                                   :: sferic                  !< flag indicating whether the used coordinate system is sferical or metric
@@ -94,10 +91,8 @@ module m_network
       type(t_RoughnessSet)                      :: rgs                     !< set containing roughness sections
       type(t_ObservationPointSet)               :: obs                     !< set of observation points
       type(t_storageSet)                        :: storS                   !< set containing storage in gridpoints
-      type(t_trenchSet)                         :: trs                     !< set containing trenches (infiltration sewer tubes)
       type(t_CSDefinitionSet)                   :: CSDefinitions
       type(t_spatial_dataSet)                   :: spData
-      type(t_transportSet)                      :: trans
       type(t_ObservCrossSectionSet)             :: observcrs               !< set of observation Cross-Sections 
       type(t_forcingList)                       :: forcinglist             !< Work list of read-in (structure) forcing data, to be initialized by calling kernel later.
       logical                                   :: loaded      = .false.
@@ -106,19 +101,19 @@ module m_network
    
 contains
 
-   subroutine realloc_1dadmin(adm, links_count, gridp_count)
+   subroutine realloc_1dadmin(adm, links_count_1d, links_count_all, gridp_count_1d)
 
       type(t_administration_1d)  :: adm
-      integer, intent(in)        ::  links_count
-      integer, intent(in)        ::  gridp_count
+      integer, intent(in)        ::  links_count_1d  !< Maximum number of 1D flow links in model
+      integer, intent(in)        ::  links_count_all !< Maximum number of 1D+2D flow links in model
+      integer, intent(in)        ::  gridp_count_1d  !< Maximum number of 1D grid points in model
       
-      if (.not. allocated(adm%lin2str))      allocate(adm%lin2str   (links_count))  
-      if (.not. allocated(adm%lin2ibr))      allocate(adm%lin2ibr   (links_count))   
-      if (.not. allocated(adm%lin2local))    allocate(adm%lin2local (links_count)) 
-      if (.not. allocated(adm%lin2grid))     allocate(adm%lin2grid  (links_count)) 
-      if (.not. associated(adm%line2cross))  allocate(adm%line2cross(links_count, 3))
-      if (.not. associated(adm%gpnt2cross))  allocate(adm%gpnt2cross(gridp_count))
-      if (.not. allocated(adm%hysteresis_for_summerdike)) allocate(adm%hysteresis_for_summerdike(2,links_count))
+      if (.not. allocated(adm%lin2str))      allocate(adm%lin2str   (links_count_all))  
+      if (.not. allocated(adm%lin2ibr))      allocate(adm%lin2ibr   (links_count_1d))   
+      if (.not. allocated(adm%lin2local))    allocate(adm%lin2local (links_count_1d)) 
+      if (.not. allocated(adm%lin2grid))     allocate(adm%lin2grid  (links_count_1d)) 
+      if (.not. associated(adm%line2cross))  allocate(adm%line2cross(links_count_1d, 3))
+      if (.not. allocated(adm%hysteresis_for_summerdike)) allocate(adm%hysteresis_for_summerdike(2,links_count_1d))
       adm%hysteresis_for_summerdike = .true.
       
    end subroutine realloc_1dadmin
@@ -131,7 +126,6 @@ contains
       if (allocated(adm%lin2local))    deallocate(adm%lin2local)
       if (associated(adm%line2cross))  deallocate(adm%line2cross)
       if (allocated(adm%lin2grid))    deallocate(adm%lin2grid)
-      if (associated(adm%gpnt2cross))  deallocate(adm%gpnt2cross)
       if (allocated(adm%hysteresis_for_summerdike)) deallocate(adm%hysteresis_for_summerdike)
 
    end subroutine dealloc_1dadmin
@@ -157,76 +151,51 @@ contains
       call dealloc(network%rgs)
       call dealloc(network%obs)
       call dealloc(network%storS)
-      call dealloc(network%trs)
       call dealloc(network%CSDefinitions)
       call dealloc(network%spData)
-      call dealloc(network%trans)
       call dealloc(network%observcrs)
       network%loaded = .false.
    
    end subroutine deallocNetwork
 
-   subroutine admin_network(network, ngrid, nlink)
+   subroutine admin_network(network, nlink)
       use m_node
       use m_branch
    
       type(t_network), intent(inout) :: network
-      integer, intent(inout) :: ngrid
       integer, intent(inout) :: nlink
    
-      integer ibr
-      integer nnode
-      integer ityp
-      integer i
-      integer icon, ibnd, typ
-      integer nod
-      integer, allocatable, dimension(:) :: itype
-      integer, allocatable, dimension(:) :: iboun
-   
-      type(t_branch), pointer :: pbr
-   
       call admin_branch(network%brs, nlink)
-      network%gridpointsCount = ngrid
-      network%l1d    = nlink
-      network%l1dall = nlink
-
-
 
    end subroutine admin_network
 
 
-   subroutine initialize_1dadmin(network, linall)
+   subroutine initialize_1dadmin(network, linall_1d, linall_all)
    
       use m_CrossSections
       use m_GlobalParameters
       use Timers
       type(t_network), intent(inout), target :: network
-      integer, intent(in)            :: linall          !< Maximum number of links, used for (re)allocation.
+      integer, intent(in)            :: linall_1d          !< Maximum number of 1D links, used for (re)allocation.
+      integer, intent(in)            :: linall_all         !< Maximum number of all flow links, used for (re)allocation.
       
       integer :: is, k1, k2, L1, L2
       integer :: ilnk
       integer :: igpt
-      integer :: ll
-      integer :: istru
       integer :: ibran
       integer :: m
       integer :: icrs1
       integer :: icrs2
+      integer :: L
       
       double precision                   :: f
-      double precision                   :: dpu1
-      double precision                   :: dpu2
       double precision                   :: chainage1
       double precision                   :: chainage2
       double precision                   :: chainage
       double precision                   :: chainageg
-      double precision                   :: chezy
-      double precision                   :: as
-      double precision                   :: wetperimeter
       type(t_administration_1d), pointer          :: adm
       type(t_branch), pointer            :: pbran
-      type(t_structure), pointer         :: pstru
-
+      type(t_CrossSection), pointer      :: C1, C2
       integer, allocatable, dimension(:) :: crossOrder
       integer, allocatable, dimension(:) :: lastAtBran
       integer                            :: icrsBeg
@@ -238,17 +207,14 @@ contains
       logical                            :: interpolDone
       logical                            :: initError = .false.
 
-      call realloc(network%adm, linall, linall + network%brs%Count)
+      call realloc(network%adm, linall_1d, linall_all, linall_1d + network%brs%Count)
 
       timerHandle = 0
       call timstrt('line administration', timerHandle)
       adm => network%adm
       
-      adm%lin2str = -huge(1)
-      do i = 1, network%sts%count
-         adm%lin2str(abs(network%sts%struct(i)%linknumbers(1:pstru%numlinks))) = i
-      enddo
-      
+      call update_lin2str_admin(network)
+
       adm%lin2ibr   = -huge(1)
       adm%lin2local = -huge(1)
       adm%lin2grid  = -huge(1)
@@ -278,6 +244,8 @@ contains
          call timstrt('Apply branch orders', timerHandle)
          
          call useBranchOrders(network%crs, network%brs)
+         call reIndexCrossSections(network%sts, network%crs) ! Update re-sorted cross sections for culverts and bridges
+
          call timstop(timerhandle)
          
          timerHandle = 0
@@ -445,135 +413,26 @@ contains
          enddo
          call timstop(timerhandle)
          
-         ! Cross-Section indices for gridpoints
-         timerHandle = 0
-         call timstrt('Interpolation to grid points', timerHandle)
-         do ibran = 1, network%brs%Count
-            
-            pbran   => network%brs%branch(ibran)
-
-            if (size(pbran%grd) == 0) then
-               cycle
-            endif
-
-            if (ibran .eq. 1) then
-               icrsBeg = 1
-            else
-               icrsBeg =lastAtBran(ibran - 1) + 1
-            endif
-            icrsEnd = lastAtBran(ibran)
-            
-            if (icrsBeg > icrsEnd) then
-               ! branch without cross sections
-               do m = 1, 2
-                  igpt = pbran%grd(m)
-                  adm%gpnt2cross(igpt)%c1 = 0
-                  adm%gpnt2cross(igpt)%c2 = 0
-                  adm%gpnt2cross(igpt)%f  = 1.0d0
-               enddo
-               cycle   
-            endif
-            
-            icrs1 = icrsBeg
-            icrs2 = icrsBeg
-            
-            xBeg = network%crs%cross(crossOrder(icrsBeg))%chainage
-            xEnd = network%crs%cross(crossOrder(icrsEnd))%chainage
-            
-            do m = 1, pbran%gridPointsCount
-               
-               chainageg = pbran%gridPointschainages(m)
-               igpt = pbran%grd(m)
-               
-               ! Skip gridpoints not in this partition
-               if (igpt > size(adm%gpnt2cross)) cycle
-               
-               if (icrsBeg == icrsEnd) then
-                  
-                  ! Just one Cross-Section
-                  adm%gpnt2cross(igpt)%c1 = crossOrder(icrsBeg)
-                  adm%gpnt2cross(igpt)%c2 = crossOrder(icrsBeg)
-                  adm%gpnt2cross(igpt)%f  = 1.0d0
-                  interpolDone            = .true.   
-                  
-                  elseif (chainageg <= xBeg) then
-                     
-                     ! Before First Cross-Section
-                  adm%gpnt2cross(igpt)%c1 = crossOrder(icrsBeg)
-                  adm%gpnt2cross(igpt)%c2 = crossOrder(icrsBeg)
-                  adm%gpnt2cross(igpt)%f  = 1.0d0
-                  interpolDone            = .true.   
-                  
-                  elseif (chainageg >= xEnd) then
-                     
-                     ! After Last Cross-Section
-                     adm%gpnt2cross(igpt)%c1 = crossOrder(icrsEnd)
-                     adm%gpnt2cross(igpt)%c2 = crossOrder(icrsEnd)
-                     adm%gpnt2cross(igpt)%f  = 1.0d0
-                     interpolDone            = .true.   
-                     
-                  else
-                     
-                     chainage1 = network%crs%cross(crossOrder(icrs1))%chainage
-                     chainage2 = network%crs%cross(crossOrder(icrs2))%chainage
-                     
-                  if (.not. ((chainage1 <= chainageg) .and. (chainage2 >= chainageg))) then
-                     
-                     do i = icrs1, icrsEnd
-                        if (network%crs%cross(crossOrder(i))%chainage >= chainageg) then
-                           chainage2 = network%crs%cross(crossOrder(i))%chainage
-                           icrs2 = i
-                           exit
-                        endif
-                     enddo
-                     
-                     do i = icrsEnd, icrsBeg, -1
-                        if (network%crs%cross(crossOrder(i))%chainage <= chainageg) then
-                           chainage1 = network%crs%cross(crossOrder(i))%chainage
-                           icrs1 = i
-                           exit
-                        endif
-                     enddo
-                     
+         call resetMaxerrorLevel()
+         do L = 1, linall_1d
+            do i = 1,3
+               if (adm%line2cross(L,i)%C1 > 0 .and. adm%line2cross(L,i)%C2 > 0) then
+                  c1 => network%crs%cross(adm%line2cross(L,i)%C1)
+                  c2 => network%crs%cross(adm%line2cross(L,i)%C2)
+                  if (c1%crosstype /= c2%crosstype) then
+                     call SetMessage(LEVEL_WARN, 'Incorrect CrossSection input for CrossSections '''//trim(c1%csid)//''', '''//trim(c2%csid)//''' on branch '''//trim(pbran%id)// &
+                        '''. CrossSections must be of the same type!')
                   endif
-                  
-                  interpolDone = .false.   
-                  
-               endif
-               
-               ! Interpolation data for Grid Point
-               if (igpt > 0) then
-                  if (ibran == network%crs%cross(crossOrder(icrs2))%branchid) then
-                     
-                     if (.not. interpolDone) then
-                        adm%gpnt2cross(igpt)%c1 = crossOrder(icrs1)
-                        adm%gpnt2cross(igpt)%c2 = crossOrder(icrs2)
-                        if (icrs1 == icrs2) then 
-                           f = 1.0d0
-                        else    
-                           if (chainage1 == chainage2) then 
-                              write(msgbuf, '(A,F10.3,A)') 'Multiple cross sections defined at same chainage (', chainage1, ') on branch '//trim(pbran%id)//'.'
-                              call err_flush()
-                              initError = .true.
-                           endif
-                           f = (chainageg - chainage1) / (chainage2 - chainage1)
-                        endif    
-                        f = max(f, 0.0d0) 
-                        f = min(f, 1.0d0) 
-                        adm%gpnt2cross(igpt)%f = f
-                     endif
-                     
-                  else
-                     adm%gpnt2cross(igpt)%c1 = crossOrder(icrs1)
-                     adm%gpnt2cross(igpt)%c2 = crossOrder(icrs1)
-                     adm%gpnt2cross(igpt)%f  = 1.0d0
+                  if (c1%closed /= c2%closed) then
+                     call SetMessage(LEVEL_WARN, 'Incorrect CrossSection input for CrossSections '''//trim(c1%csid)//''', '''//trim(c2%csid)//''' on branch '''//trim(pbran%id)// &
+                        '''. CrossSections must have same closed state!')
                   endif
                endif
-               
             enddo
-            
          enddo
-         call timstop(timerhandle)
+         if (getMaxErrorLevel() > 0) then
+            call SetMessage(LEVEL_FATAL, 'Incompatible CrossSections have been detected, see previous messages.')
+         endif
 
          deallocate(crossOrder)
          deallocate(lastAtBran)
@@ -619,6 +478,24 @@ contains
    
    end subroutine reassign_pointers
 
+   !> Updates the network%adm%lin2str administration after the full set
+   !! of structures has been filled.
+   subroutine update_lin2str_admin(network)
+      type(t_network), intent(inout) :: network !< The overal network containing structures and administration.
+
+      integer :: i
+      type (t_structure), pointer :: pstru
+
+      network%adm%lin2str = -huge(1)
+      do i = 1, network%sts%count
+         pstru => network%sts%struct(i)
+         if (associated(pstru%linknumbers)) then
+            network%adm%lin2str(abs(pstru%linknumbers(1:pstru%numlinks))) = i
+         end if
+      enddo
+   end subroutine update_lin2str_admin
+
+
    subroutine set_network_pointers(network)
       ! Modules
    
@@ -641,7 +518,7 @@ contains
       enddo
    
    end subroutine set_network_pointers
-
+   
    !> In this subroutine arrays crossorder and lastAtBran are filled \n
    !! crossorder contains the cross section indices, where the cross sections are ordered 
    !! in ascending branchid and subsequently in chainage.\n
@@ -875,6 +752,7 @@ use m_tablematrices
     double precision                :: dep
     double precision                :: ys
     double precision                :: rad
+    logical                         :: checkDirectRoughness
     type(t_Roughness), pointer      :: rgh 
     type(t_spatial_data), pointer   :: values
     integer, dimension(:), pointer  :: rgh_type
@@ -897,10 +775,10 @@ use m_tablematrices
     !
     if (associated(cross)) then
        ! section refers to the roughness section *within* the cross section. Actual friction section index then comes from lookup.
-       if (cross%frictionSectionsCount > 0) then
+       if (cross%frictionSectionsCount > 0) then ! FB: this is also true if there is no friction section index as count is always >= 1
          isec = cross%frictionsectionIndex(min(cross%frictionSectionsCount, section))
        else
-          isec = section
+         isec = section
        endif
     else
        ! No cross section definition: section directly refers to a friction section index.
@@ -909,15 +787,9 @@ use m_tablematrices
     
     if (rgs%version == 1) then
       rgh => rgs%rough(isec)
-      if (q >= 0d0 .or. .not. associated(rgh%rgh_type_neg)) then
-          values    => spData%quant(rgh%spd_pos_idx)
-          rgh_type  => rgh%rgh_type_pos 
-          fun_type  => rgh%fun_type_pos 
-       else 
-          values    => spData%quant(rgh%spd_neg_idx)
-          rgh_type  => rgh%rgh_type_neg 
-          fun_type  => rgh%fun_type_neg 
-       endif   
+      values    => spData%quant(rgh%spd_pos_idx)
+      rgh_type  => rgh%rgh_type_pos 
+      fun_type  => rgh%fun_type_pos 
        if (fun_type(ibranch) == R_FunctionDischarge) then
           cpar = interpolate(values%tables%tb(values%tblIndex(igrid))%table,  dabs(q))
        !
@@ -936,7 +808,9 @@ use m_tablematrices
     !
     else ! Version 2 roughness
        do i = 1, 2
-          if (isec < 0) then
+          checkDirectRoughness = .false.
+          if (associated(cross)) checkDirectRoughness = (cross%frictionSectionID(cross%frictionSectionsCount) == '')
+          if (checkDirectRoughness) then
              ! Current cross section does *not* refer to a friction section index, but has defined direct roughness type+coefficient.
              cz = GetChezy(cross%frictionType(section), cross%frictionValue(section), rad, dep, u)
           else
@@ -1080,15 +954,9 @@ use m_tablematrices
     
     if (rgs%version == 1) then
       rgh => rgs%rough(isec)
-      if (q >= 0d0 .or. .not. associated(rgh%rgh_type_neg)) then
-          values    => spData%quant(rgh%spd_pos_idx)
-          rgh_type  => rgh%rgh_type_pos 
-          fun_type  => rgh%fun_type_pos 
-       else 
-          values    => spData%quant(rgh%spd_neg_idx)
-          rgh_type  => rgh%rgh_type_neg 
-          fun_type  => rgh%fun_type_neg 
-       endif   
+      values    => spData%quant(rgh%spd_pos_idx)
+      rgh_type  => rgh%rgh_type_pos 
+      fun_type  => rgh%fun_type_pos 
        if (fun_type(ibranch) == R_FunctionDischarge) then
           cpar = interpolate(values%tables%tb(values%tblIndex(igrid))%table,  dabs(q))
        !
@@ -1162,11 +1030,12 @@ subroutine getRoughnessForProfile(network, crs)
         
       iRough = hashsearch(network%rgs%hashlist, crs%frictionSectionID(i))
       if (iRough <= 0) then
-         call SetMessage(LEVEL_ERROR, 'No Data found for Section '//trim(crs%frictionSectionID(i))//' of Cross-Section ID: '//trim(crs%csid))
+         call SetMessage(LEVEL_FATAL, 'No Data found for Section '//trim(crs%frictionSectionID(i))//' of Cross-Section ID: '//trim(crs%csid))
          cycle
       endif
       
       pRgs => network%rgs%rough(iRough)
+
       if (network%rgs%version == network%rgs%roughnessFileMajorVersion) then
          frictionValue = crs%frictionValuePos(i)
          call getFrictionParameters(pRgs,  crs%branchid, crs%chainage, crs%frictionTypePos(i), crs%frictionValuePos(i))
@@ -1189,13 +1058,8 @@ subroutine getRoughnessForProfile(network, crs)
          
       
       crs%frictionTypePos(i) = pRgs%rgh_type_pos(crs%branchid)
-      if (associated(pRgs%rgh_type_neg)) then
-         crs%frictionTypeNeg(i) = pRgs%rgh_type_neg(crs%branchid)
-      else
-         crs%frictionTypeNeg(i) = pRgs%rgh_type_pos(crs%branchid)
-      endif
       
-      if (pRgs%spd_pos_idx <= 0 .and. pRgs%spd_neg_idx <= 0) then
+      if (pRgs%spd_pos_idx <= 0) then
          call SetMessage(LEVEL_ERROR, 'No Spatial Data specified for Section '//trim(crs%frictionSectionID(i))//' of Cross-Section ID: '//trim(crs%csid))
          cycle
       endif
@@ -1210,28 +1074,6 @@ subroutine getRoughnessForProfile(network, crs)
          if (istatus >= 0) crs%frictionValuePos(i) = frictionValue
          if (istatus > 0)  crs%frictionTypePos(i)  = frictionType
 
-      endif
-        
-      ! Negative direction
-      if (pRgs%spd_neg_idx > 0) then
-      
-         pSpData => network%spData%quant(pRgs%spd_neg_idx)
-         
-         iStatus = getValueAtLocation(pSpData, crs%branchid, crs%chainage, frictionValue, frictionType)
-         
-         if (istatus >= 0) crs%frictionValueNeg(i) = frictionValue
-         if (istatus > 0)  crs%frictionTypeNeg(i)  = frictionType
-
-      endif
-      
-      if (pRgs%spd_pos_idx > 0 .and. pRgs%spd_neg_idx <= 0) then
-         crs%frictionValueNeg(i) = crs%frictionValuePos(i)
-         crs%frictionTypeNeg(i)  = crs%frictionTypePos(i)
-      endif
-      
-      if (pRgs%spd_pos_idx <= 0 .and. pRgs%spd_neg_idx > 0) then
-         crs%frictionValuePos(i) = crs%frictionValueNeg(i)
-         crs%frictionTypePos(i)  = crs%frictionTypeNeg(i)
       endif
         
    enddo
@@ -1270,6 +1112,7 @@ subroutine update_flow1d_admin(network, lc)
       pbr%Xs(1)                  = pbr%Xs(1)                 
       pbr%Ys(1)                  = pbr%Ys(1)                 
       pbr%grd(1)                 = pbr%grd(1)                
+      ! TODO: is this code already safe for gridpointssequences?
       do LL = 1, upointscount
          if (pbr%lin(LL)==LC(Ltoberemoved_index) ) then
             Ltoberemoved_index = Ltoberemoved_index + 1
@@ -1297,6 +1140,7 @@ subroutine update_flow1d_admin(network, lc)
             pbr%uPointsChainages(LL_new)      = pbr%uPointsChainages(LL)   
             pbr%lin(LL_new)                   = Lnew               
             pbr%grd(LL_new+1)                 = pbr%grd(LL+1)                
+            ! TODO: %grd_input
          endif
       enddo
    enddo

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,11 +27,12 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
-subroutine rectan(hpr, br, hr, area, width, japerim, perim)
+subroutine rectan(hpr, br, hr, area, width, japerim, perim, closed)
 use m_flow, only : slotw1D
+use m_longculverts, only: newculverts
 implicit none
 integer          :: japerim
 double precision :: hpr                  ! hoogte   in profiel
@@ -40,6 +41,8 @@ double precision :: hr                   ! hoogte  van profiel
 double precision :: area                 ! wet cross sectional area
 double precision :: width                ! width at water surface
 double precision :: perim, hp            ! wet perimeter
+logical, intent(in   ) :: closed         !< Whether the rectangle shape is closed (ceiling can be included in wet perimeter)
+
 if (japerim == 1) then
    hp = min(hpr, hr)
 else
@@ -48,6 +51,10 @@ endif
 area  = hp*br
 width = br
 perim = 2d0*hp + br
+if (hpr >= hr .and. closed .and. newculverts) then
+   perim = perim+br
+end if
+
 if (slotw1D > 0 .and. japerim == 0) then
    width = width + slotw1D
    area  = area  + slotw1D*hpr

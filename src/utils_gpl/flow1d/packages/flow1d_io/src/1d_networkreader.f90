@@ -1,7 +1,7 @@
 module m_1d_networkreader
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify              
 !  it under the terms of the GNU Affero General Public License as               
@@ -25,111 +25,24 @@ module m_1d_networkreader
 !  Stichting Deltares. All rights reserved.
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !-------------------------------------------------------------------------------
 
    use MessageHandling
    use properties
    use m_hash_search
-   use m_hash_list
    use m_network
    
    implicit none
 
    private
    
-   public NetworkReader
-   public NetworkUgridReader
    public read_1d_ugrid
-   public read_network_cache
-   public write_network_cache
    public construct_network_from_meshgeom
 
    contains
-    
-   subroutine NetworkReader(network, networkFile)
-   
-      use m_hash_search
-      
-      implicit none
-   
-      type(t_network), target, intent(inout) :: network
-      character(len=*), intent(in) :: networkFile
-      
-      type(tree_data), pointer  :: md_ptr
-      integer :: istat
-      integer :: numstr
-      integer :: i
-
-      call tree_create(trim(networkFile), md_ptr, maxlenpar)
-      call prop_file('ini',trim(networkFile), md_ptr, istat)
-
-      numstr = 0
-      if (associated(md_ptr%child_nodes)) then
-         numstr = size(md_ptr%child_nodes)
-      end if
-
-      ! Get the Nodes First
-      do i = 1, numstr
-         
-         if (tree_get_name(md_ptr%child_nodes(i)%node_ptr) .eq. 'node') then
-           call readNode(network%nds, md_ptr%child_nodes(i)%node_ptr)
-         endif
-
-      enddo
-      call fill_hashtable(network%nds)
-      
-      ! Get the Branches
-      do i = 1, numstr
-         
-         if (tree_get_name(md_ptr%child_nodes(i)%node_ptr) .eq. 'branch') then
-           call readBranch(network%brs, network%nds, md_ptr%child_nodes(i)%node_ptr)
-         endif
-
-      enddo
-      
-      call adminBranchOrders(network%brs)
-      call fill_hashtable(network%brs)
-      
-      call tree_destroy(md_ptr)
-      
-   end subroutine NetworkReader
-   
-   subroutine NetworkUgridReader(network, networkUgridFile)
-   
-      use io_netcdf
-      use io_ugrid
-      use m_hash_search
-      use gridgeom
-      use meshdata
-      
-      implicit none
-   
-      type(t_network), target, intent(inout) :: network
-      character(len=*), intent(in)           :: networkUgridFile
-      
-      integer                   :: ierr
-      integer                   :: ioncid
-      
-      ! Open UGRID-File
-      ierr = ionc_open(networkUgridFile, NF90_NOWRITE, ioncid)
-      if (ierr .ne. 0) then
-         call SetMessage(LEVEL_FATAL, 'Error Opening UGRID-File: '''//trim(networkUgridFile)//'''')
-      endif
-
-      ! Do the actual read
-      call read_1d_ugrid(network, ioncid)
-      
-      ! Close UGRID-File
-      ierr = ionc_close(ioncid)
-      if (ierr .ne. 0) then
-         call SetMessage(LEVEL_FATAL, 'Error Closing UGRID-File: '''//trim(networkUgridFile)//'''')
-      endif
-       
-   end subroutine NetworkUgridReader  
-
-
+ 
    !> Constructs a flow1d t_network datastructure, based on meshgeom read from a 1D UGRID file.
    !! meshgeom is only used for reading a UGRID NetCDF file, whereas network is used during
    !! a model computation.
@@ -144,6 +57,7 @@ module m_1d_networkreader
    use m_hash_search
    use odugrid
    use precision_basics
+   use m_alloc
 
    !in variables
    type(t_network),                             intent(inout) :: network
@@ -259,7 +173,7 @@ module m_1d_networkreader
    ierr = ggeo_get_xy_coordinates(meshgeom%nodebranchidx, meshgeom%nodeoffsets, meshgeom%ngeopointx, meshgeom%ngeopointy, &
       meshgeom%nbranchgeometrynodes, meshgeom%nbranchlengths, jsferic, gpsX, gpsY)
    if (ierr /= 0) then
-      call SetMessage(LEVEL_FATAL, 'Network UGRID-File: Error Getting Mesh Coordinates From UGrid Data')
+      call SetMessage(LEVEL_FATAL, 'Network UGRID-File: Error Getting Mesh Coordinates From UGrid Data. Are all grid points ordered by branchId, chainage?')
    endif
 
    ! Get the starting and ending mesh1d grid point indexes for each network branch.
@@ -271,11 +185,11 @@ module m_1d_networkreader
 
    ierr = ggeo_get_start_end_nodes_of_branches(meshgeom%nodebranchidx, gpFirst, gpLast)
    if (ierr /= 0) then
-      call SetMessage(LEVEL_FATAL, 'Network UGRID-File: Error Getting first and last nodes of the network branches')
+      call SetMessage(LEVEL_FATAL, 'Network UGRID-File: Error Getting first and last nodes of the network branches. Are all grid points ordered by branchId, chainage?')
    endif
    ierr = ggeo_get_start_end_nodes_of_branches(meshgeom%edgebranchidx, lnkFirst, lnkLast)
    if (ierr /= 0) then
-      call SetMessage(LEVEL_FATAL, 'Network UGRID-File: Error Getting first and last links of the network branches')
+      call SetMessage(LEVEL_FATAL, 'Network UGRID-File: Error Getting first and last links of the network branches. Are all edges ordered by branchId, chainage?')
    endif
 
    ! Fill the array storing the mesh1d node ids for each network node.
@@ -336,7 +250,11 @@ module m_1d_networkreader
          localUOffsets(1:linkCount)      = meshgeom%edgeoffsets(firstLink:lastLink)
       end if
 
+      startEndPointMissing(1:2) = .false.
       if (nodesOnBranchVertices==0 .and. linkCount /= 0) then
+         ! Optionally add the start and/or end point on a branch, this may even be necessary for MPI-parallel models.
+         ! Reason: if the first and/or last u-point has no left, resp. right grid point (due to the gridpoint
+         ! lying on a connected branch), then such gridpoint(s) *must* be added to this branch%grd administration.
          if (gridPointsCount > 0) then
             startEndPointMissing(1) = (localUOffsets(1)         < localOffsets(1))
             startEndPointMissing(2) = (localUOffsets(linkCount) > localOffsets(gridPointsCount))
@@ -354,11 +272,20 @@ module m_1d_networkreader
          nodeids(meshgeom%nedge_nodes(2,ibran)), meshgeom%nbranchlengths(ibran), meshgeom%nbranchorder(ibran), gridPointsCount, localGpsX(1:gridPointsCount), &
          localGpsY(1:gridPointsCount),localOffsets(1:gridPointsCount), localUoffsets(1:linkCount), &
          localGpsID(1:gridPointsCount), my_rank_)
+
+      ! Prepare mask array that defines which grd points were in input, and which not (used in admin_branch() later).
+      call realloc(network%brs%branch(ibran)%grd_input, gridPointsCount, keepExisting=.false., fill=1)
+      if (startEndPointMissing(1)) then
+         network%brs%branch(ibran)%grd_input(1) = 0
+      end if
+      if (startEndPointMissing(2)) then
+         network%brs%branch(ibran)%grd_input(gridPointsCount) = 0
+      end if
    enddo
 
    call adminBranchOrders(network%brs)
    call fill_hashtable(network%brs)
-
+   
    network%loaded = .true.
 
    end function construct_network_from_meshgeom
@@ -729,7 +656,6 @@ module m_1d_networkreader
       pbr%fromNode%y        = gpY(1)
       pbr%toNode%x          = gpX(gridPointsCount)
       pbr%toNode%y          = gpY(gridPointsCount)
-      pbr%iTrench           = 0
 
       do j = 1, 2
          if (j==1) then
@@ -790,6 +716,7 @@ module m_1d_networkreader
                           gpchainages, gpUchainages, gpID, my_rank)
    
       use m_branch
+      use messagehandling
       use precision_basics, only: comparereal
       
       implicit none
@@ -825,6 +752,7 @@ module m_1d_networkreader
       integer                                  :: igpFrom
       integer                                  :: igpTo
       character(len=IdLen)                     :: Chainage
+      character(len=4)                         :: cnum
       
       brs%Count = brs%Count + 1
       ibr = brs%Count
@@ -871,7 +799,8 @@ module m_1d_networkreader
             write (msgbuf, '(3a, g11.4, a, g11.4)' ) 'Two grid points on branch ''', trim(branchid), ''' are too close at chainage ',               &
                                     gpchainages(igr), ' and ', gpchainages(igr + 1)
             if (my_rank >= 0) then
-               write(msgbuf,'(a,i4,2a)') 'Rank = ', my_rank, ': ', trim(msgbuf)
+               write(cnum, '(i4)') my_rank
+               msgbuf = 'Rank = ' // cnum // ': ' // msgbuf
             end if
             call SetMessage(LEVEL_WARN, msgbuf)
          endif 
@@ -908,10 +837,12 @@ module m_1d_networkreader
             pbr%toNode%x          = gpX(gridPointsCount)
             pbr%toNode%y          = gpY(gridPointsCount)
             igpTo                 = ip2
+         elseif (comparereal(gpchainages(gridPointsCount), branchlength) > 0) then
+            ! Only check for points beyond the branch length, in parallel mode a missing end node is possible.
+            msgbuf = 'The chainage of the last gridpoint on branch '''// trim(pbr%Id)// ''' is larger than the edge length of this branch'
+            call err_flush()
          end if
       end if
-
-      pbr%iTrench           = 0
 
       do j = 1, 2
          if (j==1) then
@@ -950,208 +881,5 @@ module m_1d_networkreader
       enddo
       
    end subroutine storeBranch
-
-   subroutine read_network_cache(ibin, network)
-   
-      type(t_network), intent(inout)  :: network
-      integer, intent(in)             :: ibin
-
-      call read_node_cache(ibin, network)
-      
-      call read_branch_cache(ibin, network)
-   
-   end subroutine read_network_cache
-   
-   subroutine write_network_cache(ibin, network)
-   
-      type(t_network), intent(in)     :: network
-      integer, intent(in)             :: ibin
-
-      call write_node_cache(ibin, network%nds)
-      
-      call write_branch_cache(ibin, network%brs)
-   
-   end subroutine write_network_cache
-   
-   subroutine read_node_cache(ibin, network)
-   
-      type(t_network), intent(inout)    :: network
-      integer, intent(in)               :: ibin
-      
-      type(t_node), pointer             :: pnod
-      integer                           :: i
-
-      read(ibin) network%nds%count
-      
-      network%nds%growsby = network%nds%count + 2
-      call realloc(network%nds)
-
-      read(ibin) network%nds%maxNumberOfConnections
-      
-      network%nds%LevelBoundaryCount = 0
-      network%nds%DisBoundaryCount   = 0
-      network%nds%bndCount           = 0
-
-      do i = 1, network%nds%Count
-      
-         pnod => network%nds%node(i)
-         
-         read(ibin) pnod%id
-         read(ibin) pnod%name
-         read(ibin) pnod%index
-         read(ibin) pnod%nodeType
-
-         read(ibin) pnod%x
-         read(ibin) pnod%y
-         read(ibin) pnod%gridNumber
-         
-         read(ibin) pnod%numberOfConnections
-      
-      enddo
  
-      call read_hash_list_cache(ibin, network%nds%hashlist)
-
-   end subroutine read_node_cache
-   
-   subroutine write_node_cache(ibin, nds)
-   
-      type(t_nodeSet), intent(in)     :: nds
-      integer, intent(in)             :: ibin
-
-      type(t_node), pointer           :: pnod
-      integer                         :: i
-
-      write(ibin) nds%Count
-      
-      write(ibin) nds%maxNumberOfConnections
-
-      do i = 1, nds%Count
-      
-         pnod => nds%node(i)
-         
-         write(ibin) pnod%id
-         write(ibin) pnod%name
-         write(ibin) pnod%index
-         write(ibin) pnod%nodeType
-
-         write(ibin) pnod%x
-         write(ibin) pnod%y
-         write(ibin) pnod%gridNumber
-         
-         write(ibin) pnod%numberOfConnections
-      
-      enddo
- 
-      call write_hash_list_cache(ibin, nds%hashlist)
-      
-   end subroutine write_node_cache
-   
-   subroutine read_branch_cache(ibin, network)
-   
-      type(t_network), intent(inout)   :: network
-      integer, intent(in)              :: ibin
-   
-      type(t_branch), pointer          :: pbrn
-      integer                          :: i
-      integer                          :: j
-
-      read(ibin) network%brs%Count
-      
-      network%brs%growsby = network%brs%count + 2
-      call realloc(network%brs)
-
-      read(ibin) network%brs%gridpointsCount
-
-      do i = 1, network%brs%Count
-      
-         pbrn => network%brs%branch(i)
-         
-         read(ibin) pbrn%id
-         read(ibin) pbrn%index
-         read(ibin) pbrn%name
-         read(ibin) pbrn%length
-         read(ibin) pbrn%orderNumber
-         
-         read(ibin) pbrn%iTrench
-         read(ibin) pbrn%flapGate
-         
-         read(ibin) (pbrn%nextBranch(j), j = 1, 2)
-         
-         read(ibin) (pbrn%nodeIndex(j), j = 1, 2)
-         pbrn%FromNode => network%nds%node(pbrn%nodeIndex(1))
-         pbrn%ToNode => network%nds%node(pbrn%nodeIndex(2))
-
-         read(ibin) pbrn%gridPointsCount
-         
-         allocate(pbrn%gridPointschainages(pbrn%gridPointsCount))
-         allocate(pbrn%gridPointIDs(pbrn%gridPointsCount))
-         allocate(pbrn%Xs(pbrn%gridPointsCount))
-         allocate(pbrn%Ys(pbrn%gridPointsCount))
-         
-         read(ibin) (pbrn%gridPointschainages(j), j = 1, pbrn%gridPointsCount)   
-         read(ibin) (pbrn%gridPointIDs(j), j = 1, pbrn%gridPointsCount)   
-         read(ibin) (pbrn%Xs(j), j = 1, pbrn%gridPointsCount)   
-         read(ibin) (pbrn%Ys(j), j = 1, pbrn%gridPointsCount)   
-      
-         read(ibin) pbrn%uPointsCount
-         
-         allocate(pbrn%uPointschainages(pbrn%uPointsCount))
-
-         read(ibin) (pbrn%uPointschainages(j), j = 1, pbrn%uPointsCount)   
-
-         read(ibin) pbrn%StartPoint
-
-      enddo
- 
-      call read_hash_list_cache(ibin, network%brs%hashlist)
-
-   end subroutine read_branch_cache
-   
-   subroutine write_branch_cache(ibin, brs)
-   
-      type(t_branchSet), intent(in)   :: brs
-      integer, intent(in)             :: ibin
-
-      type(t_branch), pointer         :: pbrn
-      integer                         :: i
-      integer                         :: j
-
-      write(ibin) brs%Count
-      
-      write(ibin) brs%gridpointsCount
-
-      do i = 1, brs%Count
-      
-         pbrn => brs%branch(i)
-         
-         write(ibin) pbrn%id
-         write(ibin) pbrn%index
-         write(ibin) pbrn%name
-         write(ibin) pbrn%length
-         write(ibin) pbrn%orderNumber
-         
-         write(ibin) pbrn%iTrench
-         write(ibin) pbrn%flapGate
-
-         write(ibin) (pbrn%nextBranch(j), j = 1, 2)
-         write(ibin) (pbrn%nodeIndex(j), j = 1, 2)
-
-         write(ibin) pbrn%gridPointsCount
-         write(ibin) (pbrn%gridPointschainages(j), j = 1, pbrn%gridPointsCount)   
-         write(ibin) (pbrn%gridPointIDs(j), j = 1, pbrn%gridPointsCount)   
-         write(ibin) (pbrn%Xs(j), j = 1, pbrn%gridPointsCount)   
-         write(ibin) (pbrn%Ys(j), j = 1, pbrn%gridPointsCount)   
-      
-         write(ibin) pbrn%uPointsCount
-         write(ibin) (pbrn%uPointschainages(j), j = 1, pbrn%uPointsCount)   
-
-         write(ibin) pbrn%StartPoint
-
-      enddo
- 
-      call write_hash_list_cache(ibin, brs%hashlist)
-
-   end subroutine write_branch_cache
-   
-   
 end module m_1d_networkreader

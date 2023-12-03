@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,15 +27,15 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    SUBROUTINE read_restart_from_map(filename,ierr)
-   use unstruc_netcdf, only : unc_read_map
+   use unstruc_netcdf, only : unc_read_map_or_rst
    implicit none
    character(len=*),  intent(in)  :: filename
    integer,           intent(out) :: ierr !< Error status (DFM_NOERR==0 is successful)
 
-   call unc_read_map(filename, ierr)
+   call unc_read_map_or_rst(filename, ierr)
 
    END SUBROUTINE read_restart_from_map

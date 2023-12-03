@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine duikerstoprofs()
  use m_netw
@@ -71,9 +71,6 @@
             Lf = lne2ln(Ls)
             if (kcu(Lf) == 1 .or. kcu(Lf) == 5) then
                k1 = ln(1,Lf) ; k2 = ln(2,Lf)
-               if (jampi == 1) then
-                  if (idomain(k1) /= my_rank .and. idomain(k2)  /= my_rank) cycle
-               endif
                IF ( dbdistance(X1,Y1,Xzw(K1),Yzw(K1), jsferic, jasfer3D, dmiss) < dbdistance(X1,Y1,Xzw(K2),Yzw(K2), jsferic, jasfer3D, dmiss) ) THEN
                   bob(1,Lf)  = z1 ; bl(k1) = min(z1, bl(k1) )
                   bob(2,Lf)  = z2 ; bl(k2) = min(z2, bl(k2) )
@@ -83,7 +80,7 @@
                endif
                prof1D(1,Lf)  = w1 ; wu(Lf) = w1
                prof1D(2,Lf)  = h1
-               prof1D(3,Lf)  =  2                                      ! for now, simple rectan
+               prof1D(3,Lf)  =  -2                                      ! for now, simple rectan, closed
                jaduiktmp(Lf) =  1
             endif
          endif

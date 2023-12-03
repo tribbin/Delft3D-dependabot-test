@@ -7,7 +7,7 @@
     # Usage example:
     # Execute in the working directory:
     # /path/to/delft3d/installation/lnx64/bin/submit_dimr.sh
-    # More examples: check run scripts in https://svn.oss.deltares.nl/repos/delft3d/trunk/examples/*
+    # More examples: check run scripts in https://git.deltares.nl/oss/delft3d/-/tree/main/examples/*
     #
     # Do not "qsub" this script, just run it from the command prompt
 
@@ -19,7 +19,7 @@ function print_usage_info {
     echo "-c, --corespernode <M>"
     echo "       number of cores per node, default $corespernodedefault"
     echo "-d, --debug <D>"
-    echo "       0:ALL, 6:SILENT"
+    echo "       0:ALL, 6:SILENT, default 2:INFO"
     echo "-h, --help"
     echo "       print this help message and exit"
     echo "-j, --jobname <jobname>"
@@ -32,9 +32,12 @@ function print_usage_info {
     echo "-n, --numnode <N>"
     echo "       number of nodes, default 1"
     echo "-q, --queue <qname>"
-    echo "       queue, default normal-e3"
+    echo "       queue, default normal-e3-c7"
     echo "-s, --sequential"
     echo "       sequential (non-MPI) run, equivalent to -n 1 -c 1"
+    echo
+    echo "Starting from the first option that is not in the above list,"
+    echo "all remaining command line options are passed to run_dimr.sh."
     exit 1
 }
 
@@ -49,7 +52,7 @@ corespernodedefault=1
 corespernode=$corespernodedefault
 debuglevel=-1
 configfile=dimr_config.xml
-queue=normal-e3
+queue=normal-e3-c7
 JOBNAME=dimr
 D3D_HOME=
 runscript_extraopts=
@@ -98,7 +101,7 @@ case $key in
     shift
     ;;
     --)
-    echo "-- sign detected, remained options are going to be passed to dimr"
+    echo "-- sign detected, remaining options are going to be passed to dimr"
     runscript_extraopts="$runscript_extraopts $*"
     break       # exit loop, stop shifting, all remaining arguments without dashes handled below
     ;;
@@ -110,7 +113,7 @@ case $key in
 esac
 done
 
-# Check configfile    
+# Check configfile
 if [ ! -f $configfile ]; then
     echo "ERROR: configfile $configfile does not exist"
     print_usage_info

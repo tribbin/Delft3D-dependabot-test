@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine setzminmax()
     use m_netw
@@ -128,11 +128,10 @@
           do isf=1,numfracs
              do i=1,nbndsf(isf)
                 ki = bndsf(isf)%k(2,i)
-                call getkbotktop(ki,kb,kt)
                 bndsf(isf)%zminmax(i) = bl(ki)
                 bndsf(isf)%zminmax(i+nbndsf(isf)) = s1(ki)
              end do
           end do
-       end if
+    endif
     endif
  end subroutine setzminmax

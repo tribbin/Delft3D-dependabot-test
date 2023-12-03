@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> read drypoints files and delete dry points from net geometry (netcells)
 !! Grid enclosures are handled via the jinside=-1 option.
@@ -39,7 +39,6 @@ subroutine delete_drypoints_from_netgeom(dryptsfilelist, jaconfirm, jinside)
    use m_polygon, only: NPL, ZPL, savepol, restorepol
    use m_tpoly
    use m_samples
-   use m_flowgeom, only: janooptimizedpolygon
    implicit none
 
    character(*), intent(inout) :: dryptsfilelist !< List of file names to process for deleting dry parts. (Supported formats: .xyz, .pol)
@@ -132,15 +131,6 @@ subroutine delete_drypoints_from_netgeom(dryptsfilelist, jaconfirm, jinside)
                if (jsferic == 1) then
                   call fix_global_polygons(1,0)
                endif
-
-               if ( NPL.gt.100 ) then
-!                 split polygon
-                  if (janooptimizedpolygon > 0) then
-                     call mess(LEVEL_INFO, '  splitting polygons...')
-                     call split_pol(2,2,100,100)
-                     call mess(LEVEL_INFO, '  done')
-                  endif
-               end if
 
                call pol_to_cellmask() ! third column in pol-file may be used to specify inside (1), or outside (0) mode, only 0 or 1 allowed.
                call delpol()

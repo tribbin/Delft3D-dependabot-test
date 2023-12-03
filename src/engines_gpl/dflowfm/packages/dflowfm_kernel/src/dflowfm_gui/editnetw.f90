@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
       SUBROUTINE EDITNETW(MODE,KEY)
       use m_netw
@@ -38,6 +38,9 @@
       use dfm_error
       use unstruc_messages
       use gridoperations
+      use m_mergenodes
+      use m_save_ugrid_state, only: nodeids
+      use unstruc_display, only: nhlNetNode
       implicit none
       integer :: MODE, KEY
 
@@ -156,6 +159,13 @@
 !        INS KEY OF LINKERMUIS, kijken welk punt
 
          CALL ISNODE(KP, XP, YP, ZP)
+
+         IF (NPUT .EQ. 65) THEN   ! NODE info mode
+            nhlNetNode = KP
+            CALL DISND(KP, 0)
+            call highlight_nodesnlinks()
+            goto 10 ! Continue with last known operation
+         end if
 
          CALL SAVENET()
          IF (JADD .EQ. 1) THEN   ! insert mode
@@ -525,6 +535,9 @@
       ELSE IF (KEY .EQ. 96 ) THEN  ! `-KEY
          call checknetwork()
          !key = 3
+      ELSE IF (KEY .EQ. 78 .OR. KEY .EQ. 78+32) THEN    ! N-key voor node mode
+         ! Display node info
+         NPUT = 65
       ELSE IF (KEY .EQ. 81 .OR. KEY .EQ. 81+32) THEN   ! Q-key
 !         call bilin_interp(numk, xk, yk, zk)          ! testing subroutine
 !         call net_delete_DMISS()

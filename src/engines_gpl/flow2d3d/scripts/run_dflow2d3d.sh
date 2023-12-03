@@ -36,30 +36,25 @@ ulimit -s unlimited
 
 while [[ $# -ge 1 ]]
 do
-key="$1"
-shift
+    key="$1"
+    shift
 
-case $key in
-    -h|--help)
-    print_usage_info
-    ;;
-    -m|--masterfile)
-    configfile="$1"
-    shift
-    ;;
-    --D3D_HOME)
-    D3D_HOME="$1"
-    shift
-    ;;
-	--NNODES)
-    NNODES="$1"
-    shift
-    ;;
-    *)
-    configfile="$key"
-    break
-    ;;
-esac
+    case $key in
+        -h|--help)
+        print_usage_info
+        ;;
+        --D3D_HOME)
+        D3D_HOME="$1"
+        shift
+        ;;
+        --NNODES)
+        NNODES="$1"
+        shift
+        ;;
+        *)
+        configfile="$key"
+        ;;
+    esac
 done
 
 
@@ -86,10 +81,25 @@ if [ ! -d $D3D_HOME ]; then
     print_usage_info
 fi
 export D3D_HOME
- 
+
+
+# On Deltares systems only:
+if [ -f "/opt/apps/deltares/.nl" ]; then
+    # Try the following module load
+    module load intelmpi/21.2.0 &>/dev/null
+
+    # If not defined yet: Define I_MPI_FABRICS and FI_PROVIDER with proper values for Deltares systems
+    [ ! -z "$I_MPI_FABRICS" ] && echo "I_MPI_FABRICS is already defined" || export I_MPI_FABRICS=shm
+    [ ! -z "$FI_PROVIDER" ] && echo "FI_PROVIDER is already defined" || export FI_PROVIDER=tcp
+fi
+
+
 echo "    Configfile       : $configfile"
 echo "    D3D_HOME         : $D3D_HOME"
 echo "    Working directory: $workdir"
+echo "    `type mpiexec`"
+echo "    FI_PROVIDER      : $FI_PROVIDER"
+echo "    I_MPI_FABRICS    : $I_MPI_FABRICS"
 echo 
 
     #
@@ -104,14 +114,15 @@ libdir=$D3D_HOME/lib
     # No adaptions needed below
     #
 
-    # Run
 export LD_LIBRARY_PATH=$libdir:$LD_LIBRARY_PATH
+export PATH="$bindir:${PATH}"
 
 
+# Run
     echo "executing:"
     echo "$bindir/d_hydro $configfile"
-    echo 
-    $bindir/d_hydro $configfile
+          $bindir/d_hydro $configfile
+echo 
 
 
 

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine furu()                                   ! set fu, ru and kfs
  use m_flow                                          ! substitue u1 and q1
@@ -37,43 +37,43 @@
  use m_flowtimes
  use m_alloc
  use m_partitioninfo
- use m_xbeach_data, only: ust, vst, urms, swave, Lwave
- use m_waves, only: ypar, cfwavhi, hminlw, cfhi_vanrijn, uorb
+ use m_xbeach_data, only: swave
+ use m_waves, only: cfwavhi, cfhi_vanrijn, uorb
  use m_sediment
  use unstruc_channel_flow
  use m_sferic
  use m_trachy, only: trachy_resistance
- use unstruc_model, only: md_restartfile
+ use m_1d2d_fixedweirs, only: compfuru_1d2d_fixedweirs
+ use m_flowparameters, only: ifixedWeirScheme1d2d
 
  implicit none
 
- integer          :: L, Lf, n, k1, k2, kb, LL, k, itu1, Lb, Lt, itpbn, ns
+ integer          :: L, n, k1, k2, kb, LL, itu1, Lb, Lt, itpbn, i
+ integer          :: kup, kdo, iup
 
- double precision :: bui, cu, du, du0, gdxi, ds, riep, as, gdxids
- double precision :: slopec, hup, u1L, v2, frL, u1L0, rhof, zbndun, zbndu0n, bdmwrp, bdmwrs
+ double precision :: bui, cu, du, du0, gdxi, ds
+ double precision :: slopec, hup, hdo, u1L, v2, frL, u1L0, zbndun, zbndu0n
  double precision :: qk0, qk1, dzb, hdzb, z00  !
- double precision :: as1, as2, qtotal, width, st2, cmustr, wetdown, dpt
+ double precision :: st2
  double precision :: twot = 2d0/3d0, hb, h23, ustbLL, agp, vLL
- double precision :: hminlwi,fsqrtt,uorbL
+ double precision :: fsqrtt,uorbL
 
  integer          :: np, L1     ! pumpstuff
  double precision :: ap, qp, vp ! pumpstuff
 
- double precision :: cfuhi3D, Cz    ! for bed friction
+ double precision :: cfuhi3D    ! for bed friction
 
- integer          :: ierr, jaustarintsave
+ integer          :: jaustarintsave
  double precision :: sqcfi
- logical          :: SkipDimensionChecks
- integer :: ispumpon
+ integer          :: ispumpon
 
- hminlwi=1d0/hminlw
  fsqrtt = sqrt(0.5d0)
  call timstrt('Furu', handle_furu)
 
  if (kmx == 0 .or. ifixedweirscheme > 0)  then  ! original 2D coding
 
     !$OMP PARALLEL DO                       &
-    !$OMP PRIVATE(L,k1,k2,slopec,hup,gdxi,cu,du,du0,ds,u1L,v2,itu1,frL,bui,u1L0,st2,agp)
+    !$OMP PRIVATE(L,k1,k2,slopec,hup,gdxi,cu,du,du0,ds,u1L,v2,itu1,frL,bui,u1L0,st2,agp,uorbL)
     do L  = 1,lnx
 
        if (hu(L) > 0) then
@@ -128,7 +128,11 @@
              st2  = sin(dg2rd*yu(L))**2
              agp  = 9.7803253359*(1d0+0.00193185265241*st2)/sqrt(1d0-0.00669437999013*st2)
           endif
-          gdxi  = agp*dxi(L)
+          gdxi  = agp*dxi(L) 
+          if (jarhoxu >= 2) then
+             gdxi = gdxi*rhomean/rhou(L)
+          endif
+
           cu    = gdxi*teta(L)
           du    = dti*u0(L) - adve(L) + gdxi*slopec
           ds    = s0(k2) - s0(k1)
@@ -154,28 +158,27 @@
 
 10        continue
 
-          if (jawave == 3 .or. (jawave.eq.4 .and. swave.eq.1)) then                ! Delft3D-Wave Stokes-drift correction
-              ! D3D: Compare with taubsu computation (taubot.f90) and usage (cucnp.f90/uzd.f90)
-              ! A3M:ok for c01-validation_3.1.6: frL = ypar(L)*(cfuhi(L)+cfwavhi(L))*wavmu(L)/hu(L)
+          !if (jawave==3 .or. (jawave==4 .and. swave==1) .or. jawave==6 .and. .not. flowWithoutWaves) then                ! Delft3D-Wave Stokes-drift correction
+          if (jawave>0 .and. .not. flowWithoutWaves) then                ! Delft3D-Wave Stokes-drift correction
+
               if (modind < 9) then
-                 frL = ypar(L)*(cfuhi(L)+cfwavhi(L)) * sqrt((u1L-ustokes(L))**2 + (v(L)-vstokes(L))**2)
+                 frL = cfwavhi(L)        
               elseif (modind==9) then
-                 frL = cfhi_vanrijn(L) * sqrt((u1L-ustokes(L))**2 + (v(L)-vstokes(L))**2)
+                 frL = cfhi_vanrijn(L)   ! g/ca**2*umod/h/rho
               elseif (modind==10) then   ! Ruessink 2003
                  uorbL = .5d0*(uorb(k1)+uorb(k2))
                  frL = cfuhi(L)*sqrt((u1L-ustokes(L))**2 + (v(L)-vstokes(L))**2 + (1.16d0*uorbL*fsqrtt)**2)
-              end if
-
-              !bdmwrs = frL * wavmu(L)
-              !bdmwrp = frL * hu(L)
-
-              ! Bed shear due to flow and waves:
-              ! A3M:ok for c01-validation_3.1.6: du = du + frL * sqrt((u1L-ustokes(L))**2 + (v(L)-vstokes(L))**2)
-              !du = du0 + frL*wavmu(L)*huvli(L)
+              end if   
+              !
               du = du0 + frL*ustokes(L)
+              !
+              ! and add vegetation stem drag with eulerian velocities, assumes fixed stem
+              if ((jaBaptist >= 2) .or. trachy_resistance) then
+                  frL = frL + alfav(L)*hypot(u1L-ustokes(L),v(L)-vstokes(L))      
+              endif
 
           else if ( ifxedweirfrictscheme > 0) then
-              if (iadv(L) == 21) then
+              if (iadv(L) == 21 .or. kcu(L) == 3) then
                  call fixedweirfriction2D(L,k1,k2,frL)
               else
                  frL = cfuhi(L)*sqrt(u1L*u1L + v2)   ! g / (H.C.C) = (g.K.K) / (A.A) travels in cfu
@@ -208,13 +211,26 @@
        vp    = 0d0
        do n  = L1pumpsg(np), L2pumpsg(np)
           k1 = kpump(1,n)
+          k2 = kpump(2,n)
           L1 = kpump(3,n)
           L  = iabs(L1)
           hu(L) = 0d0; au(L) = 0d0
           fu(L) = 0d0; ru(L) = 0d0
-          if (hs(k1) > 1d-2 .and. ispumpon(np,s1(k1)) == 1) then
-             hu(L) = 1d0
-             au(L) = 1d0
+          if (qp*L1 >= 0) then
+             kup = k1
+             kdo = k2
+             iup = 1
+          else
+             kup = k2
+             kdo = k1
+             iup = 2
+          end if
+
+          if (hs(kup) > 1d-2 .and. ispumpon(np,s1(kup)) == 1) then
+             hup   = s1(kup) - bob0(iup,L)
+             hdo   = s1(kdo) - bob0(3-iup,L) 
+             hu(L) = max(hup,hdo)    ! 1d0
+             au(L) = wu(L)*hu(L)     ! 1d0
              ap    = ap + au(L)
              vp    = vp + vol1(k1)
           endif
@@ -225,11 +241,9 @@
 
        if (ap > 0d0) then
           do n  = L1pumpsg(np), L2pumpsg(np)
-             k1 = kpump(1,n)
-             if (hs(k1) > 1d-2) then
                 L1 = kpump(3,n)
                 L  = iabs(L1)
-                fu(L) = 0d0
+             if (au(L) > 0d0) then
                 if (L1 > 0) then
                     ru(L) =  qp/ap
                 else
@@ -250,20 +264,11 @@
     if ( jafilter.ne.0 ) then
       call comp_filter_predictor()
     end if
-    if (jawave > 0 ) then ! now every timestep, not only at getfetch updates
-       do k = 1,ndx
-          call tauwavehk(Hwav(k), Twav(k), hs(k), Uorb(k), rlabda(k), ustk(k))
-       enddo
-    endif
 
     call update_verticalprofiles()
 
  endif
 
- do n  = 1, nbndu
-    LL    = kbndu(3,n)
-    zbndu0(n) = u0(LL)
- enddo
 
  do n  = 1, nbndu                                    ! boundaries at u points
 
@@ -272,17 +277,17 @@
     itpbn = kbndu(4,n)
     call getLbotLtop(LL,Lb,Lt)
 
-    !Original:
-    !zbndun = zbndu( (n-1)*kmxd + 1 )
-    if (kbndu(4,n) .ne. 5) then
-       zbndun = zbndu(n)
-       zbndu0n = zbndu0(n)
-    else                    ! absgenbc
-       zbndu0n = u0(LL)
+    !Original:  !zbndun = zbndu( (n-1)*kmxd + 1 )
+    if (itpbn == 4) then       ! dischargebnd
+       zbndun = zbndq(n)
+    else if (itpbn == 5) then  ! absgenbc
        zbndun  = u1(LL)     ! set in xbeach_absgen_bc
+    else                       ! other types that use alfsmo 
+       zbndun = zbndu( (n-1)*kmxd + 1 ) 
     end if
 
     if (alfsmo < 1d0) then
+       zbndu0n = u0(LL)
        zbndun  = alfsmo*zbndun  + (1d0-alfsmo)*zbndu0n                     ! i.c. smoothing, start from 0
     endif
 
@@ -305,6 +310,10 @@
        if( jaustarint == 0 .or. jaustarint == 3 ) jaustarint = 1
        vLL = v(LL) ; v(LL) = 0d0
        call getustbcfuhi( LL,LL,ustbLL,cfuhi(LL),hdzb, z00, cfuhi3D)    ! call with Lb = LL => layer integral profile
+       ! JRE with HK, used to be in getustb
+       if (jawave>0 .and. jawaveStokes >= 1) then                       ! Ustokes correction at bed
+          adve(Lb)  = adve(Lb) - cfuhi3D*ustokes(Lb)
+       endif
        v(LL) = vLL
        jaustarint = jaustarintsave
        qk0 = 0d0
@@ -315,7 +324,7 @@
        ru(L) = zbndun
 
        if (Lt > Lb ) then
-          if (jaLogprofatubndin == 2 .and. itpbn == 3) then
+          if (jaLogprofatubndin /= 1 .and. itpbn == 3) then ! non logprof and vertical profile specified
              ru(L) = zbndu( (n-1)*kmxd + L - Lb + 1 )*min(1d0,alfsmo)
           else if (abs(u1(Lb)) > 1d-4 .and. z00 > 0d0) then
              if( jaustarint == 0 .or. jaustarint == 3 .or. jaustarint == 1 ) then
@@ -333,7 +342,7 @@
              endif
              qk1   = hu(L)*ustbLL*sqcfi               ! integral flux till level k
              ru(L) = (qk1 - qk0) / ( hu(L) - hu(L-1) )
-             if (zbndu(n) < 0d0) ru(L) = -1d0*ru(L)
+             if (zbndun < 0d0) ru(L) = -1d0*ru(L)
              qk0   =  qk1
           endif
        endif
@@ -344,7 +353,7 @@
 
  call furusobekstructures()
 
- if ( jawave.eq.3 ) then
+ if (jawave==3 .or. jawave==6 .and. .not. flowWithoutWaves) then
     if (kmx==0) then
        !   add wave-induced mass fluxes on boundaries to convert euler input to GLM
        do L=Lnxi+1,Lnx
@@ -361,6 +370,19 @@
     endif
  end if
 
+ do i = 1, nqhbnd
+    do n   = L1qhbnd(i), L2qhbnd(i)
+       kb  = kbndz(1,n)
+       k2  = kbndz(2,n)
+       L   = kbndz(3,n)
+       if (au(L)> 0d0 .and. qh_gamma(i) /= 0d0 .and. atqh_all(i) /= 0d0) then
+          fu(L) = abs(q1(L)/atqh_all(i)) * qh_gamma(i)/au(L)
+          ru(L) = q1(L) / au(L)
+          continue
+       endif
+     enddo
+  enddo
+
 ! BEGIN DEBUG
  if ( jampi.eq.1 ) then
 !    call update_ghosts(ITYPE_U,1,Lnx,fu,ierr)
@@ -372,6 +394,10 @@
  endif
 ! END DEBUG
 
+ if (ifixedWeirScheme1d2d ==1) then
+    call compfuru_1d2d_fixedweirs()
+ endif
  call timstop(handle_furu)
 
  end subroutine furu
+

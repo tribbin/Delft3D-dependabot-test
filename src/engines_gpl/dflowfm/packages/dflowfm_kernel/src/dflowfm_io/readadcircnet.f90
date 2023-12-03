@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
       SUBROUTINE READADCIRCNET(MNET,JA,JADOORLADEN)
 
@@ -37,6 +37,7 @@
       use m_landboundary
       use m_missing
       use gridoperations
+      use m_mergenodes
 
       implicit none
 
@@ -171,7 +172,7 @@
 
 
                   ! NOTE: This assumes that the opposite node is ONLY marked for deletion, NOT YET deleted, such that node numbering won't change yet, and file reading can continue with original numbers!
-                  call MERGEUNCONNECTEDNODES(K1,K2,JA)
+                  call MERGENODES(K1,K2,JA,.FALSE.)
 
                end if
 

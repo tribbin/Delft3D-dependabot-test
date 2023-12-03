@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,12 +27,12 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2021.
+!  Copyright (C)  Stichting Deltares, 2017-2023.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -58,8 +58,8 @@
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
 !
 !-------------------------------------------------------------------------------
-! $Id$
-! $HeadURL$
+! 
+! 
 module m_netw
 
 
@@ -103,9 +103,6 @@ subroutine loadNetwork(filename, istat, jadoorladen)
         return
     end if
 
-    ! This if is needed as long routine load_network_from_flow1d is present for alternative
-    ! 1D-Network reading from INI-file (for Willem Ottevanger)
-
     IF (JADOORLADEN == 0) THEN
         K0 = 0
         L0 = 0
@@ -120,7 +117,7 @@ subroutine loadNetwork(filename, istat, jadoorladen)
 
     iDumk = 0
     iDuml = 0
-    call admin_network(network, iDumk, iDuml)
+    call admin_network(network, iDuml)
 
     if (istat == 0) then
         NUMK = K0 + NUMKN

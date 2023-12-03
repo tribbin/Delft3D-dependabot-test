@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    SUBROUTINE DISPUT(NPUT)
    USE M_SFERIC
@@ -186,6 +186,8 @@
       TEX =' CLICK SECOND POLYGON POINT     '
    ELSE IF (NPUT .EQ. 64) THEN
       TEX =' CLICK THIRD POLYGON POINT      '
+   ELSE IF (NPUT .EQ. 65) THEN
+      TEX =' CLICK NET NODE                 '
    ELSE IF (NPUT .EQ. 466) THEN
       TEX =' CLICK 1ST POL. START/END POINT '
    ELSE IF (NPUT .EQ. 477) THEN

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,14 +27,15 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
-   SUBROUTINE TEKSAM( XS,YS,ZS,NS,MET)
+   SUBROUTINE TEKSAM(MET)
 
       use unstruc_colors
       use m_missing, only: DMISS
       use unstruc_opengl, only: jaopengl
+      use m_samples
       use unstruc_display
       use m_arcinfo
 
@@ -60,8 +61,7 @@
       double precision :: z
       double precision :: zfac
       double precision :: zupw
-      integer :: NS,MET
-      double precision :: XS(NS), YS(NS), ZS(NS)
+      integer :: MET
 !     TEKEN SAMPLES
       COMMON /PERSPX/ WPQR,DELTX,DELTY,DELTZ,ZFAC,DSCR,ZUPW
       COMMON /SAMPLESADM/  MCS,NCS,NS1
@@ -80,13 +80,7 @@
       if ( jaopengl.eq.1 .and. MET.eq.1 ) then
          MET = 7
       end if
-
-      if (mca*nca > maxsamarc) then 
-         call TEKarc (MET, hrc, rc)
-      else if (NS .EQ. 0) then 
-         RETURN
-      endif
-
+   
       if (met == 5) then
           CALL SETCOL(KLSAM)
       else
@@ -115,14 +109,24 @@
       RETURN
       END SUBROUTINE TEKSAM
 
-      SUBROUTINE TEKarc (MET, hrc, rc)
+      SUBROUTINE TEKarc (MET)
       use m_arcinfo 
       use unstruc_display
+      use m_missing, only: DMISS
+      
       implicit none
       double precision :: hrc, rc, x, y, z
       integer          :: met, m, n, key
   
-      call minmxarc()
+      IF (MET .EQ. 4 .OR. MET .EQ. 5) CALL SETTEXTSIZE()
+      RC      = 1.7d0*RCIR
+      HRC     = RCIR/2
+
+      if (met == 5) then
+          CALL SETCOL(KLSAM)
+      else
+          call minmxarc()
+      endif
 
       do n= 1,nca
 
@@ -130,10 +134,12 @@
          IF (KEY .EQ. 1) RETURN
          do m = 1,mca
          
+            z = d(m,n)
+            if ( z == dmiss) cycle 
             x = x0 + dxa*(m-1)
             y = y0 + dya*(n-1)
-            z = d(m,n)
             call tek1sample (x,y,z,met,rc,hrc,m,n)
+
          enddo
      enddo
      end SUBROUTINE TEKarc
@@ -141,7 +147,7 @@
   
      subroutine tek1sample(x,y,z,met,rc,hrc,m,n)
      use unstruc_colors
-     use m_missing, only: DMISS
+     
      use unstruc_opengl, only: jaopengl
      use unstruc_display
      use m_arcinfo

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine fill_rho()
    use m_transport
@@ -49,6 +49,7 @@ subroutine fill_rho()
    if (timon) call timstrt ( "fill_rho", ithndl )
 
    do k=1,Ndkx
+      sa1(k) = constituents(1,k)
       constituents(1,k) = rho(k)
    enddo
 

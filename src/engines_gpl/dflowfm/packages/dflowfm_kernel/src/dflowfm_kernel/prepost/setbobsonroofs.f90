@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine setbobsonroofs( )      ! override bobs along pliz's
  use m_netw
@@ -202,6 +202,15 @@ subroutine setbobsonroofs( )      ! override bobs along pliz's
           endif
        endif
     enddo
+
+    do L  = 1,lnxi 
+       if (kcu(L) == 2) then
+           n1 = ln(1,L) ; n2  = ln(2,L)
+           bob(1,L) = max(bob(1,L),bl(n1),bl(n2)) 
+           bob(2,L) = max(bob(2,L),bl(n1),bl(n2)) 
+           bob0(:,L) = bob(:,L)
+       endif
+    enddo 
 
  endif
 

@@ -141,6 +141,16 @@ def ossRemove():
 def dimrsetRemove():
     removeFiles = [
         'libc.so.6',
+        'libcf_dll.a',
+        'libchannel_flow.a',
+        'libchannel_flow.so',
+        'libchannel_flow.so.0',
+        'libchannel_flow.so.0.0.0',
+        'libflow1d.a',
+        'libflow1d.so',
+        'libflow1d.so.0',
+        'libflow1d.so.0.0.0',
+        'libflow1d2d.a',
         'dflowfm_kernel_test',
         'libtool',
         'libtool_install.sh',
@@ -151,6 +161,9 @@ def dimrsetRemove():
         'libfortranc.a',
         'libfortrangis.a',
         'libnefis.a',
+        'libnefis.so',
+        'libnefis.so.0',
+        'libnefis.so.0.0.0',
         'libODS.a',
         'libplugin_culvert.a',
         'libplugin_delftflow_traform.a',
@@ -163,7 +176,6 @@ def dimrsetRemove():
         'nc-config',
         'd_hydro',
         'datsel',
-        'delpar',
         'esm_create',
         'esm_delete',
         'esm_info',
@@ -209,7 +221,6 @@ def dimrsetRemove():
             if (str(path_).find(aRemoveDir)>1):
                 print("      Removing directory: " + str(path))
                 shutil.rmtree(path, ignore_errors=True)
-
 
 # Remove files specifically for an OSS build (Windows/Linux)
 def delft3d4Remove():

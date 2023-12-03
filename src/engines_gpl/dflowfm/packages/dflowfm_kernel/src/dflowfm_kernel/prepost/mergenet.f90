@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    SUBROUTINE MERGENET()
    use m_netw
@@ -37,7 +37,8 @@
    use m_missing, only: dmiss
    use m_sferic, only: jsferic, jasfer3D
    use gridoperations
-
+   use m_mergenodes
+   
    implicit none
    double precision :: eps
    integer :: ierr

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
   subroutine tekprofs()                         ! and initialise some turb pars
   use m_flow
@@ -44,7 +44,8 @@
   USE UNSTRUC_DISPLAY
   use m_waves, only : ustokes
   use m_sediment, only : jased, sed
-  use m_transport, only : constituents, numconst, itemp, iconst_cur, const_names, NUMCONST, ISED1, ISEDN
+  use m_transport !, only: NUMCONST, ISALT, ITEMP, ISED1, ISEDN, ITRA1, ITRAN, ITRAN0, constituents, itrac2const, const_names, const_units
+
   implicit none
 
 
@@ -54,11 +55,12 @@
   double precision :: zmin, zmax
   double precision :: h0, b0, z00, zinc, cz, cf, ustbref, ustwref, zint, z1, dz2, zz
   double precision :: tkebot, tkesur, tkewin
-  double precision :: epsbot, epssur, epswin, dzkap, sqcf, ulx, sg, drhodz, rhomea
+  double precision :: epsbot, epssur, epswin, dzkap, sqcf, ulx, sg, drhodz, rhomea, rhop0, prsappr
+  double precision, external :: densfm, setrhofixedp 
 
   double precision :: VMAX2,VMIN2,DV2,VAL2
   integer          :: NCOLS2,NV2,NIS2,NIE2,JAAUTO2, is, Ls, LLs, Lbs, Lts
-  integer          :: iconst
+  integer          :: iconst, jabruv
 
   integer          :: ndraw
   COMMON /DRAWTHIS/ ndraw(50)
@@ -296,9 +298,18 @@
         call TEKFN(4, 8, 1, turkin1(Lb0:Lt), hwref  , Lm1, vmin, vmax, zmin, zmax, KLPROF, 'tkin1'      , 0, 2 , 0d0,kplot+1)
      endif
 
-     if (jasal > 0 .and. jatem > 0 .and. idensform > 0)  then
-        call getvminmax(6,vmin,vmax,rho(kb:), kt-kb+1)
-        call TEKFN(5,10, 1, rho(kb:kt)  , hcref  , km, vmin, vmax, zmin, zmax, KLPROF, 'rho' , 1, 2 , 0d0,kplot)
+     if (jasal > 0 .and. jatem > 0 .and. idensform < 0)  then
+        if (idensform == 13) then 
+           do k = kb,kt
+              rhop0 = setrhofixedp(k,0d0)
+              dijdij(k-kb+1) = rhop0
+           enddo
+           call getvminmax(5,vmin,vmax,dijdij(1:km), km)
+           call TEKFN(5,10, 1, dijdij(1:km) , hcref  , km, vmin, vmax, zmin, zmax, KLPROF, 'rhopot' , 1, 2 , 0d0,kplot)
+        else         
+           call getvminmax(6,vmin,vmax,rho(kb:), kt-kb+1)
+           call TEKFN(5,10, 1, rho(kb:kt)  , hcref  , km, vmin, vmax, zmin, zmax, KLPROF, 'rhopot' , 1, 2 , 0d0,kplot)
+        endif
      else
         if (frcuni > 0 .and. ndraw(35) == 1 ) then
            vmin = 0d0 ; vmax = 0.d0 ; vmax = max(vmax, maxval(tureps1(Lb0:Lt)), vmin+1d-5 )
@@ -309,41 +320,7 @@
 
   endif
 
-  if (jasal > 0) then
-
-      call getvminmax(6,vmin,vmax,sa1(kb:), kt-kb+1)
-      call TEKFN(6,11, 1, sa1(kb:kt)  , hcref  , km, vmin, vmax, zmin, zmax, KLPROF, 'sal' , 1, 2 , 0d0,kplot)
-
-    ! do k = kb,kt-1
-    !    kk     = k-kb+1
-    !    drhodz    = ( rho(k+1) - rho(k) ) / (hcref(kk+1) - hcref(kk))
-    !    rhomea    = 0.5d0*( rho(k+1) + rho(k) )
-    !    bruva(kk) = coefn2*drhodz
-    ! enddo
-
-  else if (jatem > 0) then
-
-      !call TEKFN(6,11, 1, tem1(kt:kt) , hcref(kt-kb+1)  , 1, 0d0, 86400.d0, -200d0, 600d0, KLPROF, '-200 - 600 WATT' , 0, 2 , 0d0,kplot)
-      !CALL TEKHEATS( time1)
-
-     do k = kb,kt-1
-        kk     = k-kb+1
-        L      = Lb0 + k - kb
-        drhodz     = ( rho(k+1) - rho(k) ) / (hcref(kk+1) - hcref(kk))
-        rhomea     = 0.5d0*( rho(k+1) + rho(k) )
-        dijdij(kk) = tureps0(L)*coefn2*drhodz/rhomea
-     enddo
-     dijdij(0) = 0d0 ;       dijdij(km) = 0d0
-     vmin = minval(dijdij(1:km-1))
-     vmax = maxval(dijdij(1:km-1))
-     if (abs(vmin) < vmax) vmin = -vmax
-     if (vmax < abs(vmin)) vmax = -vmin
-     if (abs(vmin-vmax) < 1d-20) then
-        vmax = vmax + 1d-5 ; vmin = vmin - 1d-5
-     endif
-     call TEKFN(6,11, 1, dijdij(0:km), hwref  , Lm1, vmin, vmax, zmin, zmax, KLPROF, 'Bruva'      , 0, 2 , 0d0,kplot+1)
-
-  else if ( iconst_cur.gt.0 .and. iconst_cur.le.NUMCONST ) then
+  if ( iconst_cur.gt.0 .and. iconst_cur.le.NUMCONST ) then
 
       vmin =  1d2
       vmax = -1d2
@@ -364,23 +341,43 @@
       !end do
 
 
-  else
-
-   if (frcuni > 0 .and. ndraw(35) == 1 .and. LL > 0) then
+  else if (frcuni > 0 .and. ndraw(35) == 1 .and. LL > 0) then
       ! if (jaref > 0) call TEKFN(5, 9, 0, teps1ref    , hwref   , km1, vmin, vmax, zmin, zmax,  31, 'teps1'      , 0, 1 , 0d0,0)   ! interfaces
       dijdij(1:km-1) = (vicwwu(Lb:Lt-1)+vicoww)*( u1(Lb+1:Lt)-u1(Lb:Lt-1) )*  2d0 /  ( hu(Lb+1:Lt)+hu(Lb:Lt-1) )
       dijdij(0)    = ustb(L)*ustb(L)
       if ( csu(L)*u1(Lb) < 0 ) dijdij(0)  = - dijdij(0)
       dijdij(km)   = ustw(L)*ustw(L)
-      if ( wdsu(L) < 0)        dijdij(km) = -dijdij(km)
+      if (allocated(wdsu)) then
+         if ( wdsu(L) < 0)        dijdij(km) = -dijdij(km)
+      end if
 
       call getvminmax(6,vmin,vmax,dijdij(0:km), km+1)
       call TEKFN(6,11, 1, dijdij(0:km), hwref  , Lm1, vmin, vmax, zmin, zmax, KLPROF, 'Reyn'      , 0, 2 , 0d0,kplot+1)
    endif
 
-  endif
+  jabruv = 1
+  if (jabruv > 0) then
 
-  if (jatem > 0) then
+      !call TEKFN(6,11, 1, tem1(kt:kt) , hcref(kt-kb+1)  , 1, 0d0, 86400.d0, -200d0, 600d0, KLPROF, '-200 - 600 WATT' , 0, 2 , 0d0,kplot)
+      !CALL TEKHEATS( time1)
+
+     do k = kb,kt-1
+        kk     = k-kb+1
+        prsappr = ag*rhomean*( zws(kt) - zws(k) )  
+        drhodz  = ( setrhofixedp(k+1,prsappr) - setrhofixedp(k,prsappr) ) / ( 0.5d0*(zws(k+1) - zws(k-1)) )
+        rhomea  = 0.5d0*( rho(k+1) + rho(k) )
+        dijdij(kk) = -ag*drhodz/rhomea
+     enddo
+     dijdij(0) = 0d0 ;       dijdij(km) = dijdij(km-1) 
+     vmin = minval(dijdij(1:km-1))
+     vmax = maxval(dijdij(1:km-1))
+     if (abs(vmin) < vmax) vmin = -vmax
+     if (vmax < abs(vmin)) vmax = -vmin
+     if (abs(vmin-vmax) < 1d-20) then
+        vmax = vmax + 1d-5 ; vmin = vmin - 1d-5
+  endif
+     call TEKFN(7,13, 1, dijdij(0:km), hwref  , Lm1, vmin, vmax, zmin, zmax, KLPROF, 'Bruva'      , 0, 2 , 0d0,kplot+1)
+  else   if (jatem > 0) then
      if (jafahrenheit > 0) then
         dijdij(1:km) = 32d0 + constituents(itemp, kb:kt)*1.8d0
         vmin = 70d0 ; vmax = 90d0
@@ -402,17 +399,17 @@
      call TEKFN(7, 13, 1, ucy(kb:kt)  , hcref   , km, vmin, vmax, zmin, zmax, KLPROF, 'y-velocity' , 0, 2 , 0d0,kplot)
   endif
 
-  vmin = minval(ucx(kb:kt))
-  vmax = maxval(ucx(kb:kt))
-  vmax = max(abs(vmin), abs(vmax), 1d-4 ) ; vmin = -vmax
-  if (jawaveStokes == 0) then
-     call TEKFN(8, 12, 1, ucx(kb:kt)  , hcref   , km, vmin, vmax, zmin, zmax, KLPROF, 'x-velocity' , 0, 2 , 0d0,kplot)
-  else
+  if (jawave>0 .and. jawaveStokes > 0 .and. .not. flowWithoutWaves) then
      vmin = minval( ucx(kb:kt)-ustokes(Lb:Lt) )
      vmax = maxval( ucx(kb:kt)-ustokes(Lb:Lt) )
      vmax = max(abs(vmin), abs(vmax) ) ; vmin = -vmax
      dijdij(1:km) =  ucx(kb:kt)-ustokes(Lb:Lt)
      call TEKFN(8, 12, 1,  dijdij(1:km)  , hcref   , km, vmin, vmax, zmin, zmax, KLPROF, 'x-velocity' , 0, 2 , 0d0,kplot)
+  else
+     vmin = minval(ucx(kb:kt))
+     vmax = maxval(ucx(kb:kt))
+     vmax = max(abs(vmin), abs(vmax), 1d-4 ) ; vmin = -vmax
+     call TEKFN(8, 12, 1, ucx(kb:kt)  , hcref   , km, vmin, vmax, zmin, zmax, KLPROF, 'x-velocity' , 0, 2 , 0d0,kplot)
   endif
 
   else if (jasal > 0) then
@@ -430,7 +427,7 @@
             if (kk.lt. 1) cycle
             call getkbotktop(kk,kb,kt)
             if (kt > kb) then
-               call TEKFN(n,2*n-1, 1, sa1(kb:kt)  , hcref  , km, vmin, vmax, zmin, zmax, KLPROF, 'sal' , 0, 2 , 0d0,kplot)
+               call TEKFN(n,2*n-1, 1, constituents(isalt,kb:kt) , hcref  , km, vmin, vmax, zmin, zmax, KLPROF, 'sal' , 0, 2 , 0d0,kplot)
             endif
          enddo
       else if (ndraw(35) == 3) then
@@ -439,7 +436,7 @@
             if (kk == 0) cycle
             call getkbotktop(kk,kb,kt)
             if (kt > kb) then
-               call TEKFN(n,2*n-1, 1, sa1(kb:kt)  , hcref  , km, vmin, vmax, zmin, zmax, KLPROF, 'sal' , 0, 2 , 0d0,kplot)
+               call TEKFN(n,2*n-1, 1, constituents(isalt,kb:kt) , hcref  , km, vmin, vmax, zmin, zmax, KLPROF, 'sal' , 0, 2 , 0d0,kplot)
             endif
          enddo
       endif

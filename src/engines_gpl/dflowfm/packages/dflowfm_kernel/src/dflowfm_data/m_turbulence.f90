@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  module m_turbulence
  implicit none
@@ -117,14 +117,15 @@
  double precision, allocatable     :: vicwwu   (:)      ! vertical eddy viscosity (m2/s) at layer interface at u point
  double precision, allocatable, target :: vicwws   (:)  !< [m2/s] vertical eddy viscosity at layer interface at s point {"location": "face", "shape": ["ndkx"]}
 
- !real            , allocatable     :: tkepro   (:)      ! vertical production t
- !real            , allocatable     :: tkedis   (:)      ! vertical dissipation
- double precision, allocatable     :: rho      (:)      ! density at cell centres (kg/m3)
+ !real            , allocatable    :: tkepro   (:)      ! vertical production t
+ !real            , allocatable    :: tkedis   (:)      ! vertical dissipation
+ double precision, allocatable, target     :: rho      (:)      ! density at cell centres (kg/m3)
  double precision, allocatable     :: rho0     (:)      ! density at cell centres (kg/m3), previous step
+ double precision, allocatable     :: rhosww   (:)      ! deviatoric density at vertical interfaces, w points (kg/m3)
  double precision, allocatable     :: rhowat   (:)      ! density at cell centres (kg/m3), only salt and temp
  double precision, allocatable     :: dpbdx0   (:)      ! previous step baroclinic pressure gradient, at u points
  double precision, allocatable     :: rvdn     (:)      ! help integral of (rho-rhomean)*deltaz at pressure points (kg/m2)
- double precision, allocatable     :: grn      (:)      ! help integral of baroclinic pressure at pressure points  (kg/m)
+ double precision, allocatable     :: grn      (:)      ! help integral of vertical baroclinic pressure integral at pressure points  (kg/m)
 
  double precision, allocatable     :: rhou     (:)      ! density at flow links   (kg/m3)
 

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  SUBROUTINE MERGENODESINPOLYGON()
 
@@ -40,6 +40,7 @@
   use m_polygon, only: NPL, xpl, ypl, zpl
   use geometry_module, only: dbpinpol, dbdistance
   use gridoperations
+	use m_mergenodes
 
   implicit none
 

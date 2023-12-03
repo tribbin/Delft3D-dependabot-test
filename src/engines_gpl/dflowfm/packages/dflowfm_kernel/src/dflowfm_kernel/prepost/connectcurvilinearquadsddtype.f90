@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
   subroutine connectcurvilinearquadsDDtype()
   use m_netw
@@ -36,6 +36,7 @@
   use geometry_module, only: dbdistance, cross
   use m_missing, only: dmiss
   use m_sferic,  only: jsferic, jasfer3D
+  use m_mergenodes
   use gridoperations
 
   implicit none
@@ -381,7 +382,7 @@
   do m  = 1,mer
      k1 = merg(1,m) ; k2 = merg(2,m)
      if (kc(k2) .ne. 0) then
-        call mergeUNCONNECTEDnodes(k1,k2,ja)
+        call mergenodes(k1,k2,ja,.FALSE.)
         kc(k2) = 0
      endif
   enddo
@@ -585,7 +586,7 @@
   do m = 1,mer
      k1 = merg(1,m) ; k2 = merg(2,m)
      if (kc(k2) .ne. 0) then
-        call mergeUNCONNECTEDnodes(k2,k1,ja)
+        call mergenodes(k2,k1,ja,.FALSE.)
      endif
   enddo
 

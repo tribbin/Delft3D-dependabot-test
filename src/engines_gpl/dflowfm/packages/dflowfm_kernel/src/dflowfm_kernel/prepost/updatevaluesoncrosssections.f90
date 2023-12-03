@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Sums all monitored data on all cross sections, including time-integrated values.
 !! for sequential/non-MPI models: stored in crs()%sumvalcur/sumvalcum
@@ -47,7 +47,7 @@ implicit none
     double precision,                 save        :: timprev = -1d0
     double precision,                 save        :: timstart
     double precision                              :: timstep, timtot
-    integer                                       :: iv, icrs, numvals
+    integer                                       :: iv, icrs
 
     ! This routine can now be called any time, but will only do the update
     ! of sumval* when necessary:
@@ -55,23 +55,23 @@ implicit none
        return
     end if
 
-    numvals  = 5  + NUMCONST_MDU
-
-    if( jased == 4 .and. stmpar%lsedtot > 0 ) then
-       numvals = numvals + 1
-       if( stmpar%lsedsus > 0 ) then
-          numvals = numvals + 1
-       endif
-       numvals = numvals + stmpar%lsedtot
+    if(nval == 0) then
+        nval  = 5 + NUMCONST_MDU 
+        if( jased == 4 .and. stmpar%lsedtot > 0 ) then
+           nval = nval + stmpar%lsedtot + 1      
+           if( stmpar%lsedsus > 0 ) then
+              nval = nval + stmpar%lsedsus + 1
+           endif
+        endif
     endif
 
     if (.not. allocated(sumvalcum_timescale)) then
-       allocate(sumvalcum_timescale(numvals))
+       allocate(sumvalcum_timescale(nval))
        sumvalcum_timescale = 1d0
     endif
 
     if (.not. allocated(sumvalcur_local)) then
-       allocate(sumvalcur_local(numvals,ncrs))
+       allocate(sumvalcur_local(nval,ncrs))
        sumvalcur_local = 0d0
     endif
     
@@ -86,13 +86,13 @@ implicit none
     end if
 
 !   compute cross-section data for all cross-sections
-    call sumvalueOnCrossSections(sumvalcur_local, numvals)
+    call sumvalueOnCrossSections(sumvalcur_local, nval)
 
     if (jampi == 0) then
       tlastupd_sumval = tim1
       ! NOTE: when jampi==1, the cross section sumvals on GUI screen are *not* correct, except at each ti_his interval.
       do icrs=1,ncrs
-         do iv = 1, numvals ! Nu nog "5+ Numconst" standaard grootheden, in buitenlus
+         do iv = 1, nval ! Nu nog "5+ Numconst" standaard grootheden, in buitenlus
             crs(icrs)%sumvalcur(iv) = sumvalcur_local(iv,icrs)
             crs(icrs)%sumvalcum(iv) = crs(icrs)%sumvalcum(iv) + max(sumvalcum_timescale(iv),1d0)*timstep*sumvalcur_local(iv,icrs)
             if (timtot > 0d0) then
@@ -105,12 +105,12 @@ implicit none
     else
         
     if (.not. allocated(sumvalcum_local)) then
-       allocate(sumvalcum_local(numvals,ncrs))
+       allocate(sumvalcum_local(nval,ncrs))
        sumvalcum_local = 0d0      
     endif
     
         do icrs=1,ncrs
-         do iv = 1, numvals 
+         do iv = 1, nval 
            ! if jampi = 1 we only update crs(icrs)%sumvalcur and crs(icrs)%sumvalcum every user timestep  
            sumvalcum_local(iv,icrs) = sumvalcum_local(iv,icrs) +   max(sumvalcum_timescale(iv),1d0)*timstep*sumvalcur_local(iv,icrs)
          enddo

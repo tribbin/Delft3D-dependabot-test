@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,15 +27,15 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> compute vertical fluxes
 subroutine comp_fluxver(NUMCONST, limtyp, thetavert, Ndkx, kmx, zws, qw, kbot, ktop, sed, nsubsteps, jaupdate, ndeltasteps, flux, wsf)
    use m_flowgeom, only: Ndx, ba, kfs  ! static mesh information
    use m_flowtimes, only: dts
    use m_flowparameters, only: cflmx
-   use m_flow, only : hs, epshs, s1, epshsdif, cffacver, a1  ! do not use m_flow, please put this in the argument list
+   use m_flow, only : hs, s1, epshsdif, cffacver, a1, jaimplicitfallvelocity  ! do not use m_flow, please put this in the argument list
    use m_transport, only : ISED1, ISEDN   ! preferably in argument list
    use m_sediment,  only: mtd
    use unstruc_messages
@@ -120,28 +120,28 @@ subroutine comp_fluxver(NUMCONST, limtyp, thetavert, Ndkx, kmx, zws, qw, kbot, k
 
          do j=1,NUMCONST
             qw_loc = qw(k)
-            if (jased < 4) then
-               qw_loc = qw(k) - wsf(j)*ba(kk)
-            else  if ( stm_included .and. j.ge.ISED1 .and. j.le.ISEDN ) then
-               ll = j-ISED1+1
-               if (k<sedtra%kmxsed(kk,ll)) then
-                  qw_loc = qw(k)     ! settling flux zero below kmxsed layer
+            if (jaimplicitfallvelocity == 0) then  ! explicit
+               if (jased < 4) then
+                  qw_loc = qw(k) - wsf(j)*ba(kk)
+               elseif ( stm_included .and. j.ge.ISED1 .and. j.le.ISEDN ) then
+                  ll = j-ISED1+1
+                  if (k<sedtra%kmxsed(kk,ll)) then
+                     qw_loc = qw(k)     ! settling flux zero below kmxsed layer
+                  else
+                     qw_loc = qw(k) - mtd%ws(k,ll)*ba(kk)
+                  endif
                else
-                  qw_loc = qw(k) - mtd%ws(k,ll)*ba(kk)
+                  qw_loc = qw(k) - wsf(j)*ba(kk)   ! enable tracers with settling vel icw morphology
                endif
             endif
+                         
 
-            cf = cffacver*dt_loc*abs(qw_loc)/(ba(kk)*dz(k-kb+2))
             if (cffacver > 0d0) then
                cf = cffacver*dt_loc*abs(qw_loc)/(ba(kk)*dz(k-kb+2)) ! courant nr
                cf = max(0d0,1d0-cf)                                 ! use high order only for small courant
             else
                cf = 1d0                                             ! or always use it, is MUSCL = default
             endif
-
-            !if ( cf.gt.cflmx ) then
-            !   continue
-            !end if
 
             if ( thetavert(j).eq.1d0 ) cycle
 
@@ -155,9 +155,6 @@ subroutine comp_fluxver(NUMCONST, limtyp, thetavert, Ndkx, kmx, zws, qw, kbot, k
                   if ( k.gt.kb-1 .and. qw_loc.gt.0d0 ) then
                      kLL  = max(k-1,kb)
                      sL3L = dz(k-kb+2)/dz(k-kb+1)
-                     ! if ( abs(sL3L-1d0).gt.1d-4 ) then
-                     !    continue
-                     ! end if
 
                      ds2L =  sedR-sedL
                      ds1L = (sedL-sed(j,kLL))*sl3L
@@ -167,9 +164,6 @@ subroutine comp_fluxver(NUMCONST, limtyp, thetavert, Ndkx, kmx, zws, qw, kbot, k
                   if ( k.lt.kt .and. qw_loc.lt.0d0 .and. s1(kk)-zws(kb-1) > epshsdif ) then
                      kRR = min(k+2,kt)
                      sL3R = dz(k-kb+2)/dz(k-kb+3)
-                    ! if ( abs(sL3R-1d0).gt.1d-4 ) then
-                    !    continue
-                    ! end if
 
                      ds2R =  sedL-sedR
                      ds1R = (sedR-sed(j,kRR))*sl3R

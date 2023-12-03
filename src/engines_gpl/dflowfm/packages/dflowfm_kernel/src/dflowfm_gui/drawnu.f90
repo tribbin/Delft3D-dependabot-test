@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,12 +27,13 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    SUBROUTINE DRAWNU(KEY)
    use m_netw
    USE M_SAMPLES
+   use m_arcinfo
    use unstruc_display
    use unstruc_opengl
    implicit none
@@ -100,11 +101,14 @@
 
       call TEKgrid(key)
 
-      call teksam(xs,ys,zs,ns,ndraw(32))
+      if (mca*nca > maxsamarc) then 
+         call TEKarc(ndraw(32))
+      else if (ns > 0) then 
+         call teksam(ndraw(32))
+      endif
     
       if (ndraw(2) == 6) then
          CALL TEKNET(NCOLDN,key) ! network on top
-         call tekpartmesh()
       end if
 
       if (ndraw(3) <= 4)  CALL TEKLAN(NCOLLN)
@@ -127,8 +131,6 @@
 
       call plotThinDams()
       call plotFixedWeirs()
-
-      call plotManholes()
 
       call tekwindvector()
 
@@ -173,10 +175,6 @@
    IF (NDRAW(10) .EQ. 2) THEN
       CALL PLOT(NDRAW(10))
    ENDIF
-
-!   if ( japart.eq.1 ) then
-!      call tekpartmesh()
-!   end if
 
    RETURN
    END SUBROUTINE DRAWNU

@@ -19,6 +19,7 @@ if(UNIX)
                             ftnunit
                             gridgeom
                             io_netcdf
+                            io_netcdf_data
                             kdtree_wrapper
                             kdtree2
                             waq_utils_f)
@@ -43,6 +44,7 @@ if(WIN32)
                          ftnunit
                          gridgeom
                          io_netcdf
+                         io_netcdf_data
                          kdtree_wrapper
                          kdtree2
                          netcdf4
@@ -50,7 +52,7 @@ if(WIN32)
                          waq_utils_f)
 
     target_link_directories(${executable_name} PRIVATE
-                                "${checkout_src_root}/third_party_open/netcdf/netCDF 4.6.1/lib")
+                                "${checkout_src_root}/third_party_open/netcdf/${netcdf_version}/lib")
 
     oss_include_libraries(${executable_name}   oss_dependencies)
     target_link_libraries(${executable_name} ${oss_dependencies}
@@ -64,10 +66,9 @@ set(build_dir ${CMAKE_BINARY_DIR})
 set(build_project ${executable_name})
 
 post_build_target( ${executable_name}
-                   ${install_dir} 
-                   ${build_dir} 
-                   ${checkout_src_root} 
+                   ${install_dir}
+                   ${build_dir}
+                   ${checkout_src_root}
                    ${build_project} )
 
 install(TARGETS ${executable_name} RUNTIME  DESTINATION bin)
-

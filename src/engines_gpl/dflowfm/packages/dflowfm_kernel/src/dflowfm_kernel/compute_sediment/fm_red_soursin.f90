@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    subroutine fm_red_soursin()
    !
@@ -76,37 +76,35 @@
       !
       ! Reduction is not applied to mud and not to bedload
       !
-      if (sedtyp(l) == SEDTYP_NONCOHESIVE_SUSPENDED) then
+      if (tratyp(l) == TRA_COMBINE) then
          if (kmx > 0) then
             do nm = 1, ndx
                call getkbotktop(nm, kb, kt)
                !
                ! Apply reduction factor to source and sink terms if
-               ! bottom is closer than user-specified threshold and
+               ! bottom change is close to threshold fraction water depth and
                ! erosive conditions are expected
                !
                kmaxsd = kmxsed (nm,l)
                h0     = max(0.01_fp, s0(nm) - bl(nm))
                h1     = max(0.01_fp, s1(nm) - bl(nm))
-               thick0 = zws0(kb)-zws0(kb-1) ! should be safe for z and sigma, was: thick(kmaxsd)*h0
-               thick1 = zws(kb)-zws(kb-1)   ! thick(kmaxsd)*h1
+               thick0 = zws0(kmaxsd)-zws0(kmaxsd-1) ! should be safe for z and sigma, was: thick(kmaxsd)*h0
+               thick1 = zws(kmaxsd)-zws(kmaxsd-1)   ! thick(kmaxsd)*h1
                dz     = (dts*morfac/cdryb(l)) &
-                  & * (sourse(nm, l)*thick0 - (sinkse(nm, l)+sour_im(nm, l))*thick1*constituents(ll, nm))
+                  & * (sourse(nm, l)*thick0 - (sinkse(nm, l)+sour_im(nm, l))*thick1*constituents(ll, kmaxsd))
                if (abs(dz) > h1*dzmax) then
                   reducfac = (h1*dzmax)/abs(dz)
                   if (reducfac < 0.01 .and. (time1 > tstart_user + tmor * tfac) .and. bedupd) then
-                     !                   !
-                     !                   ! Only write reduction warning when bed updating is true (and started)
-                     !                   ! (otherwise no problem)
-                     !                   ! Limit the number of messages with reducmessmax
-                     !                   ! (otherwise tri-diag will grow very fast)
-                     !                   !
+                     !
+                     ! Only write reduction warning when bed updating is true (and started)
+                     ! (otherwise no problem)
+                     ! Limit the number of messages with reducmessmax
+                     !
                      reducmesscount = reducmesscount + 1
                      if (reducmesscount <= reducmessmax) then
-                        !call nm_to_n_and_m(nm, n, m, gdp)
-                        write(message,'(a,i0,a,f12.2,a,2(i0,a))') &
+                        write(message,'(a,i0,a,f12.2,a,i0,a,2(f12.0,a),a,i0,a)') &
                            & 'Source and sink term sediment ',l,' reduced with factor', &
-                           & 1/reducfac,' node number=(',nm,'), after ', int(dnt) , ' timesteps.'
+                           & 1/reducfac,' node number=(',nm,') at x=', xz(nm),', y=', yz(nm),', after ', int(dnt) , ' timesteps.'
                         call write_warning(message, unit=mdia)
                      endif
                   endif
@@ -125,7 +123,7 @@
                ! estimate sink term based on previous cell
                ! concentration
                !
-               if ((sinkse(nm,l)+sour_im(nm,l))*constituents(ll, nm) < sourse(nm,l)) then
+               if ((sinkse(nm,l)+sour_im(nm,l))*constituents(ll, kmaxsd) < sourse(nm,l)) then
                   sinkse(nm, l)  = sinkse(nm, l) * fixfac(nm,l)
                   sourse(nm, l)  = sourse(nm, l) * fixfac(nm,l)
                   sour_im(nm, l) = sour_im(nm, l)* fixfac(nm,l)
@@ -144,12 +142,12 @@
                   reducfac = (h1*dzmax)/abs(dz)
                   if (reducfac < 0.01 .and. (time1 > tstart_user + tmor * tfac) .and. bedupd) then
                      reducmesscount = reducmesscount + 1
-                     !if (reducmesscount <= reducmessmax) then
-                     !   write(message,'(a,i0,a,f12.2,a,2(i0,a))') &
-                     !      & 'Source and sink term sediment ',l,' reduced with factor', &
-                     !      & 1/reducfac,' node number=(',nm,'), after ', int(dnt) , ' timesteps.'
-                     !   call write_warning(message, unit=mdia)
-                     !endif
+                     if (reducmesscount <= reducmessmax) then
+                        write(message,'(a,i0,a,f12.2,a,i0,a,2(f12.0,a),i0,a)') &
+                           & 'Source and sink term sediment ',l,' reduced with factor', &
+                           & 1/reducfac,' node number=(',nm,') at x=', xz(nm),', y=', yz(nm),', after ', int(dnt) , ' timesteps.'
+                        call write_warning(message, unit=mdia)
+                     endif
                   endif
                   sourse(nm, l)  = sourse(nm, l) *reducfac
                   sour_im(nm, l) = sour_im(nm, l)*reducfac
@@ -164,7 +162,7 @@
                endif
             enddo            ! nm
          endif               ! kmx
-      endif                  ! sedtyp
+      endif                  ! tratyp
    enddo                     ! lsedtot
    if (reducmesscount > reducmessmax) then
       write (mdia,'(12x,a,i0,a)') 'Reduction messages skipped (more than ',reducmessmax,')'

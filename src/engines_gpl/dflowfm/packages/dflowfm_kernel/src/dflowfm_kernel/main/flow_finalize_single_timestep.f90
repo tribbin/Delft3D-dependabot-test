@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,15 +27,14 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Finalizes a single time step, should be called directly after flow_run_single_timestep
 subroutine flow_finalize_single_timestep(iresult)
 use m_flow
 use m_flowgeom
 use m_flowtimes
-use unstruc_model, only : jawritebalancefile
 use unstruc_model, only : md_fou_step
 use unstruc_netcdf
 use timers
@@ -44,14 +43,16 @@ use unstruc_display, only : jaGUI
 use dfm_error
 use dfm_signals
 use m_mass_balance_areas, only: jamba
-use m_partitioninfo, only: jampi, sdmn, my_rank
-use m_integralstats
-use m_fourier_analysis
-use m_oned_functions, only: updateTimeWetOnGround, updateTotalInflow1d2d, updateTotalInflowLat
+use m_partitioninfo, only: jampi, my_rank
+use m_integralstats, is_is_numndvals=>is_numndvals
+use m_oned_functions, only: updateTimeWetOnGround, updateTotalInflow1d2d, updateTotalInflowLat, &
+                            updateFreeboard, updateDepthOnGround, updateVolOnGround
 use unstruc_channel_flow, only : network
+use m_sedtrails_stats, st_is_numndvals=>is_numndvals
+use m_update_fourier, only : update_fourier
+
 implicit none
 integer, intent(out) :: iresult
-character(len=255)   :: filename_fou_out
 
    ! Timestep has been performed, now finalize it.
 
@@ -118,9 +119,15 @@ character(len=255)   :: filename_fou_out
  ! note updateValuesOnObservationStations() in flow_usertimestep
 
  ! Time-integral statistics on all flow nodes.
- if (is_numndvals > 0) then
+ if (is_is_numndvals > 0) then
     call update_integralstats()
  end if
+ 
+ if (jasedtrails>0) then
+    if (st_is_numndvals > 0) then
+       call update_sedtrails_stats()
+    end if
+ endif   
 
  if ( jaGUI.eq.1 ) then
     call TEXTFLOW()
@@ -138,11 +145,8 @@ character(len=255)   :: filename_fou_out
 
 888 continue
 
-   if (fourierIsActive() .and. md_fou_step == 1) then
-      if (fourierWithUc()) then
-         call getucxucyeulmag(ndkx, workx, worky, ucmag, jaeulervel, 1)
-      endif
-      call postpr_fourier(time0, dts)
-   endif
+   if (md_fou_step == 1) then
+      call update_fourier(dts)
+   end if
 
 end subroutine flow_finalize_single_timestep

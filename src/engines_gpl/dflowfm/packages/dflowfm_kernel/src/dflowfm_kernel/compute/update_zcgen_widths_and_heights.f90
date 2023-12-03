@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Computes and sets the widths and gate lower edge levels on each of the flow links
 !! crossed by a general structure (gate/weir/true genstru).
@@ -103,7 +103,7 @@ do ng=1,ncgensg ! Loop over general structures
              closedGateWidthR = max(0d0, .5d0*(crestwidth - zcgen((ng-1)*3+3)))
           end if
       end if
-      generalstruc(ng)%gateheightonlink(1:generalstruc(ng)%numlinks) = 10**10 ! As a start, gate door is open everywhere. Below, we will close part of the gate doors.
+      generalstruc(ng)%gateheightonlink(1:generalstruc(ng)%numlinks) = 1d10 ! As a start, gate door is open everywhere. Below, we will close part of the gate doors.
     end if
 
    ! 2b: Determine the width that needs to be fully closed on 'left' side

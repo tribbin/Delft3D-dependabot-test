@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,54 +27,57 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  double precision function QucPerpure1D(n12,L)       ! sum of (Q*uc cell centre upwind normal) at side n12 of link L
  use m_flow                                          ! advect the cell center velocities (dimension: m4/s2)
  use m_flowgeom                                      ! leaving the cell = +
  implicit none
 
- integer :: L                                        ! for link L,
- integer :: n12                                      ! find normal velocity components of the other links
+ integer, intent(in) :: L                            !< link number
+ integer, intent(in) :: n12                          !< index of the node to be processed: 1 (from node) or 2 (to node)
 
  ! locals
- integer :: LL, LLL, LLLL                            ! for links LL,
- integer :: k12      , kup                                ! relevant node, 1 or 2, L/R
- double precision ::  ucin, ucinx, uciny, ucupin, cs, sn
+ logical          :: process1D                       !< process node as 1D
+ integer          :: k12                             !< node to be processed
+ 
+ integer          :: LL                              !< index counting the links connected to k12
+ integer          :: L2                              !< signed link number of link LL of node k12 (positive if link points to node, negative if link points away from node)
+ integer          :: L2a                             !< link number of link LL of node k12
+ integer          :: L2s                             !< sign of L2
+ 
+ double precision :: cs                              !< cosine of link direction (+1 for link in positive x-direction)
+ double precision :: sn                              !< sine of link direction (+1 for link in positive y-direction)
+ double precision :: ucin                            !< representative velocity transported along link
 
- integer :: nn12
-
- double precision, external:: lin2nodx, lin2nody, nod2linx, nod2liny
-
+ if (kcu(L) == -1) then
+     QucPerpure1D = 0d0
+     return
+ endif
+ 
+ k12 = ln(n12,L)
  QucPerpure1D = 0d0
  cs           = csu(L)
  sn           = snu(L)
-
- k12  = ln(n12,L)
+ process1D    = jaPure1D > 0
+ if (jaJunction1D == 0 .and. nd(k12)%lnx > 2) process1D = .false.
+ 
  do LL   = 1, nd(k12)%lnx                            ! loop over all attached links
-    LLL  = nd(k12)%ln(LL)
-    LLLL = iabs(LLL)
-
-    if ( qa(LLLL) == 0d0) then                       ! include own link
-
+    L2   = nd(k12)%ln(LL)
+    L2a  = iabs(L2)
+    L2s  = sign(1,L2)
+    
+    ! distinguish between vectorial treatment of momentum and pure 1D approach
+    if (process1D) then
+        ucin = u1Du(L2a)
     else
-
-       if (nd(k12)%lnx == 2 .and. u1Du(LLLL) .ne. 0d0) then
-          ucin = ucxu(LLLL)*cs + ucyu(LLLL)*sn
-          ucin = sign(abs(u1Du(LLLL)), ucin) - u1(L)
-       else
-          ucin = ucxu(LLLL)*cs + ucyu(LLLL)*sn  - u1(L)
-       endif
-
-       if (LLL > 0) then                             ! incoming link
-          QucPerpure1D = QucPerpure1D - qa(LLLL)*ucin
-       else
-          QucPerpure1D = QucPerpure1D + qa(LLLL)*ucin
-       endif
-
+        ucin = ucxu(L2a)*cs + ucyu(L2a)*sn
     endif
-
+    
+    ! L2s * qa(L2a) > 0d0 for inflowing: positive flow to this node, or negative flow from this node
+    ! L2s * qa(L2a) < 0d0 for outflowing: positive flow from this node, or negative flow to this node
+    QucPerpure1D = QucPerpure1D - L2s * qa(L2a) * (ucin - u1(L))
  enddo
 
  end function QucPerpure1D

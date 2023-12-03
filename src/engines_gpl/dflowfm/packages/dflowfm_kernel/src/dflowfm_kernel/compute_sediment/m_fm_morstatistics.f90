@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,12 +27,12 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2021.
+!  Copyright (C)  Stichting Deltares, 2017-2023.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -58,8 +58,8 @@
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
 !
 !-------------------------------------------------------------------------------
-! $Id$
-! $HeadURL$
+! 
+! 
 module m_fm_morstatistics
    use unstruc_netcdf
    use m_sediment
@@ -777,7 +777,7 @@ subroutine unc_write_sedstat_filepointer_ugrid(sedids,tim)
       enddo
       ierr = unc_put_var_map(sedids%ncid, sedids%id_tsp, sedids%id_dmsedcum, UNC_LOC_S, work)
       if (ierr/=0) then
-          call mess(LEVEL_FATAL, 'fm_erosed::unc_write_sedstat_filepointer_ugrid - Error in subroutine unc_put_var_map (dmsedcum).')
+          call mess(LEVEL_FATAL, 'fm_morstatistics::unc_write_sedstat_filepointer_ugrid - Error in subroutine unc_put_var_map (dmsedcum).')
       end if
    endif
    !

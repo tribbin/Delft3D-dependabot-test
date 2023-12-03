@@ -1,6 +1,6 @@
 !----- GPL ---------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2021.                                
+!  Copyright (C)  Stichting Deltares, 2011-2023.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify         
 !  it under the terms of the GNU General Public License as published by         
@@ -23,8 +23,8 @@
 !  are registered trademarks of Stichting Deltares, and remain the property of  
 !  Stichting Deltares. All rights reserved.                                     
 !                                                                               
-!  $Id$
-!  $HeadURL$
+!  
+!  
 
 module m_ec_bccollect
     use m_ec_parameters
@@ -317,9 +317,9 @@ module m_ec_bccollect
 
     integer                          ::     ifld 
     integer                          ::     iostat
-    character(len=60),  allocatable  ::     hdrkeys(:)     !< All keys from header
-    character(len=60),  allocatable  ::     hdrvals(:)     !< All values from header
-    character(len=60)                ::     dumstr
+    character(len=256),  allocatable  ::     hdrkeys(:)     !< All keys from header
+    character(len=256),  allocatable  ::     hdrvals(:)     !< All values from header
+    character(len=256)                ::     dumstr
 
     integer                          ::     iq, iq_sel
 

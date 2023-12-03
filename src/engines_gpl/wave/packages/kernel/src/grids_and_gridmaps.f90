@@ -1,7 +1,7 @@
 subroutine grids_and_gridmaps (n_swan_grids, n_flow_grids, sr, mode)
 !----- GPL ---------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2021.                                
+!  Copyright (C)  Stichting Deltares, 2011-2023.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify         
 !  it under the terms of the GNU General Public License as published by         
@@ -25,8 +25,8 @@ subroutine grids_and_gridmaps (n_swan_grids, n_flow_grids, sr, mode)
 !  Stichting Deltares. All rights reserved.                                     
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !!--description-----------------------------------------------------------------
 ! NONE
 !!--pseudo code and references--------------------------------------------------
@@ -93,7 +93,6 @@ subroutine grids_and_gridmaps (n_swan_grids, n_flow_grids, sr, mode)
    endif
 
 ! Find out number of SWAN grids
-
    i_swan=1
    inquire(file='swangrids', exist=exists)
    if (exists) then
@@ -116,7 +115,7 @@ subroutine grids_and_gridmaps (n_swan_grids, n_flow_grids, sr, mode)
 
    ! Allocate pointer arrays grid structures
    call Init_Grids (n_swan_grids, n_flow_grids)
-
+   
    do i=1,n_swan_grids
       grid_name = swangrid(i)
       grid_file_type ='FLOW'

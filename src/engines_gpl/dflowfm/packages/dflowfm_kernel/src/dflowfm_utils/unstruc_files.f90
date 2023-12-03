@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,14 +27,15 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 module unstruc_files
 !! Centralizes unstruc file management (formerly in REST.F90)
 
 use unstruc_messages
-use unstruc_version_module
+use dflowfm_version_module
+use time_module, only : seconds_to_datetimestring
 
 implicit none
 
@@ -140,7 +141,8 @@ end subroutine close_all_files
 function defaultFilename(filecat, timestamp, prefixWithDirectory, allowWildcard)
     use unstruc_model
     use m_flowtimes
-    use string_module, only: get_dirsep
+    use time_module,   only : seconds_to_datetimestring
+    use string_module, only : get_dirsep
     implicit none
     
     character(len=*), intent(in)  :: filecat             !< File category for which the filename is requested, e.g. 'obs', 'map', 'hyd'.
@@ -195,6 +197,9 @@ function defaultFilename(filecat, timestamp, prefixWithDirectory, allowWildcard)
     case ('avgsedquant')                         
         activeFile = md_avgsedquantfile
         suffix     = '_sed.nc'
+    case ('sedtrails')                         
+        activeFile = md_avgsedtrailsfile
+        suffix     = '_sedtrails.nc'    
     case ('tec')
         activeFile = ''
         suffix     = '.dat'
@@ -335,7 +340,7 @@ function defaultFilename(filecat, timestamp, prefixWithDirectory, allowWildcard)
 
     if (present(timestamp)) then
         dateandtime = '_'
-        call maketime(dateandtime(2:), timestamp)
+        call seconds_to_datetimestring(dateandtime(2:), refdat, timestamp)
     else
         dateandtime = ' '
     end if
@@ -347,8 +352,8 @@ function defaultFilename(filecat, timestamp, prefixWithDirectory, allowWildcard)
         defaultFileName = trim(basename)//trim(dateandtime)//suffix
     elseif (len_trim(md_ident) > 0) then                ! No active, no basename, use md_ident as basename
         defaultFilename = trim(md_ident)//trim(dateandtime)//suffix
-    elseif (len_trim(defaultFilename) == 0) then        ! Not even a md_ident and no hardcoded default filaname, then use unstruc_basename as basename
-        defaultFilename = trim(unstruc_basename)//trim(dateandtime)//suffix
+    elseif (len_trim(defaultFilename) == 0) then        ! Not even a md_ident and no hardcoded default filaname, then use base_name as basename
+        defaultFilename = trim(base_name)//trim(dateandtime)//suffix
     else if(present(allowWildcard)) then                ! Final resort: just a wildcard with proper file extention.
         if (allowWildcard) then
             defaultFilename = '*'//suffix
@@ -358,7 +363,7 @@ function defaultFilename(filecat, timestamp, prefixWithDirectory, allowWildcard)
     ! Output files are generally stored in a subfolder, so prefix them here with that.
     select case (trim(filecat))
     case ('his', 'map', 'clm', 'rstold', 'rst', 'bal', 'histek', 'inc_s1', 'tec', 'map.plt', 'net.plt', 'avgwavquant', &
-          'com','avgsedquant', 'mba', 'mbacsvm', 'mbacsvmb', 'wq_lsp', 'bloom', 'timers', 'timers_init') !! JRE
+          'com','avgsedquant', 'mba', 'mbacsvm', 'mbacsvmb', 'wq_lsp', 'bloom', 'timers', 'timers_init','sedtrails')
         if (prefix_dir) then
             defaultFilename = trim(getoutputdir())//trim(defaultFilename)
         end if

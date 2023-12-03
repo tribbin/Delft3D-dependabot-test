@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    SUBROUTINE NFILES(MODE, NUM,  NWHAT,  KEY)
 !  grid lijst
@@ -55,6 +55,7 @@
    use dfm_error
    use gridoperations
    use string_module, only: strcmpi
+   use m_setucxcuy_leastsquare, only: reconst2nd
 
    implicit none
    integer :: MODE, NUM,  NWHAT,  KEY
@@ -443,6 +444,9 @@
             else
                JA = 1
             end if
+            if (iperot == -1) then
+               call reconst2nd ()
+            endif
             call setucxucyucxuucyunew() ! reconstruct cell center velocities
          else
             call rearst(MLAN,JA)
@@ -506,7 +510,7 @@
                if (index(filnam, '.net') > 0) then
                    CALL NEWFIL(MTEK, filnam) ; CALL WRINET(MTEK)
                else
-                   call unc_write_net(filnam, janetcell = 0, janetbnd = 0)
+               call unc_write_net(filnam, janetcell = 0, janetbnd = 0)
                endif
             else if ( nwhat .eq. 22) then ! _net.nc with extra cell info (for example necessary for Baseline/Bas2FM input)
                if ( netstat.ne.NETSTAT_OK ) then

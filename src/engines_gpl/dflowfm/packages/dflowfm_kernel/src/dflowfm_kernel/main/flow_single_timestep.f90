@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,20 +27,20 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  !> A complete single computational time step (init-perform-finalize).
  subroutine flow_single_timestep(key, iresult)                ! do only 1 flow timestep
  use m_flow
  use m_flowgeom
  use m_flowtimes
- use unstruc_model, only : jawritebalancefile
  use unstruc_netcdf
  use m_xbeach_netcdf
  use m_timer
  use unstruc_display, only : jaGUI
  use dfm_error
+ use m_sedtrails_netcdf, only: sedtrails_write_stats
  implicit none
 
  integer :: key
@@ -49,9 +49,6 @@
  integer :: N, L
 
  iresult = DFM_GENERICERROR
-
-! double precision :: t
-! call checkspeed(t)
 
    call flow_init_single_timestep(iresult)
    if (iresult /= DFM_NOERR) then
@@ -69,8 +66,12 @@
    end if
 
    ! JRE avoid annoying dt_user interference
-    call xbeach_write_stats(time1)
-    call sedmor_write_stats(time1)
+   ! This may induce slight inaccuracies when dts is relatively large
+   call xbeach_write_stats(time1)
+   call sedmor_write_stats(time1)
+   if (jasedtrails>0) then
+      call sedtrails_write_stats(time1)
+   endif   
    iresult = DFM_NOERR
    return ! Return with success
 

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,38 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
+
+!----- AGPL --------------------------------------------------------------------
+!
+!  This file is part of Delft3D (D-Flow Flexible Mesh component).               
+!                                                                               
+!  Delft3D is free software: you can redistribute it and/or modify              
+!  it under the terms of the GNU Affero General Public License as               
+!  published by the Free Software Foundation version 3.                         
+!                                                                               
+!  Delft3D  is distributed in the hope that it will be useful,                  
+!  but WITHOUT ANY WARRANTY; without even the implied warranty of               
+!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                
+!  GNU Affero General Public License for more details.                          
+!                                                                               
+!  You should have received a copy of the GNU Affero General Public License     
+!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.             
+!                                                                               
+!  contact: delft3d.support@deltares.nl                                         
+!  Stichting Deltares                                                           
+!  P.O. Box 177                                                                 
+!  2600 MH Delft, The Netherlands                                               
+!                                                                               
+!  All indications and logos of, and references to, "Delft3D",                  
+!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting 
+!  Deltares, and remain the property of Stichting Deltares. All rights reserved.
+!                                                                               
+!-------------------------------------------------------------------------------
+
+! 
+! 
 
 !> @file modules.f90
 !! Modules with global data.
@@ -92,6 +122,7 @@
 
                                                  !< Molecular diffusivity coefficients (m2/s):
  double precision                  :: viskin     !< kinematic  viscosity
+ double precision                  :: vismol     !< molecular viscosity (m2/s)
  double precision                  :: difmolsal  !< molecular diffusivity of salinity
  double precision                  :: difmoltem  !<           diffusivity of temperature
  double precision                  :: difmolsed  !<           diffusivity of sediment
@@ -116,6 +147,11 @@
  double precision                  :: clam0                      !< eckart density parameters
  double precision                  :: alph0                      !< eckart density parameters
  integer                           :: idensform                  !< 0 = no, 1 = eckart
+ integer                           :: Maxitpresdens = 1          !< max nr of density-pressure iterations 
+ integer                           :: Jarhointerfaces = 0        !< rho computed at vertical interfaces, yes=1, 0=cell center 
+ integer                           :: Jabaroczlaybed = 0         !< use fix for zlaybed yes/no 
+ integer                           :: Jabarocponbnd = 0          !< baroclini pressure on open boundaries yes/no 
+
  integer                           :: limiterhordif              !< 0=No, 1=Horizontal gradient densitylimiter, 2=Finite volume
 
  double precision                  :: Stanton                    !< coeff for convective  heat flux, if negative , take wind Cd
@@ -126,7 +162,7 @@
  double precision                  :: Salimax = -999d0           !< limit
  double precision                  :: Salimin = 0d0              !< limit
  double precision                  :: epshstem = 0.001d0         !< only compute heatflx + evap if depth > trsh
- double precision                  :: surftempsmofac = 0.0d0     !< surface temperature smoothing factor 0-1d0
+ double precision                  :: surftempsmofac = 0.0d0     !< surface temperature smoothing factor 0-1d05
  double precision                  :: Soiltempthick   = 0.0d0    !< if soil buffer desired make thick > 0, e.g. 0.2 m
 
  integer                           :: Jadelvappos                !< only positive forced evaporation fluxes
@@ -136,6 +172,8 @@
  double precision                  :: tetavmom                   !< vertical teta momentum
 
  double precision                  :: locsaltlev, locsaltmin, locsaltmax
+ 
+ integer                           :: NFEntrainmentMomentum = 0  !< 1: switched on: Momentum transfer in NearField related entrainment
  contains
 !> Sets ALL (scalar) variables in this module to their default values.
 subroutine default_physcoef()
@@ -161,8 +199,8 @@ Elder       = 0d0       ! add Elder viscosity
 Smagorinsky = 0.2d0     ! add Smagorinsky Cs coefficient, vic = vic + (Cs*dx)**2 * S
 viuchk      = 0.24      ! if < 0.5 then eddy viscosity cell check viu<viuchk*dx*dx/dt
 
-vicoww      = 5d-5      ! 1D-6   !                 ! constant vertical   eddy viscosity (m2/s)
-dicoww      = 5d-5      ! 1D-6   !                 ! constant vertical   eddy viscosity (m2/s)
+vicoww      = 1d-6      ! 5d-5   !                 ! background vertical eddy viscosity (m2/s)
+dicoww      = 1d-6      ! 5d-5   !                 ! background vertical eddy diffusivity (m2/s)
 
 rhomean     = 1000d0    ! mean ambient rho ! (kg/m3)
 rhog        = ag*rhomean
@@ -180,6 +218,7 @@ secchidepth2fraction        = 0d0           !< (m) fraction of total absorbed by
 
                                             ! Molecular diffusivity coefficients:
 viskin                      = 1.D-6         ! kinematic  viscosity water in keps model
+vismol                      = 4.d0/(20.d0 + backgroundwatertemperature)*1d-5 ! Van Rijn, 1993, from iniphys.f90
 viskinair                   = 1.5d-5        ! kinematic  viscosity air
 difmolsal                   = viskin/700d0  ! molecular diffusivity of salinity
 difmoltem                   = viskin/6.7d0  !           diffusivity of temperature
@@ -197,7 +236,7 @@ limiterhordif               = 2             !< 0=No, 1=Horizontal gradient densi
 Stanton                     = 0.0013        !< coeff for convective  heat flux, if negative , take wind Cd
 Dalton                      = 0.0013        !< coeff for evaporative heat flux, if negative , take wind Cd
 
-Jadelvappos                 = 1             !< only positive forced evaporation fluxes
+Jadelvappos                 = 0             !< only positive forced evaporation fluxes
 
 tetav                       = 0.55d0        !< vertical teta transport
 tetavkeps                   = 0.55d0        !< vertical teta k-eps
@@ -206,6 +245,8 @@ tetavmom                    = 0.55d0        !< vertical teta momentum
 locsaltlev                  = 1d0           !< salinity level for case of lock exchange
 locsaltmin                  = 5d0           !< minimum salinity for case of lock exchange
 locsaltmax                  = 10d0          !< maximum salinity for case of lock exchange
+
+NFEntrainmentMomentum       = 0
 
 end subroutine default_physcoef
 end module m_physcoef

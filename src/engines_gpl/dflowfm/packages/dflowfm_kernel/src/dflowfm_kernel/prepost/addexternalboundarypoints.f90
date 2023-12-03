@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine addexternalboundarypoints
  use m_netw
@@ -46,10 +46,10 @@
 
  logical, external                                :: is_1d_boundary_candidate
 
- integer :: i, k, k1, k2, L, Lf, lb, nn, ierr, ja, k3, k4, id, istart, num1d2d, kL, kR, mpliz
+ integer :: i, k, k1, k2, L, Lf, lb, nn, ierr, k3, k4, id, istart, num1d2d, kL, kR, mpliz
 
- double precision :: x0,y0,x1,y1,x2,y2,xn,yn, dis, wL, wR
- double precision :: rtol, xci, yci, xcb, ycb, xce2, yce2, xx(4), yy(4)
+ double precision :: wL, wR
+ double precision :: xci, yci, xce2, yce2
  integer, allocatable :: kdum(:)
 
 

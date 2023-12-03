@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2021.
+!  Copyright (C)  Stichting Deltares, 2017-2023.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -27,14 +27,15 @@
 !
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  module m_flowparameters
  use m_sediment, only: jased
+ use m_missing
+
  implicit none
 
- integer                           :: jatransportmodule = 1    !< use transport module (1) or subroutine (0), or no transport (2)
  integer                           :: itstep            !< time step 0=no, 1 =step_explicit, 2=step_reduce, 3=step_jacobi, 4: explicit
  integer                           :: iadvec            !< adv type, 0=no, 1 = Wenneker vol, qu-udzt array, 2=1, function,
                                                         !< 3 =Perot in uit, 4 =Perot in, explicit
@@ -47,6 +48,7 @@
  logical                           :: setHorizontalBobsFor1d2d !< bobs are set to 2d bedlevel, to prevent incorrect storage in sewer system.
  logical                           :: dxDoubleAt1DEndNodes !< indicaties whether a 1D grid cell at the end of a network has to be extended with 0.5*dx
  integer                           :: iadvec1D          !< same, now for 1D links
+ integer                           :: iadveccorr1D2D    !< Advection correction of 1D2D link volume (0: none, 1: link volume au*dx')
 
  logical                           :: changeVelocityAtStructures !< Set the flow velocity at structures in setucxucyucxuucyu to the 
                                                                  !< flow velocity upstream of the structure
@@ -54,7 +56,7 @@
                                                                  !< wet surface width and make sure the crest level is equal or larger than the
                                                                  !< bed level of the channel. 
  integer                           :: lincontin         !< 0 = no, 1 = yes linear continuity
-
+ 
  integer                           :: iPerot            !< Perot weigthing type of cell center velocities ucx, ucy
                                                         !! in vectoren:
                                                         !! 0 : uc*sum(w) = sum (u W)
@@ -66,13 +68,15 @@
 
  integer                           :: jacomp = 1        !! same now for netnodes, 0 = default, 1 = use cs, sn in weighting, 2=regular scalar x,y interpolation based on banf
 
+ integer                           :: autotrisam = 1    !< Generate triangles after generating samplles in polygon (0:no 1:yes)
+
  integer                           :: icorio            !< Coriolis weigthing
 
- integer                           :: newcorio = 0      !< 0=up to 27-11-2019 , 1 = after
+ integer                           :: newcorio = 1      !< 0=prior to 27-11-2019, 1=no normal forcing on open bnds, plus 12 variants
 
  integer                           :: jacorioconstant=0 !< 0=default, 1=Coriolis constant in sferic models anyway,2=beta plane, both in cart. and spher. coor.
 
- double precision                  :: Oceaneddyamp = 0.05d0  !< Amplitude of testcase Oceaneddy, negative = anticyclone
+ double precision                  :: Oceaneddyamp = 0.0d0   !< Amplitude of testcase Oceaneddy, negative = anticyclone
 
  double precision                  :: Oceaneddyvel = 0.0d0   !< Velocity of testcase Oceaneddy, negative = anticyclone
 
@@ -84,9 +88,9 @@
 
  double precision                  :: Oceaneddyyoff = 0.0d0  !< relative domain size yoffset from centre
 
- double precision                  :: Corioadamsbashfordfac = 0d0  !< Coriolis Adams Bashford , 0d0 = explicit, 0.5 = AB
+ double precision                  :: Corioadamsbashfordfac = 0.5d0  !< Coriolis Adams Bashforth , 0d0 = explicit, 0.5 = AB
 
- double precision                  :: Barocadamsbashfordfac = .5d0 !< Baroclinic Adams Bashford , 0d0 = explicit, 0.5 = AB
+ double precision                  :: Barocadamsbashfordfac = .5d0 !< Baroclinic Adams Bashforth , 0d0 = explicit, 0.5 = AB
 
  double precision                  :: hhtrshcor         !< if > 0 safety for hu/hs in corio for now, ==0
 
@@ -120,15 +124,21 @@
 
  integer                           :: jarhoxu           !< rho effects in momentum, 0=no, 1=in horizontal adv, 2=+ in vertical adv, 3 = + in pressure term
 
- integer                           :: jawave            !< Include wave model nr, 0=no, 1=fetchlimited hurdle stive + swart, 4: XBeach wave driver, 3:SWan, 5=Const
+ integer                           :: jawave            !< Include wave model nr, 0=no, 1=fetchlimited hurdle stive + swart, 3=SWAN, 4=XBeach wave driver, 5=Const, 6=SWAN-NetCDF, 7=Offline Wave Coupling
+
+ integer                           :: waveforcing       !< Wave forcing type, 0=no, 1=based on radiation stress gradients, 2=based on dissipation, NOT implemented yet, 3=based on dissipation at free surface and water column, NOT implemented yet
+ 
+ logical                           :: flowWithoutWaves = .false.  !< True: Do not use Wave data in the flow computations, it will only be passed through to D-WAQ
 
  integer                           :: jawavestreaming   !< Switch on in D3D model: >=1 : streaming mom , >= 2 : streaming mom + turb
 
  integer                           :: jawaveStokes      !< Vertical Stokes profile: 0=no, 1 = uniform, 2 = second order Stokes profile
 
- integer                           :: jawaveRoller      !< Roller contribution: 0=no, 1 = Rol1, 2 = Rol2
+ integer                           :: jawavedelta=1     !< Wave boundary layer formulation: 1=Sana 2007
 
- integer                           :: jawaveSwartDelwaq !< communicate to Delwaq taucur + tauwaveswart instead of taucur, specify z0wav
+ integer                           :: jawaveforces      !< Apply wave forces to model (1, default), or not (0)
+
+ integer                           :: jawaveSwartDelwaq !< communicate to Delwaq taucur + tauwave instead of taucur
 
  integer                           :: modind = 1        !< Nr of wave-current bed friction model, 9 = vanrijn, 1 = fredsoe, etc like d3d
 
@@ -153,6 +163,8 @@
  integer                           :: jaCdwusp          !< if 1 spatially varying windstress coefficient
 
  integer                           :: jaWindspeedfac    !< if 1 spatially varying windstress coefficient
+ 
+ integer                           :: ja_friction_coefficient_time_dependent !< spatially and time dependent friction coefficient
 
  integer                           :: javiuplus3D = 1   !< add vertical eddy viscosity to horizontal eddy viscosity (1 = yes, 0 = no)
 
@@ -194,6 +206,7 @@
  double precision                  :: blmin             !<  : lowest bedlevel point in model
 
  double precision                  :: upot0=-999d0      !<  : initial potential energy
+ double precision                  :: ukin0=-999d0      !<  : initial potential energy
 
  integer                           :: jaupdbndbl        !< Update bl at boundary (1 = update, 0 = no update)
  integer                           :: jaupdbobbl1d     !< Update bl and bobs for 1d network (call to setbobs_1d only at initialization)
@@ -209,6 +222,7 @@
  double precision                  :: slotw1D           !< minimum slotwidth 1D
 
  integer                           :: jaconveyance2D    !< 1 : yes, 0 : no
+ integer                           :: jaconveyance3D=0  !< 1 : yes, 0 : no
  integer                           :: nums1it           !<   : nr of non-linear continuity iterations
  integer                           :: nums1mit          !<   : nr of non-linear continuity iterations outer loop ic nested
  integer                           :: isimplefixedweirs !< 1=only links stored, 0=complete crossection paths stored
@@ -219,13 +233,10 @@
  integer                           :: filterorder       !< order of filter
  integer                           :: jacheckmonitor    !< compute and output "checkerboard" mode monitor
 
-!    Secondary Flow
-! integer                           :: jasftesting       !< (secondary flow testing: 0: no just compute fm velocitie, 1: prescribe exact ucx,ucy point values 2: prescribe exact edge velocities (FM reconstructs ucx,ucy) 3: prescribe exact ucx,ucy cell-averaged values
-! integer                           :: jasfinttype       !< 1: perot reconstruction 2: standard gauss
-! integer                           :: jasftesttype      !< -1: u_theta = 0.1*200/r; u_r = 0 | k: k=0..3, u_x = x^k, u_y = 0
-
  double precision                  :: Uniformhu         !< Uniformhu for arjen's membranes
  double precision                  :: bedslope          !< bed inclination testcases
+ double precision                  :: bedslopedir=45d0  !< bed inclination dir (deg)
+ double precision                  :: bedwidth=100d0    !< width of channel 
  double precision                  :: bedwaveamplitude=0d0  !< bed testcases
  double precision                  :: bedwavelength=0d0     !< bed testcases
 
@@ -247,7 +258,8 @@
                                                         !< 2= : sig = max (Leftsig,Rightsig)
                                                         !< 3= : sig = min (Leftsig,Rightsig)
                                                         !< 4= : sig = dble(LL-Lb+1) / dble(LLbc-Lb+1), uniform independent of L,R
-
+ integer                           :: keepzlay1bedvol=0 !< 1=: Correct bed volumes for keepzlayeringatbed=1
+                                                        !< 0=: default, consistent volumes transport and baroclinic terms 
  double precision                  :: cflmx             !< max Courant nr ()
  double precision                  :: cflw              !< wave velocity fraction, total courant vel = u + cflw*wavevelocity
  double precision                  :: teta0             !< 1.00d0   ! .52      ! uniform teta in horizontal (),
@@ -255,7 +267,8 @@
                                                         !! (set teta=1.0)      (set teta=0.51->0.99)   (set teta<0)
  integer                           :: japiaczek33 = 1   ! testing 1 2
 
- integer                           :: jacstbnd           !< Delft-3D type cell-centered velocities at boundaries (ucx, ucy)
+ integer                           :: jacstbnd          !< Delft-3D type cell-centered velocities at boundaries (ucx, ucy)
+                                                        !< or more precise: copy of inside cell vector, WITHOUT taking bnd. normal comp.    
  integer                           :: jaLogprofatubndin  !< ubnds inflow: 0=uniform U1, 1 = log U1, 2 = log U1 and k-eps accordingly
  integer                           :: jaLogprofkepsbndin !< ubnds inflow: 0=uniform U1, 1 = log U1, 2 = log U1 and k-eps accordingly
  integer                           :: jamodelspecific = 0 !< override for above two parameters
@@ -269,6 +282,7 @@
  integer                           :: limtypw           !< 0=no, 1=minmod, 2=vanleer, 3=koren 4=MC, 21=central voor wave action transport
 
  integer                           :: ifixedweirscheme       !< 0 = no, 1 = compact stencil, 2 = whole tile lifted, full subgrid weir + factor
+ integer                           :: ifixedweirscheme1D2D   !< 0 = use regular fixedweirscheme also on 1D2D links, 1 = iterative 1d2d lateral coupling on 1D2D links
  integer                           :: ifxedweirfrictscheme   !< 0 = friction based on hu, 1 = friction based on subgrid weirfriction scheme
  integer                           :: jasetadjacentbobs = 0  !< also lift adjacent bobs and bl of kadecel
  double precision                  :: fixedweircontraction   !< flow width = flow width*fixedweircontraction
@@ -276,7 +290,9 @@
  double precision                  :: fixedweirtopfrictcoef  !< if .ne. dmiss, use this friction coefficient on top width
  double precision                  :: fixedweirtalud         !< , e.g. 4 ( ) for 1 to 4 talud
  double precision                  :: waquaweirthetaw=0.6d0  !< , e.g. 0.6
-
+ double precision                  :: huweirregular = 0.0d0  !< For Tabellenboek and Villemonte:
+                                                             !< hu <  huweirregular : true flow area 
+                                                             !< hu >= huweirregular : flow area as if no weir present
  double precision                  :: sini              !< uniform initial waterlevel (m),     (uniform bottom level = zkuni)
  double precision                  :: waterdepthini1D   !< uniform initial depth (m)
  double precision                  :: uini              !< uniform initial velociy    (m/s),
@@ -295,6 +311,7 @@
  double precision                  :: eps6              !<
  double precision                  :: eps8              !< implicit diffusion
  double precision                  :: eps10             !<
+ double precision                  :: eps20             !< faxlac
  double precision                  :: epshsdif=1d-2     !< hs < epshsdif: no vertical diffusion if hs < epshsdif
  double precision                  :: s01max            !< water level threshold (m) between s0 and s1 in validation routine
  double precision                  :: u01max            !< velocity threshold (m/s) between u0 and u1 in validation routine
@@ -306,11 +323,14 @@
  ! See also m_flowtimes::dtminbreak
 
  ! parameters controlling flooding/drying/solving
+ integer                           :: testdryflood      !< Flag for testing alternative drying flooding algoritm; 0 = standard, 1 =Delft3D-FLOW
+ integer                           :: testfixedweirs    !< Flag for fixed weir options; 0 = original Villemonte approach, 1 = Sieben2007
  double precision                  :: epshu             !< minimum waterdepth for setting hu>0
  double precision                  :: epshs             !< minimum waterdepth for setting cfu
- double precision                  :: epswav            !< minimum waterdepth for wave calculations
+ double precision                  :: epsz0             !< minimum value for roughness height
  double precision                  :: chkhuexpl         !< only for step_explicit:  check computed flux beneath this waterdepth
  double precision                  :: chkadvd           !< check advection  for 'drying' below this (upwind) waterdepth
+ double precision                  :: chkdifd           !< check diffusion, only for jatransportautotimestepdiff== 1
  double precision                  :: chkwndd           !< check windstress for 'drying' below this waterdepth
  double precision                  :: chktempdep        !< check heatfluxes for 'drying' below this waterdepth
  double precision                  :: trsh_u1Lb = 0.0d0
@@ -324,7 +344,7 @@
  integer                           :: jsolpos           !< in iterative solver force solution above bottom level
  integer                           :: Icgsolver         !< 'Solver type , 1 = sobekGS_OMP, 2 = sobekGS_OMPthreadsafe, 3 = sobekGS, 4 = sobekGS + Saadilud, 5 = parallel/global Saad, 6 = parallel/Petsc, 7 = parallel/GS '
  integer                           :: ipre              !< Preconditioner, 0=rowscaling, 1=GS, 2=trial
- integer                           :: jajipjan          !< arrays in gauss substi
+ integer                           :: Noderivedtypes    !< 0=use derived types in gauss and substi, 5=use simple Fortran arrays (faster) 
  integer                           :: jacheckmatrix     !< checkmatrix
 
  integer                           :: mdump             ! dump file unit nr
@@ -333,7 +353,7 @@
 
  integer                           :: javau             !< vert. adv. u1   : 0=No, 1=UpwexpL, 2=Centralexpl, 3=UpwimpL, 4=CentraLimpL
 
- integer                           :: javau3onbnd = 0   !< vert. adv. u1 bnd UpwimpL: 0=follow javau , 1 = on bnd, 2= on and near bnd
+integer                            :: javau3onbnd = 0   !< vert. adv. u1 bnd UpwimpL: 0=follow javau , 1 = on bnd, 2= on and near bnd
 
  integer                           :: javakeps          !< vert. adv. keps : 0=No, 1=UpwexpL, 2=Centralexpl, 3=UpwimpL, 4=CentraLimpL
 
@@ -344,6 +364,8 @@
  integer                           :: javased           !< vert. adv. suspended sediment concentrations : 0=No, 1=UpwexpL, 2=Centralexpl, 3=UpwimpL, 4=CentraLimpL, 5=switched to 3 for neg stratif., 6=higher-order upwind/explicit
 
  integer                           :: javatest          !< vert. adv. keps : test, 0 = no
+
+ integer                           :: jaimplicitfallvelocity=1 !< fallvelocity implicit 1=yes, 0=no 
 
  integer                           :: jahazlayer        !< vertical treatment of horizontal advection in z layers 1=org, 2=sigma, 3=node volumes
 
@@ -361,11 +383,11 @@
 
  integer                           :: jaorgbarockeywords !< default=0=new, 1=org
 
- integer                           :: jalts = 1         ! local time-stepping (1) or not (0)
-
  integer                           :: jatransportautotimestepdiff = 0 ! Auto Timestep in Transport module, 0 = limitation of diffusion, but no limitation of time-step due to diffusion, 1 = no limitation of diffusion, but limitation of time step due to diffusion, 2: no limitation of diffusion and no limitation of time step due to diffusion
 
  integer                           :: implicitdiffusion2D = 0 ! Auto Timestep in Transport module, 0 = limitation of diffusion, but no limitation of time-step due to diffusion, 1 = no limitation of diffusion, but limitation of time step due to diffusion, 2: no limitation of diffusion and no limitation of time step due to diffusion
+
+ integer                           :: jadiagnostictransport = 0 ! Switch for diagnostic ("frozen") transport, 0 = prognostic transport, 1 = diagnostic transport
 
  integer                           :: jaexplicitsinks = 1
 
@@ -373,7 +395,9 @@
 
  integer                           :: jaustarint              !< 1=integral bed layer velocity,  0=velocity at half bed layer
 
- double precision                  :: Pure1D                  !< 0d0 = org 1D advec, 1d0 = puur1D
+ integer                           :: jaPure1D                !< along 1D channels: 0 = vectorial approach, 1 = scalar approach using vol1_f, 2 = scalar approach using vol1
+
+ integer                           :: jaJunction1D            !< at 1D junctions: 0 = vectorial approach, 1 = same approach as along the 1D channels
 
  double precision                  :: Eddyviscositybedfacmax  !< eddyviscosityatbed = min(eddyviscosityatbed, eddyviscosityatbedfacmax*eddyviscosityatbed+1 )
 
@@ -390,6 +414,16 @@
  integer                           :: inivel                 !< initial velocity (1) or not (0)
 
  double precision                  :: cffacver = 0d0         !< switch to low order at high cf in constituent transport vertical, 1d0=yes, 0d0 = no
+
+ double precision                  :: cffachormom = 1d0      !< switch to low order at high cf in horizontal mom. transport, 1d0=yes, 0d0 = no
+
+ double precision                  :: cfexphormom = 1d0      !< exponent of same
+
+ double precision                  :: cfconhormom = 0d0      !< constant of same
+
+ double precision                  :: cffachu     = 1d0      !< switch to low order at high cf in sethu, 1d0=yes, 0d0 = no
+
+ double precision                  :: cfexphu     = 1d0      !< exponent of same
 
  double precision                  :: toplayminthick         !< minimum top layer thickness (m)
 
@@ -409,11 +443,19 @@
 
  integer                           :: jaupwindsrc               !< 1st-order upwind advection (1) or higher-order (0)
 
+ integer                           :: jadiffusiononbnd   = 1    !< 0 switches off diffusion on open boundaries 
+
  integer                           :: jajre                     !< 0: default, 1: sb
+ 
+ integer                           :: jasedtrails               !< sedtrails custom averaged output - 0: no (default) ; 1: yes
 
  integer                           :: jasourcesink              !< 1: source+sink 2:source 3:sink for sediment
 
  integer                           :: jalogsolverconvergence    !< log solver convergence message bloat (default 1, preferable 0)
+ integer                           :: jalogtransportsolverlimiting    !< log transport solver limiting message bloat (default 0, preferable 0)
+ 
+ integer                           :: jadpuopt                  !< option for bed level at velocity point in case of tile approach bed level: 1 = max (default). This is equivalent to min in Delft3D 4; 2 = mean. 
+ integer                           :: jaextrapbl                !< option for extrapolating bed level at boundaries according to the slope: 0 = no extrapolation (default); 1 = extrapolate. Necessary for analytical solutions. 
 
  ! written to his file yes or no
  integer                           :: jahisbal                  !< Write mass balance/volume totals to his file, 0: no, 1: yes
@@ -426,6 +468,7 @@
  integer                           :: jahisheatflux             !< Write heatfluxes to his file, 0: no, 1: yes
  integer                           :: jahissal                  !< Write salinity to his file, 0: no, 1: yes
  integer                           :: jahisrho                  !< Write density  to his file, 0: no, 1: yes
+ integer                           :: jahis_airdensity          !< Write air density  to his file, 0: no, 1: yes
  integer                           :: jahiswatlev               !< Write water level to his file, 0: no, 1: yes
  integer                           :: jahisbedlev               !< Write bed level to his file, 0: no, 1: yes
  integer                           :: jahiswatdep               !< Write waterd epth to his file, 0: no, 1: yes
@@ -445,6 +488,7 @@
  integer                           :: jamaps1                   !< water levels to map file, 0: no, 1: yes
  integer                           :: jamapevap                 !< evaporation to map file, 0: no, 1: yes
  integer                           :: jamapvol1                 !< Volumes to map file, 0: no, 1: yes
+ integer                           :: jamaphs                   !< Water depths to map file, 0: no, 1: yes
  integer                           :: jamaphu                   !< Water depths on u point to map file, 0: no, 1: yes
  integer                           :: jamapanc                  !< Ancillary variables attribute added to map file, 0: no, 1: yes (http://cfconventions.org/cf-conventions/v1.6.0/cf-conventions.html#ancillary-data)
  integer                           :: jamapau                   !< Normal flow areas au to map file, 0: no, 1: yes
@@ -456,7 +500,10 @@
  integer                           :: jamapww1                  !< upward velocity on flow link to map file, 0: no, 1: yes
  integer                           :: jamapnumlimdt             !< num limdt to map file, 0: no, 1: yes
  integer                           :: jamaptaucurrent           !< shear stress to map file, 0: no, 1: yes
- integer                           :: jamapchezy                !< chezy to map file, 0: no, 1: yes
+ integer                           :: jamapz0                   !< roughness heights to map file, 0: no, 1: yes
+ integer                           :: jamap_chezy_elements      !< chezy roughness in flow elements to map file, 0: no, 1: yes
+ integer                           :: jamap_chezy_links         !< chezy roughness on flow links to map file, 0: no, 1: yes
+ integer                           :: jamap_chezy_input         !< chezy input roughness on flow links to map file, 0: no, 1: yes
  integer                           :: jamapsal                  !< salinity to map file, 0: no, 1: yes
  integer                           :: jamaptem                  !< temperature to map file, 0: no, 1: yes
  integer                           :: jamapcali                 !< roughness calibration factors to map file, 0: no, 1: yes
@@ -468,17 +515,33 @@
  integer                           :: jamapicept                !< Interception layer to map file, 0: no, 1: yes
  integer                           :: jamapwind                 !< wind velocities to map file, 0: no, 1: yes
  integer                           :: jamapwindstress           !< wind stress to map file, 0: no, 1: yes
+ integer                           :: jamap_airdensity          !< air density to mao file, 0: no, 1: yes
  integer                           :: jamapviu                  !< horizontal viscosity to map file, 0: no, 1: yes
  integer                           :: jamapdiu                  !< horizontal diffusity to map file, 0: no, 1: yes
  integer                           :: jamaprho                  !< flow density to map file, 0: no, 1: yes
  integer                           :: jamapq1                   !< flow flux to map file, 0: no, 1: yes
  integer                           :: jamapq1main               !< main channel flow flux to map file, 0: no, 1: yes
+ integer                           :: jamapfw                   !< fixed weir energy loss to map file, 0: no, 1: yes
  integer                           :: jamapspir                 !< spiral flow to map file, 0: no, 1: yes
  integer                           :: jamaptidep                !< tidal potential to map file, 0: no, 1: yes
  integer                           :: jamapselfal               !< self attraction and loading potential to map file, 0: no, 1: yes
  integer                           :: jamapIntTidesDiss         !< internal tides dissipation to map file, 0: no, 1: yes
  integer                           :: jamapNudge                !< output nudging to map file, 0: no, 1: yes
  integer                           :: jamapwav                  !< output waves to map file, 0: no, 1: yes
+ integer                           :: jamapwav_hwav             !< output waves to map file for variable hwav,   0: no, 1: yes
+ integer                           :: jamapwav_twav             !< output waves to map file for variable twav,   0: no, 1: yes
+ integer                           :: jamapwav_phiwav           !< output waves to map file for variable phiwav, 0: no, 1: yes
+ integer                           :: jamapwav_sxwav            !< output waves to map file for variable sxwav,  0: no, 1: yes
+ integer                           :: jamapwav_sywav            !< output waves to map file for variable sywav,  0: no, 1: yes
+ integer                           :: jamapwav_sxbwav           !< output waves to map file for variable sxbwav, 0: no, 1: yes
+ integer                           :: jamapwav_sybwav           !< output waves to map file for variable sybwav, 0: no, 1: yes
+ integer                           :: jamapwav_mxwav            !< output waves to map file for variable mxwav,  0: no, 1: yes
+ integer                           :: jamapwav_mywav            !< output waves to map file for variable mywav,  0: no, 1: yes
+ integer                           :: jamapwav_dsurf            !< output waves to map file for variable dsurf,  0: no, 1: yes
+ integer                           :: jamapwav_dwcap            !< output waves to map file for variable dwcap,  0: no, 1: yes
+ integer                           :: jamapwav_distot           !< output waves to map file for variable distot, 0: no, 1: yes
+ integer                           :: jamapwav_uorb             !< output waves to map file for variable uorb,   0: no, 1: yes
+
  integer                           :: jamapdtcell               !< output time steps per cell based on CFL
  integer                           :: jamapTimeWetOnGround      !< output to map file the cumulative time when water is above ground level, 0: no, 1: yes
  integer                           :: jamapFreeboard            !< output freeboard to map file, 0: no, 1: yes
@@ -496,6 +559,7 @@
  integer                           :: jamapqin                  !< Includes sum of all influxes in map output
  integer                           :: jaeverydt                 !< Write output to map file every dt, based on start and stop from MapInterval, 0=no (default), 1=yes
  integer                           :: jamapFlowAnalysis         !< Write flow analysis output to map file   
+ integer                           :: jamapNearField            !< Nearfield related output
 
 ! read from restart
  integer                           :: jarstignorebl             !< Flag indicating if bed level on restart file should be ignored (0/1, default: 0)
@@ -517,6 +581,7 @@
  integer                           :: jashp_pump                !< Write a shape file for pumps
  integer                           :: jashp_dry                 !< Write a shape file for dry areas
  integer                           :: jashp_genstruc            !< Write a shape file for general structures
+ integer                           :: jashp_dambreak            !< Write a shape file for dam breaks
 
  integer                           :: jambawritecsv             !< Option to write areas mass balance terms to a csv-file
 
@@ -552,9 +617,6 @@
  ! parameter for bed roughness and transport
  integer                                              :: v2dwbl
 
- ! determines whether md1d file exist
- integer                                              :: jamd1dfile = 0
-
  ! parameter for secondary flow
  integer                                              :: ispirparopt ! for visualization
 
@@ -562,10 +624,10 @@
 !> Sets ALL (scalar) variables in this module to their default values.
 !! For a reinit prior to flow computation, only call reset_flowparameters() instead.
 subroutine default_flowparameters()
-    jatransportmodule = 1    ! transportmethod 1 (module) or 0 hk (subroutine) or no transport (2)
     itstep   = 2      ! time step 0=only transport, 1=transport + velocity update, 2=full implicit step_reduce
     iadvec   = 33     ! adv type, 0=no, 1= Wenneker vol, qu-udzt array, 2=1, function, 3=Perot in uit, 4=Perot in, 5=3,piaczek
     iadvec1D = 33     ! same, now for 1D links
+    iadveccorr1D2D = 0 ! Advection correction of 1D2D link volume (0: none, 1: link volume au*dx')
 
     maxNonlinearIterations   = 100     !< maximal iterations in non linear iteration loop before a time step reduction is applied
     setHorizontalBobsFor1d2d = .false. !< bobs are set to 2d bedlevel, to prevent incorrect storage in sewer system.
@@ -576,7 +638,7 @@ subroutine default_flowparameters()
                                          !< wet surface width and make sure the crest level is equal or larger than the
                                          !< bed level of the channel. 
     lincontin= 0      ! 0 = no, 1 = yes linear continuity
-
+    
     iPerot   = 1      ! Perot weigthing type of cell center velocities ucx, ucy
                       ! in vectoren:
                       ! 0 : uc*sum(w) = sum (u W)
@@ -657,20 +719,26 @@ subroutine default_flowparameters()
     jarhoxu  = 0      ! rho effects in momentum, 0=no, 1=in horizontal adv, 2=+ in vertical adv, 3 = + in pressure term
 
     jased    = 0      ! Include sediment
-
+    
+    jasedtrails = 0   ! Include sedtrail averaging 
+    
     jatrt    = 0      !< Include alluvial and vegetation roughness (trachytopes)
 
     jacali   = 0      !< Include calibration factor for roughness
 
     jawave   = 0      ! Include wave model nr
 
+    waveforcing = 0   !< Include wave forcing 
+    
     jawavestreaming = 0   ! Switch on in D3D model: >=1 : streaming mom , >= 2 : streaming mom + turb
 
-    jawaveStokes = 0      ! Vertical Stokes profile: 0=no, 1 = uniform, 2 = second order Stokes profile
+    jawavestokes = 1      ! Vertical Stokes profile: 0=no, 1 = uniform, 2 = second order Stokes profile
 
-    jawaveRoller = 0      ! Roller contribution: 0=no, 1 = Rol1, 2 = Rol2
+    jawavedelta = 1       ! Wave boundary layer formulation: 1=Sana; 2=Nguyen
 
-    jawaveSwartDelwaq = 0 !< communicate to Delwaq taucur + tauwaveswart instead of taucur, specify z0wav
+    jawaveforces = 1
+
+    jawaveSwartDelwaq = 0 !< communicate to Delwaq taucur + tauwave instead of taucur
 
     modind = 0            !< Nr of wave-current bed friction model, 9 = vanrijn, 1 = fredsoe, etc like d3d
 
@@ -735,8 +803,8 @@ subroutine default_flowparameters()
     bedslope    = 0d0    ! bottom inclination testcases
     Slopedrop2D = 0d0    ! Apply droplosses only if local bottom slope > Slopedrop2D, negative = no droplosses
     Drop1D      = .false.
-    Drop2D      = 0d0    ! Apply droblosses in 2D yes or no 1 or 0
-    drop3D      = 1d0    ! Apply droplosses in 3D yes or no 1 or 0
+    Drop2D      = 0d0    ! Apply droplosses in 2D yes or no 1 or 0
+    Drop3D      = 1d0    ! Apply droplosses in 3D yes or no 1 or 0
     jacstbnd    = 0
     jajre       = 0
     jasourcesink= 1
@@ -759,6 +827,7 @@ subroutine default_flowparameters()
     limtypw    = 4
 
     ifixedweirscheme      = 6      !< 0 = no special treatment, setbobs only, 1 = compact stencil, 2 = whole tile lifted, full subgrid weir + factor
+    ifixedweirscheme1D2D  = 0      !< 0 = use regular fixedweirscheme also on 1D2D links, 1 = iterative 1d2d lateral coupling on 1D2D links
     fixedweircontraction  = 1d0    !< flow width = flow width*fixedweircontraction
     fixedweirtopwidth     = 3d0    !< e.g. 4.00 (m)
     fixedweirtopfrictcoef = -999d0 !< if .ne. dmiss, use this friction coefficient on top width
@@ -790,6 +859,7 @@ subroutine default_flowparameters()
     eps6       = 1d-6    !
     eps8       = 1d-8    ! implicit diffusion
     eps10      = 1d-10   !
+    eps20      = 1d-20   ! facLax
 
     s01max     = 0d0     ! max. water level change: off
     u01max     = 0d0     ! max. velocity change: off
@@ -803,11 +873,19 @@ subroutine default_flowparameters()
                          ! parameters controlling flooding/drying/solving
     epshu      = 1d-4    ! minimum waterdepth for setting hu>0
     epshs      = .2d0*epshu ! minimum waterdepth for setting cfu
-    epswav     = 1d-2    ! minimum waterdepth for wave calculations
+    epsz0      = 1d-5    ! minimum value for z0
     chkhuexpl  = 0.1d0   ! only for step_explicit:  check computed flux beneath this waterdepth
     chkadvd    = 0.1d0   ! check advection  for 'drying' below this (upwind) waterdepth
+    chkdifd    = 0.01d0  ! check diffusion only for jatransportautotimestepdiff == 1
     chkwndd    = 0.1d0   ! check windstress              below this waterdepth
     chktempdep = 0.1d0   ! check heatfluxes              below this waterdepth
+    testdryflood = 0     ! test different options for drying flooding: 
+                         !                                0 = standard D-Flow FM
+                         !                                1 = Delft3D-FLOW check in water level points
+                         !                                2 = Minimum value for VOL1 of ba*epshu in transport equation
+    testfixedweirs = 0   ! test different options for fixed weirs: 
+                         !                                0 = original Villemonte (Sieben2010) approach 
+                         !                                1 = 1 = Sieben2007
 
     jposhchk   = 2       ! check for positive waterdepth; 0 = no
                          !                                1 = 0.7*dts, just redo
@@ -818,7 +896,7 @@ subroutine default_flowparameters()
     jsolpos    = 0       ! in iterative solver force solution above bottom level
     Icgsolver  = 4       !    Icgsolver = 1      ! 1 = GS_OMP, 2 = GS_OMPthreadsafe, 3 = GS, 4 = Saadilud
     ipre       = 0       ! preconditioner, 0=rowscaling, 1=GS, 2=trial
-    jajipjan   = 5       ! jipjan arrays in gauss
+    Noderivedtypes = 5   ! 0=use derived types in gauss and substi, 5=use simple Fortran arrays (faster) 
 
     hwetbed    = 0.2d0   ! for case wetbed
 
@@ -828,9 +906,10 @@ subroutine default_flowparameters()
     javatem    = 6       !< vert. adv. tem1 : 0=No, 1=UpwexpL, 2=Centralexpl, 3=UpwimpL, 4=CentraLimpL, 5=switched to 3 for neg stratif.
     javased    = 6       !< vert. adv. suspended sediment concentrations : 0=No, 1=UpwexpL, 2=Centralexpl, 3=UpwimpL, 4=CentraLimpL, 5=switched to 3 for neg stratif., 6=higher-order upwind/explicit
     jahazlayer = 0       !<
-    Pure1D     = 0d0     !< puur1D no yes
+    jaPure1D   = 0       !< 0 = org 1D advec, 1 = pure1D using vol1_f, 2 = pure1D using vol1
+    jaJunction1D = 1     !< 0 = org 1D advec at junctions, 1 = junctions follow jaPure1D approach
     JaZlayercenterbedvel      = 1
-    jastructurelayersactive   = 0
+    jastructurelayersactive   = 1
     JaZerozbndinflowadvection = 0
 
     jabaroctimeint = -4  !< time integration baroclini pressure, 1 = expl., 2=AB rho , 3 = AB barocterm, 4=3dryfloodproof 5 = advect rho (n+1/2)
@@ -861,8 +940,9 @@ subroutine default_flowparameters()
     dparms = 0d0  ! parms-default
 
     jaupwindsrc = 1
-    jalogsolverconvergence = 1
-
+    jalogsolverconvergence = 0
+    jalogtransportsolverlimiting = 0
+    
     jahisbal = 1
     jahissourcesink = 1
     jahistur = 1
@@ -873,6 +953,7 @@ subroutine default_flowparameters()
     jahisheatflux = 1
     jahissal = 1
     jahisrho = 1
+    jahis_airdensity = 0
     jahiswatlev = 1
     jahisbedlev = 1
     jahiswatdep = 0
@@ -891,6 +972,7 @@ subroutine default_flowparameters()
     jamaps1 = 1
     jamapevap = 0
     jamapvol1 = 0
+    jamaphs = 1
     jamaphu = 0
     jamapanc = 0
     jamapau = 0
@@ -902,7 +984,10 @@ subroutine default_flowparameters()
     jamapww1 = 1
     jamapnumlimdt = 1
     jamaptaucurrent = 1
-    jamapchezy = 1
+    jamapz0 = 0
+    jamap_chezy_elements = 0
+    jamap_chezy_links    = 0
+    jamap_chezy_input    = 0
     jamapsal = 1
     jamaptem = 1
     jamapconst = 1
@@ -914,11 +999,13 @@ subroutine default_flowparameters()
     jamapicept = 0
     jamapwind = 1
     jamapwindstress = 0
+    jamap_airdensity = 0
     jamapviu = 1
     jamapdiu = 1
     jamaprho = 1
     jamapq1  = 1
     jamapq1main = 0
+    jamapfw   = 0
     jamapspir = 1
     jamaptidep = 1
     jamapselfal = 1
@@ -934,6 +1021,7 @@ subroutine default_flowparameters()
     jamapTotalInflowLat = 0
     jamapS1Gradient = 0
     jamapFlowAnalysis = 0
+    jamapNearField = 0
 
     jarstignorebl = 0
 
@@ -955,7 +1043,7 @@ subroutine default_flowparameters()
     jashp_pump= 0
     jashp_dry = 0
     jashp_genstruc = 0
-
+    jashp_dambreak = 0
     jambawritecsv = 0
 
     jambalumpmba = 0
@@ -974,6 +1062,9 @@ subroutine default_flowparameters()
 
     jatransportautotimestepdiff = 0
     implicitdiffusion2D         = 0
+    
+    jadpuopt = 1
+    jaextrapbl = 0
 
     call reset_flowparameters()
 end subroutine default_flowparameters

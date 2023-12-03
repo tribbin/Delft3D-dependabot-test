@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine flow_f0isf1()                            ! Todo: make pointer stucture and reset pointers
  use m_flowgeom
@@ -87,7 +87,7 @@
  volerr      = vol1tot - vol0tot - vinbnd + voutbnd - vincel + voutcel !+ dvolbot
  volerrcum   = volerrcum    + volerr
 
-if (jahisbal > 0) then
+ if (jahisbal > 0) then
     ! extra
     vinrain     = qinrain *dts
     vinrainground = qinrainground*dts
@@ -166,7 +166,7 @@ if (jahisbal > 0) then
        volcur(IDX_InternalTidesDIssipation) = 0d0
     end if
 
-    if ( jatidep.eq.1 .or. jaselfal.gt.0 ) then
+    if ( jatidep > 0 .or. jaselfal > 0 ) then
        volcur(IDX_GravInput) = GravInput*dts
     else
        volcur(IDX_GravInput) = 0d0

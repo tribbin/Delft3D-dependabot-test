@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine furu_structures()
  use m_flow
@@ -40,8 +40,6 @@
  use m_compound
  use m_Universal_Weir
  use m_cross_helper
- use m_weir
- use m_orifice
  use m_culvert
  use m_bridge
  use m_oned_functions
@@ -107,29 +105,22 @@
                 k2 = ln(2,L)
 
                select case(network%sts%struct(istru)%type)
-               case (ST_WEIR)
-                     ! Note: computeweir is not suitable for use in a compound structure
-                      call computeweir(pstru%weir, fu(L), ru(L), au(L), width, kfu, s1(k1), s1(k2), &
-                                       q1(L), q1(L), u1(L), u0(L), dx(L), dts, state)
-                   case (ST_ORIFICE)
-                     ! Note: ComputeOrifice is not suitable for use in a compound structure
-                      call ComputeOrifice(pstru%orifice, fu(L), ru(L), au(L), width, kfu, s1(k1), s1(k2), q1(L), q1(L),   &
-                       & u1(L), u0(L), dx(L), dts, state)
                    case (ST_GENERAL_ST)
                       firstiter = .true.
                       ! The upstream flow area is necessary for computing the upstream velocity height
                       ! For 1d the flow area is computed, using the upstream water depth
                       ! For 2D the flow area is computed, using the flow width WU and the waterdepth at the upstream grid cell
-                      if (L <= lnx1D) then
-                      dpt = max(epshu, s1(k1) - bob0(1,L))
-                      call GetCSParsFlow(network%adm%line2cross(L, 2), network%crs%cross, dpt, as1, perimeter, width, maxFlowWidth = maxwidth1)
-                      dpt = max(epshu, s1(k2) - bob0(2,L))
-                      call GetCSParsFlow(network%adm%line2cross(L, 2), network%crs%cross, dpt, as2, perimeter, width, maxFlowWidth = maxwidth2)
-                      width = max(maxwidth1, maxwidth2)
-                      wu(L) = width
+                      if (kcu(L) == 1) then
+                         dpt = max(epshu, s1(k1) - bob0(1,L))
+                         call GetCSParsFlow(network%adm%line2cross(L, 2), network%crs%cross, dpt, as1, perimeter, width, maxFlowWidth = maxwidth1)
+                         dpt = max(epshu, s1(k2) - bob0(2,L))
+                         call GetCSParsFlow(network%adm%line2cross(L, 2), network%crs%cross, dpt, as2, perimeter, width, maxFlowWidth = maxwidth2)
+                         width = max(maxwidth1, maxwidth2)
+                         wu(L) = width
                       else
                         as1 = (s1(k1)-bl(k1))*wu(L)
                         as2 = (s1(k2)-bl(k2))*wu(L)
+                        width = wu(L)
                       endif
                       call getcz(hu(L), frcu(L), ifrcutp(L), Cz, L)
                       au(L) = pstru%au(L0)
@@ -150,7 +141,7 @@
 
                        wetdown = max(wetdown, 0.0001d0)
                       call computeculvert(pstru%culvert, fu(L), ru(L), au(L), width, kfu, cmustr, s1(k1), s1(k2), &
-                          q1(L), q1(L), pstru%u1(L0), pstru%u0(L0), dx(L), dts, wetdown, .true.)
+                          q1(L), q1(L), pstru%u1(L0), pstru%u0(L0), dx(L), dts, wetdown)
                       
                    case (ST_UNI_WEIR)
                       fu(L) = pstru%fu(L0)

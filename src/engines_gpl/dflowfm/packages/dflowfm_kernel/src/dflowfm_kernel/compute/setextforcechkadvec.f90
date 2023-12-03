@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine setextforcechkadvec()
  use m_flow
@@ -39,7 +39,7 @@
  use m_alloc
  use m_wind
  use m_sferic
- use m_xbeach_data, only: Fx, Fy, swave, Lwave, hminlw, xb_started !, facmax, Trep
+ use m_xbeach_data, only: Fx, Fy, swave, Lwave, hminlw
  use m_fm_icecover, only: ice_p, fm_ice_update_press, ice_apply_pressure, ice_reduce_waves, ice_af, ice_apply_friction, ice_frctp, ice_frcuni, FRICT_AS_DRAG_COEFF
 
  implicit none
@@ -169,7 +169,10 @@ if (jawind > 0) then
     enddo
  endif
 
- if (jawave == 3) then      ! if a SWAN computation is performed, add wave forces to adve
+ if ((jawave==3.or.jawave==6) .and. .not. flowWithoutWaves) then
+     ! if a SWAN computation is performed, add wave forces to adve
+     ! This part is mainly based on the wave forces formulation (wsu) of Delft3D (cucnp.f90)
+
     if ( kmx.eq.0 ) then  ! 2D
        do L  = 1,lnx
           wfac = 1d0
@@ -194,24 +197,35 @@ if (jawind > 0) then
 
 ! JRE
  if (jawave .eq. 4) then                              ! wave forcing from XBeach
-     ! TODO: ice clips waves
-    call xbeach_wave_compute_flowforcing2D()
     if (lwave==1)  then
-       do L  = 1,Lnx
-          floc = Fx(L)*csu(L) + Fy(L)*snu(L)
-          wfac = 1d0
-          if (ice_reduce_waves) then
-             wfac = wfac * (1.0d0 - 0.5d0 * (ice_af(ln(1,L)) + ice_af(ln(2,L))))
-          endif
-          adve(L) = adve(L) - wfac * floc/ (rhomean*max(hu(L), hminlw) )    ! Johan+Dano: lower depth set to 20cm, cf XBeach
-       enddo
+         if (kmx==0) then
+            do L  = 1,Lnx
+               wfac = 1d0
+               if (ice_reduce_waves) then
+                  wfac = wfac * (1.0d0 - 0.5d0 * (ice_af(ln(1,L)) + ice_af(ln(2,L))))
+               endif
+               adve(L) = adve(L) - wfac * wavfu(L)
+            enddo
+         else
+            do L=1,lnx
+               wfac = 1d0
+               if (ice_reduce_waves) then
+                  wfac = wfac * (1.0d0 - 0.5d0 * (ice_af(ln(1,L)) + ice_af(ln(2,L))))
+               endif
+               call getLbotLtop(L, Lb,Lt)
+               if (Lt<Lb) cycle
+               do LL = Lb, Lt
+                  adve(LL) = adve(LL) - wfac * wavfu(LL)
+               enddo
+            enddo
+         endif
     endif
  endif
- 
+
  if (ice_apply_pressure) then
     call fm_ice_update_press(ag)
  endif
- 
+
  if (japatm > 0 .or. jatidep > 0 .or. jaselfal > 0 .or. ice_apply_pressure) then
     do L  = 1,lnx
        if ( hu(L) > 0 ) then
@@ -221,14 +235,19 @@ if (jawind > 0) then
           if (japatm > 0) dptot  = dptot + (patm(k2)-patm(k1))*dxi(L)/rhomean
           if (ice_apply_pressure) dptot  = dptot + (ice_p(k2)-ice_p(k1))*dxi(L)/rhomean
           if (jatidep > 0 .or. jaselfal > 0) then
-             tidp  = ( tidep(1,k2) - tidep(1,k1) )*dxi(L)
+             if (jatidep == 1) then 
+                tidp = ( tidep(1,k2) - tidep(1,k1) )*dxi(L)
+             else
+                tidp = tidef(L)
+             endif
              if ( hu(L) < trshcorio) then
                 tidp = tidp*hu(L)*trshcorioi
              endif
              dptot = dptot - tidp
- !           add to tidal forces
-             tidef(L) = tidp
-           endif
+             if (jatidep == 1) then  ! todo: check if you now get desired outputting if jatidep==2
+                tidef(L) = tidp      ! add to tidal forces
+             endif
+          endif
           
           if (kmx == 0) then
              adve(L) = adve(L) + dptot
@@ -239,8 +258,8 @@ if (jawind > 0) then
           endif
        endif
     enddo
-    
-    if ( jatidep.gt.0 .or. jaselfal.gt.0 .and. kmx.eq.0 ) then
+
+    if ( jatidep>0 .or. jaselfal>0 .and. kmx.eq.0 ) then
        call comp_GravInput()
     end if
 
@@ -294,11 +313,11 @@ if (jawind > 0) then
        call get_spiral3d()                                           ! compute equivalent secondary flow intensity
     endif
  end if
- 
+
  if ( jaFrcInternalTides2D.gt.0 .and. kmx.eq.0 ) then   ! internal tides friction (2D only)
     call add_InternalTidesFrictionForces()
  end if
- 
+
  if (chkadvd > 0) then                       ! niet droogtrekken door advectie, stress of wind (allen in adve)
 
     if (kmx == 0) then
@@ -324,27 +343,27 @@ if (jawind > 0) then
     else
 
        do LL  = 1,lnx
-           if (hu(LL) > 0d0) then
-              call getLbotLtop(LL,Lb,Lt)
-              k1   = ln(1,LL) ; k2 = ln(2,LL)
+          if (hu(LL) > 0d0) then
+             call getLbotLtop(LL,Lb,Lt)
+             k1   = ln(1,LL) ; k2 = ln(2,LL)
               if      (hs(k1) < 0.5d0*hs(k2) ) then
                  do L = Lb, Lt
-                    if (adve(L)  < 0 .and. hs(k1) < chkadvd ) then
+                   if (adve(L)  < 0 .and. hs(k1) < chkadvd ) then
                        adve(L)  = adve(L)*hs(k1) / chkadvd ! ; nochkadv = nochkadv + 1
-                    endif
+                   endif
                  enddo
               else if (hs(k2) < 0.5d0*hs(k1) ) then
                  do L = Lb, Lt
-                    if (adve(L)  > 0 .and. hs(k2) < chkadvd) then
-                        adve(L)  = adve(L)*hs(k2) / chkadvd ! ; nochkadv = nochkadv + 1
-                    endif
+                   if (adve(L)  > 0 .and. hs(k2) < chkadvd) then
+                       adve(L)  = adve(L)*hs(k2) / chkadvd ! ; nochkadv = nochkadv + 1
+                   endif
                  enddo
               endif
           endif
-       enddo
+      enddo
 
     endif
 
- endif
- 
- end subroutine setextforcechkadvec
+    endif
+
+   end subroutine setextforcechkadvec

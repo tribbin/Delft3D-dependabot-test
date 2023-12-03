@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,11 +27,16 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
-subroutine gettau(n,taucurc,czc)
-integer          :: n
-double precision :: taucurc,czc,ustw2
-call gettau2(n,taucurc,czc,ustw2)
+subroutine gettau(n,taucurc,czc,jawaveswartdelwaq_par)
+   !
+   ! Parameters
+   integer           :: n
+   double precision  :: taucurc,czc,ustw2
+   integer           :: jawaveswartdelwaq_par
+   !
+   ! Body
+   call gettau2(n,taucurc,czc,ustw2,jawaveswartdelwaq_par)
 end subroutine gettau

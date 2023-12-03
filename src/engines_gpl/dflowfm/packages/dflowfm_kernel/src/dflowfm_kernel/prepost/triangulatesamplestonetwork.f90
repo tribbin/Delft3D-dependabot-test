@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    SUBROUTINE Triangulatesamplestonetwork(JADOORLADEN)
    use m_netw, only : numk, numl, kn, xk, yk, zk, nb, LMAX, KMAX
@@ -40,7 +40,7 @@
    use geometry_module, only: pinpok, dbpinpol, get_startend
    use gridoperations
    use m_polygon ! , only: savepol, restorepol
-
+   use m_mergenodes
    implicit none
    integer :: jadoorladen ! ,npl
    !double precision :: xpl(npl),ypl(npl)

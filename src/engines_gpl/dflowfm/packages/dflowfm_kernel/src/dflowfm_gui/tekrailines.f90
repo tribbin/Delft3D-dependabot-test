@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine tekrailines(ncol,jaall,ITYP)
  use m_flowgeom
@@ -37,6 +37,9 @@
  use m_sferic
  use m_missing
  use unstruc_display
+ use m_transport
+ use m_polygon 
+ use m_netw
  implicit none
  integer          :: nx, ncol, jaall, ITYP
  integer          :: r, L, k1,k2
@@ -50,10 +53,13 @@
        if (ja == 1) exit
     endif
 
-
     k1 = ln (1,L)
     k2 = ln (2,L)
 
+    if (npl >= 2) then 
+       if (kc(k1)*kc(k2) == 0 ) cycle
+    endif
+ 
     if (jaall == 1 .and. wetplot > 0d0) then
        if (hu(L) < wetplot) then !  hs(k1) < wetplot .or. hs(k2) < wetplot) then
            cycle
@@ -68,8 +74,8 @@
        zz1 = bl(k1)
        zz2 = bl(k2)
     else if (ityp == 3) then
-       zz1 = sa1(k1)
-       zz2 = sa1(k2)
+       zz1 = constituents(isalt,k1)
+       zz2 = constituents(isalt,k2)
     else if (ityp == 4) then
        zz1 = pgrw(k1)
        zz2 = pgrw(k2)

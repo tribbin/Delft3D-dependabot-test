@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,12 +27,12 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2021.
+!  Copyright (C)  Stichting Deltares, 2017-2023.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -58,8 +58,8 @@
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
 !
 !-------------------------------------------------------------------------------
-! $Id$
-! $HeadURL$
+! 
+! 
 !> @file monitoring.f90
 !! Monitoring modules (data+routines).
 !! m_observations and m_monitoring_crosssections
@@ -122,7 +122,8 @@ implicit none
     integer                           :: IVAL_WAVEL
     integer                           :: IVAL_WAVER
     integer                           :: IVAL_WAVEU
-    integer                           :: IVAL_WAVETAU
+    integer                           :: IVAL_TAUX
+    integer                           :: IVAL_TAUY
     integer                           :: IVAL_UCX         ! 3D, layer centered after 2D
     integer                           :: IVAL_UCY
     integer                           :: IVAL_UCZ
@@ -148,6 +149,7 @@ implicit none
     integer                           :: IVAL_ZCS
     integer                           :: IVAL_ZWS         ! 3D, layer interfaces after layer centered
     integer                           :: IVAL_ZWU
+    integer                           :: IVAL_BRUV
     integer                           :: IVAL_TKIN
     integer                           :: IVAL_TEPS
     integer                           :: IVAL_VICWW
@@ -160,6 +162,7 @@ implicit none
     integer                           :: IVAL_WIND
     integer                           :: IVAL_RHUM
     integer                           :: IVAL_CLOU
+    integer                           :: IVAL_AIRDENSITY
     integer                           :: IVAL_QSUN
     integer                           :: IVAL_QEVA
     integer                           :: IVAL_QCON
@@ -167,6 +170,7 @@ implicit none
     integer                           :: IVAL_QFRE
     integer                           :: IVAL_QFRC
     integer                           :: IVAL_QTOT
+    integer                           :: IVAL_RHOP
     integer                           :: IVAL_RHO
     integer                           :: IVAL_SBCX1
     integer                           :: IVAL_SBCXN
@@ -226,7 +230,8 @@ implicit none
     integer                           :: IPNT_WAVED
     integer                           :: IPNT_WAVER
     integer                           :: IPNT_WAVEU
-    integer                           :: IPNT_WAVETAU
+    integer                           :: IPNT_TAUX
+    integer                           :: IPNT_TAUY
     integer                           :: IPNT_UCX
     integer                           :: IPNT_UCY
     integer                           :: IPNT_UCZ
@@ -253,6 +258,7 @@ implicit none
     integer                           :: IPNT_ZCS
     integer                           :: IPNT_ZWS
     integer                           :: IPNT_ZWU
+    integer                           :: IPNT_BRUV
     integer                           :: IPNT_TKIN
     integer                           :: IPNT_TEPS
     integer                           :: IPNT_VICWW
@@ -265,6 +271,7 @@ implicit none
     integer                           :: IPNT_WIND
     integer                           :: IPNT_RHUM
     integer                           :: IPNT_CLOU
+    integer                           :: IPNT_AIRDENSITY
     integer                           :: IPNT_QSUN
     integer                           :: IPNT_QEVA
     integer                           :: IPNT_QCON
@@ -273,6 +280,7 @@ implicit none
     integer                           :: IPNT_QFRC
     integer                           :: IPNT_QTOT
     integer                           :: IPNT_NUM
+    integer                           :: IPNT_RHOP
     integer                           :: IPNT_RHO
     integer                           :: IPNT_SBCX1           ! should be done per fraction
     integer                           :: IPNT_SBCXN
@@ -387,7 +395,8 @@ subroutine init_valobs_pointers()
    IVAL_WAVEL      = 0
    IVAL_WAVER      = 0
    IVAL_WAVEU      = 0
-   IVAL_WAVETAU    = 0
+   IVAL_TAUX       = 0
+   IVAL_TAUY       = 0
    IVAL_UCX        = 0
    IVAL_UCY        = 0
    IVAL_UCZ        = 0
@@ -411,6 +420,7 @@ subroutine init_valobs_pointers()
    IVAL_ZCS        = 0
    IVAL_ZWS        = 0
    IVAL_ZWU        = 0
+   IVAL_BRUV       = 0
    IVAL_TKIN       = 0
    IVAL_TEPS       = 0
    IVAL_VICWW      = 0
@@ -423,6 +433,7 @@ subroutine init_valobs_pointers()
    IVAL_WIND       = 0
    IVAL_RHUM       = 0
    IVAL_CLOU       = 0
+   IVAL_AIRDENSITY = 0
    IVAL_QSUN       = 0
    IVAL_QEVA       = 0
    IVAL_QCON       = 0
@@ -433,6 +444,7 @@ subroutine init_valobs_pointers()
    IVAL_RAIN       = 0
    IVAL_INFILTCAP  = 0
    IVAL_INFILTACT  = 0
+   IVAL_RHOP       = 0
    IVAL_RHO        = 0
    IVAL_SBCX1      = 0          ! should be done per fraction
    IVAL_SBCXN      = 0
@@ -502,7 +514,10 @@ subroutine init_valobs_pointers()
       i=i+1;            IVAL_WAVER      = i
       i=i+1;            IVAL_WAVEU      = i
    end if
-   i=i+1;            IVAL_WAVETAU    = i
+   if (jahistaucurrent>0) then
+      i=i+1;            IVAL_TAUX   = i
+      i=i+1;            IVAL_TAUY   = i
+   endif
    if ( jatem.gt.1 ) then
       i=i+1;            IVAL_TAIR       = i
    end if
@@ -524,6 +539,9 @@ subroutine init_valobs_pointers()
    end if
    if ( jahisrain.gt.0 ) then
       i=i+1;            IVAL_RAIN       = i
+   end if
+   if ( jahis_airdensity > 0 ) then
+      i=i+1;            IVAL_AIRDENSITY = i
    end if
    if ( jahisinfilt.gt.0 ) then
       i=i+1;            IVAL_INFILTCAP  = i
@@ -625,7 +643,10 @@ subroutine init_valobs_pointers()
       i=i+1;            IVAL_ZCS        = i
    end if
    if( jasal > 0 .or. jatem > 0 .or. jased > 0 ) then
-      i=i+1;            IVAL_RHO        = i
+      i=i+1;            IVAL_RHOP       = i
+      if (idensform > 10) then 
+         i=i+1;         IVAL_RHO        = i
+      endif
    endif
    MAXNUMVALOBS3D                       = i-i0
 
@@ -634,6 +655,7 @@ subroutine init_valobs_pointers()
    if ( kmx.gt.0 ) then
       i=i+1;            IVAL_ZWS        = i
       i=i+1;            IVAL_ZWU        = i
+      i=i+1;            IVAL_BRUV       = i
       if ( iturbulencemodel.gt.0 ) then
          i=i+1;         IVAL_TKIN       = i
          i=i+1;         IVAL_TEPS       = i
@@ -702,17 +724,20 @@ subroutine init_valobs_pointers()
    IPNT_WAVEH = ivalpoint(IVAL_WAVEH, kmx, nlyrs)
    IPNT_WAVET = ivalpoint(IVAL_WAVET, kmx, nlyrs)
    IPNT_WAVED = ivalpoint(IVAL_WAVED, kmx, nlyrs)
-   IPNT_WAVETAU = ivalpoint(IVAL_WAVETAU, kmx, nlyrs)
+   IPNT_TAUX = ivalpoint(IVAL_TAUX, kmx, nlyrs)
+   IPNT_TAUY = ivalpoint(IVAL_TAUY, kmx, nlyrs)
    IPNT_WAVEL = ivalpoint(IVAL_WAVEL, kmx, nlyrs)
    IPNT_WAVER = ivalpoint(IVAL_WAVER, kmx, nlyrs)
    IPNT_WAVEU = ivalpoint(IVAL_WAVEU, kmx, nlyrs)
    IPNT_ZCS   = ivalpoint(IVAL_ZCS,   kmx, nlyrs)
    IPNT_ZWS   = ivalpoint(IVAL_ZWS,   kmx, nlyrs)
    IPNT_ZWU   = ivalpoint(IVAL_ZWU,   kmx, nlyrs)
+   IPNT_BRUV  = ivalpoint(IVAL_BRUV,  kmx, nlyrs)
    IPNT_TKIN  = ivalpoint(IVAL_TKIN,  kmx, nlyrs)
    IPNT_TEPS  = ivalpoint(IVAL_TEPS,  kmx, nlyrs)
    IPNT_VICWW = ivalpoint(IVAL_VICWW, kmx, nlyrs)
    IPNT_RICH  = ivalpoint(IVAL_RICH,  kmx, nlyrs)
+   IPNT_RHOP  = ivalpoint(IVAL_RHOP,  kmx, nlyrs)
    IPNT_RHO   = ivalpoint(IVAL_RHO,   kmx, nlyrs)
    IPNT_WS1   = ivalpoint(IVAL_WS1,   kmx, nlyrs)
    IPNT_WSN   = ivalpoint(IVAL_WSN,   kmx, nlyrs)
@@ -744,6 +769,7 @@ subroutine init_valobs_pointers()
    IPNT_WIND  = ivalpoint(IVAL_WIND,  kmx, nlyrs)
    IPNT_RHUM  = ivalpoint(IVAL_RHUM,  kmx, nlyrs)
    IPNT_CLOU  = ivalpoint(IVAL_CLOU,  kmx, nlyrs)
+   IPNT_AIRDENSITY = ivalpoint(IVAL_AIRDENSITY,  kmx, nlyrs)
    IPNT_QSUN  = ivalpoint(IVAL_QSUN,  kmx, nlyrs)
    IPNT_QEVA  = ivalpoint(IVAL_QEVA,  kmx, nlyrs)
    IPNT_QCON  = ivalpoint(IVAL_QCON,  kmx, nlyrs)
@@ -981,8 +1007,6 @@ subroutine addObservation_from_ini(network, filename)
    type(t_ObservationPoint), pointer     :: pOPnt
    integer,              allocatable     :: branchIdx_tmp(:), ibrch2obs(:)
    double precision    , allocatable     :: Chainage_tmp(:), xx_tmp(:), yy_tmp(:)
-   integer                               :: loctype_
-
 
    ierr    = DFM_NOERR
    nByBrch = 0
@@ -1007,10 +1031,10 @@ subroutine addObservation_from_ini(network, filename)
    ! 1b. get the corresponding x- and y-coordinates
    allocate(xx_tmp(nByBrch))
    allocate(yy_tmp(nByBrch))
-   if (nByBrch > 0) then
-      ierr = odu_get_xy_coordinates(branchIdx_tmp(1:nByBrch), Chainage_tmp(1:nByBrch), meshgeom1d%ngeopointx, meshgeom1d%ngeopointy, &
-                                     meshgeom1d%nbranchgeometrynodes, meshgeom1d%nbranchlengths, jsferic, xx_tmp, yy_tmp)
-   endif
+   do i = 1, nByBrch
+      ierr = odu_get_xy_coordinates(branchIdx_tmp(i:i), Chainage_tmp(i:i), meshgeom1d%ngeopointx, meshgeom1d%ngeopointy, &
+                                     meshgeom1d%nbranchgeometrynodes, meshgeom1d%nbranchlengths, jsferic, xx_tmp(i:i), yy_tmp(i:i))
+   enddo
    if (ierr /= DFM_NOERR) then
       call mess(LEVEL_ERROR, "Error occurs when getting the x- and y-coordinates for obs from file '"//trim(filename)//".")
    end if

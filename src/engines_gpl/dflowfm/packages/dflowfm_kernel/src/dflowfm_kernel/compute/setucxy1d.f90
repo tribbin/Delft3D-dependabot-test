@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,12 +27,12 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 ! =================================================================================================
 ! =================================================================================================
-subroutine setucxy1D() ! give ucx,ucy magnitude of uc1D, Pure1D
+subroutine setucxy1D() ! give ucx,ucy magnitude of uc1D, jaPure1D
 
 use m_flowgeom
 use m_flow

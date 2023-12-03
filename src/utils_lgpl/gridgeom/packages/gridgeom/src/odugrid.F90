@@ -1,6 +1,6 @@
 !----- LGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2021.                                
+!  Copyright (C)  Stichting Deltares, 2011-2023.                                
 !                                                                               
 !  This library is free software; you can redistribute it and/or                
 !  modify it under the terms of the GNU Lesser General Public                   
@@ -25,8 +25,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 ! Module for grid operations on 1d networks
    
@@ -223,6 +223,9 @@ function odu_get_start_end_nodes_of_branches(branchidx, branchStartNode, branchE
          endif
          ibran = branchidx(i)
          branchStartNode(ibran) = i
+      elseif (branchidx(i) < ibran) then
+         ! Unsorted input, return error code
+         ierr = -1
       endif
    enddo
    branchEndNode(ibran) = numnode

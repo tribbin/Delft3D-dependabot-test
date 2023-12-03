@@ -1,6 +1,6 @@
 !----- LGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2021.                                
+!  Copyright (C)  Stichting Deltares, 2011-2023.                                
 !                                                                               
 !  This library is free software; you can redistribute it and/or                
 !  modify it under the terms of the GNU Lesser General Public                   
@@ -23,8 +23,8 @@
 !  are registered trademarks of Stichting Deltares, and remain the property of  
 !  Stichting Deltares. All rights reserved.                                     
 
-!  $Id$
-!  $HeadURL$
+!  
+!  
 
 !> This module contains the Ec-module's enumerations and constants.
 !! @author arjen.markus@deltares.nl
@@ -150,6 +150,7 @@ module m_ec_parameters
    integer, parameter :: operand_replace         = 2
    integer, parameter :: operand_replace_element = 3
    integer, parameter :: operand_add_element     = 4
+   integer, parameter :: operand_replace_if_value= 5
    !
    ! enumeration for tEcConverter types
    integer, parameter :: convType_undefined = 0
@@ -196,6 +197,8 @@ module m_ec_parameters
     integer, parameter :: BC_TIMEINT_BTO           = 2   !< block-to
     integer, parameter :: BC_TIMEINT_BFROM         = 3   !< block-from
     integer, parameter :: BC_TIMEINT_LIN_EXTRAPOL  = 4   !< linear
+    integer, parameter :: BC_TIMEINT_AMOUNT_TO_RATE = 5  !< specific type of interpolation dividing the t1-value by t1-t0
+                                                         !< for example to convert rainfall amount to rate
 
     ! Vertical position type
     integer, parameter :: BC_VPTYP_SINGLE      = 0   !< depth averaged

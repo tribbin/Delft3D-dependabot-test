@@ -23,7 +23,9 @@ set(morphology_plugins_c_module "${morphology_module_path}/morphology_plugins_c"
 set(morphology_data_module "${morphology_module_path}/morphology_data")
 set(morphology_kernel_module "${morphology_module_path}/morphology_kernel")
 set(morphology_io_module "${morphology_module_path}/morphology_io")
+set(morphology_waq_module "${morphology_module_path}/morphology_waq")
 
 # Hydrology
 set(hydrology_module_path "${utils_gpl_path}/dhydrology/packages")
 set(hydrology_kernel_module "${hydrology_module_path}/dhydrology_kernel")
+set(hydrology_kernel_io_module "${hydrology_module_path}/dhydrology_io")

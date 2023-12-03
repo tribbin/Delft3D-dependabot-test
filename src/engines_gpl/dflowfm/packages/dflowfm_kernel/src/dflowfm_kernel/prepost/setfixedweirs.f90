@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,10 +27,10 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
-
-subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only heights, 1 = also dyke attributes
+! 
+! 
+!>  override bobs along pliz's, jadykes == 0: only heights, 1 = also dyke attributes
+subroutine setfixedweirs()     
  use m_netw
  use m_flowgeom
  use m_flow
@@ -43,10 +43,12 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
  use kdtree2Factory
  use m_sferic
  use m_polygon
- use m_partitioninfo
- use string_module, only: strsplit, get_dirsep
- use geometry_module, only: dbdistance, CROSSinbox, dcosphi, duitpl, normalout
+ use m_partitioninfo,    only : jampi, sdmn
+ use messagehandling
+ use string_module,      only: strsplit, get_dirsep
+ use geometry_module,    only: dbdistance, CROSSinbox, dcosphi, duitpl, normalout
  use unstruc_caching
+ use m_1d2d_fixedweirs, only : find_1d2d_fixedweirs
 
  implicit none
 
@@ -69,10 +71,14 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
 
  integer                                     :: jakdtree=1
  character(len=5)                            :: sd
- character(len=200), dimension(:), allocatable       :: fnames
+ character(len=200), allocatable             :: fnames(:)
+ integer,            allocatable             :: start_npl_for_files(:)
  integer                                     :: jadoorladen, ifil
  double precision                            :: t0, t1, t_extra(2,10), BLmn
  character(len=128)                          :: mesg
+ 
+ integer, parameter                          :: KEEP_PLI_NAMES = 1
+ integer                                     :: number_of_plis
 
 
  if ( len_trim(md_fixedweirfile) == 0 ) then
@@ -84,12 +90,7 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
  if (ifixedweirscheme == 8) jatabellenboekorvillemonte = 1
  if (ifixedweirscheme == 9) jatabellenboekorvillemonte = 2
 
-
  call readyy('Setfixedweirs', 0d0)
-
- !if (allocated(csh) ) then
- !   deallocate(ihu, csh, snh, zcrest, dzsillu, dzsilld, crestlen, taludu, taludd, vegetat) ! (10 arrays)
- !endif
 
  allocate (ihu(lnx))      ; ihu = 0
  allocate (csh(lnx))      ; csh = 0d0
@@ -113,8 +114,11 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
  ! --------------------------------------------------------------------
  if (len_trim(md_fixedweirfile) > 0) then
     call strsplit(md_fixedweirfile,1,fnames,1)
-    jadoorladen = 0
-    do ifil=1,size(fnames)
+    allocate(start_npl_for_files(size(fnames)+1))
+    jadoorladen    = 0
+    number_of_plis = 0
+    do ifil = 1, size(fnames)
+       start_npl_for_files(ifil) = npl + 1
        call oldfil(minp, fnames(ifil))
        N1  = index (fnames(ifil), get_dirsep(), .true.)
        !  fix for Linux-prepared input on Windows
@@ -137,16 +141,21 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
           call newfil(mout, trim(getoutputdir())//'DFM_interpreted_fxwvalues_'//fnames(ifil)(n1+1:n2)//trim(sd)//'.xyz')
           write (mout, '(a)') '* xu yu crest(bob) width(wu) xk3 yk3 xk4 yk4'
        end if
-       call reapol(minp, jadoorladen)
+       call reapol_nampli(minp, jadoorladen, KEEP_PLI_NAMES, number_of_plis)
        jadoorladen = 1
-    enddo
+    end do
+    
     call klok(t_extra(2,1))
     call klok(t_extra(1,2))
     call pol_to_flowlinks(xpl, ypl, zpl, npl, nfxw, fxw)
     call klok(t_extra(2,2))
+    
+    start_npl_for_files(size(fnames)+1) = npl + 1
+    call check_fixed_weirs_parameters_against_limits()
+
     deallocate(fnames)
  end if
-
+ 
  kint = max(lnxi/1000,1)
 
  call klok(t_extra(1,3))
@@ -266,7 +275,7 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
 
 
        if (kcu(L) .ne. 2 .and. kcu(L) .ne. 1) then
-          cycle  ! weirs only on regular links and 1d2d links
+          cycle  ! weirs only on regular links
        endif
 
        jaweir   = 1 ! 0
@@ -320,15 +329,15 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
 
                           if (Lf > 0 .and. adjacentbob .ne. dmiss) then
                              if (jaconveyance2D >= 1) then 
-                                if (lncn(1,Lf) == n1) then
-                                    bob(1,Lf) = adjacentbob
-                                else
-                                    bob(2,Lf) = adjacentbob
-                                endif
-                             else 
+                             if (lncn(1,Lf) == n1) then
                                  bob(1,Lf) = adjacentbob
+                             else 
                                  bob(2,Lf) = adjacentbob
                              endif
+                             else
+                                 bob(1,Lf) = adjacentbob
+                                 bob(2,Lf) = adjacentbob
+                          endif
                              !nl1 = ln(1,Lf) ; nl2 = ln(2,Lf)
                              !bl(nl1) = min(bl(nl1), adjacentbob )
                              !bl(nl2) = min(bl(nl2), adjacentbob ) ! still needs to be done 
@@ -401,10 +410,12 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
                 iadv(L)    = 23    !  Rajaratnam
              else if (ifixedweirscheme == 8) then
                 iadv(L)    = 24    !  Tabellenboek
-                dzsillu(L) = zc - bl(n1) ; dzsilld(L) = zc - bl(n2)  ! if not specified then estimate
+                dzsillu(L) = max(0.0d0, zc - blu(L));  dzsilld(L) = max(0.0d0, zc - blu(L))  ! if not specified then estimate
+                zcrest(L) = zc
              else if (ifixedweirscheme == 9) then
                 iadv(L)    = 25    !  Villemonte
-                dzsillu(L) = max(0d0, zc - bl(n1) ) ; dzsilld(L) = max(0d0, zc - bl(n2) ) ! if not specified then estimate
+                dzsillu(L) = max(0.0d0, zc - blu(L));  dzsilld(L) = max(0.0d0, zc - blu(L))  ! if not specified then estimate
+                zcrest(L) = zc
              else
                 iadv(L)    = 21    !  Ifixedweirscheme 6
              endif
@@ -433,7 +444,7 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
           if (zc > zcrest(L)) then
              zcrest(L) = zc
              !! write (msgbuf,'(a,i5,f10.3)') 'Higher crest level: ', L,  zcrest(L); call msg_flush()
-          endif
+         endif
           if (jakol45/=0) then
              call normalout( XPL(k), YPL(k), XPL(k+1), YPL(k+1) , xn, yn, jsferic, jasfer3D, dmiss, dxymis)  ! test EdG
              zhu =  (1d0-sl)*dzl(k) + sl*dzl(k+1)
@@ -441,22 +452,22 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
              if (xn*csu(L) + yn*snu(L) < 0d0) then  ! check left/right
                 zh = zhd; zhd = zhu;  zhu = zh
              endif
-            !
-            ! Check whether toe is lower. If so, also adjust toe level and the ground height
-            ! If ground height is smaller than 1 cm, then this neglected
-            !
-            if (zc-zhu .lt. ztoeu(L) .and. zhu .gt. 0.01) then 
-               ztoeu(L)   = zc - zhu                            
-               dzsillu(L) = zcrest(L) - ztoeu(L)              
-               !! write (msgbuf,'(a,i5,f10.3)') 'Larger sill up:     ', L,  dzsillu(L); call msg_flush()
-            endif
-            if (zc-zhd .lt. ztoed(L) .and. zhd .gt. 0.01) then
-               ztoed(L)   = zc - zhd
-               dzsilld(L) = zcrest(L) - ztoed(L)
-               !! write (msgbuf,'(a,i5,f10.3)') 'Larger sill down:   ', L, dzsilld(L); call msg_flush()
-            endif
-          endif
+         !
+         ! Check whether toe is lower. If so, also adjust toe level and the ground height
+         ! If ground height is smaller than 1 cm, then this neglected
+         !
+         if (zc-zhu .lt. ztoeu(L) .and. zhu .gt. 0.01) then 
+            ztoeu(L)   = zc - zhu                            
+            dzsillu(L) = zcrest(L) - ztoeu(L)              
+            !! write (msgbuf,'(a,i5,f10.3)') 'Larger sill up:     ', L,  dzsillu(L); call msg_flush()
+         endif
+         if (zc-zhd .lt. ztoed(L) .and. zhd .gt. 0.01) then
+            ztoed(L)   = zc - zhd
+            dzsilld(L)  = zcrest(L) - ztoed(L)
+            !! write (msgbuf,'(a,i5,f10.3)') 'Larger sill down:   ', L, dzsilld(L); call msg_flush()
+         endif
        endif
+    endif
     endif
     !! write (msgbuf,'(a,2i5,7f10.3)') 'Projected fixed weir', L, iweirtyp(L), zcrest(L), ztoeu(L), dzsillu(L),ztoed(L),dzsilld(L),taludu(L),taludd(L); call msg_flush()
 
@@ -525,7 +536,7 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
            call setfixedweirscheme3onlink(L)
            if (ifixedweirscheme == 7) then
                iadv(L) = 23
-           endif
+    endif
        endif
 
     endif
@@ -606,6 +617,9 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
 
  call readyy(' ', -1d0 )
 
+ if (ifixedweirscheme1D2D > 0) then
+    call find_1d2d_fixedweirs(iLink, numcrossedLinks)
+ endif
 
 1234 continue
 
@@ -615,5 +629,116 @@ subroutine setfixedweirs()      ! override bobs along pliz's, jadykes == 0: only
     if ( allocated(iPol)  ) deallocate(iPol)
     if ( allocated(dSL)   ) deallocate(dSL)
  end if
+ 
+contains
+    
+subroutine check_fixed_weirs_parameters_against_limits()
+
+   double precision, parameter :: GROUND_HEIGHT_MINIMUM =-500.0d0
+   double precision, parameter :: GROUND_HEIGHT_MAXIMUM = 500.0d0 
+   
+   double precision, parameter :: SLOPE_MINIMUM = -1.0d-8
+   double precision, parameter :: SLOPE_MAXIMUM = 1000.0d0
+   
+   double precision, parameter :: CREST_LEVEL_MAXIMUM = 10000.0d0
+   double precision, parameter :: CREST_LEVEL_MINIMUM =-10000.0d0
+
+   logical                     :: inside_limits
+   integer                     :: line
+   integer                     :: file_number
+   integer                     :: pli_number
+   integer                     :: pli_first_line
+   integer                     :: location
+   character(:), allocatable   :: pli_name
+   character(:), allocatable   :: file_name
+
+   character(len=*), parameter :: DZL_name='Ground height left'
+   character(len=*), parameter :: DZR_name='Ground height right'
+   character(len=*), parameter :: DTL_name='Slope left'
+   character(len=*), parameter :: DTR_name='Slope right'
+   character(len=*), parameter :: CREST_LEVEL_name='Crest level'
+   
+   file_number = 1
+   pli_number  = 1
+   file_name   = fnames(1)
+   pli_name    = nampli(1)
+   inside_limits  = .true.
+   pli_first_line = start_npl_for_files(1) - 1
+   
+   do line = start_npl_for_files(1), npl
+      if ( line > start_npl_for_files(file_number+1) ) then
+         file_number = file_number + 1
+         file_name   = fnames(file_number)
+      end if
+       if ( xpl(line) == dmiss ) then
+           pli_number = pli_number + 1
+           pli_first_line = line
+           if ( pli_number > size(nampli) ) then
+               pli_name = ' '
+           else
+               pli_name = nampli(pli_number)
+           end if
+       else
+           location =  line - pli_first_line
+           if ( allocated(DZL) ) then
+              inside_limits = inside_limits .and. is_value_inside_limits(DZL(line), &
+                  GROUND_HEIGHT_MINIMUM, GROUND_HEIGHT_MAXIMUM, DZL_name, file_name, pli_name, location)
+           end if
+           if ( allocated(DZR) ) then
+              inside_limits = inside_limits .and. is_value_inside_limits(DZR(line), &
+                  GROUND_HEIGHT_MINIMUM, GROUND_HEIGHT_MAXIMUM, DZR_name, file_name, pli_name, location)
+           end if
+           if ( allocated(DTL) ) then
+              inside_limits = inside_limits .and. is_value_inside_limits(DTL(line), &
+                  SLOPE_MINIMUM, SLOPE_MAXIMUM, DTL_name, file_name, pli_name, location)
+           end if
+           if ( allocated(DTR) ) then
+              inside_limits = inside_limits .and. is_value_inside_limits(DTR(line), &
+                  SLOPE_MINIMUM, SLOPE_MAXIMUM, DTR_name, file_name, pli_name, location)
+           end if
+           if ( allocated(ZPL) ) then
+              inside_limits = inside_limits .and. is_value_inside_limits(ZPL(line),  &
+                  CREST_LEVEL_MINIMUM, CREST_LEVEL_MAXIMUM, CREST_LEVEL_name,file_name, pli_name, location)
+           end if
+       end if
+   end do
+   if (.not. inside_limits) then
+       call mess(LEVEL_ERROR, 'Some fixed weirs have values outside of limits. See messages above.')
+   end if
+
+
+end subroutine check_fixed_weirs_parameters_against_limits
+
+!> check_value_and_write_message
+logical function is_value_inside_limits(value_to_be_checked, min_limit, max_limit, value_name, file_name, pli_name, location)
+
+    double precision, intent(in)  :: value_to_be_checked !< value_to_be_checked
+    double precision, intent(in)  :: min_limit           !< min_limit
+    double precision, intent(in)  :: max_limit           !< max_limit
+    character(len=*), intent(in)  :: value_name          !< value_name
+    character(len=*), intent(in)  :: file_name           !< file_name
+    character(len=*), intent(in)  :: pli_name            !< pli_name
+    integer,          intent(in)  :: location            !< location
+
+    is_value_inside_limits = .true.
+    if ( value_to_be_checked < min_limit ) then
+        is_value_inside_limits = .false.
+        write(msgbuf,'(a,d13.5,a,d13.5,a)') trim(value_name), value_to_be_checked,' is smaller than the minimum limit ', min_limit,'.'
+        call mess(LEVEL_WARN, msgbuf)
+    end if
+    
+    if ( value_to_be_checked > max_limit ) then
+        is_value_inside_limits = .false.
+        write(msgbuf,'(a,d13.5,a,d13.5,a)') trim(value_name), value_to_be_checked,' is larger than the maximum limit ',max_limit,'.'
+        call mess(LEVEL_WARN, msgbuf)
+    end if
+    
+    if ( .not. is_value_inside_limits ) then
+        write(msgbuf,'(2a,i0,5a)') trim(value_name),' is located at line ', location,' in PLI ', trim(pli_name), &
+            ' of file ', trim(file_name),'.'
+        call mess(LEVEL_WARN, msgbuf)
+    end if
+    
+end function is_value_inside_limits
 
 end subroutine setfixedweirs

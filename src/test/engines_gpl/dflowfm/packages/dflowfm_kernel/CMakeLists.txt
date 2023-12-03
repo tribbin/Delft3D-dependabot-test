@@ -10,12 +10,12 @@ if(UNIX)
 
     # the `pkg_check_modules` function is created with this call
     find_package(PkgConfig REQUIRED)
-
+  #  find_package(MPI REQUIRED)
+    
     # these calls create special `PkgConfig::<MODULE>` variables
-    pkg_check_modules(NETCDF     REQUIRED IMPORTED_TARGET netcdf)
-    pkg_check_modules(NETCDF_FTN REQUIRED IMPORTED_TARGET netcdf-fortran)
+   # pkg_check_modules(NETCDF     REQUIRED IMPORTED_TARGET netcdf)
+   # pkg_check_modules(NETCDF_FTN REQUIRED IMPORTED_TARGET netcdf-fortran)
     pkg_check_modules(PETSC      REQUIRED IMPORTED_TARGET PETSc)
-    pkg_check_modules(PROJ       REQUIRED IMPORTED_TARGET proj)
 
     set(oss_dependencies    deltares_common
                             deltares_common_c
@@ -28,29 +28,28 @@ if(UNIX)
                             ftnunit
                             gridgeom
                             io_netcdf
+                            io_netcdf_data
                             interacter_stub
                             kdtree_wrapper
                             kdtree2
-                            fortranc
                             fortrangis
                             libsigwatch
                             md5digest
                             md5
-                            metisoptions
                             morphology_data
                             morphology_io
                             morphology_kernel
                             morphology_plugins_c
-                            nefis
+                            netcdf4
+                            netcdff
                             polypack
-                            shp
                             trachytopes_io
                             trachytopes_kernel
                             triangle_c
+                            wq_processes
                             waq_process
                             waq_utils_c
                             waq_utils_f
-                            wq_processes
                             dflowfm_kernel)
 
     oss_include_libraries(${executable_name} oss_dependencies)
@@ -62,11 +61,7 @@ if(UNIX)
     target_link_libraries(${executable_name}
          ${oss_dependencies}
          Threads::Threads
-         PkgConfig::NETCDF
-         PkgConfig::NETCDF_FTN
-         PkgConfig::PETSC
-         PkgConfig::PROJ
-         "metis")
+         PkgConfig::PETSC)
 
     set_property(TARGET ${executable_name} PROPERTY LINKER_LANGUAGE Fortran)
 endif(UNIX)
@@ -85,41 +80,36 @@ if(WIN32)
                          ftnunit
                          gridgeom
                          io_netcdf
+                         io_netcdf_data
                          kdtree_wrapper
                          kdtree2
-                         fortranc
                          fortrangis
                          libsigwatch
                          md5digest
                          md5
-                         metis
-                         metisoptions
                          morphology_data
                          morphology_io
                          morphology_kernel
                          morphology_plugins_c
-                         nefis
                          netcdf4
                          netcdff
                          petsc
                          polypack
-                         shp
                          trachytopes_io
                          trachytopes_kernel
                          triangle_c
+                         wq_processes
                          waq_process
                          waq_utils_c
                          waq_utils_f
-                         wq_processes
                          interacter_stub
                          dflowfm_kernel)
 
 
 target_link_directories(${executable_name} PRIVATE
-                        ${gisinternals_path}
-                        "${checkout_src_root}/third_party_open/mpich2/x64/lib"
-                        "${checkout_src_root}/third_party_open/netcdf/netCDF 4.6.1/lib"
-                        "${checkout_src_root}/third_party_open/petsc/petsc-3.10.2/lib/x64/Release"
+                        "${mpi_library_path}"
+                        "${checkout_src_root}/third_party_open/netcdf/${netcdf_version}/lib"
+                        "${petsc_libdir}"
                         "${checkout_src_root}/third_party_open/pthreads/bin/x64"
                         "${checkout_src_root}/third_party_open/Tecplot/lib/x64")
 
@@ -129,27 +119,26 @@ target_link_libraries(${executable_name} ${oss_dependencies}
                           "wsock32.lib"
                           "netapi32.lib"
                           "kernel32.lib"
-                          "user32.lib" 
+                          "user32.lib"
                           "Shlwapi.lib"
                           "Gdi32.lib"
                           "Winspool.lib"
                           "netcdf.lib"
                           "pthreadVC2.lib"
-                          "fmpich2.lib"
+                          "${mpi_fortran_library}"
                           "libpetsc.lib"
-                          "gdal_i.lib"
                           "tecio.lib")
 
 
 endif(WIN32)
 
-include_directories(${gisinternals_path}
-                    ${mpich2_path}
+include_directories(${mpi_include_path}
                     ${petsc_path}
                     ${tecplot_path})
 
 # Set additional compilation properties, specific for Debug mode
-target_compile_options(${executable_name} PRIVATE "$<$<CONFIG:Debug>:${check_bounds_flag}>")
+target_compile_options(${executable_name} PRIVATE "$<$<CONFIG:Debug>:${check_pointers_flag}>")
+target_compile_options(${executable_name} PRIVATE "$<$<CONFIG:Debug>:${floating_point_exception_flag}>")
 
 # Create the folder structure in vfproj
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${source})
@@ -161,10 +150,9 @@ set(build_dir ${CMAKE_BINARY_DIR})
 set(build_project ${executable_name})
 
 post_build_target( ${executable_name}
-                   ${install_dir} 
-                   ${build_dir} 
-                   ${checkout_src_root} 
+                   ${install_dir}
+                   ${build_dir}
+                   ${checkout_src_root}
                    ${build_project} )
 
 install(TARGETS ${executable_name} RUNTIME  DESTINATION bin)
-

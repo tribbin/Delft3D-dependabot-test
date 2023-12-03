@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine setcdwcoefficient(uwi, cd10, L)
  use m_wind
@@ -42,7 +42,7 @@
  implicit none
  integer, intent (in) :: L
  integer              :: k1, k2, maxnit = 100, nit, jalightwind = 0
- double precision     :: uwi, cd10, rk, hsurf = 10d0
+ double precision     :: uwi, cd10, rk, hsurf = 10d0, ust, ust2, ust0, z0w 
  double precision     :: omw, cdL2, dkpz0, s, sold, eps = 1d-4, awin
  double precision     :: p = -12d0, pinv = -0.083333d0, A, A10log, bvis, bfit, balf, r
 
@@ -118,6 +118,10 @@
        cd10 = 1d0/(s*s)
     endif
 
+    !z0w  = cdb(2)*viskinair / ust + cdb(1)*ust2 / ag 
+    !ust2 = cd10*uwi*uwi
+    !z0w  = cdb(1)*ust2/ag 
+    
  else if (icdtyp == 5) then                     ! Hwang 2005, wave frequency dependent
 
     ! (A.)=http://onlinelibrary.wiley.com/doi/10.1029/2005JC002912/full
@@ -156,13 +160,22 @@
     bfit   = (bvis**p + balf**p)**pinv
     cd10   = (vonkarw/bfit)**2
 
- else if (icdtyp == 8) then   ! Garratt, J. R., 1977: Review of Drag Coefficients over Oceans and Continents. Mon. Wea. Rev., 105, 915–929.
+ else if (icdtyp == 8) then                     ! Charnock 1955 + viscous term
+    
+    ust     = uwi/25d0
+    do nit  = 1,10                              ! good for about 8 decimals of cd10
+       z0w  = cdb(1)*ust*ust / ag  + cdb(2)*viskinair / ust
+       ust  = uwi*vonkarw/log(hsurf/z0w) 
+    enddo
+    cd10 = (ust/uwi)**2
+
+ else if (icdtyp == 9) then   ! Garratt, J. R., 1977: Review of Drag Coefficients over Oceans and Continents. Mon. Wea. Rev., 105, 915–929.
      
      cd10 = min(1.0d-3 * (0.75d0 + 0.067d0 * uwi), 0.0035d0)
      
  endif
 
- if (jalightwind == 1 .and. icdtyp .ne. 7 .and. icdtyp .ne. 5) then
+ if (jalightwind == 1 .and. icdtyp .ne. 8 .and. icdtyp .ne. 7 .and. icdtyp .ne. 6 .and. icdtyp .ne. 5) then
     if (uwi < 4d0) then     ! for wind < 4 m/s use wuest anyway
         awin = max(0.1d0,uwi)
         cd10 = max(cd10, 0.0044d0 / awin**1.15d0)

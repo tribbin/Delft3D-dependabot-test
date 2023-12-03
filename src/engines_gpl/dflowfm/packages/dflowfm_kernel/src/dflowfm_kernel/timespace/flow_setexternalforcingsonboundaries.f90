@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> set boundary conditions
 subroutine flow_setexternalforcingsonboundaries(tim, iresult)
@@ -57,6 +57,7 @@ subroutine flow_setexternalforcingsonboundaries(tim, iresult)
 
    integer :: i, n, k, k2, kb, kt, ki, L, itrac, isf
    double precision :: timmin
+   double precision :: dQ
    character(maxMessageLen) :: message123
 
    iresult = DFM_EXTFORCERROR
@@ -99,6 +100,38 @@ subroutine flow_setexternalforcingsonboundaries(tim, iresult)
          if ( jatimer.eq.1 ) call stoptimer(IMPIREDUCE)
       end if
 
+      ! First step calculate the water level, using the QH-relation for a outflowing discharge + dQ 
+      do i = 1, nqhbnd
+         q_org(i) = atqh_all(i)
+         atqh_all(i) = q_org(i) + max(min(0.001d0*abs(q_org(i)),1d0),0.001d0)
+      enddo
+      success = ec_gettimespacevalue(ecInstancePtr, item_qhbnd, irefdate, tzone, tunit, tim)
+      if (.not. success) then
+         goto 888
+      end if
+      qhbndz_plus = qhbndz
+
+      ! Second step calculate the water level, using the QH-relation for a outflowing discharge - dQ 
+      do i = 1, nqhbnd
+         atqh_all(i) = q_org(i) - max(min(0.001d0*abs(q_org(i)),1d0),0.001d0)
+      enddo
+      success = ec_gettimespacevalue(ecInstancePtr, item_qhbnd, irefdate, tzone, tunit, tim)
+      if (.not. success) then
+         goto 888
+      end if
+      qhbndz_min = qhbndz
+
+      ! Step 3 now estimate the slope of the QH-relation at the given discharge
+      do i = 1, nqhbnd
+         dQ = max(min(0.001d0*abs(q_org(i)),1d0),0.001d0)
+         if (comparereal(qhbndz_plus(i), qhbndz_min(i)) == 0) then
+            qh_gamma(i) = 0d0
+         else
+            qh_gamma(i) = 2* dQ / (qhbndz_plus(i) - qhbndz_min(i))
+         endif
+         atqh_all(i) = q_org(i)
+      enddo
+
       success = ec_gettimespacevalue(ecInstancePtr, item_qhbnd, irefdate, tzone, tunit, tim)
       if (.not. success) then
          goto 888
@@ -107,13 +140,20 @@ subroutine flow_setexternalforcingsonboundaries(tim, iresult)
       ! vind bijbehorende zbndz punten
       do i = 1,nqhbnd
          do n   = L1qhbnd(i), L2qhbnd(i)
-            zbndz(n) = qhrelax*qhbndz(i) + (1d0-qhrelax)*max(s1( kbndz(1,n) ), bl( kbndz(1,n) ))
+            zbndz(n) = qhbndz(i) 
          end do
       end do
    endif
 
-   if (nbndu > 0 ) then
+   if (item_velocitybnd /= ec_undef_int) then
        success = ec_gettimespacevalue(ecInstancePtr, item_velocitybnd, irefdate, tzone, tunit, tim)
+       if (.not. success) then
+          goto 888
+       end if
+   end if
+
+   if (item_dischargebnd /= ec_undef_int) then
+       success = ec_gettimespacevalue(ecInstancePtr, item_dischargebnd, irefdate, tzone, tunit, tim)
        if (.not. success) then
           goto 888
        end if
@@ -204,7 +244,7 @@ subroutine flow_setexternalforcingsonboundaries(tim, iresult)
       end if
    endif
 
-   if(jatransportmodule>0 .and. allocated(threttim)) then
+   if(allocated(threttim)) then
       call fm_thahbc()
    endif
 
@@ -213,7 +253,12 @@ subroutine flow_setexternalforcingsonboundaries(tim, iresult)
    endif
 
    !dambreak
-   if (ndambreak > 0) then
+   if (ndambreaksg > 0) then
+      ! Variable ndambreaksg is >0 for all partitions if there is a dambreak, even if it is outside of a partition.
+      ! In a parallel simulation, we need to call this subroutine even in a special situation that there is no dambreak
+      ! on the current subdomain (i.e. ndambreak == 0), because this subroutine calls function
+      ! getAverageQuantityFromLinks, which involves mpi communication among all subdomains. However, in this special situation,
+      ! all the necessary variables will be set to 0 and will not participate the dambreak related computation in this subroutine.
       call update_dambreak_breach(tim, dts)
    endif
 

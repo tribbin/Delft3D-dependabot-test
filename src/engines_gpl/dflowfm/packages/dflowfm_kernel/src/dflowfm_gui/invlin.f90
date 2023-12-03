@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
       LOGICAL FUNCTION INVLIN(L)
       use m_netw
@@ -40,6 +40,6 @@
 
       K1 = KN(1,L)
       K2 = KN(2,L)
-	   INVLIN = INVIEW( XK(K1), YK(K1) ) .OR. INVIEW( XK(K2), YK(K2) )
+	  INVLIN = INVIEW( XK(K1), YK(K1) ) .OR. INVIEW( XK(K2), YK(K2) )
       RETURN
       END

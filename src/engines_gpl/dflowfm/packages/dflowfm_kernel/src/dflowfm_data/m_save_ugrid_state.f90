@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,11 +27,11 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Save data for later writing of Ugrid
-module m_save_ugrid_state
+   module m_save_ugrid_state
 
    use meshdata
    use m_hash_search
@@ -45,7 +45,9 @@ module m_save_ugrid_state
    !integer, allocatable, dimension(:)                 :: mesh1dMergedToUnMerged(:)
    integer                                            :: numMesh1dBeforeMerging
    integer, allocatable                               :: contactnetlinks(:) !< netlink number for each contact
+   integer, allocatable                               :: netlink2contact(:) !< Inverse mapping of contactnetlinks (only for first numl1d net links)
    integer                                            :: contactnlinks      !< Total number of links in all mesh contacts (typically we'll have one mesh contact with many netlinks part of it)
+   integer, allocatable                               :: contact1d2didx(:,:) !< Mapping 1D net node to 2D net face (for later use in 2D flow node snapping)
 
    type(t_hashlist)                                   :: hashlist_contactids!< Hash list for quick search for contact ids.
 
@@ -54,25 +56,32 @@ module m_save_ugrid_state
 contains
    subroutine default_save_ugrid_state()
       implicit none
-      call reset_save_ugrid_state()
+
       network1dname = 'network1d'
       mesh1dname    = 'mesh1d'
       mesh2dname    = 'mesh2d'
       contactname   = 'contacts'
       numMesh1dBeforeMerging = 0
-      if (allocated(contactnetlinks)) deallocate(contactnetlinks)
-      contactnlinks = 0
-      call dealloc(hashlist_contactids)
-  end subroutine default_save_ugrid_state
 
-   !> Resets only waves variables intended for a restart of flow simulation.
-   !! Upon loading of new model/MDU, call default_save_ugrid_state() instead.
-   subroutine reset_save_ugrid_state()
-      implicit none
       if (allocated(mesh1dNodeIds)) deallocate(mesh1dNodeIds)
       if (allocated(mesh1dUnmergedToMerged)) deallocate(mesh1dUnmergedToMerged)
       !if (allocated(mesh1dMergedToUnMerged)) deallocate(mesh1dMergedToUnMerged)
+
+      if (allocated(contactnetlinks)) deallocate(contactnetlinks)
+      if (allocated(netlink2contact)) deallocate(netlink2contact)
+      if (allocated(contact1d2didx)) deallocate(contact1d2didx)
+      contactnlinks = 0
+      call dealloc(hashlist_contactids)
+
+      call reset_save_ugrid_state()
+
+   end subroutine default_save_ugrid_state
+
+   !> Resets only variables intended for a restart of flow simulation.
+   !! Upon loading of new model/MDU, call default_save_ugrid_state() instead.
+   subroutine reset_save_ugrid_state()
+      implicit none
       
    end subroutine reset_save_ugrid_state
 
-   end module m_save_ugrid_state
+end module m_save_ugrid_state

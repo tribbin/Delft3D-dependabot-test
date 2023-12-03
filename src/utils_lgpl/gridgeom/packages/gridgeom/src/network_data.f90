@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2021.
+!  Copyright (C)  Stichting Deltares, 2017-2023.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -27,8 +27,8 @@
 !
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Global network data (==unstructured grid).
 !! \see network
@@ -147,6 +147,7 @@ module network_data
   integer                          :: nlinkbadortho = 0 !< Nr. of net links with bad orthogonality detected.
   integer                          :: nlinktoosmall = 0 !< Nr. of net links with too small flow links across them.
 
+  integer                          :: nlinkremoved      !< Number of removed net links
   integer                          :: netflow = 2   ! 1=net, 2=flow
 
   integer                          :: JOCHECKNET = 0
@@ -184,6 +185,8 @@ module network_data
   double precision                 :: Unidx1D = 100d0                   !< Uniform 1D dx in copylandboundaryto1Dnetw
 
   integer                          :: makeorthocenters = 0              !< shift from circumcentre to orthocentre (acts as a maxiter)
+
+  integer                          :: strip_mesh = 0                    !< Strip unused nodes and links from the mesh after clipping
 
   integer, parameter               :: I1D2DTP_1TO1     = 0              !< 1D2D link generation algorithm for 1-to-1 mapping HK algorithm, depending on filetype.
   integer, parameter               :: I1D2DTP_1TON_EMB = 1              !< 1D2D link generation algorithm for 1-to-1 mapping, for embedded ('rural') links.
@@ -333,6 +336,7 @@ module network_data
    nlinkcross = 0
    nlinkbadortho = 0 
    nlinktoosmall = 0
+   nlinkremoved  = 0
    netflow = 2  
    JOCHECKNET = 0
    zkUNI    = -5d0                   
@@ -356,6 +360,7 @@ module network_data
    CONNECT1DEND = 0d0              
    Unidx1D = 100d0                   
    makeorthocenters = 0             
+   strip_mesh = 0
    imake1d2dtype = I1D2DTP_1TO1 ! HK algorithm
    searchRadius1D2DLateral = defaultSearchRadius1D2DLateral
    xkmin = 0

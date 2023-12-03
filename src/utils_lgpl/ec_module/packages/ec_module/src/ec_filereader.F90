@@ -1,6 +1,6 @@
 !----- LGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2021.                                
+!  Copyright (C)  Stichting Deltares, 2011-2023.                                
 !                                                                               
 !  This library is free software; you can redistribute it and/or                
 !  modify it under the terms of the GNU Lesser General Public                   
@@ -23,8 +23,8 @@
 !  are registered trademarks of Stichting Deltares, and remain the property of  
 !  Stichting Deltares. All rights reserved.                                     
 
-!  $Id$
-!  $HeadURL$
+!  
+!  
 
 !> This module contains all the methods for the datatype tEcFileReader.
 !! @author adri.mourits@deltares.nl
@@ -367,8 +367,7 @@ module m_ec_filereader
                   t0t1 = 0 
                   timesndx = itemPtr%sourceT1FieldPtr%timesndx + 1
                endif
-               select case (qname)
-               case ('hrms', 'tp', 'tps', 'rtp', 'dir', 'fx', 'fy', 'wsbu', 'wsbv', 'mx', 'my', 'dissurf','diswcap','ubot')   ! TODO RL: kijken of dit eruit kan 
+               if(fileReaderPtr%one_time_field) then
                   t0t1 = -1
                   do i=1, fileReaderPtr%nItems
                      success = ecNetcdfReadBlock(fileReaderPtr, fileReaderPtr%items(i)%ptr, t0t1, fileReaderPtr%items(i)%ptr%elementSetPtr%nCoordinates)                  
@@ -379,19 +378,19 @@ module m_ec_filereader
                         fileReaderPtr%items(i)%ptr%sourceT0FieldPtr => fieldPtrA
                      endif
                   end do
-               case default
+               else
                   do i=1, fileReaderPtr%nItems
                      success = ecNetcdfReadNextBlock(fileReaderPtr, fileReaderPtr%items(i)%ptr, t0t1, timesndx)
                      if (.not.success) then
                          return
-                     end if                     
+                     end if
                   end do
                   if (itemPtr%sourceT1FieldPtr%timesndx < 0) then
                      t0t1 = 1
                      timesndx = timesndx + 1
                      do i=1, fileReaderPtr%nItems
                         success = ecNetcdfReadNextBlock(fileReaderPtr, fileReaderPtr%items(i)%ptr, t0t1, timesndx)
-                     end do      
+                     end do
                   endif
                   if (t0t1 == 0) then
                      ! flip t0 and t1
@@ -402,7 +401,7 @@ module m_ec_filereader
                         fileReaderPtr%items(i)%ptr%sourceT0FieldPtr => fieldPtrA
                      end do
                   end if
-               end select
+               endif
             case (provFile_svwp, provFile_svwp_weight, provFile_curvi_weight, provFile_samples, &
                   provFile_triangulationmagdir, provFile_poly_tim, provFile_grib)
                ! NOTE for provFile_samples: don't support readNextRecord, because sample data is read once by ecSampleReadAll upon init.

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 module unstruc_startup
 !! Separates some startup/initialization procedures from the main program in net.f90
@@ -37,7 +37,6 @@ use unstruc_ini
 use unstruc_files
 use properties
 use unstruc_messages
-!use unstruc_version
 
 implicit none
 
@@ -62,7 +61,7 @@ subroutine initProgram()
     call initGUI(1) ! READINI + INTINI
 
     ! Read hlp file
-    FILNAM = trim(unstruc_basename)//'.hlp'
+    FILNAM = trim(base_name)//'.hlp'
     INQUIRE(FILE = FILNAM,EXIST = JAWEL)
     IF (JAWEL) THEN
         call oldfil(MHLP,FILNAM)
@@ -73,7 +72,7 @@ subroutine initProgram()
 
     CALL HELPIN() ! TODO: help module? [AvD]
 
-    !CALL IUPPERCASE(unstruc_program)
+    !CALL IUPPERCASE(product_name)
 
     CALL SETCOLTABFILE(coltabfile,0)
     CALL SETCOLTABFILE(coltabfile2,1)
@@ -86,7 +85,7 @@ END subroutine initProgram
 !! Used to be biggest part of SUBROUTINE OPENING()
 subroutine initSysEnv()
     use unstruc_files
-    use unstruc_version_module, only : unstruc_program, unstruc_basename
+    use dflowfm_version_module, only : product_name, base_name
     use string_module, only: get_dirsep
     implicit none
 
@@ -117,13 +116,13 @@ subroutine initSysEnv()
          d3dhom = .false.
          lendum = LEN(pathdi) - 1
          nval   = 0
-         if (unstruc_program .eq. 'QUICKIN' ) then
+         if (product_name .eq. 'QUICKIN' ) then
             errtxt = 'QN_PATH'
-         else if (unstruc_program .eq. 'rgfgrid')then
+         else if (product_name .eq. 'rgfgrid')then
             errtxt = 'RGF_PATH'
-         else if (unstruc_program .eq. 'KERNfl' ) then
+         else if (product_name .eq. 'KERNfl' ) then
             errtxt = 'FLS_PATH'
-         else if (unstruc_program .eq. 'NETWORK' ) then
+         else if (product_name .eq. 'NETWORK' ) then
             errtxt = 'NET_PATH'
          endif
          LERTXT = len_trim(ERRTXT)
@@ -157,9 +156,9 @@ subroutine initSysEnv()
          LARCH  = len_trim(ARCH)
          if (d3dhom) then
             if (larch .eq. 0) then
-               pathdi = hlpstr(:lendum)//slash//unstruc_basename//slash
+               pathdi = hlpstr(:lendum)//slash//base_name//slash
             else
-               pathdi = hlpstr(:lendum)//slash//arch  (:larch)//slash//unstruc_basename//slash
+               pathdi = hlpstr(:lendum)//slash//arch  (:larch)//slash//base_name//slash
             endif
          else
 !-----------------------------------------------------------------------
@@ -202,7 +201,7 @@ SUBROUTINE HCACCESS(nval     ,larch     ,arch      )
 subroutine initGUI(INTINIT)
     USE M_MISSING
     use unstruc_display
-    use unstruc_version_module, only : unstruc_basename
+    use dflowfm_version_module, only : base_name
     use m_arcinfo
 
     implicit none
@@ -228,6 +227,7 @@ subroutine initGUI(INTINIT)
     integer :: limslo
     integer :: limtel
     integer :: limwat
+    integer :: mout
     integer :: ncols
     integer :: ndec
     integer :: ndraw
@@ -272,22 +272,34 @@ subroutine initGUI(INTINIT)
     COMMON /VFAC/ VFAC, VFACFORCE, NVEC
     COMMON /DRAWTHIS/ ndraw(50)
 
+    type(tree_data), pointer :: ini_ptr !< Unstruc.ini settings in tree_data
 
     ! Read ini file
-    FILNAM = trim(unstruc_basename)//'.ini'
+    FILNAM = trim(base_name)//'.ini'
     INQUIRE(FILE = FILNAM,EXIST = JAWEL)
     IF (JAWEL) THEN
         inifilename = filnam
     else
         call sysfilepath(filnam, inifilename)
+        if (inifilename(:1)=='\') then
+           inifilename=inifilename(2:)
+        endif
     end if
 
-    call readIniFile(inifilename, istat)
+    call readIniFile(inifilename, ini_ptr, errmsg=msgbuf, istat=istat)
+    if (istat /= 0) then
+       ! make default unstruc.ini, try again
+       call makeunstrucini(filnam,istat)
+       if (istat==0) then
+          call readIniFile(inifilename, ini_ptr, errmsg=msgbuf, istat=istat)
+          if (istat /= 0) then 
+             call err_flush()
+          endif
+       else
+          call err_flush()
+       endif
+    end if
 
-
-    !CALL ZOEKAL (MINI,REC, 'INITSCREEN',JA)
-    !READ (MINI,'(A)',END = 888) REC
-    !READ ( REC,*,ERR = 999) JVGA,NXPIX,NYPIX,NTXCOLS,NTXROWS
     call get_req_integer(ini_ptr, 'screen', 'JVGA',    JVGA)
     call get_req_integer(ini_ptr, 'screen', 'NXPIX',   NXPIX)
     call get_req_integer(ini_ptr, 'screen', 'NYPIX',   NYPIX)
@@ -295,7 +307,6 @@ subroutine initGUI(INTINIT)
     call get_req_integer(ini_ptr, 'screen', 'NTXROWS', NTXROWS)
 
 
-    !      CALL ZOEKAL (MINI,REC, '@GRAFCOL',JA)
     call prop_get_integer(ini_ptr, 'grafcol', 'NCOLDG',    NCOLDG)
     call prop_get_integer(ini_ptr, 'grafcol', 'NCOLRG',    NCOLRG)
     call prop_get_integer(ini_ptr, 'grafcol', 'NCOLDN',    NCOLDN)
@@ -465,22 +476,6 @@ subroutine initGUI(INTINIT)
 
     call prop_get_integer(ini_ptr, 'display', 'JAFULLBOTTOMLINE' , jafullbottomline )
 
-! TODO: Supporten we nog HLS? [AvD]
-!      CALL ZOEKAL(MINI,REC,'HLSVALUES',JA)
-!      IF (JA .EQ. 1) THEN
-!  564    CONTINUE
-!         READ(MINI,*,ERR=992,END=992) ICL,IRED,IGREEN,IBLUE
-!         ICL   = MAX(1,MIN(ICL,255))
-!         IRED  = MAX(0,MIN(IRED   ,255))
-!         IGREEN= MAX(0,MIN(IGREEN ,255))
-!         IBLUE = MAX(0,MIN(IBLUE  ,255))
-!         CALL IGRPALETTEHLS(ICL,IRED,IGREEN,IBLUE)
-!         GOTO 564
-!      ENDIF
-!
-!  992 CONTINUE
-
-!      CALL ZOEKAL(MINI,REC,'RGBVALUES',JA)
     rgbvalues(:,:) = 0
     rgbvalues(1:4,1)  = (/ 210,    3,    3,    3 /)
     rgbvalues(1:4,2)  = (/ 211,    1,  128,  255 /)  ! NCOLRN = SHOW ALL LINKS/prev net
@@ -573,5 +568,117 @@ subroutine initGUI(INTINIT)
 
       RETURN
 END subroutine initGUI
+
+
+subroutine makeunstrucini(filnam,istat)
+   
+    implicit none
+
+    character(len=76), intent(in)  :: filnam
+    integer          , intent(out) :: istat
+
+    integer  :: mout
+
+    istat=-1
+
+    call newfil(mout, filnam)
+    if (mout<0) then
+       istat=0
+       write(mout,'(a)') '[program]                                                                   '
+       write(mout,'(a)') 'Ident = #Unstruc 1.00.11#                                                   '
+       write(mout,'(a)') '                                                                            '
+       write(mout,'(a)') '[screen]           (screen type on pc, screen dimension on unix)            '
+       write(mout,'(a)') 'JVGA=2             JVGA = 1, vga: JVGA  = 2, supervga:  (only on DOS)       '
+       write(mout,'(a)') 'NXPIX=1600         preferred hor. and ver. resolution of initial screen     '
+       write(mout,'(a)') 'NYPIX=1000                                                                  '
+       write(mout,'(a)') 'NTXCOLS=100         number of columns and rows TEXT screen                  '
+       write(mout,'(a)') 'NTXROWS=50                                                                  '
+       write(mout,'(a)') '                                                                            '
+       write(mout,'(a)') '[GRAFCOL]          colors in graphic screens                                '
+       write(mout,'(a)') 'NCOLDG=31          DESIGN GRID                                              '
+       write(mout,'(a)') 'NCOLRG=212         PREVIOUS STATE GRID                                      '
+       write(mout,'(a)') 'NCOLDN=3           DESIGN NET                                               '
+       write(mout,'(a)') 'NCOLRN=211         PREVIOUS STATE NET                                       '
+       write(mout,'(a)') 'NCOLNN=205         NETNODES                                                 '
+       write(mout,'(a)') 'NCOLSP=204         SPLINES                                                  '
+       write(mout,'(a)') 'NCOLLN=120         LAND BOUNDARY  OR 203 IF YOU LIKE PINK                   '
+       write(mout,'(a)') 'NCOLTX=210         POLYGON                                                  '
+       write(mout,'(a)') 'NCOLCRS=230        CROSS SECTIONS                                           '
+       write(mout,'(a)') 'NCOLTHD=231        THIN DAMS                                                '
+       write(mout,'(a)') 'NCOLTDK=232        THIN DYKES                                               '
+       write(mout,'(a)') 'NCOLWARN1=191      WARNING 1                                                '
+       write(mout,'(a)') 'NCOLWARN2=31       WARNING 2                                                '
+       write(mout,'(a)') 'NCOLHL=31          HIGHLIGHT NODES/LINKS                                    '
+       write(mout,'(a)') '                                                                            '
+       write(mout,'(a)') 'KLVEC=4            VECTORS 110                                              '
+       write(mout,'(a)') 'KLAXS=31           AXIS                                                     '
+       write(mout,'(a)') 'KLSCL=221          ISOSCALE LEGEND                                          '
+       write(mout,'(a)') 'KLTEX=3            NUMBERS                                                  '
+       write(mout,'(a)') 'KLFRA=31           FRAME                                                    '
+       write(mout,'(a)') 'KLSAM=31           SAMPLE MONOCOLOR                                         '
+       write(mout,'(a)') 'KLOBS=227          OBSERVATION POINTS                                       '
+       write(mout,'(a)') 'KLZM=31            ZOOMWINDOW                                               '
+       write(mout,'(a)') 'KLANK=31           ANCHOR                                                   '
+       write(mout,'(a)') '                                                                            '
+       write(mout,'(a)') 'RGBVALUES=\           # COLORNUMBER  RED  GREEN  BLUE                       '
+       write(mout,'(a)') '210    3    3    3 \                                                        '
+       write(mout,'(a)') '211    1  128  255 \  # NCOLRN = SHOW ALL LINKS/prev net                    '
+       write(mout,'(a)') '212  255  160  192 \  # NCOLRG = prev grid                                  '
+       write(mout,'(a)') '210  200  200  200 \  # NCOLTX = POLYGON                                    '
+       write(mout,'(a)') '230   32  176    0 \  # NCOLCRS = CROSS SECTIONS                            '
+       write(mout,'(a)') '231  255    0    0 \  # NCOLTHD = THIN DAMS                                 '
+       write(mout,'(a)') '232  255  106    0 \  # NCOLTDK = THIN DYKES                                '
+       write(mout,'(a)') '227    0  200  200 \  # KLOBS = OBS.STATIONS                                '
+       write(mout,'(a)') '203    0  255  255 \  # NCOLLN = LAND BOUNDARY                              '
+       write(mout,'(a)') '204  255  255  150    # NCOLSP = SPLINES                                    '
+       write(mout,'(a)') '205  204  255  102    # NCOLSP = SPLINES                                    '
+       write(mout,'(a)') '                      # KLVEC  = VECTORS                                    '
+       write(mout,'(a)') '                                                                            '
+       write(mout,'(a)') '# RED GREEN, BLUE VALUES FOR SCREEN AND FOR PLOTTING                        '
+       write(mout,'(a)') 'NREDS  =100                                                                 '
+       write(mout,'(a)') 'NGREENS=100                                                                 '
+       write(mout,'(a)') 'NBLUES =100                                                                 '
+       write(mout,'(a)') 'NREDP  =140                                                                 '
+       write(mout,'(a)') 'NGREENP=140                                                                 '
+       write(mout,'(a)') 'NBLUEP =140                                                                 '
+       write(mout,'(a)') '                                                                            '
+       write(mout,'(a)') '                                                                            '
+       write(mout,'(a)') '[ISOCOL]           (for colorscheme isolines)                               '
+       write(mout,'(a)') 'AUTO   = 1         (0,1)      autoscale off or on                           '
+       write(mout,'(a)') 'NV     = 19        number of isolines                                       '
+       write(mout,'(a)') 'VMIN   = 1         minimum isoline value (only to be used if JAAUTO = 0)    '
+       write(mout,'(a)') 'VMAX   = 0         maximum isoline value (only to be used if JAAUTO = 0)    '
+       write(mout,'(a)') 'NIS    = 46        INDEX FIRST ISOLINE COLOUR <1, 250>                      '
+       write(mout,'(a)') 'NIE    = 224       INDEX LAST  ISOLINE COLOUR <NIS+NV, 254>                 '
+       write(mout,'(a)') '                                                                            '
+       write(mout,'(a)') '[TEXT]             (for display of ''numbers'')                               '
+       write(mout,'(a)') 'TSIZE=0.50                                                                  '
+       write(mout,'(a)') '                                                                            '
+       write(mout,'(a)') '[HARDCOPYOPTIONS]                                                           '
+       write(mout,'(a)') 'IHCOPTS = \                                                                 '
+       write(mout,'(a)') '1     1200 \       # bitmap x resolution                                    '
+       write(mout,'(a)') '2     900  \       # bitmap y resolution                                    '
+       write(mout,'(a)') '5     1    \       # IHCOPTS(1,I), IHCOPTS(2,I) 0:portrait 1:landscape      '
+       write(mout,'(a)') '7     0    \       # postscript: 0 = coloured lines, 1 =black lines         '
+       write(mout,'(a)') '9     1    \       # thinnest lines                                         '
+       write(mout,'(a)') '25    1    \       # device fill 0:no, 1:yes                                '
+       write(mout,'(a)') '18    0    \       # no hpgl replay info                                    '
+       write(mout,'(a)') '19    3    \       # hp-gl,pcl,epson escape seqences (0=no,3=yes)           '
+       write(mout,'(a)') '22    1    \       # encapsulated postscript 0:no, 1:yes                    '
+       write(mout,'(a)') '23    8    \       # number of bitplanes                                    '
+       write(mout,'(a)') '26    2    \       # pcx:0, bmp:1,uncompressed, bmp:2,compressed            '
+       write(mout,'(a)') '6     0            # 0:keep colours, 1:invert colours                       '
+       write(mout,'(a)') '                                                                            '
+       write(mout,'(a)') '[display]                                                                   '
+       write(mout,'(a)') 'NTEK             = 10    # Nr of user timesteps between two redraws         '
+       write(mout,'(a)') 'PLOTTOFILE       = 0     # Produce harcopy (1) or not (0)                   '
+       write(mout,'(a)') 'JAOPENGL         = 1     # 1 : use OpenGL, 0 : use Interacter               '
+       write(mout,'(a)') 'JAFULLBOTTOMLINE = 0     # Full explanation yes/no                          '
+
+    endif
+       
+    call doclose(mout)
+
+end subroutine makeunstrucini
 
 end module unstruc_startup

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2018-2021.
+!  Copyright (C)  Stichting Deltares, 2018-2023.
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
 !  Delft3D is free software: you can redistribute it and/or modify
@@ -26,8 +26,8 @@
 !
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+!
+!
 
    subroutine mba_init()
 
@@ -304,7 +304,7 @@
    use m_flowparameters, only: jatem, jambawritecsv, jambalumpmba, jambalumpbnd, jambalumpsrc, jambalumpproc
    use m_flowtimes, only: refdate_mjd
    use m_transport, only: numconst, isalt, itemp
-   use time_module
+   use time_module, only: mjd2date
 
    implicit none
 
@@ -318,10 +318,14 @@
 
    timembaend = time
 
-   call gregor(refdate_mjd + offset_reduced_jd + timembastart/86400.0, iyear, imonth, iday, ihour, imin, isec, sec)
-   write(datembastart, '(i4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2)') iyear, imonth, iday, ihour, imin, isec
-   call gregor(refdate_mjd + offset_reduced_jd + timembaend/86400.0, iyear, imonth, iday, ihour, imin, isec, sec)
-   write(datembaend, '(i4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2)') iyear, imonth, iday, ihour, imin, isec
+   datembastart = ""
+   if (mjd2date(refdate_mjd + timembastart/86400.0, iyear, imonth, iday, ihour, imin, sec) /= 0) then
+      write(datembastart, '(i4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2)') iyear, imonth, iday, ihour, imin, int(sec)
+   endif
+   datembaend = ""
+   if (mjd2date(refdate_mjd + timembaend/86400.0, iyear, imonth, iday, ihour, imin, sec) /= 0) then
+      write(datembaend, '(i4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2)') iyear, imonth, iday, ihour, imin, int(sec)
+   endif
 
 !  New total volumes and masses
    call mba_sum(nombs, nomba, mbadefdomain, mbavolumeend, mbamassend)
@@ -389,19 +393,9 @@
    endif
 
    if (writebalance) then
-      call mba_write_bal_time_step(lunmbabal, timembastart, timembaend, datembastart, datembaend, numconst, notot, nombs, imbs2sys, &
-                                   nomba, nombabnd, nflux, totfluxsys, mbsname, mbaname, mbabndname, mbalnused, numsrc, srcname, &
-                                   mbasorsinout, mbaarea, mbavolumebegin, mbavolumeend, mbaflowhor, mbaflowsorsin, mbaflowraineva, &
-                                   mbafloweva, mbamassbegin, mbamassend, mbafluxhor, mbafluxsorsin, mbafluxheat, &
-                                   flxdmp, stochi, fluxname, nfluxsys, ipfluxsys, fluxsys, jarain, jaevap, jatem, isalt, itemp, &
-                                   jambalumpmba, jambalumpbnd, jambalumpsrc, jambalumpproc)
+      call mba_write_bal_time_step(lunmbabal, timembastart, timembaend, datembastart, datembaend, .false. )
       if (jambawritecsv.eq.1) then
-         call mba_write_csv_time_step(lunmbacsvm, lunmbacsvmb, timembastart, timembaend, datembastart, datembaend, numconst, notot, nombs, &
-                                      imbs2sys, nomba, nopenbndsect, nombabnd, nflux, totfluxsys, mbsname, mbaname, openbndname, mbalnused, &
-                                      numsrc, srcname, mbasorsinout, mbaarea, mbavolumebegin, mbavolumeend, mbaflowhor, mbaflowsorsin, &
-                                      mbaflowraineva, mbafloweva, mbamassbegin, mbamassend, mbafluxhor, mbafluxsorsin, mbafluxheat, &
-                                      flxdmp, stochi, fluxname, nfluxsys, ipfluxsys, fluxsys, jarain, jaevap, jatem, isalt, itemp, &
-                                      jambalumpmba, jambalumpbnd, jambalumpsrc, jambalumpproc)
+         call mba_write_csv_time_step(lunmbacsvm, lunmbacsvmb, timembastart, timembaend, datembastart, datembaend )
       endif
    endif
 
@@ -477,7 +471,7 @@
    use m_wind, only: jarain, jaevap
    use m_flowparameters, only: jatem, jambalumpmba, jambalumpbnd, jambalumpsrc, jambalumpproc
    use m_flowtimes, only: refdate_mjd
-   use time_module
+   use time_module, only: mjd2date
 
    implicit none
 
@@ -491,10 +485,14 @@
 
    timembaend = time
 
-   call gregor(refdate_mjd + offset_reduced_jd + timembastarttot/86400.0, iyear, imonth, iday, ihour, imin, isec, sec)
-   write(datembastart, '(i4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2)') iyear, imonth, iday, ihour, imin, isec
-   call gregor(refdate_mjd + offset_reduced_jd + timembaend/86400.0, iyear, imonth, iday, ihour, imin, isec, sec)
-   write(datembaend, '(i4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2)') iyear, imonth, iday, ihour, imin, isec
+   datembastart = ""
+   if (mjd2date(refdate_mjd + timembastarttot/86400.0, iyear, imonth, iday, ihour, imin, sec) /= 0) then
+      write(datembastart, '(i4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2)') iyear, imonth, iday, ihour, imin, int(sec)
+   endif
+   datembaend = ""
+   if (mjd2date(refdate_mjd + timembaend/86400.0, iyear, imonth, iday, ihour, imin, sec) /= 0) then
+      write(datembaend, '(i4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2)') iyear, imonth, iday, ihour, imin, int(sec)
+   endif
 
    writebalance = .true.
    if ( jampi.eq.1 ) then
@@ -503,18 +501,8 @@
 
    if (writebalance) then
       write(lunmbabal,1000)
-      call mba_write_bal_time_step(lunmbabal, timembastarttot, timembaend, datembastart, datembaend, numconst, notot, nombs, &
-                                   imbs2sys, nomba, nombabnd, nflux, totfluxsys, mbsname, mbaname, mbabndname, mbalnused, numsrc, &
-                                   srcname, mbasorsinout, mbaarea, mbavolumebegintot, mbavolumeend, mbaflowhortot, mbaflowsorsintot, &
-                                   mbaflowrainevatot, mbaflowevatot, mbamassbegintot, mbamassend, mbafluxhortot, mbafluxsorsintot, &
-                                   mbafluxheattot, flxdmptot, stochi, fluxname, nfluxsys, ipfluxsys, fluxsys, jarain, jaevap, jatem, &
-                                   isalt, itemp, jambalumpmba, jambalumpbnd, jambalumpsrc, jambalumpproc)
-!      call mba_write_csv_time_step(lunmbacsvm, lunmbacsvmb, timembastarttot, timembaend, datembastart, datembaend, numconst, notot, nombs, &
-!                                   imbs2sys, nomba, nopenbndsect, nombabnd, nflux, totfluxsys, mbsname, mbaname, openbndname, mbalnused, numsrc, &
-!                                   srcname, mbasorsinout, mbaarea, mbavolumebegintot, mbavolumeend, mbaflowhortot, mbaflowsorsintot, &
-!                                   mbaflowrainevatot, mbaflowevatot, mbamassbegintot, mbamassend, mbafluxhortot, mbafluxsorsintot, &
-!                                   mbafluxheattot, flxdmptot, stochi, fluxname, nfluxsys, ipfluxsys, fluxsys, jarain, jaevap, jatem, &
-!                                   isalt, itemp, jambalumpmba, jambalumpbnd, jambalumpsrc, jambalumpproc)
+      call mba_write_bal_time_step(lunmbabal, timembastarttot, timembaend, datembastart, datembaend, .true. )
+!      call mba_write_csv_time_step(lunmbacsvm, lunmbacsvmb, timembastarttot, timembaend, datembastart, datembaend )
    endif
 
    1000 format (///'============================================================='&
@@ -687,7 +675,8 @@
    subroutine mba_write_bal_header(lunbal, numconst, const_names, iconst2sys, nosys, notot, isys2wqbot, syname_sub, nomba, mbaname, nflux, &
                                    totfluxsys, stochi, fluxname, fluxprocname, nfluxsys, ipfluxsys, fluxsys)
 
-   use unstruc_version_module, only: unstruc_version_full, get_unstruc_source
+   use dflowfm_version_module, only: getfullversionstring_dflowfm
+   use dflowfm_version_module, only: getbranch_dflowfm
 
    implicit none
 
@@ -718,6 +707,7 @@
 
    character(255)              :: tex
    character(20)               :: rundat
+   character(160)              :: version_id
    integer                     :: imba
    integer                     :: iconst
    integer                     :: isys
@@ -725,9 +715,11 @@
    integer                     :: jflux
    integer                     :: ifluxsys
 
+   call getfullversionstring_dflowfm(version_id)
+
    write (lunbal, '("=============================================================")')
-   write(lunbal,'(A)') trim(unstruc_version_full)
-   call get_unstruc_source(tex)
+   write(lunbal,'(A)') trim(version_id)
+   call getbranch_dflowfm(tex)
    write(lunbal,'(A)') 'Source: '//trim(tex)
    call datum(rundat)
    write(lunbal,'(A)') 'File creation date: '//rundat
@@ -790,12 +782,14 @@
    return
    end subroutine mba_write_bal_header
 
-   subroutine mba_write_bal_time_step(lunbal, timestart, timeend, datestart, dateend, numconst, notot, nombs, imbs2sys, nomba, &
-                                      nombabnd, nflux, totfluxsys, mbsname, mbaname, mbabndname, mbalnused, numsrc, srcname, &
-                                      mbasorsinout, mbaarea, mbavolumebegin, mbavolumeend, mbaflowhor, mbaflowsorsin, mbaflowraineva, &
-                                      mbafloweva, mbamassbegin, mbamassend, mbafluxhor, mbafluxsorsin, mbafluxheat, flxdmp, &
-                                      stochi, fluxname, nfluxsys, ipfluxsys, fluxsys, jarain, jaevap, jatem, isalt, itemp, &
-                                      jambalumpmba, jambalumpbnd, jambalumpsrc, jambalumpproc)
+   subroutine mba_write_bal_time_step(lunbal, timestart, timeend, datestart, dateend, overall_balance )
+
+   use m_mass_balance_areas
+   use m_fm_wq_processes, ifluxdummy => iflux
+   use m_flowparameters, only: jatem, jambawritecsv, jambalumpmba, jambalumpbnd, jambalumpsrc, jambalumpproc
+   use m_flowexternalforcings, only: numsrc, srcname
+   use m_wind, only: jarain, jaevap
+   use m_transport, only: numconst, isalt, itemp
 
    implicit none
 
@@ -805,60 +799,8 @@
    double precision            :: timeend                   ! end time of balance period (s)
    character(len=19)           :: datestart                 ! start date of balance period
    character(len=19)           :: dateend                   ! end date of balance period
-   integer                     :: numconst                  ! Number of constituents
-   integer                     :: nombs                     ! Number of mass balances
-   integer                     :: nomba                     ! Number of balance areas
-   integer                     :: notot                     ! Number of WAQ sustances
-   integer                     :: imbs2sys(nombs)           ! mass balance number to WAQ substance (0=not a WAQ substance)
-   integer                     :: nombabnd                  ! Number of balance areas and boundaries
-   integer                     :: nflux                     ! number of fluxes
-   integer                     :: totfluxsys                ! total number of fluxes for all sustances
+   logical                     :: overall_balance           ! whether to use the "total" arrays of not
 
-   character(*)                :: mbsname(nombs)            ! mass balance names
-   character(*)                :: mbaname(nomba)            ! mass balance area names
-   character(*)                :: mbabndname(nombabnd)      ! mass balance area exchange names
-
-   integer                     :: mbalnused(nomba,nombabnd) ! number of links between mda and mbabnd that are actually active
-
-   integer                     :: numsrc                    ! nr of point sources/sinks
-   character(len=255)          :: srcname(numsrc)           ! sources/sinks name (numsrc)
-   integer                     :: mbasorsinout(2,numsrc)    ! (reduced) mba for each side of a source sink
-
-   double precision            :: mbaarea(nomba)            ! surface area of mass balance area
-
-   double precision            :: mbavolumebegin(nomba)     ! begin volume in mass balance area
-   double precision            :: mbavolumeend(nomba)       ! end volume in mass balance area
-   double precision            :: mbaflowhor(2,nombabnd,nombabnd) ! periodical flows between balance areas and between boundaries and balance areas
-   double precision            :: mbaflowsorsin(2,numsrc)   ! periodical flow from source sinks
-   double precision            :: mbaflowraineva(2,nomba)   ! periodical flow from rain and forced evaportion
-   double precision            :: mbafloweva(nomba)       ! periodical flow from calculated evaportion
-
-   double precision            :: mbamassbegin(nombs,nomba) ! begin volume in mass balance area
-   double precision            :: mbamassend(nombs,nomba)   ! end volume in mass balance area
-   double precision            :: mbafluxhor(2,numconst,nombabnd,nombabnd) ! periodical fluxes between balance areas and between boundaries and balance areas
-   double precision            :: mbafluxsorsin(2,2,numconst,numsrc) ! periodical fluxes from source sinks
-   double precision            :: mbafluxheat(2,nomba)      ! temperature rheat flux
-
-   double precision            :: flxdmp(2,nflux, nomba)
-   real                        :: stochi(notot,nflux)
-   character(10)               :: fluxname(nflux)
-
-   integer                     :: nfluxsys(notot)
-   integer                     :: ipfluxsys(notot)
-   integer                     :: fluxsys(totfluxsys)
-
-   integer                     :: jarain                    ! use rain yes or no
-   integer                     :: jaevap                    ! use evaporation yes or no
-   integer                     :: jatem                     ! Temperature model (0=no, 5=heatfluxmodel)
-   integer                     :: isalt                     ! constituent that is salt
-   integer                     :: itemp                     ! constituent that is temperature
-
-   integer                     :: jambalumpmba              ! Lump MBA from/to other areas mass balance terms
-   integer                     :: jambalumpbnd              ! Lump MBA boundary mass balance terms
-   integer                     :: jambalumpsrc              ! Lump MBA source/sink mass balance terms
-   integer                     :: jambalumpproc             ! Lump MBA processes mass balance terms
-
-   integer, parameter :: long = SELECTED_INT_KIND(16)
    character(len=20), external :: seconds_to_dhms
    integer :: imbs, imba, jmba, isrc, isys, iflux, jflux, ifluxsys
    double precision            :: totals(2)                 ! totals for both columns
@@ -887,34 +829,69 @@
    character(len=60), parameter:: labellumpsrc = 'Sink/sources'
    character(len=60), parameter:: labellumpproc = 'Process fluxes'
 
+   double precision, pointer   :: p_mbavolumebegin(:)
+   double precision, pointer   :: p_mbaflowhor(:,:,:)
+   double precision, pointer   :: p_mbaflowsorsin(:,:)
+   double precision, pointer   :: p_mbaflowraineva(:,:)
+   double precision, pointer   :: p_mbafloweva(:)
+   double precision, pointer   :: p_mbamassbegin(:,:)
+   double precision, pointer   :: p_mbafluxhor(:,:,:,:)
+   double precision, pointer   :: p_mbafluxsorsin(:,:,:,:)
+   double precision, pointer   :: p_mbafluxheat(:,:)
+   double precision, pointer   :: p_flxdmp(:,:,:)
+
+   if ( overall_balance ) then
+       p_mbavolumebegin => mbavolumebegintot
+       p_mbaflowhor     => mbaflowhortot
+       p_mbaflowsorsin  => mbaflowsorsintot
+       p_mbaflowraineva => mbaflowrainevatot
+       p_mbafloweva     => mbaflowevatot
+       p_mbamassbegin   => mbamassbegintot
+       p_mbafluxhor     => mbafluxhortot
+       p_mbafluxsorsin  => mbafluxsorsintot
+       p_mbafluxheat    => mbafluxheattot
+       p_flxdmp         => flxdmptot
+   else
+       p_mbavolumebegin => mbavolumebegin
+       p_mbaflowhor     => mbaflowhor
+       p_mbaflowsorsin  => mbaflowsorsin
+       p_mbaflowraineva => mbaflowraineva
+       p_mbafloweva     => mbafloweva
+       p_mbamassbegin   => mbamassbegin
+       p_mbafluxhor     => mbafluxhor
+       p_mbafluxsorsin  => mbafluxsorsin
+       p_mbafluxheat    => mbafluxheat
+       p_flxdmp         => flxdmp
+   endif
+
    ! Output per mass balance area
    do imba = 1, nomba
       totals = zero
       write (lunbal, 1000) mbaname(imba)
       write (lunbal, 1001) seconds_to_dhms(nint(timestart, long)), datestart, seconds_to_dhms(nint(timeend, long)), &
                            dateend, mbaarea(imba)
-      write (lunbal, 2000) mbavolumebegin(imba), mbavolumeend(imba)
+      write (lunbal, 2000) p_mbavolumebegin(imba), mbavolumeend(imba)
       write (lunbal, 1002)
       if (mbaarea(imba).gt.0.0) then
-         write (lunbal, 2000) mbavolumebegin(imba)/mbaarea(imba), mbavolumeend(imba)/mbaarea(imba)
+         write (lunbal, 2000) p_mbavolumebegin(imba)/mbaarea(imba), mbavolumeend(imba)/mbaarea(imba)
       else
          write (lunbal, 2005)
       endif
       write (lunbal, 1003)
-      if (mbavolumebegin(imba).gt.mbavolumeend(imba)) then
-         totals(1) = mbavolumebegin(imba) - mbavolumeend(imba)
+      if (p_mbavolumebegin(imba).gt.mbavolumeend(imba)) then
+         totals(1) = p_mbavolumebegin(imba) - mbavolumeend(imba)
       else
-         totals(2) = mbavolumeend(imba) - mbavolumebegin(imba)
+         totals(2) = mbavolumeend(imba) - p_mbavolumebegin(imba)
       endif
       write (lunbal, 2002) totals
       lumptotals = zero ; jalump = .false.
       do jmba = 1, nomba
          if (mbalnused(imba,jmba).gt.0) then
             if (jambalumpmba==0) then
-               totals = totals + mbaflowhor(1:2, imba, jmba)
-               write (lunbal, 2001) mbabndname(jmba), mbaflowhor(1:2, imba, jmba)
+               totals = totals + p_mbaflowhor(1:2, imba, jmba)
+               write (lunbal, 2001) mbabndname(jmba), p_mbaflowhor(1:2, imba, jmba)
             else
-               lumptotals = lumptotals + mbaflowhor(1:2, imba, jmba)
+               lumptotals = lumptotals + p_mbaflowhor(1:2, imba, jmba)
                jalump = .true.
             endif
          endif
@@ -927,10 +904,10 @@
       do jmba = nomba + 1, nombabnd
          if (mbalnused(imba,jmba).gt.0) then
             if (jambalumpbnd==0) then
-               totals = totals + mbaflowhor(1:2, imba, jmba)
-               write (lunbal, 2001) mbabndname(jmba), mbaflowhor(1:2, imba, jmba)
+               totals = totals + p_mbaflowhor(1:2, imba, jmba)
+               write (lunbal, 2001) mbabndname(jmba), p_mbaflowhor(1:2, imba, jmba)
             else
-               lumptotals = lumptotals + mbaflowhor(1:2, imba, jmba)
+               lumptotals = lumptotals + p_mbaflowhor(1:2, imba, jmba)
                jalump = .true.
             endif
          endif
@@ -943,19 +920,19 @@
       do isrc = 1, numsrc
          if (mbasorsinout(1,isrc).eq.imba) then
             if (jambalumpsrc == 0) then
-               totals = totals + mbaflowsorsin(1:2, isrc)
-               write (lunbal, 2001) labelsourcesink//srcname(isrc), mbaflowsorsin(1:2, isrc)
+               totals = totals + p_mbaflowsorsin(1:2, isrc)
+               write (lunbal, 2001) labelsourcesink//srcname(isrc), p_mbaflowsorsin(1:2, isrc)
             else
-               lumptotals = lumptotals + mbaflowsorsin(1:2, isrc)
+               lumptotals = lumptotals + p_mbaflowsorsin(1:2, isrc)
                jalump = .true.
             endif
          endif
          if (mbasorsinout(2,isrc).eq.imba) then
             if (jambalumpsrc == 0) then
-               totals = totals + mbaflowsorsin(2:1:-1, isrc)
-               write (lunbal, 2001) labelsourcesink//srcname(isrc), mbaflowsorsin(2:1:-1, isrc)
+               totals = totals + p_mbaflowsorsin(2:1:-1, isrc)
+               write (lunbal, 2001) labelsourcesink//srcname(isrc), p_mbaflowsorsin(2:1:-1, isrc)
             else
-               lumptotals = lumptotals + mbaflowsorsin(2:1:-1, isrc)
+               lumptotals = lumptotals + p_mbaflowsorsin(2:1:-1, isrc)
                jalump = .true.
             endif
          endif
@@ -965,17 +942,17 @@
          write (lunbal, 2001) labellumpsrc, lumptotals
       endif
       if (jarain > 0) then
-         totals = totals + mbaflowraineva(1:2, imba)
-         write (lunbal, 2001) labelraineva, mbaflowraineva(1:2, imba)
+         totals = totals + p_mbaflowraineva(1:2, imba)
+         write (lunbal, 2001) labelraineva, p_mbaflowraineva(1:2, imba)
       endif
       if (jaevap > 0 .and. jatem > 3) then
-         totals(2) = totals(2) + mbafloweva(imba)
-         write (lunbal, 2001) labeleva, 0.0d0, mbafloweva(imba)
+         totals(2) = totals(2) + p_mbafloweva(imba)
+         write (lunbal, 2001) labeleva, 0.0d0, p_mbafloweva(imba)
       endif
       write (lunbal, 1004)
       write (lunbal, 2003) totals
       write (lunbal, 2010) totals(2)-totals(1)
-      reference = max(abs(mbavolumebegin(imba)),abs(mbavolumeend(imba)),totals(1),totals(2))
+      reference = max(abs(p_mbavolumebegin(imba)),abs(mbavolumeend(imba)),totals(1),totals(2))
       if (reference .gt. tiny) then
          relative_error = 1.0d2*abs(totals(2)-totals(1))/reference
          write (lunbal, 2011) relative_error
@@ -986,7 +963,7 @@
          totals = zero
          write (lunbal, 1010) seconds_to_dhms(nint(timestart, long)), datestart, seconds_to_dhms(nint(timeend, long)), &
                               dateend, mbaname(imba), mbsname(imbs)
-         write (lunbal, 2000) mbamassbegin(imbs, imba), mbamassend(imbs, imba)
+         write (lunbal, 2000) p_mbamassbegin(imbs, imba), mbamassend(imbs, imba)
          if (imbs.le.numconst) then
             if (imbs == isalt) then
                write (lunbal, 1012)
@@ -995,8 +972,8 @@
             else
                write (lunbal, 1011)
             endif
-            if (mbavolumebegin(imba).gt.0.0) then
-               concbegin = mbamassbegin(imbs, imba) / mbavolumebegin(imba)
+            if (p_mbavolumebegin(imba).gt.0.0) then
+               concbegin = p_mbamassbegin(imbs, imba) / p_mbavolumebegin(imba)
             else
                concbegin = 0.0
             endif
@@ -1008,7 +985,7 @@
          else
             write (lunbal, 1014)
             if (mbaarea(imba).gt.0.0) then
-               concbegin = mbamassbegin(imbs, imba) / mbaarea(imba)
+               concbegin = p_mbamassbegin(imbs, imba) / mbaarea(imba)
                concend = mbamassend(imbs, imba) / mbaarea(imba)
             else
                concbegin = 0.0
@@ -1017,10 +994,10 @@
          endif
          write (lunbal, 2000) concbegin, concend
          write (lunbal, 1015) mbsname(imbs)
-         if (mbamassbegin(imbs, imba).gt.mbamassend(imbs, imba)) then
-            totals(1) = mbamassbegin(imbs, imba) - mbamassend(imbs, imba)
+         if (p_mbamassbegin(imbs, imba).gt.mbamassend(imbs, imba)) then
+            totals(1) = p_mbamassbegin(imbs, imba) - mbamassend(imbs, imba)
          else
-            totals(2) = mbamassend(imbs, imba) - mbamassbegin(imbs, imba)
+            totals(2) = mbamassend(imbs, imba) - p_mbamassbegin(imbs, imba)
          endif
          write (lunbal, 2002) totals
          if (imbs.le.numconst) then
@@ -1028,10 +1005,10 @@
             do jmba = 1, nomba
                if (mbalnused(imba,jmba).gt.0) then
                   if (jambalumpmba == 0) then
-                     totals = totals + mbafluxhor(1:2, imbs, imba, jmba)
-                     write (lunbal, 2001) mbabndname(jmba), mbafluxhor(1:2, imbs, imba, jmba)
+                     totals = totals + p_mbafluxhor(1:2, imbs, imba, jmba)
+                     write (lunbal, 2001) mbabndname(jmba), p_mbafluxhor(1:2, imbs, imba, jmba)
                   else
-                     lumptotals = lumptotals + mbafluxhor(1:2, imbs, imba, jmba)
+                     lumptotals = lumptotals + p_mbafluxhor(1:2, imbs, imba, jmba)
                      jalump = .true.
                   endif
                endif
@@ -1044,10 +1021,10 @@
             do jmba = nomba + 1, nombabnd
                if (mbalnused(imba,jmba).gt.0) then
                   if (jambalumpbnd == 0) then
-                     totals = totals + mbafluxhor(1:2, imbs, imba, jmba)
-                     write (lunbal, 2001) mbabndname(jmba), mbafluxhor(1:2, imbs, imba, jmba)
+                     totals = totals + p_mbafluxhor(1:2, imbs, imba, jmba)
+                     write (lunbal, 2001) mbabndname(jmba), p_mbafluxhor(1:2, imbs, imba, jmba)
                   else
-                     lumptotals = lumptotals + mbafluxhor(1:2, imbs, imba, jmba)
+                     lumptotals = lumptotals + p_mbafluxhor(1:2, imbs, imba, jmba)
                      jalump = .true.
                   endif
                endif
@@ -1060,19 +1037,19 @@
             do isrc = 1, numsrc
                if (mbasorsinout(1,isrc).eq.imba) then
                   if (jambalumpsrc == 0) then
-                     totals = totals + mbafluxsorsin(1:2, 1, imbs, isrc)
-                     write (lunbal, 2001) labelsourcesink//srcname(isrc), mbafluxsorsin(1:2, 1, imbs, isrc)
+                     totals = totals + p_mbafluxsorsin(1:2, 1, imbs, isrc)
+                     write (lunbal, 2001) labelsourcesink//srcname(isrc), p_mbafluxsorsin(1:2, 1, imbs, isrc)
                   else
-                     lumptotals = lumptotals + mbafluxsorsin(1:2, 1, imbs, isrc)
+                     lumptotals = lumptotals + p_mbafluxsorsin(1:2, 1, imbs, isrc)
                      jalump = .true.
                   endif
                endif
                if (mbasorsinout(2,isrc).eq.imba) then
                   if (jambalumpsrc == 0) then
-                     totals = totals + mbafluxsorsin(2:1:-1, 2, imbs, isrc)
-                     write (lunbal, 2001) labelsourcesink//srcname(isrc), mbafluxsorsin(2:1:-1, 2, imbs, isrc)
+                     totals = totals + p_mbafluxsorsin(2:1:-1, 2, imbs, isrc)
+                     write (lunbal, 2001) labelsourcesink//srcname(isrc), p_mbafluxsorsin(2:1:-1, 2, imbs, isrc)
                   else
-                     lumptotals = lumptotals + mbafluxsorsin(2:1:-1, 2, imbs, isrc)
+                     lumptotals = lumptotals + p_mbafluxsorsin(2:1:-1, 2, imbs, isrc)
                      jalump = .true.
                   endif
                endif
@@ -1083,8 +1060,8 @@
             endif
          endif
          if (imbs == itemp .and. jatem > 1) then
-            totals = totals + mbafluxheat(1:2, imba)
-            write (lunbal, 2001) labelheatflux, mbafluxheat(1:2, imba)
+            totals = totals + p_mbafluxheat(1:2, imba)
+            write (lunbal, 2001) labelheatflux, p_mbafluxheat(1:2, imba)
          endif
          isys = imbs2sys(imbs)
          lumptotals = zero ; jalump = .false.
@@ -1093,11 +1070,11 @@
                do iflux = ipfluxsys(isys) + 1, ipfluxsys(isys) + nfluxsys(isys)
                   jflux = fluxsys(iflux)
                   if(stochi(isys,jflux).ge.0.0) then
-                     flux(1) =  dble(stochi(isys,jflux)) * flxdmp(1,jflux, imba)
-                     flux(2) =  dble(stochi(isys,jflux)) * flxdmp(2,jflux, imba)
+                     flux(1) =  dble(stochi(isys,jflux)) * p_flxdmp(1,jflux, imba)
+                     flux(2) =  dble(stochi(isys,jflux)) * p_flxdmp(2,jflux, imba)
                   else
-                     flux(1) =  -dble(stochi(isys,jflux)) * flxdmp(2,jflux, imba)
-                     flux(2) =  -dble(stochi(isys,jflux)) * flxdmp(1,jflux, imba)
+                     flux(1) =  -dble(stochi(isys,jflux)) * p_flxdmp(2,jflux, imba)
+                     flux(2) =  -dble(stochi(isys,jflux)) * p_flxdmp(1,jflux, imba)
                   endif
                   if (jambalumpproc == 0) then
                      totals = totals + flux
@@ -1116,7 +1093,7 @@
          write (lunbal, 1004)
          write (lunbal, 2003) totals
          write (lunbal, 2020) mbsname(imbs), totals(2)-totals(1)
-         reference = max(abs(mbamassbegin(imbs,imba)),abs(mbamassend(imbs,imba)),totals(1),totals(2))
+         reference = max(abs(p_mbamassbegin(imbs,imba)),abs(mbamassend(imbs,imba)),totals(1),totals(2))
          if (reference .gt. tiny) then
             relative_error = 1.0d2*abs(totals(2)-totals(1))/reference
             write (lunbal, 2021) mbsname(imbs), relative_error
@@ -1129,7 +1106,7 @@
    ! Output for Whole model
    totals = zero
    summbaarea = sum(mbaarea)
-   summbavolumebegin = sum(mbavolumebegin)
+   summbavolumebegin = sum(p_mbavolumebegin)
    summbavolumeend = sum(mbavolumeend)
    write (lunbal, 1000) 'Whole model'
    write (lunbal, 1001) seconds_to_dhms(nint(timestart, long)), datestart, seconds_to_dhms(nint(timeend, long)), &
@@ -1151,12 +1128,12 @@
    lumptotals = zero ; jalump = .false.
    do jmba = nomba + 1, nombabnd
       if (jambalumpbnd==0) then
-         totals(1) = totals(1) + sum(mbaflowhor(1, :, jmba))
-         totals(2) = totals(2) + sum(mbaflowhor(2, :, jmba))
-         write (lunbal, 2001) mbabndname(jmba), sum(mbaflowhor(1, :, jmba)), sum(mbaflowhor(2, :, jmba))
+         totals(1) = totals(1) + sum(p_mbaflowhor(1, :, jmba))
+         totals(2) = totals(2) + sum(p_mbaflowhor(2, :, jmba))
+         write (lunbal, 2001) mbabndname(jmba), sum(p_mbaflowhor(1, :, jmba)), sum(p_mbaflowhor(2, :, jmba))
       else
-         lumptotals(1) = lumptotals(1) + sum(mbaflowhor(1, :, jmba))
-         lumptotals(2) = lumptotals(2) + sum(mbaflowhor(2, :, jmba))
+         lumptotals(1) = lumptotals(1) + sum(p_mbaflowhor(1, :, jmba))
+         lumptotals(2) = lumptotals(2) + sum(p_mbaflowhor(2, :, jmba))
          jalump = .true.
       endif
    end do
@@ -1169,18 +1146,18 @@
       if (mbasorsinout(1,isrc).gt.0) then
          if (jambalumpsrc == 0) then
             totals = totals + mbaflowsorsin(1:2, isrc)
-            write (lunbal, 2001) labelsourcesink//srcname(isrc), mbaflowsorsin(1:2, isrc)
+            write (lunbal, 2001) labelsourcesink//srcname(isrc), p_mbaflowsorsin(1:2, isrc)
          else
-            lumptotals = lumptotals + mbaflowsorsin(1:2, isrc)
+            lumptotals = lumptotals + p_mbaflowsorsin(1:2, isrc)
             jalump = .true.
          endif
       endif
       if (mbasorsinout(2,isrc).gt.0) then
          if (jambalumpsrc == 0) then
-            totals = totals + mbaflowsorsin(2:1:-1, isrc)
-            write (lunbal, 2001) labelsourcesink//srcname(isrc), mbaflowsorsin(2:1:-1, isrc)
+            totals = totals + p_mbaflowsorsin(2:1:-1, isrc)
+            write (lunbal, 2001) labelsourcesink//srcname(isrc), p_mbaflowsorsin(2:1:-1, isrc)
          else
-            lumptotals = lumptotals + mbaflowsorsin(2:1:-1, isrc)
+            lumptotals = lumptotals + p_mbaflowsorsin(2:1:-1, isrc)
             jalump = .true.
          endif
       endif
@@ -1190,13 +1167,13 @@
       write (lunbal, 2001) labellumpsrc, lumptotals
    endif
    if (jarain > 0) then
-      totals(1) = totals(1) + sum(mbaflowraineva(1, :))
-      totals(2) = totals(2) + sum(mbaflowraineva(2, :))
-      write (lunbal, 2001) labelraineva, sum(mbaflowraineva(1, :)), sum(mbaflowraineva(2, :))
+      totals(1) = totals(1) + sum(p_mbaflowraineva(1, :))
+      totals(2) = totals(2) + sum(p_mbaflowraineva(2, :))
+      write (lunbal, 2001) labelraineva, sum(p_mbaflowraineva(1, :)), sum(p_mbaflowraineva(2, :))
    endif
    if (jaevap > 0 .and. jatem > 3) then
-      totals(2) = totals(2) + sum(mbafloweva(:))
-      write (lunbal, 2001) labeleva, 0.0d0, sum(mbafloweva(:))
+      totals(2) = totals(2) + sum(p_mbafloweva(:))
+      write (lunbal, 2001) labeleva, 0.0d0, sum(p_mbafloweva(:))
    endif
    write (lunbal, 1004)
    write (lunbal, 2003) totals
@@ -1212,7 +1189,7 @@
       totals = zero
       write (lunbal, 1010) seconds_to_dhms(nint(timestart, long)), datestart, seconds_to_dhms(nint(timeend, long)), &
                            dateend, 'Whole model', mbsname(imbs)
-      summbamassbegin = sum(mbamassbegin(imbs, :))
+      summbamassbegin = sum(p_mbamassbegin(imbs, :))
       summbamassend = sum(mbamassend(imbs, :))
       write (lunbal, 2000) summbamassbegin, summbamassend
       if(imbs.le.numconst) then
@@ -1249,12 +1226,12 @@
          lumptotals = zero ; jalump = .false.
          do jmba = nomba + 1, nombabnd
             if (jambalumpbnd == 0) then
-               totals(1) = totals(1) + sum(mbafluxhor(1, imbs, :, jmba))
-               totals(2) = totals(2) + sum(mbafluxhor(2, imbs, :, jmba))
-               write (lunbal, 2001) mbabndname(jmba), sum(mbafluxhor(1, imbs, :, jmba)), sum(mbafluxhor(2, imbs, :, jmba))
+               totals(1) = totals(1) + sum(p_mbafluxhor(1, imbs, :, jmba))
+               totals(2) = totals(2) + sum(p_mbafluxhor(2, imbs, :, jmba))
+               write (lunbal, 2001) mbabndname(jmba), sum(p_mbafluxhor(1, imbs, :, jmba)), sum(p_mbafluxhor(2, imbs, :, jmba))
             else
-               lumptotals(1) = lumptotals(1) + sum(mbafluxhor(1, imbs, :, jmba))
-               lumptotals(2) = lumptotals(2) + sum(mbafluxhor(2, imbs, :, jmba))
+               lumptotals(1) = lumptotals(1) + sum(p_mbafluxhor(1, imbs, :, jmba))
+               lumptotals(2) = lumptotals(2) + sum(p_mbafluxhor(2, imbs, :, jmba))
                jalump = .true.
             endif
          end do
@@ -1266,19 +1243,19 @@
          do isrc = 1, numsrc
             if (mbasorsinout(1,isrc).gt.0) then
                if (jambalumpsrc == 0) then
-                  totals = totals + mbafluxsorsin(1:2, 1, imbs, isrc)
-                  write (lunbal, 2001) labelsourcesink//srcname(isrc), mbafluxsorsin(1:2, 1, imbs, isrc)
+                  totals = totals + p_mbafluxsorsin(1:2, 1, imbs, isrc)
+                  write (lunbal, 2001) labelsourcesink//srcname(isrc), p_mbafluxsorsin(1:2, 1, imbs, isrc)
                else
-                  lumptotals = lumptotals + mbafluxsorsin(1:2, 1, imbs, isrc)
+                  lumptotals = lumptotals + p_mbafluxsorsin(1:2, 1, imbs, isrc)
                   jalump = .true.
                endif
             endif
             if (mbasorsinout(2,isrc).gt.0) then
                if (jambalumpsrc == 0) then
-                  totals = totals + mbafluxsorsin(2:1:-1, 2, imbs, isrc)
-                  write (lunbal, 2001) labelsourcesink//srcname(isrc), mbafluxsorsin(2:1:-1, 2, imbs, isrc)
+                  totals = totals + p_mbafluxsorsin(2:1:-1, 2, imbs, isrc)
+                  write (lunbal, 2001) labelsourcesink//srcname(isrc), p_mbafluxsorsin(2:1:-1, 2, imbs, isrc)
                else
-                  lumptotals = lumptotals + mbafluxsorsin(2:1:-1, 2, imbs, isrc)
+                  lumptotals = lumptotals + p_mbafluxsorsin(2:1:-1, 2, imbs, isrc)
                   jalump = .true.
                endif
             endif
@@ -1289,9 +1266,9 @@
          endif
       endif
       if (imbs == itemp .and. jatem > 1) then
-         totals(1) = totals(1) + sum(mbafluxheat(1, :))
-         totals(2) = totals(2) + sum(mbafluxheat(2, :))
-         write (lunbal, 2001) labelheatflux, sum(mbafluxheat(1, :)), sum(mbafluxheat(2, :))
+         totals(1) = totals(1) + sum(p_mbafluxheat(1, :))
+         totals(2) = totals(2) + sum(p_mbafluxheat(2, :))
+         write (lunbal, 2001) labelheatflux, sum(p_mbafluxheat(1, :)), sum(p_mbafluxheat(2, :))
       endif
       isys = imbs2sys(imbs)
       lumptotals = zero ; jalump = .false.
@@ -1300,11 +1277,11 @@
             do iflux = ipfluxsys(isys) + 1, ipfluxsys(isys) + nfluxsys(isys)
                jflux = fluxsys(iflux)
                if(stochi(isys,jflux).ge.0.0) then
-                  flux(1) =  dble(stochi(isys,jflux)) * sum(flxdmp(1,jflux, :))
-                  flux(2) =  dble(stochi(isys,jflux)) * sum(flxdmp(2,jflux, :))
+                  flux(1) =  dble(stochi(isys,jflux)) * sum(p_flxdmp(1,jflux, :))
+                  flux(2) =  dble(stochi(isys,jflux)) * sum(p_flxdmp(2,jflux, :))
                else
-                  flux(1) =  -dble(stochi(isys,jflux)) * sum(flxdmp(2,jflux, :))
-                  flux(2) =  -dble(stochi(isys,jflux)) * sum(flxdmp(1,jflux, :))
+                  flux(1) =  -dble(stochi(isys,jflux)) * sum(p_flxdmp(2,jflux, :))
+                  flux(2) =  -dble(stochi(isys,jflux)) * sum(p_flxdmp(1,jflux, :))
                endif
                if (jambalumpproc == 0) then
                   totals = totals + flux
@@ -1382,12 +1359,14 @@
 
    end subroutine mba_write_bal_time_step
 
-   subroutine mba_write_csv_time_step(luncsvm, luncsvmb, timestart, timeend, datestart, dateend, numconst, notot, nombs, imbs2sys, nomba, &
-                                      nopenbndsect,  nombabnd, nflux, totfluxsys, mbsname, mbaname, openbndname, mbalnused, numsrc, &
-                                      srcname, mbasorsinout, mbaarea, mbavolumebegin, mbavolumeend, mbaflowhor, mbaflowsorsin, &
-                                      mbaflowraineva, mbafloweva, mbamassbegin, mbamassend, mbafluxhor, mbafluxsorsin, mbafluxheat, &
-                                      flxdmp, stochi, fluxname, nfluxsys, ipfluxsys, fluxsys, jarain, jaevap, jatem, isalt, itemp, &
-                                      jambalumpmba, jambalumpbnd, jambalumpsrc, jambalumpproc)
+   subroutine mba_write_csv_time_step(luncsvm, luncsvmb, timestart, timeend, datestart, dateend )
+
+   use m_mass_balance_areas
+   use m_fm_wq_processes, ifluxdummy => iflux
+   use m_flowparameters, only: jatem, jambawritecsv, jambalumpmba, jambalumpbnd, jambalumpsrc, jambalumpproc
+   use m_flowexternalforcings, only: numsrc, srcname, nopenbndsect, openbndname
+   use m_wind, only: jarain, jaevap
+   use m_transport, only: numconst, isalt, itemp
 
    implicit none
 
@@ -1398,59 +1377,6 @@
    double precision            :: timeend                   ! end time of balance period (s)
    character(len=19)           :: datestart                 ! start date of balance period
    character(len=19)           :: dateend                   ! end date of balance period
-   integer                     :: numconst                  ! Number of constituents
-   integer                     :: nombs                     ! Number of mass balances
-   integer                     :: nomba                     ! Number of balance areas
-   integer                     :: notot                     ! Number of WAQ sustances
-   integer                     :: imbs2sys(nombs)           ! mass balance number to WAQ substance (0=not a WAQ substance)
-   integer                     :: nopenbndsect              ! Number of boundaries
-   integer                     :: nombabnd                  ! Number of balance areas and boundaries
-   integer                     :: nflux                     ! number of fluxes
-   integer                     :: totfluxsys                ! total number of fluxes for all sustances
-
-   character(*)                :: mbsname(nombs)            ! mass balance names
-   character(*)                :: mbaname(nomba)            ! mass balance area names
-   character(*)                :: openbndname(nombabnd)      ! mass balance area exchange names
-
-   integer                     :: mbalnused(nomba,nombabnd) ! number of links between mda and mbabnd that are actually active
-
-   integer                     :: numsrc                    ! nr of point sources/sinks
-   character(len=255)          :: srcname(numsrc)           ! sources/sinks name (numsrc)
-   integer                     :: mbasorsinout(2,numsrc)    ! (reduced) mba for each side of a source sink
-
-   double precision            :: mbaarea(nomba)            ! surface area of mass balance area
-
-   double precision            :: mbavolumebegin(nomba)     ! begin volume in mass balance area
-   double precision            :: mbavolumeend(nomba)       ! end volume in mass balance area
-   double precision            :: mbaflowhor(2,nombabnd,nombabnd) ! periodical flows between balance areas and between boundaries and balance areas
-   double precision            :: mbaflowsorsin(2,numsrc)   ! periodical flow from source sinks
-   double precision            :: mbaflowraineva(2,nomba)   ! periodical flow from rain and forced evaportion
-   double precision            :: mbafloweva(nomba)       ! periodical flow from calculated evaportion
-
-   double precision            :: mbamassbegin(nombs,nomba) ! begin volume in mass balance area
-   double precision            :: mbamassend(nombs,nomba)   ! end volume in mass balance area
-   double precision            :: mbafluxhor(2,numconst,nombabnd,nombabnd) ! periodical fluxes between balance areas and between boundaries and balance areas
-   double precision            :: mbafluxsorsin(2,2,numconst,numsrc) ! periodical fluxes from source sinks
-   double precision            :: mbafluxheat(2,nomba)      ! temperature rheat flux
-
-   double precision            :: flxdmp(2,nflux, nomba)
-   real                        :: stochi(notot,nflux)
-   character(10)               :: fluxname(nflux)
-
-   integer                     :: nfluxsys(notot)
-   integer                     :: ipfluxsys(notot)
-   integer                     :: fluxsys(totfluxsys)
-
-   integer                     :: jarain                    ! use rain yes or no
-   integer                     :: jaevap                    ! use evaporation yes or no
-   integer                     :: jatem                     ! Temperature model (0=no, 5=heatfluxmodel)
-   integer                     :: isalt                     ! constituent that is salt
-   integer                     :: itemp                     ! constituent that is temperature
-
-   integer                     :: jambalumpmba              ! Lump MBA from/to other areas mass balance terms
-   integer                     :: jambalumpbnd              ! Lump MBA boundary mass balance terms
-   integer                     :: jambalumpsrc              ! Lump MBA source/sink mass balance terms
-   integer                     :: jambalumpproc             ! Lump MBA processes mass balance terms
 
    character(len=20), external :: seconds_to_dhms
    integer :: imbs, imba, jmba, isrc, isys, iflux, jflux, ifluxsys
@@ -1837,7 +1763,7 @@
    return
 
 1  format (a',',a',',a',',a',')
-2  format (a,es16.8e3,',',es16.8e3,',',es16.8e3)
+2  format (a,es16.8e3,',',es16.8e3)
 3  format (a,a',',a',',es16.8e3,',',es16.8e3,',',es16.8e3)
 
    end subroutine mba_write_csv_time_step

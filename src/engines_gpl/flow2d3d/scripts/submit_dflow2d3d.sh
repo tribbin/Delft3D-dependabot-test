@@ -6,6 +6,10 @@
     # This script runs Delft3D-FLOW in parallel on Linux
     # Adapt and use it for your own purpose
     #
+    # Usage example:
+    # Execute in the working directory:
+    # /path/to/delft3d/installation/lnx64/bin/submit_dflow2d3d.sh
+    # More examples: check run scripts in https://git.deltares.nl/oss/delft3d/-/tree/main/examples/*
 
 function print_usage_info {
     echo "Usage: ${0##*/} [OPTION]..."
@@ -23,7 +27,7 @@ function print_usage_info {
     echo "-n, --numnode <N>"
     echo "       number of nodes, default 1"
     echo "-q, --queue <qname>"
-    echo "       queue, default normal-e3"
+    echo "       queue, default normal-e3-c7"
     echo "--rtc"
     echo "       Online with RTC. Not possible with parallel Delft3D-FLOW."
     echo "-w, --wavefile <wname>"
@@ -44,7 +48,7 @@ corespernode=$corespernodedefault
 D3D_HOME=
 JOBNAME=Delft3D4-FLOW
 numnode=1
-queue=normal-e3
+queue=normal-e3-c7
 runscript_extraopts=
 wavefile=runwithoutwaveonlinebydefault
 withrtc=false
@@ -58,52 +62,52 @@ ulimit -s unlimited
 
 while [[ $# -ge 1 ]]
 do
-key="$1"
-shift
+    key="$1"
+    shift
 
-case $key in
-    -c|--corespernode)
-    corespernode=$1
-    shift
-    ;;
-    -h|--help)
-    print_usage_info
-    ;;
-    -n|--numnode)
-    numnode="$1"
-    shift
-    ;;
-    -q|--queue)
-    queue="$1"
-    shift
-    ;;
-    --rtc)
-    withrtc=true
-    shift
-    ;;
-    -w|--wavefile)
-    wavefile="$1"
-    shift
-    ;;
-    -j|--jobname)
-    JOBNAME="$1"
-    shift
-    ;;
-    -m|--masterfile)
-    configfile="$1"
-    shift
-    ;;
-    --)
-    echo "-- sign detected, remained options are going to be passed to dimr"
-    runscript_extraopts="$runscript_extraopts $*"
-    break       # exit loop, stop shifting, all remaining arguments without dashes handled below
-    ;;
-    -*)
-    echo "option ${key} seems dedicated for dimr, therefore passing it and the following ones to the dimr"
-    runscript_extraopts="$key $*"
-    break       # exit loop, $key+all remaining options to dflowfm executable
-    ;;
-esac
+    case $key in
+        -c|--corespernode)
+        corespernode=$1
+        shift
+        ;;
+        -h|--help)
+        print_usage_info
+        ;;
+        -n|--numnode)
+        numnode="$1"
+        shift
+        ;;
+        -q|--queue)
+        queue="$1"
+        shift
+        ;;
+        --rtc)
+        withrtc=true
+        shift
+        ;;
+        -w|--wavefile)
+        wavefile="$1"
+        shift
+        ;;
+        -j|--jobname)
+        JOBNAME="$1"
+        shift
+        ;;
+        -m|--masterfile)
+        configfile="$1"
+        shift
+        ;;
+        --)
+        echo "-- sign detected, remained options are going to be passed to dimr"
+        runscript_extraopts="$runscript_extraopts $*"
+        break       # exit loop, stop shifting, all remaining arguments without dashes handled below
+        ;;
+        -*)
+        echo "option ${key} seems dedicated for dimr, therefore passing it and the following ones to the dimr"
+        runscript_extraopts="$key $*"
+        break       # exit loop, $key+all remaining options to dflowfm executable
+        ;;
+    esac
 done
 
 
@@ -134,7 +138,7 @@ echo "    nr of partitions          : $numnode"
 echo "    nr of partitions per node : $corespernode"
 echo "    Queue                     : $queue"
 echo "    Job name                  : $JOBNAME"
-echo 
+echo
 
     #
     # Set the directories containing the binaries

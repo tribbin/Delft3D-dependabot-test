@@ -1,6 +1,6 @@
 !----- GPL ---------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2021.                                
+!  Copyright (C)  Stichting Deltares, 2011-2023.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify         
 !  it under the terms of the GNU General Public License as published by         
@@ -23,8 +23,8 @@
 !  are registered trademarks of Stichting Deltares, and remain the property of  
 !  Stichting Deltares. All rights reserved.                                     
 !                                                                               
-!  $Id$
-!  $HeadURL$
+!  
+!  
 
 
 module m_ec_bcreader
@@ -101,7 +101,9 @@ contains
           allocate(bc%columns(bc%numcols))
        endif
     case (BC_FTYPE_NETCDF)
-       if (.not.ecNetCDFscan(bc%ncptr, quantityName, plilabel, bc%ncvarndx, bc%nclocndx, bc%dimvector)) then
+       allocate(bc%ncvarndx(1))
+       if (.not.ecNetCDFscan(bc%ncptr, quantityName, plilabel, bc%ncvarndx, bc%nclocndx, &
+                              bc%dimvector, vectormax=bc%quantity%vectormax)) then
           return                                               ! quantityName-plilabel combination not found
        endif
        if (bc%numlay<=1) then
@@ -111,16 +113,12 @@ contains
        endif
        ! TODO:
        ! Support specification of the time-interpolation type in the netcdf timeseries variable as an attribute
-       bc%timeunit = bc%ncptr%timeunit
-       bc%timeint = BC_TIMEINT_LIN   
-       bc%quantity%name = quantityName
-       bc%quantity%missing = bc%ncptr%fillvalues(bc%ncvarndx)
-       bc%quantity%factor = bc%ncptr%scales(bc%ncvarndx)
-       bc%quantity%offset = bc%ncptr%offsets(bc%ncvarndx)
-       !  Set vector of dimensions for the found variable to 1
-       ! For the time being we only allow scalars to be read from netCDF variables
-       ! TODO: Introduce the vector-attribute (string) similar to the bc-format, composing a vector from scalar variables
-       bc%quantity%vectormax = 1
+       bc%timeunit         = bc%ncptr%timeunit
+       bc%timeint          = BC_TIMEINT_LIN   
+       bc%quantity%name    = quantityName
+       bc%quantity%missing = bc%ncptr%fillvalues(bc%ncvarndx(1))
+       bc%quantity%factor  = bc%ncptr%scales(bc%ncvarndx(1))
+       bc%quantity%offset  = bc%ncptr%offsets(bc%ncvarndx(1))
     case default
        call setECMessage("Forcing file ("//trim(bc%fname)//") should either be of type .nc (netcdf timeseries file) or .bc (ascii BC-file).")
        return
@@ -540,10 +538,12 @@ contains
              bc%timeint = BC_TIMEINT_BTO
           case ('BLOCK-FROM')
              bc%timeint = BC_TIMEINT_BFROM
-          case ('BLOCK')
+          case ('BLOCK', 'BLOCKTO', 'BLOCKFROM')
              call setECMessage("Unknown time interpolation Block in file "//trim(bc%fname)//", block " &
                                 //trim(bc%bcname)//". Use Block-To or Block-From.")
              return
+          case ('AMOUNTTORATE')
+             bc%timeint = BC_TIMEINT_AMOUNT_TO_RATE
           case default
              call setECMessage("Unknown time interpolation '"//trim(adjustl(hdrvals(ifld)%s))//           &
                                 "' in file "//trim(bc%fname)//", block "//trim(bc%bcname)//".") 
@@ -573,7 +573,7 @@ contains
              return
           end select
        case ('VERTICALPOSITIONTYPE','VERTPOSITIONTYPE')
-          IF (index(hdrvals(ifld)%s,'PERCEN')+index(hdrvals(ifld)%s,'BED')>0) then
+          IF (index(hdrvals(ifld)%s,'PERCEN')>0 .and. index(hdrvals(ifld)%s,'BED')>0) then
              hdrvals(ifld)%s = 'PERCBED'
           endif
           select case (adjustl(hdrvals(ifld)%s))
@@ -596,6 +596,17 @@ contains
                                 "' in file "//trim(bc%fname)//", block "//trim(bc%bcname)//".") 
              return
           end select
+       case default
+           ! Give a warning/error if the key that looks like one of the keys
+           ! related to vertical positions is used, but is not recoqnized.
+           ! Note that key "NAME" is ignored here.
+           if (index(hdrkeys(ifld)%s, "VERT") > 0 .and. index(hdrkeys(ifld)%s, "POS") > 0) then
+               call setECMessage("Unknown keyword '"//trim(adjustl(hdrkeys(ifld)%s))//           &
+                                "' in file "//trim(bc%fname)//", block "//trim(bc%bcname)//".")
+               call setECMessage("Use one of: 'VERTICALPOSITION', 'VERTPOSITIONINDEX', " // &
+                                              "'VERTICALPOSITIONSPECIFICATION', 'VERTPOSITIONS'")
+               return
+           end if
        end select
     enddo
 
@@ -872,7 +883,8 @@ contains
           call setECMessage("Datablock end (eof) has been reached in file: "//trim(bcPtr%fname))
           return
        endif
-       if (.not.ecNetCDFGetTimeseriesValue (BCPtr%ncptr,BCPtr%ncvarndx,BCPtr%nclocndx,BCPtr%dimvector,BCPtr%nctimndx,ec_timesteps,values)) then
+       if (.not.ecNetCDFGetTimeseriesValue (BCPtr%ncptr,BCPtr%ncvarndx,BCPtr%nclocndx,BCPtr%dimvector, &
+          BCPtr%nctimndx,ec_timesteps,values, BCPtr%buffer)) then
           call setECMessage("Read failure in file: "//trim(bcPtr%fname))
           return
        else

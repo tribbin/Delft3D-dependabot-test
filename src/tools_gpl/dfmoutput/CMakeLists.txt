@@ -1,63 +1,49 @@
 # Set directories
 # Set the directory of where the source code is located.
 set(src_path src)
+set(res_path res)
 # Set version file variables
-# Note that the CMAKE_CURRENT_SOURCE_DIR has a path to THIS CMakeLists location
-set(ini_version_file ${CMAKE_CURRENT_SOURCE_DIR}/res/version_number.ini)
 
-# Generate the version files
-set(fortran_version_file ${CMAKE_CURRENT_SOURCE_DIR}/src/dfmoutput_version.F90)
-generate_version_files(${fortran_version_file} ${checkout_src_root} ${ini_version_file})
-
+set(rc_version_file ${res_path}/dfmoutput_version.rc)
+set(version_include_dir ${CMAKE_SOURCE_DIR}/../version_includes)
+set(fortran_version_files ${src_path}/dfmoutput_version.F90
+                          ${src_path}/dfmoutput_static_version_info.F90)
+set_source_files_properties(${fortran_version_files}
+                            PROPERTIES COMPILE_OPTIONS "${file_preprocessor_flag}")
 # Gather the source files
 get_fortran_source_files(${src_path} sources)
 
-                            
 # Define the executable
 set(executable_name dfmoutput)
-add_executable(${executable_name} ${sources} ${fortran_version_file})
-
-# Define prebuild event
-prebuild_version_number(${executable_name} ${fortran_version_file} 
-                                        ${checkout_src_root} 
-                                        ${ini_version_file})
+add_executable(${executable_name} ${sources} ${rc_version_file})
 
 # Add dependencies
 if (UNIX)
     # the `pkg_check_modules` function is created with this call
     find_package(PkgConfig REQUIRED)
 
-    # these calls create special `PkgConfig::<MODULE>` variables
-    pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET netcdf)
-    pkg_check_modules(NETCDF_FTN REQUIRED IMPORTED_TARGET netcdf-fortran)
-    pkg_check_modules(PROJ REQUIRED IMPORTED_TARGET proj)
-
-    set(oss_dependencies deltares_common 
-                         io_netcdf 
-                         FLAP 
-                         fortranc 
-                         fortrangis
-                         shp)
+    set(oss_dependencies deltares_common
+                         gridgeom
+                         io_netcdf
+                         io_netcdf_data
+                         FLAP
+                         netcdf4
+                         netcdff)
 
     oss_include_libraries(${executable_name} oss_dependencies)
 
     target_link_libraries(${executable_name}
-         ${oss_dependencies}
-         PkgConfig::NETCDF
-         PkgConfig::NETCDF_FTN
-         PkgConfig::PROJ)
+                          ${oss_dependencies})
 endif(UNIX)
 
 if (WIN32)
     set(oss_dependencies deltares_common
+                         gridgeom
                          io_netcdf
+                         io_netcdf_data
                          FLAP
-                         fortranc
-                         fortrangis
                          netcdf4
-                         netcdff
-                         proj
-                         shp)
+                         netcdff)
 
     oss_include_libraries(${executable_name} oss_dependencies)
     target_link_libraries(${executable_name} ${oss_dependencies})
@@ -65,10 +51,13 @@ endif(WIN32)
 
 if(UNIX)
     message(STATUS "netcdf lib dir is ${NETCDF_LIBRARY_DIRS}")
-    target_link_directories(${executable_name} PRIVATE ${NETCDF_LIBRARY_DIRS})
+    #target_link_directories(${executable_name} PRIVATE ${NETCDF_LIBRARY_DIRS})
 
-    message(STATUS "Setting target_compile_definitions in Unix")    
+    message(STATUS "Setting target_compile_definitions in Unix")
    set_property(TARGET ${executable_name} PROPERTY LINKER_LANGUAGE Fortran)
+
+      include_directories(${version_include_dir}
+					      ${res_path})
 endif(UNIX)
 
 if (WIN32)
@@ -76,26 +65,27 @@ if (WIN32)
 endif(WIN32)
 
 # Set additional compilation properties, specific for Debug mode
-target_compile_options(${executable_name} PRIVATE "$<$<CONFIG:Debug>:${check_bounds_flag}>")
+target_compile_options(${executable_name} PRIVATE "$<$<CONFIG:Debug>:${check_pointers_flag}>")
+target_compile_options(${executable_name} PRIVATE "$<$<CONFIG:Debug>:${floating_point_exception_flag}>")
 
 set_source_files_properties(${fortran_version_file}
                             PROPERTIES COMPILE_OPTIONS "${file_preprocessor_flag}")
 
-target_link_libraries(${executable_name} netcdf)
+#target_link_libraries(${executable_name} netcdf)
 
 if (WIN32)
-    include_directories(${gisinternals_path}
-                        ${mpich2_path}
-                        ${tecplot_path})
-                        
+    include_directories(${mpi_include_path}
+                        ${tecplot_path}
+						${version_include_dir}
+					    ${res_path})
+
 
     # Set linker properties
     message(STATUS "Setting linker properties in windows")
     target_link_directories(${executable_name}
                             PRIVATE
-                            ${gisinternals_path}
-                            "${checkout_src_root}/third_party_open/mpich2/x64/lib"
-                            "${checkout_src_root}/third_party_open/netcdf/netCDF 4.6.1/lib"
+                            "${mpi_library_path}"
+                            "${checkout_src_root}/third_party_open/netcdf/${netcdf_version}/lib"
                             "${checkout_src_root}/third_party_open/pthreads/bin/x64"
                             "${checkout_src_root}/third_party_open/Tecplot/lib/x64")
 
@@ -104,18 +94,17 @@ if (WIN32)
                           "wsock32.lib"
                           "netapi32.lib"
                           "kernel32.lib"
-                          "user32.lib" 
+                          "user32.lib"
                           "Shlwapi.lib"
                           "Gdi32.lib"
                           "Winspool.lib"
                           "netcdf.lib"
                           "pthreadVC2.lib"
-                          "fmpich2.lib"
-                          "gdal_i.lib"
+                          "${mpi_fortran_library}"
                           "tecio.lib")
 
     message(STATUS "Setting target_compile_definitions in windows")
-    target_compile_definitions(${executable_name} PRIVATE "WIN32;HAVE_DISPLAY=0;HAVE_METIS;HAVE_POLYPACK;HAVE_MPI;HAVE_PROJ;HAVE_SHAPELIB;HAVE_GDAL;HAVE_PETSC")
+    target_compile_definitions(${executable_name} PRIVATE "WIN32;HAVE_DISPLAY=0;HAVE_METIS;HAVE_POLYPACK;HAVE_MPI;HAVE_PETSC")
 
     # Set linker options
     message(STATUS "Setting target_link_options in windows")
@@ -133,7 +122,7 @@ set(install_dir ${CMAKE_BINARY_DIR})
 set(build_dir ${CMAKE_BINARY_DIR})
 
 post_build_target (${executable_name}
-                   ${install_dir} 
-                   ${build_dir} 
-                   ${checkout_src_root} 
+                   ${install_dir}
+                   ${build_dir}
+                   ${checkout_src_root}
                    ${executable_name})

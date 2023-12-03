@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine setkfs()                                 ! set kfs
  use m_flow
@@ -37,7 +37,7 @@
 
  implicit none
 
- integer :: i, L, LL
+ integer :: L
  integer :: n, kb, ki, ndn
 
  kfs = 0
@@ -52,7 +52,7 @@
  if (ivariableteta<=1) then                          ! fully implicit and teta=constant
 
     do L=1,lnx                                       ! implicit points
-       if (hu(L)> 0) then
+       if (hu(L)>0d0) then                            ! if you want hs==0 in dry points, you need hu>epshu here
            kfs(ln(1,L))=1
            kfs(ln(2,L))=1
        endif
@@ -61,7 +61,7 @@
  else                                                ! set kfs ic. teta; 0=not, 1 =impl, 2 = expl
 
     do L=1,lnx                                       ! explicit points
-       if (hu(L)> 0) then
+       if (hu(L)>0d0) then
            if (teta(L) == 0) then
               kfs(ln(1,L))=2
               kfs(ln(2,L))=2

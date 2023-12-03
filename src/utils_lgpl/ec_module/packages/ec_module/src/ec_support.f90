@@ -1,6 +1,6 @@
 !----- LGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2011-2021.
+!  Copyright (C)  Stichting Deltares, 2011-2023.
 !
 !  This library is free software; you can redistribute it and/or
 !  modify it under the terms of the GNU Lesser General Public
@@ -23,8 +23,8 @@
 !  are registered trademarks of Stichting Deltares, and remain the property of
 !  Stichting Deltares. All rights reserved.
 
-!  $Id$
-!  $HeadURL$
+!  
+!  
 
 !> This module contains support methods for the EC-module.
 !! @author adri.mourits@deltares.nl
@@ -36,7 +36,7 @@ module m_ec_support
    use m_alloc
    use string_module
    use m_ec_parameters
-   use time_module
+   use time_module, only: ymd2modified_jul, mjd2date, split_date_time, parse_time
 
    implicit none
 
@@ -47,8 +47,6 @@ module m_ec_support
    public :: ecGetTimesteps
    public :: ecSupportOpenExistingFile
    public :: ecSupportOpenExistingFileGnu
-   public :: ecSupportAddUniqueInt
-   public :: ecSupportAddUniqueChar
    public :: ecSupportFindItemByQuantityLocation
    public :: ecSupportFindItem
    public :: ecSupportFindQuantity
@@ -106,15 +104,11 @@ module m_ec_support
          real(hp),                   intent(in)  :: timestamp_mjd       !< number of time steps
          integer,                    intent(out) :: yyyymmdd            !< calculated Gregorian date
          integer,                    intent(out) :: hhmmss              !< time of the day
-         real(hp)                                :: dsec                !< fraction of seconds
-         integer                                 :: hh, mm, ss          !< hours, minutes, seconds helper variables
-         integer                                 :: iyear, imonth, iday !< year, month and day
 
-         !! TODO very ugly to add offset_reduced_jd here
-         call gregor(timestamp_mjd + offset_reduced_jd, iyear, imonth, iday, hh, mm, ss, dsec)
-
-         yyyymmdd = 10000 * iyear + 100 * imonth + iday
-         hhmmss = 10000 * hh + 100 * mm + ss
+         success = .false.
+         if (mjd2date(timestamp_mjd, yyyymmdd, hhmmss) /= 0) then
+            success = .true.
+         endif
 
          success = .true.
 
@@ -253,102 +247,8 @@ module m_ec_support
          endif
       end function ecSupportOpenExistingFile
 
-      ! ==========================================================================
 
-      !> Add an integer to a set of integers.
-      function ecSupportAddUniqueInt(intArr, anInt) result(success)
-         logical                        :: success!< function status
-         integer, dimension(:), pointer :: intArr !< array containing unique integers (a set)
-         integer, intent(in)            :: anInt  !< integer to be added to the set of integers
-
-         integer                        :: i         !< loop counter
-         integer                        :: istat     !< deallocate() status
-         integer                        :: lenArr    !< lenght of intArr
-         integer, dimension(:), pointer :: newIntArr !< larger version of intArr
-
-         success = .false.
-         newIntArr => null()
-         i = 0
-         istat = 1
-         lenArr = 0
-
-         if (.not. associated(intArr)) then
-            call setECMessage("ec_support::ecSupportAddUniqueInt: Dummy argument pointer intArr is not associated.")
-         else
-            lenArr = size(intArr)
-            do i=1, lenArr
-               if (intArr(i) == anInt) then
-                  ! This integer is already in intArr
-                  success = .true.
-                  return
-               endif
-            enddo
-            ! This integer is not yet in intArr, so add it.
-            allocate(newIntArr(lenArr+1), STAT = istat)
-            if (istat /= 0 ) then
-               call setECMessage("ec_support::ecSupportAddUniqueInt: Unable to allocate additional memory.")
-            else
-               do i=1, lenArr
-                  newIntArr(i) = intArr(i) ! Copy existing integers.
-               enddo
-               newIntArr(lenArr+1) = anInt ! Add the new integer.
-               deallocate(intArr, STAT = istat)
-               if (istat /= 0 ) then
-                  call setECMessage("WARNING: ec_support::ecSupportAddUniqueInt: Unable to deallocate old memory.")
-               end if
-               intArr => newIntArr
-               success = .true.
-            end if
-         endif
-      end function ecSupportAddUniqueInt
-
-      ! ==========================================================================
-
-      !> Add a char to a set of chars.
-      function ecSupportAddUniqueChar(charArr, aChar) result(success)
-         logical                                             :: success !< function status
-         character(len=maxNameLen), dimension(:), pointer    :: charArr !< array containing unique chars (a set)
-         character(len=*),                        intent(in) :: aChar   !< char to be added to the set of chars
-         !
-         integer                                          :: i          !< loop counter
-         integer                                          :: istat      !< deallocate() status
-         integer                                          :: lenArr     !< lenght of charArr
-         character(len=maxNameLen), dimension(:), pointer :: newCharArr !< larger version of charArr
-         !
-         success = .false.
-         newCharArr => null()
-         i = 0
-         istat = 1
-         lenArr = 0
-         !
-         !if (.not. associated(charArr)) then
-         !   reallocP(charArr, 1, STAT = istat)
-         !   if (istat == 0) then
-         !      charArr(1) = aChar
-         !   else
-         !      call setECMessage("ec_support::ecSupportAddUniqueChar: Unable to allocate additional memory.")
-         !   end if
-         !   return
-         !end if
-         !!
-         !lenArr = size(charArr)
-         !do i=1, lenArr
-         !   if (charArr(i) == aChar) then
-         !      ! This char is already in charArr
-         !      success = .true.
-         !      return
-         !   endif
-         !enddo
-         !! This char is not yet in charArr, so add it.
-         !reallocP(charArr, lenArr+1, STAT = istat)
-         !if (istat == 0) then
-         !   charArr(lenArr+1) = aChar
-         !   success = .true.
-         !else
-         !   call setECMessage("ec_support::ecSupportAddUniqueChar: Unable to allocate additional memory.")
-         !end if
-      end function ecSupportAddUniqueChar
-
+      !
       ! =======================================================================
       ! Find methods
       ! =======================================================================
@@ -359,16 +259,10 @@ module m_ec_support
          type(tEcInstance), pointer            :: instancePtr !< intent(in)
          integer,                   intent(in) :: quantityId  !< unique Quantity id
          !
-         integer :: i !< loop counter
-         !
          quantityPtr => null()
          !
          if (associated(instancePtr)) then
-            do i=1, instancePtr%nQuantities
-               if (instancePtr%ecQuantitiesPtr(i)%ptr%id == quantityId) then
-                  quantityPtr => instancePtr%ecQuantitiesPtr(i)%ptr
-               end if
-            end do
+            quantityPtr => instancePtr%ecQuantitiesPtr(quantityId)%ptr
          else
             call setECMessage("ec_support::ecSupportFindQuantity: Dummy argument instancePtr is not associated.")
          end if
@@ -421,16 +315,10 @@ module m_ec_support
          type(tEcInstance),   pointer            :: instancePtr   !< intent(in)
          integer,                     intent(in) :: elementSetId  !< unique ElementSet id
          !
-         integer :: i !< loop counter
-         !
          elementSetPtr => null()
          !
          if (associated(instancePtr)) then
-            do i=1, instancePtr%nElementSets
-               if (instancePtr%ecElementSetsPtr(i)%ptr%id == elementSetId) then
-                  elementSetPtr => instancePtr%ecElementSetsPtr(i)%ptr
-               end if
-            end do
+            elementSetPtr => instancePtr%ecElementSetsPtr(elementSetId)%ptr
          else
             call setECMessage("ec_support::ecSupportFindElementSet: Dummy argument instancePtr is not associated.")
          end if
@@ -444,16 +332,10 @@ module m_ec_support
          type(tEcInstance), pointer            :: instancePtr !< intent(in)
          integer,                   intent(in) :: fieldId     !< unique Field id
          !
-         integer :: i !< loop counter
-         !
          fieldPtr => null()
          !
          if (associated(instancePtr)) then
-            do i=1, instancePtr%nFields
-               if (instancePtr%ecFieldsPtr(i)%ptr%id == fieldId) then
-                  fieldPtr => instancePtr%ecFieldsPtr(i)%ptr
-               end if
-            end do
+            fieldPtr => instancePtr%ecFieldsPtr(fieldId)%ptr
          else
             call setECMessage("ec_support::ecSupportFindField: Dummy argument instancePtr is not associated.")
          end if
@@ -476,31 +358,6 @@ subroutine ecInstanceListSourceItems(instancePtr,dev)
             endif
          enddo
 end subroutine ecInstanceListSourceItems
-
-      !! =======================================================================
-      !!> Retrieve the item ID given a quantitystring and locationstring
-      !!> Loop over all items in the EC instance qualified as 'source'
-      !function ecSupportFindItemByQuantityLocation(instancePtr, quantityname, locationname ) result(itemID)
-      !   type(tEcInstance), pointer            :: instancePtr    !< EC-instance
-      !   character(len=*), intent(in)         :: quantityname   !< Desired quantity
-      !   character(len=*), intent(in)         :: locationname   !< Desired location
-      !   integer                               :: itemID         !< returned item ID
-      !   integer :: i                                            !< loop counter over items
-      !   type (tEcItem), pointer               :: itemPtr
-      !
-      !   itemID = -1
-      !   if (associated(instancePtr)) then
-      !      do i=1, instancePtr%nItems
-      !         itemPtr => instancePtr%ecItemsPtr(i)%ptr
-      !         if (itemPtr%role==itemType_source) then
-      !            if (itemPtr%quantityPtr%name==quantityname .and. itemPtr%elementSetPtr%name==locationname) then
-      !               itemID = itemPtr%id
-      !               exit
-      !            end if
-      !         end if
-      !      end do
-      !   end if
-      !end function ecSupportFindItemByQuantityLocation
 
       ! =======================================================================
       !> Retrieve the item ID given a quantitystring and locationstring
@@ -639,16 +496,12 @@ end subroutine ecInstanceListSourceItems
          type(tEcInstance), pointer            :: instancePtr !< intent(in)
          integer,                   intent(in) :: itemId      !< unique Item id
          !
-         integer :: i !< loop counter
-         !
          itemPtr => null()
          !
          if (associated(instancePtr)) then
-            do i=1, instancePtr%nItems
-               if (instancePtr%ecItemsPtr(i)%ptr%id == itemId) then
-                  itemPtr => instancePtr%ecItemsPtr(i)%ptr
-               end if
-            end do
+            if (itemId>0 .and. itemId<=instancePtr%nItems) then 
+               itemPtr => instancePtr%ecItemsPtr(itemId)%ptr
+            end if
          else
             call setECMessage("ec_support::ecSupportFindItem: Dummy argument instancePtr is not associated.")
          end if
@@ -662,16 +515,12 @@ end subroutine ecInstanceListSourceItems
          type(tEcInstance),       pointer            :: instancePtr   !< intent(in)
          integer,                         intent(in) :: connectionId  !< unique Connection id
          !
-         integer :: i !< loop counter
-         !
          connectionPtr => null()
          !
          if (associated(instancePtr)) then
-            do i=1, instancePtr%nConnections
-               if (instancePtr%ecConnectionsPtr(i)%ptr%id == connectionId) then
-                  connectionPtr => instancePtr%ecConnectionsPtr(i)%ptr
-               end if
-            end do
+            if (connectionId>0 .and. connectionId<=instancePtr%nConnections) then 
+               connectionPtr => instancePtr%ecConnectionsPtr(connectionId)%ptr
+            end if
          else
             call setECMessage("ec_support::ecSupportFindConnection: Dummy argument instancePtr is not associated.")
          end if
@@ -685,16 +534,12 @@ end subroutine ecInstanceListSourceItems
          type(tEcInstance),  pointer            :: instancePtr  !< intent(in)
          integer,                    intent(in) :: converterId  !< unique Converter id
          !
-         integer :: i !< loop counter
-         !
          converterPtr => null()
          !
          if (associated(instancePtr)) then
-            do i=1, instancePtr%nConverters
-               if (instancePtr%ecConvertersPtr(i)%ptr%id == converterId) then
-                  converterPtr => instancePtr%ecConvertersPtr(i)%ptr
-               end if
-            end do
+            if (converterId>0 .and. converterId<=instancePtr%nConverters) then 
+                converterPtr => instancePtr%ecConvertersPtr(converterId)%ptr
+            end if
          else
             call setECMessage("ec_support::ecSupportFindConverter: Dummy argument instancePtr is not associated.")
          end if
@@ -708,16 +553,12 @@ end subroutine ecInstanceListSourceItems
          type(tEcInstance),   pointer            :: instancePtr   !< intent(in)
          integer,                     intent(in) :: fileReaderId  !< unique FileReader id
          !
-         integer :: i !< loop counter
-         !
          fileReaderPtr => null()
          !
          if (associated(instancePtr)) then
-            do i=1, instancePtr%nFileReaders
-               if (instancePtr%ecFileReadersPtr(i)%ptr%id == fileReaderId) then
-                  fileReaderPtr => instancePtr%ecFileReadersPtr(i)%ptr
-               end if
-            end do
+            if (fileReaderId>0 .and. fileReaderId<=instancePtr%nFileReaders) then 
+                fileReaderPtr => instancePtr%ecFileReadersPtr(fileReaderId)%ptr
+            end if
          else
             call setECMessage("ec_support::ecSupportFindFileReader: Dummy argument instancePtr is not associated.")
          end if
@@ -759,16 +600,12 @@ end subroutine ecInstanceListSourceItems
          type(tEcInstance), pointer              :: instancePtr   !< intent(in)
          integer, intent(in)                     :: bcBlockId     !< unique BCBlock id
          !
-         integer :: i !< loop counter
-         !
          bcBlockPtr => null()
          !
          if (associated(instancePtr)) then
-            do i=1, instancePtr%nBCBlocks
-               if (instancePtr%ecBCBlocksPtr(i)%ptr%id == bcBlockId) then
-                  bcBlockPtr => instancePtr%ecBCBlocksPtr(i)%ptr
-               end if
-            end do
+            if (bcBlockId>0 .and. bcBlockId<=instancePtr%nBCBlocks) then 
+               bcBlockPtr => instancePtr%ecbcBlocksPtr(bcBlockId)%ptr
+            end if
          else
             call setECMessage("ec_support::ecSupportFindBCBlock: Dummy argument instancePtr is not associated.")
          end if
@@ -782,16 +619,12 @@ end subroutine ecInstanceListSourceItems
          type(tEcInstance), pointer              :: instancePtr   !< intent(in)
          integer, intent(in)                     :: netCDFId      !< unique NetCDF id
          !
-         integer :: i !< loop counter
-         !
          netCDFPtr => null()
          !
          if (associated(instancePtr)) then
-            do i=1, instancePtr%nNetCDFs
-               if (instancePtr%ecNetCDFsPtr(i)%ptr%id == netCDFId) then
-                  netCDFPtr => instancePtr%ecNetCDFsPtr(i)%ptr
-               end if
-            end do
+            if (netCDFId>0 .and. netCDFId<=instancePtr%nNetCDFs) then 
+               netCDFPtr => instancePtr%ecNetCDFsPtr(netCDFId)%ptr
+            end if
          else
             call setECMessage("ec_support::ecSupportFindNetCDF: Dummy argument instancePtr is not associated.")
          end if
@@ -799,23 +632,22 @@ end subroutine ecInstanceListSourceItems
 
       ! =======================================================================
       !> Find the file reader for the bc block that contains the component definition for the comp.correction block
-      function ecSupportFindRelatedBCBlock(instancePtr, corrFileReaderPtr, qname, bcname, func) result(cmpFileReaderPtr)
+      function ecSupportFindRelatedBCBlock(instancePtr, corFileReaderPtr, func) result(cmpFileReaderPtr)
          type(tEcFileReader), pointer :: cmpFileReaderPtr  !< resulting file reader
          type(tEcInstance),   pointer :: instancePtr       !< intent(in)
-         type(tEcFileReader), pointer :: corrFileReaderPtr !< intent(inout)
-         character(len=*)             :: qname             !< quantity name
-         character(len=*)             :: bcname            !< point on poly name
+         type(tEcFileReader), pointer :: corFileReaderPtr  !< intent(inout)
          integer, intent(in)          :: func              !< function type
 
          integer                      :: iFileReader
-         type (tEcBCBlock), pointer   :: BCBlockptr
+         type (tEcBCBlock), pointer   :: BCBlockptr_cmp, BCBlockptr_cor
          !
          cmpFileReaderPtr => null()
+         BCBlockptr_cor => corFileReaderPtr%bc
          do iFileReader = 1, instancePtr%nFileReaders
-            BCBlockptr => instancePtr%EcFileReadersPtr(iFileReader)%ptr%bc
-            if (associated(BCBlockptr)) then
-               if (trim(BCBlockptr%bcname)==trim(bcname) .and. (trim(BCBlockptr%qname)==trim(qname))  &
-                                                         .and. BCBlockptr%func == func) then
+            BCBlockptr_cmp => instancePtr%EcFileReadersPtr(iFileReader)%ptr%bc
+            if (associated(BCBlockptr_cmp)) then
+               if (trim(BCBlockptr_cmp%bcname)==trim(BCBlockptr_cor%bcname)  .and. &
+                  (trim(BCBlockptr_cmp%qname) ==trim(BCBlockptr_cor%qname))  .and. BCBlockptr_cmp%func == func) then
                   cmpFileReaderPtr => instancePtr%EcFileReadersPtr(iFileReader)%ptr
                   exit
                endif
@@ -914,7 +746,7 @@ end subroutine ecInstanceListSourceItems
             end if
 
             ! Date
-            if (ymd2reduced_jul(date, ref_date)) then
+            if (ymd2modified_jul(date, ref_date)) then
                ! Time
                if ( time /= ' ') then
                   ref_date = ref_date + parse_time(time, ok)
@@ -996,8 +828,7 @@ end subroutine ecInstanceListSourceItems
             endif
 
             if (ierr == 0) then
-               success = .true.
-               ref_date = JULIAN(yyyymmdd, 0)
+               success = ymd2modified_jul(yyyymmdd, ref_date)
                ref_date = ref_date + real(hh, hp) / 24.0_hp
             endif
          endif
@@ -1227,9 +1058,17 @@ end subroutine ecInstanceListSourceItems
          if (ndim==1) then
             select case (trim(units))
                case ('degrees_east','degree_east','degree_E','degrees_E','degreeE','degreesE')
+                  if (lon_varid > 0) then
+                     call setECmessage("redefinition of lon_varid; not supported")
+                     return
+                  end if
                   lon_varid = ivar
                   lon_dimid = dimids(1)
                case ('degrees_north','degree_north','degree_N','degrees_N','degreeN','degreesN')
+                  if (lat_varid > 0) then
+                     call setECmessage("redefinition of lat_varid; not supported")
+                     return
+                  end if
                   lat_varid = ivar
                   lat_dimid = dimids(1)
                case ('degrees')
@@ -1312,13 +1151,16 @@ end subroutine ecInstanceListSourceItems
                    else
                       call setECmessage("attribute 'standard_name' not found for variable " // trim(varname))
                    endif
-               case ('m','meters','km','kilometers')
+               case ('m','meter','meters','km','kilometers')
                    stdname = ''
                    ierr = nf90_get_att(ncid, ivar, 'standard_name', stdname)
+                   if (stdname == '') then
+                      ierr = nf90_get_att(ncid, ivar, 'long_name', stdname)
+                   endif
                    select case (stdname)
-                      case ('projection_x_coordinate')
+                      case ('projection_x_coordinate', 'x')
                          x_varid = ivar
-                      case ('projection_y_coordinate')
+                      case ('projection_y_coordinate', 'y')
                          y_varid = ivar
                    end select
                end select

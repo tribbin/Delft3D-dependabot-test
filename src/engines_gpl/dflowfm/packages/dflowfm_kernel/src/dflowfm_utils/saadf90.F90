@@ -6,7 +6,7 @@
 ! sparse  matrix  manipulation  routines  as  well as  a  few  iterative
 ! solvers, see detailed description of contents below.
 ! 
-!  Copyright (C) 2005, the Regents of the University of Minnesota 
+!  Copyright (C) 2005-2023, the Regents of the University of Minnesota 
 ! 
 ! SPARSKIT is  free software; you  can redistribute it and/or  modify it
 ! under the terms of the  GNU Lesser General Public License as published
@@ -31,8 +31,8 @@
 ! 
 ! For more information contact saad@cs.umn.edu
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 #include "blasfm.h"
 
@@ -85,7 +85,7 @@
  subroutine inisaad(epscg_loc,maxmatvecs_loc,alpha_loc)
  use m_reduce
  use m_saad
- use m_flowparameters, only: jajipjan
+ use m_flowparameters, only: Noderivedtypes
  
  implicit none
  
@@ -100,7 +100,7 @@
  allocate(ngs(nodtot) ); ngs = 0
  
  na = 0                ! matrix counter
- if (jajipjan < 5) then 
+ if (Noderivedtypes < 5) then 
     
     do n=nogauss0+1,nogauss0+nocg0
        na   = na + 1
@@ -310,9 +310,9 @@
 
          else 
       
-            a  = ao
-            ja = jao
-            ia = iao
+            a(1:na)  = ao(1:na)
+            ja(1:na) = jao(1:na)
+            ia(1:nrow+1) = iao(1:nrow+1)
       
          endif    
 

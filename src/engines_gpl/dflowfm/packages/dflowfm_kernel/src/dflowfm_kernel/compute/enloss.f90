@@ -1,42 +1,38 @@
 !----- AGPL --------------------------------------------------------------------
-!                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
-!                                                                               
-!  This file is part of Delft3D (D-Flow Flexible Mesh component).               
-!                                                                               
-!  Delft3D is free software: you can redistribute it and/or modify              
-!  it under the terms of the GNU Affero General Public License as               
-!  published by the Free Software Foundation version 3.                         
-!                                                                               
-!  Delft3D  is distributed in the hope that it will be useful,                  
-!  but WITHOUT ANY WARRANTY; without even the implied warranty of               
-!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                
-!  GNU Affero General Public License for more details.                          
-!                                                                               
-!  You should have received a copy of the GNU Affero General Public License     
-!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.             
-!                                                                               
-!  contact: delft3d.support@deltares.nl                                         
-!  Stichting Deltares                                                           
-!  P.O. Box 177                                                                 
-!  2600 MH Delft, The Netherlands                                               
-!                                                                               
-!  All indications and logos of, and references to, "Delft3D",                  
-!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting 
+!
+!  Copyright (C)  Stichting Deltares, 2017-2023.
+!
+!  This file is part of Delft3D (D-Flow Flexible Mesh component).
+!
+!  Delft3D is free software: you can redistribute it and/or modify
+!  it under the terms of the GNU Affero General Public License as
+!  published by the Free Software Foundation version 3.
+!
+!  Delft3D  is distributed in the hope that it will be useful,
+!  but WITHOUT ANY WARRANTY; without even the implied warranty of
+!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!  GNU Affero General Public License for more details.
+!
+!  You should have received a copy of the GNU Affero General Public License
+!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.
+!
+!  contact: delft3d.support@deltares.nl
+!  Stichting Deltares
+!  P.O. Box 177
+!  2600 MH Delft, The Netherlands
+!
+!  All indications and logos of, and references to, "Delft3D",
+!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
-!                                                                               
+!
 !-------------------------------------------------------------------------------
-
-! $Id$
-! $HeadURL$
 
 subroutine enloss(ag        ,d1        ,eweir     ,hkruin    ,hov       , &
                 & qunit     ,qvolk     ,toest     ,vov       , &
                 & ewben     ,wsbov     ,wsben     ,dte       , &
                 & dtefri    ,iflagweir , &
-                & crestl    ,rmpbov    ,rmpben    ,veg      )
+                & crestl    ,rmpbov    ,rmpben    ,veg       ,testfixedweirs      )
 !-------------------------------------------------------------------------------
-!  Original URL: https://svn.oss.deltares.nl/repos/delft3d/trunk/src/engines_gpl/flow2d3d/packages/kernel/src/compute/enloss.f90
 !!--description-----------------------------------------------------------------
 !
 ! Function: Determines additional energy loss due to weir.
@@ -89,6 +85,7 @@ subroutine enloss(ag        ,d1        ,eweir     ,hkruin    ,hov       , &
     real(fp)   , intent(in)     :: rmpben !!  ramp (talud) downstream of weir
     real(fp)   , intent(in)     :: rmpbov !!  ramp (talud) upstream of weir
     real(fp)   , intent(in)     :: veg    !!  Vegetation on weir
+    integer    , intent(in)     :: testfixedweirs    !< Flag for fixed weir options; 0 = original D-Flow FM approach, 1 = Simona approach
 !
 ! Local variables
 !
@@ -161,7 +158,6 @@ subroutine enloss(ag        ,d1        ,eweir     ,hkruin    ,hov       , &
                 ( alfitp      * (1.0d0-0.25d0*exp(-0.5d0*rmpbov)) +          &
                   (1.-alfitp) * (0.8d0+0.65d0*exp(-0.1d0*rmpben)) )
        cd0    = cd0ref * (1.0d0 + veg/3.0d0)**(-1.5d0)
-
        !
        ! Sieben' formula of 3 February 2010:
        !
@@ -176,6 +172,30 @@ subroutine enloss(ag        ,d1        ,eweir     ,hkruin    ,hov       , &
        vil2 = (1 + ddive)
        vil2 = 1.0 / (vil2**2)
        pref = 3.0**3 / (4.0 * cd0**2) / (max(0.001d0,vil1 - vil2))
+
+       if (testfixedweirs == 1) then
+          !
+          !  Sieben2001 (NOT USED BELOW):
+          !        cd0 = 0.85 * ( exp(-0.15*e1/lkruin) * (1.-0.25*exp(-0.5*mbov))+
+          !     +         (1.-exp(-0.15*e1/lkruin)) * (0.8+0.65*exp(-0.1*mben)) )
+          !         p   = 3.375 * ( exp(0.02*mben)/cd0**2 ) * ( 1+d1/h1 )**2 *
+          !     +         ( h1/d1+1-exp(-0.1*mben) )**2
+          !
+          !  Sieben2007 (USED BELOW):
+          !        cd0 = 1.0 * ( exp(-0.5*e1/lkruin) * (1.-0.25*exp(-0.5*mbov))+
+          !    +         (1.-exp(-0.5*e1/lkruin)) * (0.8+0.65*exp(-0.1*mben)) )
+          !        p = 27/(4*cd0**2) * (1 + max(5.,d1/e1)*(1-exp(-0.1*mben)))**2
+          !
+          alfitp = exp(-0.5d0*eweir/max(0.01d0,crestl))
+          cd0ref = vilcd(1) *                                             &
+                   ( alfitp      * (1.0d0-0.25d0*exp(-0.5d0*rmpbov)) +    &
+                   (1.-alfitp)   * (0.8d0+0.65d0*exp(-0.1d0*rmpben)) )
+          cd0    = cd0ref * (1.0d0 + veg/3.0d0)**(-1.5d0)
+
+          ddive = min(5.0d0,d1/eweir)
+          vil1 = 1 + ddive * (1-exp(-rmpben/vilcd(2)))
+          pref = ( 27.0 / (4.0 * cd0**2) ) * max(0.001d0,vil1)**2
+       endif
 
        p = (1.0 + veg/3.0)**3 / (1.0+2*veg) * pref
 

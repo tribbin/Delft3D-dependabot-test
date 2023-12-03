@@ -1,7 +1,7 @@
 function datetime_to_string(date, time) result (dtstring)
 !----- GPL ---------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2021.                                
+!  Copyright (C)  Stichting Deltares, 2011-2023.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify         
 !  it under the terms of the GNU General Public License as published by         
@@ -25,8 +25,8 @@ function datetime_to_string(date, time) result (dtstring)
 !  Stichting Deltares. All rights reserved.                                     
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !!--description-----------------------------------------------------------------
 !
 !
@@ -35,13 +35,14 @@ function datetime_to_string(date, time) result (dtstring)
 !!--declarations----------------------------------------------------------------
 !
 use time_module, only : ymd2jul
+use precision_basics
 implicit none
 !
 ! Global variables
 !
 character(15)             :: dtstring ! [yyyymmdd.hhmmss] julian date
 integer      , intent(in) :: date     ! [yyyymmdd]
-real         , intent(in) :: time     ! [sec]      seconds since date, 0:00:00 h
+real(hp)     , intent(in) :: time     ! [sec]      seconds since date, 0:00:00 h
 !
 ! Local variables
 !

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2018-2021.
+!  Copyright (C)  Stichting Deltares, 2018-2023.
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
 !  Delft3D is free software: you can redistribute it and/or modify
@@ -26,14 +26,14 @@
 !
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+!
+!
    subroutine fm_wq_processes_ini_sub()
       use m_fm_wq_processes
       use m_alloc
       use unstruc_messages
-      use m_flow, only: kmx, Lnkx
-      use m_flowgeom, only: Ndxi, ba, Lnx, Lnxi, ln, lne2ln
+      use m_flow, only: kmx
+      use m_flowgeom, only: Ndxi
       use m_flowexternalforcings
       use m_transport
       use m_partitioninfo
@@ -42,6 +42,7 @@
       use unstruc_files, only: mdia
       use m_flowtimes
       use timers
+
       use m_wind, only: jawind, jarain
 
       implicit none
@@ -90,7 +91,7 @@
       if (his_output_file.ne.' ') then
          inquire(file=his_output_file,exist=Leho)
          if ( .not.Leho) then
-            call mess(LEVEL_ERROR, 'Additional histrory output file specified, but does not exist: ', trim(his_output_file))
+            call mess(LEVEL_ERROR, 'Additional history output file specified, but does not exist: ', trim(his_output_file))
          end if
       else
          Leho = .false.
@@ -370,11 +371,13 @@
 
    subroutine fm_wq_processes_ini_proc()
       use m_fm_wq_processes
+      use m_wq_processes_initialise
+      use m_wq_processes_pmsa_size
       use bloom_data_vtrans
       use m_alloc
       use unstruc_messages
-      use m_flow, only: kmx, Lnkx
-      use m_flowgeom, only: Ndxi, ba, Lnx, Lnxi, ln, lne2ln
+      use m_flow, only: kmx
+      use m_flowgeom, only: Ndxi, ba
       use m_flowparameters, only: jasal, jatem, jawave, jawaveSwartDelwaq
       use m_flowexternalforcings
       use m_transport
@@ -384,6 +387,7 @@
       use m_flowtimes
       use timers
       use m_wind, only: jawind, jarain
+      use computeRefday
 
       implicit none
 
@@ -396,8 +400,9 @@
       integer                  :: nowarn          !< count of warnings
       integer                  :: ierr, ierr2     !< error count
 
-      integer( 4)              :: i, j, ip, isys, icon, ipar, ifun, isfun, ivar
+      integer( 4)              :: i, j, ip, icon, ipar, ifun, isfun, ivar
       integer                  :: ipoifmlayer, ipoifmktop, ipoifmkbot
+      integer( 4)              :: refdayNr      ! reference day number, varying from 1 till 365
 
       integer :: iex
       integer :: kk, k, kb, kt, ktmax
@@ -424,6 +429,10 @@
       character*20,parameter   :: cdoprocesses = 'DoProcesses'
       character*20,parameter   :: cprocessesinactive = 'ProcessesInactive'
 
+      character*20,parameter   :: cWaveH = 'WaveHeight' 
+      character*20,parameter   :: cWaveL = 'WaveLength'
+      character*20,parameter   :: cWaveT = 'WavePeriod'
+      
       if (timon) call timstrt( "fm_wq_processes_ini_proc", ithndl )
 
 !     try to open the lsp-file for logging output
@@ -467,9 +476,9 @@
       end if
       if (isftau.gt.0) then
          if (jawaveSwartDelwaq == 0) then
-            call mess(LEVEL_INFO, 'jawaveSwartDelwaq == 0 so tau/tauflow = taucur')
+            call mess(LEVEL_INFO, 'jawaveSwartDelwaq == 0 so tau/tauflow = taucur or tau from wave-current interaction if waves activated')
          else if (jawaveSwartDelwaq == 1) then
-            call mess(LEVEL_INFO, 'jawaveSwartDelwaq == 1 so tau/tauflow = taucur + tauwave')
+            call mess(LEVEL_INFO, 'jawaveSwartDelwaq == 1 so tau/tauflow = taucur + ftauw*tauwave')
          else if (jawaveSwartDelwaq == 2) then
             call mess(LEVEL_INFO, 'jawaveSwartDelwaq == 2 so tau/tauflow = taubxu')
          endif
@@ -486,6 +495,43 @@
          isfvel = 0
       end if
 
+      call zoekns(cWaveH,nocons,coname_sub,20,icon)
+      isfwaveheight = 0      
+      if (icon>0) then
+         nosfun = nosfun+1
+         isfwaveheight = nosfun
+         call realloc(sfunname, nosfun, keepExisting=.true., fill='WaveHeight')  ! this must be the name used in waq, process input param/in sub file.
+         call mess(LEVEL_INFO, '''flow element center WaveHeight'' connected as ''WaveHeight''')
+      else
+         call mess(LEVEL_INFO, '''flow element center WaveHeight'' not connected, because ''WaveHeight'' is not in the sub-file.')
+         isfwaveheight = 0
+      end if
+
+      call zoekns(cWaveL,nocons,coname_sub,20,icon)
+      isfwavelength = 0
+      if (icon>0) then
+         nosfun = nosfun+1
+         isfwavelength = nosfun
+         call realloc(sfunname, nosfun, keepExisting=.true., fill='WaveLength')  ! this must be the name used in waq, process input param/in sub file.
+         call mess(LEVEL_INFO, '''flow element center WaveLength'' connected as ''WaveLength''')
+      else
+         call mess(LEVEL_INFO, '''flow element center WaveLength'' not connected, because ''WaveLength'' is not in the sub-file.')
+         isfwavelength = 0
+      end if
+
+      call zoekns(cWaveT,nocons,coname_sub,20,icon)
+      isfwaveperiod = 0
+      if (icon>0) then
+         nosfun = nosfun+1
+         isfwaveperiod = nosfun
+         call realloc(sfunname, nosfun, keepExisting=.true., fill='WavePeriod')  ! this must be the name used in waq, process input param/in sub file.
+         call mess(LEVEL_INFO, '''flow element center WavePeriod'' connected as ''WavePeriod''')
+      else
+         call mess(LEVEL_INFO, '''flow element center WavePeriod'' not connected, because ''WavePeriod'' is not in the sub-file.')
+         isfwaveperiod = 0
+      end if
+      
+      
       call zoekns(csalinity,nocons,coname_sub,20,icon)
       isfsal = 0
       if ( jasal.eq.1 ) then
@@ -572,7 +618,7 @@
       end if
       isffetchl = 0
       isffetchd = 0
-      if ( jawave.eq.1 .or. jawave.eq.2 ) then  ! copied from "flow_setexternalforcings", call to "tauwavefetch"
+      if ( jawave.eq.1 .or. jawave.eq.2 ) then  ! copied from "set_external_forcings", call to "tauwavefetch"
          if (icon>0) then
             nosfun = nosfun+1
             isffetchl = nosfun
@@ -726,13 +772,17 @@
       endif
       otime = dble(julrefdat)-0.5d0 !refdate_mjd
 
+      !     Compute refday needed for daylight process
+      call compute_refday(refdat, refdayNr)
+
+
 !     Finally, evaluate the processes using the proces library
 !     --------------------------------------------------------
       bloom_output_file = defaultfilename('bloom')
 
       call mess(LEVEL_INFO, 'Initialising water quality processes.')
       call wq_processes_initialise ( lunlsp, proc_def_file, proc_dllso_file, bloom_file, bloom_output_file, statistics_file, statprocesdef, outputs, &
-                                     nomult, imultp, constants, noinfo, nowarn, ierr)
+                                     nomult, imultp, constants, refdayNr, noinfo, nowarn, ierr)
       call mess(LEVEL_INFO, 'Number of warnings during initialisation of the processes : ', nowarn)
       call mess(LEVEL_INFO, 'Number of errors during initialisation of the processes   : ', ierr)
       if (ierr .ne. 0) then
@@ -875,11 +925,10 @@
    integer, intent (out)         :: iresult
 
    character(len=256)            :: filename, sourcemask
-   integer                       :: kb, k, ja, method, kk, kt, ktopx, lenqidnam, ipa, ifun, isfun, imba, imna
+   integer                       :: kb, k, ja, method, kk, kt, lenqidnam, ipa, ifun, isfun, imna
    integer                       :: klocal, waqseg2D, waqseglay
    character (len=NAMTRACLEN)    :: qidnam
    character (len=20)            :: waqinput
-   integer                       :: minp0, npli, inside, filetype0, iad, needextramba, needextrambar
    double precision, allocatable :: viuh(:)            ! temporary variable
    integer, external             :: findname
 
@@ -1256,8 +1305,8 @@
 
    subroutine fm_wq_processes_step(dt,time)
       use m_fm_wq_processes
+      use m_wq_processes_proces
       use m_mass_balance_areas
-      use m_missing, only: dmiss
       use unstruc_model, only: md_flux_int
       use m_flow, only: vol1
       use timers
@@ -1268,16 +1317,9 @@
       double precision, intent(in) :: time !< time     for waq in seconds
 
       integer                      :: ipoiconc
-      integer                      :: i, j
 
       integer                      :: ipoivol, ipoisurf, ipoiarea
       integer                      :: ipoivelx, ipoidefa, ipoiflux
-
-      integer                      :: ierr
-
-      double precision             :: dti
-
-      integer                      :: ipvol, isys, k
 
       integer(4), save :: ithand0 = 0
       integer(4), save :: ithand1 = 0
@@ -1327,15 +1369,16 @@
 !
    subroutine copy_data_from_fm_to_wq_processes(time)
       use m_flowgeom,       only: Ndxi, ba
-      use m_flow,           only: vol1, sa1, tem1, ucx, ucy
+      use m_flow,           only: vol1, ucx, ucy
       use m_flowtimes,      only: irefdate, tunit
+      use m_flowparameters, only: flowWithoutWaves, jawaveswartdelwaq
       use m_fm_wq_processes
-      use m_transport,      only: constituents, itemp
+      use m_transport,      only: constituents, itemp, isalt
       use m_sferic,         only: twopi, rd2dg
       use m_wind
       use m_meteo
       use processes_input
-      use m_waves,          only: fetch, nwf
+      use m_waves,          only: fetch, nwf, hwav, rlabda, twav
       use unstruc_messages
       implicit none
 
@@ -1348,11 +1391,11 @@
       integer          :: ipoisurf, ipoitau, ipoivel
       integer          :: ipoivol, ipoiconc, ipoisal, ipoitem
       integer          :: ipoivwind, ipoiwinddir, ipoifetchl, ipoifetchd, ipoiradsurf, ipoirain, ipoivertdisper, ipoileng
-      integer          :: i, ip, ifun, isfun
+      integer          :: ipoiwaveheight, ipoiwavelength, ipoiwaveperiod
+      integer          :: ip, ifun, isfun
       integer          :: kk, k, kb, kt, ktmax, ktwq
-      integer          :: L, nw1, nw2
+      integer          :: L
 
-      integer          :: iknmrk_dry, iknmrk_wet
       logical, save    :: first = .true.
 
       if (nofun>0) then
@@ -1401,10 +1444,14 @@
 
       if (isftau.gt.0) then
          ipoitau  = arrpoi(iisfun) + (isftau-1)*noseg
+         if (jawave==0 .or. flowWithoutWaves) then
+            call gettaus(1,2)
+         else
+            call gettauswave(jawaveswartdelwaq)
+         endif
          do kk=1,Ndxi
             call getkbotktop(kk,kb,kt)
-            call gettau(kk,taucurc,czc)
-            pmsa(ipoitau+kb-kbx) = taucurc
+            pmsa(ipoitau+kb-kbx) = taus(kk)
          end do
       end if
 
@@ -1417,18 +1464,49 @@
             end do
          end do
       endif
+      !
+      ! get wave params from dflow-fm and put to PMSA array.      
+      !
+      if (isfwaveheight.gt.0) then
+         ipoiwaveheight  = arrpoi(iisfun) + (isfwaveheight-1)*noseg
+         do kk=1,Ndxi
+            call getkbotktopmax(kk,kb,kt,ktmax)
+            do k=kb,ktmax
+               pmsa(ipoiwaveheight  + k-kbx) = hwav(kk)*sqrt(2.0_fp)
+            end do
+         end do
+      endif
+      if (isfwavelength.gt.0) then
+         ipoiwavelength  = arrpoi(iisfun) + (isfwavelength-1)*noseg
+         do kk=1,Ndxi
+            call getkbotktopmax(kk,kb,kt,ktmax)
+            do k=kb,ktmax
+               pmsa(ipoiwavelength  + k-kbx) = rlabda(kk)
+            end do
+         end do
+      endif
+      if (isfwaveperiod.gt.0) then
+         ipoiwaveperiod  = arrpoi(iisfun) + (isfwaveperiod-1)*noseg
+         do kk=1,Ndxi
+            call getkbotktopmax(kk,kb,kt,ktmax)
+            do k=kb,ktmax
+               pmsa(ipoiwaveperiod  + k-kbx) = twav(kk)
+            end do
+         end do
+      endif
+      
 
       if ( isfsal.gt.0 ) then
          ipoisal = arrpoi(iisfun) + (isfsal-1)*noseg
          do k=0,ktx-kbx
-            pmsa(ipoisal + k) = sa1(k+kbx) ! should be changed to constituents(isalt, k+kbx) in the future
+            pmsa(ipoisal + k) = constituents(isalt,k+kbx)
          end do
       end if
 
       if ( isftem.gt.0 ) then
          ipoitem = arrpoi(iisfun) + (isftem-1)*noseg
          do k=0,ktx-kbx
-            pmsa(ipoitem + k) = constituents(itemp, k+kbx) ! tem1 is not always up to date!
+            pmsa(ipoitem + k) = constituents(itemp, k+kbx)
          end do
       end if
 
@@ -1638,7 +1716,6 @@
       double precision, intent(in) :: tim
 
       integer          :: isys, iconst, iwqbot
-      integer          :: ipoiconc
       integer          :: ivar, iarr, iv_idx
       integer          :: iarknd, ip_arr, idim1, idim2
       integer          :: incr
@@ -1818,4 +1895,3 @@
 
       return
    end subroutine default_fm_wq_processes
-

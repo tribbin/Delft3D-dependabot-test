@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine setuniformwind()
  use m_wind
@@ -40,9 +40,7 @@
  jawind = 2
  wdir   = (90d0 - winddir)*dg2rd
 
- if (.not. allocated(wx) ) then
-     allocate (  wx(lnx), wy(lnx) )
- endif
+ call allocatewindarrays()
 
  wx   = windsp*cos(wdir)
  wy   = windsp*sin(wdir)

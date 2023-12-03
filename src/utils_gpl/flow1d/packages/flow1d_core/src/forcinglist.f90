@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify              
 !  it under the terms of the GNU Affero General Public License as               
@@ -24,8 +24,8 @@
 !  Stichting Deltares. All rights reserved.
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !-------------------------------------------------------------------------------
 
 !> Functionality to store user input for forcings (e.g., time series), to be processed later by a kernel.
@@ -61,7 +61,7 @@ module m_forcinglist
      double precision, pointer        :: targetptr => null() !< Pointer to scalar variable in which the provided
                                                         !< parameter value(s) can later be stored.
                                                         !< For example => pump%capacity.
-    character(Charln)                :: filename        !< Name of file that contains the forcing data (e.g., a time series file).
+    character(IdLen)                :: filename        !< Name of file that contains the forcing data (e.g., a time series file).
   end type
 
   !> An ordered list of structure forcing items.

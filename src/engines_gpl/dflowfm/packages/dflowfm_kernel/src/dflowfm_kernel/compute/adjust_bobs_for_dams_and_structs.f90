@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,18 +27,21 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  !> adjust bobs and iadvec for dams and structs
  subroutine adjust_bobs_for_dams_and_structs()
+    use m_alloc
     use m_flowgeom
+    use m_flowparameters
     use m_flow
     use m_netw
     use m_fixedweirs
     use unstruc_channel_flow
     use m_1d_structures
     use m_compound
+    use m_1d2d_fixedweirs, only: set_iadvec
 
     implicit none
 
@@ -49,6 +52,7 @@
     integer :: L0
     integer          :: ng, k1, k2, L, n, istru, icompound, i
 
+  
     do ng = 1,ncdamsg                                   ! loop over cdam signals, sethu
        zcdamn = zcdam(ng)
        do n   = L1cdamsg(ng), L2cdamsg(ng)
@@ -76,6 +80,11 @@
 
     do istru = 1, network%sts%count
         pstru => network%sts%struct(istru)
+        do L0 = 1, pstru%numlinks
+           L  = iabs(pstru%linknumbers(L0))
+           k1 = ln(1,L)
+           k2 = ln(2,L)
+        enddo
         zcdamn = get_crest_level(pstru)
         if (zcdamn == huge(1d0)) then
            ! Do not shut off structures that have no relevant crest (e.g. pumps)
@@ -102,7 +111,7 @@
                  bl(k1) = min(bl(k1), bob0(1,L))
               endif
               if (pstru%culvert%rightlevel < bob0(2,L)) then
-                 write(msgbuf,'(a,f8.2,a,f8.2,a)') 'The bedlevel of the channel at the left side for '''//trim(pstru%id)//''' is changed from ', &
+                 write(msgbuf,'(a,f8.2,a,f8.2,a)') 'The bedlevel of the channel at the right side for '''//trim(pstru%id)//''' is changed from ', &
                            bob0(2,L), ' into ', pstru%culvert%rightlevel, '.'
                  call warn_flush()
                  bob0(2,L) = pstru%culvert%rightlevel
@@ -142,16 +151,25 @@
     enddo
 
 
-   !Adjust bobs for dambreak
+   ! Adjust bobs for dambreak
    if (ndambreak > 0) then ! needed, because ndambreaksg may be > 0, but ndambreak==0, and then arrays are not available.
-   do n = 1, ndambreaksg
-      istru = dambreaks(n)
-      if (istru.ne.0) then
-         ! Update the bottom levels
-         call adjust_bobs_on_dambreak_breach(network%sts%struct(istru)%dambreak%width, network%sts%struct(istru)%dambreak%crl,  LStartBreach(n), L1dambreaksg(n), L2dambreaksg(n), network%sts%struct(istru)%id)
-      endif
-   enddo
+      do n = 1, ndambreaksg
+         istru = dambreaks(n)
+         if (istru /= 0 .and. L1dambreaksg(n) <= L2dambreaksg(n)) then
+            ! Update the crest/bed levels
+            call adjust_bobs_on_dambreak_breach(network%sts%struct(istru)%dambreak%width, &
+                                              & maximumDambreakWidths(n), &
+                                              & network%sts%struct(istru)%dambreak%crl, &
+                                              & LStartBreach(n), &
+                                              & L1dambreaksg(n), &
+                                              & L2dambreaksg(n), &
+                                              & network%sts%struct(istru)%id)
+         endif
+      enddo
    end if
 
+   if (ifixedweirscheme1D2D == 1) then
+      call set_iadvec()
+   endif
    return
    end subroutine adjust_bobs_for_dams_and_structs

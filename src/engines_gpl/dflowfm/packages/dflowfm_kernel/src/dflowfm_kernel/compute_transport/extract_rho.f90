@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine extract_rho()
    use m_transport
@@ -46,9 +46,7 @@ subroutine extract_rho()
 
    do k=1,Ndkx
       rho(k) = constituents(1,k)
-      if ( ISALT.ne.0 ) then
-         constituents(ISALT,k) = sa1(k)
-      endif
+      constituents(1,k) = sa1(k)
    enddo
 
    if (timon) call timstop( ithndl )

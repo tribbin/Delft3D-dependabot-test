@@ -1,6 +1,6 @@
 !----- LGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2011-2021.
+!  Copyright (C)  Stichting Deltares, 2011-2023.
 !
 !  This library is free software; you can redistribute it and/or
 !  modify it under the terms of the GNU Lesser General Public
@@ -23,8 +23,8 @@
 !  are registered trademarks of Stichting Deltares, and remain the property of
 !  Stichting Deltares. All rights reserved.
 
-!  $Id$
-!  $HeadURL$
+!  
+!  
 
 !> This module contains the read methods for the meteo files.
 !! @author stef.hummel@deltares.nl
@@ -792,7 +792,7 @@ module m_ec_filereader_read
                end if
             end if
 
-            valid_field = .False.
+            valid_field = (col1 == 0 .and. row1 == 0)
             do while (.not.valid_field)
                ! - 3 - Read a scalar data block.
                if (item%elementSetPtr%nCoordinates == 0) then
@@ -832,6 +832,10 @@ module m_ec_filereader_read
                            ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/col0, timesndx/), count=(/ncol, 1/))
                         else
                            ierror = nf90_get_var(fileReaderPtr%fileHandle, varid, data_block, start=(/col0, row0, timesndx/), count=(/ncol, nrow, 1/))
+                        end if
+                        if (ierror /= 0) then
+                           call setECMessage("Error retrieving time index ", timesndx)
+                           return
                         end if
                         ! copy data to source Field's 1D array, store (X1Y1, X1Y2, ..., X1Yn_rows, X2Y1, XYy2, ..., Xn_colsY1, ...)
                         do i=1, nrow
@@ -901,6 +905,7 @@ module m_ec_filereader_read
          integer                             :: idvar_q       !< id as obtained from NetCDF
          integer                             :: ntimes        !< number of times on the NetCDF file
          integer                             :: read_index    !< index of field to read
+         real(hp)                            :: tim           !< instantanious time
          real(hp), dimension(:), allocatable :: times         !< time array read from NetCDF
          character(NF90_MAX_NAME)            :: string        !< to catch NetCDF messages
          !
@@ -942,6 +947,11 @@ module m_ec_filereader_read
             call setECMessage("Allocation error in ec_filereader_read::ecNetcdfReadBlock.")
             return
          endif
+         ! Parse refdate and tunit to reconstruct mjd from netcdf timestep vector
+         string = '' ! NetCDF does not completely overwrite a string, so re-initialize.
+         if (.not. ecSupportNetcdfCheckError(nf90_get_att(fileReaderPtr%fileHandle, idvar_time, "units", string), "obtain units", fileReaderPtr%fileName)) return
+         if (.not. ecSupportTimestringToUnitAndRefdate(string, fileReaderPtr%tframe%ec_timestep_unit, fileReaderPtr%tframe%ec_refdate, &
+                                                              tzone = fileReaderPtr%tframe%ec_timezone)) return
          ierror = nf90_get_var(fileReaderPtr%fileHandle, idvar_time, times, start=(/1/), count=(/ntimes/)); success = ecSupportNetcdfCheckError(ierror, "get_var time", fileReaderPtr%fileName)
          !
          ! Search in times the first time bigger than lastReadTime
@@ -973,13 +983,15 @@ module m_ec_filereader_read
             endif
             !
             ! T0
-            if (t0t1==0) then
-               item1%sourceT0FieldPtr%timesteps = times(read_index)
+            if (t0t1==0) then   ! JRE: needed to be changed to mjd because of use in ecItemUpdateSourceItem
+               tim=fileReaderPtr%tframe%ec_refdate + times(read_index) * ecSupportTimeUnitConversionFactor(fileReaderPtr%tframe%ec_timestep_unit) / 86400.0_hp - fileReaderPtr%tframe%ec_timezone / 24.0_hp
+               item1%sourceT0FieldPtr%timesteps = tim
                ierror = nf90_get_var(fileReaderPtr%fileHandle, idvar_q, item1%sourceT0FieldPtr%arr1dPtr, start=(/ 1, read_index /), count = (/ n, 1 /))
                success = ecSupportNetcdfCheckError(ierror, "get_var "//item1%quantityPtr%name, fileReaderPtr%fileName)
             ! ===== T1 =====
             else if(t0t1==1) then
-               item1%sourceT1FieldPtr%timesteps = times(read_index)
+               tim=fileReaderPtr%tframe%ec_refdate + times(read_index) * ecSupportTimeUnitConversionFactor(fileReaderPtr%tframe%ec_timestep_unit) / 86400.0_hp - fileReaderPtr%tframe%ec_timezone / 24.0_hp
+               item1%sourceT1FieldPtr%timesteps = tim
                ierror = nf90_get_var(fileReaderPtr%fileHandle, idvar_q, item1%sourceT1FieldPtr%arr1dPtr, start=(/ 1, read_index /), count = (/ n, 1 /))
                success = ecSupportNetcdfCheckError(ierror, "get_var "//item1%quantityPtr%name, fileReaderPtr%fileName)
             else
@@ -1920,9 +1932,9 @@ module m_ec_filereader_read
          success = .true.
 
          if (corFileReaderPtr%bc%func==BC_FUNC_HARMOCORR) then
-            cmpFileReaderPtr => ecSupportFindRelatedBCBlock(instancePtr, corFileReaderPtr, corFileReaderPtr % bc % qname, corFileReaderPtr % bc % bcname, BC_FUNC_HARMONIC)
+            cmpFileReaderPtr => ecSupportFindRelatedBCBlock(instancePtr, corFileReaderPtr, BC_FUNC_HARMONIC)
          elseif (corFileReaderPtr%bc%func==BC_FUNC_ASTROCORR) then
-            cmpFileReaderPtr => ecSupportFindRelatedBCBlock(instancePtr, corFileReaderPtr, corFileReaderPtr % bc % qname, corFileReaderPtr % bc % bcname, BC_FUNC_ASTRO)
+            cmpFileReaderPtr => ecSupportFindRelatedBCBlock(instancePtr, corFileReaderPtr, BC_FUNC_ASTRO)
          endif
 
          if (.not. associated(cmpFileReaderPtr)) then
@@ -2100,6 +2112,7 @@ module m_ec_filereader_read
          integer                                       :: ierr
          integer                                       :: Nreadrow      !< number of rows read at once
          character(len=:), allocatable                 :: standard_name
+         character(len=64)                             :: stringBuffer
          integer, allocatable                          :: start(:), cnt(:)
 
          ierror = 1
@@ -2166,8 +2179,12 @@ module m_ec_filereader_read
                   if ( ierror /= 0 ) then
                      standard_name = ''
                      ierr = ncu_get_att(fileHandle, varid, 'standard_name', standard_name)
-                     if (ierr /= 0) write(standard_name,*) 'varid = ', varid
-                     call setECMessage("Read error in read_data_sparse for " // trim(standard_name))
+                     if (ierr /= 0) then
+                        write(stringBuffer,*) 'varid = ', varid
+                        call setECMessage("Read error in read_data_sparse for " // trim(stringBuffer))
+                     else
+                        call setECMessage("Read error in read_data_sparse for " // trim(standard_name))
+                     end if
                      goto 1234
                   endif
 

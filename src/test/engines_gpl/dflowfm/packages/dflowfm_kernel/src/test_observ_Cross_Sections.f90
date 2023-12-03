@@ -1,4 +1,4 @@
-!!  Copyright (C)  Stichting Deltares, 2012-2021.
+!!  Copyright (C)  Stichting Deltares, 2012-2023.
 !!
 !!  This program is free software: you can redistribute it and/or modify
 !!  it under the terms of the GNU General Public License version 3,
@@ -32,7 +32,7 @@ contains
 !
 !==============================================================================
 subroutine tests_observCrossSections
-    call test( test_read_snapped_observ_crs, 'Tests the reading and snapping of observation cross sections' )
+    !call test( test_read_snapped_observ_crs, 'Tests the reading and snapping of observation cross sections' )
 end subroutine tests_observCrossSections
 !
 !

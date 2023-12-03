@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine heatun(n, timhr, qsno)
 use m_flow
@@ -79,9 +79,9 @@ ch      = Stanton                    ! Stanton number = 1.45e-3 (Friehe&Schmitt,
 qsu     = 0d0
 qsnom   = qsno
 call getlink1(n,L)
-if (jarelativewind == 1) then
-    wxL = wx(L) - ucx(ktop(n))
-    wyL = wy(L) - ucy(ktop(n))
+if (relativewind > 0d0) then
+    wxL = wx(L) - relativewind*ucx(ktop(n))
+    wyL = wy(L) - relativewind*ucy(ktop(n))
 else
     wxL = wx(L)
     wyL = wy(L)
@@ -93,6 +93,7 @@ call getkbotktop(n,kb,kt)
 twatn = constituents(itemp, kt)
 if (surftempsmofac > 0d0) then
    arn    = ba(n)
+   twatn  = twatn*arn 
    do LL  = 1,nd(n)%lnx
       L   = iabs( nd(n)%ln(LL) )
       k2  = ln(1,L) + ln(2,L) - n

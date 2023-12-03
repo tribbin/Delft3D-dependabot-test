@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,13 +27,13 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine dens_unes(temp, salt, rhouns, rhods, rhodt)
 !----- GPL ---------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2011-2021.
+!  Copyright (C)  Stichting Deltares, 2011-2023.
 !
 !  This program is free software: you can redistribute it and/or modify
 !  it under the terms of the GNU General Public License as published by
@@ -57,8 +57,8 @@
 !  Stichting Deltares. All rights reserved.
 !
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !!--description-----------------------------------------------------------------
 !
 !    Function: Computes water density from temperature and
@@ -68,6 +68,9 @@
 !              Algorithms for computation of fundamental
 !              properties of seawater, UNESCO technical papers
 !              in marine science, 1983)
+!              JvK and HK checked this on 12-05-2022, and we found that the correct reference is:
+!              Background papers and supporting data, on the international equation of state of seawater 1980, Unesco 1981
+!              (both years 1980 and 1981 are on cover), formula taken from page 20
 !
 !!--pseudo code and references--------------------------------------------------
 ! NONE

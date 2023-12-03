@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine flow_dredgeinit()
    use m_dad
@@ -36,7 +36,6 @@ subroutine flow_dredgeinit()
    use m_fm_dredge,   only: fm_rddredge
    use unstruc_model, only: md_dredgefile
    use m_sediment, only: stm_included, jased
-   use m_flowparameters, only: jatransportmodule
    use MessageHandling, only: mess, LEVEL_FATAL
 
    implicit none
@@ -46,10 +45,6 @@ subroutine flow_dredgeinit()
    if (.not.stm_included) return
    dad_included = len_trim(md_dredgefile) /= 0
    if (.not. dad_included) return
-
-   if ( stm_included .and. jased.ne.0 .and. jatransportmodule.eq.0 ) then
-      call mess(LEVEL_FATAL, 'unstruc::flow_dredgeinit - Please use transport module with sediment model 4.')
-   end if
 
    call initdredge(dadpar)
    call fm_rddredge(dadpar, md_dredgefile, error)

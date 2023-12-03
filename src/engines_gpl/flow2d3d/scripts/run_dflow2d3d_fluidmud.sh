@@ -28,7 +28,7 @@ function print_usage_info {
 
 #
 ## Defaults
-waterconfigfile=config_d_hydro_sed.xml
+waterconfigfile=config_d_hydro.xml
 mudconfigfile=config_d_hydro_mud.xml
 D3D_HOME=
 ulimit -s unlimited
@@ -39,30 +39,30 @@ ulimit -s unlimited
 
 while [[ $# -ge 1 ]]
 do
-key="$1"
-shift
+    key="$1"
+    shift
 
-case $key in
-    -h|--help)
-    print_usage_info
-    ;;
-    -mconfig)
-    mudconfigfile="$1"
-    shift
-    ;;
-    -wconfig)
-    waterconfigfile="$1"
-    shift
-    ;;
-    --D3D_HOME)
-    D3D_HOME="$1"
-    shift
-    ;;
-	--NNODES)
-    NNODES="$1"
-    shift
-    ;;
-esac
+    case $key in
+        -h|--help)
+        print_usage_info
+        ;;
+        -mconfig)
+        mudconfigfile="$1"
+        shift
+        ;;
+        -wconfig)
+        waterconfigfile="$1"
+        shift
+        ;;
+        --D3D_HOME)
+        D3D_HOME="$1"
+        shift
+        ;;
+        --NNODES)
+        NNODES="$1"
+        shift
+        ;;
+    esac
 done
 
 
@@ -93,11 +93,26 @@ if [ ! -d $D3D_HOME ]; then
     print_usage_info
 fi
 export D3D_HOME
- 
+
+
+# On Deltares systems only:
+if [ -f "/opt/apps/deltares/.nl" ]; then
+    # Try the following module load
+    module load intelmpi/21.2.0 &>/dev/null
+
+    # If not defined yet: Define I_MPI_FABRICS and FI_PROVIDER with proper values for Deltares systems
+    [ ! -z "$I_MPI_FABRICS" ] && echo "I_MPI_FABRICS is already defined" || export I_MPI_FABRICS=shm
+    [ ! -z "$FI_PROVIDER" ] && echo "FI_PROVIDER is already defined" || export FI_PROVIDER=tcp
+fi
+
+
 echo "    Water config file: $waterconfigfile"
 echo "    Mud   config file: $mudconfigfile"
 echo "    D3D_HOME         : $D3D_HOME"
 echo "    Working directory: $workdir"
+echo "    `type mpiexec`"
+echo "    FI_PROVIDER      : $FI_PROVIDER"
+echo "    I_MPI_FABRICS    : $I_MPI_FABRICS"
 echo 
 
     #

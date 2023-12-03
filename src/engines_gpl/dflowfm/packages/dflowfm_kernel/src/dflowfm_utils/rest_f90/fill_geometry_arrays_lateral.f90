@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Fills in the geometry arrays of laterals for history output.
 !! In parallel models, only process with rank 0 will have the complete geometry arrays filled.
@@ -89,6 +89,9 @@ subroutine fill_geometry_arrays_lateral()
          call realloc(yGat,            nlatndMPI,         keepExisting = .false., fill = 0d0)
          call realloc(displs,          ndomains,          keepExisting = .false., fill = 0  )
          call realloc(nlatndGat,       ndomains,          keepExisting = .false., fill = 0  )
+      else
+         ! NOTE: dummy allocate to prevent crash in Debug-model on Intel MPI, even though receive buffers are officially not needed on non-root.
+         allocate(nodeCountLatGat(0), xGat(0), yGat(0), displs(0), nlatndgat(0))
       end if
 
       ! Gather integer data, where the same number of data, i.e. numlatsg, are gathered from each subdomain to process 0000

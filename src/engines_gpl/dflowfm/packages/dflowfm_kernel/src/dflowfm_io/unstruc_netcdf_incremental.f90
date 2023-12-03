@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2021.
+!  Copyright (C)  Stichting Deltares, 2017-2023.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -27,12 +27,12 @@
 !
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 module unstruc_netcdf_map_class
 use precision, only : hp
 use precision_basics, only : comparereal
-use m_flow, only : s1, hs, ucmag, workx, worky, ndkx, kmx
+use m_flow, only : s1, hs, ucmag, workx, worky, ndkx, kmx, ucx, ucy
 use m_flowtimes, only : map_classes_s1, map_classes_hs, map_classes_ucmag, map_classes_ucdir, ti_classmape, ti_classmaps, ti_classmap, Tudunitstr
 use m_flowgeom, only : ndx, ndxi
 use m_cell_geometry, only : ndx2d
@@ -40,7 +40,7 @@ use unstruc_model, only : md_classmap_file
 use unstruc_files
 use unstruc_netcdf, only : check_error, t_unc_mapids, unc_close, unc_create, ug_meta_fm, unc_def_var_nonspatial, MAX_ID_VAR, &
        UNC_LOC_S, unc_def_var_map, unc_write_flowgeom_filepointer_ugrid, unc_put_var_map_byte, unc_put_var_map_byte_timebuffer, &
-       unc_nounlimited, unc_noforcedflush
+       unc_nounlimited, unc_noforcedflush, unc_add_time_coverage, unc_meta_add_user_defined
 use io_ugrid, only : ug_addglobalatts
 use netcdf
 use MessageHandling, only : mess, LEVEL_ERROR, LEVEL_INFO, LEVEL_FATAL
@@ -154,14 +154,19 @@ end subroutine reset_unstruc_netcdf_map_class
    if (ndim == 0) then
 
       ierr = ug_addglobalatts(incids%ncid, ug_meta_fm)
+
+      ierr = unc_meta_add_user_defined(incids%ncid)
+
       call unc_write_flowgeom_filepointer_ugrid(incids%ncid,incids%id_tsp, jabndnd_)
+
+      ierr = unc_add_time_coverage(incids%ncid, ti_classmaps, ti_classmape, ti_classmap)
 
       !
       ! define dimensions:
       if (unc_nounlimited > 0) then
          ierr = nf90_def_dim(incids%ncid, 'time', ceiling((ti_classmape-ti_classmaps)/ti_classmap) + 1, incids%id_tsp%id_timedim)
       else
-         ierr = nf90_def_dim(incids%ncid, 'time', nf90_unlimited, incids%id_tsp%id_timedim)
+      ierr = nf90_def_dim(incids%ncid, 'time', nf90_unlimited, incids%id_tsp%id_timedim)
       end if
 
       ierr = nf90_inq_dimid(incids%ncid, 'Two', id_twodim)
@@ -224,7 +229,7 @@ end subroutine reset_unstruc_netcdf_map_class
    if (nclasses_ucdir > 0 .and. kmx == 0) then
       allocate(current_ucdir(ndx))
       allocate(ucdir(ndkx))
-      call getucxucyeulmag(ndkx, workx, worky, ucdir, jaeulervel, 0) ! NOTE: ucdir is only dummy placeholder for returned ucmag, not needed here.
+      call getucxucyeulmag(ndkx, workx, worky, ucdir, jaeulervel, 0)! NOTE: ucdir is only dummy placeholder for returned ucmag, not needed here.
       do i = 1, ndkx ! only works for ndkx==ndx in 2D mode now
          angle = atan2(workx(i), worky(i))
          ! CF:  The direction is a bearing in the usual geographical sense, measured positive clockwise from due north.

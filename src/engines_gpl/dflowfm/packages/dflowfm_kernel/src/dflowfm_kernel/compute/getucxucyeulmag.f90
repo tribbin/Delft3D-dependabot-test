@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2021.                                
+!  Copyright (C)  Stichting Deltares, 2017-2023.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,15 +27,15 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Computes/gets cell centered horizontal x/y velocities, either Eulerian or Lagrangian, and when requested also magnitude.
 !! Centralized routine for multiple uses in output files.
 subroutine getucxucyeulmag(N, ucxeulg, ucyeulg, ucmago, jaeulervel, jaucmag)
    use m_flowgeom
    use m_flow, only: ndkx, ucx, ucy
-   use m_flowparameters, only: jawave
+   use m_flowparameters, only: jawave, flowWithoutWaves
    use m_waves, only: ustokes            ! available for all wave models
 
    implicit none
@@ -52,7 +52,7 @@ subroutine getucxucyeulmag(N, ucxeulg, ucyeulg, ucmago, jaeulervel, jaucmag)
    ucxeulg(1:ndkx) = ucx(1:ndkx) ; ucyeulg(1:ndkx) = ucy(1:ndkx)
 
    ! Transform uxy/ucy into Eulerian velocities
-   if (jaeulervel==1 .and. jawave>0) then
+   if (jaeulervel==1 .and. jawave>0 .and. .not. flowWithoutWaves) then
       call getucxucyeuler(N, ucxeulg, ucyeulg)
    endif
 
