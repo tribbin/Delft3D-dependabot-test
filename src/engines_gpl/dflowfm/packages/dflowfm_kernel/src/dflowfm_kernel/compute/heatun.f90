@@ -41,6 +41,7 @@ use m_heatfluxes
 use m_transport, only: constituents, itemp, isalt
 use m_fm_icecover
 ! use m_fm_icecover, only: ja_icecover, ice_af, ice_h, snow_h, ice_t, snow_t, qh_air2ice, qh_ice2wat, ICECOVER_NONE, ICECOVER_SEMTNER
+use m_physcoef, only: backgroundsalinity
 
 implicit none
 
@@ -322,7 +323,7 @@ else if (jatem == 5) then
                saltcon = constituents(isalt,kt)
              endif    
           else  
-             saltcon = 0.0d0
+             saltcon = backgroundsalinity
           endif    
           call preprocess_icecover(n, Qlong_ice, twatn, saltcon, windn, timhr)
        endif
