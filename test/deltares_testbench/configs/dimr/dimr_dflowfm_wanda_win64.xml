@@ -12,19 +12,19 @@
         <locations>
             <location name="reference_results">
                 <credential ref="commandline"/>
-                <root>https://repos.deltares.nl/repos/DSCTestbench/trunk/references</root>
+                <root>{server_base_url}/references</root>
             </location>
             <location name="cases">
                 <credential ref="commandline"/>
-                <root>https://repos.deltares.nl/repos/DSCTestbench/trunk/cases</root>
+                <root>{server_base_url}/cases</root>
             </location>
             <location name="reference_engines">
                 <credential ref="commandline"/>
-                <root>https://repos.deltares.nl/repos/DSCTestbench/trunk/references/bin</root>
+                <root>{server_base_url}/references/bin</root>
             </location>
             <location name="engines_to_compare">
                 <credential ref="commandline"/>
-                <root>https://repos.deltares.nl/repos/DSCTestbench/trunk/references</root>
+                <root>{server_base_url}/references</root>
             </location>
             <location name="local">
                 <root>./data/engines</root>
@@ -50,9 +50,6 @@
           <location ref="engines_to_compare" type="check">
               <from>teamcity_artifacts/x64</from>
           </location>
-          <environments>
-              <environment name="PATH" type="path">[environment(PATH)];[programGlobals(TestBenchRoot)]\thirdparty\wanda\x64</environment>
-          </environments>
       </program>
       <program name="dimr_parallel" logOutputToFile="true" programStringRemoveQuotes="true" ignoreStandardError="true" ignoreReturnValue="true">
           <path>dimr/scripts/run_dimr_parallel.bat</path>
@@ -63,9 +60,6 @@
           <location ref="engines_to_compare" type="check">
               <from>teamcity_artifacts/x64</from>
           </location>
-          <environments>
-              <environment name="PATH" type="path">[environment(PATH)];[programGlobals(TestBenchRoot)]\thirdparty\wanda\x64</environment>
-          </environments>
       </program>
     </programs>
     <defaultTestCases>

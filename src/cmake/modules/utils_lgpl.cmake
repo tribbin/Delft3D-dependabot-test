@@ -23,6 +23,7 @@ set(kdtree_wrapper_module ${utils_lgpl_path}/kdtree_wrapper/packages/kdtree_wrap
 
 # io_netcdf
 set(io_netcdf_module ${utils_lgpl_path}/io_netcdf/packages/io_netcdf)
+set(io_netcdf_data_module ${utils_lgpl_path}/io_netcdf/packages/io_netcdf_data)
 
 # ec_module
 set(ec_module ${utils_lgpl_path}/ec_module/packages/ec_module)
@@ -43,11 +44,14 @@ set(nefis_module ${utils_lgpl_path}/nefis/packages/nefis)
 # io_hyd
 set(io_hyd_module ${utils_lgpl_path}/io_hyd/packages/io_hyd)
 
+# io_hyd
+set(waq_hyd_data_module ${utils_lgpl_path}/waq_hyd_data)
+
 # D_Hydro_lib
 set(d_hydro_lib_module ${utils_lgpl_path}/d_hydro_lib/packages/d_hydro_lib)
 
 # Tests
 set(test_deltares_common_module test/utils_lgpl/deltares_common/packages/test_deltares_common)
 set(test_ec_module              test/utils_lgpl/ec_module/packages/ec_module_test)
-set(test_waq_utils_f            test/engines_gpl/waq/packages/waq_utils_f)
+set(test_waq_utils_f            test/engines_gpl/waq/waq_utils_f)
 set(test_dflowfm_kernel         test/engines_gpl/dflowfm/packages/dflowfm_kernel)

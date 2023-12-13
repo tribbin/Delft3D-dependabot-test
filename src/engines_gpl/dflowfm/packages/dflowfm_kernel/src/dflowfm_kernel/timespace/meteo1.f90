@@ -5833,7 +5833,6 @@ contains
      use dfm_error
      use messageHandling
      use m_polygon
-     use sorting_algorithms, only: sort
      
      implicit none
      
@@ -6111,7 +6110,7 @@ contains
    
    ! b = factor*b + offset ! todo doorplussen
    
-   if (operand == 'O') then              ! Override, regardless of what was specified before 
+   if (operand == 'O' .or. operand == 'V') then              ! Override, regardless of what was specified before 
       a = b
    else if (operand == 'A') then         ! Add, means: only if nothing was specified before   
       if (a == dmiss_default ) then 
@@ -6686,6 +6685,7 @@ module m_meteo
    integer, target :: item_my                                                !< Unique Item id of the ext-file's 'item_my' quantity
    integer, target :: item_dissurf                                           !< Unique Item id of the ext-file's 'item_dissurf' quantity
    integer, target :: item_diswcap                                           !< Unique Item id of the ext-file's 'item_diswcap' quantity
+   integer, target :: item_distot                                            !< Unique Item id of the ext-file's 'item_distot'  quantity
    integer, target :: item_ubot                                              !< Unique Item id of the ext-file's 'item_ubot' quantity
 
    integer, target :: item_nudge_tem                                         !< 3D temperature for nudging
@@ -6799,6 +6799,7 @@ module m_meteo
       item_my                                    = ec_undef_int
       item_dissurf                               = ec_undef_int
       item_diswcap                               = ec_undef_int
+      item_distot                                = ec_undef_int
       item_ubot                                  = ec_undef_int
       item_dambreakLevelsAndWidthsFromTable      = ec_undef_int 
       item_subsiduplift                          = ec_undef_int
@@ -6930,6 +6931,8 @@ module m_meteo
       select case (operand)
          case ('O')
             ec_operand = operand_replace
+         case ('V')
+            ec_operand = operand_replace_if_value
          case ('+')
             ec_operand = operand_add
          case default
@@ -7192,7 +7195,10 @@ module m_meteo
             dataPtr1 => nudge_tem
          case ('discharge_salinity_temperature_sorsin')
             itemPtr1 => item_discharge_salinity_temperature_sorsin
-            dataPtr1 => qstss
+            ! Do not point to array qstss here.
+            ! qstss might be reallocated after initialization (when coupled to Cosumo) 
+            ! and must be an argument when calling ec_gettimespacevalue.
+            nullify(dataPtr1)
          case ('hrms', 'wavesignificantheight')
             itemPtr1 => item_hrms
             dataPtr1 => hwavcom
@@ -7213,7 +7219,7 @@ module m_meteo
             itemPtr1 => item_fy
             dataPtr1 => sywav
             jamapwav_sywav = 1
-         case ('wsbu')
+        case ('wsbu')
             itemPtr1 => item_wsbu
             dataPtr1 => sbxwav
             jamapwav_sxbwav = 1
@@ -7221,11 +7227,11 @@ module m_meteo
             itemPtr1 => item_wsbv
             dataPtr1 => sbywav
             jamapwav_sybwav = 1
-         case ('mx','xwaveinducedvolumeflux')
+         case ('mx')
             itemPtr1 => item_mx
             dataPtr1 => mxwav
             jamapwav_mxwav = 1
-         case ('my','ywaveinducedvolumeflux')
+         case ('my')
             itemPtr1 => item_my
             dataPtr1 => mywav
             jamapwav_mywav = 1
@@ -7237,7 +7243,11 @@ module m_meteo
             itemPtr1 => item_diswcap
             dataPtr1 => dwcap
             jamapwav_dwcap = 1
-         case ('ubot','bottomorbitalvelocity')
+         case ('totalwaveenergydissipation')
+            itemPtr1 => item_distot
+            dataPtr1 => distot
+            jamapwav_distot = 1
+         case ('ubot')
             itemPtr1 => item_ubot
             dataPtr1 => uorbwav            
             jamapwav_uorb = 1
@@ -8011,10 +8021,8 @@ module m_meteo
                 ! wave data is read from a com.nc file produced by D-Waves which contains one time field only
                 fileReaderPtr%one_time_field = .true.
             endif
-         case ( 'wavesignificantheight', 'waveperiod', 'wavedirection', 'xwaveforce', 'ywaveforce',                     &
-                'xwaveinducedvolumeflux','ywaveinducedvolumeflux','freesurfacedissipation','whitecappingdissipation',   &
-                'bottomorbitalvelocity','totalwaveenergydissipation','bottomdissipation')
-             !BS OWC: wsbu,wsbv might be included here with more appropriate names. 'totalwaveenergydissipation','bottomdissipation': included for now, might be removed if unused
+            case ('wavesignificantheight', 'waveperiod', 'wavedirection', 'xwaveforce', 'ywaveforce', &
+                  'freesurfacedissipation','whitecappingdissipation', 'totalwaveenergydissipation')
              ! the name of the source item created by the file reader will be the same as the ext.force. quant name
             sourceItemName = varname
          case ('airpressure', 'atmosphericpressure')
@@ -8366,6 +8374,14 @@ module m_meteo
                success = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId)
                if (success) success = ecAddConnectionTargetItem(ecInstancePtr, connectionId, item_airtemperature)
                if (success) success = ecAddItemConnection(ecInstancePtr, item_airtemperature, connectionId)
+            elseif (ec_filetype == provFile_netcdf) then
+               sourceItemId = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'air_temperature')
+               success              = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId)
+               if (success) success = ecAddConnectionTargetItem(ecInstancePtr, connectionId, item_airtemperature)
+               if (success) success = ecAddItemConnection(ecInstancePtr, item_airtemperature, connectionId)
+               if (.not. success) then
+                  goto 1234
+               end if
             else
                sourceItemName = 'air_temperature'
             end if
@@ -8374,7 +8390,7 @@ module m_meteo
          case ('airdensity')
             if (ec_filetype == provFile_netcdf) then
                sourceItemId   = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'air_density')
-               if (success) success = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId)
+               success = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId)
             else
                call mess(LEVEL_FATAL, 'm_meteo::ec_addtimespacerelation: Unsupported filetype for quantity '//trim(target_name)//'.')
                return
