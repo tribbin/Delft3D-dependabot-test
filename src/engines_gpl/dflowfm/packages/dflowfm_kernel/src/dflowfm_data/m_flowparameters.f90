@@ -907,7 +907,7 @@ subroutine default_flowparameters()
     javatem    = 6       !< vert. adv. tem1 : 0=No, 1=UpwexpL, 2=Centralexpl, 3=UpwimpL, 4=CentraLimpL, 5=switched to 3 for neg stratif.
     javased    = 6       !< vert. adv. suspended sediment concentrations : 0=No, 1=UpwexpL, 2=Centralexpl, 3=UpwimpL, 4=CentraLimpL, 5=switched to 3 for neg stratif., 6=higher-order upwind/explicit
     jahazlayer = 0       !<
-    jaPure1D   = 0       !< 0 = org 1D advec, 1 = pure1D using vol1_f, 2 = pure1D using vol1
+    jaPure1D   = 0       !< 0 = org 1D advec, 1 = 1D mom Perot using vol1_f, 2 = 1D mom Perot using vol1, 3,4,5,6,7 = 1D mom on links (2 + Iadvec1D of SOBEK)
     jaJunction1D = 1     !< 0 = org 1D advec at junctions, 1 = junctions follow jaPure1D approach
     JaZlayercenterbedvel      = 1
     jastructurelayersactive   = 1
@@ -1012,7 +1012,7 @@ subroutine default_flowparameters()
     jamapselfal = 1
     jamapIntTidesDiss = 1
     jamapNudge = 1
-    jamapPure1D_debug = 1
+    jamapPure1D_debug = 0
     jamapwav = 1
     jamapdtcell = 0
     jamapTimeWetOnGround = 0
