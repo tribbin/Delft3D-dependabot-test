@@ -29,8 +29,9 @@ private
    !! * obscrs_data(1:ncrs, 1:5): basic flow quantities
    !! * obscrs_data(1:ncrs, 5+(1:2*NUMCONST_MDU)): constituent transport quantities
    !! * obscrs_data(1:ncrs, 5+2*NUMCONST_MDU+(1:2 + stmpar%lsedtot)): sediment transport quantities
-   !! The output items for SEDIMENT and TRANSPORT are also registered. 
-   subroutine init_obscrs_data(num_sed_constit_items, output_config, idx_const)
+   !! Also, the output config items for sediment and other constituents are also registered
+   !! (only now, with the model fully loaded, because earlier the constituents were not yet known).
+   subroutine init_obscrs_data_and_config(num_const_items, output_config, idx_const)
    use m_monitoring_crosssections, only: ncrs
    use coordinate_reference_system, only: nc_attribute
    use m_transport, only: NUMCONST_MDU, const_names, isedn, ised1, const_units
@@ -39,10 +40,10 @@ private
    use string_module, only: replace_char
    use netcdf_utils, only: ncu_set_att
 
-   integer,                            intent(  out) :: num_sed_constit_items !< nNmber of sediment and constituent items.
-   type(t_output_quantity_config_set), intent(inout) :: output_config         !< Output configuration for the HIS file.
-   integer, allocatable, dimension(:), intent(  out) :: idx_const             !< Indexes for the constituent and sediment output variables. To be used for 
-                                                                              !< the registration of the variables in the output set.
+   integer,                            intent(  out) :: num_const_items !< Number of constituent items (including sediment).
+   type(t_output_quantity_config_set), intent(inout) :: output_config   !< Output configuration for the HIS file.
+   integer, allocatable, dimension(:), intent(  out) :: idx_const       !< Indexes for the constituent output variables. To be used for 
+                                                                        !< the registration of the variables in the output set.
    integer ::  num, lenunitstr, lsed
    character(len=idlen) :: conststr
    character(len=idlen) :: unitstr
@@ -52,18 +53,18 @@ private
       return
    end if
    
-   call ncu_set_att(atts(1), 'geometry', 'station_geom')
+   call ncu_set_att(atts(1), 'geometry', 'cross_section_geom')
    
    if (jased == 4 .and. stmpar%lsedtot > 0) then
-      num_sed_constit_items = 2 + stmpar%lsedtot
+      num_const_items = 2 + stmpar%lsedtot
    else
-      num_sed_constit_items = 0
+      num_const_items = 0
    end if
-   num_sed_constit_items = num_sed_constit_items + 2*NUMCONST_MDU
+   num_const_items = num_const_items + 2*NUMCONST_MDU
 
    if (.not. allocated(obscrs_data)) then
-      allocate(obscrs_data(ncrs, 5 + num_sed_constit_items)) ! First 5 are for IPNT_Q1C:IPNT_HUA
-      allocate(idx_const(num_sed_constit_items))
+      allocate(obscrs_data(ncrs, 5 + num_const_items)) ! First 5 are for IPNT_Q1C:IPNT_HUA
+      allocate(idx_const(num_const_items))
    endif
    
    do num = 1,NUMCONST_MDU
@@ -88,7 +89,7 @@ private
          endif
       endif
 
-      ! Just-in-time add *config* item for this constituent transport
+      ! Just-in-time add *config* item for this constituent current transport
       call addoutval(out_quan_conf_his, idx_const(2*num-1),                                       &
             'Wrihis_crs_constituents', 'cross_section_'//trim(conststr), &
             'Flux (based on upwind flow cell) for '//trim(conststr), &
@@ -125,21 +126,19 @@ private
       else
          idx_const(NUMCONST_MDU*2 + 2) = 0
       endif
-      output_config%statout(NUMCONST_MDU*2 + 1)%input_value = output_config%statout(IDX_HIS_OBSCRS_CONST_ABSTRACT)%input_value 
-      output_config%statout(NUMCONST_MDU*2 + 2)%input_value = output_config%statout(IDX_HIS_OBSCRS_CONST_ABSTRACT)%input_value 
       
       do lsed = 1,stmpar%lsedtot    ! Making bedload on crosssections per fraction
          ! Just-in-time add *config* item for this fraction's bed load sediment transport
-         call addoutval(output_config, idx_const((NUMCONST_MDU+1)*2 + lsed),                                       &
+         call addoutval(output_config, idx_const(NUMCONST_MDU*2 + 2 + lsed),                                       &
                'Wrihis_constituents', 'cross_section_bedload_sediment_transport_'//trim(stmpar%sedpar%namsed(lsed)), &
                'Cumulative bed load sediment transport for fraction '//trim(stmpar%sedpar%namsed(lsed)), &
                '', 'kg', UNC_LOC_OBSCRS, nc_atts = atts(1:1))
-         output_config%statout(idx_const((NUMCONST_MDU+1)*2 + lsed))%input_value =     &
+         output_config%statout(idx_const(NUMCONST_MDU*2 + 2 + lsed))%input_value =     &
                output_config%statout(IDX_HIS_OBSCRS_SED_BTRANSPORT_PERFRAC_ABSTRACT)%input_value 
       enddo
    endif
    
-   end subroutine init_obscrs_data
+   end subroutine init_obscrs_data_and_config
 
 
    !> Aggregate observation crossection data from crs()% value arrays into source_input data array.
@@ -1575,7 +1574,7 @@ private
       double precision, pointer, dimension(:) :: temp_pointer
       procedure(process_data_double_interface),  pointer :: function_pointer => NULL()
 
-      integer :: i, ntot, num_sed_constit_items
+      integer :: i, ntot, num_const_items
       integer, allocatable, dimension(:) :: idx_const
 
       ntot = numobs + nummovobs
@@ -2020,7 +2019,7 @@ private
          ! Prepare data array
          ! Add configuration items for constituents and sediment output (During reading of MDU file this data was not available)
          !
-         call init_obscrs_data(num_sed_constit_items, output_config, idx_const)
+         call init_obscrs_data_and_config(num_const_items, output_config, idx_const)
 
          !
          ! Basic flow quantities
@@ -2033,7 +2032,7 @@ private
          !
          ! Transported consituents
          !
-         do i = 1, num_sed_constit_items
+         do i = 1, num_const_items
             if (idx_const(i) > 0) then
                call add_stat_output_items(output_set, output_config%statout(idx_const(i)),      obscrs_data(:,5 + i))
             endif
