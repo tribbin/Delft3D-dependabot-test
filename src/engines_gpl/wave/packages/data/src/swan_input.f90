@@ -3790,16 +3790,16 @@ subroutine write_swan_inp (wavedata, calccount, &
              i          = i+1+len_trim(pointname)
              if (nnest>1) then
                 line(i:) = 'n'
-                write (line(i+1:), '(I1)') inest
-                i = i+2
+                write (line(i+1:), '(I2.2)') inest
+                i = i+3
              endif
              if (nttide>1 .or. wavedata%mode /= stand_alone) then
                 line(i:) = 't'
                 i = i+1
                 if (nttide > 1) then
-                    write (line(i+1:), '(I7.7)') 1000000*inest + itide
+                    write (line(i:), '(I8.8)') 1000000*inest + itide
                 else  ! wavedata%mode /= stand_alone
-                   write (line(i+1:), '(I7.7)') calccount
+                   write (line(i:), '(I8.8)') calccount
                 endif
                 i = i+8
              endif
