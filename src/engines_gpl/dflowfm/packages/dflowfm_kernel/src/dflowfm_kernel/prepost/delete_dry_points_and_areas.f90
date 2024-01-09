@@ -39,14 +39,14 @@
    use m_flowgeom, only: xz, yz, ba
    use m_partitioninfo, only: idomain, iglobal_s
    implicit none
-   logical caching_success
-   caching_success = .false.
+   logical cache_success
+   cache_success = .false.
 
    if ( cacheRetrieved() ) then
-       call copy_cached_deleted_dry_points_and_areas(nump, nump1d2d, lne, lnn, ba, xz, yz, xzw, yzw, netcell, caching_success)
+       call copy_cached_deleted_dry_points_and_areas(nump, nump1d2d, lne, lnn, ba, xz, yz, xzw, yzw, netcell, cache_success)
    endif
    
-   if ( .not. caching_success ) then
+   if ( .not. cache_success ) then
        call delete_drypoints_from_netgeom(md_dryptsfile, 0, 0)
        call delete_drypoints_from_netgeom(md_encfile, 0, -1)
     !   call delete_drypoints_from_netgeom(md_cutcelllist, 0, 0)

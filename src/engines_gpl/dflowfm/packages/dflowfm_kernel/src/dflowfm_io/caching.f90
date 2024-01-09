@@ -97,18 +97,26 @@ subroutine default_caching()
 
    cache_success = .false.
 
-   if (allocated(cache_xobs))        deallocate(cache_xobs)
-   if (allocated(cache_yobs))        deallocate(cache_yobs)
-   if (allocated(cache_xpl_fixed))   deallocate(cache_xpl_fixed)
-   if (allocated(cache_ypl_fixed))   deallocate(cache_ypl_fixed)
-   if (allocated(cache_dsl_fixed))   deallocate(cache_dsl_fixed)
-   if (allocated(cache_locTpObs))    deallocate(cache_locTpObs)
-   if (allocated(cache_kobs))        deallocate(cache_kobs)
-   if (allocated(cache_ilink_fixed)) deallocate(cache_ilink_fixed)
-   if (allocated(cache_ipol_fixed))  deallocate(cache_ipol_fixed)
-   if (allocated(cache_linklist))    deallocate(cache_linklist)
-   if (allocated(cache_ipol))        deallocate(cache_ipol)
-
+   if (allocated(cache_xobs))           deallocate(cache_xobs)
+   if (allocated(cache_yobs))           deallocate(cache_yobs)
+   if (allocated(cache_xpl_fixed))      deallocate(cache_xpl_fixed)
+   if (allocated(cache_ypl_fixed))      deallocate(cache_ypl_fixed)
+   if (allocated(cache_dsl_fixed))      deallocate(cache_dsl_fixed)
+   if (allocated(cache_locTpObs))       deallocate(cache_locTpObs)
+   if (allocated(cache_kobs))           deallocate(cache_kobs)
+   if (allocated(cache_ilink_fixed))    deallocate(cache_ilink_fixed)
+   if (allocated(cache_ipol_fixed))     deallocate(cache_ipol_fixed)
+   if (allocated(cache_linklist))       deallocate(cache_linklist)
+   if (allocated(cache_ipol))           deallocate(cache_ipol)
+   if (allocated(cached_lne_dry))       deallocate(cached_lne_dry)
+   if (allocated(cached_lnn_dry))       deallocate(cached_lnn_dry)
+   if (allocated(cached_xzw_dry))       deallocate(cached_xzw_dry)
+   if (allocated(cached_yzw_dry))       deallocate(cached_yzw_dry)
+   if (allocated(cached_ba_dry))        deallocate(cached_ba_dry)
+   if (allocated(cached_xz_dry))        deallocate(cached_xz_dry)
+   if (allocated(cached_yz_dry))        deallocate(cached_yz_dry)
+   if (allocated(cached_netcell_dry))   deallocate(cached_netcell_dry)
+   
    if (allocated(cache_cross_sections)) call deallocCrossSections(cache_cross_sections)
 
    md5current = ''
