@@ -41,7 +41,7 @@ module m_dlwq5b
                       rar  , nconst, itmnr, parsed_str , ioutpt, &
                       error_ind , iwar)
 
-    use m_string_utils, only: index_in_array, join_strings
+    use m_string_utils, only: index_in_array, join_strings, string_equals
     use m_movint
     use m_movchr
     !use timers
@@ -244,8 +244,7 @@ module m_dlwq5b
                 write (parsed_str(6:12) , '(I7)') parsed_items_count+1
             end if
             ! FLOW is only valid as CONCENTR. and item number is 0
-            ifound = index_in_array(parsed_str, ['FLOW                '])
-            if (ifound == 1 .and. caller == 'CONCENTR. ') then
+            if (string_equals(trim(parsed_str), 'FLOW') .and. caller == 'CONCENTR. ') then
                 call update_counters(parsed_items_count, noits, itmnr)
                 icm = itmnr + parsed_items_count + ioff
                 call movint(iar, itmnr      , itmnr + parsed_items_count*2)
