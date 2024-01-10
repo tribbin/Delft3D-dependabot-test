@@ -229,8 +229,10 @@ contains
    if (jaoldrstfile == ON) then ! If the restart file is of old version (which does not have waterlevel etc info on boundaries), then need to set.
       call sets01zbnd(0, 0)
    end if
-   call sets01zbnd(1, 1)
-
+   if (.not. jawelrestart) then
+      call sets01zbnd(1, 1)
+   endif 
+   
    call initialize_values_at_normal_velocity_boundaries()
    call initialize_values_at_discharge_boundaries()
    call copy_boundary_friction_and_skewness_into_flow_links()
