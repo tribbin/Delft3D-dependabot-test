@@ -8487,8 +8487,12 @@ module m_meteo
                      endif
                   endif
                endif
-               ! ec_addtimespacerelation has not been set to TRUE, so given the next statement is RETURN, this looks
-               ! like a fail without an error message if all calls are successful.
+               if (success) then
+                  ! all statements executed successfully ... this must be good
+                  ec_addtimespacerelation = .true.
+               else
+                  call mess(LEVEL_FATAL, 'm_meteo::ec_addtimespacerelation: Error while default processing of ext-file (connect source and target) for : '//trim(target_name)//'.')
+               endif
             else
                call mess(LEVEL_FATAL, 'm_meteo::ec_addtimespacerelation: Unsupported quantity specified in ext-file (connect source and target): '//trim(target_name)//'.')
             endif

@@ -47,8 +47,8 @@ real(fp), dimension(:), pointer                            :: qh_ice2wat        
 real(fp), dimension(:), pointer                            :: snow_h                       !< module pointer to array snow thickness inside ice_data
 real(fp), dimension(:), pointer                            :: snow_t                       !< module pointer to array snow temperature inside ice_data
 
-integer, pointer                                           :: ja_aice_read                 !< flag indicating whether ice area fraction is available via EC module
-integer, pointer                                           :: ja_hice_read                 !< flag indicating whether ice thickness is available via EC module
+integer, pointer                                           :: ja_ice_area_fraction_read    !< flag indicating whether ice area fraction is available via EC module
+integer, pointer                                           :: ja_ice_thickness_read        !< flag indicating whether ice thickness is available via EC module
 
 logical, pointer                                           :: ice_hisout                   !< module pointer to flag hisout inside ice_data
 logical, pointer                                           :: ice_mapout                   !< module pointer to flag mapout inside ice_data
@@ -113,8 +113,8 @@ subroutine fm_ice_update_all_pointers()
 !
 !! executable statements -------------------------------------------------------
 !
-    ja_aice_read => ice_data%ice_areafrac_forcing_available
-    ja_hice_read => ice_data%ice_thickness_forcing_available
+    ja_ice_area_fraction_read => ice_data%ice_areafrac_forcing_available
+    ja_ice_thickness_read => ice_data%ice_thickness_forcing_available
 
     ja_icecover => ice_data%modeltype
    
