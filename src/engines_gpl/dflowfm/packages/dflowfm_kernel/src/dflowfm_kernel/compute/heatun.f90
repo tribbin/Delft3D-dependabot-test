@@ -39,8 +39,7 @@ use unstruc_model
 use m_flowtimes
 use m_heatfluxes
 use m_transport, only: constituents, itemp, isalt
-use m_fm_icecover
-! use m_fm_icecover, only: ja_icecover, ice_af, ice_h, snow_h, ice_t, snow_t, qh_air2ice, qh_ice2wat, ICECOVER_NONE, ICECOVER_SEMTNER
+use m_fm_icecover, only: ja_icecover, ice_af, ice_albedo, ice_h, ice_t, snow_albedo, snow_h, snow_t, qh_air2ice, qh_ice2wat, ICECOVER_NONE, ICECOVER_SEMTNER, preprocess_icecover
 use m_physcoef, only: backgroundsalinity
 
 implicit none
@@ -63,7 +62,12 @@ double precision :: hlc, arn, wxL, wyL, uL, vL, uxL, uyL, bak2, twatb
 
 double precision :: qsunsoil, qwatsoil, watsoiltransfer, rdtsdz, soiltemprev, pvtamxB, pvtwmxB
 
-double precision :: afrac, Qlong_ice, tsurf, saltcon
+double precision :: afrac                !< area fraction of ice cover (-)
+double precision :: Qlong_ice            !< coefficient for long wave radiation of ice (J m-2 s-1 K-4)
+double precision :: tsurf                !< surface temperature ... temperature of water, ice or snow depending on their presence (degC)
+double precision :: salinity             !< water salinity (ppt)
+
+double precision, parameter :: MIN_THICK = 0.001_fp !< threshold thickness for ice/snow to overrule the underlying layer (m)
 
 if (ja_icecover /= ICECOVER_NONE) then
     afrac = 1d0 - ice_af(n)
@@ -127,16 +131,16 @@ else if (jatem == 5) then
    ! Set TSURF either to TWATN or to ice_t(n) or to snow_t(n) and change albedo parameter in case of ice and/or snow
    !
    if (ja_icecover == ICECOVER_SEMTNER) then
-       if (ice_h(n)  > 0.001_fp .and. snow_h(n) < 0.001_fp) then
-          !
-          ! ice but no snow 
-          albedo = ice_albedo
-          tsurf  = ice_t(n)
-       else if (ice_h(n)  > 0.001_fp .and. snow_h(n) > 0.001_fp) then
+       if (snow_h(n) > MIN_THICK) then
          !
          ! ice and snow  
          albedo = snow_albedo
          tsurf  = snow_t(n)
+       elseif (ice_h(n) > MIN_THICK) then
+          !
+          ! ice but no snow 
+          albedo = ice_albedo
+          tsurf  = ice_t(n)
        else
           !
           ! no ice and no snow, but ice_modelling switched on
@@ -192,7 +196,8 @@ else if (jatem == 5) then
             explo = 1d0
 
             do k  = kt,kb,-1
-               zup     = zlo ; expup   = explo
+               zup     = zlo
+               expup   = explo
                zlo     = zws(kt) - zws(k-1)
                ratio   = zlo/zab(j)
                if (ratio   > 4d0) then !  .or. k.eq.kb) then
@@ -232,11 +237,8 @@ else if (jatem == 5) then
 
    ! PVTWMX = PVapour at TWater and MaX relative humidity
    ! PVTAMX = PVapour at TAir   and MaX relative humidity
-   pvtamx = 10d0**((0.7859d0+0.03477d0*tairn)/(1d0+0.00412d0*tairn)) ! saturation pressure of water vapour in air remote (ewl)
-   pvtwmx = 10d0**((0.7859d0+0.03477d0*tsurf)/(1d0+0.00412d0*tsurf)) ! and near water surface (ew); eq.(A.12):
-
-   !pvtamxB = 6.1121d0*exp( (18.678d0 - (tairn/234.5d0))*(tairn/(257.14d0+tairn) ) )  ! Buck
-   !pvtwmxB = 6.1121d0*exp( (18.678d0 - (twatn/234.5d0))*(twatn/(257.14d0+twatn) ) )  ! Buck
+   pvtamx = saturation_pressure(tairn) ! saturation pressure of water vapour in air remote (ewl)
+   pvtwmx = saturation_pressure(tsurf) ! and near water surface (ew); eq.(A.12):
 
    pvtahu = rhumn*pvtamx                                             ! vapour pressure in air remote (eal)
 
@@ -260,7 +262,7 @@ else if (jatem == 5) then
    ! change parameters for ice modelling
    !
    if (ja_icecover == ICECOVER_SEMTNER) then
-       if (ice_h(n)  > 0.001_fp) then
+       if (ice_h(n)  > MIN_THICK) then
            ! in case of ice (and snow) overrule the Stanton number (convective heat flux)
            ch = 0.00232d0
        endif
@@ -309,7 +311,7 @@ else if (jatem == 5) then
    ! In case of ice preprocessing of ice quantities
    !
    if (ja_icecover == ICECOVER_SEMTNER) then
-       if (ice_h(n) > 0.001_fp .or. (twatn < 0.1_fp .and. tair(n) < 0.0_fp) ) then
+       if (ice_h(n) > MIN_THICK .or. (twatn < 0.1_fp .and. tair(n) < 0.0_fp) ) then
           ! 
           ! Compute Qlong_ice (NB. Delft3D-FLOW definition is used, with opposite sign, so that
           ! algorithm in preprocess_icecover remains identical to the one for Delft3D-FLOW  
@@ -317,19 +319,19 @@ else if (jatem == 5) then
           !
           qh_air2ice(n) = qsu + qheat
           !
-          if (ISALT .gt. 0) then
-             if (kmx .eq. 0 ) then
-                saltcon = constituents(isalt,n)
+          if (isalt > 0) then
+             if (kmx == 0 ) then
+                salinity = constituents(isalt,n)
              else    
-               saltcon = constituents(isalt,kt)
+               salinity = constituents(isalt,kt)
              endif    
           else  
-             saltcon = backgroundsalinity
+             salinity = backgroundsalinity
           endif    
-          call preprocess_icecover(n, Qlong_ice, twatn, saltcon, windn, timhr)
+          call preprocess_icecover(n, Qlong_ice, twatn, salinity, windn, timhr)
        endif
        !
-       if (ice_h(n) > 0.001_fp) then
+       if (ice_h(n) > MIN_THICK) then
            !
            ! recompute heatsrc0 because of presence of ice
            !
@@ -407,4 +409,14 @@ else if (jatem == 5) then
 
 endif
 
+    contains
+    
+    !> function to compute saturation pressure of water vapour at a specified temperature
+    double precision function saturation_pressure(temp)
+    double precision :: temp !< temperature (degC)
+    
+    saturation_pressure = 10d0**((0.7859d0+0.03477d0*temp)/(1d0+0.00412d0*temp))
+    ! 6.1121d0*exp( (18.678d0 - (temp/234.5d0))*(temp/(257.14d0+temp) ) )  ! Buck
+    end function saturation_pressure
+    
 end subroutine heatun

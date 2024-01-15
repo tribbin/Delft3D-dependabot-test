@@ -123,9 +123,6 @@ subroutine extract_constituents()
             endif
          enddo
       endif
-      if (limmin .ne. 0) then
-         write(msgbuf , *) 'Min. temperature limited, number of cells Limmin = ' , limmin  ; call msg_flush()
-      endif
       if (limmin .ne. 0 .and. tempmin > -0.001d0) then     !! no warnings when negative temperatures are allowed
          write(msgbuf , *) 'Min. temperature limited, number of cells Limmin = ' , limmin  ; call msg_flush()
       endif

@@ -27,9 +27,6 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
-
 module m_fm_icecover
 use precision
 use icecover_module
@@ -65,15 +62,15 @@ integer, pointer                                           :: ice_modify_winddra
 integer, pointer                                           :: ja_icecover                  !< module pointer to modeltype flag inside ice_data that specifies the ice cover model
 integer, pointer                                           :: ice_frctp                    !< module pointer to frict_type inside ice_data
 
-real(fp), pointer                                          :: ice_dens                     !< module pointer to ice_dens inside ice_data
+real(fp), pointer                                          :: ice_density                  !< module pointer to ice_density inside ice_data
 real(fp), pointer                                          :: ice_albedo                   !< module pointer to ice_albedo inside ice_data
-real(fp), pointer                                          :: ice_conduc                   !< module pointer to ice_conduc inside ice_data
-real(fp), pointer                                          :: ice_lh                       !< module pointer to ice_lh inside ice_data
+real(fp), pointer                                          :: ice_conductivity             !< module pointer to ice_conductivity inside ice_data
+real(fp), pointer                                          :: ice_latentheat               !< module pointer to ice_latentheat inside ice_data
 real(fp), pointer                                          :: ice_frcuni                   !< module pointer to frict_val inside ice_data
 
 real(fp), pointer                                          :: snow_albedo                  !< module pointer to snow_albedo inside ice_data
-real(fp), pointer                                          :: snow_conduc                  !< module pointer to snow_conduc inside ice_data
-real(fp), pointer                                          :: snow_lh                      !< module pointer to snow_lh inside ice_data
+real(fp), pointer                                          :: snow_conductivity            !< module pointer to snow_conductivity inside ice_data
+real(fp), pointer                                          :: snow_latentheat              !< module pointer to snow_latentheat inside ice_data
 
 
 contains
@@ -91,7 +88,7 @@ subroutine fm_ice_null()
     !
     ! Local variables
     !
-    integer                                                    :: istat     !> status flag for allocation
+    integer                                                    :: istat     !< status flag for allocation
 !
 !! executable statements -------------------------------------------------------
 !
@@ -116,8 +113,8 @@ subroutine fm_ice_update_all_pointers()
 !
 !! executable statements -------------------------------------------------------
 !
-    ja_aice_read => ice_data%areafrac_forcing_available
-    ja_hice_read => ice_data%thick_ice_forcing_available
+    ja_aice_read => ice_data%ice_areafrac_forcing_available
+    ja_hice_read => ice_data%ice_thickness_forcing_available
 
     ja_icecover => ice_data%modeltype
    
@@ -130,15 +127,15 @@ subroutine fm_ice_update_all_pointers()
     ice_modify_winddrag => ice_data%modify_winddrag
     
     ice_albedo          => ice_data%ice_albedo
-    ice_conduc          => ice_data%ice_conductivity
-    ice_lh              => ice_data%ice_latentheat
-    ice_dens            => ice_data%ice_dens
+    ice_conductivity    => ice_data%ice_conductivity
+    ice_latentheat      => ice_data%ice_latentheat
+    ice_density         => ice_data%ice_density
     ice_frctp           => ice_data%frict_type
     ice_frcuni          => ice_data%frict_val
     
     snow_albedo         => ice_data%snow_albedo
-    snow_conduc         => ice_data%snow_conductivity
-    snow_lh             => ice_data%snow_latentheat
+    snow_conductivity   => ice_data%snow_conductivity
+    snow_latentheat     => ice_data%snow_latentheat
     
     call fm_ice_update_spatial_pointers()
 end subroutine fm_ice_update_all_pointers
@@ -159,14 +156,16 @@ subroutine fm_ice_update_spatial_pointers()
 !
 !! executable statements -------------------------------------------------------
 !
-    ice_af => ice_data%areafrac
-    ice_h  => ice_data%thick_ice
-    ice_t  => ice_data%temp_ice
+    ice_af => ice_data%ice_areafrac
+    ice_h  => ice_data%ice_thickness
+    !
+    ice_t  => ice_data%ice_temperature
+    snow_h => ice_data%snow_thickness
+    snow_t => ice_data%snow_temperature
+    !
     ice_p  => ice_data%pressure
     qh_air2ice => ice_data%qh_air2ice
     qh_ice2wat => ice_data%qh_ice2wat
-    snow_h => ice_data%thick_snow
-    snow_t => ice_data%temp_snow
 end subroutine fm_ice_update_spatial_pointers
 
 
@@ -178,11 +177,11 @@ subroutine fm_ice_activate_by_ext_forces(ndx)
     !
     ! Function/routine arguments
     !
-    integer                                    , intent(in)    :: ndx       !> number of cells in the D-Flow FM domain
+    integer                                    , intent(in)    :: ndx       !< number of cells in the D-Flow FM domain
     !
     ! Local variables
     !
-    integer                                                    :: istat     !> status flag for allocation
+    integer                                                    :: istat     !< status flag for allocation
 !
 !! executable statements -------------------------------------------------------
 !
@@ -199,11 +198,11 @@ subroutine fm_ice_alloc(ndx)
     !
     ! Function/routine arguments
     !
-    integer                                    , intent(in)    :: ndx       !> number of cells in the D-Flow FM domain
+    integer                                    , intent(in)    :: ndx       !< number of cells in the D-Flow FM domain
     !
     ! Local variables
     !
-    integer                                                    :: istat     !> status flag for allocation
+    integer                                                    :: istat     !< status flag for allocation
 !
 !! executable statements -------------------------------------------------------
 !
@@ -226,7 +225,7 @@ subroutine fm_ice_clr()
     !
     ! Local variables
     !
-    integer                                                    :: istat     !> status flag for allocation
+    integer                                                    :: istat     !< status flag for allocation
 !
 !! executable statements -------------------------------------------------------
 !
@@ -244,16 +243,16 @@ subroutine fm_ice_read(md_ptr, ierror)
     !
     ! Function/routine arguments
     !
-    type(tree_data)                            , pointer       :: md_ptr   !> pointer to the input file
-    integer                                    , intent(inout) :: ierror   !> D-Flow FM error flag
+    type(tree_data)                            , pointer       :: md_ptr   !< pointer to the input file
+    integer                                    , intent(inout) :: ierror   !< D-Flow FM error flag
     !
     ! Local variables
     !
-    logical                                                    :: error    !> ice module error flag
+    logical                                                    :: error    !< ice module error flag
 !
 !! executable statements -------------------------------------------------------
 !
-    call rd_icecover(ice_data, md_ptr, 'ice',  error)
+    call read_icecover(ice_data, md_ptr, 'ice',  error)
     call fm_ice_update_spatial_pointers()
     !
     if (error) then
@@ -269,11 +268,11 @@ subroutine fm_ice_echo(mdia)
     !
     ! Function/routine arguments
     !
-    integer                                    , intent(in)    :: mdia     !> unit number of diagnostic output
+    integer                                    , intent(in)    :: mdia     !< unit number of diagnostic output
     !
     ! Local variables
     !
-    logical                                                    :: error    !> ice module error flag
+    logical                                                    :: error    !< ice module error flag
 !
 !! executable statements -------------------------------------------------------
 !
@@ -288,7 +287,7 @@ subroutine fm_ice_update_press(ag)
     !
     ! Function/routine arguments
     !
-    real(fp)                                   , intent(in)    :: ag       !> gravitational accelaration (m/s2)
+    real(fp)                                   , intent(in)    :: ag       !< gravitational accelaration (m/s2)
     !
     ! Local variables
     !
@@ -314,12 +313,12 @@ subroutine preprocess_icecover(n, Qlong_ice, tempwat, saltcon, wind, timhr)
     !
     ! Function/routine arguments
     !
-    integer                                    , intent(in)    :: n             !> node number
-    real(fp)                                   , intent(in)    :: Qlong_ice     !> part of Qlong computed in HEATUN
-    real(fp)                                   , intent(in)    :: tempwat       !> temperature of water at top layer [degC]
-    real(fp)                                   , intent(in)    :: saltcon       !> salinity of water at top layer [degC]
-    real(fp)                                   , intent(in)    :: wind          !> wind speed [m/s]
-    real(fp)                                   , intent(in)    :: timhr         !> time [h]
+    integer                                    , intent(in)    :: n             !< node number
+    real(fp)                                   , intent(in)    :: Qlong_ice     !< part of Qlong computed in HEATUN
+    real(fp)                                   , intent(in)    :: tempwat       !< temperature of water at top layer [degC]
+    real(fp)                                   , intent(in)    :: saltcon       !< salinity of water at top layer [degC]
+    real(fp)                                   , intent(in)    :: wind          !< wind speed [m/s]
+    real(fp)                                   , intent(in)    :: timhr         !< time [h]
     !
     ! Local variables
     !
@@ -367,22 +366,18 @@ subroutine preprocess_icecover(n, Qlong_ice, tempwat, saltcon, wind, timhr)
     t_freeze = ( -0.0575d0 - 2.154996d-4*saltcon ) * saltcon
 
     select case (ja_icecover)
-    case (ICECOVER_KNMI)
-        ! follow De Bruin & Wessels (1975)
-        ! not implemented yet
-        
     case (ICECOVER_SEMTNER)
         ! follow Semtner (1975)
         !
         ! Compute conductivity, depending on the presence of both ice and snow 
         ! 
         if ( snow_h(n) < 0.001_fp ) then
-           conduc = ice_conduc 
+           conduc = ice_conductivity
            D_ice = max (0.01_fp, ice_h(n))
            tsi = ice_t(n)
         else
-           conduc = (ice_conduc * snow_conduc)
-           D_ice = ( max (0.01_fp, ice_h(n)) * snow_conduc + max (0.01_fp, snow_h(n)) * ice_conduc)
+           conduc = (ice_conductivity * snow_conductivity)
+           D_ice = ( max (0.01_fp, ice_h(n)) * snow_conductivity + max (0.01_fp, snow_h(n)) * ice_conductivity)
            tsi = snow_t(n)
         endif    
         !
@@ -511,9 +506,6 @@ subroutine update_icecover()
 
     conv_factor = 1.0_fp / (1000.0_fp * 86400.0_fp)
     select case (ja_icecover)
-    case (ICECOVER_KNMI)
-        ! follow De Bruin & Wessels (1975)
-        
     case (ICECOVER_SEMTNER)
         ! follow Semtner (1975)
  
@@ -533,16 +525,16 @@ subroutine update_icecover()
                    if ( snow_h(n) < 0.001_fp ) then
                        ! melting of ice
                        !
-                       ice_h(n) = ice_h(n) + dts * ( -qh_air2ice(n) + qh_ice2wat(n) ) / ice_lh
+                       ice_h(n) = ice_h(n) + dts * ( -qh_air2ice(n) + qh_ice2wat(n) ) / ice_latentheat
                    else
                        ! melting of snow
                        !
-                       snow_h(n) = snow_h(n) + dts * ( 0.0_fp - qh_air2ice(n) ) / snow_lh
+                       snow_h(n) = snow_h(n) + dts * ( 0.0_fp - qh_air2ice(n) ) / snow_latentheat
                    endif
                else
                    ! freezing of ice
                    !
-                   ice_h(n) = ice_h(n) + dts * ( -qh_air2ice(n) + qh_ice2wat(n) ) / ice_lh
+                   ice_h(n) = ice_h(n) + dts * ( -qh_air2ice(n) + qh_ice2wat(n) ) / ice_latentheat
                endif
            endif
         enddo
@@ -560,9 +552,9 @@ pure function fm_ice_drag_effect(ice_af, cdw) result (cdeff)
     !
     ! Function/routine arguments
     !
-    real(fp)                                   , intent(in)    :: ice_af   !> ice area fraction (-)
-    real(fp)                                   , intent(in)    :: cdw      !> wind drag exerted via open water
-    real(fp)                                                   :: cdeff    !> effective wind drag coefficient
+    real(fp)                                   , intent(in)    :: ice_af   !< ice area fraction (-)
+    real(fp)                                   , intent(in)    :: cdw      !< wind drag exerted via open water
+    real(fp)                                                   :: cdeff    !< effective wind drag coefficient
     !
     ! Local variables
     !

@@ -765,7 +765,6 @@ subroutine readMDUFile(filename, istat)
     integer            :: major, minor
     integer            :: ignore_value
     external           :: unstruc_errorhandler
-    integer :: jamapice
     istat = 0 ! Success
 
 ! Put .mdu file into a property tree
@@ -2041,7 +2040,7 @@ subroutine readMDUFile(filename, istat)
       jamapsal = 0
       jahissal = 0
     end if
-    if (jamapice ==1) then
+    if (jamapice > 0) then
         ice_mapout = .true.
     endif     
 
@@ -4276,6 +4275,9 @@ endif
     endif
     if (jaeverydt > 0 .or. writeall) then
       call prop_set(prop_ptr, 'output', 'Wrimap_every_dt', jaeverydt, 'Write output to map file every dt, based on start and stop from MapInterval, 0=no (default), 1=yes')
+    endif
+    if (jamapice > 0 .or. writeall) then
+      call prop_set(prop_ptr, 'output', 'Wrimap_ice', jamapice, 'Write output to map file for ice cover, 0=no (default), 1=yes')
     endif
 
 

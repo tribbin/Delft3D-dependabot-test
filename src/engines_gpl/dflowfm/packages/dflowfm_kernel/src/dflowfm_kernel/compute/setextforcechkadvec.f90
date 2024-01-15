@@ -226,14 +226,18 @@ if (jawind > 0) then
     call fm_ice_update_press(ag)
  endif
 
- if (japatm > 0 .or. jatidep > 0 .or. jaselfal > 0 .or. ice_apply_pressure) then
+ if (japatm > 0 .or. jatidep > 0 .or. ice_apply_pressure) then
     do L  = 1,lnx
        if ( hu(L) > 0 ) then
           k1     = ln(1,L) ; k2 = ln(2,L)
 
           dptot = 0.0d0
-          if (japatm > 0) dptot  = dptot + (patm(k2)-patm(k1))*dxi(L)/rhomean
-          if (ice_apply_pressure) dptot  = dptot + (ice_p(k2)-ice_p(k1))*dxi(L)/rhomean
+          if (japatm > 0) then
+             dptot  = dptot + (patm(k2)-patm(k1))*dxi(L)/rhomean
+          endif
+          if (ice_apply_pressure) then
+             dptot  = dptot + (ice_p(k2)-ice_p(k1))*dxi(L)/rhomean
+          endif
           if (jatidep > 0 .or. jaselfal > 0) then
              if (jatidep == 1) then 
                 tidp = ( tidep(1,k2) - tidep(1,k1) )*dxi(L)

@@ -27,9 +27,6 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
-
 module icecover_module
 use precision
 use MessageHandling, only: mess, LEVEL_ALL, LEVEL_FATAL
@@ -42,19 +39,18 @@ public icecover_type
 
 ! public parameters
 !
-integer, parameter, public :: ICECOVER_NONE    = 0 !> no ice cover
-integer, parameter, public :: ICECOVER_EXT     = 1 !> externally forced ice cover --> EC module, or BMI?
-integer, parameter, public :: ICECOVER_KNMI    = 2 !> ice thickness computed based on De Bruin & Wessels
-integer, parameter, public :: ICECOVER_SEMTNER = 3 !> ice thickness computed based on Semtner (1975)
-! ... add IcePack?
+integer, parameter, public :: ICECOVER_NONE    = 0 !< no ice cover
+integer, parameter, public :: ICECOVER_EXT     = 1 !< externally forced ice cover --> EC module, or BMI?
+integer, parameter, public :: ICECOVER_SEMTNER = 2 !< ice thickness computed based on Semtner (1975)
+! ... add IcePack
 
 integer, parameter, public :: FRICT_AS_DRAG_COEFF = 11 ! should be extension of D-Flow FM friction numbers
 
-integer, parameter, public :: ICE_WINDDRAG_NONE    = 0 !> no effect, normal wind drag
-integer, parameter, public :: ICE_WINDDRAG_CUBIC   = 1 !> Based on ADCIRC (Chapman & Massey)
-integer, parameter, public :: ICE_WINDDRAG_LB05    = 2 !> Lupkes and Birnbaum (2005)
-integer, parameter, public :: ICE_WINDDRAG_AN10    = 3 !> Andreas et al (2010)
-integer, parameter, public :: ICE_WINDDRAG_LINEAR  = 4 !> no wind drag below ice
+integer, parameter, public :: ICE_WINDDRAG_NONE    = 0 !< no effect, normal wind drag
+integer, parameter, public :: ICE_WINDDRAG_CUBIC   = 1 !< Based on ADCIRC (Chapman & Massey)
+integer, parameter, public :: ICE_WINDDRAG_LB05    = 2 !< Lupkes and Birnbaum (2005)
+integer, parameter, public :: ICE_WINDDRAG_AN10    = 3 !< Andreas et al (2010)
+integer, parameter, public :: ICE_WINDDRAG_LINEAR  = 4 !< no wind drag below ice
 
 !
 ! public routines
@@ -73,43 +69,43 @@ type icecover_type
     !
     ! input
     !
-    logical  :: hisout                            !> flag indicating whether ice cover should be written to history-file
-    logical  :: mapout                            !> flag indicating whether ice cover should be written to map-file
+    logical  :: hisout                            !< flag indicating whether ice cover should be written to history-file
+    logical  :: mapout                            !< flag indicating whether ice cover should be written to map-file
     !
-    logical  :: apply_pressure                    !> flag indicating whether pressure of ice cover should be applied
-    logical  :: apply_friction                    !> flag indicating whether ice cover friction should be applied
-    logical  :: reduce_surface_exchange           !> flag indicating whether precipitation, evaporation and heat exchange should be reduced
-    logical  :: reduce_waves                      !> flag indicating whether waves should be reduced
-    integer  :: modify_winddrag                   !> flag indicating option to modify the wind drag coefficient (one of ICE_WINDDRAG_...)
+    logical  :: apply_pressure                    !< flag indicating whether pressure of ice cover should be applied
+    logical  :: apply_friction                    !< flag indicating whether ice cover friction should be applied
+    logical  :: reduce_surface_exchange           !< flag indicating whether precipitation, evaporation and heat exchange should be reduced
+    logical  :: reduce_waves                      !< flag indicating whether waves should be reduced
+    integer  :: modify_winddrag                   !< flag indicating option to modify the wind drag coefficient (one of ICE_WINDDRAG_...)
     !
-    integer  :: modeltype                         !> type of the ice cover (one of ICECOVER_...)
-    integer  :: frict_type                        !> friction type exerted by the ice cover
+    integer  :: modeltype                         !< type of the ice cover (one of ICECOVER_...)
+    integer  :: frict_type                        !< friction type exerted by the ice cover
     !
-    integer  :: areafrac_forcing_available        !> flag indicating whether ice area fraction is available via external forcing
-    integer  :: thick_ice_forcing_available       !> flag indicating whether ice thickness is available via external forcing
+    integer  :: ice_areafrac_forcing_available    !< flag indicating whether ice area fraction is available via external forcing
+    integer  :: ice_thickness_forcing_available   !< flag indicating whether ice thickness is available via external forcing
     !
-    real(fp) :: ice_albedo                        !> albedo of ice (-)
-    real(fp) :: ice_conductivity                  !> conductivity of ice (W m-1 K-1)
-    real(fp) :: ice_latentheat                    !> latent heat of ice (kJ kg-1)
-    real(fp) :: ice_dens                          !> ice density (kg m-3)
-    real(fp) :: snow_albedo                       !> albedo of snow (-)
-    real(fp) :: snow_conductivity                 !> conductivity of snow (W m-1 K-1)
-    real(fp) :: snow_latentheat                   !> latent heat of snow (kJ kg-1)
-    real(fp) :: frict_val                         !> friction coefficient of ice cover (unit depends on frict_type)
+    real(fp) :: ice_albedo                        !< albedo of ice (-)
+    real(fp) :: ice_conductivity                  !< conductivity of ice (W m-1 K-1)
+    real(fp) :: ice_latentheat                    !< latent heat of ice (kJ kg-1)
+    real(fp) :: ice_density                       !< ice density (kg m-3)
+    real(fp) :: snow_albedo                       !< albedo of snow (-)
+    real(fp) :: snow_conductivity                 !< conductivity of snow (W m-1 K-1)
+    real(fp) :: snow_latentheat                   !< latent heat of snow (kJ kg-1)
+    real(fp) :: frict_val                         !< friction coefficient of ice cover (unit depends on frict_type)
     !
     ! state
     !
-    real(fp), dimension(:), pointer :: areafrac   => null() !> area fraction covered by ice (-)
-    real(fp), dimension(:), pointer :: thick_ice  => null() !> ice cover thickness (m)
-    real(fp), dimension(:), pointer :: thick_snow => null() !> snow cover thickness (m)
-    real(fp), dimension(:), pointer :: temp_ice   => null() !> ice temperature (degC)
-    real(fp), dimension(:), pointer :: temp_snow  => null() !> snow temperature (degC)
+    real(fp), dimension(:), pointer :: ice_areafrac     => null() !< area fraction covered by ice (-)
+    real(fp), dimension(:), pointer :: ice_thickness    => null() !< ice cover thickness (m)
+    real(fp), dimension(:), pointer :: snow_thickness   => null() !< snow cover thickness (m)
+    real(fp), dimension(:), pointer :: ice_temperature  => null() !< ice temperature (degC)
+    real(fp), dimension(:), pointer :: snow_temperature => null() !< snow temperature (degC)
     !
     ! extra
     !
-    real(fp), dimension(:), pointer :: qh_air2ice => null() !> heat flux from air to ice (W m-2)
-    real(fp), dimension(:), pointer :: qh_ice2wat => null() !> heat flux from ice to water (W m-2)
-    real(fp), dimension(:), pointer :: pressure   => null() !> pressure exerted by the ice cover (Pa)
+    real(fp), dimension(:), pointer :: qh_air2ice => null() !< heat flux from air to ice (W m-2)
+    real(fp), dimension(:), pointer :: qh_ice2wat => null() !< heat flux from ice to water (W m-2)
+    real(fp), dimension(:), pointer :: pressure   => null() !< pressure exerted by the ice cover (Pa)
 end type icecover_type
 
 contains
@@ -121,8 +117,8 @@ function null_icecover(icecover) result(istat)
     !
     ! Function/routine arguments
     !
-    type (icecover_type)                       , intent(inout) :: icecover  !> data structure containing ice cover data
-    integer                                                    :: istat     !> status flag for allocation
+    type (icecover_type)                       , intent(inout) :: icecover  !< data structure containing ice cover data
+    integer                                                    :: istat     !< status flag for allocation
     !
     ! Local variables
     !
@@ -134,9 +130,9 @@ function null_icecover(icecover) result(istat)
     !
     ! state
     !
-    nullify(icecover%areafrac)
-    nullify(icecover%thick_ice)
-    nullify(icecover%thick_snow)
+    nullify(icecover%ice_areafrac)
+    nullify(icecover%ice_thickness)
+    nullify(icecover%snow_thickness)
     !
     ! extra
     !
@@ -153,8 +149,8 @@ function late_activation_ext_force_icecover(icecover) result(istat)
     !
     ! Function/routine arguments
     !
-    type (icecover_type)                       , intent(inout) :: icecover  !> data structure containing ice cover data
-    integer                                                    :: istat     !> status flag for allocation
+    type (icecover_type)                       , intent(inout) :: icecover  !< data structure containing ice cover data
+    integer                                                    :: istat     !< status flag for allocation
     !
     ! Local variables
     !
@@ -185,9 +181,9 @@ function select_icecover_model(icecover, modeltype) result(istat)
     !
     ! Function/routine arguments
     !
-    type (icecover_type)                       , intent(inout) :: icecover  !> data structure containing ice cover data
-    integer                                    , intent(in)    :: modeltype !> desired ice cover type
-    integer                                                    :: istat     !> status flag for allocation
+    type (icecover_type)                       , intent(inout) :: icecover  !< data structure containing ice cover data
+    integer                                    , intent(in)    :: modeltype !< desired ice cover type
+    integer                                                    :: istat     !< status flag for allocation
     !
     ! Local variables
     !
@@ -200,8 +196,8 @@ function select_icecover_model(icecover, modeltype) result(istat)
     icecover%hisout                    = .false.
     icecover%mapout                    = .false.
     
-    icecover%areafrac_forcing_available   = 0
-    icecover%thick_ice_forcing_available  = 0
+    icecover%ice_areafrac_forcing_available   = 0
+    icecover%ice_thickness_forcing_available  = 0
     
     if (modeltype == ICECOVER_NONE) then
        icecover%apply_pressure            = .false.
@@ -216,7 +212,7 @@ function select_icecover_model(icecover, modeltype) result(istat)
     icecover%ice_albedo                = 0.75_fp
     icecover%ice_conductivity          = 2.04_fp
     icecover%ice_latentheat            = 302.0_fp * 1000000.0_fp
-    icecover%ice_dens                  = 917.0_fp
+    icecover%ice_density               = 917.0_fp
     icecover%snow_albedo               = 0.9_fp
     icecover%snow_conductivity         = 0.31_fp
     icecover%snow_latentheat           = 110.0_fp * 1000000.0_fp
@@ -238,10 +234,10 @@ function alloc_icecover(icecover, nmlb, nmub) result(istat)
     !
     ! Function/routine arguments
     !
-    type (icecover_type)                       , intent(inout) :: icecover  !> data structure containing ice cover data
-    integer                                    , intent(in)    :: nmlb      !> lower bound index for spatial data arrays
-    integer                                    , intent(in)    :: nmub      !> upper bound index for spatial data arrays
-    integer                                                    :: istat     !> status flag for allocation
+    type (icecover_type)                       , intent(inout) :: icecover  !< data structure containing ice cover data
+    integer                                    , intent(in)    :: nmlb      !< lower bound index for spatial data arrays
+    integer                                    , intent(in)    :: nmub      !< upper bound index for spatial data arrays
+    integer                                                    :: istat     !< status flag for allocation
     !
     ! Local variables
     !
@@ -254,20 +250,20 @@ function alloc_icecover(icecover, nmlb, nmub) result(istat)
     ! state
     !
     if (icecover%modeltype /= ICECOVER_NONE) then
-       if (istat==0) allocate(icecover%areafrac  (nmlb:nmub), STAT = istat)
-       if (istat==0) allocate(icecover%thick_ice (nmlb:nmub), STAT = istat)
-       if (istat==0) allocate(icecover%temp_ice  (nmlb:nmub), STAT = istat)
-       if (icecover%modeltype /= ICECOVER_EXT) then
-          if (istat==0) allocate(icecover%thick_snow(nmlb:nmub), STAT = istat)
-          if (istat==0) allocate(icecover%temp_snow (nmlb:nmub), STAT = istat)
-       endif
+       if (istat==0) allocate(icecover%ice_areafrac (nmlb:nmub), STAT = istat)
+       if (istat==0) allocate(icecover%ice_thickness(nmlb:nmub), STAT = istat)
        if (istat==0) then
-          icecover%areafrac  = 0.0_fp
-          icecover%thick_ice = 0.0_fp
-          icecover%temp_ice  = 0.0_fp
-          if (icecover%modeltype /= ICECOVER_EXT) then
-             icecover%thick_snow = 0.0_fp
-             icecover%temp_snow  = 0.0_fp
+          icecover%ice_areafrac    = 0.0_fp
+          icecover%ice_thickness   = 0.0_fp
+       endif
+       if (icecover%modeltype == ICECOVER_SEMTNER) then
+          if (istat==0) allocate(icecover%ice_temperature (nmlb:nmub), STAT = istat)
+          if (istat==0) allocate(icecover%snow_thickness  (nmlb:nmub), STAT = istat)
+          if (istat==0) allocate(icecover%snow_temperature(nmlb:nmub), STAT = istat)
+          if (istat==0) then
+             icecover%ice_temperature  = 0.0_fp
+             icecover%snow_thickness   = 0.0_fp
+             icecover%snow_temperature = 0.0_fp
           endif
        endif
     endif
@@ -294,8 +290,8 @@ function clr_icecover(icecover) result (istat)
     !
     ! Function/routine arguments
     !
-    type (icecover_type)                       , intent(inout) :: icecover  !> data structure containing ice cover data
-    integer                                                    :: istat     !> status flag for deallocation
+    type (icecover_type)                       , intent(inout) :: icecover  !< data structure containing ice cover data
+    integer                                                    :: istat     !< status flag for deallocation
     !
     ! Local variables
     !
@@ -307,9 +303,11 @@ function clr_icecover(icecover) result (istat)
     !
     ! state
     !
-    if (associated(icecover%areafrac  )) deallocate(icecover%areafrac  , STAT = istat)
-    if (associated(icecover%thick_ice )) deallocate(icecover%thick_ice , STAT = istat)
-    if (associated(icecover%thick_snow)) deallocate(icecover%thick_snow, STAT = istat)
+    if (associated(icecover%ice_areafrac    )) deallocate(icecover%ice_areafrac    , STAT = istat)
+    if (associated(icecover%ice_thickness   )) deallocate(icecover%ice_thickness   , STAT = istat)
+    if (associated(icecover%ice_temperature )) deallocate(icecover%ice_temperature , STAT = istat)
+    if (associated(icecover%snow_thickness  )) deallocate(icecover%snow_thickness  , STAT = istat)
+    if (associated(icecover%snow_temperature)) deallocate(icecover%snow_temperature, STAT = istat)
     !
     ! extra
     !
@@ -326,8 +324,8 @@ end function clr_icecover
 !    !
 !    ! Function/routine arguments
 !    !
-!    type (icecover_type)                       , intent(inout) :: icecover  !> data structure containing ice cover data
-!    integer                                    , intent(in)    :: nm        !> Spatial index
+!    type (icecover_type)                       , intent(inout) :: icecover  !< data structure containing ice cover data
+!    integer                                    , intent(in)    :: nm        !< Spatial index
 !    !
 !    ! Local variables
 !    !
@@ -335,8 +333,6 @@ end function clr_icecover
 !!! executable statements -------------------------------------------------------
 !!
 !    select case (icecover%modeltype)
-!    case (ICECOVER_KNMI)
-!        ! follow De Bruin & Wessels (1975)
 !    case (ICECOVER_SEMTNER)
 !        ! follow Semtner (1975)
 !    case default
@@ -352,25 +348,25 @@ subroutine update_icepress(icecover, ag)
     !
     ! Function/routine arguments
     !
-    type (icecover_type)                       , intent(inout) :: icecover  !> data structure containing ice cover data
-    real(fp)                                   , intent(in)    :: ag        !> gravitational accelaration (m/s2)
+    type (icecover_type)                       , intent(inout) :: icecover  !< data structure containing ice cover data
+    real(fp)                                   , intent(in)    :: ag        !< gravitational accelaration (m/s2)
     !
     ! Local variables
     !
-    integer                         :: nm        !> Spatial loop index
-    real(fp)                        :: ice_dens  !> Local variable for ice density
-    real(fp), dimension(:), pointer :: areafrac  !> Pointer to ice area fraction array
-    real(fp), dimension(:), pointer :: pressure  !> Pointer to ice pressure array
-    real(fp), dimension(:), pointer :: thick_ice !> Pointer to ice thickness array
+    integer                         :: nm            !< Spatial loop index
+    real(fp)                        :: density       !< Local variable for ice density
+    real(fp), dimension(:), pointer :: areafrac      !< Pointer to ice area fraction array
+    real(fp), dimension(:), pointer :: pressure      !< Pointer to ice pressure array
+    real(fp), dimension(:), pointer :: thickness     !< Pointer to ice thickness array
 !
 !! executable statements -------------------------------------------------------
 !
-    areafrac  => icecover%areafrac
+    areafrac  => icecover%ice_areafrac
     pressure  => icecover%pressure
-    thick_ice => icecover%thick_ice
-    ice_dens  =  icecover%ice_dens
+    thickness => icecover%ice_thickness
+    density  =  icecover%ice_density
     do nm = lbound(pressure,1),ubound(pressure,1)
-        pressure(nm) = areafrac(nm) * thick_ice(nm) * ice_dens * ag
+        pressure(nm) = areafrac(nm) * thickness(nm) * density * ag
         ! + optionally snow or is that weight always negligible?
     enddo
 end subroutine update_icepress
@@ -383,22 +379,22 @@ pure function ice_drag_effect(icecover, ice_af, cdw) result (cdeff)
     !
     ! Function/routine arguments
     !
-    type (icecover_type)                       , intent(in)    :: icecover  !> data structure containing ice cover data
-    real(fp)                                   , intent(in)    :: ice_af    !> area fraction covered by ice (-) 
-    real(fp)                                   , intent(in)    :: cdw       !> wind drag exerted via open water
-    real(fp)                                                   :: cdeff     !> effective wind drag coefficient
+    type (icecover_type)                       , intent(in)    :: icecover  !< data structure containing ice cover data
+    real(fp)                                   , intent(in)    :: ice_af    !< area fraction covered by ice (-) 
+    real(fp)                                   , intent(in)    :: cdw       !< wind drag exerted via open water
+    real(fp)                                                   :: cdeff     !< effective wind drag coefficient
     !
     ! Local variables
     !
-    real(fp) :: c0     !> constant coefficient of cubic drag formula
-    real(fp) :: c1     !> linear coefficient of cubic drag formula
-    real(fp) :: c2     !> quadratic coefficient of cubic drag formula
-    real(fp) :: c3     !> cubic coefficient of cubic drag formula 
-    real(fp) :: cdf    !> wind drag exerted via ice floes
-    real(fp) :: cdi    !> wind drag exerted via ice cover
-    real(fp) :: wat_af !> open water area fraction
-    real(fp) :: num    !> numerator
-    real(fp) :: den    !> denominator
+    real(fp) :: c0     !< constant coefficient of cubic drag formula
+    real(fp) :: c1     !< linear coefficient of cubic drag formula
+    real(fp) :: c2     !< quadratic coefficient of cubic drag formula
+    real(fp) :: c3     !< cubic coefficient of cubic drag formula 
+    real(fp) :: cdf    !< wind drag exerted via ice floes
+    real(fp) :: cdi    !< wind drag exerted via ice cover
+    real(fp) :: wat_af !< open water area fraction
+    real(fp) :: num    !< numerator
+    real(fp) :: den    !< denominator
 !
 !! executable statements -------------------------------------------------------
 !
