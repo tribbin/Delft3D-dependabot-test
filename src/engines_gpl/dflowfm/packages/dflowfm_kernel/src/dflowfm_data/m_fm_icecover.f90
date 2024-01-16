@@ -308,6 +308,7 @@ subroutine preprocess_icecover(n, Qlong_ice, tempwat, saltcon, wind, timhr)
     use m_flowgeom   , only: nd
     use m_flowtimes  , only: dts
     use m_physcoef   , only: vonkar
+    use physicalconsts, only: CtoKelvin
     use m_heatfluxes , only: cpw
     implicit none
     !
@@ -322,7 +323,6 @@ subroutine preprocess_icecover(n, Qlong_ice, tempwat, saltcon, wind, timhr)
     !
     ! Local variables
     !
-    real(fp), parameter :: ZERO_DEGC = 273.15_fp !< zero degrees Celsius (K)
     integer             :: iter      !< iteration number
     integer             :: icount    !< number of flow links
     integer             :: LL        !< flow link index
@@ -385,8 +385,8 @@ subroutine preprocess_icecover(n, Qlong_ice, tempwat, saltcon, wind, timhr)
         ! including an iteration proces
         !
         do iter = 1,5
-           coef1 = Qlong_ice * (tsi + ZERO_DEGC)**4.0_fp
-           coef2 = 4.0_fp * Qlong_ice * (tsi + ZERO_DEGC)**3.0_fp
+           coef1 = Qlong_ice * (tsi + CtoKelvin)**4.0_fp
+           coef2 = 4.0_fp * Qlong_ice * (tsi + CtoKelvin)**3.0_fp
            D_t = (qh_air2ice(n) - coef1 - conduc * tsi / D_ice) / (coef2 + conduc / D_ice)
            tsi = tsi + D_t    
            if (abs(D_t) < 1e-2_fp) then
