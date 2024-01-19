@@ -45,7 +45,6 @@ use dfm_signals
 use m_mass_balance_areas, only: jamba
 use m_partitioninfo, only: jampi, my_rank
 use m_integralstats, is_is_numndvals=>is_numndvals
-use m_fourier_analysis
 use m_oned_functions, only: updateTimeWetOnGround, updateTotalInflow1d2d, updateTotalInflowLat, &
                             updateFreeboard, updateDepthOnGround, updateVolOnGround
 use unstruc_channel_flow, only : network
@@ -53,6 +52,7 @@ use m_sedtrails_stats, st_is_numndvals=>is_numndvals
 use m_update_wl_at_links, only : update_wl_at_links
 use fm_statistical_output
 use m_statistical_output, only: update_statistical_output, update_source_data
+use m_update_fourier, only : update_fourier
 
 implicit none
 integer, intent(out) :: iresult
@@ -168,5 +168,9 @@ call update_source_data(out_variable_set_clm)
 call update_statistical_output(out_variable_set_his%statout,dts)
 call update_statistical_output(out_variable_set_map%statout,dts)
 call update_statistical_output(out_variable_set_clm%statout,dts)
+
+   if (md_fou_step == 1) then
+      call update_fourier(dts)
+   end if
 
 end subroutine flow_finalize_single_timestep
