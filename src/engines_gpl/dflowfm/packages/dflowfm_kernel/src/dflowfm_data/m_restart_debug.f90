@@ -43,10 +43,12 @@ module m_restart_debug
  subroutine ini_m_restart_debug()
   use m_sediment
   implicit none
-  r_bodsed => stmpar%morlyr%STATE%bodsed
-  r_dpsed => stmpar%morlyr%STATE%dpsed
-  r_msed => stmpar%morlyr%STATE%msed
-  r_thlyr => stmpar%morlyr%STATE%thlyr
+  if (stm_included) then 
+    r_bodsed => stmpar%morlyr%STATE%bodsed
+    r_dpsed => stmpar%morlyr%STATE%dpsed
+    r_msed => stmpar%morlyr%STATE%msed
+    r_thlyr => stmpar%morlyr%STATE%thlyr
+  endif  
  end subroutine ini_m_restart_debug
 
 end module m_restart_debug
