@@ -62,7 +62,6 @@ subroutine flow_sedmorinit()
     use m_partitioninfo, only: jampi, my_rank, ndomains, DFM_COMM_DFMWORLD
     use m_xbeach_data, only: gammaxxb
     use m_waves, only: gammax
-    use m_restart_debug
 
     implicit none
 
