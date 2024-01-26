@@ -46,6 +46,12 @@ subroutine flow_dredgeinit()
    dad_included = len_trim(md_dredgefile) /= 0
    if (.not. dad_included) return
 
+   call realloc(bl_ave, ndx, keepExisting = .false., fill = dmiss, stat = ierr)
+   call aerr('bl_ave(ndx)', ierr, ndx)
+   
+   call realloc(bl_ave0, ndx, keepExisting = .false., fill = dmiss, stat = ierr)
+   call aerr('bl_ave0(ndx)', ierr, ndx)
+
    call initdredge(dadpar)
    call fm_rddredge(dadpar, md_dredgefile, error)
    if (error) then

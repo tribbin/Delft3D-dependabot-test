@@ -306,17 +306,11 @@
 
  end if
 
- if (stm_included) then
-    if (dad_included .or. ndx2d>ndxi) then
-        call realloc(bl_ave, ndx, keepExisting = .false., fill = dmiss, stat = ierr)
-        call aerr('bl_ave(ndx)', ierr, ndx)
-    endif    
-    if (dad_included) then
-        call realloc(bl_ave0, ndx, keepExisting = .false., fill = dmiss, stat = ierr)
-        call aerr('bl_ave0(ndx)', ierr, ndx)
-    endif
+ if (stm_included .and. ndx2d>ndxi) then
+    call realloc(bl_ave, ndx, keepExisting = .false., fill = dmiss, stat = ierr)
+    call aerr('bl_ave(ndx)', ierr, ndx)
  endif
-
+  
  if ( allocated (kfs) ) deallocate(kfs)
  allocate(kfs(ndx))   ;  kfs   = 0
 
