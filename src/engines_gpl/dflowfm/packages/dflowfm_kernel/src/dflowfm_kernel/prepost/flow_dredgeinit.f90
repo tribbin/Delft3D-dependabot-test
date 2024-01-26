@@ -37,10 +37,14 @@ subroutine flow_dredgeinit()
    use unstruc_model, only: md_dredgefile
    use m_sediment, only: stm_included, jased
    use MessageHandling, only: mess, LEVEL_FATAL
-
+   use m_flowgeom, only: bl_ave, bl_ave0, ndx
+   use m_missing, only: dmiss
+   use m_alloc, only: realloc, aerr
+   
    implicit none
 
    logical                   :: error
+   integer                   :: ierr
 
    if (.not.stm_included) return
    dad_included = len_trim(md_dredgefile) /= 0
