@@ -815,15 +815,12 @@ subroutine load_restart_file(file_exist, error)
             file_exist = .true.
          end if
          
-         !u1_tmp  = u1
-         !u1(:)   = u0(:)
          hs(:)   = s1(:) - bl(:)
          if (iperot == NOT_DEFINED ) then
             call reconst2nd ()
          end if
          call fill_onlyWetLinks()
          call setucxucyucxuucyunew() !reconstruct cell-center velocities
-         !u1(:) = u1_tmp(:)
          call fill_valobs() 
        end if
    end if

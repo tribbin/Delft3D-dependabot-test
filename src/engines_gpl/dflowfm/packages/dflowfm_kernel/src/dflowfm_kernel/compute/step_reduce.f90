@@ -54,7 +54,6 @@
  COMMON /DRAWTHIS/  ndraw(50)
 
  integer            :: key, jposhchk_sav, LL, L, k1,k2, itype
- integer            :: debugint = 0
  integer            :: ja, k, ierror, n, kt, num, js1, noddifmaxlevm, nsiz
  character (len=40) :: tex
  logical            :: firstnniteration, last_iteration
