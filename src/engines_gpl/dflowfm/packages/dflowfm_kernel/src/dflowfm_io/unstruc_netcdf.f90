@@ -17350,7 +17350,6 @@ subroutine definencvar(ncid, idq, itype, idims, n, name, desc, unit, namecoord, 
    use netcdf
    use netcdf_utils
    use m_sferic
-   use stdlib_kinds, only: sp, dp
    implicit none
 
    integer,                   intent(in   ) :: ncid  !< NetCDF dataset id.
@@ -17403,9 +17402,9 @@ subroutine definencvar(ncid, idq, itype, idims, n, name, desc, unit, namecoord, 
       if (itype == nf90_short .or. itype == nf90_int) then
          ierr = nf90_put_att(ncid, idq, '_FillValue', int(fillVal))
       elseif (itype == nf90_float) then
-         ierr = nf90_put_att(ncid, idq, '_FillValue', real(fillVal,sp))
+         ierr = nf90_put_att(ncid, idq, '_FillValue', real(fillVal))
       elseif (itype == nf90_double) then
-         ierr = nf90_put_att(ncid, idq, '_FillValue', real(fillVal,dp))
+         ierr = nf90_put_att(ncid, idq, '_FillValue', fillVal)
       else
          call mess(LEVEL_ERROR,'unstruc_netcdf/definencvar: invalid netcdf type for fill_value!')
       end if
