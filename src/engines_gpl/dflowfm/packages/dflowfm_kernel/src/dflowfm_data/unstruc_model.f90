@@ -273,6 +273,7 @@ implicit none
     integer                                   :: md_mapformat         !< map file output format (one of IFORMAT_*)
     integer                                   :: md_unc_conv          !< Unstructured NetCDF conventions (either UNC_CONV_CFOLD or UNC_CONV_UGRID)
     integer                                   :: md_ncformat          !< NetCDF format (3: classic, 4: NetCDF4+HDF5)
+    character(len=255)                        :: md_nccompress        !< Whether ('on') or not ('off') to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4
     integer                                   :: md_fou_step          !< determines if fourier analysis is updated at the end of the user time step or comp. time step
 
     integer, private                          :: ifixedweirscheme_input  !< input value of ifixedweirscheme in mdu file
@@ -374,6 +375,7 @@ use m_fm_icecover, only: fm_ice_null
     md_unc_conv     = UNC_CONV_UGRID  ! TODO: AvD: does this double now with IFORMAT_UGRID?
 
     md_ncformat     = 3               !< NetCDF format (3: classic, 4: NetCDF4+HDF5)
+    md_nccompress   = 'off'           !< Whether ('on') or not ('off') to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4
 
     md_fou_step     = 0               !< default: fourier analysis is updated on a user-timestep basis
 
@@ -726,7 +728,7 @@ subroutine readMDUFile(filename, istat)
     use m_heatfluxes
     use m_fm_wq_processes
     use m_xbeach_avgoutput
-    use unstruc_netcdf, only: UNC_CONV_CFOLD, UNC_CONV_UGRID, unc_set_ncformat, unc_writeopts, UG_WRITE_LATLON, UG_WRITE_NOOPTS, unc_nounlimited, unc_noforcedflush, unc_uuidgen, unc_metadatafile
+    use unstruc_netcdf, only: UNC_CONV_CFOLD, UNC_CONV_UGRID, unc_set_ncformat, unc_set_nccompress, unc_writeopts, UG_WRITE_LATLON, UG_WRITE_NOOPTS, unc_nounlimited, unc_noforcedflush, unc_uuidgen, unc_metadatafile
     use dfm_error
     use MessageHandling
     use system_utils, only: split_filename
@@ -1837,6 +1839,8 @@ subroutine readMDUFile(filename, istat)
     call prop_get_integer(md_ptr, 'output', 'NcMapDataPrecision', md_nc_map_precision, success)
     md_nc_his_precision = 0
     call prop_get_integer(md_ptr, 'output', 'NcHisDataPrecision', md_nc_his_precision, success)
+    call prop_get_string(md_ptr, 'output', 'NcCompression', md_nccompress, success)
+    call unc_set_nccompress(md_nccompress)
 
     call prop_get_integer(md_ptr, 'output', 'enableDebugArrays', jawritedebug, success)   ! allocate 1d, 2d, 3d arrays to quickly write quantities to map file
     call prop_get_integer(md_ptr, 'output', 'NcNoUnlimited', unc_nounlimited, success)
@@ -3908,6 +3912,8 @@ endif
     call prop_set(prop_ptr, 'output', 'NcMapDataPrecision',  md_nc_map_precision, 'Precision for NetCDF data in map files (0: double, 1: single)')
     call prop_set(prop_ptr, 'output', 'NcHisDataPrecision',  md_nc_his_precision, 'Precision for NetCDF data in his files (0: double, 1: single)')
 
+    call prop_set(prop_ptr, 'output', 'NcCompression',  md_nccompress      , 'Whether ("on") or not ("off") to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4')
+    
     if (writeall .or. unc_nounlimited /= 0) then
        call prop_set(prop_ptr, 'output', 'NcNoUnlimited',  unc_nounlimited, 'Write full-length time-dimension instead of unlimited dimension (1: yes, 0: no). (Might require NcFormat=4.)')
     end if

@@ -79,6 +79,7 @@ integer, parameter :: UNC_CONV_CFOLD = 1 !< Old CF-only conventions.
 integer, parameter :: UNC_CONV_UGRID = 2 !< New CF+UGRID conventions.
 
 integer            :: unc_cmode      = 0 !< Default NetCDF creation mode flag value, used in nf90_create calls (e.g., NF90_NETCDF4).
+logical            :: unc_nccompress     !< Whether or not to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4
 integer            :: unc_nounlimited    !< NetCDF output with time dimension set to full length of simulation, avoids "unlimited dimension" overhead. Often requires md_ncformat=4/unc_cmode=NF90_NETCDF4.
 integer            :: unc_noforcedflush  !< Do not force NetCDF file flushing every output timestep (map-like files).
 integer            :: unc_writeopts !< Default write options (currently only: UG_WRITE_LATLON)
@@ -615,6 +616,28 @@ subroutine unc_set_ncformat(iformatnumber)
 end subroutine unc_set_ncformat
 
 
+!> Sets the default NetCDF compression setting (only applied when ncformat = NetCDF 4)
+subroutine unc_set_nccompress(md_nccompress)
+   use dfm_error
+   character(len=*), intent(in) :: md_nccompress      !< Whether ('on') or not ('off') to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4
+   
+   if (md_nccompress == 'on' ) then
+      ! Compression applied
+      unc_nccompress = .true.
+      ! Safety - netcdf format must be set to NetCDF4 for this to work
+      if (unc_cmode /= nf90_netcdf4) then
+         call mess(LEVEL_ERROR, 'NetCDF compression (deflation) is a NetCDF4 feature; make sure NcFormat is set to 4!')
+      end if
+   elseif (md_nccompress == 'off') then
+      ! No compression applied
+      unc_nccompress = .false.
+   else
+      call mess(LEVEL_ERROR, 'Did not recognise NcCompression value "' // trim( md_nccompress) // '"; must be "on" or "off"!')
+   end if
+   
+end subroutine unc_set_nccompress
+
+
 function unc_add_uuid(ncid) result (ierr)
    use m_universally_unique_id_generator
    use dfm_error
@@ -977,7 +1000,8 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
          cell_method_ = 'point' ! NOTE: for now don't allow user-defined cell_method for corners, always point.
          idims(idx_spacedim) = id_tsp%meshids2d%dimids(mdim_node)
          ierr = ug_def_var(ncid, id_var(2), idims(idx_fastdim:maxrank), itype, UG_LOC_NODE, &
-                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
       endif
 
    case(UNC_LOC_S) ! Pressure point location
@@ -986,14 +1010,16 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
          cell_measures = 'area: '//trim(mesh1dname)//'_flowelem_ba' ! relies on unc_write_flowgeom_ugrid_filepointer
          idims(idx_spacedim) = id_tsp%meshids1d%dimids(mdim_node)
          ierr = ug_def_var(ncid, id_var(1), idims(idx_fastdim:maxrank), itype, UG_LOC_NODE, &
-                           trim(mesh1dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                           trim(mesh1dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
       endif
       ! Internal 2d flownodes. Horizontal position: faces in 2d mesh.
       if (iand(which_meshdim_, 2) > 0 .and. ndx2d > 0) then
          cell_measures = 'area: '//trim(mesh2dname)//'_flowelem_ba' ! relies on unc_write_flowgeom_ugrid_filepointer
          idims(idx_spacedim) = id_tsp%meshids2d%dimids(mdim_face)
          ierr = ug_def_var(ncid, id_var(2), idims(idx_fastdim:maxrank), itype, UG_LOC_FACE, &
-                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
       endif
       if (jamapanc > 0 .and. jamaphs > 0 .and. .not. strcmpi(var_name, 'waterdepth')) then
          ierr = unc_put_att_map_char(ncid, id_tsp, id_var, 'ancillary_variables', 'waterdepth')
@@ -1007,7 +1033,8 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
             !cell_measures = 'area: '//trim(mesh1dname)//'_au' ! TODO: AvD: UNST-1100: au is not yet in map file at all.
             idims(idx_spacedim) = id_tsp%meshids1d%dimids(mdim_edge)
             ierr = ug_def_var(ncid, id_var(1), idims(idx_fastdim:maxrank), itype, UG_LOC_EDGE, &
-                              trim(mesh1dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                              trim(mesh1dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
          endif
       endif
       if (iand(which_meshdim_, 4) > 0 .and. numl1d > 0) then
@@ -1015,7 +1042,8 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
          if (size(id_tsp%contactstoln,1).gt.0) then
             idims(idx_spacedim) = id_tsp%meshcontacts%dimids(cdim_ncontacts)
             ierr = ug_def_var(ncid, id_var(4), idims(idx_fastdim:maxrank), itype, UG_LOC_CONTACT, &
-                              trim(contactname), var_name, standard_name, long_name, unit, ' ', cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                              trim(contactname), var_name, standard_name, long_name, unit, ' ', cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
          endif
       endif
       numl2d = numl - numl1d
@@ -1024,7 +1052,8 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
          !cell_measures = 'area: '//trim(mesh2dname)//'_au' ! TODO: AvD: UNST-1100: au is not yet in map file at all.
          idims(idx_spacedim) = id_tsp%meshids2d%dimids(mdim_edge)
          ierr = ug_def_var(ncid, id_var(2), idims(idx_fastdim:maxrank), itype, UG_LOC_EDGE, &
-                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
       endif
 
       if (jamapanc > 0 .and. jamaphu > 0 .and. .not. strcmpi(var_name, 'hu')) then
@@ -1041,7 +1070,8 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
          idims(idx_spacedim) = id_tsp%meshids1d%dimids(mdim_node)
          idims(idx_layerdim) = id_tsp%meshids1d%dimids(mdim_layer)
          ierr = ug_def_var(ncid, id_var(1), idims(idx_fastdim:maxrank), itype, UG_LOC_NODE, &
-                           trim(mesh1dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                           trim(mesh1dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
       endif
       ! Internal 3d flownodes. Horizontal position: faces in 2d mesh. Vertical position: layer centers.
       if (iand(which_meshdim_, 2) > 0 .and. ndx2d > 0) then
@@ -1052,7 +1082,8 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
          idims(idx_spacedim) = id_tsp%meshids2d%dimids(mdim_face)
          idims(idx_layerdim) = id_tsp%meshids2d%dimids(mdim_layer)
          ierr = ug_def_var(ncid, id_var(2), idims(idx_fastdim:maxrank), itype, UG_LOC_FACE, &
-                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
 
       endif
 
@@ -1069,7 +1100,8 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
          idims(idx_spacedim) = id_tsp%meshids1d%dimids(mdim_edge)
          idims(idx_layerdim) = id_tsp%meshids1d%dimids(mdim_layer)
          ierr = ug_def_var(ncid, id_var(1), idims(idx_fastdim:maxrank), itype, UG_LOC_EDGE, &
-                           trim(mesh1dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                           trim(mesh1dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
       endif
       ! TODO: AvD: 1d2d links as mesh contacts in layered 3D are not handled here yet.
 
@@ -1082,7 +1114,8 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
          idims(idx_spacedim) = id_tsp%meshids2d%dimids(mdim_edge)
          idims(idx_layerdim) = id_tsp%meshids2d%dimids(mdim_layer)
          ierr = ug_def_var(ncid, id_var(2), idims(idx_fastdim:maxrank), itype, UG_LOC_EDGE, &
-                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
       endif
 
       if (jamapanc > 0 .and. jamaphu > 0 .and. .not. strcmpi(var_name, 'hu')) then
@@ -1096,7 +1129,8 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
          idims(idx_spacedim) = id_tsp%meshids1d%dimids(mdim_node)
          idims(idx_layerdim) = id_tsp%meshids1d%dimids(mdim_interface)
          ierr = ug_def_var(ncid, id_var(1), idims(idx_fastdim:maxrank), itype, UG_LOC_NODE, &
-                           trim(mesh1dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss)
+                           trim(mesh1dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, &
+                           do_deflate = unc_nccompress)
       endif
       ! Internal 3d vertical flowlinks. Horizontal position: faces in 2d mesh. Vertical position: layer interfaces.
       if (iand(which_meshdim_, 2) > 0 .and. ndx2d > 0) then ! If there are 2d flownodes and layers, then there are 3d vertical flowlinks.
@@ -1104,7 +1138,8 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
          idims(idx_spacedim) = id_tsp%meshids2d%dimids(mdim_face)
          idims(idx_layerdim) = id_tsp%meshids2d%dimids(mdim_interface)
          ierr = ug_def_var(ncid, id_var(2), idims(idx_fastdim:maxrank), itype, UG_LOC_FACE, &
-                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
       endif
 
    case(UNC_LOC_WU) ! Vertical viscosity point location on all layer interfaces.
@@ -1113,7 +1148,8 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
          idims(idx_spacedim) = id_tsp%meshids1d%dimids(mdim_edge)
          idims(idx_layerdim) = id_tsp%meshids1d%dimids(mdim_interface)
          ierr = ug_def_var(ncid, id_var(1), idims(idx_fastdim:maxrank), itype, UG_LOC_EDGE, &
-                           trim(mesh1dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                           trim(mesh1dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
       endif
       ! TODO: AvD: 1d2d links as mesh contacts in layered 3D are not handled here yet.
 
@@ -1123,7 +1159,8 @@ character(len=50) :: checkvars(5) ! small array to check on presence of some var
          idims(idx_spacedim) = id_tsp%meshids2d%dimids(mdim_edge)
          idims(idx_layerdim) = id_tsp%meshids2d%dimids(mdim_interface)
          ierr = ug_def_var(ncid, id_var(2), idims(idx_fastdim:maxrank), itype, UG_LOC_EDGE, &
-                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts)
+                           trim(mesh2dname), var_name, standard_name, long_name, unit, cell_method_, cell_measures, crs, ifill=-999, dfill=dmiss, writeopts=unc_writeopts, &
+                           do_deflate = unc_nccompress)
       endif
 
    case default
