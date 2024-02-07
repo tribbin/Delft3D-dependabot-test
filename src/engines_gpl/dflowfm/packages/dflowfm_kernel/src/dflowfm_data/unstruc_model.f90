@@ -1295,6 +1295,13 @@ subroutine readMDUFile(filename, istat)
     call prop_get_double (md_ptr, 'physics', 'Vicwminb'       , Vicwminb)
     call prop_get_double (md_ptr, 'physics', 'Xlozmidov'      , Xlozmidov)
 
+    call realloc(tmpdouble, 4, fill = -999d0)
+    call prop_get_doubles(md_ptr, 'physics', 'Prandtl_Schmidt_numbers', tmpdouble, 4, success)
+    if ( .not. success .or. minval(tmpdouble) < 0 ) then
+        call mess(LEVEL_ERROR, 'Prandtl_Schmidt_numbers requires four numbers for resp. salt, temperature, sediments and tracers (e.g., 0.7 0.7 1.0 1.0), even if your model does not include some of these constituents/processes.')
+    else
+        Prandtl_Schmidt_numbers = tmpdouble
+    end if
 
     call prop_get_double (md_ptr, 'physics', 'Smagorinsky'    , Smagorinsky)
     call prop_get_double (md_ptr, 'physics', 'Elder   '       , Elder)
@@ -3435,6 +3442,7 @@ endif
        endif
        call prop_set(prop_ptr, 'physics', 'Xlozmidov',     xlozmidov,    'Ozmidov length scale (m), default=0.0, no contribution of internal waves to vertical diffusion')
     endif
+    call prop_set(prop_ptr, 'physics', 'Prandtl_Schmidt_numbers', Prandtl_Schmidt_numbers, 'Prandtl/Schmidt numbers for resp. salt, temperature, sediments and tracers. E.g., 0.7 0.7 1.0 1.0')
     call prop_set(prop_ptr, 'physics', 'Smagorinsky',      Smagorinsky,  'Smagorinsky factor in horizontal turbulence, e.g. 0.15')
     call prop_set(prop_ptr, 'physics', 'Elder',            Elder,        'Elder factor in horizontal turbulence')
     call prop_set(prop_ptr, 'physics', 'irov',             irov,         '0=free slip, 1 = partial slip using wall_ks')

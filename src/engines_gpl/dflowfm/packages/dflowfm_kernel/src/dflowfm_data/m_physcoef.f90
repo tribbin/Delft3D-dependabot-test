@@ -111,6 +111,7 @@
 
  double precision                  :: Elder       !< add Elder viscosity
  double precision                  :: Smagorinsky !< add Smagorinsky Cs coefficient, vic = vic + (Cs*dx)**2 * S
+ double precision, dimension(4)    :: Prandtl_Schmidt_numbers !< Prandtl/Schmidt numbers for resp. salt, temperature, sediments and tracers
  double precision                  :: viuchk  !< if < 0.5 then eddy viscosity cell peclet check viu<viuchk*dx*dx/dt
 
  double precision                  :: vicoww  !< 1D-6   !                 ! user specified constant vertical   eddy viscosity  (m2/s)
@@ -126,7 +127,7 @@
  double precision                  :: difmolsal  !< molecular diffusivity of salinity
  double precision                  :: difmoltem  !<           diffusivity of temperature
  double precision                  :: difmolsed  !<           diffusivity of sediment
- double precision                  :: difmoltr   !<           diffusivity of tracers
+ double precision                  :: difmoltracer !<         diffusivity of tracers
 
  double precision                  :: vicwminb   ! minimum eddy viscosity in production terms shear and buoyancy
  double precision                  :: xlozmidov  ! Ozmidov length scale (m)
@@ -197,6 +198,7 @@ dicouv      = 0.1d0     ! constant horizontal eddy diffusivity (m2/s) sal, sed
 
 Elder       = 0d0       ! add Elder viscosity
 Smagorinsky = 0.2d0     ! add Smagorinsky Cs coefficient, vic = vic + (Cs*dx)**2 * S
+Prandtl_Schmidt_numbers = [0.7d0, 0.7d0, 1.0d0, 1.0d0] ! Prandtl/Schmidt numbers for resp. salt, temperature, sediments and tracers. 
 viuchk      = 0.24      ! if < 0.5 then eddy viscosity cell check viu<viuchk*dx*dx/dt
 
 vicoww      = 1d-6      ! 5d-5   !                 ! background vertical eddy viscosity (m2/s)
@@ -223,7 +225,7 @@ viskinair                   = 1.5d-5        ! kinematic  viscosity air
 difmolsal                   = viskin/700d0  ! molecular diffusivity of salinity
 difmoltem                   = viskin/6.7d0  !           diffusivity of temperature
 difmolsed                   = 0d0
-difmoltr                    = 0d0
+difmoltracer                = 0d0
 
 vicwminb                    = 0d-7          ! was 0d0, minimum viscosity in production terms shear and buoyancy
 xlozmidov                   = 0d0           ! Ozmidov length scale
