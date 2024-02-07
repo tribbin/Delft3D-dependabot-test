@@ -34,7 +34,7 @@ private
    subroutine calculate_sediment_transport(source_input)
    use m_sediment
    use m_observations
-   double precision, pointer, dimension(:), intent(inout) :: source_input !< Pointer to source input array for the "hwav_significant" item, to be assigned once on first call.
+   double precision, pointer, dimension(:), intent(inout) :: source_input !< Pointer to source input array for the "SBCX" item, to be assigned once on first call.
    
    integer :: l, n, ntot
    double precision :: rhol
@@ -1144,6 +1144,8 @@ private
                      'wrihis_sediment', 'sscy',              &
                      'Current related suspended transport, y-component',             &
                      '', '', UNC_LOC_STATION, nc_atts = atts(1:1), nc_dim_ids = t_nc_dim_ids(statdim = .true.,sedtotdim = .true., timedim = .true.))
+       
+       ! Bed composition variables
        call addoutval(out_quan_conf_his, IDX_HIS_MSED,                 &
                      'wrihis_sediment', 'msed',              &
                      'Available sediment mass in a layer of the bed',             &
@@ -1159,7 +1161,7 @@ private
        call addoutval(out_quan_conf_his, IDX_HIS_LYRFRAC,                 &
                      'wrihis_sediment', 'lyrfrac',              &
                      'Volume fraction in a layer of the bed',             &
-                     '', 'm', UNC_LOC_STATION, nc_atts = atts(1:1), nc_dim_ids = t_nc_dim_ids(nlyrdim=.true.,  statdim = .true., sedtotdim = .true., timedim = .true.))s
+                     '', 'm', UNC_LOC_STATION, nc_atts = atts(1:1), nc_dim_ids = t_nc_dim_ids(nlyrdim=.true.,  statdim = .true., sedtotdim = .true., timedim = .true.))
       call addoutval(out_quan_conf_his, IDX_HIS_FRAC,                 &
                      'wrihis_sediment', 'frac',              &
                      'Availability fraction in top layer',             &
@@ -1761,7 +1763,7 @@ private
 
       procedure(process_data_double_interface),  pointer :: function_pointer => NULL()
 
-      integer :: i, ntot, num_const_items
+      integer :: i, ntot, num_const_items, nlyrs
       integer, allocatable, dimension(:) :: idx_const
 
       call process_output_quantity_configs(output_config)
@@ -2193,14 +2195,6 @@ private
          end if
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_SED),temp_pointer)   
       endif
-      if (jahissed>0 .and. jased>0 .and. stm_included) then
-         select case (stmpar%morlyr%settings%iunderlyr)
-         case (1)
-            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DPSED),valobs(:,IPNT_DPSED))
-            temp_pointer(1:(IVAL_BODSEDN-IVAL_BODSED1+1)*ntot) => valobs(:,IVAL_BODSED1:IVAL_BODSEDN)
-            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_BODSED),temp_pointer)
-         end select
-      endif
       if (IVAL_WS1 > 0) then
          if (kmx > 0) then
             call c_f_pointer (c_loc(valobs(1:ntot,IPNT_WS1:IPNT_WS1+(IVAL_WSN-IVAL_WS1*kmx))), temp_pointer, [(IVAL_WSN-IPNT_WS1+1)*kmx*ntot])
@@ -2238,8 +2232,52 @@ private
             endif
          endif
       endif
-       
-       
+      ! Bed composition variables
+      if (jahissed>0 .and. jased>0 .and. stm_included) then
+         select case (stmpar%morlyr%settings%iunderlyr)
+         case (1)
+            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DPSED),valobs(:,IPNT_DPSED))
+            temp_pointer(1:(IVAL_BODSEDN-IVAL_BODSED1+1)*ntot) => valobs(:,IVAL_BODSED1:IVAL_BODSEDN)
+            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_BODSED),temp_pointer)
+         case (2)
+            nlyrs = stmpar%morlyr%settings%nlyr
+            
+            temp_pointer(1:(IVAL_MSEDN-IVAL_MSED1+1)*ntot*nlyrs) => valobs(:,IVAL_MSED1:IVAL_MSED1+(IVAL_MSEDN-IVAL_MSED1+1)*nlyrs)
+            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_MSED),temp_pointer)
+
+            temp_pointer(1:(IVAL_LYRFRACN-IVAL_LYRFRAC1+1)*ntot*nlyrs) => valobs(:,IVAL_LYRFRAC1:IVAL_LYRFRAC1+(IVAL_LYRFRACN-IVAL_LYRFRAC1+1)*nlyrs)
+            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_LYRFRAC),temp_pointer)
+
+            temp_pointer(1:ntot*nlyrs) => valobs(:,IPNT_THLYR:IPNT_THLYR+(nlyrs-1))
+            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_THLYR),temp_pointer)
+
+            temp_pointer(1:ntot*nlyrs) => valobs(:,IPNT_POROS:IPNT_POROS+(nlyrs-1))
+            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_POROS),temp_pointer)
+         end select
+         !
+         if (stmpar%morpar%moroutput%frac) then
+            temp_pointer(1:ntot*(IPNT_FRACN-IPNT_FRAC1)) => valobs(:,IPNT_FRAC1:IPNT_FRACN)
+            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_FRAC),temp_pointer)
+         endif
+         if (stmpar%morpar%moroutput%mudfrac) then
+            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_MUDFRAC),valobs(:,IPNT_MUDFRAC))
+         endif
+         if (stmpar%morpar%moroutput%sandfrac) then
+            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_SANDFRAC),valobs(:,IPNT_SANDFRAC))
+         endif
+         if (stmpar%morpar%moroutput%fixfac) then
+            temp_pointer(1:ntot*(IVAL_FIXFACN-IVAL_FIXFAC1)) => valobs(:,IVAL_FIXFAC1:IVAL_FIXFACN)
+            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_FIXFRAC),temp_pointer)
+         endif
+         if (stmpar%morpar%moroutput%hidexp) then
+            temp_pointer(1:ntot*(IVAL_HIDEXPN-IVAL_HIDEXP1)) => valobs(:,IVAL_HIDEXP1:IVAL_HIDEXPN)
+            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_HIDEXP),temp_pointer)
+         endif
+         if (stmpar%morpar%flufflyr%iflufflyr>0 .and. stmpar%lsedsus>0) then
+            temp_pointer(1:ntot*(IVAL_MFLUFFN-IVAL_MFLUFF1)) => valobs(:,IVAL_MFLUFF1:IVAL_MFLUFFN)
+            call add_stat_output_items(output_set, output_config%statout(IDX_HIS_MFLUFF),temp_pointer)
+         end if
+      endif
       !
       ! Variables on observation cross sections
       !
