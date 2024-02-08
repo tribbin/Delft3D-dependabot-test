@@ -29,9 +29,9 @@
       contains
 
 
-      subroutine dlwq01 ( lun    , syname , nosys  , notot  , nomult ,
-     &                    multp  , iwidth , otime  , isfact , refday ,
-     &                    ioutpt , ierr   , iwar   )
+      subroutine dlwq01 ( lun    , syname , nosys  , notot  , nomult , &
+                          multp  , iwidth , otime  , isfact , refday , &
+                          ioutpt , ierr   , iwar   )
 
       !< Reads the model identification and substances IDs
       !> This routine reads:
@@ -121,12 +121,12 @@
 !     First line not tokenized : meta data
 
       read ( lun(26) , * , end=110 , err=120 ) npos , iwidth , cchar
-      if ( iwidth .ne. 80 .and. iwidth .ne. 132 ) then
+      if ( iwidth /= 80 .and. iwidth /= 132 ) then
          write ( lunut , 2000 ) iwidth
          iwidth = 80
       endif
-      if ( iwidth .eq.  80 ) iwidth= 5
-      if ( iwidth .eq. 132 ) iwidth=10
+      if ( iwidth ==  80 ) iwidth= 5
+      if ( iwidth == 132 ) iwidth=10
 
 !     Read version number and initialize position on start of new line
 
@@ -142,21 +142,21 @@
       runid1 = ' '
       runid2 = ' '
       itype = 1
-      if ( gettoken ( modid1, ierr2 ) .gt. 0 ) goto 100
-      if ( gettoken ( modid2, ierr2 ) .gt. 0 ) goto 100
+      if ( gettoken ( modid1, ierr2 ) > 0 ) goto 100
+      if ( gettoken ( modid2, ierr2 ) > 0 ) goto 100
       write ( lun( 2)  ) modid1, modid2
       write ( lunut  , 2010 ) modid1, modid2
-      if ( gettoken ( runid1, ierr2 ) .gt. 0 ) goto 100
-      if ( gettoken ( runid2, ierr2 ) .gt. 0 ) goto 100
+      if ( gettoken ( runid1, ierr2 ) > 0 ) goto 100
+      if ( gettoken ( runid2, ierr2 ) > 0 ) goto 100
       write ( lun( 2)  ) runid1, runid2
       write ( lunut  , 2020 ) runid1, runid2
 
 !     identify an timer offset value in the last string
 
-      if ( runid2( 1: 3) .ne. 't0: ' .and.
-     &     runid2( 1: 3) .ne. 'T0: ' .and.
-     &     runid2( 1: 3) .ne. 't0= ' .and.
-     &     runid2( 1: 3) .ne. 'T0= '       ) then
+      if ( runid2( 1: 3) /= 't0: ' .and. &
+           runid2( 1: 3) /= 'T0: ' .and. &
+           runid2( 1: 3) /= 't0= ' .and. &
+           runid2( 1: 3) /= 'T0= '       ) then
          write ( lunut  , 2030 )
          iwar  = iwar + 1
          isfact= 1
@@ -173,7 +173,7 @@
          idate  = iyear*10000+imonth*100+iday
          itime  = ihour*10000+iminut*100+isecnd
          otime  = julian_with_leapyears ( idate , itime )
-         if ( isfact .gt. 0 ) then
+         if ( isfact > 0 ) then
             write ( lunut  , 2050 )  isfact
          else
             write ( lunut  , 2060 ) -isfact
@@ -189,8 +189,8 @@
 
 !     Read number of transported and number of passive systems
 
-      if ( gettoken ( nosys , ierr2 ) .gt. 0 ) goto 100
-      if ( gettoken ( idummy, ierr2 ) .gt. 0 ) goto 100
+      if ( gettoken ( nosys , ierr2 ) > 0 ) goto 100
+      if ( gettoken ( idummy, ierr2 ) > 0 ) goto 100
       notot = nosys + idummy
 
 !     allocate
@@ -205,20 +205,20 @@
       nomult  = 0
       do isys = 1, notot
          if ( .not. intread ) then                 ! read substance number
-            if ( gettoken ( idummy, ierr2 ) .gt. 0 ) goto 100
+            if ( gettoken ( idummy, ierr2 ) > 0 ) goto 100
          endif                                     ! read substanceID
-         if ( gettoken ( cdummy, ierr2 ) .gt. 0 ) goto 100
-         if ( idummy .le. 0 .or. idummy .gt. notot ) then
+         if ( gettoken ( cdummy, ierr2 ) > 0 ) goto 100
+         if ( idummy <= 0 .or. idummy > notot ) then
             write ( lunut , 2070 ) idummy, cdummy
             ierr = ierr+1
          else
             sname(idummy) = cdummy
          endif                                     ! read new substance nr or *n for multiples
          ifound = gettoken ( cdummy, idummy, adummy, itype, ierr2 )
-         if ( isys .eq. notot .and. ifound .eq. 2 ) exit
-         if ( ifound .ne. 0 ) goto 100
-         if ( itype .eq. 1 ) then                  ! a string was found. must be *n
-            if ( cdummy(1:1) .ne. '*' ) then       ! only a multiplication is accepted
+         if ( isys == notot .and. ifound == 2 ) exit
+         if ( ifound /= 0 ) goto 100
+         if ( itype == 1 ) then                  ! a string was found. must be *n
+            if ( cdummy(1:1) /= '*' ) then       ! only a multiplication is accepted
                write( lunut, 2170 ) trim(cdummy)
                goto 100
             endif
@@ -239,7 +239,7 @@
       notot  = 0
       nomult = 1
       do isys = 1, nosyss
-         if ( imult(isys) .gt. 1 ) then
+         if ( imult(isys) > 1 ) then
             multp(1,nomult) = nosys + 1
             multp(2,nomult) = nosys + 1 + imult(isys) - 1
             nomult = nomult + 1
@@ -248,7 +248,7 @@
          notot = notot + imult(isys)
       enddo
       do isys = nosyss+1, notots
-         if ( imult(isys) .gt. 1 ) then
+         if ( imult(isys) > 1 ) then
             multp(1,nomult) = notot + 1
             multp(2,nomult) = notot + 1 + imult(isys) - 1
             nomult = nomult + 1
@@ -258,14 +258,14 @@
       allocate ( syname(notot+nomult) )
 
       write ( lunut  , 2080 ) nosys , notot-nosys , notot
-      if ( nosys .lt. 0 .or. idummy .lt. 0 .or. notot .le. 0 ) then
+      if ( nosys < 0 .or. idummy < 0 .or. notot <= 0 ) then
            write ( lunut , 2090 )
            ierr = ierr+1
       endif
 
 !        Fill in their names
 
-      if ( ioutpt .ge. 1 ) then
+      if ( ioutpt >= 1 ) then
          write ( lunut , 2100 )
       else
          write ( lunut , 2110 )
@@ -276,7 +276,7 @@
 
 !        Get an unique name
 
-         if ( sname(isys) .eq. ' ' ) write ( sname(isys), 2120 ) isys
+         if ( sname(isys) == ' ' ) write ( sname(isys), 2120 ) isys
          do isys2 = 1 , isys-1
                if (string_equals(sname(isys), sname(isys2))) then
                write(lunut,2130)
@@ -286,9 +286,9 @@
 
 !        Make the array with names
 
-         if ( imult(isys) .eq. 1 ) then
+         if ( imult(isys) == 1 ) then
             syname(nosyss) = sname(isys)
-            if ( ioutpt .ge. 1 ) write ( lunut, 2140 ) nosyss, syname(nosyss)
+            if ( ioutpt >= 1 ) write ( lunut, 2140 ) nosyss, syname(nosyss)
             nosyss = nosyss + 1
          else
             nomult = nomult + 1
@@ -296,14 +296,14 @@
             do isys2 = 1, imult(isys)
                syname(nosyss) = sname(isys)
                ilen = len_trim(syname(nosyss))
-               if ( isys2 .lt.   10 ) then
+               if ( isys2 <   10 ) then
                   write ( syname(nosyss)(ilen+1:), '(''0'',i1)' ) isys2
-               elseif ( isys2 .lt. 100 ) then
+               elseif ( isys2 < 100 ) then
                   write ( syname(nosyss)(ilen+1:), '(      i2)' ) isys2
                else
                   write ( syname(nosyss)(ilen+1:), '(      i3)' ) isys2
                endif
-               if ( ioutpt .ge. 1 ) write ( lunut, 2140 ) nosyss, syname(nosyss)
+               if ( ioutpt >= 1 ) write ( lunut, 2140 ) nosyss, syname(nosyss)
                nosyss = nosyss + 1
             enddo
          endif
@@ -317,8 +317,8 @@
 !        Check number of data in inputfile
 
   100 continue
-      if ( ierr2 .ne. 0 .and. ierr2 .ne. 2 ) ierr = ierr + 1
-      if ( ierr2 .eq. 3 ) call srstop(1)
+      if ( ierr2 /= 0 .and. ierr2 /= 2 ) ierr = ierr + 1
+      if ( ierr2 == 3 ) call srstop(1)
       call check  ( cdummy, iwidth , 1      , ierr2  , ierr   )
       iwar = iwar + iwar2
       if ( timon ) call timstop( ithndl )
@@ -337,20 +337,20 @@
  2000 format ( /' Invalid width of output file',I4,'! A width of 80 is assumed!')
  2010 format (//' Model :            ',A40,/20X,A40 )
  2020 format (//' Run   :            ',A40,/20X,A40 )
- 2030 format ( /' WARNING. No intermediate version absolute timer detected !',
-     &         /'          Use of date/time is not supported - date/time strings',
-     &         /'          may not be interpreted correctly')
+ 2030 format ( /' WARNING. No intermediate version absolute timer detected !', &
+               /'          Use of date/time is not supported - date/time strings', &
+               /'          may not be interpreted correctly')
  2040 format ( /' Intermediate version absolute timer detected !' )
  2050 format (  ' System clock is ',I5,' seconds !' )
  2060 format (  ' System clock is 1/',I3,'th of a second !' )
  2070 format ( /' ERROR invalid system number:',I3,5X,A20 )
- 2080 format ( /' Number of active constituents   :',I3,/
-     &          ' Number of inactive constituents :',I3,/
-     &          ' Total number of constituents    :',I3  )
+ 2080 format ( /' Number of active constituents   :',I3,/ &
+                ' Number of inactive constituents :',I3,/ &
+                ' Total number of constituents    :',I3  )
  2090 format ( /' ERROR invalid number of systems.' )
  2100 format (  ' Number   name' )
- 2110 format (  ' Information on substances will be printed for',
-     &          ' output option 1 or higher !' )
+ 2110 format (  ' Information on substances will be printed for', &
+                ' output option 1 or higher !' )
  2120 format (  ' Substance ',I3 )
  2130 format ( /' ERROR. system name not unique')
  2140 format (      I5 , 5X , A20 )
