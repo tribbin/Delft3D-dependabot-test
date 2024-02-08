@@ -331,7 +331,7 @@ subroutine unc_write_his(tim)            ! wrihis
             ierr = nf90_put_att(ihisfile, id_statname,  'long_name'    , 'observation station name') ! REF
             
             ! Define the coordinate variables for the station type.
-            ierr = unc_put_his_station_coord_vars(ihisfile, nummovobs, id_statdim, id_timedim, add_latlon, &
+            ierr = unc_put_his_station_coord_vars(ihisfile, nummovobs, id_statdim, id_timedim, add_latlon, jawrizc, jawrizw, &
                                                   id_statx, id_staty, id_statlat, id_statlon, statcoordstring)
 
         end if
@@ -2080,13 +2080,15 @@ contains
    end function unc_def_his_structure_static_vars
                                                                                   
    !> Define the coordinate variables for the station type.
-   function unc_put_his_station_coord_vars(ihisfile, nummovobs, id_statdim, id_timedim, add_latlon, &
+   function unc_put_his_station_coord_vars(ihisfile, nummovobs, id_statdim, id_timedim, add_latlon, jawrizc, jawrizw, &
                                            id_statx, id_staty, id_statlat, id_statlon, statcoordstring) result(ierr)
       integer,             intent(in   ) :: ihisfile        !< NetCDF id of already open dataset
       integer,             intent(in   ) :: nummovobs       !< Number of moving observation stations
       integer,             intent(in   ) :: id_statdim      !< NetCDF dimension id for the station type
       integer,             intent(in   ) :: id_timedim      !< NetCDF dimension id for the time dimension
       logical,             intent(in   ) :: add_latlon      !< Whether or not to include station lat/lon coordinates in the his file
+      integer,             intent(in   ) :: jawrizc         !< Whether or not to write observation station zcoordinate_c to the his file
+      integer,             intent(in   ) :: jawrizw         !< Whether or not to write observation station zcoordinate_w + zcoordinate_wu to the his file
       integer,             intent(  out) :: id_statx        !< NetCDF variable id created for the station x-coordinate
       integer,             intent(  out) :: id_staty        !< NetCDF variable id created for the station y-coordinate
       integer,             intent(  out) :: id_statlat      !< NetCDF variable id created for the station lat-coordinate
@@ -2127,6 +2129,29 @@ contains
          ! Include this info in the string listing the coordinate variables associated with the stations
          statcoordstring = trim(statcoordstring) // ' station_lon station_lat'
       end if
+      
+      ! If so specified, add the zcoordinate_c
+      if (kmx > 0 .and. jawrizc == 1) then
+         call definencvar(ihisfile, id_zcs, nc_precision, (/ id_laydim, id_statdim, id_timedim /),          &
+            'zcoordinate_c' , 'vertical coordinate at center of flow element and layer', 'm',               &
+            'station_x_coordinate station_y_coordinate station_name zcoordinate_c', geometry = 'station_geom', fillVal = dmiss)
+         ierr = nf90_put_att(ihisfile, id_zcs, 'positive' , 'up')
+      endif
+      
+      ! If so specified, add the zcoordinate_w + zcoordinate_wu
+      if (kmx > 0 .and. jawrizw == 1) then
+         
+         call definencvar(ihisfile, id_zws, nc_precision, (/ id_laydimw, id_statdim, id_timedim /),         &
+            'zcoordinate_w' , 'vertical coordinate at centre of flow element and at layer interface', 'm',  &
+            'station_x_coordinate station_y_coordinate station_name zcoordinate_w', geometry = 'station_geom', fillVal = dmiss)
+         ierr = nf90_put_att(ihisfile, id_zws, 'positive' , 'up')
+         
+         call definencvar(ihisfile, id_zwu, nc_precision, (/ id_laydimw, id_statdim, id_timedim /),         &
+            'zcoordinate_wu' , 'vertical coordinate at edge of flow element and at layer interface', 'm',   &
+            'station_x_coordinate station_y_coordinate station_name zcoordinate_wu', geometry = 'station_geom', fillVal = dmiss)
+         ierr = nf90_put_att(ihisfile, id_zwu, 'positive' , 'up')
+         
+      endif
 
    end function unc_put_his_station_coord_vars
 
