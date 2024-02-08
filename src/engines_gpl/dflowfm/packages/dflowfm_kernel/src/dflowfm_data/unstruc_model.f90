@@ -1296,12 +1296,14 @@ subroutine readMDUFile(filename, istat)
     call prop_get_double (md_ptr, 'physics', 'Xlozmidov'      , Xlozmidov)
 
     call realloc(tmpdouble, 4, fill = -999d0)
-    call prop_get_doubles(md_ptr, 'physics', 'Prandtl_Schmidt_numbers', tmpdouble, 4, success)
-    if ( .not. success .or. minval(tmpdouble) < 0 ) then
-        call mess(LEVEL_ERROR, 'Prandtl_Schmidt_numbers requires four numbers for resp. salt, temperature, sediments and tracers (e.g., 0.7 0.7 1.0 1.0), even if your model does not include some of these constituents/processes.')
-    else
-        Prandtl_Schmidt_numbers = tmpdouble
-    end if
+    call prop_get_doubles(md_ptr, 'physics', 'Prandtl_Schmidt_numbers', tmpdouble, 4)
+    if ( .not. all(tmpdouble == -999d0) ) then ! Prandtl_Schmidt_numbers was specified by user
+       if ( minval(tmpdouble) < 0 ) then
+          call mess(LEVEL_ERROR, 'Prandtl_Schmidt_numbers requires four numbers for resp. salt, temperature, sediments and tracers (e.g., 0.7 0.7 1.0 1.0), even if your model does not include some of these constituents/processes.')
+       else
+          Prandtl_Schmidt_numbers = tmpdouble
+       endif
+    endif
 
     call prop_get_double (md_ptr, 'physics', 'Smagorinsky'    , Smagorinsky)
     call prop_get_double (md_ptr, 'physics', 'Elder   '       , Elder)
