@@ -579,7 +579,7 @@ subroutine addoutval(config_set, idx, key, name, long_name, standard_name, unit,
       nc_type_ = nc_type
    else
       ! By default, use the NetCDF precision for his files defined in the MDU (nf90_float for single, nf90_double for double)
-      nc_type_ = md_nc_his_precision
+      nc_type_ = nf90_double
    end if
 
    config_set%count = config_set%count+1
