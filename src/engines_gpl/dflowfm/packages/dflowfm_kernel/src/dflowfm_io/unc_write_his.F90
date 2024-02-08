@@ -329,27 +329,10 @@ subroutine unc_write_his(tim)            ! wrihis
             ierr = nf90_def_var(ihisfile, 'station_name',         nf90_char,   (/ id_strlendim, id_statdim /), id_statname)
             ! ierr = nf90_put_att(ihisfile, id_statname,  'cf_role', 'timeseries_id') ! UNST-6901: only one cf_role var allowed, is now "station_id". Backwards incompatible for some postprocessors?
             ierr = nf90_put_att(ihisfile, id_statname,  'long_name'    , 'observation station name') ! REF
-
-            if (nummovobs > 0) then
-               ierr = nf90_def_var(ihisfile, 'station_x_coordinate', nf90_double, (/ id_statdim, id_timedim /), id_statx) ! TODO: AvD: decide on UNST-1606 (trajectory_id vs. timeseries_id)
-               ierr = nf90_def_var(ihisfile, 'station_y_coordinate', nf90_double, (/ id_statdim, id_timedim /), id_staty)
-            else
-               ierr = nf90_def_var(ihisfile, 'station_x_coordinate', nf90_double, id_statdim, id_statx)
-               ierr = nf90_def_var(ihisfile, 'station_y_coordinate', nf90_double, id_statdim, id_staty)
-            endif
-            ierr = unc_addcoordatts(ihisfile, id_statx, id_staty, jsferic)
-            ierr = nf90_put_att(ihisfile, id_statx, 'long_name', 'original x-coordinate of station (non-snapped)')
-            ierr = nf90_put_att(ihisfile, id_staty, 'long_name', 'original y-coordinate of station (non-snapped)')
-
-            statcoordstring = 'station_x_coordinate station_y_coordinate station_id'
-            if (add_latlon) then
-               ierr = ncu_clone_vardef(ihisfile, ihisfile, id_statx, 'station_lon', id_statlon, &
-                             'longitude', 'original lon-coordinate of station (non-snapped)', 'degrees_east')
-               ierr = ncu_clone_vardef(ihisfile, ihisfile, id_staty, 'station_lat', id_statlat, &
-                             'latitude', 'original lat-coordinate of station (non-snapped)', 'degrees_north')
-
-               statcoordstring = trim(statcoordstring) // ' station_lon station_lat'
-            end if
+            
+            ! Define the coordinate variables for the station type.
+            ierr = unc_put_his_station_coord_vars(ihisfile, nummovobs, id_statdim, id_timedim, add_latlon, &
+                                                  id_statx, id_staty, id_statlat, id_statlon, statcoordstring)
 
         end if
 
@@ -2095,6 +2078,57 @@ contains
       end if
 
    end function unc_def_his_structure_static_vars
+                                                                                  
+   !> Define the coordinate variables for the station type.
+   function unc_put_his_station_coord_vars(ihisfile, nummovobs, id_statdim, id_timedim, add_latlon, &
+                                           id_statx, id_staty, id_statlat, id_statlon, statcoordstring) result(ierr)
+      integer,             intent(in   ) :: ihisfile        !< NetCDF id of already open dataset
+      integer,             intent(in   ) :: nummovobs       !< Number of moving observation stations
+      integer,             intent(in   ) :: id_statdim      !< NetCDF dimension id for the station type
+      integer,             intent(in   ) :: id_timedim      !< NetCDF dimension id for the time dimension
+      logical,             intent(in   ) :: add_latlon      !< Whether or not to include station lat/lon coordinates in the his file
+      integer,             intent(  out) :: id_statx        !< NetCDF variable id created for the station x-coordinate
+      integer,             intent(  out) :: id_staty        !< NetCDF variable id created for the station y-coordinate
+      integer,             intent(  out) :: id_statlat      !< NetCDF variable id created for the station lat-coordinate
+      integer,             intent(  out) :: id_statlon      !< NetCDF variable id created for the station lon-coordinate
+      character(len=1024), intent(  out) :: statcoordstring !< String listing the coordinate variables associated with the stations
+
+      integer                            :: ierr            !< Result status (NF90_NOERR if successful)
+
+      ierr = NF90_NOERR
+
+      ! Create x,y-coordinate variables
+      if (nummovobs > 0) then
+         ! If there are moving observation stations, include a time dimension for the x,y-coordinates
+         ierr = nf90_def_var(ihisfile, 'station_x_coordinate', nf90_double, (/ id_statdim, id_timedim /), id_statx) ! TODO: AvD: decide on UNST-1606 (trajectory_id vs. timeseries_id)
+         ierr = nf90_def_var(ihisfile, 'station_y_coordinate', nf90_double, (/ id_statdim, id_timedim /), id_staty)
+      else
+         ierr = nf90_def_var(ihisfile, 'station_x_coordinate', nf90_double, id_statdim, id_statx)
+         ierr = nf90_def_var(ihisfile, 'station_y_coordinate', nf90_double, id_statdim, id_staty)
+      endif
+      
+      ! jsferic: xy pair is in : 0=cart, 1=sferic coordinates
+      ierr = unc_addcoordatts(ihisfile, id_statx, id_staty, jsferic)
+      
+      ! Clarify that these are the original, non-snapped x,y-coordinates
+      ierr = nf90_put_att(ihisfile, id_statx, 'long_name', 'original x-coordinate of station (non-snapped)')
+      ierr = nf90_put_att(ihisfile, id_staty, 'long_name', 'original y-coordinate of station (non-snapped)')
+
+      ! Set the string listing the coordinate variables associated with the stations
+      statcoordstring = 'station_x_coordinate station_y_coordinate station_id'
+      
+      ! If so specified, add lat/lon-coordinates
+      if (add_latlon) then
+         ! Simply clone the x,y-variables
+         ierr = ncu_clone_vardef(ihisfile, ihisfile, id_statx, 'station_lat', id_statlat, &
+                        'latitude', 'original lat-coordinate of station (non-snapped)', 'degrees_north')
+         ierr = ncu_clone_vardef(ihisfile, ihisfile, id_statx, 'station_lon', id_statlon, &
+                        'longitude', 'original lon-coordinate of station (non-snapped)', 'degrees_east')
+         ! Include this info in the string listing the coordinate variables associated with the stations
+         statcoordstring = trim(statcoordstring) // ' station_lon station_lat'
+      end if
+
+   end function unc_put_his_station_coord_vars
 
 !> Convert t_nc_dim_ids to integer array of NetCDF dimension ids
 function build_nc_dimension_id_list(nc_dim_ids) result(res)
