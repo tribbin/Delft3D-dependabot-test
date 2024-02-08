@@ -605,7 +605,7 @@ subroutine unc_write_his(tim)            ! wrihis
               transpunit = 'm3 s-1 m-1'
            end select
            do ivar = IDX_HIS_SBCX,IDX_HIS_SSCY ! set sediment transport unit just in time
-              out_variable_set_his%statout(ivar)%output_config%unit = transpunit
+              out_quan_conf_his%statout(ivar)%unit = transpunit
            enddo
         endif
         

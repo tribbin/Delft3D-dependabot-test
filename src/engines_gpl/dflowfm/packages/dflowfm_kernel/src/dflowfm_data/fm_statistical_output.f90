@@ -69,8 +69,8 @@ private
          rhol = stmpar%sedpar%rhosol(l)
       end select
       do n = 1,ntot
-         X(ntot*(l-1)+n) = valobs(IPNT_X-1,n)/rhol
-         Y(ntot*(l-1)+n) = valobs(IPNT_Y-1,n)/rhol
+         X(ntot*(l-1)+n) = valobs(n,IPNT_X-1)/rhol
+         Y(ntot*(l-1)+n) = valobs(n,IPNT_Y-1)/rhol
       enddo
    end do
    end subroutine assign_sediment_transport
@@ -1184,15 +1184,15 @@ private
                      'wrihis_sediment', 'sswx',              &
                      'Wave related suspended transport, x-component',             &
                      '', transpunit, UNC_LOC_STATION, nc_atts = atts(1:1), nc_dim_ids = t_nc_dim_ids(statdim = .true.,sedtotdim = .true., timedim = .true.))
-       call addoutval(out_quan_conf_his, IDX_HIS_SSWX,                 &
+       call addoutval(out_quan_conf_his, IDX_HIS_SSWY,                 &
                      'wrihis_sediment', 'sswy',              &
                      'Wave related suspended transport, y-component',             &
                      '', transpunit, UNC_LOC_STATION, nc_atts = atts(1:1), nc_dim_ids = t_nc_dim_ids(statdim = .true.,sedtotdim = .true., timedim = .true.))
       call addoutval(out_quan_conf_his, IDX_HIS_SSCX,                 &
-                     'wrihis_sediment', 'scwx',              &
+                     'wrihis_sediment', 'sscx',              &
                      'Current related suspended transport, x-component',             &
                      '', transpunit, UNC_LOC_STATION, nc_atts = atts(1:1), nc_dim_ids = t_nc_dim_ids(statdim = .true.,sedtotdim = .true., timedim = .true.))
-       call addoutval(out_quan_conf_his, IDX_HIS_SSCX,                 &
+       call addoutval(out_quan_conf_his, IDX_HIS_SSCY,                 &
                      'wrihis_sediment', 'sscy',              &
                      'Current related suspended transport, y-component',             &
                      '', transpunit, UNC_LOC_STATION, nc_atts = atts(1:1), nc_dim_ids = t_nc_dim_ids(statdim = .true.,sedtotdim = .true., timedim = .true.))
