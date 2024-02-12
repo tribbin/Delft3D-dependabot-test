@@ -725,8 +725,6 @@ subroutine unc_write_his(tim)            ! wrihis
         
         ! Observation stations
         do i=1,numobs+nummovobs
-!           ierr = nf90_put_var(ihisfile, id_statx,    xobs(i),         (/ i /))
-!           ierr = nf90_put_var(ihisfile, id_staty,    yobs(i),         (/ i /))
            ierr = nf90_put_var(ihisfile, id_stat_id, trimexact(namobs(i), strlen_netcdf), (/ 1, i /)) ! Extra for OpenDA-wrapper
            ierr = nf90_put_var(ihisfile, id_statname, trimexact(namobs(i), strlen_netcdf), (/ 1, i /))
         end do
