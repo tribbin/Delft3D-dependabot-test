@@ -317,28 +317,6 @@ private
 
    end subroutine aggregate_obscrs_data
 
-   !> Calculates run-up gauge data for his output.
-   !! Will allocate and fill the rug_ruheight array.
-   subroutine calculate_rug_data(source_input)
-      use m_monitoring_runupgauges, only: nrug, rug
-      double precision, pointer, dimension(:), intent(inout) :: source_input
-
-      integer :: i
-
-      if (.not. allocated(rug_ruheight)) then
-         allocate(rug_ruheight(nrug))
-      endif
-
-      if (.not. associated(source_input))then
-         source_input => rug_ruheight
-      endif
-
-      do i=1,nrug
-         rug_ruheight(i) = rug(i)%maxruh
-      end do
-   end subroutine calculate_rug_data
-
-
    !> Set all possible statistical quantity items in the quantity configuration sets.
    subroutine default_fm_statistical_output()
       use netcdf, only: nf90_int
@@ -1805,7 +1783,7 @@ private
       use m_sediment, only: stm_included, stmpar
       use m_longculverts, only: nlongculverts
       USE m_monitoring_crosssections, only: ncrs
-      use m_monitoring_runupgauges, only: nrug
+      use m_monitoring_runupgauges, only: nrug, rug
       USE, INTRINSIC :: ISO_C_BINDING
 
       type(t_output_quantity_config_set), intent(inout) :: output_config !< output config for which an output set is needed.
@@ -1890,9 +1868,8 @@ private
       ! Run-up gauge variables
       !
       if (nrug > 0) then
-         function_pointer => calculate_rug_data
-         temp_pointer => null()
-         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_RUG_RUHEIGHT), temp_pointer, function_pointer)
+         temp_pointer => rug%maxruh
+         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_RUG_RUHEIGHT), temp_pointer)
       endif
 
       !
