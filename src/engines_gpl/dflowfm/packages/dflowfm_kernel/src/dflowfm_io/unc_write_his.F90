@@ -1075,23 +1075,14 @@ subroutine unc_write_his(tim)            ! wrihis
 #endif
        end if
 
-       if ( nummovobs > 0 ) then
-          ierr = nf90_put_var(ihisfile,    id_statx,  xobs(:),            start = (/ 1, it_his /), count = (/ ntot, 1 /))
-          ierr = nf90_put_var(ihisfile,    id_staty,  yobs(:),            start = (/ 1, it_his /), count = (/ ntot, 1 /))
+       ! Write x/y- and lat/lon-coordinates for the observation stations every time (needed for moving observation stations)
+       ierr = unc_put_his_station_coord_vars_xy( ihisfile, nummovobs, id_statdim, id_timedim, id_statx, id_staty, it_his, ntot)
 #ifdef HAVE_PROJ
-          if (add_latlon) then
-             call transform_and_put_latlon_coordinates(ihisfile, id_statlon, id_statlat, nccrs%proj_string, xobs, yobs, start = (/ 1, it_his /), count = (/ ntot, 1 /))
-          end if
+       if (add_latlon) then
+          ierr = unc_put_his_station_coord_vars_latlon(ihisfile, nummovobs, id_statdim, id_timedim, id_statlat, id_statlon, it_his, ntot)
+       end if
 #endif
-       else
-          ierr = nf90_put_var(ihisfile,    id_statx,  xobs(:),            start = (/ 1 /), count = (/ ntot /))
-          ierr = nf90_put_var(ihisfile,    id_staty,  yobs(:),            start = (/ 1 /), count = (/ ntot /))
-#ifdef HAVE_PROJ
-          if (add_latlon) then
-             call transform_and_put_latlon_coordinates(ihisfile, id_statlon, id_statlat, nccrs%proj_string, xobs, yobs)
-       endif
-#endif
-    endif
+       
     endif
 
     if (ntot > 0 .and. .false.) then
@@ -2167,7 +2158,7 @@ contains
 
       ierr = NF90_NOERR
 
-      ! If there are moving observation stations, include a time dimension for the x,y-coordinates
+      ! If there are moving observation stations, include a time dimension for the x/y-coordinates
       if (nummovobs > 0) then
          allocate( dim_ids( 2))
          dim_ids = (/ id_statdim, id_timedim /) ! TODO: AvD: decide on UNST-1606 (trajectory_id vs. timeseries_id)
@@ -2202,7 +2193,7 @@ contains
 
       ierr = NF90_NOERR
 
-      ! Simply clone the x,y-variables
+      ! Simply clone the x/y-variables
       ierr = ncu_clone_vardef(ihisfile, ihisfile, id_statx, 'station_lat', id_statlat, &
                      'latitude', 'original lat-coordinate of station (non-snapped)', 'degrees_north')
       ierr = ncu_clone_vardef(ihisfile, ihisfile, id_statx, 'station_lon', id_statlon, &
@@ -2254,6 +2245,88 @@ contains
       endif
 
    end function unc_def_his_station_coord_vars_z
+                                                                
+   !> Write (put) the x/y-coordinate variables for the station type.
+   function unc_put_his_station_coord_vars_xy(ihisfile, nummovobs, id_statdim, id_timedim, &
+                                              id_statx, id_staty, it_his, ntot) result(ierr)
+      implicit none
+      
+      integer,             intent(in   ) :: ihisfile        !< NetCDF id of already open dataset
+      integer,             intent(in   ) :: nummovobs       !< Number of moving observation stations
+      integer,             intent(in   ) :: id_statdim      !< NetCDF dimension id for the station type
+      integer,             intent(in   ) :: id_timedim      !< NetCDF dimension id for the time dimension
+      integer,             intent(in   ) :: id_statx        !< NetCDF variable id created for the station x-coordinate
+      integer,             intent(in   ) :: id_staty        !< NetCDF variable id created for the station y-coordinate
+      integer,             intent(in   ) :: it_his          !< NetCDF id of already open dataset
+      integer,             intent(in   ) :: ntot            !< NetCDF id of already open dataset
+      
+      integer                            :: ierr            !< Result status (NF90_NOERR if successful)
+      
+      integer, dimension(:), allocatable :: start, count
+
+      ierr = NF90_NOERR
+      
+      ! If there are moving observation stations, include a time dimension for the x/y-coordinates
+      if ( nummovobs > 0 ) then
+         allocate( start( 2))
+         allocate( count( 2))
+         start = (/ 1, it_his /)
+         count = (/ ntot, 1 /)
+      else
+         allocate( start( 1))
+         allocate( count( 1))
+         start = (/ 1 /)
+         count = (/ ntot /)
+      endif
+      
+      ierr = nf90_put_var(ihisfile, id_statx, xobs(:), start = start, count = count )
+      ierr = nf90_put_var(ihisfile, id_staty, yobs(:), start = start, count = count )
+      
+      deallocate( start)
+      deallocate( count)
+
+   end function unc_put_his_station_coord_vars_xy
+                                                                
+   !> Write (put) the lat/lon-coordinate variables for the station type.
+   function unc_put_his_station_coord_vars_latlon(ihisfile, nummovobs, id_statdim, id_timedim, &
+                                                  id_statlat, id_statlon, it_his, ntot) result(ierr)
+      implicit none
+      
+      integer,             intent(in   ) :: ihisfile        !< NetCDF id of already open dataset
+      integer,             intent(in   ) :: nummovobs       !< Number of moving observation stations
+      integer,             intent(in   ) :: id_statdim      !< NetCDF dimension id for the station type
+      integer,             intent(in   ) :: id_timedim      !< NetCDF dimension id for the time dimension
+      integer,             intent(in   ) :: id_statlat      !< NetCDF variable id created for the station lat-coordinate
+      integer,             intent(in   ) :: id_statlon      !< NetCDF variable id created for the station lon-coordinate
+      integer,             intent(in   ) :: it_his          !< NetCDF id of already open dataset
+      integer,             intent(in   ) :: ntot            !< NetCDF id of already open dataset
+      
+      integer                            :: ierr            !< Result status (NF90_NOERR if successful)
+      
+      integer, dimension(:), allocatable :: start, count
+
+      ierr = NF90_NOERR
+      
+      ! If there are moving observation stations, include a time dimension for the lat/lon-coordinates
+      if ( nummovobs > 0 ) then
+         allocate( start( 2))
+         allocate( count( 2))
+         start = (/ 1, it_his /)
+         count = (/ ntot, 1 /)
+      else
+         allocate( start( 1))
+         allocate( count( 1))
+         start = (/ 1 /)
+         count = (/ ntot /)
+      endif
+      
+      call transform_and_put_latlon_coordinates(ihisfile, id_statlon, id_statlat, &
+                                                nccrs%proj_string, xobs, yobs, start = start, count = count)
+      
+      deallocate( start)
+      deallocate( count)
+
+   end function unc_put_his_station_coord_vars_latlon
 
 !> Convert t_nc_dim_ids to integer array of NetCDF dimension ids
 function build_nc_dimension_id_list(nc_dim_ids) result(res)
