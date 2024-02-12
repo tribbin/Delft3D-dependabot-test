@@ -23,7 +23,6 @@ private
    type(t_nc_dim_ids), parameter :: nc_dims_3D_interface_edge = t_nc_dim_ids(laydim_interface_edge = .true., statdim = .true., timedim = .true.)
 
    double precision, dimension(:,:), allocatable, target :: obscrs_data !< observation cross section constituent data on observation cross sections to be written
-   double precision, dimension(:), allocatable, target :: rug_ruheight !< Run-up height on run-up gauges to be written.
    double precision, dimension(:), allocatable, target :: SBCX, SBCY, SBWX, SBWY, SSWX, SSWY, SSCX, SSCY
 
    contains
