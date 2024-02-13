@@ -1455,6 +1455,7 @@ subroutine unc_write_his(tim)            ! wrihis
     endif
 
     if (timon) call timstop(handle_extra(65))
+    
 
     if (timon) call timstrt ( "unc_write_his str write", handle_extra(62))
     ! TODO: UNST-7239: ensure that stat output items have correct value also at it_his==1
