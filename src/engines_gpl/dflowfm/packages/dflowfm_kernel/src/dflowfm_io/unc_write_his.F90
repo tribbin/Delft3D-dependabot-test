@@ -1074,13 +1074,13 @@ subroutine unc_write_his(tim)            ! wrihis
        end if
 #endif
        end if
-
-       ! Write x/y-, lat/lon- and z-coordinates for the observation stations every time (needed for moving observation stations)
-       ierr = unc_put_his_station_coord_vars(ihisfile, nummovobs, add_latlon, jawrizc, jawrizw, &
-                                             id_statx, id_staty, id_statlat, id_statlon, &
-                                             id_zcs, id_zws, id_zwu, it_his, ntot)
        
     endif
+
+    ! Write x/y-, lat/lon- and z-coordinates for the observation stations every time (needed for moving observation stations)
+    ierr = unc_put_his_station_coord_vars(ihisfile, nummovobs, add_latlon, jawrizc, jawrizw, &
+                                          id_statx, id_staty, id_statlat, id_statlon, &
+                                          id_zcs, id_zws, id_zwu, it_his, ntot)
 
     if (ntot > 0 .and. .false.) then
     if (timon) call timstrt('unc_write_his obs data 1', handle_extra(56))
@@ -2163,7 +2163,7 @@ contains
       else
          allocate( dim_ids( 1))
          dim_ids = (/ id_statdim /)
-      endif
+      end if
       
       ierr = nf90_def_var(ihisfile, 'station_x_coordinate', nc_precision, dim_ids, id_statx)
       ierr = nf90_def_var(ihisfile, 'station_y_coordinate', nc_precision, dim_ids, id_staty)
@@ -2225,7 +2225,7 @@ contains
             'zcoordinate_c' , 'vertical coordinate at center of flow element and layer', 'm',               &
             'station_x_coordinate station_y_coordinate station_name zcoordinate_c', geometry = 'station_geom', fillVal = dmiss)
          ierr = nf90_put_att(ihisfile, id_zcs, 'positive' , 'up')
-      endif
+      end if
       
       ! If so specified, add the zcoordinate_w + zcoordinate_wu
       if (kmx > 0 .and. jawrizw == 1) then
@@ -2240,7 +2240,7 @@ contains
             'station_x_coordinate station_y_coordinate station_name zcoordinate_wu', geometry = 'station_geom', fillVal = dmiss)
          ierr = nf90_put_att(ihisfile, id_zwu, 'positive' , 'up')
          
-      endif
+      end if
 
    end function unc_def_his_station_coord_vars_z
                                                                 
@@ -2268,6 +2268,10 @@ contains
       integer                            :: ierr            !< Result status (NF90_NOERR if successful)
 
       ierr = NF90_NOERR
+      
+      if (ntot == 0) then
+         return
+      end if
 
       ierr = unc_put_his_station_coord_vars_xy( ihisfile, nummovobs, id_statx, id_staty, it_his, ntot)
       
@@ -2309,7 +2313,7 @@ contains
          allocate( count( 1))
          start = (/ 1 /)
          count = (/ ntot /)
-      endif
+      end if
       
       ierr = nf90_put_var(ihisfile, id_statx, xobs(:), start = start, count = count )
       ierr = nf90_put_var(ihisfile, id_staty, yobs(:), start = start, count = count )
@@ -2347,7 +2351,7 @@ contains
          allocate( count( 1))
          start = (/ 1 /)
          count = (/ ntot /)
-      endif
+      end if
       
       call transform_and_put_latlon_coordinates(ihisfile, id_statlon, id_statlat, &
                                                 nccrs%proj_string, xobs, yobs, start = start, count = count)
@@ -2380,16 +2384,16 @@ contains
          do kk = 1, kmx+1
             if (kk > 1) then
                ierr = nf90_put_var(ihisfile, id_zcs, valobs(:,IPNT_ZCS+kk-2), start = (/ kk-1, 1, it_his /), count = (/ 1, ntot, 1 /))
-            endif
-         enddo
-      endif
+            end if
+         end do
+      end if
       
       if (kmx > 0 .and. jawrizw == 1) then
          do kk = 1, kmx+1
             ierr = nf90_put_var(ihisfile, id_zws, valobs(:,IPNT_ZWS+kk-1), start = (/ kk, 1, it_his /), count = (/ 1, ntot, 1 /))
             ierr = nf90_put_var(ihisfile, id_zwu, valobs(:,IPNT_ZWU+kk-1), start = (/ kk, 1, it_his /), count = (/ 1, ntot, 1 /))
-         enddo
-      endif
+         end do
+      end if
 
    end function unc_put_his_station_coord_vars_z
 
