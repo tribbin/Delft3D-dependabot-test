@@ -14,7 +14,7 @@ private
    type(t_output_variable_set), public :: out_variable_set_his
    type(t_output_variable_set), public :: out_variable_set_map
    type(t_output_variable_set), public :: out_variable_set_clm
-   
+
    public default_fm_statistical_output, flow_init_statistical_output_his
 
    type(t_nc_dim_ids), parameter :: nc_dims_2D = t_nc_dim_ids(statdim = .true., timedim = .true.)
@@ -22,18 +22,19 @@ private
    type(t_nc_dim_ids), parameter :: nc_dims_3D_interface_center = t_nc_dim_ids(laydim_interface_center = .true., statdim = .true., timedim = .true.)
    type(t_nc_dim_ids), parameter :: nc_dims_3D_interface_edge = t_nc_dim_ids(laydim_interface_edge = .true., statdim = .true., timedim = .true.)
 
+   double precision, dimension(:), allocatable, target :: water_quality_output_data !< Water quality data to be written
    double precision, dimension(:,:), allocatable, target :: obscrs_data !< observation cross section constituent data on observation cross sections to be written
    double precision, dimension(:), allocatable, target :: SBCX, SBCY, SBWX, SBWY, SSWX, SSWY, SSCX, SSCY
 
    contains
-   
+
    !> allocate array and associate pointer with it if not already done.
    subroutine allocate_and_associate(source_input, size, array1, array2)
    double precision, pointer, dimension(:), intent(inout)                        :: source_input   !< Pointer to associate with array1
    double precision, dimension(:), allocatable, target, intent(inout)            :: array1         !< Data array 1 to allocate
    double precision, dimension(:), allocatable, target, intent(inout), optional  :: array2         !< Data array 2 to allocate (but not point to)
    integer, intent(in) :: size
-   
+
    if (.not. allocated(array1)) then
          allocate(array1(size))
       if (present(array2)) then !array 1 and array2 are either both allocated or both not.
@@ -44,19 +45,19 @@ private
       source_input => array1
    endif
    end subroutine allocate_and_associate
-   
+
    !> Subroutine that divides sediment transport x,y variables by rho
    subroutine assign_sediment_transport(X,Y,IPNT_X,IPNT_Y,ntot)
    use m_sediment
    use m_observations
-   
+
    double precision, dimension(:), intent(out) :: X,Y !< arrays to assign valobs values to
    integer, intent(in) :: IPNT_X, IPNT_Y              !< location specifier inside valobs array
    integer, intent(in) :: ntot                        !< number of stations
-   
+
    integer :: l, k
    double precision :: rhol
-   
+
    do l = 1, stmpar%lsedtot
       select case(stmpar%morpar%moroutput%transptype)
       case (0)
@@ -71,7 +72,7 @@ private
       Y(k+1:k+ntot) = valobs(:,IPNT_Y)/rhol
    end do
    end subroutine assign_sediment_transport
-   
+
    !> Wrapper function that will allocate and fill the sediment transport arrays
    subroutine calculate_sediment_SSW(source_input)
    use m_observations
@@ -81,7 +82,7 @@ private
    call allocate_and_associate(source_input,ntot,SSWX,SSWY)
    call assign_sediment_transport(SSWX,SSWY,IPNT_SSWX1,IPNT_SSWY1,ntot)
    end subroutine calculate_sediment_SSW
-   
+
    !> Wrapper function that will allocate and fill the sediment transport arrays
    subroutine calculate_sediment_SSC(source_input)
    use m_observations
@@ -91,7 +92,7 @@ private
    call allocate_and_associate(source_input,ntot,SSCX,SSCY)
    call assign_sediment_transport(SSCX,SSCY,IPNT_SSCX1,IPNT_SSCY1,ntot)
    end subroutine calculate_sediment_SSC
-   
+
    !> Wrapper function that will allocate and fill the sediment transport arrays
    subroutine calculate_sediment_SBW(source_input)
    use m_observations
@@ -101,7 +102,7 @@ private
    call allocate_and_associate(source_input,ntot,SBWX,SBWY)
    call assign_sediment_transport(SBWX,SBWY,IPNT_SBWX1,IPNT_SBWY1,ntot)
    end subroutine calculate_sediment_SBW
-   
+
    !> Wrapper function that will allocate and fill the sediment transport arrays
    subroutine calculate_sediment_SBC(source_input)
    use m_observations
@@ -111,7 +112,51 @@ private
    call allocate_and_associate(source_input,ntot,SBCX,SBCY)
    call assign_sediment_transport(SBCX,SBCY,IPNT_SBCX1,IPNT_SBCY1,ntot)
    end subroutine calculate_sediment_SBC
-   
+
+   subroutine add_station_water_quality_configs(output_config, IDX_HIS_HWQ)
+      use processes_input, only: num_wq_user_outputs => noout_user
+      use results, only : OutputPointers
+      use m_fm_wq_processes, only: wq_user_outputs => outputs
+      use m_ug_nc_attribute, only: ug_nc_attribute
+      use string_module, only: replace_multiple_spaces_by_single_spaces
+      use netcdf_utils, only: ncu_set_att
+      type(t_output_quantity_config_set), intent(inout) :: output_config   !< Output configuration for the HIS file.
+      integer, allocatable, dimension(:), intent(  out) :: IDX_HIS_HWQ
+
+      type(t_nc_dim_ids)    :: nc_dims
+      integer               :: i
+      character(len=255)    :: name, description
+      type(ug_nc_attribute) :: atts(1)
+
+      if (num_wq_user_outputs == 0) then
+         return
+      end if
+
+      if (.not. allocated(water_quality_output_data)) then
+         allocate(water_quality_output_data(num_wq_user_outputs))
+         allocate(IDX_HIS_HWQ(num_wq_user_outputs))
+      else
+         call err('Internal error, please report: water_quality_output_data was already allocated')
+      endif
+
+      call ncu_set_att(atts(1), 'geometry', 'station_geom')
+
+      nc_dims = nc_dims_3D_center
+      call process_nc_dim_ids(nc_dims)
+
+      ! Just-in-time add *config* item for water quality output variables
+      do i = 1, num_wq_user_outputs
+         write (name, "('water_quality_output_',I0)") i
+         description = trim(wq_user_outputs%names(i))//' - '//trim(wq_user_outputs%description(i))//' in flow element'
+         call replace_multiple_spaces_by_single_spaces(description)
+
+         call addoutval(output_config, IDX_HIS_HWQ(i), 'Wrihis_water_quality', trim(name), &
+                        trim(wq_user_outputs%names(i)), '', trim(wq_user_outputs%units(i)), UNC_LOC_STATION, &
+                        nc_atts = atts(1:1), description = description, nc_dim_ids = nc_dims)
+      end do
+
+   end subroutine add_station_water_quality_configs
+
    !> Initialize (allocate) observation crosssection data array obscrs_data.
    !! This subroutine should be called only once, such that afterward individual calls
    !! to add_stat_output_items can point to obscrs_data(:,i) slices in this array.
@@ -138,7 +183,7 @@ private
    integer ::  num, lenunitstr, lsed
    character(len=idlen) :: conststr
    character(len=idlen) :: unitstr
-   type(ug_nc_attribute) :: atts(5)
+   type(ug_nc_attribute) :: atts(1)
 
    if (ncrs == 0) then
       return
@@ -233,7 +278,6 @@ private
 
    end subroutine init_obscrs_data_and_config
 
-
    !> Aggregate observation crossection data from crs()% value arrays into source_input data array.
    !! Will fill *all* obscrs_data, and leave the input data_pointer untouched: it assumes that all
    !! individual calls to add_stat_output_items() have already associated their obscrs data_pointer variables
@@ -327,7 +371,7 @@ private
 
       type(ug_nc_attribute) :: atts(5)
      character(len=25)      :: transpunit
-     
+
       out_quan_conf_his%count = 0
       out_quan_conf_map%count = 0
       out_quan_conf_clm%count = 0
@@ -1173,7 +1217,7 @@ private
                      'wrihis_sediment', 'sscy',              &
                      'Current related suspended transport, y-component',             &
                      '', transpunit, UNC_LOC_STATION, nc_atts = atts(1:1), nc_dim_ids = t_nc_dim_ids(statdim = .true.,sedtotdim = .true., timedim = .true.))
-       
+
        ! Bed composition variables
        call addoutval(out_quan_conf_his, IDX_HIS_MSED,                 &
                      'wrihis_sediment', 'msed',              &
@@ -1793,6 +1837,7 @@ private
       procedure(process_data_double_interface),  pointer :: function_pointer => NULL()
 
       integer :: i, ntot, num_const_items, nlyrs
+      integer, allocatable, dimension(:) :: id_hwq
       integer, allocatable, dimension(:) :: idx_const
 
       call process_output_quantity_configs(output_config)
@@ -2045,10 +2090,10 @@ private
             if (model_is_3D()) then
                call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCX:IPNT_UCX+kmx)), temp_pointer, [kmx*ntot])
                call add_stat_output_items(output_set, output_config%statout(IDX_HIS_X_VELOCITY),temp_pointer)
-               
+
                call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCY:IPNT_UCY+kmx)), temp_pointer, [kmx*ntot])
                call add_stat_output_items(output_set, output_config%statout(IDX_HIS_Y_VELOCITY),temp_pointer)
-               
+
                call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCZ:IPNT_UCZ+kmx)), temp_pointer, [kmx*ntot])
                call add_stat_output_items(output_set, output_config%statout(IDX_HIS_Z_VELOCITY),temp_pointer)
 
@@ -2134,7 +2179,7 @@ private
          if (model_is_3D()) then
             call c_f_pointer (c_loc(valobs(1:ntot,IPNT_RHOP:IPNT_RHOP+kmx)), temp_pointer, [kmx*ntot])
             call add_stat_output_items(output_set, output_config%statout(IDX_HIS_POTENTIAL_DENSITY   ),temp_pointer                                )
-            
+
             call c_f_pointer (c_loc(valobs(1:ntot,IPNT_BRUV:IPNT_BRUV+kmx)), temp_pointer, [kmx*ntot])
             call add_stat_output_items(output_set, output_config%statout(IDX_HIS_BRUNT_VAISALA_N2),temp_pointer                              )
             if (idensform > 10) then
@@ -2161,7 +2206,7 @@ private
          if (model_is_3D() .and. .not. flowwithoutwaves) then
             call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCXST:IPNT_UCXST+kmx)), temp_pointer, [kmx*ntot])
             call add_stat_output_items(output_set, output_config%statout(IDX_HIS_USTOKES),temp_pointer)
-            
+
             call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCYST:IPNT_UCYST+kmx)), temp_pointer, [kmx*ntot])
             call add_stat_output_items(output_set, output_config%statout(IDX_HIS_VSTOKES),temp_pointer)
          else
@@ -2228,7 +2273,7 @@ private
          else
             temp_pointer(1:(IVAL_SFN-IPNT_SF1+1)*ntot) => valobs(:,IPNT_SF1:IVAL_SFN)
          end if
-         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_SED),temp_pointer)   
+         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_SED),temp_pointer)
       endif
       if (IVAL_WS1 > 0) then
          if (model_is_3D()) then
@@ -2242,7 +2287,7 @@ private
          call c_f_pointer (c_loc(valobs(1:ntot,IPNT_WS1:IPNT_WS1+(IVAL_WSN-IVAL_WS1*kmx))), temp_pointer, [(IVAL_WSN-IPNT_WS1+1)*kmx*ntot])
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_SEDDIF),temp_pointer                                          )
       endif
-      
+
       if (jahissed>0 .and. jased>0 .and. stm_included) then
          if (stmpar%morpar%moroutput%taub) then
             call add_stat_output_items(output_set, output_config%statout(IDX_HIS_TAUB),valobs(IPNT_TAUB,:))
@@ -2279,7 +2324,7 @@ private
             call add_stat_output_items(output_set, output_config%statout(IDX_HIS_BODSED),temp_pointer)
          case (2)
             nlyrs = stmpar%morlyr%settings%nlyr
-            
+
             temp_pointer(1:(IVAL_MSEDN-IVAL_MSED1+1)*ntot*nlyrs) => valobs(:,IVAL_MSED1:IVAL_MSED1+(IVAL_MSEDN-IVAL_MSED1+1)*nlyrs)
             call add_stat_output_items(output_set, output_config%statout(IDX_HIS_MSED),temp_pointer)
 
