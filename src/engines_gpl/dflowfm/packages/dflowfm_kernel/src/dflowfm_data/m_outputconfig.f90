@@ -585,7 +585,6 @@ subroutine addoutval(config_set, idx, key, name, long_name, standard_name, unit,
       else
          nc_type_ = nf90_double
       endif
-      nc_type_ = md_nc_his_precision
    end if
 
    config_set%count = config_set%count+1
