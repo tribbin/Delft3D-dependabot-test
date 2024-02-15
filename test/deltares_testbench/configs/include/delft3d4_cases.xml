@@ -10802,22 +10802,8 @@
 				<program ref="mormerge">
 					<workingDirectory>merge</workingDirectory>
 					<arguments>
-						<argument>-i basin.mm</argument>
-						<argument>-w .</argument>
-						<argument>-r bas</argument>
+						<argument>basin.mm</argument>
 					</arguments>
-				</program>
-				<program ref="FLOW2D3D" ignoreStandardError="true" ignoreReturnValue="true">
-					<workingDirectory>0deg</workingDirectory>
-				</program>
-				<program ref="FLOW2D3D" ignoreStandardError="true" ignoreReturnValue="true">
-					<workingDirectory>180deg</workingDirectory>
-				</program>
-				<program ref="FLOW2D3D" ignoreStandardError="true" ignoreReturnValue="true">
-					<workingDirectory>270deg</workingDirectory>
-				</program>
-				<program ref="FLOW2D3D" ignoreStandardError="true" ignoreReturnValue="true">
-					<workingDirectory>90deg</workingDirectory>
 				</program>
 			</programs>
 			<maxRunTime>110.454999924</maxRunTime>
