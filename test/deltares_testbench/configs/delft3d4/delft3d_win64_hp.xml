@@ -283,5 +283,8 @@
 	<!--
 	testCases
 	-->
-	<xi:include href="../include/delft3d4_cases.xml"/>
+	<testCases>
+	        <xi:include href="../include/delft3d4_cases.xml"/>
+	        <xi:include href="../include/delft3d4_mormerge_cases_win64.xml"/>
+	</testCases>
 </deltaresTestbench_v3>
