@@ -152,7 +152,6 @@ subroutine unc_write_his(tim)            ! wrihis
     integer, allocatable, save :: id_hwq(:)
     integer, allocatable, save :: id_hwqb(:)
     integer, allocatable, save :: id_hwqb3d(:)
-    integer, allocatable, save :: id_const(:), id_const_cum(:), id_voltot(:)
     integer, allocatable, save :: id_sedbtransfrac(:)
     integer, allocatable, save :: id_sedstransfrac(:)
     integer :: maxlocT, maxvalT !< row+column count of valobs
@@ -244,10 +243,6 @@ subroutine unc_write_his(tim)            ! wrihis
         if (timon) call timstrt ( "unc_write_his INIT/DEF", handle_extra(61))
 
         call realloc(id_tra, ITRAN-ITRA1+1, keepExisting = .false.)
-        call realloc(id_const, NUMCONST_MDU, keepExisting = .false.)
-        call realloc(id_const_cum, NUMCONST_MDU, keepExisting = .false.)
-
-        call realloc(id_voltot, MAX_IDX, keepExisting = .false.)
 
         ! Possibly a different model, so make valobs transpose at correct size again.
         maxlocT = max(size(valobs, 2), npumpsg, network%sts%numPumps, ngatesg, ncdamsg, ncgensg, ngategen, &
@@ -1003,7 +998,9 @@ subroutine unc_write_his(tim)            ! wrihis
 
     ntot = numobs + nummovobs
     if (it_his == 1) then !Fill average source-sink discharge with different array on first timestep
-       qsrc(i) = qstss((numconst+1)*(i-1)+1)
+       do i = 1, numsrc
+          qsrc(i) = qstss((numconst+1)*(i-1)+1)
+       end do
     endif
     
    do ivar = 1,out_variable_set_his%count

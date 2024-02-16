@@ -113,7 +113,7 @@ private
    call assign_sediment_transport(SBCX,SBCY,IPNT_SBCX1,IPNT_SBCY1,ntot)
    end subroutine calculate_sediment_SBC
 
-   subroutine add_station_water_quality_configs(output_config, IDX_HIS_HWQ)
+   subroutine add_station_water_quality_configs(output_config, idx_his_hwq)
       use processes_input, only: num_wq_user_outputs => noout_user
       use results, only : OutputPointers
       use m_fm_wq_processes, only: wq_user_outputs => outputs
@@ -121,9 +121,8 @@ private
       use string_module, only: replace_multiple_spaces_by_single_spaces
       use netcdf_utils, only: ncu_set_att
       type(t_output_quantity_config_set), intent(inout) :: output_config   !< Output configuration for the HIS file.
-      integer, allocatable, dimension(:), intent(  out) :: IDX_HIS_HWQ
+      integer, allocatable, dimension(:), intent(  out) :: idx_his_hwq
 
-      type(t_nc_dim_ids)    :: nc_dims
       integer               :: i
       character(len=255)    :: name, description
       type(ug_nc_attribute) :: atts(1)
@@ -134,15 +133,12 @@ private
 
       if (.not. allocated(water_quality_output_data)) then
          allocate(water_quality_output_data(num_wq_user_outputs))
-         allocate(IDX_HIS_HWQ(num_wq_user_outputs))
+         allocate(idx_his_hwq(num_wq_user_outputs))
       else
          call err('Internal error, please report: water_quality_output_data was already allocated')
       endif
 
       call ncu_set_att(atts(1), 'geometry', 'station_geom')
-
-      nc_dims = nc_dims_3D_center
-      call process_nc_dim_ids(nc_dims)
 
       ! Just-in-time add *config* item for water quality output variables
       do i = 1, num_wq_user_outputs
@@ -150,9 +146,11 @@ private
          description = trim(wq_user_outputs%names(i))//' - '//trim(wq_user_outputs%description(i))//' in flow element'
          call replace_multiple_spaces_by_single_spaces(description)
 
-         call addoutval(output_config, IDX_HIS_HWQ(i), 'Wrihis_water_quality', trim(name), &
+         call addoutval(output_config, idx_his_hwq(i), 'Wrihis_water_quality_output', trim(name), &
                         trim(wq_user_outputs%names(i)), '', trim(wq_user_outputs%units(i)), UNC_LOC_STATION, &
-                        nc_atts = atts(1:1), description = description, nc_dim_ids = nc_dims)
+                        nc_atts = atts, description = description, nc_dim_ids = output_config%statout(IDX_HIS_HWQ_ABSTRACT)%nc_dim_ids)
+
+         output_config%statout(idx_his_hwq(i))%input_value = output_config%statout(IDX_HIS_HWQ_ABSTRACT)%input_value
       end do
 
    end subroutine add_station_water_quality_configs
@@ -1260,6 +1258,13 @@ private
                      'Sediment mass in fluff layer',             &
                      '', 'kg', UNC_LOC_STATION, nc_atts = atts(1:1), nc_dim_ids = t_nc_dim_ids(statdim = .true., sedsusdim = .true. , timedim = .true.))
 
+      ! The following output value is an abstract entry representing all water quality outputs.
+      ! The actual output variables will only be added later, during init_fm_statistical_output_his().
+      ! This is necessary for reading the key from the MDU file and providing the input value.
+      call addoutval(out_quan_conf_his, IDX_HIS_HWQ_ABSTRACT, 'Wrihis_water_quality_output', 'water_quality_output_abstract', &
+                     '', '', '-', UNC_LOC_STATION, nc_atts = atts(1:1), description = 'Write all water quality outputs to his file', &
+                     nc_dim_ids = nc_dims_3D_center)
+
       ! HIS: Variables on observation cross sections
       !
       call ncu_set_att(atts(1), 'geometry', 'cross_section_geom')
@@ -1827,6 +1832,8 @@ private
       use m_longculverts, only: nlongculverts
       USE m_monitoring_crosssections, only: ncrs
       use m_monitoring_runupgauges, only: nrug, rug
+      use m_fm_wq_processes, only: jawaqproc
+      use processes_input, only: num_wq_user_outputs => noout_user
       USE, INTRINSIC :: ISO_C_BINDING
 
       type(t_output_quantity_config_set), intent(inout) :: output_config !< output config for which an output set is needed.
@@ -1838,6 +1845,7 @@ private
 
       integer :: i, ntot, num_const_items, nlyrs
       integer, allocatable, dimension(:) :: id_hwq
+      integer, allocatable, dimension(:) :: idx_his_hwq
       integer, allocatable, dimension(:) :: idx_const
 
       call process_output_quantity_configs(output_config)
@@ -2361,6 +2369,20 @@ private
             call add_stat_output_items(output_set, output_config%statout(IDX_HIS_MFLUFF),temp_pointer)
          end if
       endif
+      ! Water quality variables
+      if(jawaqproc > 0) then
+         call add_station_water_quality_configs(out_quan_conf_his, idx_his_hwq)
+
+         do i = 1, num_wq_user_outputs
+            if (model_is_3D()) then
+               temp_pointer(1 : ntot * kmx) => valobs(:, IPNT_HWQ1 + (i - 1) * kmx : IPNT_HWQ1 + i * kmx - 1)
+               call add_stat_output_items(output_set, output_config%statout(idx_his_hwq(i)), temp_pointer)
+            else
+               call add_stat_output_items(output_set, output_config%statout(idx_his_hwq(i)), valobs(:,IPNT_HWQ1 + i - 1))
+            end if
+         end do
+      end if
+
       !
       ! Variables on observation cross sections
       !

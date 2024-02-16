@@ -484,7 +484,6 @@ integer                            :: javau3onbnd = 0   !< vert. adv. u1 bnd Upw
  integer                           :: jahistaucurrent           !< Write bed shear stress to his file, 0: no, 1: yes
  integer                           :: jahisvelocity             !< Write velocity magnitude to his file, 0: no, 1: yes
  integer                           :: jahisdischarge            !< Write discharge magnitude to his file, 0: no, 1: yes
- integer                           :: write_his_water_quality   !< Write water_quality_output_# and water_quality_stat_# to his file, 0: no, 1: yes
 
  ! written to map file yes or no
  integer                           :: jamaps0                   !< previous step water levels to map file, 0: no, 1: yes
@@ -970,7 +969,6 @@ subroutine default_flowparameters()
     jahistaucurrent = 1
     jahisvelocity = 1
     jahisdischarge = 1
-    write_his_water_quality = 1
 
     jamaps0 = 1
     jamaps1 = 1
