@@ -154,10 +154,10 @@ use m_physcoef
     sigtke    = 1.0d0  ; sigtkei = 1d0/sigtke
     sigeps    = 1.3d0  ; sigepsi = 1d0/sigeps
     sigrho    = 0.7d0  ! bouyancy
-    sigsal    = tps_sal
-    sigtem    = tps_tem
+    sigsal    = Schmidt_number_salinity
+    sigtem    = Prandtl_number_temperature
     sigsed    = 1.0d0
-    sigtracer = 1.0d0
+    sigtracer = Schmidt_number_tracer
 
     cmukep    = 0.09d0
     sqcmukep  = sqrt(cmukep)

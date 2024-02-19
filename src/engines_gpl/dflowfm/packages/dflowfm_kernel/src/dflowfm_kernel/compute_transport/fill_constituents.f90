@@ -64,8 +64,9 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
    const_sink = 0d0
 
    ! User-defined turbulent Prandtl-Schmidt numbers
-   sigsal = tps_sal
-   sigtem = tps_tem
+   sigsal = Schmidt_number_salinity
+   sigtem = Prandtl_number_temperature
+   sigtracer = Schmidt_number_tracer
 
    do k=1,Ndkx
  

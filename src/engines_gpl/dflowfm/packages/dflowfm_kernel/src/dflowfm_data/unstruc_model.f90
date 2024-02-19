@@ -1295,6 +1295,19 @@ subroutine readMDUFile(filename, istat)
     call prop_get_double (md_ptr, 'physics', 'Vicwminb'       , Vicwminb)
     call prop_get_double (md_ptr, 'physics', 'Xlozmidov'      , Xlozmidov)
 
+    call prop_get_double (md_ptr, 'physics', 'SchmidtNumberSalinity', Schmidt_number_salinity)
+    if (Schmidt_number_salinity < eps10) then
+       call mess(LEVEL_ERROR, 'SchmidtNumberSalinity should be larger than 0.')
+    end if
+    call prop_get_double (md_ptr, 'physics', 'PrandtlNumberTemperature', Prandtl_number_temperature)
+    if (Prandtl_number_temperature < eps10) then
+       call mess(LEVEL_ERROR, 'PrandtlNumberTemperature should be larger than 0.')
+    end if
+    call prop_get_double (md_ptr, 'physics', 'SchmidtNumberTracer', Schmidt_number_tracer)
+    if (Schmidt_number_tracer < eps10) then
+       call mess(LEVEL_ERROR, 'SchmidtNumberTracer should be larger than 0.')
+    end if
+
     call prop_get_double (md_ptr, 'physics', 'Smagorinsky'    , Smagorinsky)
     call prop_get_double (md_ptr, 'physics', 'Elder   '       , Elder)
     call prop_get_integer(md_ptr, 'physics', 'irov'           , irov)
@@ -1316,12 +1329,7 @@ subroutine readMDUFile(filename, istat)
 
     call prop_get_integer(md_ptr, 'physics', 'Salinity'       , jasal)
     call prop_get_double (md_ptr, 'physics', 'InitialSalinity', salini)
-    call prop_get_double (md_ptr, 'physics', 'SchmidtNumberSalinity', tps_sal)
-    if (tps_sal < eps10) then
-       call mess(LEVEL_ERROR, 'SchmidtNumberSalinity should be larger than 0.')
-    end if
     call prop_get_double (md_ptr, 'physics', 'DeltaSalinity'  , deltasalinity)
-
     call prop_get_double (md_ptr, 'physics', 'Sal0abovezlev'  , Sal0abovezlev)
 !    Secondary Flow
     call prop_get_integer(md_ptr, 'physics', 'SecondaryFlow'  , jasecflow)
@@ -1338,10 +1346,6 @@ subroutine readMDUFile(filename, istat)
    
     call prop_get_integer(md_ptr, 'physics', 'Temperature'       , jatem)
     call prop_get_double (md_ptr, 'physics', 'InitialTemperature', temini)
-    call prop_get_double (md_ptr, 'physics', 'PrandtlNumberTemperature', tps_tem)
-    if (tps_tem < eps10) then
-       call mess(LEVEL_ERROR, 'PrandtlNumberTemperature should be larger than 0.')
-    end if
     call prop_get_double (md_ptr, 'physics', 'Secchidepth'       , Secchidepth)
     call prop_get_double (md_ptr, 'physics', 'Secchidepth2'      , Secchidepth2)
     call prop_get_double (md_ptr, 'physics', 'Secchidepth2fraction'  , Secchidepth2fraction)
@@ -3469,7 +3473,7 @@ endif
     call prop_set(prop_ptr,    'physics', 'Salinity',      jasal,        'Include salinity, (0: no, 1: yes)' )
     if (writeall .or. (jasal > 0)) then
        call prop_set(prop_ptr, 'physics','InitialSalinity',salini,       'Uniform initial salinity concentration (ppt)')
-       call prop_set(prop_ptr, 'physics', 'SchmidtNumberSalinity', tps_sal, 'Turbulent Schmidt number for salinity')
+       call prop_set(prop_ptr, 'physics', 'SchmidtNumberSalinity', Schmidt_number_salinity, 'Turbulent Schmidt number for salinity')
        if (writeall .or. (Sal0abovezlev .ne. dmiss)) then
            call prop_set(prop_ptr, 'physics', 'Sal0abovezlev', Sal0abovezlev, 'Vertical level (m) above which salinity is set 0')
        endif
@@ -3497,7 +3501,7 @@ endif
     call prop_set(prop_ptr, 'physics', 'Temperature'     , jatem,       'Include temperature (0: no, 1: only transport, 3: excess model of D3D, 5: composite (ocean) model)')
     if (writeall .or. (jatem > 0)) then
        call prop_set(prop_ptr, 'physics', 'InitialTemperature', temini, 'Uniform initial water temperature (degC)')
-       call prop_set(prop_ptr, 'physics', 'PrandtlNumberTemperature', tps_tem, 'Turbulent Prandtl number for temperature')
+       call prop_set(prop_ptr, 'physics', 'PrandtlNumberTemperature', Prandtl_number_temperature, 'Turbulent Prandtl number for temperature')
        call prop_set(prop_ptr, 'physics', 'Secchidepth', Secchidepth, 'Water clarity parameter (m)')
        if (Secchidepth2 > 0) then
        call prop_set(prop_ptr, 'physics', 'Secchidepth2', Secchidepth2, 'Water clarity parameter 2 (m), only used if > 0')
