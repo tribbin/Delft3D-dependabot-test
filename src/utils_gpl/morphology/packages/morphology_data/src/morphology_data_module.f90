@@ -1,7 +1,7 @@
 module morphology_data_module
 !----- GPL ---------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2023.                                
+!  Copyright (C)  Stichting Deltares, 2011-2024.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify         
 !  it under the terms of the GNU General Public License as published by         
@@ -403,6 +403,7 @@ type morpar_type
     real(fp):: pangle     !  phase lead angle acc. to Nielsen (1992) for TR2004 expression
     real(fp):: fpco       !  coefficient for phase llag effects
     real(fp):: factcr     !  calibration factor on Shields' critical shear stress   
+    real(fp):: ti_sedtrans!  time where calculation for sediment transport computation start (tunit relative to ITDATE,00:00:00)
     real(fp):: tmor       !  time where calculation for morphological changes start (tunit relative to ITDATE,00:00:00)
     real(fp):: tcmp       !  time where calculation for bed composition changes start (tunit relative to ITDATE,00:00:00)
     real(fp):: thetsduni  !  uniform value for dry cell erosion factor
@@ -454,6 +455,7 @@ type morpar_type
                            !  5: Wu, Wang, Jia (2000)
     integer :: itmor       !  time step where calculation for bed level updating starts
     integer :: itcmp       !  time step where calculation for bed composition updating starts
+    integer :: iti_sedtrans!  Sediment transport computation start time step
     integer :: iopkcw
     integer :: iopsus
     integer :: islope      !  switch for bed slope effect, according
@@ -1365,6 +1367,7 @@ subroutine nullmorpar(morpar)
     ! Local variables
     !
     integer                              , pointer :: ihidexp
+    integer                              , pointer :: iti_sedtrans
     integer                              , pointer :: itmor
     integer                              , pointer :: itcmp
     integer                              , pointer :: iopkcw
@@ -1392,6 +1395,7 @@ subroutine nullmorpar(morpar)
     real(fp)                             , pointer :: sus
     real(fp)                             , pointer :: suscorfac
     real(fp)                             , pointer :: bed
+    real(fp)                             , pointer :: ti_sedtrans
     real(fp)                             , pointer :: tmor
     real(fp)                             , pointer :: tcmp
     real(fp)              , dimension(:) , pointer :: thetsd
@@ -1480,6 +1484,7 @@ subroutine nullmorpar(morpar)
     sus                 => morpar%sus
     suscorfac           => morpar%suscorfac
     bed                 => morpar%bed
+    ti_sedtrans         => morpar%ti_sedtrans
     tmor                => morpar%tmor
     tcmp                => morpar%tcmp
     thetsd              => morpar%thetsd
@@ -1519,6 +1524,7 @@ subroutine nullmorpar(morpar)
     bermslopedepth      => morpar%bermslopedepth
     !
     ihidexp             => morpar%ihidexp
+    iti_sedtrans        => morpar%iti_sedtrans
     itmor               => morpar%itmor
     itcmp               => morpar%itcmp
     iopkcw              => morpar%iopkcw
@@ -1601,6 +1607,7 @@ subroutine nullmorpar(morpar)
     dzmax              = 0.05_fp
     sus                = 1.0_fp
     bed                = 1.0_fp
+    ti_sedtrans        = 0.0_fp
     tmor               = 0.0_fp
     tcmp               = 0.0_fp
     thetsduni          = 0.0_fp
@@ -1643,6 +1650,7 @@ subroutine nullmorpar(morpar)
     bermslopedepth     = 1d0
     !
     ihidexp            = 1
+    iti_sedtrans       = 0
     itmor              = 0
     itcmp              = 0
     iopkcw             = 1

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2023.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -407,7 +407,9 @@ use MessageHandling, only: FinalizeMessageHandling
 use m_ec_module
 use m_meteo, only: ecInstancePtr
 use m_nearfield
+use m_lateral
     call dealloc_nfarrays()
+    call dealloc_lateraldata()
 
     if (.not.ecFreeInstance(ecInstancePtr)) then
        continue     
