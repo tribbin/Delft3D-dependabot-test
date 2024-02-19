@@ -125,7 +125,7 @@ private
 
       integer               :: i
       character(len=255)    :: name, description
-      type(ug_nc_attribute) :: atts(1)
+      type(ug_nc_attribute) :: atts(2)
 
       if (num_wq_user_outputs == 0) then
          return
@@ -145,10 +145,11 @@ private
          write (name, "('water_quality_output_',I0)") i
          description = trim(wq_user_outputs%names(i))//' - '//trim(wq_user_outputs%description(i))//' in flow element'
          call replace_multiple_spaces_by_single_spaces(description)
+         call ncu_set_att(atts(2), 'description', description)
 
          call addoutval(output_config, idx_his_hwq(i), 'Wrihis_water_quality_output', trim(name), &
                         trim(wq_user_outputs%names(i)), '', trim(wq_user_outputs%units(i)), UNC_LOC_STATION, &
-                        nc_atts = atts, description = description, nc_dim_ids = output_config%statout(IDX_HIS_HWQ_ABSTRACT)%nc_dim_ids)
+                        nc_atts = atts, nc_dim_ids = output_config%statout(IDX_HIS_HWQ_ABSTRACT)%nc_dim_ids)
 
          output_config%statout(idx_his_hwq(i))%input_value = output_config%statout(IDX_HIS_HWQ_ABSTRACT)%input_value
       end do
