@@ -1290,10 +1290,6 @@ subroutine unc_write_his(tim)            ! wrihis
 
     end if ! jamapheatflux > 0! jatem > 0
 
-    if (ja_airdensity + ja_computed_airdensity > 0 .and. jahis_airdensity> 0) then
-       ierr = nf90_put_var(ihisfile, id_airdensity   , valobs(:,IPNT_AIRDENSITY),  start = (/ 1, it_his /), count = (/ ntot, 1 /))
-    end if
-
     ! 3d layer interface quantities
     if (kmx > 0 ) then
        do kk = 1, kmx+1
