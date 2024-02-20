@@ -1641,6 +1641,9 @@ subroutine traparams(iform     ,name      ,nparreq   ,nparopt   ,parkeyw   , &
        pardef(4)  = 10.0_fp
        parkeyw(5) = 'RefLevel'
        pardef(5)  = 0.0_fp
+    else
+       write (*, '(A,I0,A)') 'The model is trying to use an undefined transport formula ',iform,'.'
+       call throwexception()
     endif
 end subroutine traparams
 
