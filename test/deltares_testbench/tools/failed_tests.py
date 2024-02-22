@@ -26,7 +26,7 @@ def prepare_failed_tests_directory():
 
 
 def copy_directory(src, dst, copy_log):
-    copy_log.write("%s => %s" % (src, dst))
+    copy_log.write(f"{src} => {dst}")
     try:
         shutil.copytree(src, dst)
         copy_log.write("  COPY OK\n")
