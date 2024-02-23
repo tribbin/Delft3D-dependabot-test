@@ -23,7 +23,6 @@ private
    type(t_nc_dim_ids), parameter :: nc_dims_3D_interface_edge = t_nc_dim_ids(laydim_interface_edge = .true., statdim = .true., timedim = .true.)
 
    double precision, dimension(:,:), allocatable, target :: obscrs_data !< observation cross section constituent data on observation cross sections to be written
-   double precision, dimension(:), allocatable, target :: rug_ruheight !< Run-up height on run-up gauges to be written.
    double precision, dimension(:), allocatable, target :: SBCX, SBCY, SBWX, SBWY, SSWX, SSWY, SSCX, SSCY
 
    contains
@@ -316,28 +315,6 @@ private
    end if
 
    end subroutine aggregate_obscrs_data
-
-   !> Calculates run-up gauge data for his output.
-   !! Will allocate and fill the rug_ruheight array.
-   subroutine calculate_rug_data(source_input)
-      use m_monitoring_runupgauges, only: nrug, rug
-      double precision, pointer, dimension(:), intent(inout) :: source_input
-
-      integer :: i
-
-      if (.not. allocated(rug_ruheight)) then
-         allocate(rug_ruheight(nrug))
-      endif
-
-      if (.not. associated(source_input))then
-         source_input => rug_ruheight
-      endif
-
-      do i=1,nrug
-         rug_ruheight(i) = rug(i)%maxruh
-      end do
-   end subroutine calculate_rug_data
-
 
    !> Set all possible statistical quantity items in the quantity configuration sets.
    subroutine default_fm_statistical_output()
@@ -1865,7 +1842,7 @@ private
       use m_sediment, only: stm_included, stmpar
       use m_longculverts, only: nlongculverts
       USE m_monitoring_crosssections, only: ncrs
-      use m_monitoring_runupgauges, only: nrug
+      use m_monitoring_runupgauges, only: nrug, rug
       use m_dad
       USE, INTRINSIC :: ISO_C_BINDING
 
@@ -1951,9 +1928,8 @@ private
       ! Run-up gauge variables
       !
       if (nrug > 0) then
-         function_pointer => calculate_rug_data
-         temp_pointer => null()
-         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_RUG_RUHEIGHT), temp_pointer, function_pointer)
+         temp_pointer => rug%maxruh
+         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_RUG_RUHEIGHT), temp_pointer)
       endif
 
       !
