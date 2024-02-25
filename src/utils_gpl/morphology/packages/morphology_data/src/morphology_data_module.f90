@@ -1925,7 +1925,7 @@ subroutine nulltrapar(trapar  )
     !
     trapar%npar    = 30
     trapar%nparfld = 0
-    trapar%nparfld = 0
+    trapar%npartim = 0
     !
     nullify(trapar%dll_function_settle)
     nullify(trapar%dll_name_settle)
