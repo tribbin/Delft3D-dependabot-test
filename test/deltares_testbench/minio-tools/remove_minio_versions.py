@@ -4,10 +4,23 @@ from datetime import datetime
 import pytz
 from concurrent.futures import ThreadPoolExecutor
 
-bucket_name = 'dsc-testbench'
-endpoint_url = 'https://s3.deltares.nl/'
-threshold_date_str = '2024-02-15'
-parallel_processes = 5
+# S3 Object Version Management Script
+# This Python script helps manage object versions in an Amazon S3 bucket. It 
+# uses the AWS CLI to list object versions, convert the output to JSON, and 
+# selectively delete versions based on their last modified timestamps.
+
+# Prerequisites
+# AWS CLI: Ensure that you have the AWS Command Line Interface (CLI) installed and configured with appropriate credentials to access your S3 bucket.
+# Usage
+
+# Configuration:
+# Set the following parameters at the beginning of the script:
+bucket_name = 'dsc-testbench'  # bucket_name: The name of your S3 bucket.
+endpoint_url = 'https://s3.deltares.nl/'  # endpoint_url: The endpoint URL for your S3 bucket (e.g., https://s3.deltares.nl/).
+threshold_date_str = '2024-02-15'  # threshold_date_str: The threshold date (in the format ‘YYYY-MM-DD’) for version deletion.
+parallel_processes = 5  # parallel_processes: Number of parallel processes for deletion (adjust as needed).
+
+
 threshold_date_obj = datetime.strptime(threshold_date_str, '%Y-%m-%d').replace(tzinfo=pytz.UTC)
 
 print("List all objects in the bucket")
