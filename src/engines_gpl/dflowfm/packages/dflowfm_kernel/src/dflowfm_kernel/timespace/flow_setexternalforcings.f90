@@ -64,6 +64,7 @@ subroutine set_external_forcings(time_in_seconds, initialization, iresult)
    use m_airdensity,           only : get_airdensity
    use dfm_error
    use m_fm_icecover, only: ja_icecover, ice_af, ice_h, ICECOVER_EXT
+   use m_lateral, only : numlatsg
 
    double precision, intent(in   ) :: time_in_seconds  !< Time in seconds
    logical,          intent(in   ) :: initialization   !< initialization phase
@@ -679,7 +680,7 @@ end subroutine print_error_message
 subroutine prepare_wind_model_data(time_in_seconds, iresult)
    use m_wind
    use m_flowparameters, only: jawave, flowWithoutWaves
-   use m_flow, only: windspeedfac
+   use m_flow, only: wind_speed_factor
    use m_meteo
    use m_flowgeom, only: ln, lnx, ndx
    use precision_basics
@@ -770,11 +771,11 @@ subroutine prepare_wind_model_data(time_in_seconds, iresult)
       end do
    end if
 
-   if (jawindspeedfac > 0) then
+   if (ja_wind_speed_factor > 0) then
       do link = 1, lnx
-         if (windspeedfac(link) /= dmiss) then
-            wx(link) = wx(link) * windspeedfac(link)
-            wy(link) = wy(link) * windspeedfac(link)
+         if (wind_speed_factor(link) /= dmiss) then
+            wx(link) = wx(link) * wind_speed_factor(link)
+            wy(link) = wy(link) * wind_speed_factor(link)
          end if
       end do
    end if

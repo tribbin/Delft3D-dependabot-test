@@ -1212,7 +1212,7 @@ rem ==========================
     call :copyFile "!build_dir!\waqpb_export\!configuration!\waqpb_export.*"                        !dest_bin!
 
     rem copy run scripts
-    call :copyFile "!checkout_src_root!\tools_gpl\waqpb\resources\scripts\run_waqpb_export.bat"               !dest_scripts!
+    call :copyFile "!checkout_src_root!\tools_gpl\waq_tools\waqpb\resources\scripts\run_waqpb_export.bat"               !dest_scripts!
     call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\scripts\export_procdef_csvfiles.bat"        !dest_scripts!
 
     rem profiling information
@@ -1237,7 +1237,7 @@ rem ==========================
     call :copyFile "!build_dir!\waqpb_import\!configuration!\waqpb_import.*"              !dest_bin!
 
     rem copy run scripts
-    call :copyFile "!checkout_src_root!\tools_gpl\waqpb\resources\scripts\run_waqpb_import.bat"        !dest_scripts!
+    call :copyFile "!checkout_src_root!\tools_gpl\waq_tools\waqpb\resources\scripts\run_waqpb_import.bat"        !dest_scripts!
     call :copyFile "!checkout_src_root!\engines_gpl\waq\resources\scripts\import_procesasc_changes.bat"            !dest_scripts!
 
     rem profiling information
@@ -2205,7 +2205,7 @@ rem ===========================
 
     call :makeDir !dest_bin!
 
-    call :copyFile "!build_dir!\gridgeom\!configuration!\gridgeom.dll"                                           !dest_bin!
+    xcopy "!build_dir!\gridgeom_dll\!configuration!\gridgeom_dll.dll" "!dest_bin!\gridgeom.dll"* /Y
 
     )
 
@@ -2216,8 +2216,7 @@ rem ===========================
     set dest_share="!install_dir!\x64\Release\share\bin"
 
     call :makeDir !dest_share!
-    call :copyFile "!build_dir!\gridgeom\!configuration!\gridgeom.dll"                                           !dest_share!
-
+    xcopy "!build_dir!\gridgeom_dll\!configuration!\gridgeom_dll.dll" "!dest_share!\gridgeom.dll"* /Y
     )
 
 goto :endproc
@@ -2253,6 +2252,42 @@ rem ==================================
 
     call :makeAllDirs
     call :copyFile "!build_dir!\test_dflowfm_kernel\!configuration!\dflowfm_kernel_test.*"                                !dest_bin!
+
+    )
+
+goto :endproc
+
+
+
+rem ==================================
+rem === POST_BUILD_TEST_IO_NETCDF
+rem ==================================
+:test_io_netcdf
+    echo "postbuild test_io_netcdf . . ."
+
+    if "%configuration%" == "Debug" (
+
+    echo "Debug postbuild"
+    set dest_bin="!install_dir!\x64\Debug"
+
+    call :makeDir !dest_bin!
+
+    call :copyFile "!build_dir!\test_io_netcdf\!configuration!\test_io_netcdf.*"                              !dest_bin!
+
+    )
+
+    if "%configuration%" == "Release" (
+
+    echo "Release postbuild"
+
+    set dest_bin="!install_dir!\x64\Release\tests\bin"
+    set dest_default="!install_dir!\x64\Release\tests\default"
+    set dest_scripts="!install_dir!\x64\Release\tests\scripts"
+    set dest_plugins="!install_dir!\x64\Release\plugins\bin"
+    set dest_share="!install_dir!\x64\Release\share\bin"
+
+    call :makeAllDirs
+    call :copyFile "!build_dir!\test_io_netcdf\!configuration!\test_io_netcdf.*"                                !dest_bin!
 
     )
 
