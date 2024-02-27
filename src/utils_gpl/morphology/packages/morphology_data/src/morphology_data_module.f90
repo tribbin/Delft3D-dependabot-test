@@ -39,6 +39,9 @@ use flocculation, only: FLOC_NONE
 use handles, only:handletype
 use properties, only:tree_data
 use m_tables, only:t_table
+
+implicit none
+
 private
 
 !
@@ -73,6 +76,8 @@ public clrsedtra
 public allocfluffy
 public initmoroutput
 public get_transport_parameters
+public get_one_transport_parameter
+public get_one_transport_parameter_all_nm
 
 ! define a missing value consistent with netCDF _fillvalue
 real(fp), parameter, public :: missing_value = 9.9692099683868690e+36_fp
@@ -802,9 +807,6 @@ end type sedtra_type
 !> Nullify/initialize a sedtra_type data structure.
 subroutine nullsedtra(sedtra)
 !!--declarations----------------------------------------------------------------
-    use precision
-    !
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -900,9 +902,6 @@ end subroutine nullsedtra
 !> Allocate the arrays of sedtra_type data structure.
 subroutine allocsedtra(sedtra, moroutput, kmax, lsed, lsedtot, nc1, nc2, nu1, nu2, nxx, nstatqnt, iopt)
 !!--declarations----------------------------------------------------------------
-    use precision
-    !
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -1117,9 +1116,6 @@ end subroutine allocsedtra
 !> Clear the arrays of sedtra_type data structure.
 subroutine clrsedtra(istat, sedtra)
 !!--declarations----------------------------------------------------------------
-    use precision
-    !
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -1216,9 +1212,6 @@ end subroutine clrsedtra
 !> Nullify/initialize a sedpar_type data structure.
 subroutine nullsedpar(sedpar)
 !!--declarations----------------------------------------------------------------
-    use precision
-    !
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -1302,7 +1295,6 @@ end subroutine nullsedpar
 !> Clean up a sedpar_type data structure.
 subroutine clrsedpar(istat     ,sedpar  )
 !!--declarations----------------------------------------------------------------
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -1355,9 +1347,6 @@ end subroutine clrsedpar
 !> Nullify/initialize a morpar_type data structure.
 subroutine nullmorpar(morpar)
 !!--declarations----------------------------------------------------------------
-    use precision
-    !
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -1764,7 +1753,6 @@ end subroutine initmoroutput
 !> Initialize a fluff layer data structure
 subroutine initfluffy(flufflyr)
 !!--declarations----------------------------------------------------------------
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -1795,7 +1783,6 @@ end subroutine initfluffy
 !> Allocate a fluff layer data structure.
 function allocfluffy(flufflyr, lsed, nmlb, nmub) result(istat)
 !!--declarations----------------------------------------------------------------
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -1829,7 +1816,6 @@ end function allocfluffy
 !> Clean up a fluff layer data structure.
 subroutine clrfluffy(istat, flufflyr)
 !!--declarations----------------------------------------------------------------
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -1858,8 +1844,6 @@ end subroutine clrfluffy
 subroutine clrmorpar(istat, morpar)
 !!--declarations----------------------------------------------------------------
     use table_handles
-    !
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -1905,9 +1889,6 @@ end subroutine clrmorpar
 !> Nullify/initialize a trapar_type data structure.
 subroutine nulltrapar(trapar  )
 !!--declarations----------------------------------------------------------------
-    use precision
-    !
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -1955,9 +1936,6 @@ end subroutine nulltrapar
 !> Clean up a trapar_type data structure.
 subroutine clrtrapar(istat     ,trapar  )
 !!--declarations----------------------------------------------------------------
-    use precision
-    !
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -2009,8 +1987,10 @@ subroutine clrtrapar(istat     ,trapar  )
     if (associated(trapar%iparfile    )) deallocate(trapar%iparfile    , STAT = istat)
 end subroutine clrtrapar
 
+!> return values for all transport formula parameters
 subroutine get_transport_parameters(trapar, l, nm, timhr, localpar)
     use table_handles, only: gettabledata
+    !
     type(trapar_type)     , intent(in)  :: trapar       !< transport settings
     integer               , intent(in)  :: l            !< sediment fraction
     integer               , intent(in)  :: nm           !< cell index
@@ -2018,32 +1998,96 @@ subroutine get_transport_parameters(trapar, l, nm, timhr, localpar)
     real(fp)              , intent(out) :: localpar(:)  !< collection of sediment parameters
     
     integer                    :: i            !< parameter index
-    real(fp)                   :: par          !< scalar to store the value
-    real(fp)                   :: parvec(1)    !< array to receive the value
-    character(256)             :: message      !< error message
-    type(parfile_type), pointer :: parfile     !< temporary to one trapar%parfile field
-    
+
     do i = 1, trapar%npar
-       j = trapar%iparfile(i,l)
-       if (j == 0) then
-           localpar(i) = trapar%par(i,l)
-       else
-           select case (trapar%parfile(j)%source)
-           case (PARSOURCE_FIELD)
-               localpar(i) = trapar%parfile(j)%parfld(nm)
-           case (PARSOURCE_TIME)
-               parfile => trapar%parfile(j)
-               if (timhr > parfile%timhr) then
-                   message = ' '
-                   call gettabledata(parfile%ts ,parfile%itable_ts, parfile%ipar_ts, parfile%npar_ts, parfile%irec_ts, parvec, timhr, parfile%refjulday, message)
-                   if (message /= ' ') return ! TODO
-                   parfile%par = parvec(1)
-                   parfile%timhr = timhr
-               end if
-               localpar(i) = parfile%par
-           end select
-       end if
+       localpar(i) = get_one_transport_parameter(trapar, l, nm, i, timhr)
     end do
 end subroutine get_transport_parameters
+
+!> return a value for one transport formula parameter
+function get_one_transport_parameter(trapar, l, nm, i, timhr) result(val)
+    use table_handles, only: gettabledata
+    !
+    type(trapar_type)     , intent(in)  :: trapar       !< transport settings
+    integer               , intent(in)  :: l            !< sediment fraction
+    integer               , intent(in)  :: nm           !< cell index
+    integer               , intent(in)  :: i            !< parameter index
+    real(fp)    , optional, intent(in)  :: timhr        !< time since reference date [h]
+    
+    real(fp)                            :: val          !< the parameter value
+    
+    integer                     :: j           !< sediment parameter source file index
+    real(fp)                    :: par         !< scalar to store the value
+    real(fp)                    :: parvec(1)   !< array to receive the value
+    character(256)              :: message     !< error message
+    type(parfile_type), pointer :: parfile     !< temporary to one trapar%parfile field
+    
+    j = trapar%iparfile(i,l)
+    if (j == 0) then
+        val = trapar%par(i,l)
+        
+    else
+        select case (trapar%parfile(j)%source)
+        case (PARSOURCE_FIELD)
+            val = trapar%parfile(j)%parfld(nm)
+            
+        case (PARSOURCE_TIME)
+            parfile => trapar%parfile(j)
+            if (present(timhr)) then
+                if (timhr > parfile%timhr) then
+                    message = ' '
+                    call gettabledata(parfile%ts ,parfile%itable_ts, parfile%ipar_ts, parfile%npar_ts, parfile%irec_ts, parvec, timhr, parfile%refjulday, message)
+                    if (message /= ' ') return ! TODO
+                    parfile%par = parvec(1)
+                    parfile%timhr = timhr
+                end if
+            end if
+            val = parfile%par
+            
+        end select
+    end if
+end function get_one_transport_parameter
+
+!> return a value for one transport formula parameter
+subroutine get_one_transport_parameter_all_nm(val, trapar, l, i, timhr)
+    use table_handles, only: gettabledata
+    !
+    real(fp)              , intent(inout) :: val(:)     !< the parameter value at all nm
+    type(trapar_type)     , intent(in)    :: trapar     !< transport settings
+    integer               , intent(in)    :: l          !< sediment fraction
+    integer               , intent(in)    :: i          !< parameter index
+    real(fp)    , optional, intent(in)    :: timhr      !< time since reference date [h]
+    
+    integer                     :: j           !< sediment parameter source file index
+    real(fp)                    :: par         !< scalar to store the value
+    real(fp)                    :: parvec(1)   !< array to receive the value
+    character(256)              :: message     !< error message
+    type(parfile_type), pointer :: parfile     !< temporary to one trapar%parfile field
+    
+    j = trapar%iparfile(i,l)
+    if (j == 0) then
+        val(:) = trapar%par(i,l)
+        
+    else
+        select case (trapar%parfile(j)%source)
+        case (PARSOURCE_FIELD)
+            val(:) = trapar%parfile(j)%parfld(:)
+            
+        case (PARSOURCE_TIME)
+            parfile => trapar%parfile(j)
+            if (present(timhr)) then
+                if (timhr > parfile%timhr) then
+                    message = ' '
+                    call gettabledata(parfile%ts ,parfile%itable_ts, parfile%ipar_ts, parfile%npar_ts, parfile%irec_ts, parvec, timhr, parfile%refjulday, message)
+                    if (message /= ' ') return ! TODO
+                    parfile%par = parvec(1)
+                    parfile%timhr = timhr
+                end if
+            end if
+            val(:) = parfile%par
+            
+        end select
+    end if
+end subroutine get_one_transport_parameter_all_nm
 
 end module morphology_data_module

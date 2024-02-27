@@ -157,6 +157,7 @@
    real(fp), dimension(max(kmx,1))      :: siglc
    real(fp)                      :: thick0
    real(fp)                      :: thick1
+   real(fp)                      :: timhr
    real(fp)                      :: trsedeq   ! temporary variable for rsedeq
    real(fp)                      :: tsd
    real(fp)                      :: tsigmol   ! temporary variable for sigmol
@@ -209,6 +210,7 @@
    error = .false.
    if (.not.stm_included) return
    ubot_from_com = jauorbfromswan>0
+   timhr = time1/3600.0_fp
    !
    ! Allocate memory
    allocate(dzdx(1:ndx), dzdy(1:ndx), stat=istat)
@@ -231,7 +233,7 @@
    ! Mass conservation; s1 is updated before entering fm_erosed
    !
    if (varyingmorfac) then
-      call updmorfac(stmpar%morpar, time1/3600.0_fp, julrefdat)
+      call updmorfac(stmpar%morpar, timhr, julrefdat)
    endif
    !
    ! Reset some arrays before next iteration
@@ -699,7 +701,7 @@
          ! Compute bed stress resulting from skin friction
          !
          if (iflufflyr>0) then
-            afluff = get_alpha_fluff(iflufflyr, lsed, nm, mfluff(:,nm), stmpar%trapar, stmpar%sedpar)
+            afluff = get_alpha_fluff(iflufflyr, lsed, nm, mfluff(:,nm), stmpar%trapar, stmpar%sedpar, timhr)
          else
             afluff = 0d0
          endif
@@ -868,7 +870,7 @@
          ! on localpar, thus ensuring that the global array par is not
          ! messed up with specific, nm-/l-dependent data.
          !
-         call get_transport_parameters(stmpar%trapar, l, nm, time1/3600.0_fp, localpar)
+         call get_transport_parameters(stmpar%trapar, l, nm, timhr, localpar)
          !
          ! fraction specific quantities
          !

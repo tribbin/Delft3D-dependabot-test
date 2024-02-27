@@ -28,15 +28,14 @@ module compbsskin_module
 !  
 !  
 !-------------------------------------------------------------------------------
+use precision
+implicit none
 
 contains
 
-function get_alpha_fluff(iflufflyr, lsed, nm, mfluff, trapar, sedpar) result (alpha_fluff)
+function get_alpha_fluff(iflufflyr, lsed, nm, mfluff, trapar, sedpar, timhr) result (alpha_fluff)
 !!--declarations----------------------------------------------------------------
-    use precision
-    use morphology_data_module, only:sedpar_type, trapar_type
-    !
-    implicit none
+    use morphology_data_module, only:sedpar_type, trapar_type, get_one_transport_parameter
 !
 ! Global variables
 !
@@ -46,12 +45,12 @@ function get_alpha_fluff(iflufflyr, lsed, nm, mfluff, trapar, sedpar) result (al
     real(fp), dimension(:), intent(in)    :: mfluff
     type(trapar_type)     , intent(in)    :: trapar
     type(sedpar_type)     , intent(in)    :: sedpar
- 
+    real(fp)              , intent(in)    :: timhr        !< time since reference date [h]
+
     real(fp)                              :: alpha_fluff
 !
 ! Local variables
 !
-    integer                        :: j
     integer                        :: l
     real(fp)                       :: parfluff0
     real(fp)                       :: parfluff1
@@ -64,19 +63,8 @@ function get_alpha_fluff(iflufflyr, lsed, nm, mfluff, trapar, sedpar) result (al
        fluff_cover_factor = sedpar%sc_flcf
        do l = 1,lsed
           if (trapar%iform(l) == -3) then
-             j = trapar%iparfile(15,l)
-             if (j>0) then ! spatially varying
-                 parfluff0 = trapar%parfile(j)%parfld(nm)
-             else
-                 parfluff0 = trapar%par(15,l)
-             endif
-             !
-             j = trapar%iparfile(16,l)
-             if (j>0) then ! spatially varying
-                 parfluff1 = trapar%parfile(j)%parfld(nm)
-             else
-                 parfluff1 = trapar%par(16,l)
-             endif
+             parfluff0 = get_one_transport_parameter(trapar, l, nm, 15, timhr)
+             parfluff1 = get_one_transport_parameter(trapar, l, nm, 16, timhr)
              !
              alpha_fluff = alpha_fluff + mfluff(l) * parfluff1 / parfluff0
           endif
@@ -107,11 +95,8 @@ subroutine compbsskin (umean , vmean , depth , wave  , uorb  , tper  , &
 !          8) Mutiple mud fractions, each fraction own kssilt and kssand?????
 !
 !!--declarations----------------------------------------------------------------
-    use precision
     use mathconsts
     use morphology_data_module, only:sedpar_type, SC_MUDFRAC
-    !
-    implicit none
 !
 ! Local parameters
 !
