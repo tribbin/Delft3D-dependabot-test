@@ -454,6 +454,7 @@
  endif 
  jaFlowNetChanged = 0
 
+ ! Secondary flow
 
  ! Initialise Fourier Analysis
  call timstrt('Fourier init        ', handle_extra(33)) ! Fourier init
