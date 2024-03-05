@@ -1843,7 +1843,7 @@ private
       use m_sediment, only: stm_included, stmpar
       use m_longculverts, only: nlongculverts
       USE m_monitoring_crosssections, only: ncrs
-      use m_monitoring_runupgauges, only: nrug
+      use m_monitoring_runupgauges, only: nrug, rug
       use m_dad
       USE, INTRINSIC :: ISO_C_BINDING
 
