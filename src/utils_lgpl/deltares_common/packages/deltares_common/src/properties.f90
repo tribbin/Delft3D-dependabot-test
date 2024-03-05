@@ -2285,9 +2285,9 @@ end subroutine prop_get_doubles
 !!    Use prop_get_string to get the string value.
 !!    Convert it to logical.
 !!    Allowed strings to detect the value true:
-!!    Y|YES|yes|Yes|T|TRUE|true|True|J|JA|Ja|ja|W|WAAR|Waar|waar
+!!    Y|YES|yes|Yes|T|TRUE|true|True|J|JA|Ja|ja|W|WAAR|Waar|waar|on|On|
 !!    Allowed strings to detect the value false:
-!!    N|NO|no|No|F|FALSE|false|False|N|NEE|Nee|nee|O|ONWAAR|Onwaar|onwaar
+!!    N|NO|no|No|F|FALSE|false|False|N|NEE|Nee|nee|O|ONWAAR|Onwaar|onwaar|off|Off|
 !!
 !!  Comments on this line:
 !!    Not allowed
@@ -2310,9 +2310,9 @@ subroutine prop_get_logical(tree  ,chapter   ,key       ,value     ,success)
     character(len=:), allocatable :: prop_value
     !
     data truth/    &
-     & '|1|Y|y|YES|yes|Yes|T|t|TRUE|true|True|J|j|JA|Ja|ja|W|w|WAAR|Waar|waar|'/
+     & '|1|Y|y|YES|yes|Yes|T|t|TRUE|true|True|J|j|JA|Ja|ja|W|w|WAAR|Waar|waar|on|On|'/
     data falsity/  &
-     & '|0|N|n|NO|no|No|F|f|FALSE|false|False|N|n|NEE|Nee|nee|O|o|ONWAAR|Onwaar|onwaar|'/
+     & '|0|N|n|NO|no|No|F|f|FALSE|false|False|N|n|NEE|Nee|nee|O|o|ONWAAR|Onwaar|onwaar|off|Off|'/
     !
     !! executable statements -------------------------------------------------------
     !
