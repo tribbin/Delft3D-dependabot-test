@@ -8033,9 +8033,9 @@ module m_meteo
                 ! wave data is read from a com.nc file produced by D-Waves which contains one time field only
                 fileReaderPtr%one_time_field = .true.
             endif
-            case ('wavesignificantheight', 'waveperiod', 'wavedirection', 'xwaveforce', 'ywaveforce', &
-                  'freesurfacedissipation','whitecappingdissipation', 'totalwaveenergydissipation')
-             ! the name of the source item created by the file reader will be the same as the ext.force. quant name
+         case ('wavesignificantheight', 'waveperiod', 'wavedirection', 'xwaveforce', 'ywaveforce', &
+               'freesurfacedissipation','whitecappingdissipation', 'totalwaveenergydissipation')
+            ! the name of the source item created by the file reader will be the same as the ext.force. quant name
             sourceItemName = varname
          case ('airpressure', 'atmosphericpressure')
             if (ec_filetype == provFile_arcinfo) then

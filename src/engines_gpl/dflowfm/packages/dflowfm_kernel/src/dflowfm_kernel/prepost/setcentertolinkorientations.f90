@@ -61,9 +61,6 @@
     call aerr('snb(2,Lnx)', ierr, 2*Lnx)
 
     do L=1,Lnx
-       if ( L.eq.12 ) then
-          continue
-       end if
        k3    = lncn(1,L)
        k4    = lncn(2,L)
 

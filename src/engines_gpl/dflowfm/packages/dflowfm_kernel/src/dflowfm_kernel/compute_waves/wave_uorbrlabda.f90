@@ -75,7 +75,7 @@
             end if
          endif
       else
-         Uorb(k) = 0d0
+         uorb(k) = 0d0
       endif
    enddo
 

@@ -27,12 +27,12 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-subroutine transform_wave_physics(    hs        ,dir       ,period    ,depth     , &
-                                    & fx        ,fy        ,mx        ,my        , &
-                                    & distot    ,dissurf   ,diswcap              , &
-                                    & m         ,n         ,hrms      ,tp        , &
-                                    & grav      ,swflux    ,swdis                , &
-                                    & gamma0    ,wsbodyu   ,wsbodyv   ,ierr          )
+subroutine transform_wave_physics(  hs        ,dir       ,period    ,depth     , &
+                                  & fx        ,fy        ,mx        ,my        , &
+                                  & distot    ,dissurf   ,diswcap              , &
+                                  & m         ,n         ,hrms      ,tp        , &
+                                  & grav      ,swflux    ,swdis                , &
+                                  & gamma0    ,wsbodyu   ,wsbodyv   ,ierr          )
 
     !!--description-----------------------------------------------------------------
     ! NONE

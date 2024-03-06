@@ -1550,8 +1550,10 @@ subroutine readMDUFile(filename, istat)
 
     call prop_get_integer(md_ptr, 'waves', 'Wavemodelnr'              , jawave)
     call prop_get_integer(md_ptr, 'waves', 'Waveforcing'              , waveforcing)
+    call prop_get_integer(md_ptr, 'waves', 'WavePeakEnhancementFactor', JONSWAPgamma0)
     if (jawave /= 7 .and. waveforcing /= 0) then
-        call mess(LEVEL_ERROR, 'Waveforcing = 1, 2 or 3 is only supported for Wavemodelnr = 7.')
+        call mess(LEVEL_WARNING, 'Waveforcing = 1, 2 or 3 is only supported for Wavemodelnr = 7. Keyword ignored.')
+        waveforcing = 0
     end if
     call prop_get_double (md_ptr, 'waves', 'Tifetchcomp'              , Tifetch)
     call prop_get_string (md_ptr, 'waves', 'SurfbeatInput'            , md_surfbeatfile)

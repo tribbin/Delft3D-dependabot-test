@@ -66,8 +66,8 @@ subroutine wave_forces(    dir       ,tp        ,fxhis                , &
     real   , intent(in   )  :: grav
     real   , intent(in   )  :: tp
     real   , intent(in   )  :: wavel
-    real   , intent(  out)  :: wsbodyu
-    real   , intent(  out)  :: wsbodyv
+    real   , intent(  out)  :: wsbodyx
+    real   , intent(  out)  :: wsbodyy
     !
     ! Local variables
     !
@@ -77,8 +77,10 @@ subroutine wave_forces(    dir       ,tp        ,fxhis                , &
     !! executable statements -------------------------------------------------------
     !
     if (water_is_too_shallow_or_waves_are_too_small) then
-        fx    = 0.0
-        fy    = 0.0
+        fx      = 0.0
+        fy      = 0.0
+        wsbodyx = 0.0
+        wsbodyy = 0.0
     else
         if (swdis == 1) then
             !
@@ -86,8 +88,8 @@ subroutine wave_forces(    dir       ,tp        ,fxhis                , &
             !
             fx      = fxhis
             fy      = fyhis
-            wsbodyu = 0.0
-            wsbodyv = 0.0
+            wsbodyx = 0.0
+            wsbodyy = 0.0
         elseif (swdis == 2) then
             !
             ! Determine wave forces based on dissipation
@@ -97,8 +99,8 @@ subroutine wave_forces(    dir       ,tp        ,fxhis                , &
             tr_angle = 0.0174533*dir
             fx       = cos(tr_angle)*frc
             fy       = sin(tr_angle)*frc
-            wsbodyu  = 0.0
-            wsbodyv  = 0.0
+            wsbodyx  = 0.0
+            wsbodyy  = 0.0
         elseif (swdis == 3) then
             !
             ! Determine wave forces based on dissipation at the free surface
@@ -110,8 +112,8 @@ subroutine wave_forces(    dir       ,tp        ,fxhis                , &
             tr_angle = 0.0174533*dir
             fx       = cos(tr_angle)*frc
             fy       = sin(tr_angle)*frc
-            wsbodyu = fxhis - fx
-            wsbodyv = fyhis - fy
+            wsbodyx = fxhis - fx
+            wsbodyy = fyhis - fy
         else
         endif
     endif

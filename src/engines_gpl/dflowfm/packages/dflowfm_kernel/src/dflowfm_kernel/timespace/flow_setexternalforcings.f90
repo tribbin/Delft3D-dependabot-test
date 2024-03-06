@@ -369,7 +369,7 @@ subroutine set_wave_parameters()
          success = .true.
       end if
 
-      if(jawave == 7) then
+      if (jawave == 7) then
           phiwav = convert_wave_direction_from_nautical_to_cartesian(phiwav)
       end if
 

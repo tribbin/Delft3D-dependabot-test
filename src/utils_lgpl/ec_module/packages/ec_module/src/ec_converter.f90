@@ -398,10 +398,10 @@ module m_ec_converter
                connection%converterPtr%indexWeight => weight
                weight%indices = ec_undef_int
                select case (instancePtr%coordsystem)
-               case (EC_COORDS_SFERIC)
-                  jsferic = 1
-               case (EC_COORDS_CARTESIAN)
-                  jsferic = 0
+                  case (EC_COORDS_SFERIC)
+                     jsferic = 1
+                  case (EC_COORDS_CARTESIAN)
+                     jsferic = 0
                end select
                call nearest_neighbour(n_points, targetElementSet%x, targetElementSet%y,  targetElementSet%mask, &
                     weight%indices(1,:), ec_undef_hp, &
@@ -2653,9 +2653,11 @@ module m_ec_converter
          type(tEcItem), pointer :: sourceItem !< source Item
          type(tEcItem), pointer :: targetItem !< target item
          integer :: n_layers, n_cols, n_rows, n_points, mp, np, kp, dkp, k_inc
-         type(tEcItem), pointer  :: windxPtr ! pointer to item for windx
-         type(tEcItem), pointer  :: windyPtr ! pointer to item for windy
+         type(tEcItem), pointer  :: windxPtr   ! pointer to item for windx
+         type(tEcItem), pointer  :: windyPtr   ! pointer to item for windy
+         type(tEcItem), pointer  :: wavedirPtr ! pointer to item for wave direction
          logical :: has_x_wind, has_y_wind
+         logical :: has_wave_direction
          logical :: has_harmonics            !< Indicate if the quantity is defined in phase and amplitude instead of time.
          real(hp), dimension(:), pointer     :: targetValues
          real(hp), dimension(:), allocatable :: zsrc
@@ -2704,23 +2706,32 @@ module m_ec_converter
          windyPtr   => null()
          has_x_wind = .False.
          has_y_wind = .False.
-          do i=1, connection%nSourceItems
-            if (connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='eastward_wind') then
-               windxPtr => connection%SourceItemsPtr(i)%ptr
-            endif
-            if (connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='northward_wind') then
-               windyPtr => connection%SourceItemsPtr(i)%ptr
-            endif
-            if (connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='grid_eastward_wind' .or. connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='x_wind') then
-               windxPtr => connection%SourceItemsPtr(i)%ptr
-               has_x_wind = .True.
-            endif
-            if (connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='grid_northward_wind' .or. connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='y_wind') then
-               windyPtr => connection%SourceItemsPtr(i)%ptr
-               has_y_wind = .True.
-            endif
+         wavedirPtr => null()
+         has_wave_direction = .False.
+         !
+         do i=1, connection%nSourceItems
+           if (connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='eastward_wind') then
+              windxPtr => connection%SourceItemsPtr(i)%ptr
+           endif
+           if (connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='northward_wind') then
+              windyPtr => connection%SourceItemsPtr(i)%ptr
+           endif
+           if (connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='grid_eastward_wind' .or. connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='x_wind') then
+              windxPtr => connection%SourceItemsPtr(i)%ptr
+              has_x_wind = .True.
+           endif
+           if (connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='grid_northward_wind' .or. connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='y_wind') then
+              windyPtr => connection%SourceItemsPtr(i)%ptr
+              has_y_wind = .True.
+           endif
+           !
+           ! Interpolation of wave direction given in degrees
+           if (connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='wavedirection') then
+              wavedirPtr => connection%SourceItemsPtr(i)%ptr
+              has_wave_direction = .true.
+           endif
          enddo
-
+         !
          if (has_x_wind .and. has_y_wind) then
              ! This should only be performed if the standard_name for the x-component was x_wind or grid_eastward_wind (and similar for the y-component)
              ! If eastward_wind was given, this operation should formally be ommitted, according to the CF-convention
@@ -2735,6 +2746,10 @@ module m_ec_converter
                   windxPtr%SourceT1fieldptr%arr1dptr(ipt) = xtmp
                enddo
             endif
+         endif
+         !
+         if (has_wave_direction) then
+         
          endif
          !
          ! ===== interpolation =====
