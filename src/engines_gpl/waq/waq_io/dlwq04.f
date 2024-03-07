@@ -701,7 +701,6 @@
  2270 format (    ' Lengths variable over the area.')
  2280 format (  /,' ERROR, option not implemented' )
  2290 format (  /,' ERROR. Option incompatible with NODISP=',I4)
- 2300 format (  /,' ERROR. Option incompatible with integration=',I4)
  2310 format (  /,' ERROR. allocating memory for input table:',I4)
  2320 format (  /,' Option selected for input    :',I7 )
  2330 format (  /,' Scale factor for dispersions :',E13.6 ,

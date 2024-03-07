@@ -334,7 +334,6 @@
      &           I2,'Y-',I3,'D-',I2,'H-',I2,'M-',I2,'S. ',
      &           I2,'Y-',I3,'D-',I2,'H-',I2,'M-',I2,'S. ',A )
  2100 format (/' ERROR: Reading ASCII description file ',A)
- 2110 format (/' ERROR: This option is not supported here !')
  2120 format ( ' Work file = ',A,' Interpolation option:',I2)
  2130 format (/' ERROR: String is not a valid absolute timer:',A)
  2140 format (/' ERROR: Absolute timer does not fit in timer format :',A,/

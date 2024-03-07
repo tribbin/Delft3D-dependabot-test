@@ -329,7 +329,6 @@ contains
  9999 continue
       if (timon) call timstop( ithndl )
       return
- 2000 format ( ' ERROR: undefined kind of array in PROCES :', i8 )
       end
 
       subroutine onepro_wqp ( iproc , k     , prvnio, prvtyp, prvvar, vararr, &

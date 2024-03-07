@@ -375,8 +375,6 @@
  9999 if ( timon ) call timstop ( ithandl )
       RETURN
 !
- 2000 FORMAT ( ' WARNING: System time: ',I10,' earlier than function',
-     *         ' time: ',I10,' Function skipped !' )
  2010 FORMAT ( ' ERROR, updating time functions new style !' )
 !
       END

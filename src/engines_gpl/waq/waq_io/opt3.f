@@ -354,16 +354,11 @@
  2000 format (    ' Time variable data.')
  2010 format (  /,' Option selected : ',I2 )
  2020 format (  /,' ERROR, option not implemented')
- 2040 format (    ' Block with data at breakpoints.')
  2030 format (    ' Number of breakpoints:',I7 )
  2050 format (    ' Block with periodic functions.')
  2060 format (    ' ERROR, too many (',I5,') items, ',I5,' expected!')
  2070 format (    ' ERROR, duplicate item:',I5)
  2080 format (    ' ERROR, non-initialised item:',I5)
- 2090 format (    ' ERROR end of file on unit:',I3,
-     &          /,' Filename is: ',A )
- 2100 format (    ' ERROR reading file on unit:',I3,
-     &          /,' Filename is: ',A )
 
       end
 

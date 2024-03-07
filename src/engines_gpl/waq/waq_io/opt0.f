@@ -280,10 +280,6 @@
  2030 format (  /,' First  direction:')
  2040 format (  /,' Second direction:')
  2050 format (  /,' Third  direction:')
- 2060 format (  /,' ERROR the number of values (',I7,') exceeds the maximum (',I7,').',
-     *          /,' The maximum is limited by REAL array space',
-     *          /,' Consult your system manager to obtain at least',I7,
-     *          /,' words of additional storage.' )
  2070 format (  /,' ERROR. No character string allowed: ',A )
  2080 format (    ' Keyword FRAUD found for fraudulent computations.' )
  2090 format (  /,' ERROR. This keyword is not allowed here: ',A )

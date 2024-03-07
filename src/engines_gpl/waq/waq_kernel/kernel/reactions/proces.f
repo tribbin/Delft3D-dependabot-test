@@ -650,7 +650,6 @@
 
  9999 if ( timon ) call timstop ( ithandl )
       return
- 2000 format ( ' ERROR: undefined kind of array in PROCES :', i8 )
       end
 
       SUBROUTINE ONEPRO ( IPROC , K     , IDT   , ITFACT, PROGRD,

@@ -604,10 +604,8 @@
 !       Output formats
 
  2000 format ( //' Number of segments :',I15 )
- 2005 format ( / ' ERROR, could not read number of segments.' )
  2010 format ( / ' ERROR, invalid number of segments:',I10 )
  2015 format (   ' ERROR, nr of volumes in Delwaq not equal to nr of volumes in Delpar:',I10 )
- 2020 format (   ' Number of layers in base grid :',I10)
  2030 format ( / ' option selected for grid layout :' , I2 )
  2040 format ( / ' ERROR, option for grid layout not implemented !!!!!')
  2045 format ( / ' ERROR, invalid keyword for grid layout: ',A20 )
@@ -668,9 +666,6 @@
      &         / '        this version of Delwaq is not compatible with older non-ugrid waqgeom-files'  )
  2550 format ( / ' Mesh used for Delwaq 2D/3D output: ', A )
  2551 format ( / ' Mesh used for Delwaq 1D output: ', A )
- 2556 format ( / ' Getting the mesh ID failed - variable: ', A )
-
- 2590 format ( / ' ERROR, closing NetCDF file. Filename: ',A )
  2599 format ( / ' NetCDF error message: ', A )
 
       contains

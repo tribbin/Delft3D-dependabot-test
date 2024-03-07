@@ -235,7 +235,6 @@
      &          /2I10/2I10/2I10 )
  2020 format (  /,10X, 20I6,/)
  2030 format (    1X,I6,' * ',20I6 )
- 2040 format (  /,' ERROR. allocating memory for boundary pointers:',i4,i10 )
  2050 format ( //,' Dimensions of the system :',
      &          /,' Number of exchanges 1st direction : ',I7,
      &          /,' Number of exchanges 2nd direction : ',I7,

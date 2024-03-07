@@ -961,8 +961,6 @@ contains
  2002 format( ' Version number                : ',f10.2)
  2003 format( ' Serial                        : ',i10  )
  2004 format( ' Using BLOOM definition file   : ',a    / )
- 2020 format (//' Model :            ',a40,/20x,a40 )
- 2030 format (//' Run   :            ',a40,/20x,a40//)
  2080 format ( /' Number of active (transported) WQ substances       :',I3,/ &
                 ' Number of inactive (not transported) WQ substances :',I3,/ &
                 ' Total number of WQ substances                      :',I3  )

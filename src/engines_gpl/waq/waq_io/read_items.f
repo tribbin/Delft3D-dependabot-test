@@ -520,7 +520,6 @@
  1035 FORMAT (  ' ERROR: no reserved keyword expected: ', A20 )
  1040 FORMAT (  ' WARNING: Input ',A,' nr:',I5,' with name: ',A20,
      *          ' is not a valid ID, data ignored' )
- 1050 FORMAT ( /' ERROR: string is no valid item ID: ',A )
  1060 FORMAT (  ' ERROR: number: ',I5,' is not a valid item number !' )
  1070 FORMAT (  ' ERROR: multiplication is only allowed in USEFOR',
      *          ' context !')
@@ -537,7 +536,6 @@
  1160 FORMAT (  ' Subtracted by local substitution: ',A20 )
  1162 FORMAT (  ' Minimum value is local substitution: ',A20 )
  1164 FORMAT (  ' Maximum value is local substitution: ',A20 )
- 1169 FORMAT (  ' Substituted by: ',E15.6 )
  1170 FORMAT (  ' Multiplied by: ',E15.6 )
  1180 FORMAT (  ' Divided by: ',E15.6 )
  1190 FORMAT (  ' Summed with: ',E15.6 )

@@ -122,8 +122,6 @@
  2110 format ( ' in input :',I6,' maximum :',I6)
  2130 format ( ' ERROR: Local dimension to small for active processes')
  2140 format ( ' Automatic activation of BLOOM ouput process Phy_Blo')
- 2150 format ( ' Process name [',a10,'] in input replaced with new name [',a10,']')
- 2160 format ( ' Process [',a10,'] added because of active process [',a10,']')
       end
 
       end module m_set_active

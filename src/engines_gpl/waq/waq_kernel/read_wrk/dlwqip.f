@@ -297,7 +297,6 @@
  2070 FORMAT ( ' ERROR  : Proces work file doesn''t match dimensions in'
      &        /'          DELWAQ boot file for NOTOT ',
      &        /'          ',I6,' in proces,',I6,' in boot file.')
- 2080 FORMAT ( ' ERROR  : Unidentified module requested;',A20)
  2090 FORMAT ( ' ERROR  : Reading proces work file;',A,
      &        /'          on unit number ',I3)
  2100 FORMAT ( ' MESSAGE: Bloom fractional step switched on')
@@ -319,7 +318,6 @@
  2170 FORMAT ( ' ERROR  : Proces work file doesn''t match dimensions in'
      &        /'          DELWAQ boot file for NVELN ',
      &        /'          ',I6,' in proces,',I6,' in boot file.')
- 2180 FORMAT ( ' Process with IO on exchanges set to base grid :',A)
  2190 FORMAT ( ' ERROR  : Proces work file doesn''t match dimensions in'
      &        /'          DELWAQ boot file for NOVAR ',
      &        /'          ',I6,' in proces,',I6,' in boot file.')

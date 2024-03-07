@@ -196,8 +196,6 @@
 !
  1000 FORMAT ( ' ERROR ! Number of breakpoints exceeds system',
      *         ' maximum of: ' , I10 )
- 1010 FORMAT ( ' ERROR ! Number of data points exceeds system',
-     *         ' maximum of: ' , I10 )
  1020 FORMAT ( ' ERROR ! Absolute timer does not fit in timer ',
      *         'format: ', A,/
      *         ' Is your T0 setting in block #1 correct?'/,

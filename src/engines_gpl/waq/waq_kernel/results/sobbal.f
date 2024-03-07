@@ -963,7 +963,6 @@
  9000 write (lunrep,*) 'Error allocating memory'
       write (*,*) 'Error allocating memory'
       call srstop(1)
- 9010 write (lunrep,*) 'Error deallocating memory'
       write (*,*) 'Error deallocating memory'
       call srstop(1)
       end

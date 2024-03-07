@@ -503,17 +503,11 @@
      *            '                         boundary-types:',/  )
  2030 FORMAT (   A20,A40,A20   )
  2040 FORMAT (   I7,9X,A20,A40,A20 )
- 2050 FORMAT (    ' ERROR: Character array space insufficient' )
  2060 FORMAT (    ' Number of different boundary types: ', I4  )
  2065 FORMAT (    ' Boundary types printed for output option is 2',
      *            ' or higher !' )
  2066 FORMAT (    ' Type:  Type-string' )
  2070 FORMAT (      I6, 2X, A20  )
- 2080 FORMAT ( /,' ERROR the number of boundaries (',I7,') exceeds',
-     *           ' the maximum (',I7,').',
-     *          /' The maximum is limited by CHARACTER array space',
-     *          /' Consult your system manager to obtain ',I7,' words',
-     *           ' of additional storage.' )
  2090 FORMAT ( //,' No active systems; no boundary conditions' )
  2100 FORMAT (  /,' Time lag option:',I3 )
  2101 FORMAT (  /,' Note: Skipping superfluous boundary names' )

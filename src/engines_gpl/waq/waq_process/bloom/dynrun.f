@@ -106,15 +106,11 @@
          totcar = totcar + xdef(i+nurows)/ctodry(i)
       end do
 
-99980 format(2X,'The following species have reduced relative depth',/,
-     1       2X,'for buoyancy control: ')
-99970 format(2X,'Species ',A8,' has relative depth of ',F5.2)
 99960 format (/,23X,'******',2X,' SEGMENT ',I8,' WEEK ',
      1       I2, 2X,'******',/)
 99950 format(2X,'Important parameter values for this week:',/,
      1       2X,'Temperature =',F5.1,4X,'Solar radiation =',F8.1,
      2       4X,'Total depth =',F5.2)
-99930 format (' Period: ',I4,' Potential degeneracy for species: ',20I3)
       return
       end
 

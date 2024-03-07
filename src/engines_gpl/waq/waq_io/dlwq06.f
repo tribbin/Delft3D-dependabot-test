@@ -361,16 +361,6 @@
 
  2000 format (  /,' First  selected option   : ',I7 )
  2010 format (  /,' No waste loads ' )
- 2020 format ( /,' ERROR the number of wasteloads (',I5,') exceeds',
-     *           ' the maximum (',I5,').',
-     *          /' The maximum is limited by CHARACTER array space',
-     *          /' Consult your system manager to obtain ',I5,' words',
-     *           ' of additional storage.' )
- 2030 format ( /,' ERROR the number of wasteloads (',I5,') exceeds',
-     *           ' the maximum (',I5,').',
-     *          /' The maximum is limited by INTEGER array space',
-     *          /' Consult your system manager to obtain ',I5,' words',
-     *           ' of additional storage.' )
  2040 format (  /,' Number of waste loads: ',I4// )
  2045 format (  /,' Names of waste loads are printed for',
      *            ' output option 3 and higher !' )
@@ -383,7 +373,6 @@
  2080 format (  I6,2X,I7,2X,I1,2X,A20, 2X,A40,2X,A20 )
  2085 format (  I6,2X,A7,2X,I1,2X,A20, 2X,A40,2X,A20 )
  2090 format (    ' ERROR invalid segment number:',I8 )
- 2100 format (    ' ERROR: Character array space insufficient' )
  2110 format (    ' Number of different wasteload types: ', I4 )
  2112 format (    ' Type:  Type-string' )
  2115 format (    ' Waste load types are printed for output option',

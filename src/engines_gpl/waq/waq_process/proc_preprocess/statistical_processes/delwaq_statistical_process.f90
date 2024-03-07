@@ -311,7 +311,6 @@ contains
       if ( timon ) call timstop( ithndl )
       RETURN
       2000 FORMAT ( /,' Output operations')
-      2010 FORMAT ( /,' ERROR. setup_statistical allocating memory :',I8)
       2020 FORMAT ( ' Start of period :',I2,'Y-',I3,'D-',I2,'H-',I2, &
                     'M-',I2,'S.', /' End of period   :',I2,'Y-',I3,'D-',I2,'H-',I2, &
                     'M-',I2,'S.')

@@ -229,10 +229,6 @@
 !
  2000 FORMAT (' Extra functionality DLWQTR')
  2010 FORMAT (' ERROR: opening file <areachar.dat> !')
- 2020 FORMAT (' WARNING: no <areachar.dat> file!',/,
-     +        '          rectilinear simulation assumed!',/,
-     +        '          param [SURF] must have been set by the',/,
-     +        '          user, this is not checked !!!!')
  2030 FORMAT (' Surface area''s will be read from file <areachar.dat>')
  2040 FORMAT (' Dispersion length in third dir. will be calculated')
  2050 FORMAT (' ERROR: File areachar.dat does not match.',

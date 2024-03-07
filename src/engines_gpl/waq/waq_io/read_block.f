@@ -647,10 +647,6 @@
       return
 !
  1140 FORMAT(/' ====> input item completed <==== '//   )
- 1340 FORMAT (  ' Output on administration only writen for output',
-     *          ' option 3 and higher !' )
- 1350 FORMAT (  ' Output of the data only writen for output',
-     *          ' option 4 and higher !' )
  1900 FORMAT(/' Absolute times (YYYY/MM/DD;HH:MM:SS) expected in next'
      *       ,' time function block.' )
  1910 FORMAT(/' Data are supplied as single default values',
@@ -661,10 +657,6 @@
  2020 FORMAT(/' Input will be given for all ',I10,' segments.' )
  2030 FORMAT(/' ',A,'s ordered in groups of ',A,'s per segment.')
  2040 FORMAT(/' ',A,'s ordered in groups of segments per ',A,'.')
- 2050 FORMAT(/' Total number of constants        : ',I4  )
- 2060 FORMAT(/' Total number of parameters       : ',I4  )
- 2070 FORMAT(/' Total number of functions        : ',I4  )
- 2080 FORMAT(/' Total number of segment functions: ',I4  )
  2090 FORMAT( ' ERROR encountered in processing this input item !' )
  2100 FORMAT( ' Harmonics or Fouriers not allowed with ODS-files !' )
  2110 FORMAT( ' Harmonics or Fouriers not allowed with binary files !' )
@@ -672,7 +664,6 @@
      *        ' names !' )
  2150 FORMAT( ' ERROR during processing of PARAMETERS or',
      *        ' SEG_FUNCTIONS names !' )
- 2160 FORMAT( ' ERROR: A recognizable keyword is expected !' )
  2170 FORMAT( ' ERROR: The DEFAULT keyword was already specified,',
      *        ' no SEGMENTS or ALL expected any more !' )
  2180 FORMAT( ' ERROR during processing of SEGMENT identifiers !')
@@ -681,7 +672,6 @@
  2200 FORMAT( ' ERROR reading the data block !' )
  2210 FORMAT( ' ERROR keyword: ',A,' not recognized !' )
  2220 FORMAT( ' Input comes from binary file: ',A      )
- 2250 FORMAT( ' Number of fast solver vectors set to :',I6  )
  2260 FORMAT( ' ERROR: Segments not defined, use ALL for all segs !' )
  2270 FORMAT( ' ERROR: MULTIPLEHYD_FILE only allowed for (segment-)functions !' )
  2280 FORMAT( ' ERROR: MULTIPLEHYD_FILE only allowed for single item entry!' )

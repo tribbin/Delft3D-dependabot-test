@@ -391,10 +391,6 @@
       enddo
 
       return
-
- 1001 format (A,1X,99E15.5)
- 1002 format (A,1X,i5,1x,99E15.5)
-
       end
       subroutine bl_isplim(noutlim,outlim,nunucom,nuecogm,con2out)
 

@@ -139,7 +139,6 @@
       return
 
  1010 format ( ' warning: input item : ',i3,' not resolved: ',a)
- 1020 format ( ' warning: also not resolved: ',a)
  1030 format ( ' warning: item number: ',i3,' also not resolved: ',a)
 
       end

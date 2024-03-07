@@ -269,6 +269,5 @@
  2010 FORMAT ( ' ERROR  : allocating administration array')
  2020 FORMAT ( ' name   : ',A)
  2030 FORMAT ( ' length : ',I12)
- 2040 FORMAT ( ' error  : ',A)
       END SUBROUTINE
       END MODULE DHMMAR_MOD

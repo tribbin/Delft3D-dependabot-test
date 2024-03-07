@@ -280,7 +280,6 @@ cjvb
       close ( 328 )
       return
 
- 2000 format ( ' total character array space: ',I8)
  2005 format ( ' ERROR  : character array is too big. Unable to create pointer. ' )
  2010 format ( ' ERROR  : allocating character array. Name   : ',A)
  2040 format (   i4,1x,a20,i12 )

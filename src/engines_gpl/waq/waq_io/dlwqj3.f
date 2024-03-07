@@ -270,7 +270,6 @@ cjvb1    ENDIF
  1120 FORMAT (   I10,2X,1P,10E12.4 )
  1130 FORMAT ( ' Info comes at runtime from binary file at unit: ',I3 )
  1140 FORMAT(/' ====> input item completed <==== '//   )
- 1160 FORMAT ( ' All data from this block ignored' )
 !
       END
 !

@@ -395,7 +395,6 @@
  2003 format (' end extra functionality INLET/OUTLET')
  2004 format ('    possible INLET/OUTLET combinations will be read from ',
      +        'file <inloutl.dat>')
- 2005 format ('    error : number of combinations exceed maximum:',i4)
  2006 format ('    no file <inloutl.dat> using default combinations names')
  2013 format ('    no INLET/OUTLET combination found')
 
@@ -629,8 +628,6 @@
  2002 format ('    grid mismatch in LGA file (walking.lga): ',/,
      &        '    number of segments',i10,
      &        ' not a multiple of number of segments per layer:',i10)
- 2003 format ('    unexpected end of file at simulation time: ', i10,/,
-     &        '    time in walking.dat file:                  ', i10)
  2005 format (' No file <walking.dat> detected' )
  2006 format (' end extra functionality WALKING DISCHARGES')
 
