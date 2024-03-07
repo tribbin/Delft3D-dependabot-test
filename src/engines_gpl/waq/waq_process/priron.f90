@@ -145,7 +145,7 @@ contains
       iddfeco3    = 7
       idpyr       = 8
 
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 
          feiiipa    = pmsa( ipnt(  1) )
          feiiid     = pmsa( ipnt(  2) )
@@ -312,7 +312,7 @@ contains
          idpyr       = idpyr       + noflux
          ipnt        = ipnt        + increm
 
- 9000 continue
+      end do
 
       return
       end

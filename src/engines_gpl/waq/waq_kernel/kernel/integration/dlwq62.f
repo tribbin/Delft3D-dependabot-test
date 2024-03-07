@@ -111,7 +111,7 @@
       idiag  = jtrack + 1
       noq12  = noq1 + noq2
 
-      do 50 iq = 1 , noq
+      do iq = 1 , noq
 
 !         initialisations , check for transport anyhow
 
@@ -188,6 +188,7 @@
 !        end of the loop over exchanges
 
    50 continue
+      end do
 
       if ( timon ) call timstop ( ithandl )
       return

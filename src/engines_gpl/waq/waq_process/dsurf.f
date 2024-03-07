@@ -67,7 +67,7 @@
       IP3  = IPOINT( 3)
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
 
@@ -91,7 +91,7 @@
       IP2   = IP2   + INCREM (  2 )
       IP3   = IP3   + INCREM (  3 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

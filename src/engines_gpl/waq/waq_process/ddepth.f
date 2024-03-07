@@ -71,7 +71,7 @@
       IP3  = IPOINT( 3)
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       CALL evaluate_waq_attribute(3,IKNMRK(ISEG),IKMRK3)
       IF (IKMRK3.EQ.1 .OR. IKMRK3.EQ.3) THEN
 !
@@ -99,7 +99,7 @@
       IP2   = IP2   + INCREM (  2 )
       IP3   = IP3   + INCREM (  3 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

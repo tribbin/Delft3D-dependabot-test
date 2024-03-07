@@ -123,7 +123,7 @@
 !-----------------------------------------------------------------------
       if ( error .ne. 0 .and. wrilog ) then
 ! Create elements
-        do 110 lelmnr=1,nelems
+        do lelmnr=1,nelems
           error  = DEFELM(fd_nef        ,elmnms(  lelmnr), &
                          elmtps(lelmnr),nbytsg(  lelmnr), &
                          elmqta        ,elmant          , &
@@ -131,7 +131,7 @@
                          elmdms(2,lelmnr)               )
 !      most likely error, element already exist
           error = 0
-  110   continue
+          end do
 ! Create cells
         error  = DEFCEL(fd_nef,grpnam,nelems,elmnms)
         if ( error .ne. 0 ) goto 9999
@@ -161,16 +161,16 @@
 
         if (error  .ne. 0) goto 9999
         lelmnr = 0
-        do 210 n = 1,nelems
+        do n = 1,nelems
            if (elmnam .eq. elmnms(n)) then
               lelmnr = n
               goto 220
            endif
-  210   continue
+    end do
   220   continue
         if (lelmnr.ne.0) goto 9999
 !----------------------------------------------------------
-        do 230 i = 1,elmndm
+        do i = 1,elmndm
 !----------------------------------------------------------
 !----------Compare local and global dimensions, not equal
 !          => new error number and exit
@@ -179,7 +179,7 @@
               error  = -15025
               goto 9999
            endif
-  230   continue
+    end do
       endif
       goto 10000
 !-----------------------------------------------------------------------

@@ -95,7 +95,7 @@
       IP20 = IPOINT(20)
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
@@ -190,7 +190,7 @@
       IP19  = IP19  + INCREM ( 19 )
       IP20  = IP20  + INCREM ( 20 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
       END

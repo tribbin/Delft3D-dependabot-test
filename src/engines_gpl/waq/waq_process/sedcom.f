@@ -338,7 +338,7 @@
       IP61  = IPOINT(61)
 !
       IFLUX = 0
-      DO 100 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
@@ -586,7 +586,7 @@
       IP60  = IP60  + IN60
       IP61  = IP61  + IN61
 !
-  100 CONTINUE
+      end do
 !
       RETURN
 !

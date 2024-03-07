@@ -92,7 +92,7 @@
 !
       IFLUX = 0
 
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
 
@@ -146,7 +146,7 @@
       IP10  = IP10  + INCREM ( 10 )
       IP11  = IP11  + INCREM ( 11 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

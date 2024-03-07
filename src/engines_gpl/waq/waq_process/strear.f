@@ -122,7 +122,7 @@
 !
 !     segment loop over structures-------------------------------
 !
-      DO 9000 ISTRUC = 1 , NOSTR
+      DO ISTRUC = 1 , NOSTR
 !
 !
          ITEL = 8 + (ISTRUC - 1) * 7
@@ -212,6 +212,7 @@
          FL(1 + (DNSEG - 1) * NOFLUX) = OXYPL
 !
  9000 CONTINUE
+      end do
 !
       RETURN
 !

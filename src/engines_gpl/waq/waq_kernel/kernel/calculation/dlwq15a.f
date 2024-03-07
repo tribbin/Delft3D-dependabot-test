@@ -300,7 +300,7 @@
       massbal = iaflag .eq. 1
       fluxes  = btest(intopt,3)
 
-      do 10 i = 1 , nowst
+      do i = 1 , nowst
 
         iwst = iwaste(i)
 
@@ -535,7 +535,7 @@
 
         end select
 
-   10 continue
+      end do
 
  9999 if ( timon ) call timstop ( ithandl )
 

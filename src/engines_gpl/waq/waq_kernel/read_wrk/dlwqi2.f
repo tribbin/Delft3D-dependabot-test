@@ -226,9 +226,9 @@
       READ ( IIN    , END=40, ERR=40) IDUMMY , (DISP  (K), K=1,3)
       READ ( IIN    , END=40, ERR=40) IDUMMY , (ALENG (K), K=1,3)
       IF ( NOBND  .GT. 0 ) THEN
-         DO 10 I = 1 , NOBND
+         DO I = 1 , NOBND
             READ ( IIN , END=40, ERR=40) BNDID(I),BNDNAM(I)
-   10    CONTINUE
+      end do
          READ ( IIN , END=40, ERR=40) ( BNDTYP(K)   , K=1,NOBTYP )
          READ ( IIN , END=40, ERR=40) ( INWTYP(K+IT), K=1,NOBND  )
          IT = IT + NOBND
@@ -236,10 +236,10 @@
          READ ( IIN , END=40, ERR=40) ( IBPNT(1,K), K=1,NOBND  )
       ENDIF
       IF ( NOWST  .GT. 0 ) THEN
-         DO 20 I = 1 , NOWST
+         DO I = 1 , NOWST
             READ ( IIN , END=40, ERR=40) IWASTE(I), iwsknd(i),
      &                                   WASTID(I), WSTNAM(I)
-   20    CONTINUE
+      end do
          READ ( IIN , END=40, ERR=40) ( WSTTYP(K)    , K=1,NOWTYP )
          READ ( IIN , END=40, ERR=40) ( INWTYP(K+IT) , K=1,NOWST  )
          IT = IT + NOWST
@@ -264,9 +264,9 @@
 !
 !         boundary timings greater then timelag
 !
-      DO 30 I=1,NOBND
+      DO I=1,NOBND
       IBPNT(4,I)  = IBPNT(1,I) + 1
-   30 CONTINUE
+      end do
 !
 !         extract reference date and time
 !

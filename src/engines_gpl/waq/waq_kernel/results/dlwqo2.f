@@ -371,7 +371,7 @@
 !
 !     Loop over the output files
 !
-      do 200 iout = 1 , noutp
+      do iout = 1 , noutp
 !
 !        Map output structure to single variables part 1
 !
@@ -486,18 +486,18 @@
                allocate( hnc_unit(notot+nrvar2) )
                allocate( hnc_description(notot+nrvar2) )
 
-               do 30 i = 1 , notot
+               do i = 1 , notot
                   nambuf(i)          = syname(i)
                   hnc_standard(i)    = sysnm(i)
                   hnc_unit(i)        = syuni(i)
                   hnc_description(i) = sydsc(i)
-   30          continue
-               do 40 i = 1 , nrvar2
+      end do
+               do i = 1 , nrvar2
                   nambuf(notot+i)          = ounam(k1+i-1)
                   hnc_standard(notot+i)    = ousnm(k1+i-1)
                   hnc_unit(notot+i)        = ouuni(k1+i-1)
                   hnc_description(notot+i) = oudsc(k1+i-1)
-   40          continue
+      end do
             endif
 !
 !        Perform output
@@ -755,7 +755,7 @@
 !
          k1 = k1 + nrvar
 !
-  200 continue
+      end do
 
       if ( timon ) call timstop ( ithandl )
       return

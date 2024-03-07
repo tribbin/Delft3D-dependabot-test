@@ -78,7 +78,7 @@
 
       nproc = procesdef%cursize
 
-      do 300 iou = 1 , outputs%cursize
+      do iou = 1 , outputs%cursize
 
          ! check of deze al eerder aan de beurt is geweest
 
@@ -171,6 +171,7 @@
             call monsys( line , 4 )
          endif
   300 continue
+      end do
 
       line = ' '
       call monsys( line , 4 )

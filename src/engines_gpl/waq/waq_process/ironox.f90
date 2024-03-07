@@ -95,7 +95,7 @@ contains
       idioo       = 1
       idion       = 2
 
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 
          feiid      = max(pmsa( ipnt(  1) ), 0.0 )
          oxy        = max(pmsa( ipnt(  2) ), 0.0 )
@@ -153,7 +153,7 @@ contains
          idion       = idion       + noflux
          ipnt        = ipnt        + increm
 
- 9000 continue
+      end do
 
       return
       end

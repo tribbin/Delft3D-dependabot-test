@@ -104,7 +104,7 @@
 !.....Zet de totale en lokale diepte initieel op de diepte
 !.....voor actieve watersegmenten, anders 0
 !.....zet sediment dikte to onderkant segment op 0
-      DO 9000 ISEG=1,NOSEG
+      DO ISEG=1,NOSEG
 
          PMSA(IP3) = PMSA(IP1)
          PMSA(IP4) = PMSA(IP1)
@@ -115,7 +115,7 @@
          IP4 = IP4 + IN4
          IP5 = IP5 + IN5
 
- 9000 CONTINUE
+      end do
 
       IP1  = IPOINT( 1)
       IP3  = IPOINT( 3)
@@ -123,7 +123,7 @@
       IP5  = IPOINT( 5)
 
 !.....Exchange-loop over de derde richting
-      DO 7000 IQ = NOQ1+NOQ2+1 , NOQ1+NOQ2+NOQ3
+      DO IQ = NOQ1+NOQ2+1 , NOQ1+NOQ2+NOQ3
 
          IFROM = IEXPNT(1,IQ)
          ITO   = IEXPNT(2,IQ)
@@ -164,11 +164,11 @@
 !           ENDIF
          ENDIF
 
- 7000 CONTINUE
+      end do
 
 
 !.....Exchange-loop over de derde richting
-      DO 8000 IQ =  NOQ1+NOQ2+NOQ3, NOQ1+NOQ2+1,-1
+      DO IQ =  NOQ1+NOQ2+NOQ3, NOQ1+NOQ2+1,-1
 
          IFROM = IEXPNT(1,IQ)
          ITO   = IEXPNT(2,IQ)
@@ -184,7 +184,7 @@
      +         PMSA ( IP3 + (ITO  -1) * IN3 )
             ENDIF
          ENDIF
- 8000 CONTINUE
+      end do
 
 !     loop over the sediment columns, set sediment depth
 

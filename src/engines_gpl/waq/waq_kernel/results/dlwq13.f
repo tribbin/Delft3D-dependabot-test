@@ -98,12 +98,12 @@
 !
       LCHARMAP = ' '
       LCHARMAP(1:248) = LCHAR(23)(1:248)
-      DO 10 I=248,1,-1
+      DO I=248,1,-1
          IF ( LCHARMAP(I:I) .EQ. '.' ) THEN
             LCHARMAP(I:I+7) = "_res.map"
             GOTO 20
          ENDIF
-   10 CONTINUE
+      end do
       WRITE ( * , * ) ' Invalid name of restart MAP file !'
       write ( * , * ) ' Restart file written to restart_temporary.map !'
       WRITE (LUN(19),*) ' Invalid name of restart MAP file !'

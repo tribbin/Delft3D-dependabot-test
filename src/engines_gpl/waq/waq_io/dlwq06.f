@@ -182,7 +182,7 @@
 
 !       read wasteload identification
 
-      do 10 i = 1 , nowst
+      do i = 1 , nowst
 
          iwsttype(i)     =  0
          iwstkind(i)     =  0
@@ -299,7 +299,7 @@
 
          write ( lunwr )  iwstseg(i), iwstkind(i), wstid(i), wstname(i)
 
-   10 continue
+      end do
 
 !          provide information about the special parameters
 

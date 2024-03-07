@@ -91,7 +91,7 @@ contains
       idflocim2   = 2
       idflocim3   = 3
 
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 
          im1        = pmsa( ipnt(  1) )
          im2        = pmsa( ipnt(  2) )
@@ -179,7 +179,7 @@ contains
          idflocim3   = idflocim3   + noflux
          ipnt        = ipnt        + increm
 
- 9000 continue
+      end do
 
       return
       end subroutine

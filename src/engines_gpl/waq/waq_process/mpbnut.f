@@ -147,7 +147,7 @@ C     IMPLICIT REAL(kind=real_wp) ::(A-H,J-Z)
       IN23 = INCREM( 23)
       IN24 = INCREM( 24)
 
-      DO 1000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
          CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
 
@@ -244,7 +244,7 @@ c --------------------------------------------------------
          IP23 = IP23 + IN23
          IP24 = IP24 + IN24
 
- 1000 CONTINUE
+      end do
 
 
       RETURN

@@ -115,7 +115,7 @@
       IN17 = INCREM(17)
 
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
 !     zero output
 
@@ -207,7 +207,7 @@
       IP14  = IP14  + IN14
       IP15  = IP15  + IN15
       IP16  = IP16  + IN16
- 9000 CONTINUE
+      end do
 !
       IP1  = IPOINT(1 )
       IP6  = IPOINT(6 )
@@ -215,18 +215,18 @@
       IP15 = IPOINT(15)
 
 !.....Exchangeloop over de horizontale richting
-      DO 8000 IQ=1,NOQ1+NOQ2
+      DO IQ=1,NOQ1+NOQ2
 
          PMSA(IP17) = 0.0
 
          IP17 = IP17 + IN17
 
- 8000 CONTINUE
+      end do
 
       IP13= IP13+ ( NOQ1+NOQ2 ) * IN13
 
 !.....Exchangeloop over de verticale richting
-      DO 7000 IQ = NOQ1+NOQ2+1 , NOQ1+NOQ2+NOQ3+NOQ4
+      DO IQ = NOQ1+NOQ2+1 , NOQ1+NOQ2+NOQ3+NOQ4
 
          IVAN  = IEXPNT(1,IQ)
          INAAR = IEXPNT(2,IQ)
@@ -273,7 +273,7 @@
          IP13= IP13+ IN13
          IP17= IP17+ IN17
 
- 7000 CONTINUE
+      end do
 
 !     Handle velocity to the delwaq-g bottom
 

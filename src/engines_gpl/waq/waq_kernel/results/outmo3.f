@@ -117,7 +117,7 @@
       CALL report_time ( IOUT  , ITIME , ISFLAG, -999.)
       WRITE ( IOUT, *    )
 !
-      DO 50 ID = 1 , NOTOT , IP(2)
+      DO ID = 1 , NOTOT , IP(2)
          NEND = MIN ( NOTOT , ID+IP(2)-1 )
          WRITE (IOUT,2030) (AMASS2(K,1)    ,K=ID,NEND)
          WRITE (IOUT,2040) (AMASS2(K,2)    ,K=ID,NEND)
@@ -152,11 +152,11 @@
          ENDIF
 !
          WRITE (IOUT,'('' '')')
-   50 CONTINUE
+      end do
 !
 !     extra vars
 !
-      DO 60 ID = 1 , NOTOT2, IP(2)
+      DO ID = 1 , NOTOT2, IP(2)
          NEND = MIN ( NOTOT2, ID+IP(2)-1 )
          ID2   = ID + NOTOT
          NEND2 = NEND + NOTOT
@@ -168,7 +168,7 @@
      +                 ID2   , NEND2 , NOTOT+NOTOT2)
 !
          WRITE (IOUT,'('' '')')
-   60 CONTINUE
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

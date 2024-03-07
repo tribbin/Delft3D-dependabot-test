@@ -203,7 +203,7 @@
 !     Loop over segments
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
@@ -337,7 +337,7 @@
       IP16 = IP16 + IN16
       IP17 = IP17 + IN17
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
       END

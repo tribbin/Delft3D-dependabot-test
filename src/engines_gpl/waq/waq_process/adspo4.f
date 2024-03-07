@@ -162,7 +162,7 @@
 !
 !     Use the old version when IVERSN=0
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
@@ -490,7 +490,7 @@
       IP33  = IP33  + INCREM ( 33 )
       IP34  = IP34  + INCREM ( 34 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

@@ -81,7 +81,7 @@
 
       nrvart = 0
       nbufmx = 0
-      do 100 iout = 1 , noutp
+      do iout = 1 , noutp
          nrvart = nrvart + nrvar(iout)
 
 !        Grid
@@ -158,7 +158,7 @@
          nbufmx = max ( nbufmx, nbufou )
          ncbufm = max ( ncbufm, ncbufo )
 
-  100 continue
+      end do
 
       if (timon) call timstop( ithndl )
       return

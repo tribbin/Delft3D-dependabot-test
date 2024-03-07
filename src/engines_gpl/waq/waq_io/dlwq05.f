@@ -259,9 +259,9 @@
          WRITE ( LUNUT , 2065 )
       ELSE
          WRITE ( LUNUT , 2066 )
-         DO 40 I = 1 , NOBTYP
+         DO I = 1 , NOBTYP
             WRITE ( LUNUT , 2070 ) I, BNDTYPE(I)
-   40    CONTINUE
+      end do
          WRITE ( LUNUT ,   *  )
       ENDIF
       WRITE ( LUNWR )  ( BNDTYPE(I) , I = 1, NOBTYP )
@@ -316,23 +316,23 @@
    70 WRITE ( LUNUT , 2130 )
       IF ( IIMAX .LT. NOBND ) THEN
         WRITE ( LUNUT , 2140 ) NOBND,IIMAX,NOBND-IIMAX
-        DO 80 K = 1, NOBND
+        DO K = 1, NOBND
           ITYPE = 2
           CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK, CCHAR ,
      *                  IPOSR , NPOS  , CDUMMY, IDUMMY, RHULP ,
      *                  ITYPE , IERR2 )
           IF ( IERR2 .GT. 0 ) GOTO 170
-   80   CONTINUE
+      end do
         call status%increase_error_count()
         GOTO 160
       ENDIF
-      DO 90 K = 1, NOBND
+      DO K = 1, NOBND
          ITYPE = 2
          CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK, CCHAR ,
      *                 IPOSR , NPOS  , CDUMMY, IAR(K), RHULP ,
      *                 ITYPE , IERR2 )
          IF ( IERR2 .GT. 0 ) GOTO 170
-   90 CONTINUE
+      end do
       IF ( IOUTPT .LT. 3 ) THEN
          WRITE ( LUNUT , 2145 )
       ELSE
@@ -348,12 +348,12 @@
            IF ( IOUTPT .GE. 3 ) WRITE ( LUNUT , 2170 )
      *         ( IAR(K),                      K = 1 , NOBND        )
       ENDIF
-      DO 100 I=1,NOBND
+      DO I=1,NOBND
       IF ( IAR(I) .LT. 0 ) THEN
            WRITE ( LUNUT , 2180 ) IAR(I)
            call status%increase_error_count()
       ENDIF
-  100 CONTINUE
+      end do
       WRITE ( LUNWR ) ( IAR(K) , K=1,NOBND )
       GOTO 160
 !
@@ -370,9 +370,9 @@
          call status%increase_error_count()
       ENDIF
 !            fill the array with the default
-      DO 120 I = 1,MIN(IIMAX,NOBND)
+      DO I = 1,MIN(IIMAX,NOBND)
          IAR(I) = IDEF
-  120 CONTINUE
+      end do
 !            nr of overridings
       ITYPE = 2
       CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK, CCHAR ,
@@ -390,7 +390,7 @@
       ENDIF
       MXOVER = IIMAX - NOBND
 !            overridings
-      DO 130 K = 1, MIN( NOVER, MXOVER)
+      DO K = 1, MIN( NOVER, MXOVER)
          ITYPE = 2
          CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK      , CCHAR ,
      *                 IPOSR , NPOS  , CDUMMY, IAR(K+NOBND), RHULP ,
@@ -402,9 +402,9 @@
      *                 IPOSR , NPOS  , CDUMMY, IAR(IBND), RHULP ,
      *                 ITYPE , IERR2 )
          IF ( IERR2 .GT. 0 ) GOTO 170
-  130 CONTINUE
+      end do
 !
-      DO 140 K = 1, NOVER-MXOVER
+      DO K = 1, NOVER-MXOVER
          ITYPE = 2
          CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK, CCHAR ,
      *                 IPOSR , NPOS  , CDUMMY, IDUMMY, RHULP ,
@@ -415,7 +415,7 @@
      *                 IPOSR , NPOS  , CDUMMY, IDUMMY, RHULP ,
      *                 ITYPE , IERR2 )
          IF ( IERR2 .GT. 0 ) GOTO 170
-  140 CONTINUE
+      end do
       IF ( NOVER .GT. MXOVER ) THEN
          WRITE ( LUNUT , 2200 ) NOBND,NOVER,IIMAX,NOBND+NOVER-IIMAX
          call status%increase_error_count()
@@ -424,7 +424,7 @@
       IF ( DTFLG1 )
      *   CALL CONVER ( IAR   , NOBND , IFACT , DTFLG1 , DTFLG3 )
       IF ( NOVER .GT. 0 .AND. IOUTPT .GE. 3 ) WRITE ( LUNUT , 2230 )
-      DO 150 I=1, NOVER
+      DO I=1, NOVER
          IBND = IABS( IAR(I+NOBND) )
          IF ( IBND .GT. NOBND .OR. IBND .EQ. 0 ) THEN
               WRITE ( LUNUT , 2180 ) IAR(I+NOBND)
@@ -440,7 +440,7 @@
                WRITE ( LUNUT , 2250 )  IBND  ,IT
             ENDIF
          ENDIF
-  150 CONTINUE
+      end do
       WRITE ( LUNWR ) ( IAR(K) , K=1,NOBND )
 !
 !        Read boundary concentrations

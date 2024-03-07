@@ -103,12 +103,12 @@
       J(IJ) = NOBRK
       IJ = IJ + 1
 !
-      DO 20 I=1,NOBRK
+      DO I=1,NOBRK
          READ ( LUN , END=100 , ERR=110 ) J(IJ) ,
      *               ( A(IA+K) , K=0,NPNT*NDIM-1+NTAL )
          IJ = IJ + 1
          IA = IA + NPNT*NDIM + NTAL
-   20 CONTINUE
+      end do
 !
 !       Return until finished
 !

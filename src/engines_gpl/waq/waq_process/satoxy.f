@@ -89,7 +89,7 @@
 !
 !     Initial calculations
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       CL     = PMSA(IP1 )
       TEMP   = PMSA(IP2 )
@@ -138,7 +138,7 @@
       IP4   = IP4   + INCREM (  4 )
       IP5   = IP5   + INCREM (  5 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

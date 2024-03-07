@@ -182,12 +182,12 @@
                   ENDIF
                   IF ( IER .EQ. 0 ) THEN
                      READ ( LCCCO ) (PARAM(ISURF,K),K=1,NMA)
-                     DO 40 ILAY = 2, LAYT
-                        DO 45 ISEG = 1, NMA
+                     DO ILAY = 2, LAYT
+                        DO ISEG = 1, NMA
                            IPOS = (ILAY-1)*NMA + ISEG
                            PARAM(ISURF,IPOS) = PARAM(ISURF,ISEG)
-45                      CONTINUE
-40                   CONTINUE
+      end do
+      end do
                   ENDIF
                   CLOSE ( LCCCO )
                ENDIF
@@ -205,7 +205,7 @@
 !     adapt the length for the third direction
 !
       IF ( LINIT ) THEN
-         DO 60 IQ = NOQ1 + NOQ2 + 1, NOQ
+         DO IQ = NOQ1 + NOQ2 + 1, NOQ
               IFROM = IPOINT(1,IQ)
               ITO   = IPOINT(2,IQ)
               IF ( IFROM .GT. 0 ) THEN
@@ -218,7 +218,7 @@
                       ALENG(2,IQ) = VOLUME(ITO)/PARAM(ISURF,IFROM)/2.
                  ENDIF
               ENDIF
-60       CONTINUE
+      end do
       ENDIF
 !
 !     end of the subroutine

@@ -65,11 +65,11 @@
       real(kind=real_wp) ::Y(MAXPAR)
       integer(kind=int_wp) ::IP(2*MAXPAR+2)
 
-      DO 10 I=1,2*MAXPAR+2
+      DO I=1,2*MAXPAR+2
         IP(I) = IPOINT(I)
-   10 CONTINUE
+      end do
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 
@@ -102,11 +102,11 @@
 
       ENDIF
 !
-      DO 40 I=1,2*MAXPAR+2
+      DO I=1,2*MAXPAR+2
         IP(I) = IP(I) + INCREM ( I  )
-   40 CONTINUE
+      end do
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

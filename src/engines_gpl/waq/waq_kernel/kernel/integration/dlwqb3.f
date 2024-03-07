@@ -92,7 +92,7 @@
       IF ( IAFLAG .EQ. 1 ) B = 1.0/IDT
       MASBAL = .FALSE.
       IF ( MOD(IOPT,16) .GE. 8  ) MASBAL = .TRUE.
-      DO 60 IQ = 1 , NOQ
+      DO IQ = 1 , NOQ
 !
 !         initialisations, check for transport anyhow
 !
@@ -148,6 +148,7 @@
 !        end of the loop over exchanges
 !
    60 CONTINUE
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

@@ -84,8 +84,8 @@
 
       nmis = 0
 
-      do 200 iout = 1 , noutp
-         do 100 inrv = 1 , nrvar(iout)
+      do iout = 1 , noutp
+         do inrv = 1 , nrvar(iout)
             varnam = dlwnam(inrv,iout)
             if ( varnam .eq. ' ' ) then
                ivarip = 0
@@ -100,8 +100,8 @@
                endif
             endif
             iopoin(inrv,iout) = ivarip
-  100    continue
-  200 continue
+      end do
+      end do
 
       if (timon) call timstop( ithndl )
       return

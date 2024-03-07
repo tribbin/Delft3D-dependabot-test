@@ -77,7 +77,7 @@
       IN5 = INCREM(5)
       IN6 = INCREM(6)
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
@@ -114,7 +114,7 @@
       IP5 = IP5 + IN5
       IP6 = IP6 + IN6
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

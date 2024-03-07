@@ -23,7 +23,7 @@
 
 module m_char1
 
-    implicit real*8 (a-h,o-z)
+    implicit real(kind=8) (a-h,o-z)
     ! note:::: change dimensions in matinv to value of maxmd if changed
     integer pf
     character*6 ka, kb, nr, kn, nam, end, blank, h2o, hplus

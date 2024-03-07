@@ -502,7 +502,7 @@
 !$OMP DO PRIVATE(ith) SCHEDULE(DYNAMIC)
 ! start of loop over substances
 
-      do 40 isys = 1, nosys
+      do isys = 1, nosys
 !        ith = 1             !  number of threads for parallel processing
          ith = OMP_GET_THREAD_NUM()+1
 
@@ -540,7 +540,7 @@
 
 !        end loop over the substances
 
-   40 continue
+      end do
 
 !$OMP ENDDO
 !$OMP ENDPARALLEL

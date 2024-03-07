@@ -109,7 +109,7 @@
       IPNT = IPOINT
       IFLUX = 0
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
@@ -247,7 +247,7 @@
       IFLUX = IFLUX + NOFLUX
       IPNT  = IPNT  + INCREM
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

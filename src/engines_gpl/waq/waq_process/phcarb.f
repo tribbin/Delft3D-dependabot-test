@@ -156,7 +156,7 @@
 !
 !     Loop over de segmenten
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 !
 !     Eerste kenmerk actief of inactief segment
 !
@@ -450,7 +450,7 @@
       IP13   = IP13   + INCREM (  13 )
       IP14   = IP14   + INCREM (  14 )
 !
- 9000 CONTINUE
+      end do
 !
 !
       RETURN

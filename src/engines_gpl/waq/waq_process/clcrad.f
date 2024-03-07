@@ -136,7 +136,7 @@
 
       IF (NOQ3.EQ.0) THEN
 
-      DO 1000 ISEG=1,NOSEG
+      DO ISEG=1,NOSEG
 
          CALL evaluate_waq_attribute( 1, IKNMRK(ISEG ), IKMRK1 )
 
@@ -189,13 +189,13 @@
          IP10  = IP10  + IN10
          IP11  = IP11  + IN11
 
- 1000 CONTINUE
+      end do
 
       ELSE
 
 !.....3D MODE
 
-      DO 2000 IQ = NOQ1+NOQ2+1 , NOQ1+NOQ2+NOQ3
+      DO IQ = NOQ1+NOQ2+1 , NOQ1+NOQ2+NOQ3
 
          IVAN  = IEXPNT(1,IQ)
          INAAR = IEXPNT(2,IQ)
@@ -288,7 +288,7 @@
             ENDIF
          ENDIF
 
- 2000 CONTINUE
+      end do
 
       ENDIF
 

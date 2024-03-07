@@ -226,7 +226,7 @@
       irs(2)=0
       inow = 0
       inhib = 0
-      do 250 j=1,ni
+      do j=1,ni
       inow = inow + 1
 
 !  Set "B" values for extinction coefficient rows.
@@ -255,6 +255,7 @@
       if (ier .eq. 0) lsolu = .true.
   240 call print6(bio,biomax,x,xdef,inow,j,linf,irs,int,nin,nonuni,nonun,numuni,numun,lib)
   250 continue
+      end do
 
 !  Check to determine if there has been any feasible solution;
       infeas=0

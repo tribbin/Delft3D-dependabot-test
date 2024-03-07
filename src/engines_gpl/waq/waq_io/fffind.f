@@ -67,7 +67,7 @@
 !
 !          Search for the file name of this item
 !
-      DO 10 I = 1,10000
+      DO I = 1,10000
          READ ( ILUN , * , END=20 ) S1, BFILE
          IF ( S1 .EQ. 'conversion-ref-time  ' )
      *                 READ ( BFILE , '(I4,I2,I2,I2,I2,I2)' )
@@ -82,7 +82,7 @@
      *                 READ ( BFILE , '(I4,I2,I2,I2,I2,I2)' )
      *                        IYEAR4,IMONTH4,IDAY4,IHOUR4,IMIN4,ISEC4
          IF ( S1 .EQ. SGET ) GOTO 30
-   10 CONTINUE
+      end do
    20 WRITE ( LUNUT , 1010 ) SGET
       IERR = 1
       RETURN

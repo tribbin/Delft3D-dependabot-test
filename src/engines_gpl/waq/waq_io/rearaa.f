@@ -181,7 +181,7 @@
 
       if ( ioutpt .lt. 2 ) write ( lunut , 2040 )
       if ( ioutpt .eq. 2 ) write ( lunut , 2050 )
-      do 10 ir = 1 , noraai
+      do ir = 1 , noraai
          if ( gettoken( raname  (ir), ierr2 ) .gt. 0 ) goto 20
          if ( gettoken( ioptraai(ir), ierr2 ) .gt. 0 ) goto 20
          if ( gettoken( nq          , ierr2 ) .gt. 0 ) goto 20
@@ -221,7 +221,7 @@
          ntraaq       = ntraaq + nq
          nexcraai(ir) = nq
 
-   10 continue
+      end do
       goto 30
 
 !     Error handling

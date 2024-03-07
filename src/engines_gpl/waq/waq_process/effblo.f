@@ -77,7 +77,7 @@
 !     we might not have the bloom parameters loaded yet. This could already be done here or in BLOOM? Only the first time step.
 !     this is in a module/include, so we might put a flag if it was read of not.
 !     this should be a 'proto-proces', and thus needs to be added to the BLOOM.SPE
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 
          if ( btest(iknmrk(iseg),0) ) then
 
@@ -99,7 +99,7 @@
 
          ipnt        = ipnt        + increm
 
- 9000 continue
+      end do
 
       return
       end subroutine

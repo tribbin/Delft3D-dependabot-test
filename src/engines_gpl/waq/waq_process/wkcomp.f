@@ -67,7 +67,7 @@
       IP = IPOINT
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
             NO3     = PMSA(IP(1 ))
             NH4     = PMSA(IP(2 ))
@@ -225,7 +225,7 @@
          IFLUX = IFLUX + NOFLUX
          IP    = IP    + INCREM
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

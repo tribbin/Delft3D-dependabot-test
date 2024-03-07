@@ -114,7 +114,7 @@
          endif
       endif
 
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 
          if ( btest(iknmrk(iseg),0) ) then
 
@@ -158,7 +158,7 @@
 
          ipnt        = ipnt        + increm
 
- 9000 continue
+      end do
 
       return
       end subroutine

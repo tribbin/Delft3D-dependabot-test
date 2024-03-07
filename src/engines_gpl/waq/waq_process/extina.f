@@ -54,7 +54,7 @@
       ENDIF
       IFLUX = 0
 
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 
@@ -63,7 +63,7 @@
 !
 !     Loop over algae
 
-      DO 100 IALG = 1,NALG
+      DO IALG = 1,NALG
 
           IP = 3 + IALG
           EXTCF  = PMSA ( IPOINT(IP) + (ISEG-1)*INCREM(IP) )
@@ -91,7 +91,7 @@
           IF ( BIOMAS .GT. 0.0 )
      J    EXTALG = EXTALG + BIOMAS*EXTCF
 
-  100 CONTINUE
+      end do
 
       IP = 3 + NIPALG*NALG + 1
       PMSA ( IPOINT(IP) + (ISEG-1)*INCREM(IP) ) = EXTALG
@@ -100,7 +100,7 @@
 !
       IFLUX = IFLUX + NOFLUX
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 

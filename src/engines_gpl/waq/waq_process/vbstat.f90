@@ -147,7 +147,7 @@ contains
       endif
 
 
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 !
 !
 !   *****     Insert your code here  *****
@@ -216,7 +216,7 @@ contains
 !
          ipnt        = ipnt        + increm
 !
-9000  continue
+      end do
 
       if (SwWV .eq. 0) then
          ifirst (1) = 1

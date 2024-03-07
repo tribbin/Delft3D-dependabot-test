@@ -111,7 +111,7 @@
       IdcPPGreen  = 1
       IdcPPDiat   = 2
 
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 
          if ( btest(iknmrk(iseg),0) ) then
 
@@ -183,7 +183,7 @@
          IdcPPDiat   = IdcPPDiat   + noflux
          ipnt        = ipnt        + increm
 
- 9000 continue
+      end do
 
       return
       end

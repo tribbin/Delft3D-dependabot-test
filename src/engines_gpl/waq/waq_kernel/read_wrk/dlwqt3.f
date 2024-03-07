@@ -116,7 +116,7 @@
 !         at first time, initialise arrays
 !         loop over the blocks of harmonics ( must be less than NRHARM )
 !
-      DO 20 IB = 1 , NRHARM+1
+      DO IB = 1 , NRHARM+1
       IF ( IREC .GT. NRHARM ) GOTO 30
 !
 !         loop over the number of harmonics
@@ -127,16 +127,16 @@
       IPERIO(IREC) = NOTOT
       IHSTOP       = APHASE(IREC) + 0.5
       IREC         = IREC + 1
-      DO 10 IH = 1 , IHSTOP
+      DO IH = 1 , IHSTOP
       READ ( LUNIN , END=80 , ERR=80 ) IPERIO(IREC) , APHASE(IREC) ,
      *                                 ( AVALUE(K+NOSPAC) , K=1,NOTOT )
       NOSPAC = NOSPAC + NOTOT
       IREC = IREC + 1
-   10 CONTINUE
+      end do
 !
 !         return only by IREC > NRHARM
 !
-   20 CONTINUE
+      end do
    30 NOSPAC = 0
       NPOINT = 0
       IREC   = 1
@@ -144,7 +144,7 @@
 !
 !         loop over the blocks of harmonics ( must be less than NRHARM )
 !
-   40 DO 70 IB = 1 , NRHARM+1
+   40 DO IB = 1 , NRHARM+1
       IF ( IREC .GT. NRHARM ) goto 9999  !   RETURN
 !
 !         loop over the number of harmonics
@@ -153,7 +153,7 @@
       IHSTOP = APHASE(IREC) + 0.5
       ISTART = NPOINT + 1
       NPOINT = NPOINT + NOTOT/NOSUB
-      DO 60 IH = 1 , IHSTOP + 1
+      DO IH = 1 , IHSTOP + 1
 !
 !         harmonic function
 !
@@ -165,22 +165,23 @@
 !
 !         loop over the pointers and the values
 !
-      DO 50 I1 = ISTART , NPOINT
+      DO I1 = ISTART , NPOINT
       IV = IPOINT(I1)
       DO 50 I2 = 1,NOSUB
       RESULT(I2,IV) = RESULT(I2,IV) + FUNC*AVALUE(ITEL)
       ITEL = ITEL+1
    50 CONTINUE
+      end do
 !
 !         increase the record counter
 !
       IREC   = IREC + 1
       NOSPAC = NOSPAC + NOTOT
-   60 CONTINUE
+      end do
 !
 !         return only by IREC > NRHARM
 !
-   70 CONTINUE
+      end do
 !
 !         errors during read
 !

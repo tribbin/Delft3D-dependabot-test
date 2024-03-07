@@ -95,7 +95,7 @@
       if ( timon ) call timstrt ( "dlwq70", ithandl )
 !
       IBAND = 2*JTRACK + 1
-      DO 50 IQ = 1 , NOQ
+      DO IQ = 1 , NOQ
 !
 !         initialisations , check for transport anyhow
 !
@@ -160,9 +160,10 @@
       ENDIF
       K1 = (-I-1)*NOTOT
       I4 = ( J-1)*NSYS  + 1
-      DO 20 I3=ISYS,ISYS+NSYS-1
+      DO I3=ISYS,ISYS+NSYS-1
       DERIV(I4) = DERIV(I4) + ( Q1+E) * BOUND(K1+I3)
-   20 I4=I4+1
+      I4=I4+1
+      end do
       IT = (J-1)*IBAND + JTRACK + 1
       AMAT(IT) = AMAT(IT) - Q2 + E
       GOTO 50
@@ -181,15 +182,17 @@
       ENDIF
       K2 = (-J-1)*NOTOT
       I4 = ( I-1)*NSYS  + 1
-      DO 40 I3=ISYS,ISYS+NSYS-1
+      DO I3=ISYS,ISYS+NSYS-1
       DERIV(I4) = DERIV(I4) + (-Q2+E) * BOUND(K2+I3)
-   40 I4=I4+1
+      I4=I4+1
+      end do
       JT = (I-1)*IBAND + JTRACK + 1
       AMAT(JT) = AMAT(JT) + Q1 + E
 !
 !        end of the loop over exchanges
 !
    50 CONTINUE
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

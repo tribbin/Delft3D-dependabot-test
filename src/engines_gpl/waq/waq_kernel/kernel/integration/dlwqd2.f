@@ -96,16 +96,16 @@
 !
       NHOR = NOSEG/KMAX
 !          for all horizontal segments
-      DO 40 ISEG = 1 , NHOR
+      DO ISEG = 1 , NHOR
 !          for all active substances
-            DO 30 ISYS = 1 , NOSYS
+            DO ISYS = 1 , NOSYS
 !          do until maximum iteration or untill satisfied
-               DO 20 IFILT = 1 , MAXFIL
+               DO IFILT = 1 , MAXFIL
                   IFIL = 0
                   IL  = ISEG
                   ILU = IL - NHOR
                   ILD = IL + NHOR
-                  DO 10 ILAY = 2,KMAX-1
+                  DO ILAY = 2,KMAX-1
                      IL  = IL  + NHOR
                      ILU = ILU + NHOR
                      ILD = ILD + NHOR
@@ -149,15 +149,16 @@
                            CONC(ISYS,ILD) = CONC(ISYS,ILD) + COEF/DZ2
                         ENDIF
                      ENDIF
-   10             CONTINUE
+      end do
                   IF ( IFIL .EQ. 0 ) GOTO 30
-   20          CONTINUE
+      end do
                IF ( IFIL .EQ. 1 ) THEN
                   IF ( NOWARN .LT. 1000 ) WRITE ( LUNUT , 1010 ) ISYS,ISEG,ILAY
                   NOWARN = NOWARN + 1
                ENDIF
    30       CONTINUE
-   40 CONTINUE
+      end do
+      end do
 !
  9999 if ( timon ) call timstop ( ithandl )
       RETURN

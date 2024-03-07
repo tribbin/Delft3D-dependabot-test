@@ -103,7 +103,7 @@
 
 !.....Exchangeloop over de horizontale richtingen om 0 te zetten
 !.....en over de vertical richting om te initialiseren
-      DO 8000 IQ=1,NOQ1+NOQ2+NOQ3
+      DO IQ=1,NOQ1+NOQ2+NOQ3
          PMSA(IP11) = 0.0
          PMSA(IP12) = 0.0
          IP5  = IP5  + IN5
@@ -114,11 +114,11 @@
          IP10 = IP10 + IN10
          IP11 = IP11 + IN11
          IP12 = IP12 + IN12
- 8000 CONTINUE
+      end do
 
 !.....Exchangeloop over de verticale richting
 
-      DO 7000 IQ = NOQ1+NOQ2+NOQ3+1 , NOQ1+NOQ2+NOQ3+NOQ4
+      DO IQ = NOQ1+NOQ2+NOQ3+1 , NOQ1+NOQ2+NOQ3+NOQ4
 
          IVAN  = IEXPNT(1,IQ)
          INAAR = IEXPNT(2,IQ)
@@ -224,7 +224,7 @@
          IP11 = IP11 + IN11
          IP12 = IP12 + IN12
 
- 7000 CONTINUE
+      end do
 
       RETURN
       END

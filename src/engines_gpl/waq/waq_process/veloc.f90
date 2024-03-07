@@ -127,7 +127,7 @@ contains
        FlowSeg1 = 0.
        FlowSeg2 = 0.
 !.....Berekening gemiddelde stroomsnelheid horizontale richting
-      do 100 iq = 1, noq1+noq2
+      do iq = 1, noq1+noq2
 
          if ( iq .eq. noq1+1 ) then
             ip1 = ip3           !   now point to the work arrays
@@ -199,9 +199,9 @@ contains
             endif
          enddo
 
-  100 continue
+      end do
 !
-      do 200 iseg = 1 , noseg
+      do iseg = 1 , noseg
 !
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
          if ( ikmrk1 .eq. 1 ) then
@@ -279,7 +279,7 @@ contains
 !
          ipnt        = ipnt        + increm
 !
-  200 continue
+      end do
 !
       return
       end

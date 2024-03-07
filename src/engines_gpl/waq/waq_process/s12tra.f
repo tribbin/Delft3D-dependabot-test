@@ -53,7 +53,7 @@
       ip  = ipoint
 !
       iflux = 0
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
       if (btest(iknmrk(iseg),0)) then
       call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
       if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
@@ -143,7 +143,7 @@
       IFLUX = IFLUX + NOFLUX
       IP    = IP    + INCREM
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

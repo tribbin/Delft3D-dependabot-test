@@ -68,7 +68,7 @@
       ipnt = ipoint
       iflux = 0
 
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
       if (btest(iknmrk(iseg),0)) then
       call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
       if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
@@ -105,19 +105,19 @@
       iflux = iflux + noflux
       ipnt  = ipnt  + increm
 
- 9000 continue
+      end do
 
 !.....Reset pointers
       ipnt = ipoint
 
 !.....Exchangeloop over horizontal direction
-      do 8000 iq=1,noq1+noq2
+      do iq=1,noq1+noq2
 
 !........VxSedHM op nul
          pmsa(ipnt(27)) = 0.0
          ipnt(27) = ipnt(27) + increm(27)
 
- 8000 continue
+      end do
 
 !.....Entery point in PMSA for VxSedIM1, 2 en 3, VxSedPOC en VxSedPhyt
       ipnt(20) = ipnt(20) + ( noq1+noq2 ) * increm(20)
@@ -126,7 +126,7 @@
       ipnt(23) = ipnt(23) + ( noq1+noq2 ) * increm(23)
 
 !.....Exchange loop over the vertical direction
-      do 7000 iq = noq1+noq2+1, noq1+noq2+noq3
+      do iq = noq1+noq2+1, noq1+noq2+noq3
 
          ifrom  = iexpnt(1,iq)
 
@@ -155,7 +155,7 @@
          ipnt(24) = ipnt(24) + increm(24)
          ipnt(27) = ipnt(27) + increm(27)
 
- 7000 continue
+      end do
 
       return
       end

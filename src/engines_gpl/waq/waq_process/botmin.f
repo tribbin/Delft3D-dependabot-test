@@ -122,7 +122,7 @@
       ENDIF
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
@@ -182,7 +182,7 @@
       IP9   = IP9   + IN9
       IP10  = IP10  + IN10
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

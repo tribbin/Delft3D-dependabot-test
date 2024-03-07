@@ -110,7 +110,7 @@
       SETALL = .FALSE.
       IF ( LOCDEF(1) .EQ. '*' ) SETALL = .TRUE.
 
-      DO 40 I1 = 1 , NODUMP , MAXLST
+      DO I1 = 1 , NODUMP , MAXLST
          MAXK = MIN(NODUMP,I1+MAXLST-NRLST-1) - I1 + 1
          if ( .not. mapfil ) then
             READ ( lun , ERR=130 ) ( IDUMMY, LOCLST(K), K = NRLST+1, NRLST+MAXK)
@@ -120,8 +120,8 @@
             enddo
          endif
          NBASE = NRLST
-         DO 30 I2 = 1 , MAXK
-            DO 20 I3 = 1 , MAXDEF
+         DO I2 = 1 , MAXK
+            DO I3 = 1 , MAXDEF
                IF ( LOCLST(NBASE+I2) .EQ. LOCDEF(I3) .OR. SETALL ) THEN
                   NRLST = NRLST + 1
                   IF ( NRLST .GT. MAXLST ) THEN
@@ -132,15 +132,16 @@
                   LOCNR (NRLST) = I1 + I2 - 1
                   GOTO 30
                ENDIF
-   20       CONTINUE
+      end do
    30    CONTINUE
-   40 CONTINUE
+      end do
+      end do
 !
 !         Supply the desired statistics
 !
-   50 DO 60 I1 = 1 , NRLST
+   50 DO I1 = 1 , NRLST
          LOCTYP(I1) = 2
-   60 CONTINUE
+      end do
       GOTO 200
 !
 !         Supply the desired statistics

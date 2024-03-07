@@ -113,7 +113,7 @@
              if ((weeknr .le.  4) .or. (weeknr .ge. 45)) reflec=0.10
          endif
       endif
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
          if ( varflg ) then
             time    = pmsa( ip1 )
             latitudeg = pmsa( ip2 )
@@ -149,7 +149,7 @@
          ip3   = ip3   + in3
          ip4   = ip4   + in4
          ip5   = ip5   + in5
- 9000 continue
+      end do
 
       return
       end

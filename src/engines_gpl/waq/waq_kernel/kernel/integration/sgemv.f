@@ -205,26 +205,26 @@
       IF( BETA.NE.ONE )THEN
          IF( INCY.EQ.1 )THEN
             IF( BETA.EQ.ZERO )THEN
-               DO 10, I = 1, LENY
+               DO , I = 1, LENY
                   Y( I ) = ZERO
-   10          CONTINUE
+      end do
             ELSE
-               DO 20, I = 1, LENY
+               DO , I = 1, LENY
                   Y( I ) = BETA*Y( I )
-   20          CONTINUE
+      end do
             END IF
          ELSE
             IY = KY
             IF( BETA.EQ.ZERO )THEN
-               DO 30, I = 1, LENY
+               DO , I = 1, LENY
                   Y( IY ) = ZERO
                   IY      = IY   + INCY
-   30          CONTINUE
+      end do
             ELSE
-               DO 40, I = 1, LENY
+               DO , I = 1, LENY
                   Y( IY ) = BETA*Y( IY )
                   IY      = IY           + INCY
-   40          CONTINUE
+      end do
             END IF
          END IF
       END IF
@@ -236,27 +236,27 @@
 *
          JX = KX
          IF( INCY.EQ.1 )THEN
-            DO 60, J = 1, N
+            DO , J = 1, N
                IF( X( JX ).NE.ZERO )THEN
                   TEMP = ALPHA*X( JX )
-                  DO 50, I = 1, M
+                  DO , I = 1, M
                      Y( I ) = Y( I ) + TEMP*A( I, J )
-   50             CONTINUE
+      end do
                END IF
                JX = JX + INCX
-   60       CONTINUE
+      end do
          ELSE
-            DO 80, J = 1, N
+            DO , J = 1, N
                IF( X( JX ).NE.ZERO )THEN
                   TEMP = ALPHA*X( JX )
                   IY   = KY
-                  DO 70, I = 1, M
+                  DO , I = 1, M
                      Y( IY ) = Y( IY ) + TEMP*A( I, J )
                      IY      = IY      + INCY
-   70             CONTINUE
+      end do
                END IF
                JX = JX + INCX
-   80       CONTINUE
+      end do
          END IF
       ELSE
 *
@@ -264,25 +264,25 @@
 *
          JY = KY
          IF( INCX.EQ.1 )THEN
-            DO 100, J = 1, N
+            DO , J = 1, N
                TEMP = ZERO
-               DO 90, I = 1, M
+               DO , I = 1, M
                   TEMP = TEMP + A( I, J )*X( I )
-   90          CONTINUE
+      end do
                Y( JY ) = Y( JY ) + ALPHA*TEMP
                JY      = JY      + INCY
-  100       CONTINUE
+      end do
          ELSE
-            DO 120, J = 1, N
+            DO , J = 1, N
                TEMP = ZERO
                IX   = KX
-               DO 110, I = 1, M
+               DO , I = 1, M
                   TEMP = TEMP + A( I, J )*X( IX )
                   IX   = IX   + INCX
-  110          CONTINUE
+      end do
                Y( JY ) = Y( JY ) + ALPHA*TEMP
                JY      = JY      + INCY
-  120       CONTINUE
+      end do
          END IF
       END IF
 *

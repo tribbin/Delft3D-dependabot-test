@@ -83,7 +83,7 @@
       IP12 = IPOINT(12)
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
@@ -143,7 +143,7 @@
       IP11  = IP11  + INCREM ( 11 )
       IP12  = IP12  + INCREM ( 12 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 

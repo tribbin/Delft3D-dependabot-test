@@ -81,7 +81,7 @@
       IP9  = IPOINT( 9)
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
@@ -138,7 +138,7 @@
       IP8   = IP8   + INCREM (  8 )
       IP9   = IP9   + INCREM (  9 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
       END

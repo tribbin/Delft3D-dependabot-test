@@ -128,7 +128,7 @@
          daylength = temp / 24.0
       endif
 
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
          if ( varflg ) then
             time    = pmsa( ip1 )
 !           Conversion Latitude to rads
@@ -174,7 +174,7 @@
          ip4   = ip4   + in4
          ip5   = ip5   + in5
 
- 9000 continue
+      end do
 
       return
       end

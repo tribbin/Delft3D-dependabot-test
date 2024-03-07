@@ -73,26 +73,29 @@
 !
       ISTEP = JTRACK*2 + 1
       NTOT  = NOSEG*ISTEP
-      DO 10 I = 1 , NTOT
+      DO I = 1 , NTOT
       AMAT(I) = 0.0
-   10 CONTINUE
+      end do
 !
 !         set the diagonal
 !
       ISET = JTRACK + 1
-      DO 20 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       AMAT(ISET) = -CONC(ISYS,ISEG)+AMASS(ISEG)
-   20 ISET = ISET+ISTEP
+      ISET = ISET+ISTEP
+      end do
 !
 !         set the right hand side
 !
       ISET = 1
       IOFF = 0
-      DO 40 ISEG = 1 , NOSEG
-      DO 30 I = ISYS , ISYS+NSYS-1
+      DO ISEG = 1 , NOSEG
+      DO I = ISYS , ISYS+NSYS-1
       DERIV(ISET) = DERIV(IOFF+I)
-   30 ISET = ISET+1
-   40 IOFF = IOFF+NOTOT
+      ISET = ISET+1
+      end do
+      IOFF = IOFF+NOTOT
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

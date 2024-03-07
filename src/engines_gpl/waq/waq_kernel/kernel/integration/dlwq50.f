@@ -91,7 +91,7 @@
 
 !         loop accross the number of exchanges
 
-      do 60 iq = 1 , noq
+      do iq = 1 , noq
 
 !         initialisations , check for transport anyhow
 
@@ -153,7 +153,7 @@
 
 !        end of the loop over exchanges
 
-   60 continue
+      end do
 
       if ( timon ) call timstop ( ithandl )
       return

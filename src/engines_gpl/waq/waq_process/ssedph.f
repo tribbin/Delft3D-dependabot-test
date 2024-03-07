@@ -71,7 +71,7 @@
       IFLUX = 0
       IP2   = IPOINT(  2 )
 
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
       IF (IKMRK1.EQ.1) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
@@ -83,7 +83,7 @@
           SEDNIT  = 0.0
           SEDPHO  = 0.0
           SEDSIL  = 0.0
-          DO 100 IALG = 1,NALG
+          DO IALG = 1,NALG
 
               IN = 2 + 0*NALG + IALG
               SEDSPE = PMSA( IPOINT(IN) + (ISEG-1)*INCREM(IN) )
@@ -106,7 +106,7 @@
 
 !              ENDIF
 
-  100     CONTINUE
+      end do
 
           IP =  IPOINT(2+7*NALG+1) + (ISEG-1)*INCREM(2+7*NALG+1)
           PMSA (IP) = SEDCAR
@@ -133,18 +133,18 @@
       IFLUX = IFLUX + NOFLUX
       IP2   = IP2   + INCREM(  2 )
 !
- 9000 CONTINUE
+      end do
 !
 !.....Exchangeloop over de horizontale richting ter initialisatie
-      DO 8000 IQ=1,NOQ1+NOQ2+NOQ3
+      DO IQ=1,NOQ1+NOQ2+NOQ3
 
           IP =  IPOINT(2+7*NALG+3) + (IQ-1)*INCREM(2+7*NALG+3)
           PMSA (IP) = 0.0
 
- 8000 CONTINUE
+      end do
 
 !.....Exchangeloop over de verticale richting
-      DO 7000 IQ = NOQ1+NOQ2+1 , NOQ1+NOQ2+NOQ3+NOQ4
+      DO IQ = NOQ1+NOQ2+1 , NOQ1+NOQ2+NOQ3+NOQ4
 
          IVAN  = IEXPNT(1,IQ)
          INAAR = IEXPNT(2,IQ)
@@ -161,14 +161,14 @@
 
            TOTFLX = 0.0
            TOTCON = 0.0
-           DO 7100 IALG = 1,NALG
+           DO IALG = 1,NALG
              IP = IPOINT(2+5*NALG+IALG) + (IVAN-1)*INCREM(2+5*NALG+IALG)
              CONSPE = PMSA( IP )
              IP = IPOINT(2+6*NALG+IALG) + (IQ-1)*INCREM(2+6*NALG+IALG)
              VELSPE = PMSA( IP )
              TOTFLX = TOTFLX + CONSPE*VELSPE
              TOTCON = TOTCON + CONSPE
- 7100      CONTINUE
+      end do
            IP = IPOINT(2+7*NALG+3) + (IQ-1)*INCREM(2+7*NALG+3)
            IF ( TOTCON .GT. 0.0 ) THEN
              PMSA(IP) = TOTFLX/TOTCON
@@ -178,7 +178,7 @@
          ENDIF
          ENDIF
 
- 7000 CONTINUE
+      end do
       RETURN
 !
       END

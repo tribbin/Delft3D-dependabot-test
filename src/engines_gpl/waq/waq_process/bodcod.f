@@ -241,7 +241,7 @@
       ENDIF
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
@@ -463,7 +463,7 @@
       IP45  = IP45  + IN45
       IP46  = IP46  + IN46
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

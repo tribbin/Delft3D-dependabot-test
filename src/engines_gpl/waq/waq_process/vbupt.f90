@@ -94,7 +94,7 @@ contains
 !
       ipnt        = ipoint
 !
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 !
          fVB      = pmsa( ipnt(  1) )
          SwVBGro  = pmsa( ipnt(  2) )
@@ -156,7 +156,7 @@ contains
 !
          ipnt        = ipnt        + increm
 !
- 9000 continue
+      end do
 !
       return
       end

@@ -141,7 +141,7 @@
       IN25 = INCREM(25)
       IN26 = INCREM(26)
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
@@ -272,7 +272,7 @@
       IP25  = IP25  + IN25
       IP26  = IP26  + IN26
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

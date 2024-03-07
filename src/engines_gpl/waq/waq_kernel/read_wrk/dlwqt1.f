@@ -220,9 +220,9 @@
    10 IF ( IFFLAG .EQ. 1 ) THEN
          READ ( LUN(4) ) ( IPOINT(K),K=1,NTOT+3 )
       ENDIF
-      DO 20 I = 1 , NTOTAL
+      DO I = 1 , NTOTAL
          RESULT(I) = 0.0
-   20 CONTINUE
+      end do
 !
       I2 =  NRHARM+1
       CALL DLWQT3 ( ITIME  , IHARM  , HARMAT   , HARMAT(I2) , NRHARM ,

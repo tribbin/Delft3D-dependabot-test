@@ -89,7 +89,7 @@
       IP5  = IPOINT( 5)
       IP6  = IPOINT( 6)
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       CL2    = PMSA(IP1 )/1000.
       TEMP   = PMSA(IP2 )
@@ -154,7 +154,7 @@
       IP5   = IP5   + INCREM (  5 )
       IP6   = IP6   + INCREM (  6 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

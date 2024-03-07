@@ -73,9 +73,9 @@
 !
       WRITE (IOUT,2060) VNAME
 !
-      DO 40 IDMP=1,NODUMP
+      DO IDMP=1,NODUMP
          WRITE (IOUT,2090) DNAME(IDMP),(ARRA(K,IDMP),K=ID,NEND)
-   40 CONTINUE
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

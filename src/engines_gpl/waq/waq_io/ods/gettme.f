@@ -137,7 +137,7 @@
       IF ( TIMDEF(1,1) .LT. 0.5 ) SETALL = .TRUE.
 
    10 READ ( lun , ERR=140 , END=200 ) IDUMMY, ( RDATA(K), K=1,NTT )
-      DO 20 I = 1 , MAXDEF
+      DO I = 1 , MAXDEF
          ATIME = OTIME + IDUMMY*ISFACT*SECOND
          IF ( (ATIME.GT.TIMDEF(1,I) .AND. ATIME.LT.TIMDEF(2,I)) .OR.
      *                                             SETALL    ) THEN
@@ -147,7 +147,7 @@
             ITMTYP(NRLST) = 2
             GOTO 10
          ENDIF
-   20 CONTINUE
+      end do
       GOTO 10
 !
 !         Error messages

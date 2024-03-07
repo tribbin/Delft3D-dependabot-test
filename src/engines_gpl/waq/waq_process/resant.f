@@ -69,7 +69,7 @@
       IP5  = IPOINT( 5)
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
@@ -110,7 +110,7 @@
       IP4   = IP4   + INCREM (  4 )
       IP5   = IP5   + INCREM (  5 )
 !
- 9000 CONTINUE
+      end do
 !
 
       RETURN

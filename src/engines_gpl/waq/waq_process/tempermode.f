@@ -76,7 +76,7 @@
       IP6  = IPOINT(6 )
       
 
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
          MTEMP  = PMSA(IP1)
          TMPNAT = PMSA(IP2)
@@ -115,7 +115,7 @@
          IP5   = IP5   + INCREM ( 5  )
          IP6   = IP6   + INCREM ( 6  )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

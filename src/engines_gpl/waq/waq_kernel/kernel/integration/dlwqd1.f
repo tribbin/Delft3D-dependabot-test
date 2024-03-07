@@ -173,7 +173,7 @@
 
 !         Loop over exchanges to fill the matrices
 
-      do 10 iq = 1 , noq
+      do iq = 1 , noq
 
 !         Initialisations, check for transport anyhow
 
@@ -267,7 +267,7 @@
 
 !        End of loop over exchanges
 
-   10 continue
+      end do
 
 !    Now make the solution:  loop over exchanges in the water
 

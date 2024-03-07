@@ -226,9 +226,9 @@
 !
 !     Set module numbers
 !
-      DO 20 K = 1,NPROC
+      DO K = 1,NPROC
          CALL PRONRS ( PRONAM(K), IMODU(K) )
-   20 CONTINUE
+      end do
 !
 !     Report on process decomposition
 !
@@ -256,14 +256,14 @@
       IPBLOO = 0
       IOFFBL = 0
       IOFF   = 1
-      DO 30 K = 1,NPROC
+      DO K = 1,NPROC
          IF ( PRONAM(K)(1:6) .EQ. 'D40BLO' ) THEN
             IPBLOO = K
             IOFFBL = IOFF
             WRITE ( LUREP, 2100 )
          ENDIF
          IOFF = IOFF + PRVNIO(K)
-   30 CONTINUE
+      end do
 !
       goto 9999  !    RETURN
 !

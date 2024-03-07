@@ -176,7 +176,7 @@
 
       IFLUX = 0
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 !
 !       In all active dry or wet segments
 !
@@ -407,7 +407,7 @@
         IP28  = IP28  + IN28
         IP29  = IP29  + IN29
 
-9000  CONTINUE
+      end do
 
       RETURN
       END

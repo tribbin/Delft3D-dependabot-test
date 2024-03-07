@@ -168,7 +168,7 @@
 
       if ( ioutpt .lt. 2 ) write ( lunut , 2040 )
       if ( ioutpt .eq. 2 ) write ( lunut , 2050 )
-      do 10 id = 1 , ndmpar
+      do id = 1 , ndmpar
          if ( gettoken( duname(id), ierr2 ) .gt. 0 ) goto 20
          if ( gettoken( option, nseg  , itype, ierr2 ) .gt. 0 ) goto 20
          if ( itype .eq. 1 ) then                    ! character
@@ -223,7 +223,7 @@
          ntdmps  = ntdmps + nseg
          nsegdmp(id) = nseg
 
-   10 continue
+      end do
       goto 30
 
 !     Error handling

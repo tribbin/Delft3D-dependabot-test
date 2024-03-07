@@ -96,7 +96,7 @@
       IP13 = IPOINT(13)
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
       BACT   = PMSA( IP1 )
@@ -164,7 +164,7 @@
       IP12  = IP12  + INCREM ( 12 )
       IP13  = IP13  + INCREM ( 13 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

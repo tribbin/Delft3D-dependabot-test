@@ -72,7 +72,7 @@
 !
       IPNT = IPOINT
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
       IF (IKMRK1.EQ.1) THEN
@@ -133,7 +133,7 @@
 !
       IPNT = IPNT + INCREM
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

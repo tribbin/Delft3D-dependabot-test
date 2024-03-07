@@ -94,7 +94,7 @@
 
 !         loop accross the number of exchanges
 
-      do 10 iq = 1, noq
+      do iq = 1, noq
 
 !         initialisations , check for transport anyhow
 
@@ -251,7 +251,7 @@
             endif
          endif
 
-   10 continue
+      end do
 
       do iseg = 1,noseg
          if ( btest(iknmrk(iseg),0) ) then

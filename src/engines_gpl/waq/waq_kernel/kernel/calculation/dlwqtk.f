@@ -134,9 +134,9 @@
 !
 !        (column 2)
 !
-         DO 100 ISEG = 1 , NOSEG
+         DO ISEG = 1 , NOSEG
             CALL evaluate_waq_attribute(4,IKNMRK(ISEG,2),IKMRK4)
-  100    CONTINUE
+      end do
 !
 !        Change the time-variable kenmerk-array (column 3) such that it
 !
@@ -145,9 +145,9 @@
 !
 !        OR the constant and the time variable array's
 !
-         DO 200 ISEG = 1 , NOSEG
+         DO ISEG = 1 , NOSEG
             IKNMRK(ISEG,1) = IKNMRK(ISEG,2) + IKNMRK(ISEG,3)
-  200    CONTINUE
+      end do
 !
       ENDIF
 

@@ -61,9 +61,9 @@
 !
 !         loop oversehe number of segments
 !
-      DO 10 I = 1 , NOSEG
+      DO I = 1 , NOSEG
       AMASS(I) = ( AMASS(I)-VOLUME(I) )/IDT
-   10 CONTINUE
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

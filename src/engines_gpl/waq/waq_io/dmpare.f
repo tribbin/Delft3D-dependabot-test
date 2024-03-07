@@ -231,7 +231,7 @@
 
       if (timon) call timstrt( "dmpare2", ithndl2 )
       itel = 0
-      do 500 idump = 1 , ndmpar                  ! look for all dumpareas
+      do idump = 1 , ndmpar                  ! look for all dumpareas
          nq   = 0
          nsc  = nsegdmp(idump)
          indmp = .false.
@@ -240,10 +240,10 @@
             indmp(isegdmp(ips2+is)) = .true.
          enddo
          ips2 = itel
-         do 400 is = 1 , nsc                     ! for all comp. volumes therein
+         do is = 1 , nsc                     ! for all comp. volumes therein
             itel = itel + 1
             iseg = isegdmp(itel)
-            do 300 iqs = 1, nqseg(iseg)  ! for all pointers to and from that volume
+            do iqs = 1, nqseg(iseg)  ! for all pointers to and from that volume
                iq = iqseg(iqs,iseg)
                ivan  = ipoint( 1, iq )
                inaar = ipoint( 2, iq )
@@ -331,10 +331,10 @@
 
                endif
 
-  300       continue
-  400    continue
+      end do
+      end do
          nqdmp(idump) = nq
-  500 continue
+      end do
 
       deallocate(indmp)
       deallocate(nqseg)
@@ -345,9 +345,9 @@
 !     Loop over raaien
 
       itel = 0
-      do 700 iraai = 1 , noraai
+      do iraai = 1 , noraai
          nq = nexcraai(iraai)
-         do 600 iq = 1 , nq
+         do iq = 1 , nq
             itel = itel + 1
             iqr = abs(iexcraai(itel))
             if ( iqr .eq. 0 .or. iqr .gt. noq ) then
@@ -359,8 +359,8 @@
                   iqdmp(iqr) = ndmpq
                endif
             endif
-  600    continue
-  700 continue
+      end do
+      end do
 
       if ( ndmpar .gt. 0 ) then
          write( lun(2) ) ( nqdmp  (i), i = 1, ndmpar ), ( ipdmpq (i), i = 1, ntdmpq )

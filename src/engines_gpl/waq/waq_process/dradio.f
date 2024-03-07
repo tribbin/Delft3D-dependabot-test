@@ -100,7 +100,7 @@
      &                  / 1.0E3      ! g/mg  -> /mg
                                      ! number / mg / s = Bq/mg
 
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
@@ -121,7 +121,7 @@
       IP1   = IP1   + INCREM (  1 )
       IP4   = IP4   + INCREM (  4 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
       END

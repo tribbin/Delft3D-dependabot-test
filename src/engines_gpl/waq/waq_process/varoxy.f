@@ -100,7 +100,7 @@
       ENDIF
 
       IFLUX = 1
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
           TIMSIM = PMSA(IP1)/PMSA(IP3)
           DELTAT = PMSA(IP4)
@@ -153,7 +153,7 @@
               INTEGR(0) = 0.0
               T1 = 0.0
               V1 = 0.0
-              DO 100 I = 1,12*24
+              DO I = 1,12*24
                   T2 = REAL(I)/12.
                   IF ( T2 .LE. TRISE .OR. T2 .GE. TSET ) THEN
                       V2 = 0.0
@@ -168,7 +168,7 @@
                   INTEGR(I) = TOTAL
                   V1 = V2
                   T1 = T2
-  100         CONTINUE
+      end do
           ENDIF
 
           IF (BTEST(IKNMRK(ISEG),0)) THEN
@@ -216,7 +216,7 @@
           IP11 = IP11 + INCREM(11)
           IP12 = IP12 + INCREM(12)
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

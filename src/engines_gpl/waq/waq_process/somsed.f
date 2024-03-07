@@ -76,7 +76,7 @@
       IP = IPOINT
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
       IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
@@ -129,19 +129,19 @@
       IFLUX = IFLUX + NOFLUX
       IP    = IP    + INCREM
 !
- 9000 CONTINUE
+      end do
 !
 
 !.....Exchangeloop over de horizontale richting
       IP = IPOINT
-      DO 8000 IQ=1,NOQ1+NOQ2
+      DO IQ=1,NOQ1+NOQ2
          PMSA(IP(39)) = 0.0
          PMSA(IP(40)) = 0.0
          IP = IP + INCREM
- 8000 CONTINUE
+      end do
 
 !.....Exchangeloop over de verticale richting
-      DO 7000 IQ = NOQ1+NOQ2+1 , NOQ1+NOQ2+NOQ3
+      DO IQ = NOQ1+NOQ2+1 , NOQ1+NOQ2+NOQ3
 
          PMSA(IP(39)) = 0.0
          PMSA(IP(40)) = 0.0
@@ -182,7 +182,7 @@
 
          IP = IP + INCREM
 
- 7000 CONTINUE
+      end do
 
 
       RETURN

@@ -91,7 +91,7 @@
       IP13 = IPOINT(13)
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
       IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
@@ -195,7 +195,7 @@
       IP12  = IP12  + INCREM ( 12 )
       IP13  = IP13  + INCREM ( 13 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
       END

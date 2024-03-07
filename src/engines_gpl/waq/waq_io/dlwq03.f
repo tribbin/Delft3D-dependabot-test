@@ -370,7 +370,7 @@
       if ( gettoken( nkopt, local_status%ierr ) .gt. 0 ) goto 240
       write ( lunut , 2110 ) nkopt                          !   so many blocks of input are provided
 
-      do 20 i = 1 , nkopt                                      !   read those blocks
+      do i = 1 , nkopt                                      !   read those blocks
 
          if ( gettoken( nopt, local_status%ierr ) .gt. 0 ) goto 240
          write ( lunut , 2120 ) nopt                           !   number of attributes in this block
@@ -446,7 +446,7 @@
 
 !        Merge file buffer with attributes array in memory
 
-         do 10 iknm2 = 1 , nopt
+         do iknm2 = 1 , nopt
             iknm1 = ikenm(iknm2)
 
 !                 see if merged already
@@ -480,9 +480,9 @@
                call evaluate_waq_attribute( iknm2, iread(iseg), ivalk )
                iamerge(iseg) = iamerge(iseg) + iknmrk*ivalk
             enddo
-   10    continue
+      end do
          deallocate ( ikenm )
-   20 continue
+      end do
 
 !     Time dependent attributes
 

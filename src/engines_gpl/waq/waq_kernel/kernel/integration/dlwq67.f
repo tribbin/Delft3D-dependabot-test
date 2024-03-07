@@ -61,9 +61,10 @@
 !
       ISTEP = JTRACK*2 + 1
       ISET  = JTRACK + 1
-      DO 10 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       IF ( ABS(AMAT(ISET)) .LT. 1.0E-35 ) AMAT(ISET) = 1.0
-   10 ISET = ISET+ISTEP
+      ISET = ISET+ISTEP
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

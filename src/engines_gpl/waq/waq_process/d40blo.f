@@ -241,7 +241,7 @@
          if (increm(40).ne.0) call blstopinit(lunrep, 'BlTopLev')
 
 !        Copy algae type properties for input
-         DO 40 IALG=1,NTYP_M
+         DO IALG=1,NTYP_M
 !          BLOOMALG
            IP = NIPFIX + IALG
            IP = IPOINT(IP)
@@ -354,7 +354,7 @@
            IF (INCREM(IP).NE.0) CALL BLSTOP('FixAlg',IALG)
            IP = IPOINT(IP)
            IFIX(IALG) = NINT(PMSA(IP))
-   40    CONTINUE
+      end do
 
 !     Read BLOOM-input and set some parameters
 !     JvG 11102013 set NUNUCO dependent of LCARB
@@ -591,7 +591,7 @@
 !     Second segment loop, actual bloom call
 
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
       IF (IKMRK1.EQ.1 .OR. IKMRK1.EQ.3) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
@@ -653,7 +653,7 @@
       PHOSPH = MAX(MIN(PHOSPH,0.0),PHOSPH - THRPO4)
       SILICA = MAX(MIN(SILICA,0.0),SILICA - THRSI )
 
-      DO 20 IALG = 1,NTYP_A
+      DO IALG = 1,NTYP_A
 
 !jvb     set SDMIX for all types, time/space dependent
 !        SDMIXALG
@@ -703,7 +703,7 @@
              FAUT(IALG) = 0.0
           ENDIF
 
-   20 CONTINUE
+      end do
 
       IOFF = NIPFIX + 26*NTYP_M
       DO IGRO = 1, NGRO_A
@@ -880,7 +880,7 @@
           IO(IP) = IO(IP) + INCREM(NIPFIX+NIPVAR*NTYP_M+IP)
       ENDDO
 !
- 9000 CONTINUE
+      end do
 
       ! cummulate output per square metre over the depth towards lowest layer
 

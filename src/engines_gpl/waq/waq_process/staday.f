@@ -162,7 +162,7 @@
       IP8    = IPOINT(8)
       IP9    = IPOINT(9)
 
-      DO 9000 ISEG=1,NOSEG
+      DO ISEG=1,NOSEG
          IF (BTEST(IKNMRK(ISEG),0)) THEN
 
 !
@@ -225,7 +225,7 @@
          IP11 = IP11 + IN11
          IP12 = IP12 + IN12
          
- 9000 CONTINUE
+      end do
 
 !
 !     Be sure to also reset the initial time, so that we can restart the

@@ -59,7 +59,7 @@
 
       NTYPE   = PMSA(IPOINT(1))
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 
@@ -70,7 +70,7 @@
           ALGDM = 0.0
           CHLFA = 0.0
 
-          DO 100 ITYPE = 1,NTYPE
+          DO ITYPE = 1,NTYPE
 
               ITEL   = 1 + ITYPE
               BIOMAS = PMSA ( IPOINT(ITEL) + (ISEG-1)*INCREM(ITEL) )
@@ -113,7 +113,7 @@
 
               CHLFA = CHLFA + BIOMAS * CATOCL
 
-  100     CONTINUE
+      end do
 
           ITEL = 1 + 6*NTYPE + 1
           PMSA (IPOINT(ITEL)+(ISEG-1)*INCREM(ITEL)) = PHYT
@@ -130,7 +130,7 @@
 
       ENDIF
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

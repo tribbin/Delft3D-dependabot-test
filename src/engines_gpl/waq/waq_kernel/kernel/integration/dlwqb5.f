@@ -117,7 +117,7 @@
          IBFLAG = 0
       ENDIF
 !
-      DO 60 IQ = 1 , NOQ
+      DO IQ = 1 , NOQ
 !
 !         initialistations, check for transport anyhow
 !
@@ -166,7 +166,7 @@
 !
       K1 = (I-1)*NOTOT
       K2 = (J-1)*NOTOT
-      DO 10 I3=1,NOSYS
+      DO I3=1,NOSYS
          IS = MIN ( I3 , NOSYS )
 !
 !        dispersion
@@ -201,7 +201,7 @@
             DMPQ(IPQ+I3+I6)=DMPQ(IPQ+I3+I6) - DQ
          ENDIF
 !
-   10 CONTINUE
+      end do
       GOTO 60
 !
 !        The 'from' element was a boundary. Note the 2 options.
@@ -209,7 +209,7 @@
    20 IF ( J .LT. 0 ) GOTO 60
       K1 = (-I-1)*NOSYS
       K2 = ( J-1)*NOTOT
-      DO 30 I3=1,NOSYS
+      DO I3=1,NOSYS
       IS = MIN ( I3 , NOSYS )
       V  = Q
       D  = 0.0
@@ -235,14 +235,14 @@
             DMPQ(IPQ+I3+I6)=DMPQ(IPQ+I3+I6) - DQ
          ENDIF
       ENDIF
-   30 CONTINUE
+      end do
       GOTO 60
 !
 !        The 'to' element was a boundary.
 !
    40 K1 = ( I-1)*NOTOT
       K2 = (-J-1)*NOSYS
-      DO 50 I3=1,NOSYS
+      DO I3=1,NOSYS
       IS = MIN ( I3 , NOSYS )
       V  = Q
       D  = 0.0
@@ -268,11 +268,12 @@
             DMPQ(IPQ+I3+I6)=DMPQ(IPQ+I3+I6) - DQ
          ENDIF
       ENDIF
-   50 CONTINUE
+      end do
 !
 !        end of the loop over exchanges
 !
    60 CONTINUE
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

@@ -66,13 +66,13 @@
 
       nproc = procesdef%cursize
 
-      do 300 iou = 1 , outputs%cursize
+      do iou = 1 , outputs%cursize
 
          ! is the output undefined ( pointer -1 ) or from a proces
 
          if ( outputs%pointers(iou) .eq. -1 .or. outputs%pointers(iou) .gt. ioff ) then
             outputs%pointers(iou) = -1
-            do 200 iproc = 1, nproc
+            do iproc = 1, nproc
                proc => procesdef%procesprops(iproc)
                if ( proc%linvok ) then
                   call zoekio ( outputs%names(iou), proc%no_output, proc%output_item, 20, ioutput, IOTYPE_SEGMENT_OUTPUT)
@@ -94,10 +94,11 @@
 
                endif
 
-  200       continue
+      end do
          endif
 
   300 continue
+      end do
 
       if (timon) call timstop( ithndl )
       return

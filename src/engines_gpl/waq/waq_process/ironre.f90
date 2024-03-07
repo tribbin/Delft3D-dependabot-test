@@ -98,7 +98,7 @@ contains
       idire3      = 3
       idire4      = 4
 
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 
          fes        = max(pmsa( ipnt(  1) ), 0.0 )
          feiiipa    = max(pmsa( ipnt(  2) ), 0.0 )
@@ -173,7 +173,7 @@ contains
          idire4      = idire4      + noflux
          ipnt        = ipnt        + increm
 
- 9000 continue
+      end do
 
       return
       end

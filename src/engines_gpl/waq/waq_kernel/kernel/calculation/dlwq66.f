@@ -64,11 +64,12 @@
 !
 !         loop over the number of segments and systems
 !
-      DO 10 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       V1 = VOLUME(ISEG)
       DO 10 ISYS = 1 , NOTOT
       AMASS(ISYS,ISEG) = CONC(ISYS,ISEG)*V1
    10 CONTINUE
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

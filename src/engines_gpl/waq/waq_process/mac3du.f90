@@ -120,7 +120,7 @@ contains
       idco2upsm01 = 4
       idoxyprsm01 = 5
 
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 
          depth      = pmsa( ipnt(  1) )
          totaldepth = pmsa( ipnt(  2) )
@@ -271,7 +271,7 @@ contains
          idoxyprsm01 = idoxyprsm01 + noflux
          ipnt        = ipnt        + increm
 
- 9000 continue
+      end do
 
       return
       end subroutine

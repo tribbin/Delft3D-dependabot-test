@@ -192,7 +192,7 @@
       ioff2 = max( (nlay-2)*nsegl,0 )
       iqt   =  noq
       write ( lunut , * ) ' nsegb: ', nsegb
-      do 40 isegb = 1, nsegb
+      do isegb = 1, nsegb
 
          if ( space_var_nolay ) nlayb = GridPs%Pointers(JBott)%nolay_var(isegb)
          ib    = botmatrix(isegb,1)
@@ -213,7 +213,7 @@
 !              get every pointer for this bottom cell
 
          iq = 0
-         do 10 i = 1, nsegl          ! from water towards the bottom
+         do i = 1, nsegl          ! from water towards the bottom
             if ( GridPs%Pointers(JBott)%iarray(i) .eq. ib ) then
                iq = iq+1
                ipoint(1,iq+iqt) = ioff1+i
@@ -222,14 +222,14 @@
                ipoint(4,iq+iqt) = inaarplus
                if ( ioutpt .ge. 4 ) write(lunut,1040)iq+iqt,(ipoint(k,iq+iqt),k=1,4)
             endif
-   10    continue
+      end do
 !              header within the bottom
          if ( ioutpt .ge. 4 ) then
             write ( lunut , 1020 )
             write ( lunut , 1030 )
          endif
 
-         do 20 ilay = 1, nlayb     ! from bottom to next bottom layer
+         do ilay = 1, nlayb     ! from bottom to next bottom layer
             iq = iq + 1            ! the number of the pointer
 
 !           from pointer
@@ -263,16 +263,16 @@
             endif
             if ( ioutpt .ge. 4 ) write(lunut,1040)iq+iqt,(ipoint(k,iq+iqt),k=1,4)
 
-   20    continue
+      end do
 !              copy the column
-         do 30 i = 1 , iq
+         do i = 1 , iq
             ipoint(1,iq+iqt+i) = ipoint(1,iqt+i)
             ipoint(2,iq+iqt+i) = ipoint(2,iqt+i)
             ipoint(3,iq+iqt+i) = ipoint(3,iqt+i)
             ipoint(4,iq+iqt+i) = ipoint(4,iqt+i)
-   30    continue
+      end do
          iqt = iqt + 2*iq
-   40 continue
+      end do
       if ( noqt .ne. iqt ) then
          write ( lunut , 1110 ) noq4, iqt-noq
          call status%increase_error_count()

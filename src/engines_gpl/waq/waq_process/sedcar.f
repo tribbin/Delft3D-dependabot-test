@@ -128,7 +128,7 @@
       IN12 = INCREM(12)
 
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
 !     zero output
 
@@ -202,7 +202,7 @@
       IP10  = IP10  + IN10
       IP11  = IP11  + IN11
 !
- 9000 CONTINUE
+      end do
 !
       IP1  = IPOINT(1 )
       IP6  = IPOINT(6 )
@@ -210,18 +210,18 @@
       IP11 = IPOINT(11)
 
 !.....Exchangeloop over de horizontale richting
-      DO 8000 IQ=1,NOQ1+NOQ2
+      DO IQ=1,NOQ1+NOQ2
 
          PMSA(IP12) = 0.0
 
          IP12 = IP12 + IN12
 
- 8000 CONTINUE
+      end do
 
       IP9 = IP9 + ( NOQ1+NOQ2 ) * IN9
 
 !.....Exchangeloop over de verticale richting
-      DO 7000 IQ = NOQ1+NOQ2+1 , NOQ1+NOQ2+NOQ3+NOQ4
+      DO IQ = NOQ1+NOQ2+1 , NOQ1+NOQ2+NOQ3+NOQ4
 
          IVAN  = IEXPNT(1,IQ)
          INAAR = IEXPNT(2,IQ)
@@ -267,7 +267,7 @@
          IP9 = IP9 + IN9
          IP12= IP12+ IN12
 
- 7000 CONTINUE
+      end do
 
 !     Handle velocity to the delwaq-g bottom
 

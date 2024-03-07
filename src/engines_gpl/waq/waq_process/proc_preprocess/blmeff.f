@@ -188,14 +188,14 @@
 !
 10    continue
       ready = .true.
-      do 20 i = 1, lenarr - 1
+      do i = 1, lenarr - 1
          if (inarr(i) .gt. inarr(i+1)) then
             ready = .false.
             ihelp = inarr(i)
             inarr(i) = inarr(i+1)
             inarr(i+1) = ihelp
          end if
-20    continue
+      end do
       if ( .not. ready) go to 10
       return
       end

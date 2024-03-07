@@ -216,7 +216,7 @@
          S_D2   = 0.0
          SOM_C  = 0.0
          SOM_H  = 0.0
-         DO 100 TELLER  =  1, 61
+         DO TELLER  =  1, 61
             LAMBDA = 400+(TELLER-1)*5
 !
 !           HUMUSZUREN ABOSORPTIE
@@ -258,7 +258,7 @@
             SOM_H  = SOM_H  + PLANCK ( TELLER) * EXP ( -(A+B)  * D_1)
             SOM_C  = SOM_C  + PLANCK ( TELLER) * EXP ( -(A+B)  * D_2)
             ENDIF
-  100    CONTINUE
+      end do
          EXTPAR = ( 1.0 / ( DIEP1 - DIEP2) * LOG ( SOM_D2 / SOM_D1))
          IF ( DOSECC ) THEN
          EXTP_D = ( 1.0 / ( D_1   - D_2  ) * LOG ( S_D2   / S_D1  ))

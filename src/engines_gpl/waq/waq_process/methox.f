@@ -190,7 +190,7 @@
 !
       IFLUX = 0
 
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
@@ -319,7 +319,7 @@
       IP24  = IP24  + IN24
       IP25  = IP25  + IN25
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

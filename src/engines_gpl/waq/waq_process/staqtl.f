@@ -194,7 +194,7 @@
 
       IF ( IACTION .EQ. 0 ) RETURN
 
-      DO 9000 ISEG=1,NOSEG
+      DO ISEG=1,NOSEG
          IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
 !           Keep track of the time within the current quantile specification
@@ -281,7 +281,7 @@
             IBUCK(IB)  = IBUCK(IB) + INCBCK(IB)
          ENDDO
 
- 9000 CONTINUE
+      end do
 
       RETURN
       END

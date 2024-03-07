@@ -196,7 +196,7 @@
             write(lun(is)   )  'Steering file '
             write(lun(is)   )   nfil,intopt
             write ( lunut , 2080 )
-            do  20 ifil = 1,nfil
+            do  ifil = 1,nfil
                if ( gettoken( fact   , ierr2 ) .gt. 0 ) goto 30  !   Get multiplication factor
                if ( gettoken( cdummy , it1   , itype, ierr2 ) .gt. 0 ) goto 30    ! 'from' time
                if ( itype .eq. 1 ) then
@@ -279,7 +279,7 @@
                   ierr2 = -1
                   exit
                endif
-   20       continue
+      end do
             close ( lun(is) )
 
          case ( 1 )            !   continue reading from current file

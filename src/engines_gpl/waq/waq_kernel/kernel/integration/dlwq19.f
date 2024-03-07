@@ -638,7 +638,7 @@
       acc_remained = 0.0
       acc_changed  = 0.0
       volint = volold                                 ! Initialize volint. Becomes the volume 'in between'.
-      do 100 istep = 1, nstep                         ! Big loop over the substeps
+      do istep = 1, nstep                         ! Big loop over the substeps
          fact = dfloat(istep) / dfloat(nstep)         ! Interpolation factor of this step
                                                              ! istep:  boxes to integrate:           modulo logic
 !         last boxe to integrate for this sub step           !   1     fbox
@@ -699,11 +699,11 @@
 
          remained = 1
          iter     = 0
-         do 20 while ( remained .gt. 0 )
+         do while ( remained .gt. 0 )
             changed  = 0
             remained = 0
             iter     = iter + 1
-            do 10 i = if1 , if2
+            do i = if1 , if2
                iq    = iordf(i)
                if ( iq .lt. 0 ) cycle                                 ! this flux has been resolved already
                if ( flow(iq) .eq. 0.0 ) cycle
@@ -821,7 +821,7 @@
                      endif
                   endif
                endif
-   10       continue
+      end do
             if ( changed .ne. 0 .or. remained .ne. 0 ) then
                acc_remained = acc_remained + remained
                acc_changed  = acc_changed  + changed
@@ -832,11 +832,11 @@
                   exit
                endif
             endif
-   20    continue
+      end do
 
 !     PART2a2: apply all outfluxes to the outer world from these cells that should have reasonable concentrations
 !                                                                                       and enough volume now
-         do 30 i = if1 , if2
+         do i = if1 , if2
             iq    = iordf(i)
             if ( iq .lt. 0 ) cycle
             if ( flow(iq) .eq. 0.0 ) cycle
@@ -900,7 +900,7 @@
                   if ( ipb .gt. 0 ) dmpq(isys,ipb,2) = dmpq(isys,ipb,2) - dq
                enddo
             endif
-   30    continue
+      end do
          do i = if1 , if2                                             ! All fluxes of the 'wetting-group' should have been resolved
             iordf(i) = abs(iordf(i))                                  ! Reset the flux pointer to its positive value
          enddo
@@ -982,10 +982,10 @@
 !     PART2b: set a first order initial horizontal step for all cells in the boxes of this time step
 
          if ( timon ) call timstrt ( "explicit hor-step", ithand3 )
-         do 50 ibox = fbox , nbox , -1
+         do ibox = fbox , nbox , -1
             if1 = itf  (ibox+1)+1
             if2 = iqsep(ibox)
-            do 40 i = if1 , if2
+            do i = if1 , if2
                iq    = iordf(i)
                if ( flow(iq) .eq. 0.0 ) cycle
                q     = flow(iq) * dt(ibox)
@@ -1037,8 +1037,8 @@
                      rhs  (isys,ito  ) = rhs  (isys,ito  ) + dq
                   enddo
                endif
-   40       continue                                                  ! End of the loop over exchanges
-   50    continue                                                     ! End of the loop over boxes
+      end do                                                  ! End of the loop over exchanges
+      end do                                                     ! End of the loop over boxes
          do ibox = fbox , nbox , -1
             is1 = its(ibox+1)+1
             is2 = its(ibox)
@@ -1060,10 +1060,10 @@
 !     PART2c: apply the horizontal flux correction for all cells in the boxes of this time step
 
          if ( timon ) call timstrt ( "flux correction", ithand4 )
-         do 70 ibox = fbox , nbox , -1
+         do ibox = fbox , nbox , -1
             if1 = itf(ibox+1)+1
             if2 = iqsep(ibox)
-            do 60 i = if1 , if2
+            do i = if1 , if2
 
 !                initialisations
 
@@ -1216,14 +1216,14 @@
                   endif
                enddo
 
-   60       continue
-   70    continue
+      end do
+      end do
          if ( timon ) call timstop ( ithand4 )
 
 !     PART2c1: Set the vertical advection of water only for all cells in the boxes of this time step
 
          if ( timon ) call timstrt ( "implicit ver-step", ithand5 )
-         do 80 ibox = fbox , nbox , -1
+         do ibox = fbox , nbox , -1
             is1 = its(ibox+1)+1
             is2 = its(ibox)
             do i = is1, is2
@@ -1307,7 +1307,7 @@
                   enddo
                enddo
             enddo
-   80    continue
+      end do
          if ( timon ) call timstop ( ithand5 )
 
 !     PART2c2: apply all withdrawals that were present in the hydrodynamics as negative wasteload rather than as open boundary flux
@@ -1410,7 +1410,7 @@
 
 !        End of loop over fractional time steps
 
-  100 continue
+      end do
 
       if ( report .and. ( acc_changed .gt. 0.0 .or. acc_remained .gt. 0.0 ) ) then
          write ( lunut, '(a)' ) 'Averaged over all steps in this iteration:'
@@ -1464,7 +1464,7 @@
 
 !         Loop over exchanges to fill the matrices
 
-      do 110 iq = noqh+1 , noq+noq4
+      do iq = noqh+1 , noq+noq4
 
 !         Initialisations, check for transport anyhow
 
@@ -1565,7 +1565,7 @@
 
 !        End of loop over exchanges
 
-  110 continue
+      end do
 
 !    Now make the solution:  loop over vertical exchanges in the water
 

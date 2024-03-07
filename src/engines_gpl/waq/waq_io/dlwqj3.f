@@ -168,21 +168,21 @@ cjvb1
          ISS = 1
          IF ( IOUTPT .GE. 4 ) THEN
             WRITE ( LUNUT , 1010 )
-            DO 10 I2 = 1,NODIM,IWIDTH
+            DO I2 = 1,NODIM,IWIDTH
                IE = MIN(I2+IWIDTH-1,NODIM)
                WRITE (LUNUT,1020) (    IAR(IOFFS+K) ,K=I2,IE)
                WRITE (LUNUT,1025) (CAR_OF_DUM(CAR,IAR(IOFFS+K)),K=I2,IE)
                WRITE (LUNUT,1030) (RAR(K),K=I2,IE)
-   10       CONTINUE
+      end do
          ENDIF
-         DO 30 I1 = 1,NOBRK
-            DO 20 I2 = 0,NOTOT-1
+         DO I1 = 1,NOBRK
+            DO I2 = 0,NOTOT-1
                IF ( IORDER .EQ. 1 ) ITEL2 = MOD(I2,NODIM) + 1
                IF ( IORDER .EQ. 2 ) ITEL2 = I2/NODIM + 1
                RMAT(ISS+I2) = RMAT(ISS+I2)*RAR(ITEL2)
-   20       CONTINUE
+      end do
             ISS = ISS + NOTOT
-   30    CONTINUE
+      end do
       ENDIF
 !
 !       Convert breakpoints
@@ -217,7 +217,7 @@ cjvb1    ENDIF
 !
       IF ( IOUTPT .GE. 4 ) THEN
          ITELS = 0
-         DO 60 I1 = 1,NOBRK
+         DO I1 = 1,NOBRK
             IF ( NOBRK .GT. 1 ) THEN
                IF ( IOPT .EQ. 1 )
      *                 WRITE ( LUNUT, 1070 ) STRNG3, I1, IAR(IOFFB+I1-1)
@@ -232,7 +232,7 @@ cjvb1    ENDIF
                   WRITE ( LUNUT, 1090 ) I1, IAR(IOFFB+I1-1), RMAT(ITELS)
                ENDIF
             ENDIF
-            DO 50 I2 = 1,NODI2,IWIDTH
+            DO I2 = 1,NODI2,IWIDTH
                IE2 = MIN(I2+IWIDTH-1,NODI2)
                IF ( NODIM .GT. 0 ) THEN
                   WRITE ( LUNUT, 1100 ) STRNG2, (IAR(IOFFS+K) ,K=I2,IE2)
@@ -240,14 +240,14 @@ cjvb1    ENDIF
      *                           (CAR_OF_DUM(CAR,IAR(IOFFS+K)),K=I2,IE2)
                ENDIF
                ITEL = ITELS
-               DO 40 I3 = 1,NOITM
+               DO I3 = 1,NOITM
                   WRITE ( LUNUT, 1120 )  ABS(IAR(IOFFI+I3)),
      *            ( RMAT(ITEL+K),K=(I2-1)*ISKIP+1,(IE2-1)*ISKIP+1,ISKIP)
                   ITEL = ITEL + ISKP2
-   40          CONTINUE
-   50       CONTINUE
+      end do
+      end do
             ITELS = ITELS + NODI2*NOITM
-   60    CONTINUE
+      end do
       ENDIF
 !
    70 WRITE ( LUNUT , 1140 )

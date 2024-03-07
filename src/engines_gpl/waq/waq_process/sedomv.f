@@ -88,7 +88,7 @@
       IN11 = INCREM(11)
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
       IF (IKMRK1.EQ.1) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
@@ -121,24 +121,24 @@
       IP5   = IP5   + INCREM (  5 )
       IP10  = IP10  + INCREM ( 10 )
 !
- 9000 CONTINUE
+      end do
 !
 !.....Exchangeloop over de horizontale richting
-      DO 8000 IQ=1,NOQ1+NOQ2
+      DO IQ=1,NOQ1+NOQ2
 
 !........VxSedOMI op nul
          PMSA(IP11) = 0.0
 
          IP11 = IP11 + IN11
 
- 8000 CONTINUE
+      end do
 
 !.....Startwaarden VxSedPOC en VxSedPhyt
       IP8 = IP8 + ( NOQ1+NOQ2 ) * IN8
       IP9 = IP9 + ( NOQ1+NOQ2 ) * IN9
 
 !.....Exchangeloop over de verticale richting
-      DO 7000 IQ=NOQ1+NOQ2+1,NOQ1+NOQ2+NOQ3+NOQ4
+      DO IQ=NOQ1+NOQ2+1,NOQ1+NOQ2+NOQ3+NOQ4
 
          IVAN  = IEXPNT(1,IQ)
          INAAR = IEXPNT(2,IQ)
@@ -194,7 +194,7 @@
          IP9  = IP9 + IN9
          IP11 = IP11 + IN11
 
- 7000 CONTINUE
+      end do
 
       RETURN
       END

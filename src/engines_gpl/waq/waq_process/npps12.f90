@@ -87,7 +87,7 @@ contains
 
       ipnt        = ipoint
 
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
          if (ikmrk1.eq.1) then
          call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
@@ -119,7 +119,7 @@ contains
          endif
          ipnt        = ipnt        + increm
 
- 9000 continue
+      end do
 
       return
       end subroutine

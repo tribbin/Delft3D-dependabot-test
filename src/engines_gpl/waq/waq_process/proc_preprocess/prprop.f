@@ -195,7 +195,7 @@
 !     loop over all processes
 !
       allocate(actuse(no_act))
-      do 800 iproc=1,nproc
+      do iproc=1,nproc
 !
 !        Check if process is requested and licensed
 !
@@ -420,7 +420,7 @@
 
          endif
 
-  800 continue
+      end do
 !
       IF ( LASWI ) THEN
          DO IACT = 1 , NO_ACT

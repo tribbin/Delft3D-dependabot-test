@@ -132,7 +132,7 @@
 !         loop accross the number of exchanges
 
       noq12 = noq1 + noq2
-      do 60 iq = 1 , noq
+      do iq = 1 , noq
 
 !         initialisations, check if transport will take place
 
@@ -274,7 +274,7 @@
 
 !        end of the loop over exchanges
 
-   60 continue
+      end do
 
       if ( timon ) call timstop ( ithandl )
 

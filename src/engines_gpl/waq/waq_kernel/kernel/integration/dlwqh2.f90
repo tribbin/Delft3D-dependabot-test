@@ -112,7 +112,7 @@ contains
 
       amat = 0.0D0
 
-      do 10 iq = 1 , noq
+      do iq = 1 , noq
 
 !         pointer administration check for transport anyhow
 
@@ -169,7 +169,7 @@ contains
 
 !        end of the loop over exchanges
 
-   10 continue
+      end do
 
 !     finally scale the matrix to avoid possible round-off errors in GMRES
 !     this scaling may need some adaption for future domain decomposition b.c.

@@ -118,7 +118,7 @@
       ipnt  = ipoint
 
       iflux = 0
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
       if (btest(iknmrk(iseg),0)) then
       call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
       if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
@@ -206,7 +206,7 @@
       iflux = iflux + noflux
       ipnt  = ipnt  + increm
 
- 9000 continue
+      end do
 !
       return
 !

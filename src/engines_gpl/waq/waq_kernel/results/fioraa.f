@@ -67,14 +67,14 @@
 !
 !     Copy values into output buffer
 !
-      DO 30 IRAAI = 1 , NORAAI
-         DO 10 ISYS = 1 , NOSYS
+      DO IRAAI = 1 , NORAAI
+         DO ISYS = 1 , NOSYS
             OUTVAL(ISYS,IRAAI) = TRRAAI(ISYS,IRAAI)
-   10    CONTINUE
-         DO 20 ISYS = NOSYS + 1 , NRVAR
+      end do
+         DO ISYS = NOSYS + 1 , NRVAR
             OUTVAL(ISYS,IRAAI) = RMISS
-   20    CONTINUE
-   30 CONTINUE
+      end do
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

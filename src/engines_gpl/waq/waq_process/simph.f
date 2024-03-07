@@ -98,7 +98,7 @@
 !
 !     Loop over de segmenten
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 !
 !     Eerste kenmerk actief of inactief segment
 !
@@ -270,7 +270,7 @@
       IP7   = IP7   + INCREM (  7 )
       IP8   = IP8   + INCREM (  8 )
 !
- 9000 CONTINUE
+      end do
 !
 !
       RETURN

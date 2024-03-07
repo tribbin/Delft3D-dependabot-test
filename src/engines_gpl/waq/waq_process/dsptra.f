@@ -109,18 +109,18 @@
 !
 !.....Exchangeloop over de horizontale richtingen om op 0 te zetten
 !.....en om de pointers te zetten
-      DO 8000 IQ=1,NOQ1+NOQ2
+      DO IQ=1,NOQ1+NOQ2
 !         Uitvoeritems op exchange level
           PMSA(IP6) = 0.0
           PMSA(IP7) = 0.0
           IP6 = IP6 + IN6
           IP7 = IP7 + IN7
- 8000 CONTINUE
+      end do
       IP6  = IPOINT( 6)
       IP7  = IPOINT( 7)
 !
 !.....Loop over kolommen
-      DO 7000 IK = 1 , Coll%cursize
+      DO IK = 1 , Coll%cursize
 
 !         Select first column of exchanges for DOWNWARD advection
 
@@ -199,7 +199,7 @@
 
          ENDDO
 
- 7000 CONTINUE
+      end do
 
       RETURN
       END

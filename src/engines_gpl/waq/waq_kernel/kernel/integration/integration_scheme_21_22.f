@@ -493,7 +493,7 @@
 !$OMP DO PRIVATE(ith)
 ! start of loop over substances
 
-      do 40 isys = 1, nosys
+      do isys = 1, nosys
 
          ith = OMP_GET_THREAD_NUM()+1
 
@@ -554,7 +554,7 @@
      &                 theta(1:,ith)  , flowtot(1,ith) , intopt        , a(imas2:)      , ndmpq         ,
      &                 j(iqdmp:)      , a(idmpq:)       )
 
-   40 continue
+      end do
 !$OMP ENDDO
 !$OMP ENDPARALLEL
       if ( noth .gt. 1 ) timon = timon_old

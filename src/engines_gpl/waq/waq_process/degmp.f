@@ -129,7 +129,7 @@
       IF ( PMSA(IP16) .GT. 0.5 ) SEDIME = .TRUE.
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
@@ -266,7 +266,7 @@
       IP15  = IP15  + INCREM ( 15)
 !     IP16 wordt niet opgehoogd, want deze staat buiten segmentloop!!!
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

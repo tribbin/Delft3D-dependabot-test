@@ -129,14 +129,14 @@
 !           Setting of default values
 !
       IF ( NPNT .EQ. 0 ) THEN
-         DO 30 I2 = 1 , NDIM
+         DO I2 = 1 , NDIM
             IA = IA + 1
             IB = IOFF+J(NDST+I2)
-            DO 20 I1 = 1 , NOITM
+            DO I1 = 1 , NOITM
                AVAL(IB) = A(IA)
                IB = IB + NOTOT
-   20       CONTINUE
-   30    CONTINUE
+      end do
+      end do
          IJ = IJ + 1
          GOTO 150
       ENDIF
@@ -164,7 +164,7 @@
 !
 !           Make interpolation constants if IOPT = 2
 !
-            DO 40 I = 2 , NOBRK
+            DO I = 2 , NOBRK
                IF ( J(IJ+I) .GT. ITIMF ) THEN
                   IF ( IOPT .EQ. 2 ) THEN
                      ITIM1 = ITIMF   - J(IJ+I-1)
@@ -177,7 +177,7 @@
                   IREC  = I-1
                   GOTO 50
                ENDIF
-   40       CONTINUE
+      end do
          ELSE
             IREC  = 1
             ITIM2 = 1
@@ -190,10 +190,10 @@
    50    I = IA + (IREC-1)*NTT
 !           Inner loop in A over the substances
          IF ( IORD .EQ. 1 ) THEN
-            DO 70 I1 = 1 , NPNT
+            DO I1 = 1 , NPNT
                II = J(NPST+I1)
                IB = (II-1)*NOTOT
-               DO 60 I2 = 1 , NDIM
+               DO I2 = 1 , NDIM
                   IC = IOFF+J(NDST+I2)
 !
 !                 Ignore negative indexes (0 equal to flow wastes??)
@@ -222,11 +222,11 @@
                            AVAL(IB+IC) = AA
                         ELSE
 !              Set a whole type
-                           DO 55 I3 = 1 , NOITM
+                           DO I3 = 1 , NOITM
                               IF ( KTYPE(I3) .EQ. -II ) THEN
                                  AVAL ( (I3-1)*NOTOT + IC ) = AA
                               ENDIF
-   55                      CONTINUE
+      end do
                         ENDIF
                      ELSEIF ( IC - IOFF .EQ. 0 ) THEN
 !                       for flow accept missing (detected flow)
@@ -248,14 +248,14 @@
 !
                      I = I + 1
                   ENDIF
-   60          CONTINUE
-   70       CONTINUE
+      end do
+      end do
 !           Inner loop in A over the items
          ELSE
-            DO 90 I1 = 1 , NDIM
+            DO I1 = 1 , NDIM
                IC = IOFF+J(NDST+I1)
                IF ( IC .GE. 0 ) THEN
-                  DO 80 I2 = 1 , NPNT
+                  DO I2 = 1 , NPNT
                      I  = I + 1
                      AA = A(I)
                      IF ( NOBRK .GT. 1 ) THEN
@@ -280,10 +280,10 @@
                            IB = (J(NPST+I2)-1)*NOTOT
                            AVAL(IB+IC) = AA
                         ELSE
-                           DO 75 I3 = 1 , NOITM
+                           DO I3 = 1 , NOITM
                               IF ( KTYPE(I3) .EQ. -II )
      *                           AVAL ( (I3-1)*NOTOT + IC ) = AA
-   75                      CONTINUE
+      end do
                         ENDIF
                      ELSEIF ( IC -IOFF .EQ. 0 ) THEN
 !                       for flow accept missing (detected flow)
@@ -297,14 +297,14 @@
                            ENDDO
                         ENDIF
                      ENDIF
-   80             CONTINUE
+      end do
                ELSE
 !
 !                 Ignore value
 !
                   I = I + NPNT
                ENDIF
-   90       CONTINUE
+      end do
          ENDIF
          IJ = IJ + NOBRK
          IA = IA + NOBRK*NTT
@@ -314,7 +314,7 @@
 !
       IF ( IOPT .EQ. 3 .OR. IOPT .EQ. 4 ) THEN
 !
-         DO 140 I = 1 , NOBRK
+         DO I = 1 , NOBRK
 !
 !            harmonic function
 !
@@ -332,9 +332,9 @@
 !
 !              Inner loop in A over the substances
             IF ( IORD .EQ. 1 ) THEN
-               DO 110 I1 = 1 , NPNT
+               DO I1 = 1 , NPNT
                   IB = (J(NPST+I1)-1)*NOTOT
-                  DO 100 I2 = 1 , NDIM
+                  DO I2 = 1 , NDIM
                      IC = IOFF+J(NDST+I2)
                      IA = IA + 1
                      IF ( I .EQ. 1 ) THEN
@@ -342,13 +342,13 @@
                      ELSE
                         AVAL(IB+IC) = FUNC*A(IA) + AVAL(IB+IC)
                      ENDIF
-  100             CONTINUE
-  110          CONTINUE
+      end do
+      end do
 !              Inner loop in A over the items
             ELSE
-               DO 130 I1 = 1 , NDIM
+               DO I1 = 1 , NDIM
                   IC = IOFF+J(NDST+I1)
-                  DO 120 I2 = 1 , NPNT
+                  DO I2 = 1 , NPNT
                      IB = (J(NPST+I2)-1)*NOTOT
                      IA = IA + 1
                      IF ( I .EQ. 1 ) THEN
@@ -356,10 +356,10 @@
                      ELSE
                         AVAL(IB+IC) = FUNC*A(IA) + AVAL(IB+IC)
                      ENDIF
-  120             CONTINUE
-  130          CONTINUE
+      end do
+      end do
             ENDIF
-  140    CONTINUE
+      end do
       ENDIF
 !
 !       Return until finished
@@ -399,17 +399,17 @@
       if ( timon ) call timstrt ( "dlwmis", ithandl )
 !           Search backward for the first valid point
       LL = I
-      DO 10 JJ = IREC , 1 , -1
+      DO JJ = IREC , 1 , -1
          IF ( A(LL) .NE. AMISS ) GOTO 20
          LL = LL - NTT
-   10 CONTINUE
+      end do
       JJ = 0
 !           Search forward for the first valid point
    20 LL = I + NTT
-      DO 30 KK = IREC+1 , NOBRK
+      DO KK = IREC+1 , NOBRK
          IF ( A(LL) .NE. AMISS ) GOTO 40
          LL = LL + NTT
-   30 CONTINUE
+      end do
       KK = 0
    40 AA = 0.0
       AB = 0.0

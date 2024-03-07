@@ -84,7 +84,7 @@ contains
       idfesox     = 1
       idfes2ox    = 2
 
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 
          fes        = pmsa( ipnt(  1) )
          fes2       = pmsa( ipnt(  2) )
@@ -140,7 +140,7 @@ contains
          idfes2ox    = idfes2ox    + noflux
          ipnt        = ipnt        + increm
 
- 9000 continue
+      end do
 
       return
       end

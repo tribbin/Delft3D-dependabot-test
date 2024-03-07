@@ -181,7 +181,7 @@ C
 
       !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 C
          Temp       = PMSA(IP1)
          Surtemp    = PMSA(IP2)
@@ -401,7 +401,7 @@ C
          IP47  = IP47  + INCREM ( 47 )
 
 
- 9000       CONTINUE
+      end do
 !
       RETURN
 !

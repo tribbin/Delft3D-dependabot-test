@@ -87,7 +87,7 @@
 !
       NRVART = 0
       NBUFMX = 0
-      DO 100 IOUT = 1 , NOUTP
+      DO IOUT = 1 , NOUTP
          NRVAR  = IOUTPS(4,IOUT)
          NRVART = NRVART + NRVAR
 !
@@ -173,7 +173,7 @@
          NBUFMX = MAX ( NBUFMX, NBUFOU )
          NCBUFM = MAX ( NCBUFM, NCBUFO )
 !
-  100 CONTINUE
+      end do
 !
       if (timon) call timstop( ithndl )
       RETURN

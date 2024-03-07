@@ -101,7 +101,7 @@ c     LOGICAL First
 
       IPNT = IPOINT
 !     Loop over segments
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
 !        Check on active segments
          CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
@@ -250,7 +250,7 @@ c     LOGICAL First
 
         IPNT = IPNT + INCREM
 
- 9000 CONTINUE
+      end do
 !
       RETURN
       END

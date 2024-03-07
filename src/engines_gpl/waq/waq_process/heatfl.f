@@ -160,7 +160,7 @@
 
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
 !     Heat exchange only for active water segments
 !
@@ -401,7 +401,7 @@
       IP39  = IP39  + INCREM ( 39 )
       IP40  = IP40  + INCREM ( 40 )
 !
- 9000 CONTINUE
+      end do
 !
 
       RETURN

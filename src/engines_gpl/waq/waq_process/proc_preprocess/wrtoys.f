@@ -74,16 +74,16 @@
 !
       open ( lunwrk , file = 'altoys.inp' )
       if ( ioutps(5,3) .eq. ihi3 ) then
-         do 100 isys = 1 , notot
+         do isys = 1 , notot
             write(lunwrk,1000) syname(isys),syname(isys)
-  100    continue
+      end do
       endif
       if ( ioutps(5,3) .eq. ihi3 .or. ioutps(5,3) .eq. ihi4) then
          ioffv = ioutps(4,1) + ioutps(4,2)
          nrvar = ioutps(4,3)/2
-         do 200 ivar = 1 , nrvar
+         do ivar = 1 , nrvar
             write(lunwrk,1000) outputs%names(ioffv+ivar),outputs%names(ioffv+ivar)
-  200    continue
+      end do
       endif
       close ( lunwrk )
 !
@@ -92,12 +92,12 @@
       if ( ioutps(5,5) .eq. ibal ) then
          open ( lunwrk , file = 'batoys.inp' )
          write(lunwrk,1010) notot
-         do 300 isys = 1 , notot
+         do isys = 1 , notot
             write(lunwrk,1020) syname(isys)
-  300    continue
-         do 400 isys = 1 , notot
+      end do
+         do isys = 1 , notot
             write(lunwrk,1030) syname(isys),syname(isys)
-  400    continue
+      end do
          close ( lunwrk )
       endif
 !

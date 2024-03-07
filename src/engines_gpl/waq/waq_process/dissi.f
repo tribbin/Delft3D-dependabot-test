@@ -87,7 +87,7 @@
 !
       IFLUX = 0
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 !
       IF (BTEST(IKNMRK(ISEG),0)) THEN
          CSID    = MAX(PMSA(IP1),0.0)
@@ -145,7 +145,7 @@
       IP8   = IP8   + INCREM (  8 )
       IP9   = IP9   + INCREM (  9 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

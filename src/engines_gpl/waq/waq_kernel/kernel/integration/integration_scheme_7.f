@@ -193,7 +193,7 @@
 !
       NSYS   = 1
       IAFLAG = 1
-      DO 10 ISYS = 1 , NOSYS
+      DO ISYS = 1 , NOSYS
          IF ( ISYS .EQ. NOSYS ) NSYS   = 1 + NOTOT - NOSYS
 !
 !             do the user transport processes
@@ -241,7 +241,7 @@
      *                                               A(IDERV:),    0    )
          CALL DLWQ63 ( A(ICONC:), A(IDERV:), A(IMAS2:), NOSEG   , NOTOT   ,
      *                 ISYS    , NSYS    , A(IDMPS:), INTOPT  , J(ISDMP:))
-   10 CONTINUE
+      end do
 !
 !          mass balance
 !

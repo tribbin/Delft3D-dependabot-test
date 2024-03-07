@@ -200,7 +200,7 @@
       ENDIF
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
          PMSA (IP24)  = 0.0
          PMSA (IP25)  = 0.0
          PMSA (IP26)  = 0.0
@@ -398,7 +398,7 @@
          IP32  = IP32  + IN32
          IP33  = IP33  + IN33
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
       END

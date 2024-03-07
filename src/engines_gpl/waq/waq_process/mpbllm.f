@@ -140,7 +140,7 @@ C     initialise pointers for PMSA and FL array
 
 C     loop over the segments
 
-      DO 1000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
          CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
          CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
@@ -318,7 +318,7 @@ C        update pointering in PMSA array
 
          IP    = IP    + INCREM(1:NO_POINTER)
 
- 1000 CONTINUE
+      end do
 
       RETURN
       END

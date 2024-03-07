@@ -77,14 +77,14 @@
 !
       WRITE (IOUT,2060) VNAME
 !
-      DO 40 I=1,NODUMP
+      DO I=1,NODUMP
          ISEG = IDUMP(I)
          IF ( DNAME(I) .EQ. SPACE ) THEN
             WRITE (IOUT,2080) ISEG    ,(ARRA(K,ISEG),K=ID,NEND)
          ELSE
             WRITE (IOUT,2090) DNAME(I),(ARRA(K,ISEG),K=ID,NEND)
          ENDIF
-   40 CONTINUE
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

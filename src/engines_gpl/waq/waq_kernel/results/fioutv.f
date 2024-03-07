@@ -128,7 +128,7 @@
 !
 !     FILL OUTVAL
 !
-      DO 200 ICEL = 1 , NOCEL
+      DO ICEL = 1 , NOCEL
 !
 !        What segment ?
 !
@@ -140,7 +140,7 @@
             ISEG = LGRID(ICEL)
          ENDIF
 
-         DO 100 I = 1 , NRVAR
+         DO I = 1 , NRVAR
             IICEL = (ICEL-1)*NRVAR+I
             IP = IOPOIN(I)
 !
@@ -182,8 +182,8 @@
                   OUTVAL(IICEL) = RMISS
                ENDIF
             ENDIF
-  100    CONTINUE
-  200 CONTINUE
+      end do
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

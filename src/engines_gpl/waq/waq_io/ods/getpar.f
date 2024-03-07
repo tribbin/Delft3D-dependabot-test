@@ -95,11 +95,11 @@
       NRLST  = 0
       SETALL = .FALSE.
       IF ( PARDEF(1) .EQ. '*' ) SETALL = .TRUE.
-      DO 40 I1 = 1 , NOTOT , MAXLST
+      DO I1 = 1 , NOTOT , MAXLST
          MAXK = MIN(NOTOT,I1+MAXLST-1) - I1 + 1
          READ ( lun , ERR=120 ) ( PARUNI(K) , K = 1,MAXK )
-         DO 30 I2 = 1 , MAXK
-            DO 20 I3 = 1 , MAXDEF
+         DO I2 = 1 , MAXK
+            DO I3 = 1 , MAXDEF
                IF ( PARUNI(I2) .EQ. PARDEF(I3) .OR. SETALL ) THEN
                   NRLST = NRLST + 1
                   IF ( NRLST .GT. MAXLST ) THEN
@@ -110,16 +110,17 @@
                   IPRCOD(NRLST) = I1 + I2 - 1
                   GOTO 30
                ENDIF
-   20       CONTINUE
+      end do
    30    CONTINUE
-   40 CONTINUE
+      end do
+      end do
 !
 !         Supply the desired statistics
 !
-   50 DO 60 I1 = 1 , NRLST
+   50 DO I1 = 1 , NRLST
          PARUNI(I1) = PARLST(I1)(10:20)
          IPRTYP(I1) = 2
-   60 CONTINUE
+      end do
       GOTO 200
 !
 !         Supply the desired statistics

@@ -146,7 +146,7 @@
 !
 !     Set initialize flag, open files: only on first subdomain
 !
-         DO 10 K = 1,NOUTP
+         DO K = 1,NOUTP
             ISRTOU = IOUTPS(5,K)
             IF ( K .LE. 4 ) THEN
                IFI = K + LUOFF
@@ -177,7 +177,7 @@
             ELSEIF ( ISRTOU .EQ. IBAL .OR. ISRTOU .EQ. IBA2 ) THEN
                CALL open_waq_files ( LUN(IFI), LCHAR(IFI), 37    , 1     , IDUM  )
             ENDIF
-   10    CONTINUE
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

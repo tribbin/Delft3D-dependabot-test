@@ -132,7 +132,7 @@
       IP23 = IPOINT(23)
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 
          MTEMP  = PMSA(IP1)
          TMPNAT = PMSA(IP2)
@@ -260,7 +260,7 @@
          IP22  = IP22  + INCREM ( 22 )
          IP23  = IP23  + INCREM ( 23 )
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
 !

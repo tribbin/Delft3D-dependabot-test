@@ -69,7 +69,7 @@ contains
       ipnt        = ipoint
       Iageprod    = 1
 !
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 !
          watersrc       = pmsa( ipnt(  1) )
          ageconc        = pmsa( ipnt(  2) )
@@ -92,7 +92,7 @@ contains
          Iageprod    = Iageprod    + noflux
          ipnt        = ipnt        + increm
 !
- 9000 continue
+      end do
 !
       return
       end subroutine

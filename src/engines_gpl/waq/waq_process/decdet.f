@@ -214,7 +214,7 @@
 !
       IFLUX = 0
 !
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
 !
 !       In all "active" segments
 !
@@ -474,7 +474,7 @@
         IP33  = IP33  + IN33
         IP34  = IP34  + IN34
 !
- 9000 CONTINUE
+      end do
 !
       RETURN
       END

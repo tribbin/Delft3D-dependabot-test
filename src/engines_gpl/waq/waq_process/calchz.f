@@ -80,7 +80,7 @@
       ONESIX = 1.0/6.0
 ! you need this for maninng
 
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 ! 0-inactive cell  1-active cell
        CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
@@ -115,7 +115,7 @@
       IP5   = IP5   + INCREM (  5 )
       IP6   = IP6   + INCREM (  6 )
 !
- 9000 CONTINUE
+      end do
 
       RETURN
       END

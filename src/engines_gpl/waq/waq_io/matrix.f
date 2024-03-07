@@ -126,12 +126,12 @@
 !          begin loop over all breakpoints to add
 
       j = 0
-      do 40 i = 1, nobrk2
+      do i = 1, nobrk2
          iset = ibrknw(i)                     ! breakpoint to insert
 
 !          find first J with IBRK(J) >= IBRKNW(I)
 
-         do 10 k = j+1, nobrk1
+         do k = j+1, nobrk1
             j = k
             if ( iset .lt. ibrk(j) ) goto 20
             if ( iset .eq. ibrk(j) ) goto 30
@@ -143,7 +143,7 @@
                call interpol ( tab(nposar+1,j), tabnw(1,i), tab(nposar+1,j-1), ibrk(j)        , iset ,
      &                         ibrk(j-1)      , nvarnw    , nvals            , item(nvarar+1) )
             endif
-   10    continue
+      end do
 
 !          add values if IBRKNW(I) > IBRK(NOBRK1)
 
@@ -180,7 +180,7 @@
             tab( nposar+iv, j ) = tabnw( iv, i )              ! columns
          enddo
 
-   40 continue
+      end do
 
 !          end the procedure with IBRKNW(NOBRK2) < IBRK(NOBRK1)
 

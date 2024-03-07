@@ -74,14 +74,15 @@
 !
       ISET = 1
       IF ( MOD(INTOPT,16) .LT. 8  ) THEN
-         DO 10 ISEG = 1 , NOSEG
+         DO ISEG = 1 , NOSEG
          DO 10 I = ISYS , ISYS+NSYS-1
             AMASS2(I,   2) = AMASS2( I, 2 ) + CONC (I,ISEG)*DERIV(ISET)
             CONC  (I,ISEG) = DERIV ( ISET )
             ISET = ISET+1
    10    CONTINUE
+      end do
       ELSE
-         DO 20 ISEG = 1 , NOSEG
+         DO ISEG = 1 , NOSEG
             IP = ISDMP(ISEG)
             I4 = (IP-1)*NOTOT
             DO 20 I = ISYS , ISYS+NSYS-1
@@ -92,13 +93,15 @@
                CONC  (I,ISEG) = DERIV (ISET)
                ISET = ISET+1
    20    CONTINUE
+      end do
       ENDIF
 !
 !         zero the derivative
 !
       NTOT = NOTOT*NOSEG
-      DO 30 I = 1 , NTOT
-   30 DERIV(I) = 0.0
+      DO I = 1 , NTOT
+      DERIV(I) = 0.0
+      end do
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

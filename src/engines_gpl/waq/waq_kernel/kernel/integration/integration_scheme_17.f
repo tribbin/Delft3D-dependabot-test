@@ -290,7 +290,7 @@
 
       ith = 1
       IAFLAG = 1
-      DO 10 ISYS = 1 , NOSYS
+      DO ISYS = 1 , NOSYS
 
 !          do the user water quality processes
 
@@ -344,7 +344,7 @@
          call dlwqh6 ( noseg        , notot   , isys    , 1       , a(iconc:),
      &                 gm_sol(1,ith), a(imas2:), a(idmps:), intopt  , j(isdmp:))
 
-   10 continue
+      end do
 
 !          mass balance
 

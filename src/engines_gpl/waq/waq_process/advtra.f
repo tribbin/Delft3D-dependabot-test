@@ -221,7 +221,7 @@
       IPDVOL = IPOINT(32)
 
 !.....Loop over kolommen
-      DO 7000 IK = 1 , Coll%cursize
+      DO IK = 1 , Coll%cursize
 
 !         Select first column of exchanges for DOWNWARD advection
 
@@ -312,7 +312,7 @@
               ENDIF
           ENDDO
 
- 7000 CONTINUE
+      end do
 
       RETURN
 !
@@ -380,7 +380,7 @@
 !JVB  PARAMETER (MXRCOR = 0.5)
 
       CORBUR = 0.0
-      DO 10 IQ = ITOP,IBOT
+      DO IQ = ITOP,IBOT
 
 !         SW and VBUR are fixed per column
           IBODEM = IEXPNT(1,IQ)
@@ -440,7 +440,7 @@
      J        PMSA(IPBVOL+(IQ-1)*INBVOL) = TOTBUR/DM/86400.
           ENDIF
 
-   10 CONTINUE
+      end do
 
       RETURN
       END
@@ -533,7 +533,7 @@
 !     note: more than 1 sediment water exchange may exist on top of
 !           one colun of sediment layers
 
-      DO 20 IQ = IWA1,IWA2
+      DO IQ = IWA1,IWA2
 
 !         Water-sediment interface, set physical parameters
 
@@ -559,7 +559,7 @@
 
           TIME_LEFT = 1.0
           GONE   = .TRUE.
-          DO 10 IQ2 = ITOP,IBOT
+          DO IQ2 = ITOP,IBOT
 
               IBODEM  = IEXPNT(1,IQ2)
               DM      = PMSA(IPDM  +(IBODEM-1)*INDM  )
@@ -684,8 +684,9 @@
 !             Stop als huidige laag niet helemaal weg is!
               IF ( .NOT. GONE ) GOTO 20
 
-   10     CONTINUE
+      end do
    20 CONTINUE
+      end do
 
       RETURN
       END
@@ -836,7 +837,7 @@
 !.....Exchangeloop over de verticale richting
 
       KOLOM = .FALSE.
-      DO 10 IQ = NOQ1+NOQ2+NOQ3+1 , NOQ1+NOQ2+NOQ3+NOQ4
+      DO IQ = NOQ1+NOQ2+NOQ3+1 , NOQ1+NOQ2+NOQ3+NOQ4
 
          IVAN  = IEXPNT(1,IQ)
          INAAR = IEXPNT(2,IQ)
@@ -888,7 +889,7 @@
              nkolom = BotColmnCollAdd ( Coll , IW1 , IW2 , IST , ISB )
          endif
 
-   10 CONTINUE
+      end do
 
 !     Check and remove copies
 

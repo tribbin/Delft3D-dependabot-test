@@ -82,7 +82,7 @@
       IP9  = IPOINT(9 )      
       IFLUX = 0
       !                                                                                                     
-      do 9000 iseg = 1 , noseg
+      do iseg = 1 , noseg
 !                                                                                                     
       SurTemp    = PMSA(IP1)
       HtTot      = PMSA(IP2)
@@ -135,7 +135,7 @@
          
 !                                                                                                     
 !      
- 9000 continue ! end DO over all segments
+      end do ! end DO over all segments
 !                                                                                                     
       return
       end

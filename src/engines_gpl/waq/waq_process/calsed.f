@@ -93,7 +93,7 @@
       IP12 = IPOINT(12)
 !
       IFLUX = 0
-      DO 9000 ISEG = 1 , NOSEG
+      DO ISEG = 1 , NOSEG
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 
       V0SED   = PMSA( IP1 )
@@ -165,7 +165,7 @@
       IP11  = IP11  + INCREM ( 11 )
       IP12  = IP12  + INCREM ( 12 )
 !
- 9000 CONTINUE
+      end do
 !
 
       NOQ = NOQ1 + NOQ2 + NOQ3
@@ -175,15 +175,15 @@
       IP13 = IPOINT(13)
       IN13 = INCREM(13)
 
-      DO 8000 IQ=1,NOQ1+NOQ2
+      DO IQ=1,NOQ1+NOQ2
 
          PMSA(IP13) = 0.0
 
          IP13 = IP13 + IN13
 
- 8000 CONTINUE
+      end do
 
-      DO 7000 IQ=NOQ1+NOQ2+1,NOQ
+      DO IQ=NOQ1+NOQ2+1,NOQ
 
          IVAN = IEXPNT(1,IQ)
 !
@@ -195,7 +195,7 @@
 
          IP13 = IP13 + IN13
 
- 7000 CONTINUE
+      end do
 
       RETURN
 !
