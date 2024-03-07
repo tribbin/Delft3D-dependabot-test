@@ -45,7 +45,7 @@
 
 
       ihalf_idt = idtact/2
-      if ( abs(itime-itstop) .le. ihalf_idt ) then
+      if ( abs(itime-itstop) <= ihalf_idt ) then
          dhltim = .true.
       else
          dhltim = .false.

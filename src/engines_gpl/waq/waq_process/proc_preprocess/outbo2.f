@@ -94,13 +94,13 @@
 !        Grid
 !
          IGRID = IOUTPS(6,IOUT)
-         IF ( IGRID .EQ. IGSEG ) THEN
+         IF ( IGRID == IGSEG ) THEN
             NOCEL = NOSEG
-         ELSEIF ( IGRID .EQ. IGMON ) THEN
+         ELSEIF ( IGRID == IGMON ) THEN
             NOCEL = NODUMP
-         ELSEIF ( IGRID .EQ. IGGRD ) THEN
+         ELSEIF ( IGRID == IGGRD ) THEN
             NOCEL = NX*NY
-         ELSEIF ( IGRID .EQ. IGSUB ) THEN
+         ELSEIF ( IGRID == IGSUB ) THEN
             NOCEL = NDMPAR
          ENDIF
 !
@@ -109,19 +109,19 @@
 !
          NCBUFO = 0
          ISRTO  = IOUTPS(5,IOUT)
-         IF ( ISRTO .EQ. IHNF .OR. ISRTO .EQ. IMNF     ) THEN
+         IF ( ISRTO == IHNF .OR. ISRTO == IMNF     ) THEN
 !
 !           NEFIS file, extra array with length NOCEL needed
 !           substance names and output names in char buffer.
 !
             NBUFOU = NOCEL * ( NRVAR + 1 )
             NCBUFO = NOTOT + NRVAR
-         ELSEIF ( ISRTO .EQ. IHN2 .OR. ISRTO .EQ. IMN2 ) THEN
+         ELSEIF ( ISRTO == IHN2 .OR. ISRTO == IMN2 ) THEN
 !
 !           NEFIS file, extra array with length NOCEL needed
 !
             NBUFOU = NOCEL * ( NRVAR + 1 )
-         ELSEIF ( ISRTO .EQ. IMO3 ) THEN
+         ELSEIF ( ISRTO == IMO3 ) THEN
 !
 !           On subarea's substances also in buffer, only the
 !           first half of the nrvar are real output vars.
@@ -129,7 +129,7 @@
 !
             NBUFOU = NOCEL * ( NOTOT + NRVAR/2 )
             NCBUFO = NOTOT + NRVAR/2
-         ELSEIF ( ISRTO .EQ. IHI3 ) THEN
+         ELSEIF ( ISRTO == IHI3 ) THEN
 !
 !           On subarea's substances also in buffer, only the
 !           first half of the nrvar are real output vars.
@@ -138,7 +138,7 @@
 !
             NBUFOU = (NOCEL+NORAAI) * ( NOTOT + NRVAR/2 )
             NCBUFO = NOTOT + NRVAR/2
-         ELSEIF ( ISRTO .EQ. IHN3 ) THEN
+         ELSEIF ( ISRTO == IHN3 ) THEN
 !
 !           NEFIS file, extra array with length NOCEL needed
 !           On subarea's substances also in buffer, only the
@@ -148,13 +148,13 @@
 !
             NBUFOU = (NOCEL+NORAAI) * ( NOTOT + NRVAR/2 + 1 )
             NCBUFO = NOTOT + NRVAR/2
-         ELSEIF ( ISRTO .EQ. IMO4 .OR. ISRTO .EQ. IHI4 ) THEN
+         ELSEIF ( ISRTO == IMO4 .OR. ISRTO == IHI4 ) THEN
 !
 !           On subarea's only the first half of the nrvar are
 !           real output vars.
 !
             NBUFOU = NOCEL * ( NRVAR/2 )
-         ELSEIF ( ISRTO .EQ. IHN4 ) THEN
+         ELSEIF ( ISRTO == IHN4 ) THEN
 !
 !           NEFIS file, extra array with length NOCEL needed
 !           On subarea's only the first half of the nrvar are

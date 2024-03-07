@@ -81,7 +81,7 @@ contains
          ! sum the fractions
 
          flx = pmsa(ipnt(2))
-         if ( flx .gt. 0.0 ) then
+         if ( flx > 0.0 ) then
             do ifrac = 1, nfrac
                rfrac_p = pmsa(ipnt(2+ifrac))
                fl(iflux+ifrac) = flx*rfrac_p

@@ -116,7 +116,7 @@
 !***********************************************************************
 !
 !
-      IF (TEMP .LE. CRTEMP) THEN
+      IF (TEMP <= CRTEMP) THEN
 !
 !        No mortality at all
 !

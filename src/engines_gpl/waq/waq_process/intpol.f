@@ -80,7 +80,7 @@
       DO I=1,MAXPAR
          Y(I) = PMSA(IP(2*I))
          X(I) = PMSA(IP(2*I+1))
-         IF (X(I).LT. 0.0) EXIT
+         IF (X(I)< 0.0) EXIT
          NUMPAR = I
       ENDDO
 
@@ -91,7 +91,7 @@
 
       I = 0
    30 I = I + 1
-      IF ((VALUE.LT.X(I)).OR.(I.EQ.NUMPAR)) THEN
+      IF ((VALUE<X(I)).OR.(I==NUMPAR)) THEN
          RESULT = Y(I)
       ELSE
          GOTO 30

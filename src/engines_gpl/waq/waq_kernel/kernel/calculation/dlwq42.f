@@ -97,13 +97,13 @@
 
 !         compute volumes if necessary and check for positivity
 
-         if ( ivflag .eq. 1 ) volume(iseg) = amass(1,iseg) + idt*deriv(1,iseg)
+         if ( ivflag == 1 ) volume(iseg) = amass(1,iseg) + idt*deriv(1,iseg)
          vol = volume(iseg)
-         if ( abs(vol) .lt. 1.0e-25 ) then
-            if ( ivmess .lt. 25 ) then
+         if ( abs(vol) < 1.0e-25 ) then
+            if ( ivmess < 25 ) then
                ivmess = ivmess + 1
                write ( lun, 1000 ) iseg  , vol
-            elseif ( ivmess .eq. 25 ) then
+            elseif ( ivmess == 25 ) then
                ivmess = ivmess + 1
                write ( lun, 1001 )
             endif
@@ -120,7 +120,7 @@
 
 !         then the passive substances
 
-         if ( notot - nototp .gt. nosys ) then
+         if ( notot - nototp > nosys ) then
             surf = surface(iseg)
             do isys = nosys+1, notot - nototp
                amass(isys,iseg) = amass(isys,iseg) + idt*deriv(isys,iseg)

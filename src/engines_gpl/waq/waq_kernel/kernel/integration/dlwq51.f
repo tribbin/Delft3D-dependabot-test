@@ -148,44 +148,44 @@
          ito     = ipoint(2,iq)
          ifrom_1 = ipoint(3,iq)
          ito_1   = ipoint(4,iq)
-         if ( ifrom   .eq. 0 .or. ito   .eq. 0 ) cycle
-         if ( ifrom .le. 0 .and. ito .le. 0 ) cycle
+         if ( ifrom   == 0 .or. ito   == 0 ) cycle
+         if ( ifrom <= 0 .and. ito <= 0 ) cycle
 
-         if ( ifrom .gt. 0 ) then
+         if ( ifrom > 0 ) then
             if ( .not. btest(iknmrk(ifrom),0) ) cycle   ! identified dry at start and end of timestep
          endif
-         if ( ito   .gt. 0 ) then
+         if ( ito   > 0 ) then
             if ( .not. btest(iknmrk(ito  ),0) ) cycle
          endif
 
          a = area(iq)
          q = flow(iq)
-         if ( abs(q) .lt. 10.0e-25 .and. iq .le. noq12 .and. btest(iopt,0) )  cycle
+         if ( abs(q) < 10.0e-25 .and. iq <= noq12 .and. btest(iopt,0) )  cycle
                                                            ! thin dam option, no dispersion at zero flow
 !     Check if exchange is dump exchange, set IPB
 
          ipb = 0
          if ( btest(iopt,3) ) then
-            if ( iqdmp(iq) .gt. 0 ) ipb = iqdmp(iq)
+            if ( iqdmp(iq) > 0 ) ipb = iqdmp(iq)
          endif
 
 !         initialize uniform values
 
-         if ( iq .le. noq1      ) then
+         if ( iq <= noq1      ) then
             e  = disp (1)
             al = aleng(1,1)
-         elseif ( iq .le. noq12 ) then
+         elseif ( iq <= noq12 ) then
             e  = disp (2)
             al = aleng(2,1)
          else
             e  = disp (3)
             al = aleng(1,2)
          endif
-         if ( iq .gt. noq12+noq3 ) e  = 0.0     ! in the bed
+         if ( iq > noq12+noq3 ) e  = 0.0     ! in the bed
 
-         if ( ilflag .eq. 1 ) al = aleng(1,iq) + aleng(2,iq)
-         if ( al .lt. 1.0e-25) cycle
-         if ( ilflag .eq. 1 ) then
+         if ( ilflag == 1 ) al = aleng(1,iq) + aleng(2,iq)
+         if ( al < 1.0e-25) cycle
+         if ( ilflag == 1 ) then
             f1 = aleng(1,iq) / al
          else
             f1 = 0.5
@@ -193,8 +193,8 @@
          dl = a / al
          e  = e*dl                              ! in m3/s
 !
-         if ( ifrom .lt. 0 ) goto 20
-         if ( ito   .lt. 0 ) goto 40
+         if ( ifrom < 0 ) goto 20
+         if ( ito   < 0 ) goto 40
 
 !         The correction step
 
@@ -202,21 +202,21 @@
          vto     = volume( ito )
          do isys = 1 , nosys
             v  = q
-            if ( ivpnt(isys) .gt. 0 ) v = v + velo  ( ivpnt(isys), iq ) * a
+            if ( ivpnt(isys) > 0 ) v = v + velo  ( ivpnt(isys), iq ) * a
             f2 = f1
-            if ( v .lt. 0.0 ) f2 = f2 - 1.0
+            if ( v < 0.0 ) f2 = f2 - 1.0
             d  = -f2*v + e + 0.5*v*v*idt/a/al
             d  = min( d, e )
-            if ( idpnt(isys) .gt. 0 ) d = d + disper( idpnt(isys), iq ) * dl
+            if ( idpnt(isys) > 0 ) d = d + disper( idpnt(isys), iq ) * dl
             dq = ( conc(isys,ifrom) - conc(isys,ito) )*d*idt
-            if ( d .lt. 0.0 ) then
+            if ( d < 0.0 ) then
                e2 = dq
                s  = sign ( 1.0 , e2 )
                select case ( ifrom_1 )
                   case ( 1: )
                      cfrm_1 = conc2(isys,ifrom_1)
                   case (  0 )
-                     if ( s .gt. 0 ) then
+                     if ( s > 0 ) then
                         cfrm_1 = 0.0
                      else
                         cfrm_1 = 2.0*conc2(isys,ifrom)
@@ -228,7 +228,7 @@
                   case ( 1: )
                      cto_1 = conc2(isys,ito_1)
                   case (  0 )
-                     if ( s .gt. 0 ) then
+                     if ( s > 0 ) then
                         cto_1 = 2.0*conc2(isys,ito)
                      else
                         cto_1 = 0.0
@@ -245,14 +245,14 @@
             conc2(isys,ifrom) = conc2(isys,ifrom) - dq/vfrom
             conc2(isys,ito  ) = conc2(isys,ito  ) + dq/vto
 
-            if ( ipb .gt. 0 ) then                          ! recalculate
-               if ( v .gt. 0.0 ) then                       ! transport
+            if ( ipb > 0 ) then                          ! recalculate
+               if ( v > 0.0 ) then                       ! transport
                   dqtr = v * conc(isys,ifrom) * idt         ! for the mass
                else                                         ! balance
                   dqtr = v * conc(isys,ito  ) * idt
                endif
                dqtot = dq + dqtr
-               if ( dqtot .gt. 0.0 ) then
+               if ( dqtot > 0.0 ) then
                   dmpq(isys,ipb,1) = dmpq(isys,ipb,1) + dqtot
                else
                   dmpq(isys,ipb,2) = dmpq(isys,ipb,2) - dqtot
@@ -266,37 +266,37 @@
    20    vto     = volume( ito )
          do isys = 1 , nosys
             v  = q
-            if ( ivpnt(isys) .gt. 0 ) v = v + velo  ( ivpnt(isys), iq ) * a
+            if ( ivpnt(isys) > 0 ) v = v + velo  ( ivpnt(isys), iq ) * a
             d = 0.0
             if ( .not. btest(iopt,1) ) then
                d = e
-               if ( idpnt(isys) .gt. 0 ) d = d + disper( idpnt(isys), iq ) * dl
+               if ( idpnt(isys) > 0 ) d = d + disper( idpnt(isys), iq ) * dl
             endif
             if ( .not. btest(iopt,2) ) then
                f2 = f1
-               if ( v .lt. 0.0 ) f2 = f2 - 1.0
+               if ( v < 0.0 ) f2 = f2 - 1.0
                d = d -f2*v + 0.5*v*v*idt/a/al
                d = min( d, e )
             endif
             dq = d * ( bound(isys,-ifrom) - conc(isys,ito) )
             conc2(isys,ito) = conc2(isys,ito)  + dq*idt/vto
 
-            if ( iaflag .eq. 1 ) then
-               if ( dq .gt. 0 ) then
+            if ( iaflag == 1 ) then
+               if ( dq > 0 ) then
                   amass2(isys,4) = amass2(isys,4) + dq*idt
                else
                   amass2(isys,5) = amass2(isys,5) - dq*idt
                endif
             endif
 
-            if ( ipb .gt. 0 ) then                          ! recalculate
-               if ( v .gt. 0.0 ) then                       ! transport
+            if ( ipb > 0 ) then                          ! recalculate
+               if ( v > 0.0 ) then                       ! transport
                   dqtr = v * bound(isys,-ifrom)             ! for the mass
                else                                         ! balance
                   dqtr = v * conc (isys, ito  )
                endif
                dqtot = dq + dqtr
-               if ( dqtot .gt. 0.0 ) then
+               if ( dqtot > 0.0 ) then
                   dmpq(isys,ipb,1) = dmpq(isys,ipb,1) + dqtot * idt
                else
                   dmpq(isys,ipb,2) = dmpq(isys,ipb,2) - dqtot * idt
@@ -310,37 +310,37 @@
    40    vfrom   = volume(ifrom)
          do isys = 1 , nosys
             v  = q
-            if ( ivpnt(isys) .gt. 0 ) v = v + velo  ( ivpnt(isys), iq ) * a
+            if ( ivpnt(isys) > 0 ) v = v + velo  ( ivpnt(isys), iq ) * a
             d = 0.0
             if ( .not. btest(iopt,1) ) then
                d = e
-               if ( idpnt(isys) .gt. 0 ) d = d + disper( idpnt(isys), iq ) * dl
+               if ( idpnt(isys) > 0 ) d = d + disper( idpnt(isys), iq ) * dl
             endif
             if ( .not. btest(iopt,2) ) then
                f2 = f1
-               if ( v .lt. 0 ) f2 = f2 - 1.0
+               if ( v < 0 ) f2 = f2 - 1.0
                d = -f2*v + d + 0.5*v*v*idt/a/al
                d = min( d, e )
             endif
             dq = d * ( conc(isys,ifrom) - bound(isys,-ito) )
             conc2(isys,ifrom) = conc2(isys,ifrom)  - dq*idt/vfrom
 
-            if ( iaflag .eq. 1 ) then
-               if ( dq .gt. 0 ) then
+            if ( iaflag == 1 ) then
+               if ( dq > 0 ) then
                   amass2(isys,5) = amass2(isys,5) + dq*idt
                else
                   amass2(isys,4) = amass2(isys,4) - dq*idt
                endif
             endif
 
-            if ( ipb .gt. 0 ) then                          ! recalculate
-               if ( v .gt. 0.0 ) then                       ! transport
+            if ( ipb > 0 ) then                          ! recalculate
+               if ( v > 0.0 ) then                       ! transport
                   dqtr = v * conc (isys, ifrom)             ! for the mass
                else                                         ! balance
                   dqtr = v * bound(isys,-ito  )
                endif
                dqtot = dq + dqtr
-               if ( dqtot .gt. 0.0 ) then
+               if ( dqtot > 0.0 ) then
                   dmpq(isys,ipb,1) = dmpq(isys,ipb,1) + dqtot * idt
                else
                   dmpq(isys,ipb,2) = dmpq(isys,ipb,2) - dqtot * idt

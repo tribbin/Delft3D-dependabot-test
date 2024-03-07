@@ -152,42 +152,42 @@
 !
       if (init) then
         problem = .false.
-        if (increm(1) .gt. 0 ) problem = .true.
-        if (increm(5) .gt. 0 ) problem = .true.
+        if (increm(1) > 0 ) problem = .true.
+        if (increm(5) > 0 ) problem = .true.
         DO IFILSP = 1,NTOGRZ
-          if (increm(8+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(9+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(10+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(11+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(12+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(13+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(14+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(15+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(16+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(17+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(18+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
+          if (increm(8+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(9+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(10+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(11+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(12+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(13+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(14+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(15+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(16+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(17+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(18+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
           DO I = 1,NTONUT
-            if (increm(18+(IFILSP-1)*NINGRZ+I) .gt. 0 ) problem = .true.
+            if (increm(18+(IFILSP-1)*NINGRZ+I) > 0 ) problem = .true.
           ENDDO
-          if (increm(23+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(24+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(25+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(26+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(27+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(28+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
-          if (increm(29+(IFILSP-1)*NINGRZ) .gt. 0 ) problem = .true.
+          if (increm(23+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(24+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(25+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(26+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(27+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(28+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
+          if (increm(29+(IFILSP-1)*NINGRZ) > 0 ) problem = .true.
         ENDDO
         DO I=1,NTOALG
           DO J=1,NTONUT-1
-            if (increm(5+J*NTOALG+2*NTONUT+NTOGRZ*NINGRZ+I) .gt. 0 )
+            if (increm(5+J*NTOALG+2*NTONUT+NTOGRZ*NINGRZ+I) > 0 )
      j          problem = .true.
           ENDDO
           DO IFILSP=1,NTOGRZ
             if (increm(5+(NTONUT+IFILSP-1)*NTOALG+2*NTONUT+
-     1                            NTOGRZ*NINGRZ+I) .gt. 0 )
+     1                            NTOGRZ*NINGRZ+I) > 0 )
      j          problem = .true.
             if (increm(5+(NTONUT+NTOGRZ+IFILSP-1)*NTOALG+
-     1                             2*NTONUT+NTOGRZ*NINGRZ+I) .gt. 0 )
+     1                             2*NTONUT+NTOGRZ*NINGRZ+I) > 0 )
      j          problem = .true.
           ENDDO
         ENDDO
@@ -205,9 +205,9 @@
 
       DO IFILSP = 1,NTOGRZ
         active_grazer(ifilsp) = .false.
-        if ( increm(6+(IFILSP-1)*NINGRZ) .gt. 0 .or.
-     j       (PMSA(IP(6+(IFILSP-1)*NINGRZ)).gt.1e-20 .or.
-     j        PMSA(IP(7+(IFILSP-1)*NINGRZ)).gt.1e-20)      )
+        if ( increm(6+(IFILSP-1)*NINGRZ) > 0 .or.
+     j       (PMSA(IP(6+(IFILSP-1)*NINGRZ))>1e-20 .or.
+     j        PMSA(IP(7+(IFILSP-1)*NINGRZ))>1e-20)      )
      j   active_grazer(ifilsp) = .true.
       ENDDO
 
@@ -281,14 +281,14 @@
 !       Correct unit of input concentration for zoobenthos
 !       Force concentration zero for zoobenthos segments without bottom
         FRDBOT(IFILSP) = FRDBOT_SAVE(IFILSP)
-        IF ( BENTHS(IFILSP) .EQ. 1 ) THEN
+        IF ( BENTHS(IFILSP) == 1 ) THEN
 !         Species, defined in g/m2 (typically ZOOBENTHOS)
 !         Convert input unit to g/m3!!
           GRZNEW(IFILSP) = GRZNEW(IFILSP)/DEPTH
           GRZOLD(IFILSP) = GRZOLD(IFILSP)/DEPTH
 !         FRDBOT(IFILSP) = FRDBOT_SAVE(IFILSP)
           CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-          IF ((IKMRK2.EQ.1).OR.(IKMRK2.EQ.2)) THEN
+          IF ((IKMRK2==1).OR.(IKMRK2==2)) THEN
              GRZNEW(IFILSP) = 0.0
              FRDBOT(IFILSP) = 0.0
           ENDIF
@@ -329,11 +329,11 @@
 !*  4 Check if grazer growth or mortality exceeds constraints
 !*    If this is the case, correct new biomass to constraint value
 !****
-          IF (GRZOLD(IFILSP) .GT. 0.0) THEN
+          IF (GRZOLD(IFILSP) > 0.0) THEN
 !             There was biomass
-              IF ((GRZNEW(IFILSP) - GRZOLD(IFILSP)) .GE. 0.0) THEN
+              IF ((GRZNEW(IFILSP) - GRZOLD(IFILSP)) >= 0.0) THEN
 !                 Net growth
-                  IF (GRZNEW(IFILSP) .GT. GRZOLD(IFILSP) *
+                  IF (GRZNEW(IFILSP) > GRZOLD(IFILSP) *
      &            (1.0 + GRZGM(IFILSP) * EXP(TMPGM(IFILSP) *
      &            (WATEMP - 20.0)) * PERIOD)) THEN
                       GRZNEW(IFILSP) = GRZOLD(IFILSP) *
@@ -342,7 +342,7 @@
                   ENDIF
               ELSE
 !                 Net mortality
-                  IF (GRZNEW(IFILSP) .LT. GRZOLD(IFILSP) *
+                  IF (GRZNEW(IFILSP) < GRZOLD(IFILSP) *
      &            (1.0 - GRZMM(IFILSP) * EXP(TMPMM(IFILSP) *
      &            (WATEMP - 20.0)) * PERIOD)) THEN
                       GRZNEW(IFILSP) = GRZOLD(IFILSP) *
@@ -361,17 +361,17 @@
 !****
 !*  6 Calculate grazing (1/d) rate
 !****
-          IF (GRZFOO .GT. 0.0) THEN
+          IF (GRZFOO > 0.0) THEN
 
               MaxFiltration = EXP(TMPFM(IFILSP) * (WATEMP - 20.0)) *
      &        GRZFM(IFILSP) * (GRZFOO / (GRZFOO + GRZMO(IFILSP)))
               MaxUptake = EXP(TMPRM(IFILSP) * (WATEMP - 20.0)) *
      j        GRZRM(IFILSP)
-              if ( MaxFiltration .lt. 1e-20 ) then
+              if ( MaxFiltration < 1e-20 ) then
 !               grazing rate limited by filtration
                 GRZGRZ = GRZOLD(IFILSP) * MaxFiltration
               else
-                IF (GRZFOO .LT. (MaxUptake/MaxFiltration) ) THEN
+                IF (GRZFOO < (MaxUptake/MaxFiltration) ) THEN
 !                 grazing rate limited by filtration
                   GRZGRZ = GRZOLD(IFILSP) * MaxFiltration
                 ELSE
@@ -386,7 +386,7 @@
 !*  7 Calculate realized feeding (mg C/mg C.d) and filtration rate (l/mg C.d)
 !*    GRZRAT and GRZFIL are output variables, not used at the moment
 !****
-          IF (GRZOLD(IFILSP) .GT. 0.0) THEN
+          IF (GRZOLD(IFILSP) > 0.0) THEN
               GRZRAT = GRZFOO * GRZGRZ / GRZOLD(IFILSP)
               GRZFIL = GRZGRZ / GRZOLD(IFILSP)
           ELSE
@@ -433,9 +433,9 @@
 !****
           GRZPMX = 10.0E20
           DO I = 1, NTONUT
-              IF (GRZST(I,IFILSP) .GT. 0.0) THEN
+              IF (GRZST(I,IFILSP) > 0.0) THEN
                   GRZPRT = GRZUPT(I) / GRZST(I,IFILSP)
-                  IF (GRZPRT .LT. GRZPMX) THEN
+                  IF (GRZPRT < GRZPMX) THEN
                       GRZPMX = GRZPRT
                   ENDIF
               ENDIF
@@ -475,7 +475,7 @@
 !****
 !* 15 Correct bruto growth if intake can not sustain respiration and growth
 !****
-          IF (GRZBRU .GT. GRZPMX) THEN
+          IF (GRZBRU > GRZPMX) THEN
               GRZBRU = GRZPMX
               GRZNEW(IFILSP) = GRZOLD(IFILSP) * (1.0 - GRZMET) + GRZPMX
           ENDIF
@@ -488,7 +488,7 @@
 !****
 !* 17 If there is bruto growth, subtract nutrients from the intake
 !****
-              IF (GRZBRU .GE. 0.0) THEN
+              IF (GRZBRU >= 0.0) THEN
                   GRZUPT(I) = GRZUPT(I) - GRZBRU * GRZST(I,IFILSP)
 !****
 !* 18 If their is mortality, add the nutrients to the detritus pool
@@ -539,12 +539,12 @@
 !****
 !* 23 Save biomass grazers for next time step
 !****
-          IF ( BENTHS(IFILSP) .EQ. 1 ) THEN
+          IF ( BENTHS(IFILSP) == 1 ) THEN
 !           Zoobenthos species
 !           Convert input unit to g/m2!!
             GRZNEW(IFILSP) = GRZNEW(IFILSP)*DEPTH
           ENDIF
-          IF (GRZML(IFILSP).GT.0.0) THEN
+          IF (GRZML(IFILSP)>0.0) THEN
             PMSA(IP(7+(IFILSP-1)*NINGRZ)) = GRZNEW(IFILSP)/GRZML(IFILSP)
           ELSE
             PMSA(IP(7+(IFILSP-1)*NINGRZ)) = 0.0

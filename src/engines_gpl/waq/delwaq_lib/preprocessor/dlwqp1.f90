@@ -298,7 +298,7 @@ contains
 
       call retrieve_command_argument('-m', 1, lfound, mlevel, rdummy, cdummy, ierr2)
       if (lfound) then
-         if (ierr2 .eq. 0) then
+         if (ierr2 == 0) then
             call setmmo(mlevel)
          else
             call setmmo(10)
@@ -337,13 +337,13 @@ contains
       if (.not. swi_nopro) then
          call retrieve_command_argument('-p', 3, lfound, idummy, rdummy, pdffil, ierr2)
          if (lfound) then
-            if (ierr2 .ne. 0) then
+            if (ierr2 /= 0) then
                pdffil = ' '
             end if
          else
             pdffil = ' '
          end if
-         if (pdffil .ne. ' ') then
+         if (pdffil /= ' ') then
             lchar(34) = pdffil
             write (line, '(a)') ' found -p command line switch'
             call monsys(line, 1)
@@ -352,7 +352,7 @@ contains
          end if
          ierr2 = status%ierr
          call rd_tabs(pdffil, lurep, versio, serial, status)
-         if (status%ierr .gt. ierr2) then
+         if (status%ierr > ierr2) then
             write (lurep, *) ' '
             write (lurep, *) ' ERROR: Could not read the process definition file.'
             write (lurep, *) '        Check if the filename after -p is correct, and exists.'
@@ -385,7 +385,7 @@ contains
          if (lfound) then
             write (line, '(a)') ' found -target_serial command line switch'
             call monsys(line, 1)
-            if (ierr2 .ne. 0) then
+            if (ierr2 /= 0) then
                old_items%target_serial = target_serial
                write (line, '(a)') ' no serial number given, using current'
                call monsys(line, 1)
@@ -406,7 +406,7 @@ contains
       if (lfound) then
          write (line, '(a)') ' found -conf command line switch'
          call monsys(line, 1)
-         if (ierr2 .ne. 0) then
+         if (ierr2 /= 0) then
             write (line, '(a)') ' no configuration id given, using default'
             call monsys(line, 1)
             config = ' '
@@ -427,7 +427,7 @@ contains
          call monsys(line, 1)
          write (line, '(a)') ' found -eco command line switch'
          call monsys(line, 1)
-         if (ierr2 .ne. 0) then
+         if (ierr2 /= 0) then
             blmfil = 'bloom.spe'
             write (line, '(a30,a50)') ' using default eco input file:', blmfil
             call monsys(line, 1)
@@ -438,7 +438,7 @@ contains
       else
          blmnam = 'ACTIVE_BLOOM_P'
          blm_act = dlwq_find(constants, blmnam)
-         if (blm_act .gt. 0 .and. .not. swi_nopro) then
+         if (blm_act > 0 .and. .not. swi_nopro) then
             l_eco = .true.
             line = ' '
             call monsys(line, 1)
@@ -467,7 +467,7 @@ contains
          read (lunblm, '(a)') line
          verspe = 1.0
          ioff = index(line, 'BLOOMSPE_VERSION_')
-         if (ioff .eq. 0) then
+         if (ioff == 0) then
             rewind (lunblm)
          else
             read (line(ioff + 17:), *, err=100) verspe
@@ -529,7 +529,7 @@ contains
          do ialg = 1, notyp
             name10 = algtyp(ialg)
             isys = index_in_array(name10,  syname)
-            if (isys .gt. 0) then
+            if (isys > 0) then
                noalg = noalg + 1
                algact(ialg) = 1
                typnam(noalg) = algtyp(ialg)
@@ -548,9 +548,9 @@ contains
             ! set algal group list
             nogrp = 0
             do iatyp = 1, notyp
-               if (algact(iatyp) .eq. 1) then
+               if (algact(iatyp) == 1) then
                   igrp = index_in_array(alggrp(iatyp),  grpnam)
-                  if (igrp .le. 0) then
+                  if (igrp <= 0) then
                      nogrp = nogrp + 1
                      grpnam(nogrp) = alggrp(iatyp)
                      grpabr(nogrp) = abrgrp(iatyp)
@@ -567,7 +567,7 @@ contains
 
       swinam = 'only_active'
       ix_act = dlwq_find(constants, swinam)
-      if (ix_act .gt. 0) then
+      if (ix_act > 0) then
          write (line, '(a)') ' found only_active constant'
          call monsys(line, 1)
          write (line, '(a)') ' only activated processes are switched on'
@@ -585,7 +585,7 @@ contains
       ! if not active only and no configuration set default
 
       if (.not. laswi) then
-         if (config .eq. ' ') then
+         if (config == ' ') then
             if (l_eco) then
                config = 'eco'
             else
@@ -618,7 +618,7 @@ contains
 
       ! add the statistical processes in the structure
 
-      if (statprocesdef%cursize .gt. 0) then
+      if (statprocesdef%cursize > 0) then
          do istat = 1, statprocesdef%cursize
             statprocesdef%procesprops(istat)%sfrac_type = 0
             iret = procespropcolladd(procesdef, statprocesdef%procesprops(istat))
@@ -651,7 +651,7 @@ contains
 
       ! replace names of bloom algea with actual names
 
-      if (l_eco .and. nbpr .gt. 0) then
+      if (l_eco .and. nbpr > 0) then
 
          ! now replace process parameters
 
@@ -725,7 +725,7 @@ contains
 
       parnam = 'theta'
       parindx = index_in_array(parnam,  outputs%names)
-      if (parindx .gt. 0 .and. (intsrt .eq. 21 .or. intsrt .eq. 22)) then
+      if (parindx > 0 .and. (intsrt == 21 .or. intsrt == 22)) then
          locnam(1) = parnam
          outputs%pointers(parindx) = nopred + nocons + nopa + nofun + nosfun + notot + 1
          write (line, '(3a)') ' output [', parnam, '] will be generated by numerical scheme'
@@ -759,7 +759,7 @@ contains
 
       ! if not all input present , stop with exit code
 
-      if (nmis .gt. 0) then
+      if (nmis > 0) then
          call open_waq_files(lun(24), lchar(24), 24, 1, ierr2)
          close (lun(24))
          write (lurep, *) ' not all input available.'
@@ -816,7 +816,7 @@ contains
          subname = syname(isys)
          call str_lower(subname)
          iindx = index_in_array(subname,  ainame)
-         if (iindx .gt. 0) then
+         if (iindx > 0) then
             substdname(isys) = allitems%itemproppnts(iindx)%pnt%stdn
             subunit(isys) = allitems%itemproppnts(iindx)%pnt%stdu
             subdescr(isys) = trim(allitems%itemproppnts(iindx)%pnt%text)//' '//allitems%itemproppnts(iindx)%pnt%unit
@@ -829,8 +829,8 @@ contains
          else
             ! Is it an algae?
             ialg = index_in_array(subname(1:10),  algtyp)
-            if (ialg .gt. 0) then
-               if (algcof(icof, ialg) .ge. 0) then
+            if (ialg > 0) then
+               if (algcof(icof, ialg) >= 0) then
                   substdname(isys) = ' '
                   subunit(isys) = 'g m-3'
                   subdescr(isys) = algdsc(ialg)//' (gC/m3)'
@@ -852,19 +852,19 @@ contains
          outname = outputs%names(ioutp)
          call str_lower(outname)
          iindx = index_in_array(outname,  ainame)
-         if (iindx .gt. 0) then
+         if (iindx > 0) then
             outputs%std_var_name(ioutp) = allitems%itemproppnts(iindx)%pnt%stdn
             outputs%units(ioutp) = allitems%itemproppnts(iindx)%pnt%stdu
             outputs%description(ioutp) = trim(allitems%itemproppnts(iindx)%pnt%text)//' '//allitems%itemproppnts(iindx)%pnt%unit
-         else if (outname .eq. 'theta') then
+         else if (outname == 'theta') then
             outputs%std_var_name(ioutp) = ' '
             outputs%units(ioutp) = ' '
             outputs%description(ioutp) = 'Local-theta, generated by numerical scheme (-)'
          else
             ! Is it an algae?
             ialg = index_in_array(outname(1:10),  algtyp)
-            if (ialg .gt. 0) then
-               if (algcof(icof, ialg) .ge. 0) then
+            if (ialg > 0) then
+               if (algcof(icof, ialg) >= 0) then
                   outputs%std_var_name(ioutp) = ' '
                   outputs%units(ioutp) = 'g m-3'
                   outputs%description(ioutp) = trim(algdsc(ialg))//' (gC/m3)'

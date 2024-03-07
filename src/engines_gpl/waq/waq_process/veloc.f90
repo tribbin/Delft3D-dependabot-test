@@ -129,7 +129,7 @@ contains
 !.....Berekening gemiddelde stroomsnelheid horizontale richting
       do iq = 1, noq1+noq2
 
-         if ( iq .eq. noq1+1 ) then
+         if ( iq == noq1+1 ) then
             ip1 = ip3           !   now point to the work arrays
             ip2 = ip4           !   for the second direction
             in1 = in3
@@ -143,26 +143,26 @@ contains
 
          ifrom = iexpnt(1,iq)   !   the 'from' computational element
          ito   = iexpnt(2,iq)   !   the 'to'   computational element
-         if ( ifrom .eq. 0 .or.  ito .eq. 0 )  cycle  !  closed boundary
-         if ( ifrom .lt. 0 .and. ito .lt. 0 )  cycle  !  both open bnd
+         if ( ifrom == 0 .or.  ito == 0 )  cycle  !  closed boundary
+         if ( ifrom < 0 .and. ito < 0 )  cycle  !  both open bnd
 
          ikmrkv = 0             !   see whether at least one of the
          ikmrkt = 0             !   segments (ifrom,ito) is interior to
                                 !   the domain of this processor
-         if ( ifrom  .gt. 0 ) call evaluate_waq_attribute(1,iknmrk(ifrom),ikmrkv)
-         if ( ito    .gt. 0 ) call evaluate_waq_attribute(1,iknmrk(ito  ),ikmrkt)
+         if ( ifrom  > 0 ) call evaluate_waq_attribute(1,iknmrk(ifrom),ikmrkv)
+         if ( ito    > 0 ) call evaluate_waq_attribute(1,iknmrk(ito  ),ikmrkt)
                                 !   if not, then skip the exchange
-         if ( ikmrkv .eq. 0 .and. ikmrkt .eq. 0 ) cycle
+         if ( ikmrkv == 0 .and. ikmrkt == 0 ) cycle
 
          ikmrkv = 1             !   now check whether the segments
          ikmrkt = 1             !   are both active in the global domain
-         if ( ifrom  .gt. 0 ) call evaluate_waq_attribute(3,iknmrk(ifrom),ikmrkv)
-         if ( ito    .gt. 0 ) call evaluate_waq_attribute(3,iknmrk(ito  ),ikmrkt)
+         if ( ifrom  > 0 ) call evaluate_waq_attribute(3,iknmrk(ifrom),ikmrkv)
+         if ( ito    > 0 ) call evaluate_waq_attribute(3,iknmrk(ito  ),ikmrkt)
                                 !   if not, then skip the exchange
-         if ( ikmrkv .eq. 0 .or.  ikmrkt .eq. 0 ) cycle
+         if ( ikmrkv == 0 .or.  ikmrkt == 0 ) cycle
 
-         if ( abs(flow) .lt. 10.0E-25 ) flow = 0.0
-         if ( area      .lt. 10.0E-25 ) then
+         if ( abs(flow) < 10.0E-25 ) flow = 0.0
+         if ( area      < 10.0E-25 ) then
             area = 1.0
             flow = 0.0
          endif
@@ -170,7 +170,7 @@ contains
 !           loop over from and to pointers
          do i = 1, 2
             ispnt = iexpnt(i,iq)
-            if ( ispnt .gt. 0 ) then
+            if ( ispnt > 0 ) then
                SWCalcVelo = pmsa( ip8 + (ispnt-1)*in8 )
                icalsw = int ( SWCalcVelo + 0.5 )
                select case ( icalsw )
@@ -204,7 +204,7 @@ contains
       do iseg = 1 , noseg
 !
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
-         if ( ikmrk1 .eq. 1 ) then
+         if ( ikmrk1 == 1 ) then
 
             Veloc1 = pmsa(ipnt(1)) / max( pmsa(ipnt(2)), 1.0 )
             Veloc2 = pmsa(ipnt(3)) / max( pmsa(ipnt(4)), 1.0 )
@@ -212,7 +212,7 @@ contains
             SWCalcVelo = pmsa( ipnt(8) )
             icalsw = int ( SWCalcVelo + 0.5 )
 
-            if (icalsw .eq. 3) then
+            if (icalsw == 3) then
                 FlowSeg1 = pmsa(ipnt(1))
                 FlowSeg2 = pmsa(ipnt(3))
             endif
@@ -225,18 +225,18 @@ contains
                case ( 1 )
                   Orient_1 = pmsa( ipnt(  6) ) * radcf
                   Orient_2 = pmsa( ipnt(  7) ) * radcf
-                  if( Orient_1 .ge. 0.0 ) then
-                     if( Orient_2 .lt. 0. ) Orient_2 = Orient_1 + 0.5 * pi
+                  if( Orient_1 >= 0.0 ) then
+                     if( Orient_2 < 0. ) Orient_2 = Orient_1 + 0.5 * pi
                      x = Veloc1 * sin(Orient_1) + Veloc2 * sin(Orient_2)
                      y = Veloc1 * cos(Orient_1) + Veloc2 * cos(Orient_2)
                      Velocity = sqrt(x*x + y*y)
-                     if( x .ne. 0. ) then
+                     if( x /= 0. ) then
                         FlowDir = atan2(x,y) / radcf
-                        if( FlowDir .lt. 0. ) then
+                        if( FlowDir < 0. ) then
                            FlowDir = FlowDir + 360.
                         endif
                      else
-                        if ( y .lt. 0. ) then
+                        if ( y < 0. ) then
                            FlowDir = 180.
                         else
                            FlowDir = 0.
@@ -261,13 +261,13 @@ contains
 
 !           Maximize velocity if MaxVeloc > 0
             MaxVeloc   = pmsa( ipnt(  5) )
-            if( MaxVeloc .gt. 0.0 .and. Velocity .gt. MaxVeloc ) then
+            if( MaxVeloc > 0.0 .and. Velocity > MaxVeloc ) then
                Velocity = MaxVeloc
             endif
 !
             pmsa( ipnt( 12)   ) = Velocity
              pmsa( ipnt( 13)   ) = FlowDir
-            if (icalsw .eq. 3) then
+            if (icalsw == 3) then
                 pmsa( ipnt( 14)   ) = FlowSeg
             else
                 pmsa( ipnt( 14)   ) = -999.9

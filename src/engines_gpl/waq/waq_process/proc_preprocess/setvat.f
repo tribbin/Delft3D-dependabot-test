@@ -480,7 +480,7 @@
          OPEN(NEWUNIT=LUN, FILE='aggrlist.dat')
          DO
             NOVAT = NOVAT + 1
-            IF ( NOVAT .GT. MAXLOC ) THEN
+            IF ( NOVAT > MAXLOC ) THEN
                LINE = 'ERROR : local dimension overflow in SETVAT'
                CALL MONSYS(LINE,1)
                WRITE(*,*) LINE
@@ -500,37 +500,37 @@
 !
       DO IVAR = 1 , NOVAR
          IVAT = index_in_array( VARNAM(IVAR), VATNAM(:NOVAT))
-         IF ( IVAT   .GT. 0 ) THEN
+         IF ( IVAT   > 0 ) THEN
 !
 !           aggregation
 !
-            IF ( VATTAG(IVAT) .EQ. 0 ) THEN
+            IF ( VATTAG(IVAT) == 0 ) THEN
 !
 !              NO aggregation
 !
                VARTAG(IVAR) = VATTAG(IVAT)
                VARAGG(IVAR) = 0
 !
-            ELSEIF ( VATTAG(IVAT) .EQ. 1 ) THEN
+            ELSEIF ( VATTAG(IVAT) == 1 ) THEN
 !
 !              Accumulate
 !
                VARTAG(IVAR) = VATTAG(IVAT)
                VARAGG(IVAR) = 0
 !
-            ELSEIF ( VATTAG(IVAT) .EQ. 2 ) THEN
+            ELSEIF ( VATTAG(IVAT) == 2 ) THEN
 !
 !              Average
 !
                VARTAG(IVAR) = VATTAG(IVAT)
                VARAGG(IVAR) = 0
 !
-            ELSEIF ( VATTAG(IVAT) .EQ. 3 ) THEN
+            ELSEIF ( VATTAG(IVAT) == 3 ) THEN
 !
 !              Weight average
 !
                IV_AG = index_in_array( VATNAG(IVAT), VARNAM)
-               IF ( IV_AG .GT. 0 ) THEN
+               IF ( IV_AG > 0 ) THEN
                   VARTAG(IVAR) = VATTAG(IVAT)
                   VARAGG(IVAR) = IV_AG
                ELSE
@@ -554,26 +554,26 @@
 !
 !           dis-aggregation
 !
-            IF ( VATTDA(IVAT) .EQ. 0 ) THEN
+            IF ( VATTDA(IVAT) == 0 ) THEN
 !
 !              NO dis-aggregation
 !
                VARTDA(IVAR) = VATTDA(IVAT)
                VARDAG(IVAR) = 0
 !
-            ELSEIF ( VATTDA(IVAT) .EQ. 1 ) THEN
+            ELSEIF ( VATTDA(IVAT) == 1 ) THEN
 !
 !              expansion
 !
                VARTDA(IVAR) = VATTDA(IVAT)
                VARDAG(IVAR) = 0
 !
-            ELSEIF ( VATTDA(IVAT) .EQ. 2 ) THEN
+            ELSEIF ( VATTDA(IVAT) == 2 ) THEN
 !
 !              distribute with weight
 !
                IV_DA = index_in_array(VATNDA(IVAT), VARNAM)
-               IF ( IV_DA .GT. 0 ) THEN
+               IF ( IV_DA > 0 ) THEN
                   VARTDA(IVAR) = VATTDA(IVAT)
                   VARDAG(IVAR) = IV_DA
                ELSE
@@ -581,7 +581,7 @@
                   VARDAG(IVAR) = 0
                ENDIF
 !
-            ELSEIF ( VATTDA(IVAT) .EQ. 3 ) THEN
+            ELSEIF ( VATTDA(IVAT) == 3 ) THEN
 !
 !              distribute
 !

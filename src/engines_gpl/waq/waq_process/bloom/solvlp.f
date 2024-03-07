@@ -74,7 +74,7 @@
 
 !  Indicate additional run through the subroutine.
       nsolv = nsolv + 1
-      if (nsolv .gt. 1) go to 80
+      if (nsolv > 1) go to 80
 
 ! Set all constraints to less or equal LSC(I)=-1, except the minimum
 ! energy constraint.
@@ -128,7 +128,7 @@
    80 continue
       nustmp = 0
       do j = 1,nuspec
-         if (a(nuexro,j) .lt. 1.0d-6) then
+         if (a(nuexro,j) < 1.0d-6) then
             nustmp = nustmp + 1
             lbasis(nurows+j) = .true.
             ctmp(nustmp) = c(j)
@@ -166,16 +166,16 @@
       end do
 
       outer: do i = nunuco+1,nurows
-         if (b(i) .lt. -1.0d-12 .and. lsc(i) .le. 0) then
+         if (b(i) < -1.0d-12 .and. lsc(i) <= 0) then
             ier = 100
             irs(2) = 4
             irs(3) = i
             go to 138 ! jump outside a loop
          end if
-         if (b(i) .gt. 1.0d-12) then
+         if (b(i) > 1.0d-12) then
             do j = 1,nuspec
                if (.not. lbasis (j+nurows)) cycle
-               if (a(i,j) .gt. 1.0d-12) then
+               if (a(i,j) > 1.0d-12) then
                   nurtmp = nurtmp + 1
                   lbasis(i) = .true.
                   btmp(nurtmp) = b(i)
@@ -203,7 +203,7 @@
       end do
 
 ! If a dump is requested, print the objective function.
-      if (idump .eq. 1 .and. inow .eq. 1) write (outdbg,125) (c(j),j=1,nuspec)
+      if (idump == 1 .and. inow == 1) write (outdbg,125) (c(j),j=1,nuspec)
  125  format (' Objective function of types:',/,2X,20(F5.2,2X))
 
 !  Call subroutine "QSLP" to solve the linear program by the ordinary
@@ -212,10 +212,10 @@
 
 !  Put results in appropriate form. Construct X, and LIB as if the
 !  complete problem had been solved by QSLP.
-      if (ier .eq. 0) then
+      if (ier == 0) then
          irs(3) = nucols + 1
       else
-         if ( irs(3) .le. mx ) then
+         if ( irs(3) <= mx ) then
             irs(3) = libbas(irs(3))
          end if
       end if
@@ -254,7 +254,7 @@
 ! Note: if a species' growth constraint was not considered, its
 ! total biomass must be 0.0 so we do not have to compute it!
       x(nufili) = b(nuabco) - x(nuabco) - b(nufili)
-      if (lmorch .ne. 1) go to 138
+      if (lmorch /= 1) go to 138
       k = nuexro + nuecog
       do j = 1,nuecog
          k = k + 1
@@ -267,7 +267,7 @@
          x(k) = sumx
       end do
  138  continue
-      if (ier .ne. 0) return
+      if (ier /= 0) return
 
 !  Determine, which species have a reduced cost coefficient of 0.0:
 !  these might have replaced one of the species in the optimal solution.
@@ -278,8 +278,8 @@
          nonuni(j) = 0
          if (.not. lbasis (j+nurows)) cycle
          j1 = j1 + 1
-         if (x(j+nurows) .gt. 1.0d-12) cycle
-         if (ctmp(j1) .gt. 1.0d-12) cycle
+         if (x(j+nurows) > 1.0d-12) cycle
+         if (ctmp(j1) > 1.0d-12) cycle
          numuni = numuni + 1
          nonuni(numuni) = j
       end do
@@ -287,7 +287,7 @@
 ! Compute maximum biomass of solution and store in BIOMAX.
 ! Note: this is NOT equal to X(NUCOLS + 1)
 ! when growth rather than biomass is maximized.
-      if (lobfun .eq. 1) then
+      if (lobfun == 1) then
          biomax = 0.0
          do j = 1,nuspec
             biomax = biomax + x (nurows + j)

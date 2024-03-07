@@ -76,7 +76,7 @@
 
       atfac = 1.0/itfact
       dtfac = idt
-      if ( iaflag .eq. 1 ) then
+      if ( iaflag == 1 ) then
          do iseg = 1 , noseg
             deriv (:,iseg) = deriv(:,iseg) * atfac
             amass2(:,2)    = deriv(:,iseg) * dtfac + amass2(:,2)
@@ -89,10 +89,10 @@
 
 !         accumulate processes for dump segments
 
-      if ( mod(intopt,16) .ge. 8  ) then
+      if ( mod(intopt,16) >= 8  ) then
          do iseg = 1 , noseg
             ip = isdmp(iseg)
-            if ( ip .gt. 0 ) then
+            if ( ip > 0 ) then
                dmps(:,ip) = dmps(:,ip) + deriv(:,iseg) * dtfac
             endif
          enddo

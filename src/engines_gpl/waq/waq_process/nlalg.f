@@ -96,24 +96,24 @@
       PO4       = PMSA( IP7)
       SI        = PMSA( IP8)
 
-      IF (AMOPRF .LT. 1E-20 )  CALL write_error_message ('AMOPRF in NLALG zero' )
+      IF (AMOPRF < 1E-20 )  CALL write_error_message ('AMOPRF in NLALG zero' )
 
 !     Calculation of available dissolved N (NO3 corrected with AMOPRF)
       DIN = NO3 / AMOPRF + NH4
-      IF ( (NO3 .LT. 0.0) .OR. (NH4 .LT. 0.0) ) DIN = 0.0
+      IF ( (NO3 < 0.0) .OR. (NH4 < 0.0) ) DIN = 0.0
 
 !     Nutrient limitation functions (MONOD)
       FN    = DIN / (DIN + KMDIN )
 
-      IF (PO4 .LT. 0.0) THEN
+      IF (PO4 < 0.0) THEN
            FP = 0.0
       ELSE
           FP    = PO4 / (PO4 + KMP )
       ENDIF
 
-      IF  (KMSI .EQ. -1.0) THEN
+      IF  (KMSI == -1.0) THEN
           FS = 1.0
-      ELSEIF (SI .LT. 0.0)  THEN
+      ELSEIF (SI < 0.0)  THEN
           FS =  0.0
       ELSE
           FS    = SI  / (SI  + KMSI)

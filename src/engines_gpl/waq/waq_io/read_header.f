@@ -79,7 +79,7 @@
 
       first = .true.
       do
-         if ( gettoken(ctoken, itoken, rtoken, itype  , ierr) .ne. 0 ) then
+         if ( gettoken(ctoken, itoken, rtoken, itype  , ierr) /= 0 ) then
 
             goto 9999 ! a read error
 
@@ -87,9 +87,9 @@
 
             !  a string has arrived, check for date string
 
-            if ( itype .eq. 1 ) then
+            if ( itype == 1 ) then
                call convert_string_to_time_offset ( ctoken , itoken, .false., .false., ierr2 )
-               if ( ierr2 .eq. 0 ) then
+               if ( ierr2 == 0 ) then
 
                   ! date string found, push back, exit input loop
 
@@ -135,11 +135,11 @@
          nitm = data_param%no_item
          do i = 1 , nitm
             k = i - icnt
-            if ( data_param%name(k) .eq. '&$&$SYSTEM_NAME&$&$!') cycle
-            if ( data_param%sequence(k) .gt. 0 ) cycle
+            if ( data_param%name(k) == '&$&$SYSTEM_NAME&$&$!') cycle
+            if ( data_param%sequence(k) > 0 ) cycle
             call compact_usefor( lunut , waq_param, data_param, k      , icnt   )
             call status%increase_warning_count()
-            if ( i + icnt .ge. nitm ) exit
+            if ( i + icnt >= nitm ) exit
          enddo
 
       endif

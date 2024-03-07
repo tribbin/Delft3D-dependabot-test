@@ -166,11 +166,11 @@
 
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
          call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-         if (ikmrk1.lt.3) then ! also when dry!
+         if (ikmrk1<3) then ! also when dry!
 
             ! active water segment
 
-            if ( hmax .gt. 0.0 ) then
+            if ( hmax > 0.0 ) then
 
                ! in, partly in or out of the active zone
 
@@ -179,10 +179,10 @@
                z1 = localdepth - depth
                z2 = localdepth
 
-               if (zm .gt. z2) then
+               if (zm > z2) then
                   ! not in segment:
 
-               elseif (zm .lt. z1 ) then
+               elseif (zm < z1 ) then
                   ! partialy in segment:
                   frlay = (z2-zm)/depth
                   ipb = ipoint(ioffout+1)+(ibotseg-1)*increm(ioffout+1)
@@ -234,11 +234,11 @@
             endif
 
 
-         elseif (ikmrk1.eq.3) then
+         elseif (ikmrk1==3) then
 
             ! delwaq-g segment
 
-            if ( hmax .lt. 0.0 ) then
+            if ( hmax < 0.0 ) then
 
                ! distribution over the bottom segments
 
@@ -246,7 +246,7 @@
                hmax = min(hmax,totaldepth)
                z1 = localdepth - depth
 
-               if (hmax .gt. localdepth) then
+               if (hmax > localdepth) then
                   ! completely in segment:
                   ipb = ipoint(ioffout+1)+(iseg-1)*increm(ioffout+1)
                   pmsa(ipb) = pmsa(ipb) + (nh4+no3)*volume
@@ -259,7 +259,7 @@
 
                   ipb = ipoint(ioffout+4)+(iseg-1)*increm(ioffout+4)
                   pmsa(ipb) = pmsa(ipb) + volume*Poros
-               elseif (hmax .gt. z1 ) then
+               elseif (hmax > z1 ) then
                   ! partialy in segment:
                   frlay = (hmax-z1)/depth
 
@@ -291,16 +291,16 @@
       ipnt  = ipoint(1:npnt)
       do iseg = 1 , noseg
          ibotseg     = NINT(pmsa(ipnt(6)))
-         if ( ibotseg .eq. iseg ) then
+         if ( ibotseg == iseg ) then
             surf           = pmsa(ipnt(5))
             pmsa(ipnt(ioffout+1)) = pmsa(ipnt(ioffout+1))/surf
             pmsa(ipnt(ioffout+2)) = pmsa(ipnt(ioffout+2))/surf
             pmsa(ipnt(ioffout+3)) = pmsa(ipnt(ioffout+3))/surf
             ! RootShoot Model using the Michelis-Menten eq.
-            if ( Nint(SWRoot) .eq. 1) then
+            if ( Nint(SWRoot) == 1) then
                 porewater      = pmsa(ipnt(ioffout+4))
                 ! express the availeble nitrogen conc in sediment as g/m3
-                if (porewater .gt. 1.0e-10) then
+                if (porewater > 1.0e-10) then
                     TIN = pmsa(ipnt(ioffout+1))*surf/porewater
                 else
                     TIN = 0.0
@@ -314,7 +314,7 @@
             endif
          else
              ! Fill all bottom sediment colume
-             if ( Nint(SWRoot) .eq. 1) then
+             if ( Nint(SWRoot) == 1) then
                  pmsa(ipnt(ioffout+5)) = 0.0
                  pmsa(ipnt(ioffout+6)) = pmsa(ipoint(ioffout+6)+(ibotseg-1)*increm(ioffout+6))
                  pmsa(ipnt(ioffout+7)) = 0.0
@@ -327,7 +327,7 @@
 
       ! in order to avoid the error message from vbupt
       ! the switches should be checked
-      if ( Nint(SWRoot) .eq. 1) then
+      if ( Nint(SWRoot) == 1) then
           ipnt  = ipoint(1:npnt)
           do iseg = 1 , noseg
               if ( pmsa(ipnt(ioffout+6))+pmsa(ipnt(ioffout+9)) < 2.E-10) then

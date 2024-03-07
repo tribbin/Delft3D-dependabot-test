@@ -105,11 +105,11 @@ contains
 
          ! use tic or co2 depending on the switch
 
-         if ( swticco2 .eq. 1 ) then
+         if ( swticco2 == 1 ) then
             tic  = co2
          endif
 
-         if ( tic .gt. 1e-20 ) then
+         if ( tic > 1e-20 ) then
 
             ! speciation
 
@@ -126,7 +126,7 @@ contains
             ccd0       = kc0*ccd1
             ccd2       = kc1*(kc0+1)*ccd1/h_ion
             ccd3       = ccdt - ccd0 - ccd1 - ccd2
-            if ( ccd3 .lt. 0.0 ) then
+            if ( ccd3 < 0.0 ) then
                ccd3 = kc2*ccd2/h_ion
             endif
 
@@ -138,7 +138,7 @@ contains
             frh2co3d   = ccd1/ccdt
             frhco3d    = ccd2/ccdt
             frco3d     = 1.0 - frco2d - frh2co3d - frhco3d
-            if ( frco3d .lt. 0.0 ) then
+            if ( frco3d < 0.0 ) then
                frco3d = ccd3/ccdt
             endif
 

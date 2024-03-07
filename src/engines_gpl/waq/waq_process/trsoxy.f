@@ -129,7 +129,7 @@
 
             SWEMERSION = NINT(PMSA(IP1+(IVAN -1)*IN1))
 
-            IF ( SWEMERSION .EQ. 1 ) THEN
+            IF ( SWEMERSION == 1 ) THEN
 
                OXY        = PMSA(IP2+(IVAN -1)*IN2)
                OXYSAT     = PMSA(IP3+(IVAN -1)*IN3)

@@ -97,20 +97,20 @@
 
          ifrom   = ipoint(1,iq)
          ito     = ipoint(2,iq)
-         if ( ifrom .eq. 0 .or.  ito .eq. 0 ) cycle
-         if ( ifrom .le. 0 .and. ito .le. 0 ) cycle
+         if ( ifrom == 0 .or.  ito == 0 ) cycle
+         if ( ifrom <= 0 .and. ito <= 0 ) cycle
 
          a = area(iq)
          q = flow(iq)
-         if ( ifrom .lt. 0 ) goto 20
-         if ( ito   .lt. 0 ) goto 40
+         if ( ifrom < 0 ) goto 20
+         if ( ito   < 0 ) goto 40
 
 !         the regular case
 
          do isys = 1, nosys
             v  = q
-            if ( ivpnt(isys) .gt. 0 ) v = v + velo(ivpnt(isys),iq)*a
-            if ( v .gt. 0.0 ) then
+            if ( ivpnt(isys) > 0 ) v = v + velo(ivpnt(isys),iq)*a
+            if ( v > 0.0 ) then
                dq = v*conc(isys,ifrom)
             else
                dq = v*conc(isys,ito  )
@@ -124,13 +124,13 @@
 
    20    do isys = 1, nosys
             v  = q
-            if ( ivpnt(isys) .gt. 0 ) v = v + velo(ivpnt(isys),iq)*a
-            if ( v .gt. 0.0 ) then
+            if ( ivpnt(isys) > 0 ) v = v + velo(ivpnt(isys),iq)*a
+            if ( v > 0.0 ) then
                dq = v*bound(isys,-ifrom)
-               if ( iaflag .eq. 1 ) amass2(isys,4) = amass2(isys,4) + dq*idt
+               if ( iaflag == 1 ) amass2(isys,4) = amass2(isys,4) + dq*idt
             else
                dq = v*conc (isys,ito)
-               if ( iaflag .eq. 1 ) amass2(isys,5) = amass2(isys,5) - dq*idt
+               if ( iaflag == 1 ) amass2(isys,5) = amass2(isys,5) - dq*idt
             endif
             deriv(isys,ito) = deriv(isys,ito) + dq
          enddo
@@ -140,13 +140,13 @@
 
    40    do isys = 1, nosys
             v  = q
-            if ( ivpnt(isys) .gt. 0 ) v = v + velo(ivpnt(isys),iq)*a
-            if ( v .gt. 0.0 ) then
+            if ( ivpnt(isys) > 0 ) v = v + velo(ivpnt(isys),iq)*a
+            if ( v > 0.0 ) then
                dq = v*conc (isys,ifrom)
-               if ( iaflag .eq. 1 ) amass2(isys,5) = amass2(isys,5) + dq*idt
+               if ( iaflag == 1 ) amass2(isys,5) = amass2(isys,5) + dq*idt
             else
                dq = v*bound(isys,-ito )
-               if ( iaflag .eq. 1 ) amass2(isys,4) = amass2(isys,4) - dq*idt
+               if ( iaflag == 1 ) amass2(isys,4) = amass2(isys,4) - dq*idt
             endif
             deriv(isys,ifrom) = deriv(isys,ifrom) - dq
          enddo

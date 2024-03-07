@@ -95,7 +95,7 @@
             VolDM  = VolDM * Volume
             Rho    = (TIM + POM + Poros*RHOWAT)
 
-            IF (IKMRK1.EQ.3) THEN
+            IF (IKMRK1==3) THEN
                ActTh  =  VOLUME/SURF
             ELSE
                ActTh = 0.0

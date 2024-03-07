@@ -88,13 +88,13 @@
 !
       lun = 10
       CALL open_waq_files ( lun , FNAME(1) , 24 , 2 , IERROR )
-      IF ( IERROR .NE. 0 ) RETURN
+      IF ( IERROR /= 0 ) RETURN
 
       ! map or his
 
       call extract_file_extension(fname(1), ext, extpos, extlen)
       call upper_case(ext, ext, extlen)
-      if ( ext .eq. 'MAP' ) then
+      if ( ext == 'MAP' ) then
          mapfil = .true.
       else
          mapfil = .false.

@@ -128,10 +128,10 @@
          IFROM = IEXPNT(1,IQ)
          ITO   = IEXPNT(2,IQ)
 
-         IF ( IFROM.GT.0 .AND. ITO.GT.0 ) THEN
+         IF ( IFROM>0 .AND. ITO>0 ) THEN
 
                CALL evaluate_waq_attribute(2,IKNMRK(IFROM),IKMRK)
-               IF ((IKMRK.EQ.0).OR.(IKMRK.EQ.1)) THEN
+               IF ((IKMRK==0).OR.(IKMRK==1)) THEN
 
                   PMSA ( IP3 + (IFROM-1) * IN3 ) =
      +            PMSA ( IP1 + (IFROM-1) * IN1 )
@@ -176,7 +176,7 @@
 !........Berekende totale dieptes voor de onderste laag segmenten
 !        toekennen aan de bovenliggende segmenten
 
-         IF ( IFROM.GT.0 .AND. ITO.GT.0 ) then
+         IF ( IFROM>0 .AND. ITO>0 ) then
             CALL evaluate_waq_attribute(1,IKNMRK(ITO),IKMRK)
             IF ( IKMRK == 1 ) THEN
 
@@ -212,7 +212,7 @@
             CUMTOTDEPTH = CUMTOTDEPTH + TOTALDEPTH*SURF
             TOTSURF     = TOTSURF + SURF
          ENDDO
-         IF ( TOTSURF .GT. 1E-20 ) THEN
+         IF ( TOTSURF > 1E-20 ) THEN
             TOTALDEPTH = CUMTOTDEPTH/TOTSURF
          ELSE
             TOTALDEPTH = 0.0

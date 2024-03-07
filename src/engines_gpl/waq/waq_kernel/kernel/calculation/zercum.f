@@ -79,8 +79,8 @@
 !     Zero all monitor ( and balance ) realted cummulative array's
 
       if ( imflag ) then
-         if ( ibflag .eq. 1 ) asmass = 0.0
-         if ( ibflag .eq. 1 ) flxint = 0.0
+         if ( ibflag == 1 ) asmass = 0.0
+         if ( ibflag == 1 ) flxint = 0.0
          amass2 = 0.0
          wstdmp = 0.0
       endif

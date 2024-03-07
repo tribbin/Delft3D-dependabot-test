@@ -89,7 +89,7 @@
 !  Print heading for output on unit outdbg if "DUMP" is specified.
       write (cdate, 115) iseg, id
 115   format (i5,1x,i2)
-      if ( idump .ne. 0) then
+      if ( idump /= 0) then
          write (outdbg,99960) iseg, id
          write (outdbg,99950) tmp, solpar, dep
       end if

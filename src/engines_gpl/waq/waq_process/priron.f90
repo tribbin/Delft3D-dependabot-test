@@ -187,7 +187,7 @@ contains
 
          ! use tic or co2 depending on the switch
 
-         if ( swticco2 .eq. 1 ) then
+         if ( swticco2 == 1 ) then
             tic  = co2*12./44.
          endif
 
@@ -198,13 +198,13 @@ contains
          oh    = 10**(ph-14.)
          iap1  = cfe3d*oh*oh*oh
 
-         if ( iap1 .ge. ksp1 ) then
+         if ( iap1 >= ksp1 ) then
 
             ! pecipitation
 
             kpfe3 = rcprcfe320*tcprcfe3**(temp-20.)
             fpfe3 = kpfe3*(iap1/ksp1-1.0)*poros
-            if ( fpfe3 .gt. feiiid/delt ) fpfe3 = 0.5*feiiid/delt
+            if ( fpfe3 > feiiid/delt ) fpfe3 = 0.5*feiiid/delt
             fdfe3 = 0.0
 
          else
@@ -213,7 +213,7 @@ contains
 
             kdfe3 = rcdisfe320*tcdisfe3**(temp-20.)
             fdfe3 = kdfe3*feiiipa*(1.0-iap1/ksp1)
-            if ( fdfe3 .gt. feiiipa/delt ) fdfe3 = 0.5*feiiipa/delt
+            if ( fdfe3 > feiiipa/delt ) fdfe3 = 0.5*feiiipa/delt
             fpfe3 = 0.0
 
          endif
@@ -232,13 +232,13 @@ contains
          cfe2d = frfe2dis*feiid*(1./(56000*poros))
          iap2  = cfe2d*csd3
 
-         if ( iap2 .ge. ksp2 ) then
+         if ( iap2 >= ksp2 ) then
 
             ! pecipitation
 
             kpfes = rcprcfes20*tcprcfes**(temp-20.)
             fpfes = kpfes*(iap2/ksp2-1.0)*poros
-            if ( fpfes .gt. feiid/delt ) fpfes = 0.5*feiid/delt
+            if ( fpfes > feiid/delt ) fpfes = 0.5*feiid/delt
             fdfes = 0.0
 
          else
@@ -247,7 +247,7 @@ contains
 
             kdfes = rcdisfes20*tcdisfes**(temp-20.)
             fdfes = kdfes*fes*(1.0-iap2/ksp2)
-            if ( fdfes .gt. fes/delt ) fdfes = 0.5*fes/delt
+            if ( fdfes > fes/delt ) fdfes = 0.5*fes/delt
             fpfes = 0.0
 
          endif
@@ -258,13 +258,13 @@ contains
          cco3d = frco3dis*tic*(1./(12000*poros))
          iap3  = cfe2d*cco3d
 
-         if ( iap3 .ge. ksp3 ) then
+         if ( iap3 >= ksp3 ) then
 
             ! pecipitation
 
             kpfeco3 = rcprcfec20*tcprcfeco3**(temp-20.)
             fpfeco3 = kpfeco3*(iap3/ksp3-1.0)*poros
-            if ( fpfeco3 .gt. feiid/delt ) fpfeco3 = 0.5*feiid/delt
+            if ( fpfeco3 > feiid/delt ) fpfeco3 = 0.5*feiid/delt
             fdfeco3 = 0.0
 
          else
@@ -273,7 +273,7 @@ contains
 
             kdfeco3 = rcdisfec20*tcdisfeco3**(temp-20.)
             fdfeco3 = kdfeco3*feco3*(1.0-iap3/ksp3)
-            if ( fdfeco3 .gt. feco3/delt ) fdfeco3 = 0.5*feco3/delt
+            if ( fdfeco3 > feco3/delt ) fdfeco3 = 0.5*feco3/delt
             fpfeco3 = 0.0
 
          endif

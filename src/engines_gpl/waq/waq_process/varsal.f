@@ -81,7 +81,7 @@
 
          ! calculate salinity from input
 
-         if ( abs(1.-frcon) .gt. 1.e-10 ) then
+         if ( abs(1.-frcon) > 1.e-10 ) then
             salinity = (1.-frflow)/(1.-frcon)*salbnd
             salinity = max(0.0,salinity)
          else

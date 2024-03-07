@@ -69,7 +69,7 @@
 !
       idrem = 0
       do k = 1, nuspec
-         if (sdmix(k) .lt. 0.0) then
+         if (sdmix(k) < 0.0) then
             sdmixn(k) = 1.0d0 + sdmix(k)
             dmix(k) = dabs(sdmix(k)) * dep
             idrem = idump
@@ -79,7 +79,7 @@
       end do
 !jvb
       nset = nset + 1
-      if (nset .le. 1) then
+      if (nset <= 1) then
 !  Initialize "C" values for all species to 1.0: maximize.
 !  (See also subroutines SOLVLP and MAXGROGR)
          do j=1,nuspec
@@ -88,7 +88,7 @@
 
 !  Initiate multiplier for exponential term at zero:
 !  start with steady state solution for the dead algal pool
-         if (idrem .ne. 0) then
+         if (idrem /= 0) then
             write (outdbg, 99996) (dabs(sdmix(k)), k = 1, nuspec)
             write (outdbg, 99995) (sdmixn(k), k = 1, nuspec)
          end if
@@ -110,7 +110,7 @@
       do k=1,nuspec
          surf(k)= tcorr(k) * dsol * dexp (- exttot * sdmixn(k) * dep)
       end do
-      if (idump .eq. 1) write (outdbg,99997) (tcorr(k),k=1,nuspec)
+      if (idump == 1) write (outdbg,99997) (tcorr(k),k=1,nuspec)
 
 !  Set "B" values for nutrients by substracting the amount in
 !  zooplankton from the input values and correcting for deviations

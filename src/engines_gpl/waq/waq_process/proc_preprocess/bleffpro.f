@@ -130,7 +130,7 @@
 !
 !  Move lower end of curve away from zero.
 !
-    1 if (power(1) .gt. 0.001*power(2)) go to 15
+    1 if (power(1) > 0.001*power(2)) go to 15
       p=0.001*power(2)
       call interm(power,effic,npoint,nuecog,p,e)
       do j=1,nuecog
@@ -165,7 +165,7 @@
 !
     1 solmax=solvec(1)
       do i=1,nsp
-      if (solvec(i) .gt. solmax) solmax=solvec(i)
+      if (solvec(i) > solmax) solmax=solvec(i)
       end do
 !
 !  SET CONSTANTS
@@ -178,10 +178,10 @@
 !
       it=0
       i=1
-   12 if (solvec(i) .eq. solmax) it=1
+   12 if (solvec(i) == solmax) it=1
       solna(i)=solvec(i)
       timea(i)=time(i)
-      if (it .eq. 1) go to 15
+      if (it == 1) go to 15
       i=i+1
       go to 12
    15 na=i
@@ -233,7 +233,7 @@
       do i=2,n
       ri=i-1
       solc=delsol*ri
-      if (i .eq. 2) go to 6
+      if (i == 2) go to 6
       value(1)=value(2)
       soll=solu
     4 solu=solc+0.5*delsol
@@ -259,7 +259,7 @@
 !
 !  Move lower end of curve away from zero
 !
-      if (solar(1) .gt. 0.001*solar(2)) go to 15
+      if (solar(1) > 0.001*solar(2)) go to 15
       s=0.001*solar(2)
       call interp(solar,dens,nval,s,d)
       dens(1)=d
@@ -320,9 +320,9 @@
       smin=zvec(nz)+1.0
       imin=0
       do k=1,nx
-      if (ix(k) .gt. ny) go to 12
+      if (ix(k) > ny) go to 12
       ixk=ix(k)
-      if (xvec(k)+yvec(ixk) .ge. smin) go to 12
+      if (xvec(k)+yvec(ixk) >= smin) go to 12
       smin=xvec(k)+yvec(ixk)
       imin=k
    12 continue
@@ -338,9 +338,9 @@
 !  Adjust for duplicates
 !
       do i=2,nz
-      if (zvec(i) .gt. zvec(i-1)) go to 30
+      if (zvec(i) > zvec(i-1)) go to 30
       do j=i,nz
-      if (zvec(j) .gt. zvec(i-1)) go to 26
+      if (zvec(j) > zvec(i-1)) go to 26
       end do
    26 del =(zvec(j)-zvec(i-1))/(j-i)
       do k=i,j
@@ -373,7 +373,7 @@
       bot=yvec(1)
       ix=nx
       do j=1,nx
-      if (zvec(i)-xvec(ix) .gt. yvec(1)) go to 20
+      if (zvec(i)-xvec(ix) > yvec(1)) go to 20
       ix=ix-1
       end do
 !
@@ -401,12 +401,12 @@
 !
 !  Update intervals and stop if x(1) or y(ny) has been reached
 !
-      if (top .ge. yvec(iy)) iy=iy+1
+      if (top >= yvec(iy)) iy=iy+1
 !
       tmp = zvec(i) - xvec(ix) - 1.0d-60
-      if (top .ge. tmp) ix=ix-1
-      if (iy .gt. ny) go to 50
-      if (ix .lt. 1) go to 50
+      if (top >= tmp) ix=ix-1
+      if (iy > ny) go to 50
+      if (ix < 1) go to 50
       bot=top
       go to 20
    50 continue
@@ -427,14 +427,14 @@
 !
 !  Check whether x is too low or too high
 !
-      if (x .gt. xvec(1)) go to 20
+      if (x > xvec(1)) go to 20
       f=fofx(1)
       return
-   20 if (x .lt. xvec(n)) go to 40
+   20 if (x < xvec(n)) go to 40
       f=fofx(n)
       return
    40 do i=2,n
-      if (x .le. xvec(i)) go to 80
+      if (x <= xvec(i)) go to 80
       end do
    80 alam=(x-xvec(i-1))/(xvec(i)-xvec(i-1))
       f=alam*fofx(i)+(1.0-alam)*fofx(i-1)
@@ -451,18 +451,18 @@
 !
 !  Check whether x is too low or too high
 !
-      if (x .gt. xvec(1)) go to 120
+      if (x > xvec(1)) go to 120
       do j=1,nuecog
       fm(j)=fofxm(1,j)
       end do
       return
-  120 if (x .lt. xvec(n)) go to 140
+  120 if (x < xvec(n)) go to 140
       do j=1,nuecog
       fm(j)=fofxm(n,j)
       end do
       return
   140 do i=2,n
-      if (x .le. xvec(i)) go to 180
+      if (x <= xvec(i)) go to 180
       end do
   180 alam=(x-xvec(i-1))/(xvec(i)-xvec(i-1))
       do j=1,nuecog

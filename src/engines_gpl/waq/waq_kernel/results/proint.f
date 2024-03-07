@@ -85,7 +85,7 @@
          do isc = 1 , nsc
             itel2 = itel2 + 1
             iseg  = ipdmp(itel2)
-            if ( iseg .gt. 0 ) then    !  integrate the fluxes
+            if ( iseg > 0 ) then    !  integrate the fluxes
                ips   = isdmp(iseg)
                flxint(:,idump) = flxint(:,idump) + flxdmp(:,ips) * fscale
             endif

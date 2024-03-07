@@ -101,16 +101,16 @@
       ipnt        = ipoint
 
       LgtOpt = .true.
-      if ( increm(2) .eq. 0 .and. increm(3) .eq. 0 .and. increm(5) .eq. 0 ) then
+      if ( increm(2) == 0 .and. increm(3) == 0 .and. increm(5) == 0 ) then
          LgtOpt = .false.             !  This is constant for all cells
          Rad    = pmsa( ipnt(  2) )
          RadSat = pmsa( ipnt(  3) )
          TFGro  = pmsa( ipnt(  5) )
          RadSat = TFGro * RadSat      !  Correct RadSat for temperature
-         if ( RadSat .gt. 1e-20 ) then
+         if ( RadSat > 1e-20 ) then
             Frad   = Rad / RadSat
             LnFrad = 0.0
-            if ( Rad .gt. 1E-5 ) LnFrad = Log ( Frad )
+            if ( Rad > 1E-5 ) LnFrad = Log ( Frad )
          endif
       endif
 
@@ -123,25 +123,25 @@
                RadSat = pmsa( ipnt(  3) )
                TFGro  = pmsa( ipnt(  5) )
                RadSat = TFGro * RadSat
-               if ( RadSat .gt. 1e-20 ) then
+               if ( RadSat > 1e-20 ) then
                   Frad   = Rad / RadSat
                   LnFrad = 0.0
-                  if ( Rad .gt. 1E-5 ) LnFrad = Log ( Frad )
+                  if ( Rad > 1E-5 ) LnFrad = Log ( Frad )
                endif
             endif
 
-            if ( RadSat .le. 1e-20 ) then
+            if ( RadSat <= 1e-20 ) then
                LimRad = 1.0
             else
                Depth = pmsa( ipnt(  1) )
                ExtVl = pmsa( ipnt(  4) )
                ExtDpt = ExtVl * Depth
-               if ( ExtDpt .le. 1.0e-10 ) then    !  No extinction, e.g. chemostat
+               if ( ExtDpt <= 1.0e-10 ) then    !  No extinction, e.g. chemostat
                   LimRad = min( Frad, 1.0 )
                else
                   RadBot = Frad * exp( - ExtDpt )
-                  if ( Frad .gt. 1.0 ) then       !  Saturation at the surface of the cell
-                     if ( RadBot .gt. 1.0 ) then
+                  if ( Frad > 1.0 ) then       !  Saturation at the surface of the cell
+                     if ( RadBot > 1.0 ) then
                         LimRad = 1.0
                      else
                         LimRad = ( 1.0 + LnFrad - RadBot ) / ExtDpt

@@ -50,9 +50,9 @@ contains
       do isys = 1,notot
          do iflux = nflux1 , nflux1 + nfluxp - 1
             st = stochi(isys,iflux)
-            if ( st .ne. 0.0 ) then
+            if ( st /= 0.0 ) then
                fact = real(ndt)*st
-               if ( abs(fact-1.0) .lt. 1.e-10 ) then
+               if ( abs(fact-1.0) < 1.e-10 ) then
                   do iseg = 1 , noseg
                      deriv(iseg,isys) = deriv(iseg,isys) + flux(iflux,iseg)
                   enddo

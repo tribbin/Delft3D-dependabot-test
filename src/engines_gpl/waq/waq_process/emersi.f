@@ -112,14 +112,14 @@
       do iseg = 1 , nosegw
 
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
-         if ( ikmrk1 .eq. 1 ) then
+         if ( ikmrk1 == 1 ) then
             depth      = pmsa(ip1 )
             zthreshold = pmsa(ip2 )
 
             ! look if segment has water surface
 
             call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-            if ( (ikmrk2.eq.1 .or. ikmrk2.eq.0) .and. depth .le. zthreshold ) then
+            if ( (ikmrk2==1 .or. ikmrk2==0) .and. depth <= zthreshold ) then
 
                ! set this segment to inactive
 
@@ -127,14 +127,14 @@
                swemersion = 1
 
                iseg_down = iseg + nosegl
-               if ( iseg_down .le. nosegw ) then
+               if ( iseg_down <= nosegw ) then
 
                   ! give the underlying segment the attribure with water surface
 
                   call evaluate_waq_attribute(2,iknmrk(iseg_down),ikmrk2)
-                  if (ikmrk2.eq.2) then
+                  if (ikmrk2==2) then
                      iknmrk(iseg_down) = iknmrk(iseg_down) - 10 ! sets second attribute to 1
-                  elseif (ikmrk2.eq.3) then
+                  elseif (ikmrk2==3) then
                      iknmrk(iseg_down) = iknmrk(iseg_down) - 30 ! sets second attribute to 0
                   endif
 
@@ -165,7 +165,7 @@
           itop = coll%set(ik)%topsedsed
           ibot = coll%set(ik)%botsedsed
 
-          if ( opemersion .eq. 1 ) then
+          if ( opemersion == 1 ) then
              swemersion = 1
           else
              swemersion = 0
@@ -173,12 +173,12 @@
           do iq = iwa1,iwa2
              iwater  = iexpnt(1,iq)
              sw_water = nint(pmsa(ip3+(iwater-1)*in3))
-             if ( opemersion .eq. 1 ) then
-                if (sw_water.eq.0 ) then
+             if ( opemersion == 1 ) then
+                if (sw_water==0 ) then
                    swemersion = 0
                 endif
-             elseif ( opemersion .eq. 2 ) then
-                if (sw_water.eq.1 ) then
+             elseif ( opemersion == 2 ) then
+                if (sw_water==1 ) then
                    swemersion = 1
                 endif
              endif

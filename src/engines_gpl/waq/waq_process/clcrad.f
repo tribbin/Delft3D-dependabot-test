@@ -110,7 +110,7 @@
       IP10  = IPOINT(10)
       IP11  = IPOINT(11)
       
-      IF (IP7.NE.IP9) THEN
+      IF (IP7/=IP9) THEN
          CALL GETMLU(LUNREP)
          WRITE(LUNREP,*) 'Error in CLCRAD: Rad/RadDay/Rad_uv should be an input too!'
          WRITE(LUNREP,*) 'Use the correct proc_def!'
@@ -134,14 +134,14 @@
 
 !.....2DH mode
 
-      IF (NOQ3.EQ.0) THEN
+      IF (NOQ3==0) THEN
 
       DO ISEG=1,NOSEG
 
          CALL evaluate_waq_attribute( 1, IKNMRK(ISEG ), IKMRK1 )
 
 !........Segment is inactief
-         IF      (IKMRK1 .EQ. 0) THEN
+         IF      (IKMRK1 == 0) THEN
 
 !          RadTop = RadSurf corrected for reflection
            PMSA(IP9) = PMSA(IP3)*(1.-PMSA(IP8))
@@ -153,7 +153,7 @@
            PMSA(IP11) = 0.0
 
 !........Segment is actief watersegment
-         ELSE IF (IKMRK1 .EQ. 1) THEN
+         ELSE IF (IKMRK1 == 1) THEN
 
 !          RadTop    = RadSurf corrected for reflection
            PMSA(IP9) = PMSA(IP3)*(1.-PMSA(IP8))
@@ -165,7 +165,7 @@
            PMSA(IP11) = PMSA(IP1)*PMSA(IP2)
 
 !........Segment is actief bodemsegment
-         ELSE IF (IKMRK1 .EQ. 3) THEN
+         ELSE IF (IKMRK1 == 3) THEN
 
 !          RadTop    = 0.0
            PMSA(IP9) = 0.0
@@ -200,14 +200,14 @@
          IVAN  = IEXPNT(1,IQ)
          INAAR = IEXPNT(2,IQ)
 
-         IF ( IVAN .GT. 0 .AND. INAAR .GT. 0 ) THEN
+         IF ( IVAN > 0 .AND. INAAR > 0 ) THEN
             CALL evaluate_waq_attribute( 1, IKNMRK(IVAN ), IK1VN )
             CALL evaluate_waq_attribute( 1, IKNMRK(INAAR), IK1NR )
             CALL evaluate_waq_attribute( 2, IKNMRK(IVAN ), IK2VN )
             CALL evaluate_waq_attribute( 2, IKNMRK(INAAR), IK2NR )
 
 !...........Van segment = inactief
-            IF ( IK1VN .EQ. 0 ) THEN
+            IF ( IK1VN == 0 ) THEN
 
 !              RadTop = RadSurf corrected for reflection
                RADTOP = PMSA( IP3 + (IVAN-1)*IN3 )
@@ -220,10 +220,10 @@
                PMSA(IP11 + (IVAN-1)  * IN11) = 0.0
 
 !...........Van segment = actief water segment
-            ELSE IF (IK1VN .EQ. 1) THEN
+            ELSE IF (IK1VN == 1) THEN
 
 !..............Van segment = water segment met surface
-               IF ( IK2VN .EQ. 1 ) THEN
+               IF ( IK2VN == 1 ) THEN
 
                   EXTVL  = PMSA( IP1 + (IVAN-1) * IN1 )
                   DEPTH  = PMSA( IP2 + (IVAN-1) * IN2 )
@@ -241,7 +241,7 @@
                ENDIF
 
 !..............Van segment = water segment zonder surface of bodem
-               IF ( IK2VN .EQ. 2 ) THEN
+               IF ( IK2VN == 2 ) THEN
 
                   EXTVL  = PMSA( IP1 + (IVAN -1) * IN1 )
                   DEPTH  = PMSA( IP2 + (IVAN -1) * IN2 )
@@ -258,7 +258,7 @@
             ENDIF
 
 !...........Naar segment = inactief
-            IF ( IK1NR .EQ. 0 ) THEN
+            IF ( IK1NR == 0 ) THEN
 
 !              RadTop = RadSurf
                PMSA(IP9 + (INAAR-1) * IN9) = PMSA( IP3 + (INAAR-1)*IN3 )
@@ -269,10 +269,10 @@
                PMSA(IP11 + (INAAR-1) * IN11) = 0.0
 
 !...........Naar segment = actief water segment
-            ELSE IF (IK1NR .EQ. 1) THEN
+            ELSE IF (IK1NR == 1) THEN
 
 !...........Naar segment = water segment met bodem
-               IF ( IK2NR .EQ. 3 ) THEN
+               IF ( IK2NR == 3 ) THEN
 
                   EXTVL  = PMSA( IP1 + (INAAR-1) * IN1 )
                   DEPTH  = PMSA( IP2 + (INAAR-1) * IN2 )
@@ -323,7 +323,7 @@
              SURF       =      PMSA(IP5+(IWATER-1)*IN5)
              SWEMERSION = NINT(PMSA(IP6+(IWATER-1)*IN6))
              RADBOT     =      PMSA(IP10+(IWATER-1)*IN10)
-             IF ( SWEMERSION .EQ. 1 ) THEN
+             IF ( SWEMERSION == 1 ) THEN
                 RADTOP = RADTOP + RADSURF*SURF
              ELSE
                 RADTOP = RADTOP + RADBOT*SURF
@@ -339,7 +339,7 @@
               IBODEM = IEXPNT(1,IQ)
               EXTVL  = PMSA(IP1+(IBODEM-1)*IN1)
               DEPTH  = PMSA(IP2+(IBODEM-1)*IN2)
-              IF ( RADTOP .LT. 1.E-10 ) THEN
+              IF ( RADTOP < 1.E-10 ) THEN
                  RADBOT = 0.0
               ELSE
                  RADBOT = RADTOP * EXP( -EXTVL * DEPTH )

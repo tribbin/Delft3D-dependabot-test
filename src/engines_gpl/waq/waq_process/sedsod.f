@@ -115,14 +115,14 @@
       DCODCR = PMSA(IP9 )
       DCODMN = PMSA(IP10)
       DEPTH  = PMSA(IP11)
-      IF (ISW.EQ.0) THEN
+      IF (ISW==0) THEN
 !       BOD
         FSEDOD = DBOD5 + DBOD52 + DBOD53 + DBODU + DBODU2 + DNBOD5 +
      1           DNBODU
-      ELSEIF (ISW.EQ.1) THEN
+      ELSEIF (ISW==1) THEN
 !       COD
         FSEDOD = DCODCR + DCODMN
-      ELSEIF (ISW.EQ.2) THEN
+      ELSEIF (ISW==2) THEN
 !       BOD + COD
         FSEDOD = DBOD5 + DBOD52 + DBOD53 + DBODU + DBODU2 + DNBOD5 +
      1           DNBODU + DCODCR + DCODMN
@@ -134,7 +134,7 @@
       ENDIF
 
       DSEDOD = 0.0
-      IF ( DEPTH .GT. 0.0 ) THEN
+      IF ( DEPTH > 0.0 ) THEN
           DSEDOD = FSEDOD / DEPTH
       ENDIF
 

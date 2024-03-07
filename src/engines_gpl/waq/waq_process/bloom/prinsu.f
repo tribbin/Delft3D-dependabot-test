@@ -60,7 +60,7 @@
          do j=it2(k,1),it2(k,2)
             xbio = x(j+nurows)
             tot2=tot2+xbio
-            if (sdmix (k) .lt. 0.0) cycle
+            if (sdmix (k) < 0.0) cycle
             total=total+xbio/chlr(j)
          end do
          xeco(k)=tot2
@@ -82,7 +82,7 @@
       ncon = 0
       do k=1,nunuco
          ncon = ncon + 1
-         if (x(k) .gt. 1.d-4 ) cycle
+         if (x(k) > 1.d-4 ) cycle
          k1=k1+1
          numlim = numlim + 1
          isplim (numlim) = ncon
@@ -93,7 +93,7 @@
       k2 = 2 + 2 * nunuco
       do k=nunuco+1,nuabco
          ncon = ncon + 1
-         if (x(k) .gt. 1.d-4 ) cycle
+         if (x(k) > 1.d-4 ) cycle
          numlim = numlim + 1
          isplim (numlim) = ncon
          k1=k1+1
@@ -110,12 +110,12 @@
 !  are 0.0, assume that the mortality constraint is the actual
 !  limitation: do not write "GRO" to output files.
       lcon = .false.
-      if (lgroch .eq. 0) go to 150
+      if (lgroch == 0) go to 150
       k2 = 2 * (nuabco -1) + 2
       do i=1,nuecog
          ncon = ncon + 1
-         if (x(i+nuexro) .gt. 1.d-4) cycle
-         if (x(i+nuexro+nuecog) .lt. 1.d-4 .and. lmorch .eq. 1) cycle
+         if (x(i+nuexro) > 1.d-4) cycle
+         if (x(i+nuexro+nuecog) < 1.d-4 .and. lmorch == 1) cycle
          numlim = numlim + 1
          isplim (numlim) = ncon
          if ( .not. lcon) then
@@ -129,12 +129,12 @@
 !  Print slacks for (optional) mortality constraints.
   130 continue
       lcon = .false.
-      if (lmorch .eq. 0) go to 150
+      if (lmorch == 0) go to 150
       k2 = k2 + 2
       do i=1,nuecog
          ncon = ncon + 1
-         if (x(i+nuexro+nuecog) .gt. 1.d-4) cycle
-         if (xeco(i) .lt. 1.d-4) cycle
+         if (x(i+nuexro+nuecog) > 1.d-4) cycle
+         if (xeco(i) < 1.d-4) cycle
          numlim = numlim + 1
          isplim (numlim) = ncon
          if ( .not. lcon) then

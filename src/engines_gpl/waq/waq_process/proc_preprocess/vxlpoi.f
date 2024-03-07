@@ -90,19 +90,19 @@
 !     Predefined ?
 !
       IVALIP = index_in_array(VALNAM(:10), PREDEF)
-      IF ( IVALIP .EQ. 1 ) THEN
+      IF ( IVALIP == 1 ) THEN
          WRITE(LINE,'(A)') '       Using DELWAQ flow'
          GOTO 800
       ENDIF
-      IF ( IVALIP .EQ. 2 ) THEN
+      IF ( IVALIP == 2 ) THEN
          WRITE(LINE,'(A)') '       Using DELWAQ exchange area'
          GOTO 800
       ENDIF
-      IF ( IVALIP .EQ. 3 ) THEN
+      IF ( IVALIP == 3 ) THEN
          WRITE(LINE,'(A)') '       Using DELWAQ from- length'
          GOTO 800
       ENDIF
-      IF ( IVALIP .EQ. 4 ) THEN
+      IF ( IVALIP == 4 ) THEN
          WRITE(LINE,'(A)') '       Using DELWAQ to- length'
          GOTO 800
       ENDIF
@@ -110,7 +110,7 @@
 !     as dispersion ?
 !
       IDSP = index_in_array(VALNAM(:10), DINAME(:NODISP))
-      IF ( IDSP .GT. 0 ) THEN
+      IF ( IDSP > 0 ) THEN
          WRITE(LINE,'(A,I3)') '       Using dispersion nr ',IDSP
          IVALIP = NOPREF + IDSP
          GOTO 800
@@ -119,7 +119,7 @@
 !     as a velocity ?
 !
       IVEL = index_in_array(VALNAM(:10), VENAME(:NOVELO))
-      IF ( IVEL  .GT. 0 ) THEN
+      IF ( IVEL  > 0 ) THEN
          WRITE(LINE,'(A,I3)') '       Using velocity nr',IVEL
          IVALIP = NOPREF + NODISP + IVEL
          GOTO 800
@@ -128,7 +128,7 @@
 !     as function ?
 !
       IFUN = index_in_array(VALNAM (:10), FUNAME(:NOFUN))
-      IF ( IFUN .GT. 0 ) THEN
+      IF ( IFUN > 0 ) THEN
          WRITE(LINE,'(A,I3)') '       Using function nr',IFUN
          IVALIP = NOPREF + NODISP + NOVELO + IFUN
          GOTO 800
@@ -137,7 +137,7 @@
 !     as constant ?
 !
       ico = dlwq_find(constants,valnam)
-      if ( ico .gt. 0 ) then
+      if ( ico > 0 ) then
          write(line,'(a,i3,a,g13.6)') '       Using constant nr',ico,' with value:',constants%constant(ico)
          ivalip = nopref + nodisp + novelo + nofun + ico
          goto 800

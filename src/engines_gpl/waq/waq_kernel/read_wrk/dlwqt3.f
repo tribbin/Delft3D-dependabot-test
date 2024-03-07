@@ -107,17 +107,17 @@
       NOSPAC = 0
       NPOINT = 0
       UPDATE = .FALSE.
-      IF ( NRHARM .EQ. 0 ) goto 9999  !   RETURN
+      IF ( NRHARM == 0 ) goto 9999  !   RETURN
       UPDATE = .TRUE.
       IREC   = 1
       ITEL   = 1
-      IF ( IFFLAG .EQ. 0 ) GOTO 40
+      IF ( IFFLAG == 0 ) GOTO 40
 !
 !         at first time, initialise arrays
 !         loop over the blocks of harmonics ( must be less than NRHARM )
 !
       DO IB = 1 , NRHARM+1
-      IF ( IREC .GT. NRHARM ) GOTO 30
+      IF ( IREC > NRHARM ) GOTO 30
 !
 !         loop over the number of harmonics
 !
@@ -145,7 +145,7 @@
 !         loop over the blocks of harmonics ( must be less than NRHARM )
 !
    40 DO IB = 1 , NRHARM+1
-      IF ( IREC .GT. NRHARM ) goto 9999  !   RETURN
+      IF ( IREC > NRHARM ) goto 9999  !   RETURN
 !
 !         loop over the number of harmonics
 !
@@ -157,7 +157,7 @@
 !
 !         harmonic function
 !
-      IF ( IH .EQ. 1 ) THEN
+      IF ( IH == 1 ) THEN
        FUNC = 1.0
       ELSE
        FUNC = SIN( ( FLOAT(ITIME)/IPERIO(IREC) - APHASE(IREC) )*TWOPI )
@@ -185,11 +185,11 @@
 !
 !         errors during read
 !
-   80 IF ( ISFLAG .EQ. 1 ) THEN
+   80 IF ( ISFLAG == 1 ) THEN
            WRITE(LUNOUT,2020) LUNIN, LUNTXT,
      *                        ITIME/86400, MOD(ITIME,86400/3600),
      *                        MOD(ITIME ,3600)/60, MOD(ITIME ,60)
-      ELSEIF ( ISFLAG .EQ. 2 ) THEN
+      ELSEIF ( ISFLAG == 2 ) THEN
            WRITE(LUNOUT,2030) LUNIN, LUNTXT,
      *                            ITIME /31536000           ,
      *                        MOD(ITIME ,31536000)/86400    ,

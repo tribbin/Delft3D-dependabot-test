@@ -131,7 +131,7 @@
       do iseg = 1 , noseg
       if (btest(iknmrk(iseg),0)) then
       call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-      if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+      if ((ikmrk2==0).or.(ikmrk2==3)) then
 
       im1s2      = pmsa( ipnt(1 ) )
       im2s2      = pmsa( ipnt(2 ) )
@@ -161,7 +161,7 @@
       press2 = 0.0
 
 !     Calculate resuspension probability in S2
-      if (tau .eq. -1.0) then
+      if (tau == -1.0) then
          press2 = 1.0
       else
 !        Compare with critical shear stress
@@ -170,7 +170,7 @@
 
 !     Fraction TIM1 in S2
       tims2      = im1s2+im2s2+im3s2
-      if (swfrims2 .eq. 1) then
+      if (swfrims2 == 1) then
 !         mass fraction determined as mass IMx / (mass sand + mass TIM)
           frim1s2pup = im1s2/(rhosand*thicks2*(1.-pors2) + tims2)
           frim2s2pup = im2s2/(rhosand*thicks2*(1.-pors2) + tims2)
@@ -185,7 +185,7 @@
       endif
 
 !     No resuspension when depth below min depth
-      if ( depth .lt. mindep) then
+      if ( depth < mindep) then
          flrim1s2 = 0.0
          flrim2s2 = 0.0
          flrim3s2 = 0.0
@@ -208,7 +208,7 @@
 
          rfdms2   = min(rfdms2,maxrespup)
 
-         if ( frtims2pup .gt. 1.e-20 ) then
+         if ( frtims2pup > 1.e-20 ) then
             rfim1s2 = rfdms2*frim1s2pup/frtims2pup
             rfim2s2 = rfdms2*frim2s2pup/frtims2pup
             rfim3s2 = rfdms2*frim3s2pup/frtims2pup

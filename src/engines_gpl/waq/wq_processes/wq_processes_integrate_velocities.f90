@@ -89,22 +89,22 @@ contains
       do iq = 1 , noq
           ifrom = ipoint(1,iq)
           ito   = ipoint(2,iq)
-          if ( ifrom .le. 0 .or. ito .le. 0 ) cycle
+          if ( ifrom <= 0 .or. ito <= 0 ) cycle
           a = area(iq)
           vfrom = volume(ifrom)
           vto = volume(ito)
-          if ( vfrom .le. 0.0 .or. vto .le. 0.0 ) cycle
+          if ( vfrom <= 0.0 .or. vto <= 0.0 ) cycle
           do isys = 1, nosys
-              if ( ivpnt(isys) .gt. 0 ) then
+              if ( ivpnt(isys) > 0 ) then
                   q = velo  ( ivpnt(isys), iq ) * a
-                  if (q .eq. 0.0) cycle
-                  if (q .gt. 0.0 ) then
+                  if (q == 0.0) cycle
+                  if (q > 0.0 ) then
                       cfrom = conc(isys,ifrom)
-                      if (cfrom.le.0.0) cycle
+                      if (cfrom<=0.0) cycle
                       dq = min(q*cfrom, (cfrom * vfrom)/dts)
                   else
                       cto = conc(isys,ito)
-                      if (cto.le.0.0) cycle
+                      if (cto<=0.0) cycle
                       dq = max(q*cto, -(cto * vto)/dts)
                   endif
                   deriv(ifrom,isys) = deriv(ifrom,isys) - dq/vfrom

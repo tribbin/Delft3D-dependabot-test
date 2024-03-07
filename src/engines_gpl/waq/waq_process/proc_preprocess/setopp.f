@@ -70,13 +70,13 @@
 
          ! is the output undefined ( pointer -1 ) or from a proces
 
-         if ( outputs%pointers(iou) .eq. -1 .or. outputs%pointers(iou) .gt. ioff ) then
+         if ( outputs%pointers(iou) == -1 .or. outputs%pointers(iou) > ioff ) then
             outputs%pointers(iou) = -1
             do iproc = 1, nproc
                proc => procesdef%procesprops(iproc)
                if ( proc%linvok ) then
                   call zoekio ( outputs%names(iou), proc%no_output, proc%output_item, 20, ioutput, IOTYPE_SEGMENT_OUTPUT)
-                  if ( ioutput .gt. 0 ) then
+                  if ( ioutput > 0 ) then
                      if ( .not. proc%active ) then
 
                         ! turn proces on

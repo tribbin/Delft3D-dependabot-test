@@ -49,7 +49,7 @@
 !
       IERR = 1
       INDX = index_in_array( NAME, SFNAME(:NOSFUN))
-      IF ( INDX .GT. 0 ) THEN
+      IF ( INDX > 0 ) THEN
          if ( lget ) then
             value(1:nosss) = sfuncs(1:nosss,INDX)
          else
@@ -59,7 +59,7 @@
          goto 100
       endif
       INDX = index_in_array( NAME, PANAME (:NOPA))
-      IF ( INDX .GT. 0 ) THEN
+      IF ( INDX > 0 ) THEN
          if ( lget ) then
             value(1:nosss) = param(INDX,1:nosss)
          else
@@ -69,7 +69,7 @@
          goto 100
       endif
       INDX = index_in_array( NAME, FUNAME (:NOFUN))
-      IF ( INDX .GT. 0 ) THEN
+      IF ( INDX > 0 ) THEN
          if ( lget ) then
             value(1:nosss) = funcs(INDX)
             ierr = 0
@@ -77,7 +77,7 @@
          goto 100
       endif
       INDX = index_in_array( NAME, CONAME (:NOCONS))
-      IF ( INDX .GT. 0 ) THEN
+      IF ( INDX > 0 ) THEN
          if ( lget ) then
             value(1:nosss) = const(INDX)
             ierr = 0

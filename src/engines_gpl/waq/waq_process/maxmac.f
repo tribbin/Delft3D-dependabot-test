@@ -103,7 +103,7 @@
       DO ISEG = 1 , NOSEG
 !
          CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
-         IF (IKMRK1.EQ.1) THEN
+         IF (IKMRK1==1) THEN
 
          nMacrophyt = PMSA( IPNT(  1) )
          HSIEM01    = PMSA( IPNT(  2) )
@@ -130,10 +130,10 @@
 !   *****     Insert your code here  *****
 !
          SumHSIEM   = HSIEM01 + HSIEM02 + HSIEM03 + HSIEM03 + HSIEM05
-         IF ( SumHSIEM .LT. 1.E-20 ) SumHSIEM = 1.0
+         IF ( SumHSIEM < 1.E-20 ) SumHSIEM = 1.0
 
          SumHSISM   = HSISM01 + HSISM02 + HSISM03 + HSISM03 + HSISM05
-         IF ( SumHSISM .LT. 1.E-20 ) SumHSISM = 1.0
+         IF ( SumHSISM < 1.E-20 ) SumHSISM = 1.0
 
          MaxEM01    = HSIEM01 * PotEM01 / SumHSIEM
          MaxSM01    = HSISM01 * PotSM01 / SumHSISM

@@ -102,7 +102,7 @@
       call maxprd ( tefcur )
       do itype = 1,ntyp
          pmax20(itype) = pmax(itype)
-         if (sdmix(itype) .lt. 0.0) then
+         if (sdmix(itype) < 0.0) then
             sdmixn(itype) = 1.0d0 + sdmix(itype)
          else
             sdmixn(itype) = 0.0d0
@@ -118,7 +118,7 @@
                tcorr = pmax20(itype)/pmax(itype)
                surf_typ = tcorr * dsol * dexp (- exttot * sdmixn(itype) * dep)
                surf_typ = surf_typ/day
-               if ( surf_typ .gt. 1.0 .and. exttot*dep .gt. 1.0d-10) then
+               if ( surf_typ > 1.0 .and. exttot*dep > 1.0d-10) then
                   phi_s = - dlog(surf_typ)
                   call ebcalc(phi_s,fun_s,der_s,igroup)
                   phi_d = exttot*dep - dlog(surf_typ)
@@ -134,7 +134,7 @@
          do igroup = 1 , nuecog
             do itype = it2(igroup,1),it2(igroup,2)
                tcorr = pmax20(itype)/pmax(itype)
-               if (sdmixn(itype).eq.0.0d0) then
+               if (sdmixn(itype)==0.0d0) then
                   radtop = radiat / 0.0168d0  ! conversion from J/cm2/7days to J/m2/hour (*3600.0/60.48 = /0.0168)
                else
                   radtop = (radiat / 0.0168d0) * dexp (- exttot * abs(sdmixn(itype)) * dep)
@@ -148,7 +148,7 @@
          do igroup = 1 , nuecog
             do itype = it2(igroup,1),it2(igroup,2)
                tcorr = pmax20(itype)/pmax(itype)
-               if (sdmixn(itype).eq.0.0d0) then
+               if (sdmixn(itype)==0.0d0) then
                   radtop = radiat / 0.0168d0  ! conversion from J/cm2/7days to J/m2/hour (*3600.0/60.48 = /0.0168)
                else
                   radtop = (radiat / 0.0168d0) * dexp (- exttot * abs(sdmixn(itype)) * dep)
@@ -164,7 +164,7 @@
          do igroup = 1 , nuecog
             do itype = it2(igroup,1),it2(igroup,2)
                tcorr = pmax20(itype)/pmax(itype)
-               if (sdmixn(itype).eq.0.0d0) then
+               if (sdmixn(itype)==0.0d0) then
                   radtop = radiat / 0.0168d0  ! conversion from J/cm2/7days to J/m2/hour (*3600.0/60.48 = /0.0168)
                else
                   radtop = (radiat / 0.0168d0) * dexp (- exttot * abs(sdmixn(itype)) * dep)
@@ -183,7 +183,7 @@
          do igroup = 1 , nuecog
             do itype = it2(igroup,1),it2(igroup,2)
                tcorr = pmax20(itype)/pmax(itype)
-               if (sdmixn(itype).eq.0.0d0) then
+               if (sdmixn(itype)==0.0d0) then
                   radtop = radiat / 0.0168d0  ! conversion from J/cm2/7days to J/m2/hour (*3600.0/60.48 = /0.0168)
                else
                   radtop = (radiat / 0.0168d0) * dexp (- exttot * abs(sdmixn(itype)) * dep)
@@ -224,7 +224,7 @@
       logical, save :: first = .true.
 
       if (first) then
-         if (power(npoint).eq.0.0) then
+         if (power(npoint)==0.0) then
             call getmlu(lunrep)
             write(lunrep,*)
      &         'ERROR: the highest power in the light curve is 0.0.',
@@ -239,13 +239,13 @@
 !
 !  lookup efficency in light curve
 !
-      if (rad .le. power(1)) then
+      if (rad <= power(1)) then
          effi = effic(1,numgr)
-      else if (rad .ge. power(npoint)) then
+      else if (rad >= power(npoint)) then
          effi = effic(npoint,numgr)
       else
          do i = 2,npoint
-            if (rad.ge.power(i-1).and.rad.le.power(i)) then
+            if (rad>=power(i-1).and.rad<=power(i)) then
                interpol=(rad-power(i-1))/(power(i)-power(i-1))
                effi=effic(i-1,numgr)+interpol*(effic(i,numgr)-effic(i-1,numgr))
                exit

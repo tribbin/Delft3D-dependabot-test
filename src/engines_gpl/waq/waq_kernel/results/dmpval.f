@@ -70,7 +70,7 @@
          DO ISC = 1 , NSC
             ITEL  = ITEL + 1
             ISEG  = IPDMP(NDMPAR+ITEL)
-            IF ( ISEG .GT. 0 ) THEN
+            IF ( ISEG > 0 ) THEN
                VALDMP(IDUMP) = VALDMP(IDUMP) + VALSEG(ISEG)
             ENDIF
          ENDDO

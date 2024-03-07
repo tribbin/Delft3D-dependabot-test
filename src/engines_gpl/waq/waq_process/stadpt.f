@@ -124,7 +124,7 @@
 !     default output is the value from the segment itself
       do iseg=1,noseg
          call evaluate_waq_attribute( 1, iknmrk(iseg), ikmrk )
-         if ( ikmrk .ne. 0 ) then
+         if ( ikmrk /= 0 ) then
             cdepsum(iseg) = pmsa(ip1) * pmsa(ip2)
             vdepsum(iseg) = pmsa(ip2)
             cdepavg(iseg) = pmsa(ip1)
@@ -139,13 +139,13 @@
       do iq = noq1+noq2+1 , noq1+noq2+noq3
          ifrom  = iexpnt(1,iq)
          ito    = iexpnt(2,iq)
-         if ( ifrom .gt. 0 .and. ito .gt. 0 ) then
+         if ( ifrom > 0 .and. ito > 0 ) then
             call evaluate_waq_attribute( 1, iknmrk(ifrom ), ik1from )
             call evaluate_waq_attribute( 1, iknmrk(ito)   , ik1to )
-            if ( ik1from .eq. 1 .and. ik1to .eq. 1 ) then
+            if ( ik1from == 1 .and. ik1to == 1 ) then
                cdepsum(ito) = cdepsum(ito) + cdepsum(ifrom)
                vdepsum(ito) = vdepsum(ito) + vdepsum(ifrom)
-               if (vdepsum(ito).gt.0.0) then
+               if (vdepsum(ito)>0.0) then
                   cdepavg(ito) = cdepsum(ito) / vdepsum(ito)
                endif
                cdepmax(ito) = max(cdepmax(ifrom), cdepmax(ito))
@@ -158,10 +158,10 @@
       do iq = noq1+noq2+noq3, noq1+noq2+1, -1
          ifrom  = iexpnt(1,iq)
          ito    = iexpnt(2,iq)
-         if ( ifrom .gt. 0 .and. ito .gt. 0 ) then
+         if ( ifrom > 0 .and. ito > 0 ) then
             call evaluate_waq_attribute( 1, iknmrk(ifrom ), ik1from )
             call evaluate_waq_attribute( 1, iknmrk(ito)   , ik1to )
-            if ( ik1from .eq. 1 .and. ik1to .eq. 1 ) then
+            if ( ik1from == 1 .and. ik1to == 1 ) then
                cdepavg(ifrom) = cdepavg(ito)
                cdepmax(ifrom) = cdepmax(ito)
                cdepmin(ifrom) = cdepmin(ito)
@@ -172,7 +172,7 @@
 !     copy final result back into pmsa array
       do iseg=1,noseg
          call evaluate_waq_attribute( 1, iknmrk(iseg), ikmrk )
-         if ( ikmrk .ne. 0 ) then
+         if ( ikmrk /= 0 ) then
             pmsa(ip3) = cdepavg(iseg)
             pmsa(ip4) = cdepmax(iseg)
             pmsa(ip5) = cdepmin(iseg)

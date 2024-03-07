@@ -136,11 +136,11 @@
       ! Fill an array with wanted locations
 
       do iloc = 1 , data_loc%no_item
-         if ( data_loc%name(iloc) .EQ. '&$&$SYSTEM_NAME&$&$!' ) then
+         if ( data_loc%name(iloc) == '&$&$SYSTEM_NAME&$&$!' ) then
             iloc_ods(iloc) = -1
          else
             iloc_found = index_in_array(data_loc%name(iloc), locnam(:noloc))
-            if ( iloc_found .ge. 1 ) then
+            if ( iloc_found >= 1 ) then
                iloc_ods(iloc) = iloc_found
             else
 
@@ -151,8 +151,8 @@
 
                ! check if location in calculation, then error, but is this check sufficient
 
-               calculation = data_loc%ipnt(iloc) .lt. 0
-               if ( iloc .ne. data_loc%no_item ) calculation = calculation .or. data_loc%ipnt(iloc+1) .lt. 0
+               calculation = data_loc%ipnt(iloc) < 0
+               if ( iloc /= data_loc%no_item ) calculation = calculation .or. data_loc%ipnt(iloc+1) < 0
                if ( calculation ) then
                   write ( lunut , 1080 )
                   ierr = 2
@@ -176,11 +176,11 @@
       ! fill an array with wanted parameters
 
       do ipar = 1 , data_param%no_item
-         if ( data_param%name(ipar) .eq. '&$&$SYSTEM_NAME&$&$!' ) then
+         if ( data_param%name(ipar) == '&$&$SYSTEM_NAME&$&$!' ) then
             ipar_ods(ipar) = 0
          else
             ipar_found = index_in_array(data_param%name(ipar),parnam(:nopar))
-            if ( ipar_found .gt. 0 ) then
+            if ( ipar_found > 0 ) then
                ipar_ods(ipar) = ipar_found
             else
 
@@ -204,29 +204,29 @@
       ! see if the found time values are within the range
 
       afact = isfact/864.0d+02
-      if ( isfact .lt. 0 ) afact = -1.0d+00/isfact/864.0d+02
-      if ( nobrk .ge. 1 ) then
+      if ( isfact < 0 ) afact = -1.0d+00/isfact/864.0d+02
+      if ( nobrk >= 1 ) then
          write ( lunut , 1020 )
          a1 = deltim + itstrt*afact
          a2 = deltim + itstop*afact
          i1 = 1
          i2 = 1
          do ibrk = 1 , nobrk
-            if ( times(ibrk) .le. a1 ) i1 = ibrk
-            if ( times(ibrk) .lt. a2 ) i2 = ibrk
+            if ( times(ibrk) <= a1 ) i1 = ibrk
+            if ( times(ibrk) < a2 ) i2 = ibrk
          enddo
-         if ( i2 .ne. nobrk ) i2 = i2 + 1
-         if ( times(nobrk) .lt. a1 ) i2 = 1
+         if ( i2 /= nobrk ) i2 = i2 + 1
+         if ( times(nobrk) < a1 ) i2 = 1
 
          ! errors and warnings
 
-         if ( times(1) .gt. a1 ) then
+         if ( times(1) > a1 ) then
             call gregor ( times(1), iy1, im1, id1, ih1, in1, is1, dummy)
             call gregor ( a1      , iy2, im2, id2, ih2, in2, is2, dummy)
             write ( lunut , 1030 )  iy1, im1, id1, ih1, in1, is1,
      *                              iy2, im2, id2, ih2, in2, is2
          endif
-         if ( times(nobrk) .lt. a2 ) then
+         if ( times(nobrk) < a2 ) then
             call gregor ( times(nobrk), iy1, im1, id1, ih1, in1, is1, dummy)
             call gregor ( a2          , iy2, im2, id2, ih2, in2, is2, dummy)
             write ( lunut , 1040 )  iy1, im1, id1, ih1, in1, is1,
@@ -235,7 +235,7 @@
          nobrk = i2-i1+1
       endif
       write ( lunut , 1050 ) nobrk
-      if ( nobrk .eq. 1 )    write ( lunut , 1060 )
+      if ( nobrk == 1 )    write ( lunut , 1060 )
 
 !      times are converted to delwaq times
 
@@ -248,7 +248,7 @@
 
       iorder = ORDER_PARAM_LOC
       data_block%iorder = iorder
-      if ( iorder .eq. ORDER_PARAM_LOC ) then
+      if ( iorder == ORDER_PARAM_LOC ) then
          ndim1 = data_param%no_item
          ndim2 = data_loc%no_item
       else
@@ -272,17 +272,17 @@
       ! try the read the data in one time
 
       allocate(buffer2(nsubs,nlocs,nobrk),stat=ierr_alloc)
-      if ( ierr_alloc .eq. 0 ) then
+      if ( ierr_alloc == 0 ) then
          maxdim = nsubs*nlocs*nobrk
          call getmat2( cfile , 0 , ipar_ods      , loc     , timdef   ,
      *                 amiss , maxdim        , buffer2 , ierror   ,
      *                                                       cfile(3) )
          do ipar = 1 , data_param%no_item
-            if ( ipar_ods(ipar) .gt. 0 ) then
+            if ( ipar_ods(ipar) > 0 ) then
                do iloc = 1 , data_loc%no_item
-                  if ( iloc_ods(iloc) .gt. 0 ) then
+                  if ( iloc_ods(iloc) > 0 ) then
                      do ibrk = 1 , nobrk
-                        if ( iorder .eq. ORDER_PARAM_LOC ) then
+                        if ( iorder == ORDER_PARAM_LOC ) then
                            data_block%values(ipar,iloc,ibrk) = buffer2(ipar_ods(ipar),iloc_ods(iloc),ibrk)
                         else
                            data_block%values(iloc,ipar,ibrk) = buffer2(ipar_ods(ipar),iloc_ods(iloc),ibrk)
@@ -296,16 +296,16 @@
       else
          loc(3) =  1
          do ipar = 1 , data_param%no_item
-            if ( ipar_ods(ipar) .gt. 0 ) then
+            if ( ipar_ods(ipar) > 0 ) then
                do iloc = 1 , data_loc%no_item
-                  if ( iloc_ods(iloc) .gt. 0 ) then
+                  if ( iloc_ods(iloc) > 0 ) then
                      loc(1) = iloc_ods(iloc)
                      loc(2) = iloc_ods(iloc)
                      call getmat ( cfile , 0 , ipar_ods(ipar), loc     , timdef   ,
      *                             amiss , nobrk         , buffer  , ierror   ,
      *                                                                   cfile(3) )
                      do ibrk = 1 , nobrk
-                        if ( iorder .eq. ORDER_PARAM_LOC ) then
+                        if ( iorder == ORDER_PARAM_LOC ) then
                            data_block%values(ipar,iloc,ibrk) = buffer(ibrk)
                         else
                            data_block%values(iloc,ipar,ibrk) = buffer(ibrk)
@@ -320,7 +320,7 @@
 
       ! the sequence is the same as we read it, maybe always set both par and loc??
 
-      if ( iorder .eq. ORDER_PARAM_LOC ) then
+      if ( iorder == ORDER_PARAM_LOC ) then
          do i = 1 , data_param%no_item
             data_param%sequence(i) = i
          enddo

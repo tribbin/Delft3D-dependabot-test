@@ -169,7 +169,7 @@
 !     Heat exchange only for top layer segments
 !
          CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-         IF (IKMRK2.EQ.0 .OR. IKMRK2.EQ.1) THEN
+         IF (IKMRK2==0 .OR. IKMRK2==1) THEN
 !
             Qsw     = PMSA(IP1 )
             Fsw     = PMSA(IP2 )
@@ -216,7 +216,7 @@
 !
 !           ----1.  Option 1 = Brunt, 1932
 !
-            IF (ISWEmis.EQ.1) THEN
+            IF (ISWEmis==1) THEN
 !
                Emiss = (0.51 + 0.066 * SQRT(Pvap)) *
      j                 (1.0 + 0.17 * cloud ** 2.0)
@@ -225,7 +225,7 @@
 !
 !           ----2.  Option 2 = Edinger, 1965 and Koberg, 1962
 !
-            ELSEIF (ISWEmis.EQ.2) THEN
+            ELSEIF (ISWEmis==2) THEN
 !
 !           Pascal heeft formulering voor C (Brunt coefficient)
 !           aangevraagd, wordt later ingevuld...
@@ -238,7 +238,7 @@
 !
 !           ----3.  Option 3 = Edinger, 1965
 !
-            ELSEIF (ISWEmis.EQ.3) THEN
+            ELSEIF (ISWEmis==3) THEN
 !
                Emiss = 0.74 * (1 + 0.17 * cloud) +
      j                 0.0045 * (1 - 0.4 * cloud) *
@@ -248,7 +248,7 @@
 !
 !           ----4.  Option 4 = Ludikhuize, 1994 as in WAQUA
 !
-            ELSEIF (ISWEmis.EQ.4) THEN
+            ELSEIF (ISWEmis==4) THEN
 !
                Qa = (218.0 + 6.3 * TempAt) *
      j                 (1.0 + 0.17 * cloud ** 2.0)
@@ -282,10 +282,10 @@
      j               (TempWa + DeltaT) ** 2.0 + 0.000527 *
      j               (TempWa + DeltaT) ** 3.0
 !
-            IF (ABS(Hm - Ha) .LT. 0.0001) THEN
+            IF (ABS(Hm - Ha) < 0.0001) THEN
                VWinda = VWindm
             ELSE
-               IF  ((Hm .GT. (10 * k)) .AND. (Ha .GT. (10 * k))) THEN
+               IF  ((Hm > (10 * k)) .AND. (Ha > (10 * k))) THEN
                    VWinda = VWindm * LOG(Hm / k) / LOG(Ha / k)
                ELSE
                    VWinda = VWindm
@@ -319,7 +319,7 @@
 !
 !     ------For output to exces temperature moddeling
 !
-            IF ( ISWTEMP .EQ. 0 ) THEN
+            IF ( ISWTEMP == 0 ) THEN
                MODTEMP = TEMPWA
             ELSE
                MODTEMP = 0.0
@@ -339,7 +339,7 @@
             PMSA(IP39 ) = RhoWat
             PMSA(IP40 ) = MODTEMP
 
-            IF ( depth .lt. mindeptht ) THEN
+            IF ( depth < mindeptht ) THEN
 
                ! depth less then mindeptht no fluxes
 

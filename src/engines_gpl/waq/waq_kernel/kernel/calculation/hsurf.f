@@ -79,12 +79,12 @@
       if ( first ) then
          first = .false.
          indx = index_in_array( 'SURF      ', paname )
-         if ( indx .gt. 0 ) then                           ! SURF is found
+         if ( indx > 0 ) then                           ! SURF is found
             mode = 1
             surface(:) = param(indx,1:noseg)
          else
             indx = index_in_array( 'SURF      ', sfname)
-            if ( indx .gt. 0 ) then
+            if ( indx > 0 ) then
                mode = -1
             else
               surface = 1.0
@@ -92,7 +92,7 @@
             endif
          endif
       endif
-      if ( mode .eq.  -1 ) then
+      if ( mode ==  -1 ) then
          surface(:) = segfun(1:noseg,indx)
       endif
 

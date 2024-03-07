@@ -111,14 +111,14 @@
 
 !     BAL file
 
-      if ( noutp .ge. 5 ) then
+      if ( noutp >= 5 ) then
          iostrt(5) = imstrt
          iostop(5) = imstop
          iostep(5) = imstep
          nrvar (5) = 0
-         if ( mod(intopt,64) .ge. 32 ) then
+         if ( mod(intopt,64) >= 32 ) then
             isrtou(5) = iba3
-         elseif ( mod(intopt,32) .ge. 16 ) then
+         elseif ( mod(intopt,32) >= 16 ) then
             isrtou(5) = iba2
          else
             isrtou(5) = ibal
@@ -128,7 +128,7 @@
 
 !     NEFIS HIS file
 
-      if ( noutp .ge. 6 ) then
+      if ( noutp >= 6 ) then
          iostrt(6) = ihstrt
          iostop(6) = ihstop
          iostep(6) = ihstep
@@ -139,7 +139,7 @@
 
 !     NEFIS MAP file
 
-      if ( noutp .ge. 7 ) then
+      if ( noutp >= 7 ) then
          iostrt(7) = idstrt
          iostop(7) = idstop
          iostep(7) = idstep
@@ -150,7 +150,7 @@
 
 !     STATistical output MAP
 
-      if ( noutp .ge. 8 ) then
+      if ( noutp >= 8 ) then
          iostrt(8) = itstop
          iostop(8) = itstop
          iostep(8) = idt
@@ -161,7 +161,7 @@
 
 !     STATistical output MON
 
-      if ( noutp .ge. 9 ) then
+      if ( noutp >= 9 ) then
          iostrt(9) = itstop
          iostop(9) = itstop
          iostep(9) = idt

@@ -134,19 +134,19 @@ contains
 
          ! maximise fluxes if neccesary
 
-         if ( dire1 + dire3 .gt. feiiipa/delt ) then
+         if ( dire1 + dire3 > feiiipa/delt ) then
             dire1 = (dire1/(dire1+dire3))*0.5*feiiipa/delt
             dire3 = (dire3/(dire1+dire3))*0.5*feiiipa/delt
          endif
-         if ( dire2 + dire4 .gt. feiiipc/delt ) then
+         if ( dire2 + dire4 > feiiipc/delt ) then
             dire2 = (dire2/(dire2+dire4))*0.5*feiiipc/delt
             dire3 = (dire4/(dire2+dire4))*0.5*feiiipc/delt
          endif
-         if ( dire1 + dire2 .gt. 0.0714*frh2sdis*sud/delt ) then
+         if ( dire1 + dire2 > 0.0714*frh2sdis*sud/delt ) then
             dire1 = (dire1/(dire1+dire2))*0.5*0.0714*frh2sdis*sud/delt
             dire2 = (dire2/(dire1+dire2))*0.5*0.0714*frh2sdis*sud/delt
          endif
-         if ( dire3 + dire4 .gt. 0.125*fes/delt ) then
+         if ( dire3 + dire4 > 0.125*fes/delt ) then
             dire3 = (dire3/(dire3+dire4))*0.5*0.125*fes/delt
             dire4 = (dire4/(dire3+dire4))*0.5*0.125*fes/delt
          endif

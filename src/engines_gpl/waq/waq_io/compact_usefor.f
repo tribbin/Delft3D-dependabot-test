@@ -73,28 +73,28 @@
 
       do i1 = i,1,-1
          i2 = data_param%ipnt(i1)
-         if ( i2 .gt. -100000 ) exit
+         if ( i2 > -100000 ) exit
       enddo
 
       ! additional messages for this sequence
 
-      if ( i2 .le. 0 .and. i2 .gt. -100000 ) then
+      if ( i2 <= 0 .and. i2 > -100000 ) then
          ! try to find the reference
          i4 = 0
          do i3 = 1 , i
             i5 = data_param%ipnt(i3)
-            if ( i5 .gt. 0 ) i4 = i5
-            if ( i5 .le. 0 .and. i5 .gt. -100000 ) i4 = i4 + 1
+            if ( i5 > 0 ) i4 = i5
+            if ( i5 <= 0 .and. i5 > -100000 ) i4 = i4 + 1
          enddo
          chulp = waq_param%name(i4)
-         if ( data_param%name(i) .ne. chulp ) then
+         if ( data_param%name(i) /= chulp ) then
             write (lunut,1030) i4,chulp
          endif
       endif
-      if ( i2 .gt. 0 .and. i2 .lt.  100000 ) then
+      if ( i2 > 0 .and. i2 <  100000 ) then
          i4 = i2
          chulp = waq_param%name(i2)
-         if ( data_param%name(i) .ne. chulp ) then
+         if ( data_param%name(i) /= chulp ) then
             write (lunut,1030)  i2,chulp
          endif
       endif
@@ -105,7 +105,7 @@
       ishft = 1
       do i4 = i1+1,nitm
          i3 = data_param%ipnt(i4)
-         if ( i3 .gt. -1000000 ) exit
+         if ( i3 > -1000000 ) exit
          ishft = ishft + 1
       enddo
 
@@ -132,7 +132,7 @@
       ! renumber in data_param the reference to waq_param
 
       do i4 = i1 , data_param%no_item
-         if ( data_param%ipnt(i4) .gt. i2 ) data_param%ipnt(i4) = data_param%ipnt(i4) -1
+         if ( data_param%ipnt(i4) > i2 ) data_param%ipnt(i4) = data_param%ipnt(i4) -1
       enddo
 
       if (timon) call timstop( ithndl )

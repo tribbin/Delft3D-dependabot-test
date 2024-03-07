@@ -121,7 +121,7 @@
       do iseg = 1 , noseg
       if (btest(iknmrk(iseg),0)) then
       call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-      if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+      if ((ikmrk2==0).or.(ikmrk2==3)) then
 
       dms1    = pmsa(ipnt (1 ) )
       dms2    = pmsa(ipnt (2 ) )
@@ -144,7 +144,7 @@
       press2 = 0.0
 
 !     Calculate resuspension probability in S1
-      if (tau .eq. -1.0) then
+      if (tau == -1.0) then
            press1 = 1.0
       else
 !         Compare with critical shear stress
@@ -152,7 +152,7 @@
       endif
 
 !     Calculate resuspension probability in S2
-      if (tau .eq. -1.0) then
+      if (tau == -1.0) then
          press2 = 1.0
       else
 !        Compare with critical shear stress
@@ -160,12 +160,12 @@
       endif
 
 !     No resuspension when depth below min depth
-      if ( depth .lt. mindep) then
+      if ( depth < mindep) then
          flres1 = 0.0
          flres2 = 0.0
       else
 !        Resuspension from S1
-         if ( isw_zf .eq. 0 ) then
+         if ( isw_zf == 0 ) then
             ! add zero and first order resuspension
             rfdms1 = zres + ( vres * dms1 )
          else
@@ -178,13 +178,13 @@
          flres1 = min ( rfdms1 * press1,  mrdms1 )
 
 !        If first layer is exhausted then resuspension from the second layer for the remaining of the timestep (DELTS2)
-         if ( rfdms1*press1 .gt. 1e-20 ) then
+         if ( rfdms1*press1 > 1e-20 ) then
             delts2 = max(0.0,(1.-flres1/(rfdms1*press1))*delt)
          else
             delts2 = 0.0
          endif
 
-         if ( isw_zf .eq. 0 ) then
+         if ( isw_zf == 0 ) then
             rfdms2 = zres + ( vres * dms2 )
          else
             rfdms2 = min(zres,( vres * dms2 ))

@@ -104,9 +104,9 @@
 !        Read exchange pointers
 
       noq12 = noq1 + noq2
-      if ( ipopt1 .eq. 0 )  then
+      if ( ipopt1 == 0 )  then
          call open_waq_files(lun(44) , lchar(44) , 44      , 2+ftype, ierr2 )
-         if ( ierr2 .ne. 0 ) goto 100
+         if ( ierr2 /= 0 ) goto 100
          do iq = 1, noq
             read ( lun(44), iostat = ierr1 ) ipnt(:,iq)
             if ( ierr1 /= 0 ) then
@@ -150,38 +150,38 @@
 
          close ( lun(44) )
          call open_waq_files  ( lun(8) , lchar(8) , 8     , 1     , ierr2 )
-         if ( ierr2 .ne. 0 ) goto 100
-         if ( noq1 .gt. 0 ) write( lun(8) )( ipnt(:,iq), iq =       1, noq1  )
-         if ( noq2 .gt. 0 ) write( lun(8) )( ipnt(:,iq), iq = noq1 +1, noq12 )
-         if ( noq3 .gt. 0 ) write( lun(8) )( ipnt(:,iq), iq = noq12+1, noq   )
+         if ( ierr2 /= 0 ) goto 100
+         if ( noq1 > 0 ) write( lun(8) )( ipnt(:,iq), iq =       1, noq1  )
+         if ( noq2 > 0 ) write( lun(8) )( ipnt(:,iq), iq = noq1 +1, noq12 )
+         if ( noq3 > 0 ) write( lun(8) )( ipnt(:,iq), iq = noq12+1, noq   )
       else
          do iq = 1 , noq
             do ip = 1 , 4
-               if ( gettoken( ipnt(ip,iq), ierr2 ) .gt. 0 ) goto 100
+               if ( gettoken( ipnt(ip,iq), ierr2 ) > 0 ) goto 100
             enddo
          enddo
          call open_waq_files  ( lun(8) , lchar(8) , 8     , 1     , ierr2 )
-         if ( ierr2 .ne. 0 ) goto 100
-         if ( noq1 .gt. 0 ) write( lun(8) )( ipnt(:,iq), iq =       1, noq1  )
-         if ( noq2 .gt. 0 ) write( lun(8) )( ipnt(:,iq), iq = noq1 +1, noq12 )
-         if ( noq3 .gt. 0 ) write( lun(8) )( ipnt(:,iq), iq = noq12+1, noq   )
+         if ( ierr2 /= 0 ) goto 100
+         if ( noq1 > 0 ) write( lun(8) )( ipnt(:,iq), iq =       1, noq1  )
+         if ( noq2 > 0 ) write( lun(8) )( ipnt(:,iq), iq = noq1 +1, noq12 )
+         if ( noq3 > 0 ) write( lun(8) )( ipnt(:,iq), iq = noq12+1, noq   )
 
-         if ( ioutpt .lt. 4 ) then
+         if ( ioutpt < 4 ) then
             write ( lunut , 2000 )
          else
-            if ( noq1 .gt. 0 ) then
+            if ( noq1 > 0 ) then
                write ( lunut, 2010 )
                write ( lunut, 2020 )
                write ( lunut, 2030 ) ( iq, ipnt(:,iq), iq =       1, noq1  )
             endif
 
-            if ( noq2 .gt. 0 ) then
+            if ( noq2 > 0 ) then
                write ( lunut, 2040 )
                write ( lunut, 2020 )
                write ( lunut, 2030 ) ( iq, ipnt(:,iq), iq = noq1 +1, noq12 )
             endif
 
-            if ( noq3.gt.0 ) then
+            if ( noq3>0 ) then
                write ( lunut, 2050 )
                write ( lunut, 2020 )
                write ( lunut, 2030 ) (iq, ipnt(:,iq), iq = noq12+1, noq)
@@ -196,7 +196,7 @@
      &              status   )
 
       close ( lun(8) )
-  100 if ( ierr2 .gt. 0 ) call status%increase_error_count()
+  100 if ( ierr2 > 0 ) call status%increase_error_count()
       if (timon) call timstop( ithndl )
       return
 

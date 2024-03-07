@@ -49,7 +49,7 @@
 ! If the subroutine is called for the first time, compute and store
 ! the number of types in each phytoplankton group.
       nexclu = nexclu + 1
-      if (nexclu .eq. 1) then
+      if (nexclu == 1) then
          do i = 1,nuecog
             ntypes(i) = it2(i,2) - it2(i,1) + 1
          end do
@@ -59,7 +59,7 @@
 !  put 1.0 in the exclusion row of matrix A.
 !  If no species is permitted in interval INOW, exit with LINF = 2
       do k=1,nuspec
-         if(aco(inow,k) .lt. 1.0d-6) go to 30
+         if(aco(inow,k) < 1.0d-6) go to 30
       end do
       linf=2
       return
@@ -71,7 +71,7 @@
 ! no longer permitted in interval INOW: allow all types in this interval,
 ! but limit their biomasses requiring that the B values for the growth
 ! and mortality constraint are the same.
-      if (lmorch .eq. 0) then
+      if (lmorch == 0) then
          do k=1,nuspec
             a(nuexro,k)=aco(inow,k)
          end do
@@ -88,9 +88,9 @@
          do i = 1,nuecog
             notprs = 0
             do k = it2(i,1),it2(i,2)
-               if (aco(inow,k) .gt. 0.0) notprs = notprs + 1
+               if (aco(inow,k) > 0.0) notprs = notprs + 1
             end do
-            if (notprs .lt. ntypes(i) .or. b(nuexro+nuecog+i) .lt. 1.d-6) then
+            if (notprs < ntypes(i) .or. b(nuexro+nuecog+i) < 1.d-6) then
                do k = it2(i,1),it2(i,2)
                   a(nuexro,k) = aco(inow,k)
                end do
@@ -108,8 +108,8 @@
 !  Exit if the previous interval was infeasible due to a mortality
 !  contstraint: call simplex for the next interval, it might be
 !  feasible.
-      if (irs(2) .eq. 0) return
-      if (lmorch .eq. 1 .and. irs(3) .gt. nuexro + nuecog) then
+      if (irs(2) == 0) return
+      if (lmorch == 1 .and. irs(3) > nuexro + nuecog) then
          linf = 0
          return
       end if
@@ -120,7 +120,7 @@
       linf = 1
       iform = inow-1
       do k=1,nuspec
-         if (aco(inow,k) .lt. aco(iform,k)) then
+         if (aco(inow,k) < aco(iform,k)) then
             linf = 0
             return
          end if

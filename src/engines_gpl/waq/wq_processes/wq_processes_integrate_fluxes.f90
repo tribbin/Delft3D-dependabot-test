@@ -70,7 +70,7 @@ contains
       do iseg=1,noseg
          ! active substances first
          v1 = volume(iseg)
-         if ( v1.gt.1.0d-25 ) then
+         if ( v1>1.0d-25 ) then
             do i=1,nosys
                a           = amass(i,iseg) + dts*deriv(iseg,i)*v1
                amass(i,iseg) = a
@@ -80,7 +80,7 @@ contains
          endif
          ! then the inactive substances
          s1 = surfac(iseg)
-         if(s1.gt.0.0d0) then
+         if(s1>0.0d0) then
             do i=nosys+1,notot
                a             = amass(i,iseg) + dts*deriv(iseg,i)*v1
                amass(i,iseg) = a

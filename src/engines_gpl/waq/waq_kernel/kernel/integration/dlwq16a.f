@@ -138,52 +138,52 @@
 
          ifrom = ipoint(1,iq)
          ito   = ipoint(2,iq)
-         if ( ifrom .eq. 0 .or.  ito .eq. 0 ) cycle
-         if ( ifrom .le. 0 .and. ito .le. 0 ) cycle
+         if ( ifrom == 0 .or.  ito == 0 ) cycle
+         if ( ifrom <= 0 .and. ito <= 0 ) cycle
 
          a = area(iq)
          q = flow(iq)
-         if ( btest(iopt,0) .and. abs(q) .lt. 1.0e-25 )  cycle ! thin dam option, no dispersion at zero flow
+         if ( btest(iopt,0) .and. abs(q) < 1.0e-25 )  cycle ! thin dam option, no dispersion at zero flow
 
 !     Check if exchange is dump exchange, set IPB
 
          ipb = 0
          if ( btest(iopt,3) ) then
-            if ( iqdmp(iq) .gt. 0 ) ipb = iqdmp(iq)
+            if ( iqdmp(iq) > 0 ) ipb = iqdmp(iq)
          endif
 
 !         initialize uniform values
 
-         if ( iq .le. noq1      ) then
+         if ( iq <= noq1      ) then
             e  = disp (1)
             al = aleng(1,1)
-         elseif ( iq .le. noq12 ) then
+         elseif ( iq <= noq12 ) then
             e  = disp (2)
             al = aleng(2,1)
          else
             e  = disp (3)
             al = aleng(1,2)
          endif
-         if ( iq .gt. noq12+noq3 ) e  = 0.0     ! in the bed
+         if ( iq > noq12+noq3 ) e  = 0.0     ! in the bed
 
-         if ( ilflag .eq. 1 ) al = aleng(1,iq) + aleng(2,iq)
+         if ( ilflag == 1 ) al = aleng(1,iq) + aleng(2,iq)
 
-         if ( al .gt. 1.0e-25 ) then
+         if ( al > 1.0e-25 ) then
             dl = a / al
          else
             dl = 0.0
          endif
          e  = e*dl                              ! in m3/s
-         if ( ifrom .lt. 0 ) goto 20
-         if ( ito   .lt. 0 ) goto 40
+         if ( ifrom < 0 ) goto 20
+         if ( ito   < 0 ) goto 40
 
 !         The regular case
 
          do isys = 1, nosys
             d  = e
             v  = q
-            if ( idpnt(isys) .gt. 0 ) d = d + disper( idpnt(isys), iq ) * dl
-            if ( ivpnt(isys) .gt. 0 ) v = v + velo  ( ivpnt(isys), iq ) * a
+            if ( idpnt(isys) > 0 ) d = d + disper( idpnt(isys), iq ) * dl
+            if ( ivpnt(isys) > 0 ) v = v + velo  ( ivpnt(isys), iq ) * a
 
 !              upwinding
 
@@ -193,8 +193,8 @@
 
 !              balances
 
-            if ( ipb .gt. 0 ) then
-               if ( dq .gt. 0.0 ) then
+            if ( ipb > 0 ) then
+               if ( dq > 0.0 ) then
                   dmpq(isys,ipb,1) = dmpq(isys,ipb,1) + dq*idt
                else
                   dmpq(isys,ipb,2) = dmpq(isys,ipb,2) - dq*idt
@@ -210,9 +210,9 @@
             d  = 0.0
             if ( .not. btest(iopt,1) ) then
                 d = e
-                if ( idpnt(isys) .gt. 0 ) d = d + disper( idpnt(isys), iq ) * dl
+                if ( idpnt(isys) > 0 ) d = d + disper( idpnt(isys), iq ) * dl
             endif
-            if ( ivpnt(isys) .gt. 0 ) v = v + velo  ( ivpnt(isys), iq ) * a
+            if ( ivpnt(isys) > 0 ) v = v + velo  ( ivpnt(isys), iq ) * a
 
 !              upwinding
 
@@ -221,15 +221,15 @@
 
 !              balances
 
-            if ( iaflag .eq. 1 ) then
-               if ( dq .gt. 0.0 ) then
+            if ( iaflag == 1 ) then
+               if ( dq > 0.0 ) then
                     amass2(isys,4) = amass2(isys,4) + dq*idt
                else
                     amass2(isys,5) = amass2(isys,5) - dq*idt
                endif
             endif
-            if ( ipb .gt. 0 ) then
-               if ( dq .gt. 0.0 ) then
+            if ( ipb > 0 ) then
+               if ( dq > 0.0 ) then
                   dmpq(isys,ipb,1) = dmpq(isys,ipb,1) + dq*idt
                else
                   dmpq(isys,ipb,2) = dmpq(isys,ipb,2) - dq*idt
@@ -245,9 +245,9 @@
             d  = 0.0
             if ( .not. btest(iopt,1) ) then
                 d = e
-                if ( idpnt(isys) .gt. 0 ) d = d + disper( idpnt(isys), iq ) * dl
+                if ( idpnt(isys) > 0 ) d = d + disper( idpnt(isys), iq ) * dl
             endif
-            if ( ivpnt(isys) .gt. 0 ) v = v + velo  ( ivpnt(isys), iq ) * a
+            if ( ivpnt(isys) > 0 ) v = v + velo  ( ivpnt(isys), iq ) * a
 
 !              upwinding
 
@@ -256,15 +256,15 @@
 
 !              balances
 
-            if ( iaflag .eq. 1 ) then
-               if ( dq .gt. 0.0 ) then
+            if ( iaflag == 1 ) then
+               if ( dq > 0.0 ) then
                     amass2(isys,5) = amass2(isys,5) + dq*idt
                else
                     amass2(isys,4) = amass2(isys,4) - dq*idt
                endif
             endif
-            if ( ipb .gt. 0 ) then
-               if ( dq .gt. 0.0 ) then
+            if ( ipb > 0 ) then
+               if ( dq > 0.0 ) then
                   dmpq(isys,ipb,1) = dmpq(isys,ipb,1) + dq*idt
                else
                   dmpq(isys,ipb,2) = dmpq(isys,ipb,2) - dq*idt

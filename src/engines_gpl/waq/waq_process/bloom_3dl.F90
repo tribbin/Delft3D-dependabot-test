@@ -63,7 +63,7 @@ contains
       ntyp_3dl   = ntyp
 
       allocate ( radsurf_3dl(noseg), effic_3dl(ntyp,noseg), stat = ierr_alloc)
-      if ( ierr_alloc .ne. 0 ) then
+      if ( ierr_alloc /= 0 ) then
          call getmlu(lunrep)
          write ( lunrep , 1000 ) ierr_alloc
          write ( lunrep , 1001 ) noseg
@@ -151,7 +151,7 @@ contains
       real(kind=dp)    ::der_d      ! derivative at sutface at dep
       real(kind=dp)    ::effi       ! calculated efficiency
 
-      if ( surf .gt. 1.0 .and. exttot*dep .gt. 1.0d-10) then
+      if ( surf > 1.0 .and. exttot*dep > 1.0d-10) then
          phi_s = - dlog(surf)
          call ebcalc(phi_s,fun_s,der_s,igroup)
          phi_d = exttot*dep - dlog(surf)

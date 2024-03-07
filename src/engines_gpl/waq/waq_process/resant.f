@@ -73,7 +73,7 @@
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-      IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
+      IF ((IKMRK2==0).OR.(IKMRK2==3)) THEN
 !
 
       RFLS1  = PMSA(IP1 )
@@ -81,7 +81,7 @@
       CPS1   = PMSA(IP3 )
       CSS1   = PMSA(IP4 )
       DEPTH  = PMSA(IP5 )
-      IF ( DEPTH .GT. 0.0 ) THEN
+      IF ( DEPTH > 0.0 ) THEN
           RFLS1 = RFLS1 / DEPTH
       ELSE
           RFLS1 = 0.0

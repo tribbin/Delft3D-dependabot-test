@@ -110,12 +110,12 @@
 
       bound = .false.
       waste = .false.
-      if ( ierr .eq. -1 ) bound = .true.
-      if ( ierr .eq. -2 ) waste = .true.
+      if ( ierr == -1 ) bound = .true.
+      if ( ierr == -2 ) waste = .true.
       ierr  = 0
       ndim  = nitem*nvals
 
-      if ( gettoken( nhar, ierr2 ) .gt. 0 ) goto 100
+      if ( gettoken( nhar, ierr2 ) > 0 ) goto 100
       allocate ( iperio(nhar+1), value(ndim+1,nhar+1) )
 
       select case ( iopt )
@@ -123,12 +123,12 @@
          case ( 3 )        !      read values if IOPT = 3 ( harmonic function )
 
             do k = 2, ndim+1
-               if ( gettoken( value(k,1), ierr2 ) .gt. 0 ) goto 100
+               if ( gettoken( value(k,1), ierr2 ) > 0 ) goto 100
             enddo
             do i = 2, nhar+1
-               if ( gettoken( iperio(i), ierr2 ) .gt. 0 ) goto 100
+               if ( gettoken( iperio(i), ierr2 ) > 0 ) goto 100
                do k = 1, ndim+1
-                  if ( gettoken( value(k,i), ierr2 ) .gt. 0 ) goto 100
+                  if ( gettoken( value(k,i), ierr2 ) > 0 ) goto 100
                enddo
             enddo
             call conver ( iperio(2) , nhar  , ifact  , dtflg , dtflg3 )
@@ -136,13 +136,13 @@
 
          case ( 4 )        !      read values if IOPT = 4 ( fourier function )
 
-            if ( gettoken( ibase, ierr2 ) .gt. 0 ) goto 100
+            if ( gettoken( ibase, ierr2 ) > 0 ) goto 100
             do k = 2, ndim+1
-               if ( gettoken( value(k,1), ierr2 ) .gt. 0 ) goto 100
+               if ( gettoken( value(k,1), ierr2 ) > 0 ) goto 100
             enddo
             do i = 2, nhar+1
                do k = 1, ndim+1
-                  if ( gettoken( value(k,i), ierr2 ) .gt. 0 ) goto 100
+                  if ( gettoken( value(k,i), ierr2 ) > 0 ) goto 100
               enddo
             enddo
             call convert_relative_time ( ibase , ifact , dtflg , dtflg3 )
@@ -155,10 +155,10 @@
 
 !        control writing
 
-      if ( ioutpt .lt. 4 ) then
+      if ( ioutpt < 4 ) then
          write ( lunut , 2070 )
       else
-         if ( iopt .eq. 3 ) then
+         if ( iopt == 3 ) then
             write ( lunut, 2000 ) nhar
          else
             write ( lunut, 2010 ) nhar, ibase
@@ -174,7 +174,7 @@
          enddo
          do i  = 2,nhar+1
             write ( lunut, 2050 ) iperio(i),value(1,i)
-            if ( iperio(i) .le. 0 ) then
+            if ( iperio(i) <= 0 ) then
                write ( lunut, 2060 )
                ierr = ierr+1
             endif

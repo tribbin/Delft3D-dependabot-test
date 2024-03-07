@@ -101,9 +101,9 @@
 
          parnam = 'theta'
          parindx = index_in_array(parnam,ounam)
-         if ( parindx .gt. 0 ) then
+         if ( parindx > 0 ) then
             ip_theta  = ipoint(parindx)
-            if ( ip_theta .ge. ioloc .and. ip_theta .lt. iodef ) then
+            if ( ip_theta >= ioloc .and. ip_theta < iodef ) then
                ip_theta = ip_theta - ioloc + 1
             else
                ip_theta = -1
@@ -114,7 +114,7 @@
 
 !     fill output array
 
-      if ( ip_theta .gt. 0 ) then
+      if ( ip_theta > 0 ) then
          do iseg = 1 , noseg
             proloc(ip_theta,iseg) = theta(iseg)
          enddo

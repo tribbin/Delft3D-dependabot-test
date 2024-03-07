@@ -74,7 +74,7 @@
       do iseg = 1 , noseg
       if (btest(iknmrk(iseg),0)) then
       call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-      if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+      if ((ikmrk2==0).or.(ikmrk2==3)) then
 !
 
       sfl1   = pmsa(ipnt (1 ) )
@@ -130,7 +130,7 @@
 
          ifrom  = iexpnt(1,iq)
 
-         if ( ifrom .gt. 0 ) then
+         if ( ifrom > 0 ) then
             fpim1 = pmsa(ipnt(10) + (ifrom-1) * increm(10))
             fpim2 = pmsa(ipnt(11) + (ifrom-1) * increm(11))
             fpim3 = pmsa(ipnt(12) + (ifrom-1) * increm(12))

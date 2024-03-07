@@ -151,12 +151,12 @@ C     IMPLICIT REAL(kind=real_wp) ::(A-H,J-Z)
 
          CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
 
-         IF (IKMRK1.EQ.1) THEN
+         IF (IKMRK1==1) THEN
 
            LEN    = PMSA(IP1)
            DIF    = PMSA(IP2)
 
-           IF (DIF.LT.1E-20) CALL ZEROME ('DIF in MFBNUT')
+           IF (DIF<1E-20) CALL ZEROME ('DIF in MFBNUT')
 
            FNBM   = PMSA(IP3)
            FNSW   = PMSA(IP4)
@@ -178,7 +178,7 @@ C     IMPLICIT REAL(kind=real_wp) ::(A-H,J-Z)
            SURF  = PMSA(IP20)
 c           VOLWAT = DEPTH * SURF
 
-           IF ((FNBM+FNSW) .LE. 0.0) THEN
+           IF ((FNBM+FNSW) <= 0.0) THEN
              FNO3 = FNO3GS
              FNH4 = FNH4GS
            ELSE

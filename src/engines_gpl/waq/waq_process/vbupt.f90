@@ -127,11 +127,11 @@ contains
          fPVB01up  = 0.0
          fSVB01up  = 0.0
 
-         if ( Nint(SwVBGro) .eq. 1) then
+         if ( Nint(SwVBGro) == 1) then
 
 !            make sure allocation factors for roots > 0
 
-             if ( (F4VB + F5VB) - 1.E-10 .lt. 0.0 ) then
+             if ( (F4VB + F5VB) - 1.E-10 < 0.0 ) then
                 CALL write_error_message ('(no valid values for F4VB and F5VB (alloction factors vegetation  roots)')
              else
 !               average Nutrient content of cohort

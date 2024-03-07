@@ -79,7 +79,7 @@
 
 !     Initialize file
 
-      if ( init .eq. 1 ) then
+      if ( init == 1 ) then
          init = 0
          write (iomap)  moname
          write (iomap)  notot1+notot2, noseg

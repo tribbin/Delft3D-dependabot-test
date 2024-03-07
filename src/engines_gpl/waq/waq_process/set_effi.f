@@ -83,7 +83,7 @@
       deat   = 0d0
       call natmor (deat, temp)
       do itype = 1,ntyp_3dl
-         if (sdmix(itype) .lt. 0.0) then
+         if (sdmix(itype) < 0.0) then
             sdmixn(itype) = 1.0d0 + sdmix(itype)
 !           dmix(k) = dabs(sdmix(itype)) * dep
          else

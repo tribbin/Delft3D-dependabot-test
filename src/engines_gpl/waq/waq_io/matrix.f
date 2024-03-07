@@ -110,7 +110,7 @@
 
 !          If no breakpoints in IBRK/TAB then IBRK/ITAB==IBRKNW/TABNW
 
-      if ( nobrk1 .eq. 0 ) then
+      if ( nobrk1 == 0 ) then
          nobrk1 = nobrk2
 !jvb     nvarar = nvarnw
          ibrk   = ibrknw
@@ -133,9 +133,9 @@
 
          do k = j+1, nobrk1
             j = k
-            if ( iset .lt. ibrk(j) ) goto 20
-            if ( iset .eq. ibrk(j) ) goto 30
-            if ( j .eq. 1 ) then
+            if ( iset < ibrk(j) ) goto 20
+            if ( iset == ibrk(j) ) goto 30
+            if ( j == 1 ) then
                do iv = 1 , nposnw                             ! initialize expanded collumns for row j
                   tab( nposar+iv, j ) = tabnw( iv, i )
                enddo
@@ -165,7 +165,7 @@
          enddo
          nobrk1  = nobrk1 + 1                                 ! nr of breakpoints increases
          ibrk(j) = iset                                       ! added breakpoint at the start
-         if ( j .eq. 1 ) then                                 ! copy existing values upfront
+         if ( j == 1 ) then                                 ! copy existing values upfront
             do iv = 1 , nposar
                tab( iv, 1 ) = tab( iv, 2 )
             enddo

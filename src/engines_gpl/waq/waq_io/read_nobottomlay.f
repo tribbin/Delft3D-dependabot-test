@@ -93,7 +93,7 @@
       i_base_grid   = GridPs%base_grid
       i_bottom_grid = GridPs%bottom_grid
 
-      if ( i_bottom_grid .eq. 0 ) then
+      if ( i_bottom_grid == 0 ) then
 
 !        bottom grid not defined yet, add default bottom grid equals base grid 2d
 
@@ -120,21 +120,21 @@
       input_grid = i_bottom_grid
       do
 
-         if ( gettoken( ctoken, ierr2 ) .gt. 0 ) goto 1000
+         if ( gettoken( ctoken, ierr2 ) > 0 ) goto 1000
          select case (ctoken)
 
             case ('DEFAULT')
-               if ( gettoken( nolay , ierr2 ) .gt. 0 ) goto 1000
+               if ( gettoken( nolay , ierr2 ) > 0 ) goto 1000
                GridPs%Pointers(input_grid)%nolay = nolay
                write ( lunut , 2050 ) nolay
                GridPs%Pointers(input_grid)%noseg = nolay * GridPs%Pointers(input_grid)%noseg_lay
                exit
 
             case ('INPUTGRID')
-               if ( gettoken( ctoken, ierr2 ) .gt. 0 ) goto 1000
+               if ( gettoken( ctoken, ierr2 ) > 0 ) goto 1000
                write ( lunut , 2010 ) trim(ctoken)
                input_grid = GridPointerCollFind( GridPs, ctoken )
-               if ( input_grid .eq. 0 ) then
+               if ( input_grid == 0 ) then
                   write ( lunut , 2020 )                       ! ERROR, input grid not defined
                   goto 1000
                endif
@@ -143,7 +143,7 @@
                allocate(GridPs%Pointers(input_grid)%nolay_var(noseg_input))
                noseg_grid = 0
                do iseg = 1 , noseg_input
-                  if ( gettoken( nolay , ierr2 ) .gt. 0 ) goto 1000
+                  if ( gettoken( nolay , ierr2 ) > 0 ) goto 1000
                   GridPs%Pointers(input_grid)%nolay_var(iseg) = nolay
                   noseg_grid = noseg_grid + nolay
                enddo
@@ -157,7 +157,7 @@
                allocate(GridPs%Pointers(input_grid)%nolay_var(noseg_input))
                noseg_grid = 0
                do iseg = 1 , noseg_input
-                  if ( gettoken( nolay , ierr2 ) .gt. 0 ) goto 1000
+                  if ( gettoken( nolay , ierr2 ) > 0 ) goto 1000
                   GridPs%Pointers(input_grid)%nolay_var(iseg) = nolay
                   noseg_grid = noseg_grid + nolay
                enddo
@@ -174,11 +174,11 @@
 
 !     if input grid .ne. bottom grid then expand to bottom grid (could be over a multiple reference?)
 
-      if ( input_grid .ne. i_bottom_grid ) then
+      if ( input_grid /= i_bottom_grid ) then
          max_nolay = maxval(GridPs%Pointers(input_grid)%nolay_var)
          do ! loop till the bottom grid is reached
                 iref = GridPs%Pointers(input_grid)%iref
-            if( iref .le. 1 ) then
+            if( iref <= 1 ) then
                write ( lunut , 2040 )                          ! ERROR, input grid has no refrence to the bottom grid
                goto 1000
             endif
@@ -189,7 +189,7 @@
             noseg_grid = 0
             do iseg = 1 , noseg_lay
                itype = GridPs%Pointers(input_grid)%iarray(iseg)
-               if ( itype .gt. 0 ) then
+               if ( itype > 0 ) then
                   GridPs%Pointers(iref)%nolay_var(iseg) = GridPs%Pointers(input_grid)%nolay_var(itype)
                   noseg_grid = noseg_grid + GridPs%Pointers(input_grid)%nolay_var(itype)
                endif
@@ -203,7 +203,7 @@
             iseg2 = 0
             do ilay = 1, max_nolay
                do iseg = 1 , GridPs%Pointers(input_grid)%noseg_lay
-                  if ( GridPs%Pointers(input_grid)%nolay_var(iseg) .ge. ilay ) then
+                  if ( GridPs%Pointers(input_grid)%nolay_var(iseg) >= ilay ) then
                      iseg2 = iseg2 + 1
                      bottom_matrix(iseg,ilay) = iseg2
                   endif
@@ -215,8 +215,8 @@
             do ilay = 1, max_nolay
                do iseg = 1 , noseg_lay
                   itype = GridPs%Pointers(input_grid)%iarray(iseg)
-                  if ( itype .gt. 0 ) then
-                     if ( GridPs%Pointers(input_grid)%nolay_var(itype) .ge. ilay ) then
+                  if ( itype > 0 ) then
+                     if ( GridPs%Pointers(input_grid)%nolay_var(itype) >= ilay ) then
                         iseg2 = iseg2 + 1
                         new_pointer(iseg2) = bottom_matrix(itype,ilay)
                      endif
@@ -231,7 +231,7 @@
             ! exit if bottom grid else go to next reference
 
             input_grid = iref
-            if ( input_grid .eq. i_bottom_grid ) exit
+            if ( input_grid == i_bottom_grid ) exit
          enddo
       endif
 

@@ -108,16 +108,16 @@
 
       do ibnd = 1, nobnd
          itlag = ibpnt( 1, ibnd )
-         if ( itlag .eq. 0 ) then                     !  time lag not used for this boundary
+         if ( itlag == 0 ) then                     !  time lag not used for this boundary
             bound( :, ibnd ) = bset( :, ibnd )
          else
             iflow = ibpnt( 2, ibnd )
-            if ( iflow .eq. 0 ) then                     !  no flow associated with this boundary
+            if ( iflow == 0 ) then                     !  no flow associated with this boundary
                bound( :, ibnd ) = bset( :, ibnd )
                cycle
             endif
             aflow = isign(1,iflow)*flow(iabs(iflow))
-            if ( aflow .ge. 0.0 ) then                   !  outflow
+            if ( aflow >= 0.0 ) then                   !  outflow
                ibpnt( 4, ibnd ) = 0
                iseg = ibpnt( 3, ibnd )
                bsave( :, ibnd ) = conc( 1:nosys, iseg )
@@ -125,7 +125,7 @@
             else                                         !  inflow
                ibtime = ibpnt( 4, ibnd ) + idt
                ibpnt( 4, ibnd ) = ibtime
-               if ( ibtime  .ge. itlag ) then
+               if ( ibtime  >= itlag ) then
                   bound( :, ibnd ) = bset( :, ibnd )
                else
                   at = 0.5 * cos( float(ibtime)/itlag * pi )
@@ -137,7 +137,7 @@
          ! 'mirror' boundary for substances with negative boundary concentrations, initially for efficiency tracers
          if (bndmirror) then
             do isub = 1, nosys
-               if (bset (isub, ibnd) .lt. 0.0) then
+               if (bset (isub, ibnd) < 0.0) then
                   ! when a negative boundary concentration is set, use current internal segment concentration
                   ! as a boundary instead of what was determined above
                   iseg = ibpnt( 3, ibnd )

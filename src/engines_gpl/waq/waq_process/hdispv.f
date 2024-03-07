@@ -86,11 +86,11 @@
          ! input on segments
 
          iseg1 = iexpnt(1,iq)
-         if ( iseg1 .le. 0 ) iseg1 = iexpnt(2,iq)
-         if ( iseg1 .le. 0 ) iseg1 = 1
+         if ( iseg1 <= 0 ) iseg1 = iexpnt(2,iq)
+         if ( iseg1 <= 0 ) iseg1 = 1
          iseg2 = iexpnt(2,iq)
-         if ( iseg2 .le. 0 ) iseg2 = iexpnt(1,iq)
-         if ( iseg2 .le. 0 ) iseg2 = 1
+         if ( iseg2 <= 0 ) iseg2 = iexpnt(1,iq)
+         if ( iseg2 <= 0 ) iseg2 = 1
 
          dfact_a     = pmsa(ipnt(1)+(iseg1-1)*increm(1))
          dfact_b     = pmsa(ipnt(2)+(iseg1-1)*increm(2))
@@ -109,7 +109,7 @@
 
          ! calculate velocity
 
-         if ( xarea .lt. 1e-10 ) then
+         if ( xarea < 1e-10 ) then
             velocity = 0.0
          else
             velocity = abs(flow/xarea)
@@ -123,7 +123,7 @@
 
          ! set output
 
-         if ( iq .le. noq1 ) then
+         if ( iq <= noq1 ) then
             pmsa(ipnt(10)+(iseg1-1)*increm(10)) = horzdispv
             pmsa(ipnt(10)+(iseg2-1)*increm(10)) = horzdispv
          else

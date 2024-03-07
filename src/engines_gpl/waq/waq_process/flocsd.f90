@@ -122,7 +122,7 @@ contains
 
          active = btest(iknmrk(iseg),0)
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
-         bottom = ikmrk1.eq.3
+         bottom = ikmrk1==3
          if ( active .and. .not. bottom ) then
             tke = tau / param_soulsby ! Very coarse estimate!
             call flocculate_dwq( swfloform, cmacro, cmicro, tpm, tke, tau, total_depth, local_depth, viscosity, rho_water, &
@@ -133,7 +133,7 @@ contains
 
             tim     = cmacro+cmicro
             macroeq = spmratioem*tim/(1.+spmratioem)
-            if ( macroeq .gt. cmacro ) then
+            if ( macroeq > cmacro ) then
                dfloc = (macroeq-cmacro)*rcfloc
                dfloc = min(dfloc,0.5*cmicro/delt)
             else
@@ -191,7 +191,7 @@ contains
 !
 !        sedimentation velocity from segment to exchange-area
 !
-         if ( ivan .gt. 0 ) then
+         if ( ivan > 0 ) then
             ip8 = ipoint(8) + (ivan-1) * in8
             ip9 = ipoint(9) + (ivan-1) * in9
             pmsa(ipwmac) = pmsa( ip8 )           ! Correct entries? I am in doubt because of the workarray aspect

@@ -84,7 +84,7 @@
 !
       ARRNAM = 'ARRPOI'
       IAPOI  = make_pointer(PART, int_type ,NOARR)
-      IF ( IAPOI .EQ. 0 ) THEN
+      IF ( IAPOI == 0 ) THEN
          WRITE(LUNREP,2010)
          WRITE(LUNREP,2020) ARRNAM
          WRITE(LUNREP,2030) NOARR
@@ -104,7 +104,7 @@
 !
       ARRNAM = 'ARRBYT'
       IABYT  = make_pointer(PART, int_type ,NOARR)
-      IF ( IABYT .EQ. 0 ) THEN
+      IF ( IABYT == 0 ) THEN
          WRITE(LUNREP,2010)
          WRITE(LUNREP,2020) ARRNAM
          WRITE(LUNREP,2030) NOARR
@@ -114,7 +114,7 @@
 !
       ARRNAM = 'ARRLEN'
       IALEN  = make_pointer(PART, int_type ,NOARR)
-      IF ( IALEN .EQ. 0 ) THEN
+      IF ( IALEN == 0 ) THEN
          WRITE(LUNREP,2010)
          WRITE(LUNREP,2020) ARRNAM
          WRITE(LUNREP,2030) NOARR
@@ -124,7 +124,7 @@
 !
       ARRNAM = 'ARRKND'
       IAKND  = make_pointer(PART, int_type ,NOARR)
-      IF ( IAKND .EQ. 0 ) THEN
+      IF ( IAKND == 0 ) THEN
          WRITE(LUNREP,2010)
          WRITE(LUNREP,2020) ARRNAM
          WRITE(LUNREP,2030) NOARR
@@ -134,7 +134,7 @@
 !
       ARRNAM = 'ARRDM1'
       IADM1  = make_pointer(PART, int_type ,NOARR)
-      IF ( IADM1 .EQ. 0 ) THEN
+      IF ( IADM1 == 0 ) THEN
          WRITE(LUNREP,2010)
          WRITE(LUNREP,2020) ARRNAM
          WRITE(LUNREP,2030) NOARR
@@ -144,7 +144,7 @@
 !
       ARRNAM = 'ARRDM2'
       IADM2  = make_pointer(PART, int_type ,NOARR)
-      IF ( IADM2 .EQ. 0 ) THEN
+      IF ( IADM2 == 0 ) THEN
          WRITE(LUNREP,2010)
          WRITE(LUNREP,2020) ARRNAM
          WRITE(LUNREP,2030) NOARR

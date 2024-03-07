@@ -76,14 +76,14 @@
       write ( lunwro ) ( ioutps(4,k) , k = 1 , noutp )
       write ( lunwro ) ( ioutps(5,k) , k = 1 , noutp )
       write ( lunwro ) ( ioutps(6,k) , k = 1 , noutp )
-      if (nrvart.gt.0) then
+      if (nrvart>0) then
          write ( lunwro ) ( outputs%pointers(k)   , k = 1 , nrvart)
          write ( lunwro ) ( outputs%names   (k)   , k = 1 , nrvart)
          write ( lunwro ) ( outputs%std_var_name(k)   , k = 1 , nrvart)
          write ( lunwro ) ( outputs%units   (k)   , k = 1 , nrvart)
          write ( lunwro ) ( outputs%description  (k)   , k = 1 , nrvart)
       end if
-      if (notot.gt.0) then
+      if (notot>0) then
          write ( lunwro ) ( substdname(k)   , k = 1 , notot)
          write ( lunwro ) ( subunit   (k)   , k = 1 , notot)
          write ( lunwro ) ( subdescr  (k)   , k = 1 , notot)

@@ -94,7 +94,7 @@
       do iq = 1, noq
          do i = 1,4
             ip1 = ipoint(i,iq)
-            if ( ip1 .gt. noseg ) then
+            if ( ip1 > noseg ) then
                write ( lunut , 2000 ) ip1, iq, noseg
                call status%increase_error_count()
             endif
@@ -110,16 +110,16 @@
       do iq = 1,noqt
          ip1 = ipoint(1,iq)
          ip2 = ipoint(2,iq)
-         if ( ip1 .gt. 0 .and. ip2 .gt. 0 ) jtrack = max( jtrack, iabs(ip1-ip2) )
+         if ( ip1 > 0 .and. ip2 > 0 ) jtrack = max( jtrack, iabs(ip1-ip2) )
       enddo
-      if ( intsrt .eq. 6 .or. intsrt .eq. 7 .or. intsrt .eq. 10 ) then
+      if ( intsrt == 6 .or. intsrt == 7 .or. intsrt == 10 ) then
          write ( lunut, 2020 ) jtrack
       endif
 
 !     Allocate and zero boundary pointers
 
       allocate ( ibnd(nobnd,2), stat = ierr2 )
-      if ( ierr2 .ne. 0 ) then
+      if ( ierr2 /= 0 ) then
          write ( lunut, 2030 ) ierr2
          call status%increase_error_count()
          goto 9999
@@ -128,8 +128,8 @@
 
 !     Set boundary pointers
 
-      if ( nobnd .gt. 0 ) then
-         if ( ioutpt .lt. 3 ) then
+      if ( nobnd > 0 ) then
+         if ( ioutpt < 3 ) then
             write ( lun(29) , 2040 )
          else
             write ( lun(29) , 2050 )
@@ -137,18 +137,18 @@
          do iq = 1, noq
             ip1 = ipoint(1,iq)
             ip2 = ipoint(2,iq)
-            if ( ip1 .lt. 0 ) then
-                 if ( ip2 .gt. 0 ) then
+            if ( ip1 < 0 ) then
+                 if ( ip2 > 0 ) then
                     ibnd(-ip1,1) = -iq
                     ibnd(-ip1,2) = ip2
-                    if ( ioutpt .ge. 3 ) write ( lunut, 2060 ) -ip1, iq, ip1, ip2
+                    if ( ioutpt >= 3 ) write ( lunut, 2060 ) -ip1, iq, ip1, ip2
                  endif
             endif
-            if ( ip2 .lt. 0 ) then
-                 if ( ip1 .gt. 0 ) then
+            if ( ip2 < 0 ) then
+                 if ( ip1 > 0 ) then
                     ibnd(-ip2,1) =  iq
                     ibnd(-ip2,2) = ip1
-                    if ( ioutpt .ge. 3 ) write ( lunut, 2060 ) -ip2, iq, ip1, ip2
+                    if ( ioutpt >= 3 ) write ( lunut, 2060 ) -ip2, iq, ip1, ip2
                  endif
             endif
          enddo
@@ -159,16 +159,16 @@
       iwar2_old = 0
       do iq = 1, nobnd
          iwar2_old = iwar2
-         if ( ibnd( iq, 1 ) .eq. 0 ) then
+         if ( ibnd( iq, 1 ) == 0 ) then
             write ( lunut, 2070 ) iq
             iwar2 = iwar2 + 1
          endif
-         if ( ibnd( iq, 2 ) .eq. 0 ) then
+         if ( ibnd( iq, 2 ) == 0 ) then
             write ( lunut, 2080 ) iq
             iwar2 = iwar2 + 1
          endif
       enddo
-      if (iwar2 .gt. iwar2_old) then
+      if (iwar2 > iwar2_old) then
          write ( lunut, 2090 )
          iwar2 = iwar2 + 1
       end if

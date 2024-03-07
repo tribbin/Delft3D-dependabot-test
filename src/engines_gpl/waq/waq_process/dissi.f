@@ -103,11 +103,11 @@
 !
          FSOL = 0.0
 !
-         IF (POROS .GT. 0.05) THEN
+         IF (POROS > 0.05) THEN
 !
             TEMPC = TC**(TEMP - 20.0)
 !
-            IF (NINT(SWDISSi) .EQ. 0) THEN
+            IF (NINT(SWDISSi) == 0) THEN
                FSOL  = KSOL * TEMPC * OPAL * ( CSIDE - CSID / POROS )
             ELSE
                FSOL  = KSOL * TEMPC * OPAL
@@ -116,10 +116,10 @@
          ELSE
             FSOL  = 0.0
             NOWARN = NOWARN + 1
-            IF ( NOWARN .LE. 25 ) THEN
+            IF ( NOWARN <= 25 ) THEN
                CALL GETMLU(LUNREP)
                write (LUNREP,*) 'warning: poros < 0.05 in process DisSi, ISEG=',ISEG,' POROS=',POROS
-            ELSEIF ( NOWARN .EQ. 26 ) THEN
+            ELSEIF ( NOWARN == 26 ) THEN
                CALL GETMLU(LUNREP)
                write (LUNREP,*) 'number of warnings poros < 0.05 in process DisSi >25 firther messages surpressed'
             ENDIF

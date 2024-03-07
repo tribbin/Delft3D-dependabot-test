@@ -89,7 +89,7 @@ contains
 
           if (btest(iknmrk(iseg),0)) then
           call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-          if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+          if ((ikmrk2==0).or.(ikmrk2==3)) then
     !
           sfl    = pmsa(ipnt(1) )
           sfl2   = pmsa(ipnt(2) )
@@ -112,12 +112,12 @@ contains
 
     !     Sedimentation
 
-          if ( cn .gt. 0.1 ) FSEDDN = sfl / cn
-          if ( cp .gt. 0.1 ) FSEDDP = sfl / cp
-          if ( cs .gt. 0.1 ) FSEDDS = sfl / cs
-          if ( cn .gt. 0.1 ) FSEDDN2 = sfl2 / cn
-          if ( cp .gt. 0.1 ) FSEDDP2 = sfl2 / cp
-          if ( cs .gt. 0.1 ) FSEDDS2 = sfl2 / cs
+          if ( cn > 0.1 ) FSEDDN = sfl / cn
+          if ( cp > 0.1 ) FSEDDP = sfl / cp
+          if ( cs > 0.1 ) FSEDDS = sfl / cs
+          if ( cn > 0.1 ) FSEDDN2 = sfl2 / cn
+          if ( cp > 0.1 ) FSEDDP2 = sfl2 / cp
+          if ( cs > 0.1 ) FSEDDS2 = sfl2 / cs
     !
           pmsa ( ipnt(7) ) = FSEDDN
           pmsa ( ipnt(8) ) = FSEDDP
@@ -126,7 +126,7 @@ contains
           pmsa ( ipnt(11) ) = FSEDDP2
           PMSA ( IPNT(12) ) = FSEDDS2
     !
-          if ( depth .gt. 0.0 ) then
+          if ( depth > 0.0 ) then
               fl( 1 + iflux ) =  FSEDDN /depth
               fl( 2 + iflux ) =  FSEDDP /depth
               fl( 3 + iflux ) =  FSEDDS /depth

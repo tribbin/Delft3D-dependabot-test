@@ -123,12 +123,12 @@
       integer(kind=int_wp) ::ithandl = 0
 
       idryfld = index_in_array( 'Z_THRESH  ', coname)
-      if ( idryfld .le. 0 ) then                                       ! constant not found
+      if ( idryfld <= 0 ) then                                       ! constant not found
          iknmkv = iknmrk                                               ! set variable property to
 
          minarea = 1.00E-04                                            ! default value of 1.00E-04 m2 = 1 cm2
          idryfld = index_in_array( 'MIN_AREA', coname)
-         if ( idryfld .gt. 0 ) minarea = cons(idryfld)                 ! or the given value
+         if ( idryfld > 0 ) minarea = cons(idryfld)                 ! or the given value
          area = max( area, minarea )                                   ! set minimum area
          return                                                        ! and return
       endif
@@ -140,14 +140,14 @@
 
 !        SURF is a parameter
 
-      if ( isurf .gt. 0 ) then
+      if ( isurf > 0 ) then
          do iseg = 1, nosegl
             call evaluate_waq_attribute( 1, iknmrk(iseg), ikm )
-            if ( ikm .eq. 0 ) cycle                                    ! whole collumn is inactive
+            if ( ikm == 0 ) cycle                                    ! whole collumn is inactive
             do ilay = nolay, 1, -1                                     ! from bottom to top
                ivol = iseg + (ilay-1)*nosegl
-               if ( volume(ivol) .lt. param(isurf,ivol)*threshold ) then
-                  if ( ilay .gt. 1 ) then
+               if ( volume(ivol) < param(isurf,ivol)*threshold ) then
+                  if ( ilay > 1 ) then
                      iknmrk(ivol) = 0                                  ! inactive cell below the bed
                      call evaluate_waq_attribute(2, iknmrk(ivol-nosegl), ikm )         ! get second one of cell above
                      select case ( ikm )
@@ -173,14 +173,14 @@
 
 !        SURF is a spatial time function (often with 1D models)
 
-         if ( isurf .gt. 0 ) then
+         if ( isurf > 0 ) then
             do iseg = 1, nosegl
                call evaluate_waq_attribute( 1, iknmrk(iseg), ikm )
-               if ( ikm .eq. 0 ) cycle
+               if ( ikm == 0 ) cycle
                do ilay = nolay, 1, -1                                  ! from bottom to top
                   ivol = iseg + (ilay-1)*nosegl
-                  if ( volume(ivol) .lt. segfun(ivol,isurf)*threshold ) then
-                     if ( ilay .gt. 1 ) then
+                  if ( volume(ivol) < segfun(ivol,isurf)*threshold ) then
+                     if ( ilay > 1 ) then
                         iknmrk(ivol) = 0                               ! inactive cell below the bed
                         call evaluate_waq_attribute(2, iknmrk(ivol-nosegl), ikm )
                         select case ( ikm )
@@ -207,11 +207,11 @@
 
             do iseg = 1, nosegl
                call evaluate_waq_attribute( 1, iknmrk(iseg), ikm )
-               if ( ikm .eq. 0 ) cycle
+               if ( ikm == 0 ) cycle
                do ilay = nolay, 1, -1                               ! from bottom to top
                   ivol = iseg + (ilay-1)*nosegl
-                  if ( volume(ivol) .lt. threshold ) then
-                     if ( ilay .gt. 1 ) then
+                  if ( volume(ivol) < threshold ) then
+                     if ( ilay > 1 ) then
                         iknmrk(ivol) = 0                            ! inactive cell below the bed
                         call evaluate_waq_attribute(2, iknmrk(ivol-nosegl), ikm )
                         select case ( ikm )
@@ -239,7 +239,7 @@
 
       minarea = 1.00E-04                                            ! default value of 1.00E-04 m2 = 1 cm2
       idryfld = index_in_array( 'MIN_AREA', coname)
-      if ( idryfld .gt. 0 ) minarea = cons(idryfld)                 ! or the given value
+      if ( idryfld > 0 ) minarea = cons(idryfld)                 ! or the given value
       area = max( area, minarea )                                   ! set minimum area
 
 !          update the vertical exchange pointer
@@ -249,7 +249,7 @@
       do iq = 1, noq
          do i = 1, 2
             j = ifrmto(i,iq)
-            if ( j .gt. 0 ) then
+            if ( j > 0 ) then
                if ( .not. btest( iknmkv(j), 0 ) ) ifrmto(i,iq) = 0
             endif
          enddo
@@ -307,7 +307,7 @@
       integer(kind=int_wp) ::ithandl = 0
 
       iq = index_in_array( 'Z_THRESH  ', coname)
-      if ( iq .le. 0 ) return
+      if ( iq <= 0 ) return
 
       if ( timon ) call timstrt ( "zflows", ithandl )
 
@@ -316,22 +316,22 @@
       do iq = 1, noq12
          ifrom = ifrmto(1,iq)
          ito   = ifrmto(2,iq)
-         if ( ifrom .ne. 0 .and. ito .ne. 0 ) cycle  ! both below the bed
-         if ( abs(flow(iq)) .lt. 1.0e-4 ) cycle      ! flow is almost zero
-         if ( ifrom .eq. 0 ) then
+         if ( ifrom /= 0 .and. ito /= 0 ) cycle  ! both below the bed
+         if ( abs(flow(iq)) < 1.0e-4 ) cycle      ! flow is almost zero
+         if ( ifrom == 0 ) then
             iql = iq - noqhl                         ! look at the corresponding
-            do while ( iql .gt. 0 )                  ! exchange one layer higher
-               if ( ifrmto(1,iql) .gt. 0 ) then      ! if that is real
+            do while ( iql > 0 )                  ! exchange one layer higher
+               if ( ifrmto(1,iql) > 0 ) then      ! if that is real
                   ifrmto(1,iq) = ifrmto(1,iql)       ! take that cell for this flux also
                   exit
                endif
                iql = iql - noqhl
             enddo
          endif
-         if ( ito   .eq. 0 ) then
+         if ( ito   == 0 ) then
             iql = iq - noqhl
-            do while ( iql .gt. 0 )
-               if ( ifrmto(2,iql) .gt. 0 ) then
+            do while ( iql > 0 )
+               if ( ifrmto(2,iql) > 0 ) then
                   ifrmto(2,iq) = ifrmto(2,iql)
                   exit
                endif

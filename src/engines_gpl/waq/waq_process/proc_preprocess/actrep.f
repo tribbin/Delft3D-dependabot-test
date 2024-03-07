@@ -78,12 +78,12 @@
       nocon2 = constants%no_item
       do ico = 1 , nocons
          call upper_case(constants%name(ico),name20,20)
-         if ( name20(1:6) .eq. 'ACTIVE' ) then
+         if ( name20(1:6) == 'ACTIVE' ) then
 
             ! the one to one processes
 
             do ipro = 1 , noprot
-               if ( namprot(ipro) .eq. name20(8:17) ) then
+               if ( namprot(ipro) == name20(8:17) ) then
                   constants%name(ico)(8:) = nampact(ipro)
                endif
             enddo
@@ -91,17 +91,17 @@
             ! the processes that need to be expanded for every algal type
 
             do ipro = 1 , nopralg
-               if ( nampralg(ipro) .eq. name20(8:17) ) then
+               if ( nampralg(ipro) == name20(8:17) ) then
                   name1 = nampralg(ipro)
                   call get_trimmed_length(name1,ilen)
                   do ialg = 1 , noalg
                      write(name1(ilen+1:),'(i2.2)') ialg
-                     if ( ialg .eq. 1 ) then
+                     if ( ialg == 1 ) then
                         constants%name(ico)(8:) = name1
                      else
                         nocon2 = nocon2 + 1
                         ierr2 = dlwq_resize(constants,nocon2)
-                        if ( ierr2 .gt. 0 ) then
+                        if ( ierr2 > 0 ) then
                            write(line,'(a,i10)') ' ERROR: actrep resize error constants size:',nocon2
                            call monsys(line,1)
                            call srstop(1)

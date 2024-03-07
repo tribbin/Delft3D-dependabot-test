@@ -170,7 +170,7 @@ contains
       do iseg = 1 , noseg
         if (btest(iknmrk(iseg),0)) then
           call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-          if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+          if ((ikmrk2==0).or.(ikmrk2==3)) then
 
             im1s2      = pmsa( ipnt(1 ) )
             im2s2      = pmsa( ipnt(2 ) )
@@ -213,7 +213,7 @@ contains
       !**********************************************************************************
 
       !     Calculation of resuspension probability in S1
-            if (tau .eq. -1.0) then
+            if (tau == -1.0) then
                  press1im1 = 1.0
                  press1im2 = 1.0
                  press1im3 = 1.0
@@ -227,7 +227,7 @@ contains
       !     Calculate resuspension
 
       !     No resuspension when depth below min depth
-            if ( depth .lt. mindep) then
+            if ( depth < mindep) then
                flrim1s1 = 0.0
                flrim2s1 = 0.0
                flrim3s1 = 0.0
@@ -235,7 +235,7 @@ contains
                flrdms1  = 0.0
             else
       !        Resuspension from S1
-               if ( isw_zf .eq. 0 ) then
+               if ( isw_zf == 0 ) then
                   ! Add zero and first order resuspension
                   flrim1s1 = zresim1 + ( vresim1 * im1s1 )
                   flrim2s1 = zresim2 + ( vresim2 * im2s1 )
@@ -254,7 +254,7 @@ contains
          
                flres1  = flrim1s1 + flrim2s1 + flrim3s1
                tims1   = im1s1+im2s1+im3s1
-               if (tims1.gt.0.0) then
+               if (tims1>0.0) then
                   flrdms1 = flres1*dms1/tims1
                else
                   flrdms1 = 0.0
@@ -266,7 +266,7 @@ contains
       !**********************************************************************************
 
       !     Calculate resuspension probability in S2
-            if (tau .eq. -1.0) then
+            if (tau == -1.0) then
                press2 = 1.0
             else
       !        Compare with critical shear stress
@@ -283,7 +283,7 @@ contains
             frpoms2pup = max(0.0,dms2-tims2)/rhosand/(thicks2*(1.-pors2))
 
       !     No resuspension when depth below min depth
-            if ( depth .lt. mindep) then
+            if ( depth < mindep) then
                flrim1s2 = 0.0
                flrim2s2 = 0.0
                flrim3s2 = 0.0
@@ -307,7 +307,7 @@ contains
 
                rfdms2   = min(rfdms2,maxrespup)
 
-               if ( frtims2pup .gt. 1.e-20 ) then
+               if ( frtims2pup > 1.e-20 ) then
                   rfim1s2 = rfdms2*frim1s2pup/frtims2pup
                   rfim2s2 = rfdms2*frim2s2pup/frtims2pup
                   rfim3s2 = rfdms2*frim3s2pup/frtims2pup
@@ -328,7 +328,7 @@ contains
                flrim3s2 = min ( rfim3s2 , mrim3s2 )
 
                flres2   = flrim1s2 + flrim2s2 + flrim3s2
-               if (tims2.gt.0.0) then
+               if (tims2>0.0) then
                   flrdms2 = flres2*dms2/tims2
                else
                   flrdms2 = 0.0

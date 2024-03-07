@@ -143,13 +143,13 @@
             OC      = PMSA(IP16)
             IVERSN  = NINT ( PMSA( IP17) )
 !
-            IF ( ALK .LT. 1.0) ALK = 1.0
-            IF ( CCL .LT. 1.0) CCL = 1.0
-            IF ( DOC .LT. 0.1) DOC = 0.1
+            IF ( ALK < 1.0) ALK = 1.0
+            IF ( CCL < 1.0) CCL = 1.0
+            IF ( DOC < 0.1) DOC = 0.1
 !
 !           Calculation of partition coefficients depending on switch
 !
-            IF ( IVERSN .EQ. 1 ) THEN
+            IF ( IVERSN == 1 ) THEN
 
 !              "Rhine" function
 
@@ -165,7 +165,7 @@
                KPIM2 = KP0 * (CECIM2 / 0.0002)
                KPIM3 = KP0 * (CECIM3 / 0.0002)
 !
-            ELSEIF ( IVERSN .EQ. 2 ) THEN
+            ELSEIF ( IVERSN == 2 ) THEN
 
 !              "North Sea" function
 

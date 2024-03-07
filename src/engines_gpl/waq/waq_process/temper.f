@@ -140,7 +140,7 @@
 
 !        What is the modelled temperature
 
-         IF ( ISWTMP .EQ. 0 ) THEN
+         IF ( ISWTMP == 0 ) THEN
             TTEMP = MTEMP
             ETEMP = TTEMP - TMPNAT
          ELSE
@@ -156,7 +156,7 @@
 !           Heat exchange only for top layer segments
 !
             CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-            IF (IKMRK2.EQ.0 .OR. IKMRK2.EQ.1) THEN
+            IF (IKMRK2==0 .OR. IKMRK2==1) THEN
 !
                DEPTH  = PMSA(IP3)
                VWIND  = PMSA(IP4)
@@ -183,7 +183,7 @@
 !
                WFLUX  = - WEXCH * ETEMP + ZEROFL
 !
-               IF (ETEMP .GT. 0.0) THEN
+               IF (ETEMP > 0.0) THEN
 !
 !                 Limitation of FL(1) to amount of excess temperature present
 !
@@ -196,16 +196,16 @@
 
          SWTEMPDF = NINT(PMSA(IP10))
 
-         IF ( SWTEMPDF .EQ. 1 ) THEN
+         IF ( SWTEMPDF == 1 ) THEN
 
             SWEMERSION = NINT(PMSA(IP11))
 
-            IF ( SWEMERSION .EQ. 1 ) THEN
+            IF ( SWEMERSION == 1 ) THEN
 
                LOCSEDDEPT = PMSA(IP12)
                THSEDDT    = PMSA(IP13)
 
-               IF ( LOCSEDDEPT .LE. THSEDDT ) THEN
+               IF ( LOCSEDDEPT <= THSEDDT ) THEN
 
                   DELT       = PMSA(IP6)
                   RAD        = PMSA(IP14)

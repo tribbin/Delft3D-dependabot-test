@@ -103,7 +103,7 @@
       DO ISEG = 1 , NOSEG
 
          CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
-         IF (IKMRK1.EQ.1) THEN
+         IF (IKMRK1==1) THEN
 
 !
          EM         = PMSA( IPNT(  1) )
@@ -125,7 +125,7 @@
 !
          ! check input
 
-         IF ( DEPTH .LT. 1E-20 ) THEN
+         IF ( DEPTH < 1E-20 ) THEN
             NR_MSG = NR_MSG + 1
             CALL GETMLU( LUNREP )
             IF ( NR_MSG <= 25 ) THEN
@@ -139,7 +139,7 @@
          ENDIF
 
          SURF = VOLUME / MAX( DEPTH, 1.0E-20 )
-         IF ( SURF .LT. 1E-20 ) THEN
+         IF ( SURF < 1E-20 ) THEN
             NR_MSG = NR_MSG + 1
             CALL GETMLU( LUNREP )
             IF ( NR_MSG <= 25 ) THEN
@@ -155,7 +155,7 @@
          ! graze on emerged macrophyte
 
          dGrazeEM   = K0GrzEM + EM * K1GrzEM
-         IF ( EM .GT. dGrazeEM*DELT ) THEN
+         IF ( EM > dGrazeEM*DELT ) THEN
             dGrazeEM   = dGrazeEM / DEPTH
          ELSE
             dGrazeEM   = 0.0
@@ -164,7 +164,7 @@
          ! graze on submerged macrophyte
 
          dGrazeSM   = K0GrzSM + SM * K1GrzSM
-         IF ( SM .GT. dGrazeSM*DELT ) THEN
+         IF ( SM > dGrazeSM*DELT ) THEN
             dGrazeSM   = dGrazeSM / DEPTH
          ELSE
             dGrazeSM   = 0.0
@@ -173,7 +173,7 @@
          ! graze on rhizome macrophyte
 
          dGrazeRH   = K0GrzRH + RH * K1GrzRH
-         IF ( RH .GT. dGrazeRH*DELT ) THEN
+         IF ( RH > dGrazeRH*DELT ) THEN
             dGrazeRH   = dGrazeRH / DEPTH
          ELSE
             dGrazeRH   = 0.0
@@ -181,7 +181,7 @@
 
          ! the nitrogen content of rhizome
 
-         IF ( RH .GT. 1e-20 ) THEN
+         IF ( RH > 1e-20 ) THEN
             dGrzNRH = dGrazeRH * NRH / RH
          ELSE
             dGrzNRH = 0.0
@@ -189,7 +189,7 @@
 
          ! the phosphorus content of rhizome
 
-         IF ( RH .GT. 1e-20 ) THEN
+         IF ( RH > 1e-20 ) THEN
             dGrzPRH = dGrazeRH * PRH / RH
          ELSE
             dGrzPRH = 0.0

@@ -164,14 +164,14 @@
       ELSE IF( .NOT.LSAME( DIAG , 'U' ).AND.
      $         .NOT.LSAME( DIAG , 'N' )      )THEN
          INFO = 3
-      ELSE IF( N.LT.0 )THEN
+      ELSE IF( N<0 )THEN
          INFO = 4
-      ELSE IF( LDA.LT.MAX( 1, N ) )THEN
+      ELSE IF( LDA<MAX( 1, N ) )THEN
          INFO = 6
-      ELSE IF( INCX.EQ.0 )THEN
+      ELSE IF( INCX==0 )THEN
          INFO = 8
       END IF
-      IF( INFO.NE.0 )THEN
+      IF( INFO/=0 )THEN
          CALL XERBLA( 'STRSV ', INFO )
          if ( timon ) call timstop ( ithandl )
          RETURN
@@ -179,7 +179,7 @@
 *
 *     Quick return if possible.
 *
-      IF( N.EQ.0 ) THEN
+      IF( N==0 ) THEN
          if ( timon ) call timstop ( ithandl )
          RETURN
       ENDIF
@@ -189,9 +189,9 @@
 *     Set up the start point in X if the increment is not unity. This
 *     will be  ( N - 1 )*INCX  too small for descending loops.
 *
-      IF( INCX.LE.0 )THEN
+      IF( INCX<=0 )THEN
          KX = 1 - ( N - 1 )*INCX
-      ELSE IF( INCX.NE.1 )THEN
+      ELSE IF( INCX/=1 )THEN
          KX = 1
       END IF
 *
@@ -203,9 +203,9 @@
 *        Form  x := inv( A )*x.
 *
          IF( LSAME( UPLO, 'U' ) )THEN
-            IF( INCX.EQ.1 )THEN
+            IF( INCX==1 )THEN
                DO , J = N, 1, -1
-                  IF( X( J ).NE.ZERO )THEN
+                  IF( X( J )/=ZERO )THEN
                      IF( NOUNIT )
      $                  X( J ) = X( J )/A( J, J )
                      TEMP = X( J )
@@ -217,7 +217,7 @@
             ELSE
                JX = KX + ( N - 1 )*INCX
                DO , J = N, 1, -1
-                  IF( X( JX ).NE.ZERO )THEN
+                  IF( X( JX )/=ZERO )THEN
                      IF( NOUNIT )
      $                  X( JX ) = X( JX )/A( J, J )
                      TEMP = X( JX )
@@ -231,9 +231,9 @@
       end do
             END IF
          ELSE
-            IF( INCX.EQ.1 )THEN
+            IF( INCX==1 )THEN
                DO , J = 1, N
-                  IF( X( J ).NE.ZERO )THEN
+                  IF( X( J )/=ZERO )THEN
                      IF( NOUNIT )
      $                  X( J ) = X( J )/A( J, J )
                      TEMP = X( J )
@@ -245,7 +245,7 @@
             ELSE
                JX = KX
                DO , J = 1, N
-                  IF( X( JX ).NE.ZERO )THEN
+                  IF( X( JX )/=ZERO )THEN
                      IF( NOUNIT )
      $                  X( JX ) = X( JX )/A( J, J )
                      TEMP = X( JX )
@@ -264,7 +264,7 @@
 *        Form  x := inv( A' )*x.
 *
          IF( LSAME( UPLO, 'U' ) )THEN
-            IF( INCX.EQ.1 )THEN
+            IF( INCX==1 )THEN
                DO , J = 1, N
                   TEMP = X( J )
                   DO , I = 1, J - 1
@@ -290,7 +290,7 @@
       end do
             END IF
          ELSE
-            IF( INCX.EQ.1 )THEN
+            IF( INCX==1 )THEN
                DO , J = N, 1, -1
                   TEMP = X( J )
                   DO , I = N, J + 1, -1

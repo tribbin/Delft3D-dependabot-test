@@ -108,9 +108,9 @@ contains
       do iq = 1 , noq
          ifrom = ipoint(1,iq)
          ito   = ipoint(2,iq)
-         if ( ifrom .eq. 0 .or. ito .eq. 0 ) cycle
+         if ( ifrom == 0 .or. ito == 0 ) cycle
 
-         if ( flowtot(iq) .gt. 0.0 ) then
+         if ( flowtot(iq) > 0.0 ) then
            q1 = flowtot(iq)
            q2 = 0.0
          else
@@ -118,11 +118,11 @@ contains
            q2 = flowtot(iq)
          endif
 
-         if ( ifrom .gt. 0  ) then
+         if ( ifrom > 0  ) then
             diag ( ifrom  ) = diag ( ifrom  ) + q1 + disptot(iq)
             amat (fmat(iq)) = amat (fmat(iq)) + q2 - disptot(iq)
          endif
-         if ( ito   .gt. 0  ) then
+         if ( ito   > 0  ) then
             diag (  ito   ) = diag (  ito   ) - q2 + disptot(iq)
             amat (tmat(iq)) = amat (tmat(iq)) - q1 - disptot(iq)
          endif
@@ -131,14 +131,14 @@ contains
 !     finally scale the matrix to avoid possible round-off errors in GMRES
 !     this scaling may need some adaption for future domain decomposition b.c.
 
-      if ( iscale .eq. 1 ) then
+      if ( iscale == 1 ) then
          do iq = 1, noseg + nobnd
             ifrom = idiag(iq-1) + 1
             ito   = idiag(iq)
 
 !      check on zero's required for methods 17 and 18
 
-            if ( abs(diag(iq)) .lt. 1.0d-100) diag(iq) = 1.0
+            if ( abs(diag(iq)) < 1.0d-100) diag(iq) = 1.0
 
             do jq = ifrom, ito
                amat(jq) = amat(jq) / diag(iq)

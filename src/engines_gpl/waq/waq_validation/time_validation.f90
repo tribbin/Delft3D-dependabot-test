@@ -182,7 +182,7 @@ module m_time_validation
       integer(4), intent(in)  :: ierror_message                  ! index of error message if needed
       type(error_status), intent(inout) :: status !< current error status
 
-      if (mod(out_start_time - sim_start_time, sim_time_step) .ne.0) then
+      if (mod(out_start_time - sim_start_time, sim_time_step) /=0) then
         call status%increase_error_count()
         write (log_unit,time_coincidence_error_messages(ierror_message)) out_start_time, &
                                  out_time_step, sim_start_time, sim_time_step

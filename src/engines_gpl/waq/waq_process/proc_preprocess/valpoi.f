@@ -77,27 +77,27 @@
 !     Predefined ?
 !
       IVALIP = index_in_array(VALNAM(:NZOEK), PREDEF)
-      IF ( IVALIP .EQ. 1 ) THEN
+      IF ( IVALIP == 1 ) THEN
          WRITE(LINE,'(A)') '       Using DELWAQ volume'
          GOTO 800
       ENDIF
-      IF ( IVALIP .EQ. 2 ) THEN
+      IF ( IVALIP == 2 ) THEN
          WRITE(LINE,'(A)') '       Using DELWAQ time'
          GOTO 800
       ENDIF
-      IF ( IVALIP .EQ. 3 ) THEN
+      IF ( IVALIP == 3 ) THEN
          WRITE(LINE,'(A)') '       Using DELWAQ timestep'
          GOTO 800
       ENDIF
-      IF ( IVALIP .EQ. 4 ) THEN
+      IF ( IVALIP == 4 ) THEN
          WRITE(LINE,'(A)') '       Using DELWAQ timestep in days'
          GOTO 800
       ENDIF
-      IF ( IVALIP .EQ. 5 ) THEN
+      IF ( IVALIP == 5 ) THEN
          WRITE(LINE,'(A)') '       Using DELWAQ start time'
          GOTO 800
       ENDIF
-      IF ( IVALIP .EQ. 6 ) THEN
+      IF ( IVALIP == 6 ) THEN
          WRITE(LINE,'(A)') '       Using DELWAQ stop time'
          GOTO 800
       ENDIF
@@ -105,7 +105,7 @@
 !     as model variable ?
 !
       ISYS = index_in_array(VALNAM(:NZOEK), SYNAME)
-      IF ( ISYS .GT. 0 ) THEN
+      IF ( ISYS > 0 ) THEN
          WRITE(LINE,'(A,I3)') '       Using substance nr ',ISYS
          IVALIP = NOPRED + NOCONS + NOPA + NOFUN + NOSFUN + ISYS
          GOTO 800
@@ -114,7 +114,7 @@
 !     as segment function ?
 !
       ISFUN = index_in_array(VALNAM (:NZOEK ), SFNAME)
-      IF ( ISFUN .GT. 0 ) THEN
+      IF ( ISFUN > 0 ) THEN
          WRITE(LINE,'(A,I3)') '       Using segment function nr',ISFUN
          IVALIP = NOPRED + NOCONS + NOPA + NOFUN + ISFUN
          GOTO 800
@@ -123,7 +123,7 @@
 !     as function ?
 !
       IFUN = index_in_array(VALNAM (:NZOEK), FUNAME)
-      IF ( IFUN .GT. 0 ) THEN
+      IF ( IFUN > 0 ) THEN
          WRITE(LINE,'(A,I3)') '       Using function nr',IFUN
          IVALIP = NOPRED + NOCONS + NOPA + IFUN
          GOTO 800
@@ -132,7 +132,7 @@
 !     as parameter ?
 !
       IPA = index_in_array(VALNAM (:NZOEK), PANAME)
-      IF ( IPA .GT. 0 ) THEN
+      IF ( IPA > 0 ) THEN
          WRITE(LINE,'(A,I3)') '       Using parameter nr',IPA
          IVALIP = NOPRED + NOCONS + IPA
          GOTO 800
@@ -141,7 +141,7 @@
 !     as constant ?
 !
       ico = dlwq_find(constants,valnam)
-      if ( ico .gt. 0 ) then
+      if ( ico > 0 ) then
          write(line,'(a,i3,a,g13.6)') '       Using constant nr',ico,' with value:',constants%constant(ico)
          ivalip = nopred + ico
          goto 800

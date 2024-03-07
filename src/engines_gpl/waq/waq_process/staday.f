@@ -151,11 +151,11 @@
          ENDIF
       ENDIF
 
-      IF ( TIME .GE. TINIT+PERIOD-0.5*DELT .AND. TIME .LE. TINIT+PERIOD+0.5*DELT ) THEN
+      IF ( TIME >= TINIT+PERIOD-0.5*DELT .AND. TIME <= TINIT+PERIOD+0.5*DELT ) THEN
          IACTION = 3
       ENDIF
 
-      IF ( IACTION .EQ. 0 ) RETURN
+      IF ( IACTION == 0 ) RETURN
 
       IP6    = IPOINT(6)
       IP7    = IPOINT(7)
@@ -181,8 +181,8 @@
 !        Always do the final processing whether the segment is active at this moment or not
 !
 
-         IF ( IACTION .EQ. 3 ) THEN
-            IF ( TCOUNT .GT. 0.0 ) THEN
+         IF ( IACTION == 3 ) THEN
+            IF ( TCOUNT > 0.0 ) THEN
                PMSA(IP10) = PMSA(IP7) / TCOUNT
                PMSA(IP11) = PMSA(IP8)
                PMSA(IP12) = PMSA(IP9)
@@ -194,7 +194,7 @@
 
                IF ( NOWARN < MAXWARN ) THEN
                   CALL evaluate_waq_attribute(IKNMRK(ISEG), 3, ATTRIB )
-                  IF ( ATTRIB .NE. 0 ) THEN
+                  IF ( ATTRIB /= 0 ) THEN
                      NOWARN = NOWARN + 1
                      WRITE(*,'(a,i0)') 'Periodic average, minimum and maximum could not be determined for segment ', ISEG
                      WRITE(*,'(a)')    '    - segment was not active. Average set to zero'
@@ -231,7 +231,7 @@
 !     Be sure to also reset the initial time, so that we can restart the
 !     averaging for the next period
 !
-      IF ( IACTION .EQ. 3 ) THEN
+      IF ( IACTION == 3 ) THEN
          PMSA(IP2) = TINIT  + PERIOD
       ENDIF
 

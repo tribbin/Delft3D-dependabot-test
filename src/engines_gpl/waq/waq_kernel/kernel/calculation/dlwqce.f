@@ -86,7 +86,7 @@
 
 !        Calculate closure error
 
-         if ( abs(voluml(iseg)) .gt. 1.0e-28 ) then
+         if ( abs(voluml(iseg)) > 1.0e-28 ) then
             clofac = volumn(iseg)/voluml(iseg)
          else
             clofac = 1.0

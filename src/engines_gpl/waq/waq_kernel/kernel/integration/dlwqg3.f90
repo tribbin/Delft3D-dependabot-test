@@ -129,8 +129,8 @@ contains
       zerof  = btest( iopt, 0 )
       zerob  = btest( iopt, 1 )
       loword = btest( iopt, 2 )
-      lscale = iscale .eq. 1
-      length = ilflag .eq. 1
+      lscale = iscale == 1
+      length = ilflag == 1
       idp    = idpnt(isys)
       ivp    = ivpnt(isys)
 
@@ -145,11 +145,11 @@ contains
          ifrom = ipoint(1,iq)
          ito   = ipoint(2,iq)
 
-         if ( ifrom .eq. 0 .or. ito .eq. 0 ) cycle
-         if ( ifrom .gt. 0 ) then
+         if ( ifrom == 0 .or. ito == 0 ) cycle
+         if ( ifrom > 0 ) then
             if ( .not. btest(iknmrk(ifrom),0) ) cycle   ! identified dry at start and end of timestep
          endif
-         if ( ito   .gt. 0 ) then
+         if ( ito   > 0 ) then
             if ( .not. btest(iknmrk(ito  ),0) ) cycle
          endif
 
@@ -157,11 +157,11 @@ contains
 
          a    = area(iq)
          q    = flow(iq)
-         if ( abs(q) .lt. 10.0e-25 .and. btest(iopt,0) ) cycle   ! thin dam option, no dispersion at zero flow
-         if ( iq .le. noq1 ) then
+         if ( abs(q) < 10.0e-25 .and. btest(iopt,0) ) cycle   ! thin dam option, no dispersion at zero flow
+         if ( iq <= noq1 ) then
             e  = disp(1)
             if ( length ) then
-               if ( aleng(1,iq) + aleng(2,iq) .gt. 1.0e-25 ) then
+               if ( aleng(1,iq) + aleng(2,iq) > 1.0e-25 ) then
                   dl = a / (aleng(1,iq) + aleng(2,iq))
                else
                   dl = 0.0
@@ -169,10 +169,10 @@ contains
             else
                dl = a / aleng(1,1)         ! first element of the array
             endif
-         else if ( iq .le. noq1+noq2 ) then
+         else if ( iq <= noq1+noq2 ) then
             e  = disp(2)
             if ( length ) then
-               if ( aleng(1,iq) + aleng(2,iq) .gt. 1.0e-25 ) then
+               if ( aleng(1,iq) + aleng(2,iq) > 1.0e-25 ) then
                   dl = a / (aleng(1,iq) + aleng(2,iq))
                else
                   dl = 0.0
@@ -183,7 +183,7 @@ contains
          else
             e  = disp(3)
             if ( length ) then
-               if ( aleng(1,iq) + aleng(2,iq) .gt. 1.0e-25 ) then
+               if ( aleng(1,iq) + aleng(2,iq) > 1.0e-25 ) then
                   dl = a / (aleng(1,iq) + aleng(2,iq))
                   f1 = aleng(2,iq) / (aleng(1,iq) + aleng(2,iq))
                   f2 = aleng(1,iq) / (aleng(1,iq) + aleng(2,iq))
@@ -202,8 +202,8 @@ contains
 
 !             add additional dispersions and fluxes
 
-         if ( idp .gt. 0 ) e = e + disper(idp,iq)*dl
-         if ( ivp .gt. 0 ) then
+         if ( idp > 0 ) e = e + disper(idp,iq)*dl
+         if ( ivp > 0 ) then
             qvel =  velo(ivp,iq)*a
          else
             qvel =  0.0
@@ -211,14 +211,14 @@ contains
 
 !             Option zero disp over the boundaries (also for additonal dispersions)
 
-         if ( zerob .and. ( ifrom .lt. 0 .or. ito .lt. 0 ) ) e = 0.0
+         if ( zerob .and. ( ifrom < 0 .or. ito < 0 ) ) e = 0.0
 
-         if ( iq .le. noq1+noq2 ) then
+         if ( iq <= noq1+noq2 ) then
 
 !   for the first two directions apply  first order Upwind
 
             q = q + qvel
-            if ( q .gt. 0.0 ) then
+            if ( q > 0.0 ) then
               q1 =   q
               q2 = 0.0
             else
@@ -232,9 +232,9 @@ contains
 
 !.. apply upwind at boundaries (these are vertical boundaries !) for loword option
 
-            if ( loword .and. ( ifrom .lt. 0 .or. ito .lt. 0 ) ) then
+            if ( loword .and. ( ifrom < 0 .or. ito < 0 ) ) then
                q = q + qvel
-               if ( q .gt. 0.0 ) then
+               if ( q > 0.0 ) then
                  q1 =   q
                  q2 = 0.0
                else
@@ -244,7 +244,7 @@ contains
             else
                q1 = q*f1
                q2 = q*f2
-               if ( qvel .gt. 0.0 ) then
+               if ( qvel > 0.0 ) then
                  q1 = q1 + qvel
                else
                  q2 = q2 + qvel
@@ -254,9 +254,9 @@ contains
 
 !        fill the matrix
 
-         if ( ifrom .gt. 0  ) then
+         if ( ifrom > 0  ) then
             if ( .not. btest(iknmrk(ifrom),0) ) then
-               if ( q + qvel .gt. 0.0 ) then
+               if ( q + qvel > 0.0 ) then
                   q1 =   q + qvel
                   q2 = 0.0
                else
@@ -267,9 +267,9 @@ contains
             diag ( ifrom  ) = diag ( ifrom  ) + q1 + e
             amat (fmat(iq)) = amat (fmat(iq)) + q2 - e
          endif
-         if ( ito   .gt. 0  ) then
+         if ( ito   > 0  ) then
             if ( .not. btest(iknmrk(ito  ),0) ) then
-               if ( q + qvel .gt. 0.0 ) then
+               if ( q + qvel > 0.0 ) then
                   q1 =   q + qvel
                   q2 = 0.0
                else
@@ -290,7 +290,7 @@ contains
 
       if ( lscale ) then
          do iq = 1, noseg + nobnd
-            if (iq .gt. 1) then
+            if (iq > 1) then
                ifrom = idiag(iq-1) + 1
             else
                ifrom = 1
@@ -299,7 +299,7 @@ contains
 
 !      check on zero's required for methods 17 and 18
 
-            if ( abs(diag(iq)) .lt. 1.0d-100) diag(iq) = 1.0
+            if ( abs(diag(iq)) < 1.0d-100) diag(iq) = 1.0
 
             do jq = ifrom, ito
                amat(jq) = amat(jq) / diag(iq)

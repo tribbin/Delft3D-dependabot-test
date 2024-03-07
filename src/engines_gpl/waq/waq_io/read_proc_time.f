@@ -79,9 +79,9 @@
 
       do
 
-         if ( gettoken( ctoken, idtmult, itype, ierr2 ) .gt. 0 ) goto 1000
+         if ( gettoken( ctoken, idtmult, itype, ierr2 ) > 0 ) goto 1000
 
-         if ( itype .eq. 1 ) then
+         if ( itype == 1 ) then
 
             select case (ctoken)
 
@@ -91,7 +91,7 @@
 
                case default
                   isys = index_in_array(ctoken(1:20), syname(:notot))
-                  if ( isys .gt. 0 ) then                      ! use this substance
+                  if ( isys > 0 ) then                      ! use this substance
                      sysused(isys) = 1
                      write ( lunut , 2040 ) syname(isys)
                   else                                         ! unrecognised token
@@ -113,7 +113,7 @@
 !     update the isyst array for all substances used in this block
 
       do isys = 1 , notot
-         if ( sysused(isys) .eq. 1 ) isyst(isys) = idtmult
+         if ( sysused(isys) == 1 ) isyst(isys) = idtmult
       enddo
 
       if (timon) call timstop( ithndl )

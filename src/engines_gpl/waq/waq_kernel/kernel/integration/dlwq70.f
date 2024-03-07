@@ -101,22 +101,22 @@
 !
       I    = IPOINT(1,IQ)
       J    = IPOINT(2,IQ)
-      IF ( I .EQ. 0 .OR. J .EQ. 0 ) GOTO 50
+      IF ( I == 0 .OR. J == 0 ) GOTO 50
       A    = AREA(IQ)
       Q    = FLOW(IQ)
-      IF ( MOD(IOPT,2) .EQ. 1 .AND. ABS(Q) .LT. 10.0E-25 ) GOTO 50
-           IF ( A .LT. 1.0E-25 )  A = 1.0
+      IF ( MOD(IOPT,2) == 1 .AND. ABS(Q) < 10.0E-25 ) GOTO 50
+           IF ( A < 1.0E-25 )  A = 1.0
       E  = DISP(1)
       AL = ALENG(1)
-      IF ( IQ .GT. NOQ1      ) THEN
+      IF ( IQ > NOQ1      ) THEN
            E  = DISP (2)
            AL = ALENG(2)
       ENDIF
-      IF ( IQ .GT. NOQ1+NOQ2 ) THEN
+      IF ( IQ > NOQ1+NOQ2 ) THEN
            E  = DISP (3)
            AL = ALENG(3)
       ENDIF
-      IF ( ILFLAG .EQ. 1 ) THEN
+      IF ( ILFLAG == 1 ) THEN
            DL = A/(ALENG(2*IQ-1) + ALENG(2*IQ))
            F1 = ALENG(2*IQ  )*DL/A
            F2 = ALENG(2*IQ-1)*DL/A
@@ -126,12 +126,12 @@
            F2 = 0.5
       ENDIF
       E  = E*DL
-      IF (IDPNT(ISYS).GT.0) E = E + DISPER((IQ-1)*NODISP+IDPNT(ISYS))*DL
-      IF (IVPNT(ISYS).GT.0) Q = Q + VELO  ((IQ-1)*NOVELO+IVPNT(ISYS))*A
+      IF (IDPNT(ISYS)>0) E = E + DISPER((IQ-1)*NODISP+IDPNT(ISYS))*DL
+      IF (IVPNT(ISYS)>0) Q = Q + VELO  ((IQ-1)*NOVELO+IVPNT(ISYS))*A
       Q1 = F1*Q
       Q2 = F2*Q
-      IF ( I .LT. 0 ) GOTO 10
-      IF ( J .LT. 0 ) GOTO 30
+      IF ( I < 0 ) GOTO 10
+      IF ( J < 0 ) GOTO 30
 !
 !        the regular case
 !
@@ -147,10 +147,10 @@
 !
 !        The 'from' segment is a boundary
 !
-   10 IF ( J    .LT. 0 ) GOTO 50
-      IF ( MOD(IOPT,4) .GT. 1 ) E = 0.0
-      IF ( MOD(IOPT,8) .GE. 4 ) THEN
-           IF ( Q .GT. 0.0 ) THEN
+   10 IF ( J    < 0 ) GOTO 50
+      IF ( MOD(IOPT,4) > 1 ) E = 0.0
+      IF ( MOD(IOPT,8) >= 4 ) THEN
+           IF ( Q > 0.0 ) THEN
                 Q1 = Q
                 Q2 = 0.0
            ELSE
@@ -170,9 +170,9 @@
 !
 !        The 'to' element was a boundary.
 !
-   30 IF ( MOD(IOPT,4) .GT. 1 ) E = 0.0
-      IF ( MOD(IOPT,8) .GE. 4 ) THEN
-           IF ( Q .GT. 0.0 ) THEN
+   30 IF ( MOD(IOPT,4) > 1 ) E = 0.0
+      IF ( MOD(IOPT,8) >= 4 ) THEN
+           IF ( Q > 0.0 ) THEN
                 Q1 = Q
                 Q2 = 0.0
            ELSE

@@ -96,11 +96,11 @@
          FLOW = PMSA(IP3)
 
 !........Absolute flows per segment sommeren in de workspace
-         IF (IFROM .GT. 0) THEN
+         IF (IFROM > 0) THEN
             PMSA ( IP2 + (IFROM-1) * IN2 ) =
      +      PMSA ( IP2 + (IFROM-1) * IN2 ) + ABS(FLOW)
          ENDIF
-         IF (ITO  .GT. 0)  THEN
+         IF (ITO  > 0)  THEN
             PMSA ( IP2 + (ITO  -1) * IN2 ) =
      +      PMSA ( IP2 + (ITO  -1) * IN2 ) + ABS(FLOW)
          ENDIF
@@ -121,7 +121,7 @@
 
 !........Niet-actieve segmenten afhandelen
          CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK)
-         IF ( IKMRK .EQ. 0 ) THEN
+         IF ( IKMRK == 0 ) THEN
             PMSA(IP4) = -999.999
             GOTO 100
          ENDIF
@@ -130,7 +130,7 @@
          SOMFLW = PMSA(IP2)
 
 !........Oneindige verblijftijden afhandelen
-         IF ( SOMFLW .LT. 1.0E-20 ) THEN
+         IF ( SOMFLW < 1.0E-20 ) THEN
             PMSA(IP4) = 1.0E7
             GOTO 100
          ENDIF

@@ -86,13 +86,13 @@
 !
       lun = 10
       CALL open_waq_files ( lun  , FNAME(1) , 24 , 2 , IERROR )
-      IF ( IERROR .NE. 0 ) RETURN
+      IF ( IERROR /= 0 ) RETURN
 
       ! map or his
 
       call extract_file_extension(fname(1), ext, extpos, extlen)
       call upper_case(ext, ext, extlen)
-      if ( ext .eq. 'MAP' ) then
+      if ( ext == 'MAP' ) then
          mapfil = .true.
       else
          mapfil = .false.
@@ -108,7 +108,7 @@
 !
       NRLST = 0
       SETALL = .FALSE.
-      IF ( LOCDEF(1) .EQ. '*' ) SETALL = .TRUE.
+      IF ( LOCDEF(1) == '*' ) SETALL = .TRUE.
 
       DO I1 = 1 , NODUMP , MAXLST
          MAXK = MIN(NODUMP,I1+MAXLST-NRLST-1) - I1 + 1
@@ -122,9 +122,9 @@
          NBASE = NRLST
          DO I2 = 1 , MAXK
             DO I3 = 1 , MAXDEF
-               IF ( LOCLST(NBASE+I2) .EQ. LOCDEF(I3) .OR. SETALL ) THEN
+               IF ( LOCLST(NBASE+I2) == LOCDEF(I3) .OR. SETALL ) THEN
                   NRLST = NRLST + 1
-                  IF ( NRLST .GT. MAXLST ) THEN
+                  IF ( NRLST > MAXLST ) THEN
                      IERROR = -NODUMP
                      GOTO 50
                   ENDIF

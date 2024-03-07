@@ -254,11 +254,11 @@
 
          CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
 
-         IF (IKMRK1.EQ.1) THEN
+         IF (IKMRK1==1) THEN
 
             CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
 
-            IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
+            IF ((IKMRK2==0).OR.(IKMRK2==3)) THEN
 
 
                EM01       = PMSA( IPNT(  1) )
@@ -323,7 +323,7 @@
 
                ! check input
 
-               IF ( SURF .LT. 1E-20 ) THEN
+               IF ( SURF < 1E-20 ) THEN
                   NR_MSG = NR_MSG + 1
                   CALL GETMLU( LUNREP )
                   IF ( NR_MSG <= 25 ) THEN
@@ -335,7 +335,7 @@
                      ENDIF
                   ENDIF
                ENDIF
-               IF ( DEPTH .LT. 1E-20 ) THEN
+               IF ( DEPTH < 1E-20 ) THEN
                   NR_MSG = NR_MSG + 1
                   CALL GETMLU( LUNREP )
                   IF ( NR_MSG <= 25 ) THEN
@@ -403,17 +403,17 @@
 
                ! daylength limitation EM01 and SM01
 
-               IF ( DayL .lt. MinDLEM01 ) THEN
+               IF ( DayL < MinDLEM01 ) THEN
                   LimDLEM01  = 0.0
-               ELSEIF ( DayL .lt. OptDLEM01 ) THEN
+               ELSEIF ( DayL < OptDLEM01 ) THEN
                   LimDLEM01  = (Dayl - MinDLEM01)/(OptDLEM01 - MinDLEM01)
                ELSE
                   LimDLEM01  = 1.0
                ENDIF
 
-               IF ( DayL .lt. MinDLSM01 ) THEN
+               IF ( DayL < MinDLSM01 ) THEN
                   LimDLSM01  = 0.0
-               ELSEIF ( DayL .lt. OptDLSM01 ) THEN
+               ELSEIF ( DayL < OptDLSM01 ) THEN
                   LimDLSM01  = (Dayl - MinDLSM01)/(OptDLSM01 - MinDLSM01)
                ELSE
                   LimDLSM01  = 1.0
@@ -421,13 +421,13 @@
 
                ! temperature limitation
 
-               IF ( Temp .lt. TcritEM01 ) THEN
+               IF ( Temp < TcritEM01 ) THEN
                   LimTEM01   = 0.0
                ELSE
                   LimTEM01   = TcPMxEM01**(Temp-20.)
                ENDIF
 
-               IF ( Temp .lt. TcritSM01 ) THEN
+               IF ( Temp < TcritSM01 ) THEN
                   LimTSM01   = 0.0
                ELSE
                   LimTSM01   = TcPMxSM01**(Temp-20.)
@@ -435,14 +435,14 @@
 
                ! growth
 
-               IF ( EM01M2 .LT. MaxEM01 ) THEN
+               IF ( EM01M2 < MaxEM01 ) THEN
                   EM01Grow   = MAX(EM01M2+RH01M2,EM01thresh)
                   dGrowEM01  = EM01Grow*PPmaxEM01*LimNutEM01*LimDLEM01*LimTEM01/Depth
                ELSE
                   dGrowEM01  = 0.0
                ENDIF
 
-               IF ( SM01M2 .LT. MaxSM01 ) THEN
+               IF ( SM01M2 < MaxSM01 ) THEN
                   SM01Grow   = MAX(SM01M2+RH01M2,SM01thresh)
                   dGrowSM01  = SM01Grow*PPmaxSM01*LimRadSM01*LimNutSM01*LimDLSM01*LimTSM01/Depth
                ELSE
@@ -486,7 +486,7 @@
                ! uptake from rhizomes
 
                Cuptake = (dGrowEM01+dGrowSM01)*Delt*Depth
-               IF ( Cuptake .LT. RH01M2-RH01MIN ) THEN
+               IF ( Cuptake < RH01M2-RH01MIN ) THEN
                   dCtRHtEM01 = dGrowEM01
                   dCtRHtSM01 = dGrowSM01
                ELSE
@@ -495,7 +495,7 @@
                ENDIF
 
                Nuptake = (dGrowEM01*NCratEM01+dGrowSM01*NCratSM01)*Delt*Depth
-               IF ( Nuptake .LT. NRH01M2-NRH01MIN ) THEN
+               IF ( Nuptake < NRH01M2-NRH01MIN ) THEN
                   dNtRHtEM01 = dGrowEM01 * NCratEM01
                   dNtRHtSM01 = dGrowSM01 * NCratSM01
                ELSE
@@ -504,7 +504,7 @@
                ENDIF
 
                Puptake = (dGrowEM01*PCratEM01+dGrowSM01*PCratSM01)*Delt*Depth
-               IF ( Puptake .LT. PRH01M2-PRH01MIN ) THEN
+               IF ( Puptake < PRH01M2-PRH01MIN ) THEN
                   dPtRHtEM01 = dGrowEM01 * PCratEM01
                   dPtRHtSM01 = dGrowSM01 * PCratSM01
                ELSE
@@ -514,11 +514,11 @@
 
                ! uptake from water
 
-               IF ( NH4/NH4crEM01 .GE. 1.0 ) THEN
+               IF ( NH4/NH4crEM01 >= 1.0 ) THEN
                   FrNH4EM01 = 1.0
                   FrNO3EM01 = 0.0
                ELSE
-                  IF ( (NH4+NO3) .GT. 1E-20 ) THEN
+                  IF ( (NH4+NO3) > 1E-20 ) THEN
                      FrNH4EM01 = NH4/(NH4+NO3)
                      FrNO3EM01 = 1.0 - FrNH4EM01
                   ELSE

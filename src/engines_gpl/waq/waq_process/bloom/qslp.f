@@ -51,8 +51,8 @@
 ! If the subroutine is called for the first time, perform some initial
 ! checks.
       nqslp = nqslp + 1
-      if (nqslp .gt. 1) go to 10
-      if (nr .ge. ia .or. nc .ge. mt) then
+      if (nqslp > 1) go to 10
+      if (nr >= ia .or. nc >= mt) then
          ier = 1000
          go to 340
       end if
@@ -76,7 +76,7 @@
 ! Optionally copy A, B and C to D, which is not used for computational
 ! purposes in this subroutine (unlike DOSP).
 ! At the end the original values of these arrays are restored.
-      if (iopt(3) .eq. 1) go to 60
+      if (iopt(3) == 1) go to 60
       k = 0
       l = nr*nc
       do j = 1, nc
@@ -99,8 +99,8 @@
 ! infeasible. Set exit values and leave.
       ineg = 0
       do i = 1, nr
-         if (lsc (i) .le. 0) then
-            if (b(i) .ge. 0.0) cycle
+         if (lsc (i) <= 0) then
+            if (b(i) >= 0.0) cycle
             ier = 100
             irs(2) = 4
             irs(3) = i
@@ -116,12 +116,12 @@
 
 ! Reverse the sign of the C vector for a maximization problem.
 ! Note: minimization is NOT currently supported!
-      if (iopt(4) .eq. 1) then
+      if (iopt(4) == 1) then
          do j = 1,nc
             c (j) = - c(j)
          end do
       end if
-      if (ineg .eq. 0) go to 170
+      if (ineg == 0) go to 170
 !-----------------------------------------------------------------------
 ! Satisfy greater than constraints, if there are any. Use the
 ! Dual method.
@@ -138,15 +138,15 @@
 ! Select the minimum value of B(I) as pivot row.
       ineg = 0
       do i = 1,nr
-         if (b(i) .ge. -1.0d-12) cycle
-         if (lib(i) .le. nr .and. lsc (lib(i)) .eq. 1) ineg = ineg + 1
+         if (b(i) >= -1.0d-12) cycle
+         if (lib(i) <= nr .and. lsc (lib(i)) == 1) ineg = ineg + 1
       end do
       bpivot = 1.0d40
       bmin = 1.0d40
       do i = 1, nr
-         if (b(i) .lt. bmin) bmin = b(i)
-         if (b(i) .ge. bpivot) cycle
-         if (lib(i) .le. nr .and. lsc (lib(i)) .le. 0 .and. ineg .gt. 0) cycle
+         if (b(i) < bmin) bmin = b(i)
+         if (b(i) >= bpivot) cycle
+         if (lib(i) <= nr .and. lsc (lib(i)) <= 0 .and. ineg > 0) cycle
          bpivot = b(i)
          ip = i
       end do
@@ -155,8 +155,8 @@
 ! be terminated successfully. Continue with the primal method. A
 ! feasible solution exists. If no pivot was found, but the BMIN is
 ! still negative, no feasible solution exists.
-      if (bmin .gt. -1.0d-12) go to 170
-      if (bpivot .gt. -1.0d-12) go to 140
+      if (bmin > -1.0d-12) go to 170
+      if (bpivot > -1.0d-12) go to 140
 
 ! Get pivot column. For ">" constraints select Min C(J)/A(IP,J)
 ! under the condition that A(IP,J) and C(J) are negative.
@@ -171,20 +171,20 @@
       apivot = 0.0
       do j = 1, nc
          aipj = a(ip,j)
-         if (aipj .gt. -1.0d-12) cycle
-         if (aipj .lt. apivot) then
+         if (aipj > -1.0d-12) cycle
+         if (aipj < apivot) then
             apivot = aipj
             jpneg = j
          end if
-         if (ineg .eq. 0) cycle
+         if (ineg == 0) cycle
          cj = c(j)
-         if (cj .ge. 0.0) cycle
-         if (cj/aipj .gt. cpivot) cycle
+         if (cj >= 0.0) cycle
+         if (cj/aipj > cpivot) cycle
          cpivot = cj/aipj
          jp = j
       end do
-      if (jp .gt. 0) go to 200
-      if (jpneg .gt. 0) then
+      if (jp > 0) go to 200
+      if (jpneg > 0) then
          jp = jpneg
          go to 200
       end if
@@ -199,31 +199,31 @@
       bpivot = -1.0d-12
       bmin = -1.0d-12
       do i = 1, nr
-         if (b(i) .le. -1.0d-12 .and. lib(i) .le. nr .and. lsc (lib(i)) .eq. 1) then
-             if (b(i) .lt. bmin) then
+         if (b(i) <= -1.0d-12 .and. lib(i) <= nr .and. lsc (lib(i)) == 1) then
+             if (b(i) < bmin) then
                 bmin = b(i)
                 irs(3) = lib(i)
              end if
              cycle
          end if
-         if (b(i) .ge. bpivot) cycle
+         if (b(i) >= bpivot) cycle
          bpivot = b(i)
          ip = i
       end do
-      if (ip .eq. 0) go to 290
+      if (ip == 0) go to 290
 
 ! Find the pivot column. Use Max A(IP,J) under the condition
 ! A(IP,J) > 0.0. Note: do not replace IP by a structural variable!
       jp = 0
       apivot = -1.0d40
       do j = 1, nc
-         if (lib(nr+j) .gt. nr .or. lsc(lib(nr+j)) .ne. 1) cycle
-         if (a(ip,j) .lt. 1.0d-12) cycle
-         if (a(ip,j) .lt. apivot) cycle
+         if (lib(nr+j) > nr .or. lsc(lib(nr+j)) /= 1) cycle
+         if (a(ip,j) < 1.0d-12) cycle
+         if (a(ip,j) < apivot) cycle
          apivot = a(ip,j)
          jp = j
       end do
-      if (jp .eq. 0) go to 290
+      if (jp == 0) go to 290
       go to 200
 !-----------------------------------------------------------------------
 ! Satisfy smaller than constraints using the primal method.
@@ -235,11 +235,11 @@
       jp = 0
       cpivot = 1.0d40
       do j = 1, nc
-         if (c(j) .ge. cpivot) cycle
+         if (c(j) >= cpivot) cycle
          cpivot = c(j)
          jp = j
       end do
-      if (cpivot .ge. -1.0d-12) then
+      if (cpivot >= -1.0d-12) then
          ier = 0
          irs(2) = 0
          irs(3) = nr + nc + 1
@@ -252,9 +252,9 @@
       bpivot = 1.0d40
       do i = 1, nr
          aijp = a(i,jp)
-         if (aijp .lt. 1.0d-12) cycle
+         if (aijp < 1.0d-12) cycle
          bi = b(i)
-         if (bi/aijp .ge. bpivot) cycle
+         if (bi/aijp >= bpivot) cycle
          bpivot = bi/aijp
          ip = i
       end do
@@ -266,7 +266,7 @@
       itflag = itflag + 1
 
 ! Check the number of iterations. If exceeded, abort.
-      if (iter .ge. iopt(1)) then
+      if (iter >= iopt(1)) then
          ier = 100
          irs(2) = 2
          go to 290
@@ -275,16 +275,16 @@
 ! Check the number of operations since the last update of the arrays.
 ! If exceeded, reset all small numbers to 0.0D0 to avoid round-off
 ! errors becoming to large.
-      if (itflag .ge. iopt(2)) then
+      if (itflag >= iopt(2)) then
          itflag = 0
          do i = 1, nr
-            if (dabs(b(i)) .lt. 1.0d-12) b(i) = 0.0d0
+            if (dabs(b(i)) < 1.0d-12) b(i) = 0.0d0
             do j = i, nc
-               if (dabs(a(i,j)) .lt. 1.0d-12) a(i,j) = 0.0d0
+               if (dabs(a(i,j)) < 1.0d-12) a(i,j) = 0.0d0
             end do
          end do
          do j = i, nc
-            if (dabs(c(j)) .lt. 1.0d-12) c(j) = 0.0d0
+            if (dabs(c(j)) < 1.0d-12) c(j) = 0.0d0
          end do
       end if
 !
@@ -292,7 +292,7 @@
       ap = a (ip,jp)
       a(ip,jp) = 1 / ap
       do i = 1, nr
-         if (i .eq. ip) cycle
+         if (i == ip) cycle
          a (i,jp) = - a (i,jp) / ap
       end do
 
@@ -302,23 +302,23 @@
 
 ! Update C vector.
       do j = 1, nc
-         if (j .eq. jp) cycle
-         if (dabs(a(ip,j)) .lt. 1.0d-12) cycle
+         if (j == jp) cycle
+         if (dabs(a(ip,j)) < 1.0d-12) cycle
          c(j) = c(j) - a(ip,j) * cjpap
       end do
 
 ! Modify elements not in pivot row or column. Update B vector.
       do i = 1, nr
-         if (i .eq. ip) cycle
+         if (i == ip) cycle
          aijp =  a(i,jp)
-         if (dabs(aijp) .lt. 1.0d-12) cycle
+         if (dabs(aijp) < 1.0d-12) cycle
          do j = 1, nc
-            if (j .eq. jp) cycle
-            if (dabs(a(ip,j)) .lt. 1.0d-12) cycle
+            if (j == jp) cycle
+            if (dabs(a(ip,j)) < 1.0d-12) cycle
             a(i,j) = a(i,j) + a(ip,j) * aijp
          end do
          bi = b (i) + b(ip) * aijp
-         if (dabs(bi) .lt. 1.0d-12) then
+         if (dabs(bi) < 1.0d-12) then
             b(i) = 0.0d0
          else
             b(i) = bi
@@ -329,7 +329,7 @@
       b(ip) = b(ip)/ap
       c(jp) = - cjpap
       do j = 1, nc
-         if (j .eq. jp) cycle
+         if (j == jp) cycle
          a(ip,j) = a(ip,j)/ap
       end do
 
@@ -338,9 +338,9 @@
       ihelp2 = lib (ip)
       lib (jp + nr) = ihelp2
       lib (ip) = ihelp1
-      if (method .eq. 1) go to 100
-      if (method .eq. 2) go to 170
-      if (method .eq. 3) go to 140
+      if (method == 1) go to 100
+      if (method == 2) go to 170
+      if (method == 3) go to 140
 !-----------------------------------------------------------------------
 ! Get X-vector and leave subroutine.
 !-----------------------------------------------------------------------
@@ -351,7 +351,7 @@
       x(nr+nc+1) = xopt
 
 ! Optionally restore the original A, B and C arrays.
-      if (iopt(3) .eq. 1) go to 340
+      if (iopt(3) == 1) go to 340
       k = 0
       l = nr*nc
       do j = 1, nc

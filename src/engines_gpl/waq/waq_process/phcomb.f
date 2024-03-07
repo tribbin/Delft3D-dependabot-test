@@ -112,7 +112,7 @@
               itel   = nipfix + itype + ntype
               ispec  = nint(pmsa ( ipoint(itel) + (iseg-1)*increm(itel) ))
 
-              if ( ispec .gt. 0 ) then
+              if ( ispec > 0 ) then
 
                  itel   = nipfix + itype
                  biomas = pmsa ( ipoint(itel) + (iseg-1)*increm(itel) )
@@ -142,7 +142,7 @@
 
                  ! sum to the totals (not for rooted types, jvg 10102012)
 
-                 if (fixalg.ge.0) then
+                 if (fixalg>=0) then
                     phyt = phyt + biomas
                     algn = algn + biomas * ncrat
                     algp = algp + biomas * pcrat
@@ -153,7 +153,7 @@
 
                  ! biomass group
 
-                 if ( ispec .ne. ispec_prev ) then
+                 if ( ispec /= ispec_prev ) then
                     cgroup     = 0.0
                     igrp       = igrp + 1
                     ispec_prev = ispec

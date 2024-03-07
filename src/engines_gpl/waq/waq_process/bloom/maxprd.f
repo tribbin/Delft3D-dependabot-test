@@ -57,8 +57,8 @@
 !  If, however, NREP is 1, the temperature limitation option is ignored
 !  because otherwise the model does not have an intial solution for the
 !  first time step.
-      if (t .ge. temlim) go to 20
-      if (nrep .eq. 1) go to 20
+      if (t >= temlim) go to 20
+      if (nrep == 1) go to 20
          do i = 1,nuspec
             resp(i) = res1(i) * res2(i) ** t
             pmax(i) = basmor
@@ -67,10 +67,10 @@
    20 continue
       do i = 1,nuspec
          resp(i) = res1(i) * res2(i) ** t
-         if (lpmax(i) .eq. 0) then
+         if (lpmax(i) == 0) then
             pmax(i) = (pmax1(i) * pmax2(i) ** t) + resp(i) + lpmort*rmort(i)
          else
-            if (t .le. pmax2(i)) then
+            if (t <= pmax2(i)) then
                pmax(i) = 0.01
             else
                pmax(i) = pmax1(i) * (t - pmax2(i)) + resp(i) +lpmort*rmort(i)
@@ -80,7 +80,7 @@
    40 continue
 
 !  If option "dump" was turned on, print pmax, resp and rmort.
-      if (idump .ne. 0) then
+      if (idump /= 0) then
          write (outdbg,50) (pmax(k),k=1,nuspec)
    50    format ('  Pmax(T,j): ',30(F5.2,1X))
          write (outdbg,60) (resp(k),k=1,nuspec)

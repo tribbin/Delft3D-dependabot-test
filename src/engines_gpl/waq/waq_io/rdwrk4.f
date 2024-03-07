@@ -127,13 +127,13 @@
 
       read ( iin    , end=20, err=20)   modid(1), modid(2), modid(3), modid(4)
       read ( iin    , end=20, err=20) ( sysid(k), k = 1, notot  )
-      if ( nodump .gt. 0 ) read ( iin , end=20, err=20) ( idummy, c20dum, k = 1, nodump )
+      if ( nodump > 0 ) read ( iin , end=20, err=20) ( idummy, c20dum, k = 1, nodump )
 
 !       => group 2
 
-      if ( ndmpar .gt. 0 ) read ( iin , end=20, err=20) ( c20dum, k=1,ndmpar )
-      if ( ndmpar .gt. 0 ) read ( iin , end=20, err=20) ( idummy, k=1,ndmpar )
-      if ( noraai .gt. 0 ) read ( iin , end=20, err=20) ( c20dum, k=1,noraai )
+      if ( ndmpar > 0 ) read ( iin , end=20, err=20) ( c20dum, k=1,ndmpar )
+      if ( ndmpar > 0 ) read ( iin , end=20, err=20) ( idummy, k=1,ndmpar )
+      if ( noraai > 0 ) read ( iin , end=20, err=20) ( c20dum, k=1,noraai )
 
 !       => group 3
 
@@ -145,7 +145,7 @@
 !     dummy, the grid structures immediately deallocate the pointers
       do igrid = 1 , nogrid
          ierror = GridRead( iin, aGrid, nosss )
-         if ( ierror .ne. 0 ) goto 20
+         if ( ierror /= 0 ) goto 20
          deallocate(aGrid%finalpointer)
          if ( aGrid%space_var_nolay ) deallocate(aGrid%nolay_var)
       enddo
@@ -155,29 +155,29 @@
 !       => group attributes
 
       read ( iin, end=20, err=20) (idummy     , k=1,nosss  )
-      if ( nodisp .gt. 0 ) read ( iin, end=20, err=20) (diname(k)  , k=1,nodisp )
-      if ( novelo .gt. 0 ) read ( iin, end=20, err=20) (vename(k)  , k=1,novelo )
+      if ( nodisp > 0 ) read ( iin, end=20, err=20) (diname(k)  , k=1,nodisp )
+      if ( novelo > 0 ) read ( iin, end=20, err=20) (vename(k)  , k=1,novelo )
       read ( iin, end=20, err=20) (idpnt(k)   , k=1,nosys  )
       read ( iin, end=20, err=20) (ivpnt(k)   , k=1,nosys  )
-      if ( nobnd  .gt. 0 ) read ( iin, end=20, err=20) (idummy     , k=1,nobnd  )
-      if ( nobnd  .gt. 0 ) read ( iin, end=20, err=20) (idummy     , k=1,nobnd  )
-      if ( ndmpar .gt. 0 ) read ( iin, end=20, err=20) (idummy,i=1,ndmpar),(idummy,i=1,ntdmpq)
-      if ( ndmpar .gt. 0 ) read ( iin, end=20, err=20) (idummy,i=1,ndmpar),(idummy,i=1,ntdmps)
-      if ( noraai .gt. 0 ) then
+      if ( nobnd  > 0 ) read ( iin, end=20, err=20) (idummy     , k=1,nobnd  )
+      if ( nobnd  > 0 ) read ( iin, end=20, err=20) (idummy     , k=1,nobnd  )
+      if ( ndmpar > 0 ) read ( iin, end=20, err=20) (idummy,i=1,ndmpar),(idummy,i=1,ntdmpq)
+      if ( ndmpar > 0 ) read ( iin, end=20, err=20) (idummy,i=1,ndmpar),(idummy,i=1,ntdmps)
+      if ( noraai > 0 ) then
          read (iin, end=20, err=20)  (idummy,i=1,noraai)
          read (iin, end=20, err=20)  (idummy,i=1,noraai)
          read (iin, end=20, err=20)  (idummy,i=1,ntraaq)
       endif
-      if ( noraai .gt. 0 .or. ndmpar .gt. 0 ) then
+      if ( noraai > 0 .or. ndmpar > 0 ) then
          read (iin, end=20, err=20)  (idummy,i=1,noqtt)
       endif
-      if ( ndmpar .gt. 0 ) then
+      if ( ndmpar > 0 ) then
          read (iin, end=20, err=20)  (idummy,i=1,nosss)
       endif
       read ( iin, end=20, err=20) idummy , (rdummy   , k=1,3)
       read ( iin, end=20, err=20) idummy , (rdummy   , k=1,3)
 
-      if ( nobnd  .gt. 0 ) then
+      if ( nobnd  > 0 ) then
 !          id's and names  (=new! (ver 4.900))
          do i = 1 , nobnd
             read ( iin , end=20, err=20) c20dum,c40dum
@@ -190,7 +190,7 @@
          read ( iin , end=20, err=20) (idummy       , k=1,nobnd  )
       endif
 
-      if ( nowst  .gt. 0 ) then
+      if ( nowst  > 0 ) then
 !          segnums, id's and names  (=new! (ver 4.900))
          do i = 1 , nowst
             read ( iin , end=20, err=20) idummy,idummy,c20dum,c40dum
@@ -201,10 +201,10 @@
          read ( iin , end=20, err=20) (idummy       , k=1,nowst  )
       endif
 
-      if ( nocons .gt. 0 ) read ( iin , end=20, err=20) (coname(k),k=1,nocons )
-      if ( nopa   .gt. 0 ) read ( iin , end=20, err=20) (paname(k),k=1,nopa)
-      if ( nofun  .gt. 0 ) read ( iin , end=20, err=20) (funame(k),k=1,nofun)
-      if ( nosfun .gt. 0 ) read ( iin , end=20, err=20) (sfname(k),k=1,nosfun)
+      if ( nocons > 0 ) read ( iin , end=20, err=20) (coname(k),k=1,nocons )
+      if ( nopa   > 0 ) read ( iin , end=20, err=20) (paname(k),k=1,nopa)
+      if ( nofun  > 0 ) read ( iin , end=20, err=20) (funame(k),k=1,nofun)
+      if ( nosfun > 0 ) read ( iin , end=20, err=20) (sfname(k),k=1,nosfun)
 
 !         completion successful
 

@@ -93,20 +93,20 @@
 !
 !         initialise the paging, accumulation arrays and acumul flag
 !
-      IF ( IP(3) .EQ. 0 ) THEN
+      IF ( IP(3) == 0 ) THEN
          IP(3) = MAX(1,IP(1)/(7+(NDMPAR+7)*((NOTOT+IP(2)-1)/IP(2))))
          IP(4) = 0
       ENDIF
 !
 !         start printing
 !
-      IF ( MOD(IP(4),IP(3)) .EQ. 0 ) THEN
+      IF ( MOD(IP(4),IP(3)) == 0 ) THEN
          WRITE (IOUT,'('' '')')
          WRITE (IOUT,2100 ) ( MNAME(K),K=1,4)
       ENDIF
       IP(4) = IP(4) + 1
 !
-      IF ( ITSTOP - ITSTRT .GT. 0 ) THEN
+      IF ( ITSTOP - ITSTRT > 0 ) THEN
          PERCIT = 100.*(ITIME-ITSTRT)/(ITSTOP-ITSTRT)
       ELSE
          PERCIT = 100.
@@ -130,7 +130,7 @@
          VNAME = 'CONCENTRATION'
          CALL OUTMO2 ( IOUT  , CONC2 , VNAME , DANAM , NDMPAR,
      +                 ID    , NEND  , NOTOT+NOTOT2)
-         IF ( IBFLAG .EQ. 1 ) THEN
+         IF ( IBFLAG == 1 ) THEN
             VNAME = 'MASS'
             CALL OUTMO2 ( IOUT  , ASMASS(1,1,1), VNAME , DANAM , NDMPAR,
      +                    ID    , NEND         , NOTOT )

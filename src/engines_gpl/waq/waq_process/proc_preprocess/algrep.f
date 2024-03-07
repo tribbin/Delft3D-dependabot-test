@@ -96,7 +96,7 @@
 
       nalg = 0
       do ialg = 1 , notyp
-         if ( algact(ialg) .eq. 1 ) then
+         if ( algact(ialg) == 1 ) then
             nalg   = nalg + 1
 
             ! types themselves
@@ -145,7 +145,7 @@
 
       nalg = 0
       do ialg = 1 , notyp
-         if ( algact(ialg) .eq. 1 ) then
+         if ( algact(ialg) == 1 ) then
             nalg   = nalg + 1
             do iout = 1 , nouttyp
                name1 = outtyp(iout)

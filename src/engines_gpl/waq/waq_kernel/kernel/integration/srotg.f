@@ -42,9 +42,9 @@
       if ( timon ) call timstrt ( "srotg", ithandl )
 !
       roe = sb
-      if( abs(sa) .gt. abs(sb) ) roe = sa
+      if( abs(sa) > abs(sb) ) roe = sa
       scale = abs(sa) + abs(sb)
-      if( scale .ne. 0.0 ) go to 10
+      if( scale /= 0.0 ) go to 10
          c = 1.0
          s = 0.0
          r = 0.0
@@ -55,7 +55,7 @@
       c = sa/r
       s = sb/r
    20 z = s
-      if( abs(c) .gt. 0.0 .and. abs(c) .le. s ) z = 1.0/c
+      if( abs(c) > 0.0 .and. abs(c) <= s ) z = 1.0/c
       sa = r
       sb = z
       if ( timon ) call timstop ( ithandl )

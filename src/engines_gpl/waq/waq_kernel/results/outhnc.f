@@ -138,7 +138,7 @@
       endif
 
 !     Initialize file
-      if ( ncidhis .lt. 0 ) then
+      if ( ncidhis < 0 ) then
 
          ! Turn on debug info from dlwaqnc
          inc_error = dlwqnc_debug_status(.true.)

@@ -43,7 +43,7 @@ contains
       write (*, '(  ''  Number of ERRORS during input :'',I6)') status%ierr
       write (*, '(  '' '')')
 
-      if (status%ierr .eq. 0) then
+      if (status%ierr == 0) then
          novec = min(novec, (nosss + nobnd - 1))
          itota = 0
          itoti = 0

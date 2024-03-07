@@ -56,7 +56,7 @@
       do iseg = 1 , noseg
       if (btest(iknmrk(iseg),0)) then
       call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-      if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+      if ((ikmrk2==0).or.(ikmrk2==3)) then
 !
       fracs1 = pmsa(ip( 1))
       scals1 = pmsa(ip( 2))
@@ -82,26 +82,26 @@
 !     RESUSPENSION
       R1 = 0.0
       R2 = 0.0
-      IF ( FRACS1*SCALS1 .GE. 0.0 ) R1 = FRESS1 * FRACS1*SCALS1
-      IF ( FRACS2*SCALS2 .GE. 0.0 ) R2 = FRESS2 * FRACS2*SCALS2
+      IF ( FRACS1*SCALS1 >= 0.0 ) R1 = FRESS1 * FRACS1*SCALS1
+      IF ( FRACS2*SCALS2 >= 0.0 ) R2 = FRESS2 * FRACS2*SCALS2
 
 !     BURIAL
       B1 = 0.0
       B2 = 0.0
-      IF ( FRACS1*SCALS1 .GE. 0.0 ) B1 = FBURS1 * FRACS1*SCALS1
-      IF ( FRACS2*SCALS2 .GE. 0.0 ) B2 = FBURS2 * FRACS2*SCALS2
+      IF ( FRACS1*SCALS1 >= 0.0 ) B1 = FBURS1 * FRACS1*SCALS1
+      IF ( FRACS2*SCALS2 >= 0.0 ) B2 = FBURS2 * FRACS2*SCALS2
 
 !     DIGGING
       D1 = 0.0
       D2 = 0.0
-      IF ( (SWDS1 .LT. 0.5) .AND. (FRACS1*SCALS1 .GE. 0.0) ) THEN
+      IF ( (SWDS1 < 0.5) .AND. (FRACS1*SCALS1 >= 0.0) ) THEN
            D1 = FDIGS1 * FRACS1*SCALS1
-      ELSEIF (FRACS2*SCALS2 .GE. 0.0) THEN
+      ELSEIF (FRACS2*SCALS2 >= 0.0) THEN
            D1 = FDIGS1 * FRACS2*SCALS2
       ENDIF
-      IF ( (SWDS2 .LT. 0.5) .AND. (FRACS2*SCALS2 .GE. 0.0) ) THEN
+      IF ( (SWDS2 < 0.5) .AND. (FRACS2*SCALS2 >= 0.0) ) THEN
            D2 = FDIGS2 * FRACS2*SCALS2
-      ELSEIF (FRACS3*SCALS3 .GE. 0.0) THEN
+      ELSEIF (FRACS3*SCALS3 >= 0.0) THEN
            D2 = FDIGS2 * FRACS3*SCALS3
       ENDIF
 
@@ -109,7 +109,7 @@
 
       PMSA(IP(17)) = R1
       PMSA(IP(18)) = R2
-      IF (ABS(SWITCH).LT.0.5) THEN
+      IF (ABS(SWITCH)<0.5) THEN
 !       NO SWITCH
         PMSA(IP(19)) = B1
         PMSA(IP(20)) = 0.0
@@ -124,7 +124,7 @@
 
       FL( 1 + IFLUX ) = R1/DEPTH
       FL( 2 + IFLUX ) = R2/DEPTH
-      IF (ABS(SWITCH).LT.0.5) THEN
+      IF (ABS(SWITCH)<0.5) THEN
 !       NO SWITCH
         FL( 3 + IFLUX ) = B1/DEPTH
         FL( 4 + IFLUX ) = 0.0

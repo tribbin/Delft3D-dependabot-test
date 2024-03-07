@@ -130,7 +130,7 @@
       integer(kind=int_wp) ::  ithndl1= 0
       integer(kind=int_wp) ::  ithndl2= 0
 
-      if ( ndmpar .eq. 0 .and. noraai .eq. 0 ) return
+      if ( ndmpar == 0 .and. noraai == 0 ) return
       if (timon) call timstrt( "dmpare", ithndl )
 
       allocate( iqdmp(noq)    )
@@ -153,21 +153,21 @@
          do is = 1 , nsc
             itel = itel + 1
             iseg = isegdmp(itel)
-            if ( iseg .eq. 0 ) then
+            if ( iseg == 0 ) then
                write ( lurep , 2000 ) idump, is, iseg
                call status%increase_error_count()
-            elseif ( iseg .lt. -nobnd ) then
+            elseif ( iseg < -nobnd ) then
                write ( lurep , 2000 ) idump, is, iseg
                call status%increase_error_count()
-            elseif ( iseg .lt. 0 ) then
-               if ( nsc .gt. 1 ) then
+            elseif ( iseg < 0 ) then
+               if ( nsc > 1 ) then
                   write ( lurep , 2010 ) idump, is, iseg
                   call status%increase_error_count()
                else
                   write ( lurep , 2020 ) idump, is, iseg
                   call status%increase_warning_count()
                endif
-            elseif ( iseg .gt. noseg ) then
+            elseif ( iseg > noseg ) then
                write ( lurep , 2000 ) idump, is, iseg
                call status%increase_error_count()
                isegdmp(itel) = 0
@@ -185,7 +185,7 @@
       !jvb max_ntdmpq = 6 * ndmpar
       max_ntdmpq = noq
       allocate ( ipdmpq(max_ntdmpq), stat = ierr2 )
-      if ( ierr2 .ne. 0 ) then
+      if ( ierr2 /= 0 ) then
          write ( lurep , 2030 ) ierr2, max_ntdmpq
          call status%increase_error_count()
          return
@@ -199,10 +199,10 @@
       do iq = 1, noq
          ivan  = ipoint( 1, iq )
          inaar = ipoint( 2, iq )
-         if ( ivan  .gt. 0 ) then
+         if ( ivan  > 0 ) then
             nqseg(ivan) = nqseg(ivan) + 1
          endif
-         if ( inaar .gt. 0 ) then
+         if ( inaar > 0 ) then
             nqseg(inaar) = nqseg(inaar) + 1
          endif
       enddo
@@ -212,11 +212,11 @@
       do iq = 1, noq
          ivan  = ipoint( 1, iq )
          inaar = ipoint( 2, iq )
-         if ( ivan  .gt. 0 ) then
+         if ( ivan  > 0 ) then
             nqseg(ivan) = nqseg(ivan) + 1
             iqseg(nqseg(ivan),ivan) = iq
          endif
-         if ( inaar .gt. 0 ) then
+         if ( inaar > 0 ) then
             nqseg(inaar) = nqseg(inaar) + 1
             iqseg(nqseg(inaar),inaar) = iq
          endif
@@ -247,12 +247,12 @@
                iq = iqseg(iqs,iseg)
                ivan  = ipoint( 1, iq )
                inaar = ipoint( 2, iq )
-               if ( iseg .eq. ivan ) then
+               if ( iseg == ivan ) then
 
 
                   ! skip if both are in the same dump area
 
-                  if ( inaar .gt. 0 ) then
+                  if ( inaar > 0 ) then
                      if ( indmp(inaar) ) goto 110
                   endif
 
@@ -263,10 +263,10 @@
 !        store the exchange number in the area section of this dump area
 
                   ntdmpq = ntdmpq + 1
-                  if ( ntdmpq .gt. max_ntdmpq ) then    !   extend workarray
+                  if ( ntdmpq > max_ntdmpq ) then    !   extend workarray
                      max_ntdmpq = 2 * max_ntdmpq
                      allocate ( p2_ipdmpq(max_ntdmpq), stat=ierr2 )
-                     if ( ierr2 .ne. 0 ) then
+                     if ( ierr2 /= 0 ) then
                         write ( lurep , 2040 ) ierr2, max_ntdmpq
                         call status%increase_error_count()
                         return
@@ -281,19 +281,19 @@
 
 !        mark this area to be involved and count areas that are involved
 
-                  if ( iqdmp(iq) .eq. 0 ) then
+                  if ( iqdmp(iq) == 0 ) then
                      ndmpq     = ndmpq + 1
                      iqdmp(iq) = ndmpq
                   endif
 
   110             continue
 
-               elseif ( iseg .eq. inaar ) then
+               elseif ( iseg == inaar ) then
 
 
                   ! skip if both are in the same dump area
 
-                  if ( ivan .gt. 0 ) then
+                  if ( ivan > 0 ) then
                      if ( indmp(ivan) ) goto 210
                   endif
 
@@ -304,10 +304,10 @@
 !        store the exchange number in the area section of this dump area
 
                   ntdmpq = ntdmpq + 1
-                  if ( ntdmpq .gt. max_ntdmpq ) then    !   extend workarray
+                  if ( ntdmpq > max_ntdmpq ) then    !   extend workarray
                      max_ntdmpq = 2 * max_ntdmpq
                      allocate ( p2_ipdmpq(max_ntdmpq), stat=ierr2 )
-                     if ( ierr2 .ne. 0 ) then
+                     if ( ierr2 /= 0 ) then
                         write ( lurep , 2040 ) ierr2, max_ntdmpq
                         call status%increase_error_count()
                         return
@@ -322,7 +322,7 @@
 
 !        mark this area to be involved and count areas that are involved
 
-                  if ( iqdmp(iq) .eq. 0 ) then
+                  if ( iqdmp(iq) == 0 ) then
                      ndmpq     = ndmpq + 1
                      iqdmp(iq) = ndmpq
                   endif
@@ -350,11 +350,11 @@
          do iq = 1 , nq
             itel = itel + 1
             iqr = abs(iexcraai(itel))
-            if ( iqr .eq. 0 .or. iqr .gt. noq ) then
+            if ( iqr == 0 .or. iqr > noq ) then
                write ( lurep , 2050 ) iraai, iq, iexcraai(itel)
                call status%increase_error_count()
             else
-               if ( iqdmp(iqr) .eq. 0 ) then
+               if ( iqdmp(iqr) == 0 ) then
                   ndmpq      = ndmpq + 1
                   iqdmp(iqr) = ndmpq
                endif
@@ -362,11 +362,11 @@
       end do
       end do
 
-      if ( ndmpar .gt. 0 ) then
+      if ( ndmpar > 0 ) then
          write( lun(2) ) ( nqdmp  (i), i = 1, ndmpar ), ( ipdmpq (i), i = 1, ntdmpq )
          write( lun(2) ) ( nsegdmp(i), i = 1, ndmpar ), ( isegdmp(i), i = 1, ntdmps )
       endif
-      if ( noraai .gt. 0 ) then
+      if ( noraai > 0 ) then
          write( lun(2) ) ( ioptraai(i), i = 1, noraai )
          write( lun(2) ) ( nexcraai(i), i = 1, noraai )
          write( lun(2) ) ( iexcraai(i), i = 1, ntraaq )
@@ -377,12 +377,12 @@
 
 !     Set the ISMDP array
 
-      if ( ndmpar .gt. 0 ) then
+      if ( ndmpar > 0 ) then
          isdmp = 0
          do is = 1 , ntdmps
             iseg = isegdmp(is)
-            if ( iseg .gt. 0 ) then
-               if ( isdmp(iseg) .eq. 0 ) then
+            if ( iseg > 0 ) then
+               if ( isdmp(iseg) == 0 ) then
                   ndmps = ndmps + 1
                   isdmp(iseg) = ndmps
                endif

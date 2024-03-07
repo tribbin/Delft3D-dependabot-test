@@ -73,15 +73,15 @@ contains
 
       do isys = 1 , nosys
          do ivnw = 1 , nveln
-            if ( ivpnew_loc(isys) .eq. ivnw ) then
+            if ( ivpnew_loc(isys) == ivnw ) then
                lfirst = .true.
                ! add the contribution of the calculated velocities.
                do ivx = 1  , nvelx
                   factor = vsto(isys,ivx)
-                  if ( abs(factor) .gt. 1.e-20 ) then
+                  if ( abs(factor) > 1.e-20 ) then
                      if ( lfirst ) then
                         lfirst = .false.
-                        if ( abs(factor-1.0) .lt. 1.e-10 ) then
+                        if ( abs(factor-1.0) < 1.e-10 ) then
                            do iq = 1 , noq
                               velonw(ivnw,iq) = velx(ivx,iq)
                            enddo
@@ -91,7 +91,7 @@ contains
                            enddo
                         endif
                      else
-                        if ( abs(factor-1.0) .lt. 1.e-10 ) then
+                        if ( abs(factor-1.0) < 1.e-10 ) then
                            do iq = 1 , noq
                               velonw(ivnw,iq) = velonw(ivnw,iq) + velx(ivx,iq)
                            enddo
@@ -105,7 +105,7 @@ contains
                enddo
                ! trick the other substances also pointing to this array by setting pointer negative
                do isys2 = isys + 1 , nosys
-                  if ( ivpnew_loc(isys2) .eq. ivnw ) then
+                  if ( ivpnew_loc(isys2) == ivnw ) then
                      ivpnew_loc(isys2) = -ivpnew_loc(isys2)
                   endif
                enddo

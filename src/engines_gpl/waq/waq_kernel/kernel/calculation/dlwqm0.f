@@ -86,7 +86,7 @@
       iv = ivpnt(isys)
       id = idpnt(isys)
 
-      if ( iv .eq. 0 ) then
+      if ( iv == 0 ) then
          flowtot = flow
       else
          do iq = 1,noq
@@ -94,7 +94,7 @@
          enddo
       endif
 
-      if ( id .eq. 0 ) then
+      if ( id == 0 ) then
          do iq = 1, noq1
             disptot(iq)=disp(1)*mixlen(iq)
          enddo

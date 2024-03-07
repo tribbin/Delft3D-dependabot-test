@@ -106,7 +106,7 @@
       MAXSAL  = PMSA( IP8 )
       ENHFAC  = PMSA( IP9 )
 
-      IF (CRSUSP .LT. 1E-20 )  CALL write_error_message ('CRSUSP in CALSED zero')
+      IF (CRSUSP < 1E-20 )  CALL write_error_message ('CRSUSP in CALSED zero')
 
 !*******************************************************************************
 !**** Processes connected to the sedimentation VELOCITY
@@ -120,21 +120,21 @@
 
 !     Flocculatie functie
 
-      IF ( SUSP/CRSUSP .GE. 1.E-30 ) THEN
+      IF ( SUSP/CRSUSP >= 1.E-30 ) THEN
           FLOFUN = (SUSP / CRSUSP)**N
       ENDIF
 
 !     Temperatuur functie
 
-      IF (SEDTC .NE. 1.0) THEN
+      IF (SEDTC /= 1.0) THEN
           TEMFUN = SEDTC **(TEMP-20.0)
       ENDIF
 
 !     Salinity functie
 
-      IF ( SAL .LT. MAXSAL ) THEN
+      IF ( SAL < MAXSAL ) THEN
          SALFUN = (ENHFAC + 1.)/2.- ((ENHFAC-1.)/2.)*COS(PI*SAL/MAXSAL)
-      ELSEIF (MAXSAL .GE. 0.0) THEN
+      ELSEIF (MAXSAL >= 0.0) THEN
          SALFUN = ENHFAC
       ELSE
          SALFUN = 1.0
@@ -189,7 +189,7 @@
 !
 !        Sedimentation velocity from segment to exchange-area
 !
-         IF ( IVAN .GT. 0 ) THEN
+         IF ( IVAN > 0 ) THEN
             PMSA(IP13) = PMSA( IP10 + (IVAN-1) * IN10 )
          ENDIF
 

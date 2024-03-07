@@ -45,13 +45,13 @@
       integer(kind=int_wp) ::i, numgr
 
 ! Check whether x is too low or too high
-      if (x .le. zvec(1)) then
+      if (x <= zvec(1)) then
          f=fun(1,numgr)
          fpr=0.0
          return
       end if
       
-      if (x .ge. zvec(nz)) then
+      if (x >= zvec(nz)) then
          f=fun(nz,numgr)
          fpr=0.0
          return
@@ -59,7 +59,7 @@
 
 ! Look up x
       do i=2,nz
-         if (x .le. zvec(i)) exit
+         if (x <= zvec(i)) exit
       end do
 
       ex = dexp(-x)

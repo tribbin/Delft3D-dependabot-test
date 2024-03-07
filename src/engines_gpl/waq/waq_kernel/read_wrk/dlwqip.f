@@ -136,63 +136,63 @@
      +                                NOSYSD, NDSPXD, NVELXD,
      +                                NLOCXD, NDSPND, NVELND,
      +                                NOVARD, nrrefD
-      IF ( NIPMSD .NE. NIPMSA ) THEN
+      IF ( NIPMSD /= NIPMSA ) THEN
          WRITE ( LUREP, 2020 ) NIPMSD, NIPMSA
          IERR = IERR + 1
       ENDIF
-      IF ( NPROCD .NE. NPROC  ) THEN
+      IF ( NPROCD /= NPROC  ) THEN
          WRITE ( LUREP, 2030 ) NPROCD, NPROC
          IERR = IERR + 1
       ENDIF
-      IF ( NFLUXD .NE. NFLUX  ) THEN
+      IF ( NFLUXD /= NFLUX  ) THEN
          WRITE ( LUREP, 2040 ) NFLUXD, NFLUX
          IERR = IERR + 1
       ENDIF
-      IF ( NOLOCD .NE. NOLOC  ) THEN
+      IF ( NOLOCD /= NOLOC  ) THEN
          WRITE ( LUREP, 2050 ) NOLOCD, NOLOC
          IERR = IERR + 1
       ENDIF
-      IF ( NODEFD .NE. NODEF  ) THEN
+      IF ( NODEFD /= NODEF  ) THEN
          WRITE ( LUREP, 2060 ) NODEFD, NODEF
          IERR = IERR + 1
       ENDIF
-      IF ( NOTOTD .NE. NOTOT  ) THEN
+      IF ( NOTOTD /= NOTOT  ) THEN
          WRITE ( LUREP, 2070 ) NOTOTD, NOTOT
          IERR = IERR + 1
       ENDIF
-      IF ( NOSYSD .NE. NOSYS  ) THEN
+      IF ( NOSYSD /= NOSYS  ) THEN
          WRITE ( LUREP, 2120 ) NOSYSD, NOSYS
          IERR = IERR + 1
       ENDIF
-      IF ( NDSPXD .NE. NDSPX  ) THEN
+      IF ( NDSPXD /= NDSPX  ) THEN
          WRITE ( LUREP, 2130 ) NDSPXD, NDSPX
          IERR = IERR + 1
       ENDIF
-      IF ( NVELXD .NE. NVELX  ) THEN
+      IF ( NVELXD /= NVELX  ) THEN
          WRITE ( LUREP, 2140 ) NVELXD, NVELX
          IERR = IERR + 1
       ENDIF
-      IF ( NLOCXD .NE. NLOCX  ) THEN
+      IF ( NLOCXD /= NLOCX  ) THEN
          WRITE ( LUREP, 2150 ) NLOCXD, NLOCX
          IERR = IERR + 1
       ENDIF
-      IF ( NDSPND .NE. NDSPN  ) THEN
+      IF ( NDSPND /= NDSPN  ) THEN
          WRITE ( LUREP, 2160 ) NDSPND, NDSPN
          IERR = IERR + 1
       ENDIF
-      IF ( NVELND .NE. NVELN  ) THEN
+      IF ( NVELND /= NVELN  ) THEN
          WRITE ( LUREP, 2170 ) NVELND, NVELN
          IERR = IERR + 1
       ENDIF
-      IF ( NOVARD .NE. NOVAR  ) THEN
+      IF ( NOVARD /= NOVAR  ) THEN
          WRITE ( LUREP, 2190 ) NOVARD, NOVAR
          IERR = IERR + 1
       ENDIF
-      IF ( nrrefD .NE. nrref  ) THEN
+      IF ( nrrefD /= nrref  ) THEN
          WRITE ( LUREP, 2200 ) nrrefd, nrref
          IERR = IERR + 1
       ENDIF
-      IF ( IERR .GT. 0 ) GOTO 910
+      IF ( IERR > 0 ) GOTO 910
 !
       READ (LUNWRP, ERR=900, END=900) ( PRVNIO(K), K = 1 , NPROC )
       READ (LUNWRP, ERR=900, END=900) ( IFLUX(K) , K = 1 , NPROC )
@@ -202,10 +202,10 @@
       READ (LUNWRP, ERR=900, END=900) ( STOCHI(K), K = 1 , NOTOT*NFLUX )
       READ (LUNWRP, ERR=900, END=900) ( DSTO(K)  , K = 1 , NOSYS*NDSPX )
       READ (LUNWRP, ERR=900, END=900) ( VSTO(K)  , K = 1 , NOSYS*NVELX )
-      IF ( NDSPN .GT. 0 ) THEN
+      IF ( NDSPN > 0 ) THEN
          READ (LUNWRP, ERR=900, END=900) ( IDPNW(K)  , K = 1 , NOSYS )
       ENDIF
-      IF ( NVELN .GT. 0 ) THEN
+      IF ( NVELN > 0 ) THEN
          READ (LUNWRP, ERR=900, END=900) ( IVPNW(K)  , K = 1 , NOSYS )
       ENDIF
       READ (LUNWRP, ERR=900, END=900) ( PRONAM(K)  , K = 1 , NPROC )
@@ -235,14 +235,14 @@
       IFRACS = 0
       IPDGRD = 0
       DO K = 1,NPROC
-         IF ( PRONDT(K) .GT. 1 ) THEN
+         IF ( PRONDT(K) > 1 ) THEN
             IFRACS = 1
          ENDIF
-         IF ( PROGRD(K) .GT. 1 ) THEN
+         IF ( PROGRD(K) > 1 ) THEN
             IPDGRD = 1
          ENDIF
       ENDDO
-      IF ( IFRACS .EQ. 0 .AND. IPDGRD .EQ. 0 ) THEN
+      IF ( IFRACS == 0 .AND. IPDGRD == 0 ) THEN
          WRITE(LUREP,3010)
       ELSE
          WRITE(LUREP,3020)
@@ -257,7 +257,7 @@
       IOFFBL = 0
       IOFF   = 1
       DO K = 1,NPROC
-         IF ( PRONAM(K)(1:6) .EQ. 'D40BLO' ) THEN
+         IF ( PRONAM(K)(1:6) == 'D40BLO' ) THEN
             IPBLOO = K
             IOFFBL = IOFF
             WRITE ( LUREP, 2100 )

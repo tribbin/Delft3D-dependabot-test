@@ -73,7 +73,7 @@
       IFLUX = 0
       DO ISEG = 1 , NOSEG
       CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
-      IF (IKMRK1.EQ.1) THEN
+      IF (IKMRK1==1) THEN
 
       ZFL   = PMSA( IP1 )
       DEPTH = PMSA( IP2 )
@@ -83,10 +83,10 @@
       DELT  = PMSA( IP6 )
 
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-      IF ( ( ISW1   .EQ. 0                   ) .OR.    ! option load in all segments
-     +     ( IKMRK2 .EQ. 0                   ) .OR.    ! segment with surface and bottom always a load
-     +     ( IKMRK2 .EQ. 1 .AND. ISW1 .EQ. 1 ) .OR.    ! top segment and option top segment
-     +     ( IKMRK2 .EQ. 3 .AND. ISW1 .EQ. 2 ) ) THEN  ! bottom segment and option bottom segment
+      IF ( ( ISW1   == 0                   ) .OR.    ! option load in all segments
+     +     ( IKMRK2 == 0                   ) .OR.    ! segment with surface and bottom always a load
+     +     ( IKMRK2 == 1 .AND. ISW1 == 1 ) .OR.    ! top segment and option top segment
+     +     ( IKMRK2 == 3 .AND. ISW1 == 2 ) ) THEN  ! bottom segment and option bottom segment
 !
 
 !*******************************************************************************
@@ -95,9 +95,9 @@
 
       ZFL = ZFL / DEPTH
 
-      IF ( ISW2 .EQ. 1 ) THEN
+      IF ( ISW2 == 1 ) THEN
          ! maximise a withdrawel to the amount availeble in one timestep
-         IF ( ZFL .LT. 0.0 ) THEN
+         IF ( ZFL < 0.0 ) THEN
             ZFL = MAX(ZFL,-CONC/DELT)
          ENDIF
       ENDIF

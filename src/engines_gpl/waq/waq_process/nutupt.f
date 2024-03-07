@@ -129,13 +129,13 @@
 !      check if NH4+NO3 available
 !      make sure that the mass balance is closed - the sum of
 !      NH4D and NO3D must be 1.
-       IF ( ((NH4 + NO3) .LE. 0.0) .OR. (XNTOT .LE. 0.0) ) THEN
+       IF ( ((NH4 + NO3) <= 0.0) .OR. (XNTOT <= 0.0) ) THEN
            NH4D = 1.0
            NO3D = 0.0
        ELSE
-          IF ( NH4 .GT. NH4KR ) THEN
+          IF ( NH4 > NH4KR ) THEN
               NH4N = NH4 - NH4KR
-              IF ( XNTOT .LE. NH4N ) THEN
+              IF ( XNTOT <= NH4N ) THEN
                  NH4D = 1.
                  NO3D = 0.
               ELSE

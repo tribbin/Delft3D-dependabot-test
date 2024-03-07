@@ -83,7 +83,7 @@
 
          vol  = volume(iseg)
          surf = surface(iseg)
-         if ( abs(vol) .lt. 1.0e-25 ) vol = 1.0
+         if ( abs(vol) < 1.0e-25 ) vol = 1.0
 
 !         transported substances first
 

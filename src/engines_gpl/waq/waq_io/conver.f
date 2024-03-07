@@ -88,7 +88,7 @@
             enddo
          endif
       else
-         if ( ifact .ne. 1 ) then
+         if ( ifact /= 1 ) then
             do i = 1 , nobrk
                ibrk(i) = ifact * ibrk(i)
             enddo

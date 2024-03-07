@@ -122,7 +122,7 @@
       TIME   = PMSA(IP4)
       DELT   = PMSA(IP5)
       CCRIT  = PMSA(IP6)
-      IF ( PMSA(IP7) .EQ. 1.0 ) THEN
+      IF ( PMSA(IP7) == 1.0 ) THEN
          ABOVE  = DELT
          BELOW  = 0.0
       ELSE
@@ -156,11 +156,11 @@
          ENDIF
       ENDIF
 
-      IF ( TIME .GE. TSTOP-0.5*DELT .AND. TIME .LE. TSTOP+0.5*DELT ) THEN
+      IF ( TIME >= TSTOP-0.5*DELT .AND. TIME <= TSTOP+0.5*DELT ) THEN
          IACTION = 3
       ENDIF
 
-      IF ( IACTION .EQ. 0 ) RETURN
+      IF ( IACTION == 0 ) RETURN
 
       IP8 = IPOINT(8)
       IP9 = IPOINT(9)
@@ -176,7 +176,7 @@
             TCOUNT    = PMSA(IP8) + DELT
             PMSA(IP8) = TCOUNT
 
-            IF ( PMSA(IP1) .GE. CCRIT ) THEN
+            IF ( PMSA(IP1) >= CCRIT ) THEN
                PMSA(IP9)  = PMSA(IP9) + ABOVE
                PMSA(IP10) = PMSA(IP10)+ ABOVE * PMSA(IP1)
             ELSE
@@ -188,9 +188,9 @@
 !
 !        Always do the final processing whether the segment is active at this moment or not
 !
-         IF ( IACTION .EQ. 3 ) THEN
-            IF ( TCOUNT .GT. 0.0 ) THEN
-               IF ( PMSA(IP9) .GT. 0 ) THEN
+         IF ( IACTION == 3 ) THEN
+            IF ( TCOUNT > 0.0 ) THEN
+               IF ( PMSA(IP9) > 0 ) THEN
                   PMSA(IP10)= PMSA(IP10)/PMSA(IP9)
                ENDIF
                PMSA(IP9) = PMSA(IP9) / TCOUNT
@@ -199,7 +199,7 @@
 
                IF ( NOWARN < MAXWARN ) THEN
                   CALL evaluate_waq_attribute(IKNMRK(ISEG), 3, ATTRIB )
-                  IF ( ATTRIB .NE. 0 ) THEN
+                  IF ( ATTRIB /= 0 ) THEN
                      NOWARN = NOWARN + 1
                      WRITE(*,'(a,i0)')      'Exceedance could not be determined for segment ', ISEG
                      WRITE(*,'(a,e12.4,a)') '    - segment not active in the given period. Exceedance set to zero'

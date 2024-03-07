@@ -86,9 +86,9 @@
 
       ! update the actual loads from the delwaq arrays to the wasteload structure
 
-      if ( ifirst .eq. 1 ) then
+      if ( ifirst == 1 ) then
          allocate(wasteloads(nowst), stat = ierr_alloc)
-         if ( ierr_alloc .ne. 0 ) then
+         if ( ierr_alloc /= 0 ) then
             write(lunrep,*) 'ERROR : allocating wasteloads structure'
             write(*,*) 'ERROR : allocating wasteloads structure'
             call srstop(1)

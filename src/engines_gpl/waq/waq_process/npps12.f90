@@ -89,9 +89,9 @@ contains
 
       do iseg = 1 , noseg
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
-         if (ikmrk1.eq.1) then
+         if (ikmrk1==1) then
          call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-         if (ikmrk2.eq.0.or.ikmrk2.eq.3) then
+         if (ikmrk2==0.or.ikmrk2==3) then
 
          nh4        = max(pmsa( ipnt( 1) ),0.0)
          po4        = max(pmsa( ipnt( 2) ),0.0)

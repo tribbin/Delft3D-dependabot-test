@@ -83,7 +83,7 @@
 !
       lun = 10
       CALL open_waq_files ( lun , FNAME(1) , 24 , 2 , IERROR )
-      IF ( IERROR .NE. 0 ) RETURN
+      IF ( IERROR /= 0 ) RETURN
 !
 !         Read primary system characteristics
 !
@@ -94,15 +94,15 @@
 !
       NRLST  = 0
       SETALL = .FALSE.
-      IF ( PARDEF(1) .EQ. '*' ) SETALL = .TRUE.
+      IF ( PARDEF(1) == '*' ) SETALL = .TRUE.
       DO I1 = 1 , NOTOT , MAXLST
          MAXK = MIN(NOTOT,I1+MAXLST-1) - I1 + 1
          READ ( lun , ERR=120 ) ( PARUNI(K) , K = 1,MAXK )
          DO I2 = 1 , MAXK
             DO I3 = 1 , MAXDEF
-               IF ( PARUNI(I2) .EQ. PARDEF(I3) .OR. SETALL ) THEN
+               IF ( PARUNI(I2) == PARDEF(I3) .OR. SETALL ) THEN
                   NRLST = NRLST + 1
-                  IF ( NRLST .GT. MAXLST ) THEN
+                  IF ( NRLST > MAXLST ) THEN
                      IERROR = -NOTOT
                      GOTO 50
                   ENDIF

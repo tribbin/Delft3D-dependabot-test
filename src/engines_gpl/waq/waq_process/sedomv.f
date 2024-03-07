@@ -90,9 +90,9 @@
       IFLUX = 0
       DO ISEG = 1 , NOSEG
       CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
-      IF (IKMRK1.EQ.1) THEN
+      IF (IKMRK1==1) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-      IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
+      IF ((IKMRK2==0).OR.(IKMRK2==3)) THEN
 !
       SFL1  = PMSA(IP1 )
       SFL2  = PMSA(IP2 )
@@ -143,13 +143,13 @@
          IVAN  = IEXPNT(1,IQ)
          INAAR = IEXPNT(2,IQ)
 
-         IF ( IVAN .GT. 0 .AND. INAAR .GT. 0 ) THEN
+         IF ( IVAN > 0 .AND. INAAR > 0 ) THEN
 
             ! Zoek eerste kenmerk van- en naar-segmenten
 
             CALL evaluate_waq_attribute(1,IKNMRK(IVAN ),IKMRKV)
             CALL evaluate_waq_attribute(1,IKNMRK(INAAR),IKMRKN)
-            IF (IKMRKV.EQ.1.AND.IKMRKN.EQ.3) THEN
+            IF (IKMRKV==1.AND.IKMRKN==3) THEN
 
                ! Bodem-water uitwisseling: NUL FLUX OM OOK OUDE PDF's
 
@@ -164,7 +164,7 @@
                VSOMI = FOMPOC*VSPOC + FOMPHY*VSPHY
                PMSA(IP11) = VSOMI
 
-            ELSEIF (IKMRKV.EQ.1.AND.IKMRKN.EQ.1) THEN
+            ELSEIF (IKMRKV==1.AND.IKMRKN==1) THEN
 
                ! Water-water uitwisseling
 

@@ -80,7 +80,7 @@
       factor2 = 1.0 - factor1
 
       do ivar = 1, nvar
-         if ( iftyp(ivar) .lt. 0 ) then           !    block function
+         if ( iftyp(ivar) < 0 ) then           !    block function
             result(:,ivar) = lower(:,ivar)
          else                                     !    linear interpolation
             result(:,ivar) = lower(:,ivar)*factor2 + higher(:,ivar)*factor1

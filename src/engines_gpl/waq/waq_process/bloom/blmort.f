@@ -113,7 +113,7 @@
          flooxn(1) = flooxn(1) + cmorto + cmorta * foox / (fdet(j) + foox)
          do k=1, nunuco
             i = nutcon(k)
-            if (i.le.3) then
+            if (i<=3) then
             fldetn(i+1) = fldetn(i+1) + cmortd * sngl(ctodry(j) * aa(k,j))
             flautn(i+1) = flautn(i+1) + cmorta * sngl(ctodry(j) * aa(k,j))
             flooxn(i+1) = flooxn(i+1) + cmorto * sngl(ctodry(j) * aa(k,j))

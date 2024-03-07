@@ -58,7 +58,7 @@
       if ( active_efft ) then
          effi = aveffi(iskmax)
       else
-         if ( ifix_3dl(it2(j,1)) .lt. 0 ) then
+         if ( ifix_3dl(it2(j,1)) < 0 ) then
             effi = effic_3dl(iskmax,iseg_3dl)
          else
             call effi_3dl(effi,iskmax)
@@ -66,7 +66,7 @@
       endif
 
 ! Check whether ROOT(2) (UKmax) is larger than EXTTOT.
-      if (root(2) .le. exttot) then
+      if (root(2) <= exttot) then
 
 ! Kmax {=ROOT(2)} is smaller than the total extinction, indicating that
 ! the species cannot maintain its current biomass.
@@ -79,10 +79,10 @@
 ! Note: do not use a negative number because the mortality constraint
 ! of the species could be positive, indicating that it should be
 ! included in the final solution.
-         if (root(2) .le. 0.0) then
+         if (root(2) <= 0.0) then
             effi = 0.01
          end if
-         if (lgroch .eq. 1) then
+         if (lgroch == 1) then
 ! Compute the right hand side of the growth constraint for a species,
 ! whose Kmax < EXTTOT of previous time-step. Normally we might put ANY
 ! value into the growth constraint as long as it exceeds the energy
@@ -94,11 +94,11 @@
 ! Check and correct for growth constraints which are lower than the
 ! mortality constraints.
             grlim = xinit(j)
-            if (lmorch .eq. 0) then
+            if (lmorch == 0) then
                b(j+nuexro) = grlim
                return
             end if
-            if (grlim .gt. b(j+nuexro+nuecog)) then
+            if (grlim > b(j+nuexro+nuecog)) then
                b(j+nuexro) = grlim
             else
                b(j+nuexro) = b(j+nuexro+nuecog)
@@ -109,18 +109,18 @@
          bt=dexp( ( (pmax(iskmax)-lpmort*rmort(iskmax))*effi - resp(iskmax) ) *tstep)
          bt = bt*xinit(j)
 ! Set the growth constraint to 0.0 when BT is negative.
-         if (bt .lt. 0.0) then
+         if (bt < 0.0) then
             write(outdbg, 99995) bt, grname(j)
             bt = 0.0d0
          end if
 !  Store growth constraint value in B-vector. Optionally print results to unit outdbg.
          b(j+nuexro)=bt
-         if (idump .ne. 0) write (outdbg,99990) grname(j),effi,effi*pmax(iskmax),b(j+nuexro)
+         if (idump /= 0) write (outdbg,99990) grname(j),effi,effi*pmax(iskmax),b(j+nuexro)
       end if
 
 ! Store the nett growth rate of each phytoplankton type in the row
 ! for the objective function if growth is maximized.
-      if (lobfun .eq. 1) then
+      if (lobfun == 1) then
          do k = it2(j,1),it2(j,2)
             c(k) = dmax1 ((effi * pmax(k) - resp(k)), 1.0d-6)
          end do

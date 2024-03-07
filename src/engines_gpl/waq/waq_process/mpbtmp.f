@@ -100,8 +100,8 @@ C        input, the workspace and ftmp are input-output only the input pointer i
 
 C        update FTMP every day (AUXSYS is one day)
 
-         IF   ( MOD(ITIME-ITSTRT,AUXSYS) .LT. IDT )   THEN
-            IF ( ITIME .EQ. ITSTRT ) THEN
+         IF   ( MOD(ITIME-ITSTRT,AUXSYS) < IDT )   THEN
+            IF ( ITIME == ITSTRT ) THEN
                FTMP  = FTMP_NOW
             ELSE
                FTMP  = WS / AUXSYS

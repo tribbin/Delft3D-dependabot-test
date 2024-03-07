@@ -75,13 +75,13 @@
       DO ISEG = 1 , NOSEG
 
       CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
-      IF (IKMRK1.EQ.1) THEN
+      IF (IKMRK1==1) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-      IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
+      IF ((IKMRK2==0).OR.(IKMRK2==3)) THEN
 
 !         Access conditions from the cell where the top of the plant is
           ITOPSEG = NINT(PMSA(IPNT(1)))
-          IF (ITOPSEG .LE. 0 ) THEN
+          IF (ITOPSEG <= 0 ) THEN
              CALL GETMLU( LUNREP )
              WRITE(LUNREP,*) 'RADMAC: top segment missing - needed for light intensity at tip of plant'
              WRITE(LUNREP,*) '   ISEG    =',ISEG
@@ -100,7 +100,7 @@
           Z1     = LOCDEP - DEPTH
           DZ     = ZM-Z1
 
-          IF (DZ.LT.0.0 .OR. DZ.GT.DEPTH) THEN
+          IF (DZ<0.0 .OR. DZ>DEPTH) THEN
              NR_MSG = NR_MSG + 1
              IF ( NR_MSG <= 25 ) THEN
                 CALL GETMLU( LUNREP )

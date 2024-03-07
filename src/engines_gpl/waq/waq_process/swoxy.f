@@ -91,7 +91,7 @@
 !****                ISWOXY = 0  always in S2
 !***********************************************************************
 
-      IF (OXY/POROS.LE.CROXY) THEN
+      IF (OXY/POROS<=CROXY) THEN
         ISWWK = 0
         ISWS1 = 0
         ISWS2 = 0

@@ -139,12 +139,12 @@
             N_fact  = 1.0
             P_fact  = 1.0
             Si_fact = 1.0
-            if ( N_demand  .gt. ConmxN ) N_fact  = ConmxN / N_demand
-            if ( P_demand  .gt. ConmxP ) P_fact  = ConmxP / P_demand
-            if ( Si_demand .gt. ConmxS ) Si_fact = ConmxS / Si_demand
+            if ( N_demand  > ConmxN ) N_fact  = ConmxN / N_demand
+            if ( P_demand  > ConmxP ) P_fact  = ConmxP / P_demand
+            if ( Si_demand > ConmxS ) Si_fact = ConmxS / Si_demand
             G_fact = MIN ( N_fact, P_fact )
 
-            if ( Si_fact .ge. G_fact ) then
+            if ( Si_fact >= G_fact ) then
 
                fcPPGreen = G_fact  * fPPGreen
                fcPPDiat  = G_fact  * fPPDiat
@@ -152,7 +152,7 @@
             else
 
                fcPPDiat  = Si_fact * fPPDiat
-               if ( G_fact .eq. 1.0 ) then
+               if ( G_fact == 1.0 ) then
                   fcPPGreen = fPPGreen
                else
                   ConmxN = ConmxN - fcPPDiat * NCratDiat * DELT
@@ -161,8 +161,8 @@
                   P_demand = fPPGreen * PCRatGreen * DELT
                   N_fact  = 1.0
                   P_fact  = 1.0
-                  if ( N_demand .gt. ConmxN ) N_fact  = ConmxN / N_demand
-                  if ( P_demand .gt. ConmxP ) P_fact  = ConmxP / P_demand
+                  if ( N_demand > ConmxN ) N_fact  = ConmxN / N_demand
+                  if ( P_demand > ConmxP ) P_fact  = ConmxP / P_demand
                   fcPPGreen = MIN ( N_fact, P_fact ) * fPPGreen
                endif
 

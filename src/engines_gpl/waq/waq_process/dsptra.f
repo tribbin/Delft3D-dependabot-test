@@ -142,7 +142,7 @@
          TURCOE = PMSA(IP4+(Ivan -1)*IN4)
          DIFCOE = PMSA(IP5+(Inaar-1)*IN5)
 
-         IF ( IQ .LE. IWA2 ) THEN
+         IF ( IQ <= IWA2 ) THEN
 
 !.....WATER-SEDIMENT INTERFACE
 
@@ -157,7 +157,7 @@
              VD_DIS =  DIFCOE*MIN(POROS1,POROS2)/POROS1/(XFROM+XTO)
              VU_DIS = -DIFCOE*MIN(POROS1,POROS2)/POROS2/(XFROM+XTO)
 
-         ELSEIF ( IQ .EQ. IBOT ) THEN
+         ELSEIF ( IQ == IBOT ) THEN
 
 !.....DEEP SEDIMENT BOUNDARY
 

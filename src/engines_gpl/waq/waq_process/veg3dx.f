@@ -122,11 +122,11 @@
 
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
          call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-         if (ikmrk1.lt.3) then ! also when dry!
+         if (ikmrk1<3) then ! also when dry!
 
             ! active water segment
 
-            if ( hmax .gt. 0.0 ) then
+            if ( hmax > 0.0 ) then
 
                ! distribution over the water segments
 
@@ -137,17 +137,17 @@
 
                ! switch = 1:  constant biomass distribution
 
-               if (swmacdis .eq. 1 ) then
+               if (swmacdis == 1 ) then
                   ffac = 1
                endif
 
                a = (2. - (2. * ffac)) / (totaldepth - zm) / hmax
                b = (ffac * (zm + totaldepth) - 2. * zm) / (totaldepth - zm) / hmax
 
-               if (zm .gt. z2) then
+               if (zm > z2) then
                   ! macrophyte is not in segment:
                   frbmlay = 0
-               elseif (zm .lt. z1 ) then
+               elseif (zm < z1 ) then
                   ! macropyhte is partialy in segment:
                   frbmlay = (a/2)  * (z2*z2 - z1*z1) + b * (z2 - z1)
                else
@@ -165,11 +165,11 @@
 
          endif
 
-         if (ikmrk1.eq.3 .or. ( ikmrk2 == 0 .or. ikmrk2 == 3 ) ) then
+         if (ikmrk1==3 .or. ( ikmrk2 == 0 .or. ikmrk2 == 3 ) ) then
 
             ! delwaq-g segment or alternative layered sediment approach
 
-            if ( ikmrk1.eq.3 .and. hmax .ge. 0.0 ) then
+            if ( ikmrk1==3 .and. hmax >= 0.0 ) then
 
                ! distribution over the water column, no values for bottom segment
 
@@ -187,17 +187,17 @@
 
                ! switch = 1:  constant biomass distribution
 
-               if (swmacdis .eq. 1 ) then
+               if (swmacdis == 1 ) then
                   ffac = 1
                endif
 
                a = (2. - (2. * ffac)) / (totaldepth - zm) / hmax
                b = (ffac * (zm + totaldepth) - 2. * zm) / (totaldepth - zm) / hmax
 
-               if (zm .gt. z2) then
+               if (zm > z2) then
                   ! macrophyte is not in segment:
                   frbmlay = 0
-               elseif (zm .lt. z1 ) then
+               elseif (zm < z1 ) then
                   ! macropyhte is partialy in segment:
                   frbmlay = (a/2)  * (z2*z2 - z1*z1) + b * (z2 - z1)
                else
@@ -221,7 +221,7 @@
                vb      = pmsa(ipoint(nipfix+ivbxx)+(ibotseg-1)*increm(nipfix+ivbxx))
                bmlayvb = frbmlay * vb
                pmsa(ipnt(nipfix+nivar*nvbxx+1+ivbxx)) = bmlayvb
-               if (depth.gt.0.0) then
+               if (depth>0.0) then
                   fl(ivbxx+iflux) =  bmlayvb/depth
                else
                   fl(ivbxx+iflux) =  0.0

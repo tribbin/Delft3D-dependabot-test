@@ -89,7 +89,7 @@
             DayLen = pmsa( ipnt(  6) )  * 24.   ! Conversion from days to hours
 !     test for extinction and depth to prevent diff by zero!!
             effi = 0.0e0
-            if(ext.gt.0.0e0 .and. depthw.gt.0.0e0) then
+            if(ext>0.0e0 .and. depthw>0.0e0) then
                call get_effi( SWEff, temper, radiat, ext   , depthw, daylen, nspe  , effi )
             endif
             do ispe = 1, nspe

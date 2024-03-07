@@ -85,7 +85,7 @@
 
       do
 
-         if ( gettoken( ctoken, ierr2 ) .gt. 0 ) goto 1000
+         if ( gettoken( ctoken, ierr2 ) > 0 ) goto 1000
 
          select case (ctoken)
 
@@ -95,12 +95,12 @@
 
             case default
                isys = index_in_array(ctoken(:20), syname)       ! use this substance
-               if ( isys .gt. 0 ) then
+               if ( isys > 0 ) then
                   sysused(isys) = 1
                   write ( lunut , 2040 ) syname(isys)
                else
                   i_grid = gridpointercollfind( GridPs, ctoken )
-                  if ( i_grid .gt. 0 ) then                       ! use this grid, input is ready
+                  if ( i_grid > 0 ) then                       ! use this grid, input is ready
                      write ( lunut , 2050 ) trim(ctoken)
                      exit
                   else                                            ! unrecognised token
@@ -116,7 +116,7 @@
 !     update the isysg array for all substances used in this block
 
       do isys = 1 , notot
-         if ( sysused(isys) .eq. 1 ) isysg(isys) = i_grid
+         if ( sysused(isys) == 1 ) isysg(isys) = i_grid
       enddo
 
       if (timon) call timstop( ithndl )

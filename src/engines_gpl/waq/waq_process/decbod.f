@@ -139,19 +139,19 @@
 
 !           Check if RC's are non zero
 
-            IF (RCBOD1 .LT. 1E-10) THEN
+            IF (RCBOD1 < 1E-10) THEN
                CALL GETMLU(LUNREP)
                WRITE (LUNREP,*) 'RCBOD: Invalid value (zero)!'
                WRITE (*,*) 'RCBOD: Invalid value (zero)!'
                CALL SRSTOP(1)
             ENDIF
-            IF (RCBOD2 .LT. 1E-10) THEN
+            IF (RCBOD2 < 1E-10) THEN
                CALL GETMLU(LUNREP)
                WRITE (LUNREP,*) 'RCBOD_2: Invalid value (zero)!'
                WRITE (*,*) 'RCBOD_2: Invalid value (zero)!'
                CALL SRSTOP(1)
             ENDIF
-            IF (RCBOD3 .LT. 1E-10) THEN
+            IF (RCBOD3 < 1E-10) THEN
                CALL GETMLU(LUNREP)
                WRITE (LUNREP,*) 'RCBOD_3: Invalid value (zero)!'
                WRITE (*,*) 'RCBOD_3: Invalid value (zero)!'

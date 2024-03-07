@@ -126,19 +126,19 @@
 !     Check sediment switch for first segment
 !
       SEDIME = .FALSE.
-      IF ( PMSA(IP16) .GT. 0.5 ) SEDIME = .TRUE.
+      IF ( PMSA(IP16) > 0.5 ) SEDIME = .TRUE.
 !
       IFLUX = 0
       DO ISEG = 1 , NOSEG
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-      IF ((IKMRK2.EQ.0.OR.IKMRK2.EQ.3).OR..NOT.SEDIME) THEN
+      IF ((IKMRK2==0.OR.IKMRK2==3).OR..NOT.SEDIME) THEN
       IVERSN = NINT( PMSA( IP10 ))
 !
 !     Use old version when IVERSN=0
 !
-      IF (IVERSN .EQ. 0) THEN
+      IF (IVERSN == 0) THEN
 !
          ZERMIN  = PMSA( IP1 )
          ORG     = MAX (0.0, PMSA( IP2 ) )
@@ -152,7 +152,7 @@
 !
 !        Calculate the degradation flux
 !
-         IF (TEMP .LE. CRTEMP) THEN
+         IF (TEMP <= CRTEMP) THEN
 !
 !           Only the zero order term
 !
@@ -198,7 +198,7 @@
 !
 !        Calculate the degradation flux
 !
-         IF (TEMP .LE. CRTEMP) THEN
+         IF (TEMP <= CRTEMP) THEN
 !
 !           Only the zero order term
 !
@@ -219,15 +219,15 @@
 !                        or reducing conditions (ISWOXY = 0)
 !
             KDEG = KDEGO
-            IF (ISWOXY .EQ. 0) KDEG = KDEGR
+            IF (ISWOXY == 0) KDEG = KDEGR
 !
 !           Select the fractions that are degraded,
 !           total (ISWDEG = 0), free dissolved (ISWDEG = 1),
 !           free dissolved plus DOC-bound (ISWDEG = 2)
 !
-            IF (ISWDEG .EQ. 1) THEN
+            IF (ISWDEG == 1) THEN
                FTOTR = FDFREE
-               ELSE IF (ISWDEG .EQ. 2) THEN
+               ELSE IF (ISWDEG == 2) THEN
                FTOTR = FDFREE + FDDOC
                ELSE
                FTOTR = 1.0

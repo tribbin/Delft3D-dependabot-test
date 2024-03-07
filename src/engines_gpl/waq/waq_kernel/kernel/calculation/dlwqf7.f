@@ -108,22 +108,22 @@
 
 !             only compute where needed
 
-         if ( ifrom .gt. 0 .and. ito .gt. 0 .and. iqdmp(iq) .eq. 0 ) cycle
-         if ( ifrom .eq. 0 .or.  ito .eq. 0 ) cycle
+         if ( ifrom > 0 .and. ito > 0 .and. iqdmp(iq) == 0 ) cycle
+         if ( ifrom == 0 .or.  ito == 0 ) cycle
 
-         if ( ifrom .gt. 0 ) then
+         if ( ifrom > 0 ) then
             cin = concvt(        ifrom )
          else
             cin = bound ( isys, -ifrom )
          endif
 
-         if ( ito   .gt. 0 ) then
+         if ( ito   > 0 ) then
             cjn = concvt(        ito   )
          else
             cjn = bound ( isys, -ito   )
          endif
 
-         if ( flowtot(iq) .gt. 0 ) then                      ! flow from i to j
+         if ( flowtot(iq) > 0 ) then                      ! flow from i to j
             fluxij =  real(idt) * ( (flowtot(iq)+disptot(iq))*cin - disptot(iq)*cjn )
          else                                                ! flow from j to i
             fluxij =  real(idt) * ( (flowtot(iq)-disptot(iq))*cjn + disptot(iq)*cin )
@@ -131,15 +131,15 @@
 
 !             mass balance of the whole area
 
-         if ( ifrom .lt. 0 ) then
-            if ( fluxij .gt. 0 ) then
+         if ( ifrom < 0 ) then
+            if ( fluxij > 0 ) then
                amass2(isys,4) = amass2(isys,4) + fluxij
             else                                             ! amass2(*,1) masses of the substances in the model
                amass2(isys,5) = amass2(isys,5) - fluxij      ! amass2(*,2) change by processes
             endif                                            ! amass2(*,3) change by discharges
          endif                                               ! amass2(*,4) incoming boundary transport
-         if ( ito   .lt. 0 ) then                            ! amass2(*,5) outgoing boundary transport
-            if ( fluxij .gt. 0 ) then
+         if ( ito   < 0 ) then                            ! amass2(*,5) outgoing boundary transport
+            if ( fluxij > 0 ) then
                amass2(isys,5) = amass2(isys,5) + fluxij
             else
                amass2(isys,4) = amass2(isys,4) - fluxij
@@ -148,8 +148,8 @@
 
 !             mass balance of selected monitoring areas
 
-         if ( iqdmp(iq) .gt. 0 ) then                        ! dmpq(*,*,1) incoming transport in a monitoring area
-            if ( fluxij .gt. 0 ) then                        ! dmpq(*,*,2) outgoing transport from a monitoring area
+         if ( iqdmp(iq) > 0 ) then                        ! dmpq(*,*,1) incoming transport in a monitoring area
+            if ( fluxij > 0 ) then                        ! dmpq(*,*,2) outgoing transport from a monitoring area
                dmpq( isys, iqdmp(iq), 1 ) = dmpq( isys, iqdmp(iq), 1 ) + fluxij
             else
                dmpq( isys, iqdmp(iq), 2 ) = dmpq( isys, iqdmp(iq), 2 ) - fluxij

@@ -155,7 +155,7 @@ contains
          dishco3    =  dishco3/poros
 
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
-         if (ikmrk1.eq.1) then
+         if (ikmrk1==1) then
 
             ! active water segment
 
@@ -170,22 +170,22 @@ contains
             ! S12 sediment concentration
 
             call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-            if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
-              if (nh4s12.gt.0.0) pmsa(botidx(43)) = nh4s12
-              if (po4s12.gt.0.0) pmsa(botidx(44)) = po4s12
+            if ((ikmrk2==0).or.(ikmrk2==3)) then
+              if (nh4s12>0.0) pmsa(botidx(43)) = nh4s12
+              if (po4s12>0.0) pmsa(botidx(44)) = po4s12
             endif
 
-         elseif (ikmrk1.eq.3) then
+         elseif (ikmrk1==3) then
 
             ! sediment bed segment, distribution of roots in bed
 
             hroot = min(rootdesm01,totaldepth)
             z1 = locseddept - depth
 
-            if (hroot .gt. locseddept) then
+            if (hroot > locseddept) then
                ! completely in segment:
                fr_avg = min(1.0,depth/hroot)
-            elseif (hroot .gt. z1 ) then
+            elseif (hroot > z1 ) then
                ! partialy in segment:
                fr_avg = (hroot-z1)/hroot
             else
@@ -209,9 +209,9 @@ contains
       do iseg = 1 , noseg
 
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
-         if (ikmrk1.eq.1) then
+         if (ikmrk1==1) then
             call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-            if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+            if ((ikmrk2==0).or.(ikmrk2==3)) then
 
                kmdinsm01w = pmsa( ipnt( 18) )
                kmpsm01w   = pmsa( ipnt( 19) )
@@ -228,12 +228,12 @@ contains
 
                ! n limitation
 
-               if ( kmdinsm01b .lt. 1e-20 ) then
+               if ( kmdinsm01b < 1e-20 ) then
                   ! only in water
                   limnsm01w  = cdinsm01w/(cdinsm01w+kmdinsm01w)
                   limnsm01b  = -1.
                else
-                  if ( kmdinsm01w .lt. 1e-20 ) then
+                  if ( kmdinsm01w < 1e-20 ) then
                      ! only in bottom
                      limnsm01b  = cdinsm01b/(cdinsm01b+kmdinsm01b)
                      limnsm01w  = -1.
@@ -244,8 +244,8 @@ contains
                   endif
                endif
                limn = max(limnsm01w,limnsm01b)
-               if ( cdinsm01w .gt. 1e-10 ) then
-                  if ( cdinsm01b .gt. 1e-10 ) then
+               if ( cdinsm01w > 1e-10 ) then
+                  if ( cdinsm01b > 1e-10 ) then
                      frootuptn = .998/(1.+2.66*(cdinsm01b/cdinsm01w)**(-0.83))
                   else
                      frootuptn = 0.0
@@ -256,12 +256,12 @@ contains
 
                ! p limitation
 
-               if ( kmpsm01b .lt. 1e-20 ) then
+               if ( kmpsm01b < 1e-20 ) then
                   ! only in water
                   limpsm01w  = cpo4sm01w/(cpo4sm01w+kmpsm01w)
                   limpsm01b  = -1.
                else
-                  if ( kmpsm01w .lt. 1e-20 ) then
+                  if ( kmpsm01w < 1e-20 ) then
                      ! only in bottom
                      limpsm01b  = cpo4sm01b/(cpo4sm01b+kmpsm01b)
                      limpsm01w  = -1.
@@ -272,8 +272,8 @@ contains
                   endif
                endif
                limp = max(limpsm01w,limpsm01b)
-               if ( cpo4sm01w .gt. 1e-10 ) then
-                  if ( cpo4sm01b .gt. 1e-10 ) then
+               if ( cpo4sm01w > 1e-10 ) then
+                  if ( cpo4sm01b > 1e-10 ) then
                      frootuptp = .998/(1.+2.66*(cpo4sm01b/cpo4sm01w)**(-0.83))
                   else
                      frootuptp = 0.0
@@ -284,8 +284,8 @@ contains
 
                ! c limitation
 
-               if ( kmco2sm01 .lt. 1e-20 ) then
-                  if ( kmhco3sm01 .lt. 1e-20 ) then
+               if ( kmco2sm01 < 1e-20 ) then
+                  if ( kmhco3sm01 < 1e-20 ) then
                      ! no c limitation calculation
                      lco2sm01 = 1.0
                   else
@@ -293,7 +293,7 @@ contains
                      lco2sm01 = chco3sm01/(chco3sm01+kmhco3sm01)
                   endif
                else
-                  if ( kmhco3sm01 .lt. 1e-20 ) then
+                  if ( kmhco3sm01 < 1e-20 ) then
                      ! only co2 limitation calculatation
                      lco2sm01 = cco2sm01/(cco2sm01+kmco2sm01)
                   else

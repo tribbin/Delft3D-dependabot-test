@@ -93,10 +93,10 @@
          IVAN  = IEXPNT(1,IQ)
          INAAR = IEXPNT(2,IQ)
 
-         IF (IVAN.GT.0.OR.INAAR.GT.0) THEN
+         IF (IVAN>0.OR.INAAR>0) THEN
 
-            IF (IVAN .LE. 0 ) IVAN = INAAR
-            IF (INAAR .LE. 0 ) INAAR = IVAN
+            IF (IVAN <= 0 ) IVAN = INAAR
+            IF (INAAR <= 0 ) INAAR = IVAN
 
             VELOCV = PMSA(IP1 + (IVAN - 1) * IN1)
             WIDTHV = PMSA(IP2 + (IVAN - 1) * IN2)

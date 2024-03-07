@@ -67,7 +67,7 @@ contains
       end if
       allocate (syname(notot + nomult), stat=ierr_alloc)
       allocate (imultp(2, nomult), stat=ierr_alloc)
-      if (ierr_alloc .ne. 0) then
+      if (ierr_alloc /= 0) then
          write (lunrep, '(A,I6)') " ERROR: allocating memory for system names:", ierr_alloc
          call status%increase_error_count()
          return

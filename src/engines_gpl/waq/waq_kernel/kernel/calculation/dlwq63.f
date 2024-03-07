@@ -73,7 +73,7 @@
 !         gets concentrations
 !
       ISET = 1
-      IF ( MOD(INTOPT,16) .LT. 8  ) THEN
+      IF ( MOD(INTOPT,16) < 8  ) THEN
          DO ISEG = 1 , NOSEG
          DO 10 I = ISYS , ISYS+NSYS-1
             AMASS2(I,   2) = AMASS2( I, 2 ) + CONC (I,ISEG)*DERIV(ISET)
@@ -87,7 +87,7 @@
             I4 = (IP-1)*NOTOT
             DO 20 I = ISYS , ISYS+NSYS-1
                AMASS2(I,   2) = AMASS2(I, 2) + CONC(I,ISEG)*DERIV(ISET)
-               IF ( IP .GT. 0 ) THEN
+               IF ( IP > 0 ) THEN
                   DMPS(I4+I) = DMPS(I4+I) + CONC(I,ISEG)*DERIV(ISET)
                ENDIF
                CONC  (I,ISEG) = DERIV (ISET)

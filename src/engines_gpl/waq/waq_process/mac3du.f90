@@ -144,7 +144,7 @@ contains
          ! adjust for porosity
 
          din        = (nh4 + no3/prfnh4sm01)/poros
-         if ( nh4 + no3/prfnh4sm01 .gt. 1e-20 ) then
+         if ( nh4 + no3/prfnh4sm01 > 1e-20 ) then
             fr_nh4     = nh4/(nh4 + no3/prfnh4sm01)
             fr_no3     = no3/prfnh4sm01/(nh4 + no3/prfnh4sm01)
          else
@@ -187,7 +187,7 @@ contains
          doxyprsm01 = 0.0
 
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
-         if (ikmrk1.eq.1) then
+         if (ikmrk1==1) then
 
             ! active water segment
 
@@ -195,11 +195,11 @@ contains
 
             ! nutrient uptake according to conc gradient, preference, depth and fraction root uptake
 
-            if ( cdinsm01w .gt. 1e-20 ) then
+            if ( cdinsm01w > 1e-20 ) then
                dnh4upsm01 = (din/cdinsm01w) * fr_nh4 * fr_avg * (1.-frootnsm01) * dnupsm01
                dno3upsm01 = (din/cdinsm01w) * fr_no3 * fr_avg * (1.-frootnsm01) * dnupsm01
             endif
-            if ( cpo4sm01w .gt. 1e-20 ) then
+            if ( cpo4sm01w > 1e-20 ) then
                dpo4upsm01 = (po4/cpo4sm01w) * fr_avg * (1.-frootpsm01) * dpupsm01
             endif
 
@@ -208,7 +208,7 @@ contains
             ! co2 uptake base on total disco2 and dishco3 profile, assuming the speciation in the column is not important
             ! the flux is on tic anyhow
 
-            if ( cco2sm01+chco3sm01 .gt. 1.e-20 ) then
+            if ( cco2sm01+chco3sm01 > 1.e-20 ) then
                dco2upsm01 = ((disco2+dishco3)/(cco2sm01+chco3sm01)) * fr_avg * dsm01co2
             endif
 
@@ -219,22 +219,22 @@ contains
             ! S12 sediment uptake
 
             call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-            if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
-              if (nh4s12.gt.0.0) dnh4upsm01 = dnh4upsm01 + frootnsm01 * dnupsm01
-              if (po4s12.gt.0.0) dpo4upsm01 = dpo4upsm01 + frootpsm01 * dpupsm01
+            if ((ikmrk2==0).or.(ikmrk2==3)) then
+              if (nh4s12>0.0) dnh4upsm01 = dnh4upsm01 + frootnsm01 * dnupsm01
+              if (po4s12>0.0) dpo4upsm01 = dpo4upsm01 + frootpsm01 * dpupsm01
             endif
 
-         elseif (ikmrk1.eq.3) then
+         elseif (ikmrk1==3) then
 
             ! sediment bed segment, distribution of roots in bed
 
             hroot = min(rootdesm01,totaldepth)
             z1 = locseddept - depth
 
-            if (hroot .gt. locseddept) then
+            if (hroot > locseddept) then
                ! completely in segment:
                fr_avg = min(1.0,depth/hroot)
-            elseif (hroot .gt. z1 ) then
+            elseif (hroot > z1 ) then
                ! partialy in segment:
                fr_avg = (hroot-z1)/hroot
             else
@@ -244,11 +244,11 @@ contains
 
             ! in bottom only nutrients
 
-            if ( cdinsm01b .gt. 1e-20 ) then
+            if ( cdinsm01b > 1e-20 ) then
                dnh4upsm01 = (din/cdinsm01b) * fr_nh4 * fr_avg * frootnsm01 * dnupsm01
                dno3upsm01 = (din/cdinsm01b) * fr_no3 * fr_avg * frootnsm01 * dnupsm01
             endif
-            if ( cpo4sm01b .gt. 1e-20 ) then
+            if ( cpo4sm01b > 1e-20 ) then
                dpo4upsm01 = (po4/cpo4sm01b) * fr_avg * frootpsm01 * dpupsm01
             endif
 

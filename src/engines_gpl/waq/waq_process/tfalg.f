@@ -75,7 +75,7 @@
       IP4  = IPOINT( 4)
       IP5  = IPOINT( 5)
 !
-      IF ( IN1 .EQ. 0 .AND. IN2 .EQ. 0 .AND. IN3 .EQ. 0 ) THEN
+      IF ( IN1 == 0 .AND. IN2 == 0 .AND. IN3 == 0 ) THEN
          TEMP   = PMSA(IP1 )
          TCG    = PMSA(IP2 )
          TCM    = PMSA(IP3 )

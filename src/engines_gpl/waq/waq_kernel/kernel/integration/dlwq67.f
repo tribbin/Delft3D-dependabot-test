@@ -62,7 +62,7 @@
       ISTEP = JTRACK*2 + 1
       ISET  = JTRACK + 1
       DO ISEG = 1 , NOSEG
-      IF ( ABS(AMAT(ISET)) .LT. 1.0E-35 ) AMAT(ISET) = 1.0
+      IF ( ABS(AMAT(ISET)) < 1.0E-35 ) AMAT(ISET) = 1.0
       ISET = ISET+ISTEP
       end do
 !

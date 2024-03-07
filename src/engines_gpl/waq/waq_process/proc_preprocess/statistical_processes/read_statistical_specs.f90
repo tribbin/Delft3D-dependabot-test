@@ -155,7 +155,7 @@ contains
          ENDIF
 
          IKEY = index_in_array(KNAM,KEYS)
-         IF ( IKEY .LE. 0 ) THEN
+         IF ( IKEY <= 0 ) THEN
             WRITE(LUNREP,*) 'ERROR : unexpected keyword found'
             WRITE(LUNREP,*) 'found    :',KNAM
             WRITE(LUNREP,*) 'expected : OUTPUT-OPERATION'
@@ -184,7 +184,7 @@ contains
          ! period
 
             NPERIOD = NPERIOD + 1
-            IF ( NPERIOD .GT. MPERIOD ) THEN
+            IF ( NPERIOD > MPERIOD ) THEN
                MPERIOD = 2*MPERIOD
                CALL resize_character_array(PERNAM, MPERIOD, NPERIOD-1)
                CALL resize_character_array(PERSFX, MPERIOD, NPERIOD-1)
@@ -219,7 +219,7 @@ contains
             KEYPER(3) = 'STOP-TIME'
             KEYPER(4) = 'END-PERIOD'
             IKEY2 = index_in_array(KNAM,KEYPER)
-            IF ( IKEY2 .LE. 0 ) THEN
+            IF ( IKEY2 <= 0 ) THEN
                WRITE(LUNREP,*) 'ERROR : unexpected keyword found'
                WRITE(LUNREP,*) 'found    :',KNAM
                call status%increase_error_count()
@@ -292,7 +292,7 @@ contains
          ! statistical operation
 
             NOSTAT = NOSTAT + 1
-            IF ( NOSTAT .GT. MAXSTAT ) THEN
+            IF ( NOSTAT > MAXSTAT ) THEN
                MAXSTAT = 2*MAXSTAT
                CALL resize_integer_array(NOKEY,MAXSTAT,NOSTAT-1)
             ENDIF
@@ -303,7 +303,7 @@ contains
             ! check if it a parameter with extra key word real-parameter, time-parameter, logical-parameter, ?integer-parameter
 
             IPAR = index_in_array(KNAM,KEYPAR)
-            IF ( IPAR .GT. 0 ) THEN
+            IF ( IPAR > 0 ) THEN
 
             ! get real KNAM
 
@@ -324,7 +324,7 @@ contains
 
             NOKEY(NOSTAT)= NOKEY(NOSTAT) + 1
             NKEY         = NKEY + 1
-            IF ( NKEY .GT. MAXKEY ) THEN
+            IF ( NKEY > MAXKEY ) THEN
                MAXKEY = 2*MAXKEY
                CALL resize_character_array(KEYNAM,MAXKEY,NKEY-1)
                CALL resize_character_array(KEYVAL,MAXKEY,NKEY-1)

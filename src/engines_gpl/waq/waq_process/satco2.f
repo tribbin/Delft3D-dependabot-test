@@ -98,7 +98,7 @@
       PAPCO2 = PMSA(IP5)
 
 
-      IF ( SWITCH .EQ. 1 ) THEN
+      IF ( SWITCH == 1 ) THEN
 
 ! === REAERATION CO2 ==================================================
 !
@@ -120,7 +120,7 @@
          RKCO2  = 10.0**(-( - 0.238573E+04/TEMPA + 0.140184E+02 -
      J         0.152642E-01*TEMPA + RION*(0.28569 - 0.6167E-05*TEMPA)))
 
-      ELSEIF ( SWITCH .EQ. 2 ) THEN
+      ELSEIF ( SWITCH == 2 ) THEN
 !
 !        Weiss volgen Monteiro (CISR)
 !

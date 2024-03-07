@@ -78,7 +78,7 @@
 
       ! dimension according to order
 
-      if ( data_block%iorder .eq. ORDER_PARAM_LOC ) then
+      if ( data_block%iorder == ORDER_PARAM_LOC ) then
          ndim1 = data_block%no_param
          ndim2 = data_block%no_loc
       else
@@ -89,7 +89,7 @@
       ! read dependent on type of function
 
       ftype = data_block%functype
-      if ( ftype .eq. FUNCTYPE_CONSTANT ) then
+      if ( ftype == FUNCTYPE_CONSTANT ) then
 
          ! read only one "time"
 
@@ -100,7 +100,7 @@
          data_block%times(1)= 0
          do i2 = 1 , ndim2
             do i1 = 1 , ndim1
-               if ( gettoken(rtoken,ierr) .ne. 0 ) goto 9999
+               if ( gettoken(rtoken,ierr) /= 0 ) goto 9999
                data_block%values(i1,i2,nobrk) = rtoken
             enddo
          enddo
@@ -111,7 +111,7 @@
 
          mxbrk = 10
          allocate(data_block%times(mxbrk),data_block%values(ndim1,ndim2,mxbrk))
-         if ( ftype .eq. FUNCTYPE_HARMONIC .or. ftype .eq. FUNCTYPE_FOURIER ) then
+         if ( ftype == FUNCTYPE_HARMONIC .or. ftype == FUNCTYPE_FOURIER ) then
             allocate(data_block%phase(mxbrk))
          endif
 
@@ -121,7 +121,7 @@
 
             ! get next time
 
-            if ( gettoken(ctoken, itoken, rtoken, t_token, ierr) .ne. 0 ) then
+            if ( gettoken(ctoken, itoken, rtoken, t_token, ierr) /= 0 ) then
                ierr = 0
                push = .true.
                exit breakpoints
@@ -129,9 +129,9 @@
 
             ! check if character is a time string and convert
 
-            if ( t_token .eq. TYPE_CHAR ) then
+            if ( t_token == TYPE_CHAR ) then
                call convert_string_to_time_offset ( ctoken , itoken , .false., .false., ierr )
-               if ( ierr .ne. 0 ) then
+               if ( ierr /= 0 ) then
                   ierr = 0
                   push = .true.
                   exit breakpoints
@@ -141,7 +141,7 @@
             endif
 
             nobrk = nobrk + 1
-            if ( nobrk .gt. mxbrk ) then ! resize
+            if ( nobrk > mxbrk ) then ! resize
                mxbrk = mxbrk*2
                allocate(times2(mxbrk),values2(ndim1,ndim2,mxbrk))
                do ibrk = 1, nobrk-1
@@ -159,7 +159,7 @@
                data_block%values => values2
                nullify(times2)
                nullify(values2)
-               if ( ftype .eq. FUNCTYPE_HARMONIC .or. ftype .eq. FUNCTYPE_FOURIER ) then
+               if ( ftype == FUNCTYPE_HARMONIC .or. ftype == FUNCTYPE_FOURIER ) then
                   allocate(phase2(mxbrk))
                   do ibrk = 1, nobrk-1
                      phase2(ibrk) = data_block%phase(ibrk)
@@ -173,8 +173,8 @@
 
             ! for harmonics and fourier get phase
 
-            if ( ftype .eq. FUNCTYPE_HARMONIC .or. ftype .eq. FUNCTYPE_FOURIER ) then
-               if ( gettoken(rtoken, ierr) .ne. 0 ) exit
+            if ( ftype == FUNCTYPE_HARMONIC .or. ftype == FUNCTYPE_FOURIER ) then
+               if ( gettoken(rtoken, ierr) /= 0 ) exit
                data_block%phase(nobrk) = rtoken
             endif
 
@@ -182,7 +182,7 @@
 
             do i2 = 1 , ndim2
                do i1 = 1 , ndim1
-                  if ( gettoken(rtoken, ierr) .ne. 0 ) goto 9999
+                  if ( gettoken(rtoken, ierr) /= 0 ) goto 9999
                   data_block%values(i1,i2,nobrk) = rtoken
                enddo
             enddo
@@ -191,7 +191,7 @@
 
 !        input ready, resize back the arrays
 
-         if ( nobrk .ne. mxbrk ) then
+         if ( nobrk /= mxbrk ) then
             allocate(times2(nobrk),values2(ndim1,ndim2,nobrk))
             do ibrk = 1, nobrk
                times2(ibrk) = data_block%times(ibrk)
@@ -208,7 +208,7 @@
             data_block%values => values2
             nullify(times2)
             nullify(values2)
-            if ( ftype .eq. FUNCTYPE_HARMONIC .or. ftype .eq. FUNCTYPE_FOURIER ) then
+            if ( ftype == FUNCTYPE_HARMONIC .or. ftype == FUNCTYPE_FOURIER ) then
                allocate(phase2(mxbrk))
                do ibrk = 1, nobrk
                   phase2(ibrk) = data_block%phase(ibrk)

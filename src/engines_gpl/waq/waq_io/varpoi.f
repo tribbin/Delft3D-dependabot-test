@@ -77,17 +77,17 @@
 !     determine how VAL is modelled
 
       indx = index_in_array( varnam , predef)
-      if ( indx .eq. 1 ) then
+      if ( indx == 1 ) then
          write(lurep,*) '       ',varnam,'; Using DELWAQ VOLUME'
          ivarip = 1
          goto 800
       endif
-      if ( indx .eq. 2 ) then
+      if ( indx == 2 ) then
          write(lurep,*) '       ',varnam,'; Using DELWAQ ITIME'
          ivarip = 2
          goto 800
       endif
-      if ( indx .eq. 3 ) then
+      if ( indx == 3 ) then
          write(lurep,*) '       ',varnam,'; Using DELWAQ IDT'
          ivarip = 3
          goto 800
@@ -96,7 +96,7 @@
 !     as model variable ?
 
       indx = index_in_array( varnam, syname)
-      if ( indx .gt. 0 ) then
+      if ( indx > 0 ) then
          write(lurep,*) '       ',varnam,'; Using substance nr',indx
          ivarip = nopred + nocons + nopa + nofun + nosfun + indx
          goto 800
@@ -105,7 +105,7 @@
 !     as segment function ?
 
       indx = index_in_array( varnam, sfname)
-      if ( indx .gt. 0 ) then
+      if ( indx > 0 ) then
          write(lurep,*) '       ',varnam,'; Using segment function nr',indx
          ivarip = nopred + nocons + nopa + nofun + indx
          goto 800
@@ -114,7 +114,7 @@
 !     as function ?
 
       indx = index_in_array( varnam, funame)
-      if ( indx .gt. 0 ) then
+      if ( indx > 0 ) then
          write(lurep,*) '       ',varnam,'; Using function nr',indx
          ivarip = nopred + nocons + nopa + indx
          goto 800
@@ -123,7 +123,7 @@
 !     as parameter ?
 
       indx = index_in_array( varnam, paname)
-      if ( indx .gt. 0 ) then
+      if ( indx > 0 ) then
          write(lurep,*) '       ',varnam,'; Using parameter nr',indx
          ivarip = nopred + nocons + indx
          goto 800
@@ -132,7 +132,7 @@
 !     as constant ?
 
       indx = index_in_array( varnam, coname)
-      if ( indx .gt. 0 ) then
+      if ( indx > 0 ) then
          write(lurep,*) '       ',varnam,'; Using constant nr',indx
          ivarip = nopred + indx
          goto 800

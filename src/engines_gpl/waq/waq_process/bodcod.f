@@ -213,7 +213,7 @@
       IP46 = IPOINT(46)
 !
 
-      IF (IN14.EQ.0 .AND. IN15.EQ.0 .AND. IN16.EQ.0 .AND.IN17.EQ.0) THEN
+      IF (IN14==0 .AND. IN15==0 .AND. IN16==0 .AND.IN17==0) THEN
         TCBOD = PMSA(IP14)
         TCCOD = PMSA(IP15)
         TCBODN= PMSA(IP16)
@@ -231,7 +231,7 @@
 
       AGEFL  = PMSA(IP23)
       AGEFU  = PMSA(IP24)
-      IF (IN23.EQ.0 .AND.IN24.EQ.0 .AND.ABS(AGEFL-AGEFU).LT.1.0E-6) THEN
+      IF (IN23==0 .AND.IN24==0 .AND.ABS(AGEFL-AGEFU)<1.0E-6) THEN
         AGEFUN = AGEFL
 
         AFACT  = .FALSE.
@@ -289,13 +289,13 @@
       AMCCF  = PMSA(IP36)
 
 !     CHECK IF RC'S ARE NON ZERO
-      IF (RCBOD .LT. 1E-10) THEN
+      IF (RCBOD < 1E-10) THEN
         CALL GETMLU( LUNREP )
         WRITE (LUNREP,*) 'RCBOD: Invalid value (zero)!'
         WRITE (*,*) 'RCBOD: Invalid value (zero)!'
         CALL SRSTOP(1)
       ENDIF
-      IF (RCBOD2 .LT. 1E-10) THEN
+      IF (RCBOD2 < 1E-10) THEN
         CALL GETMLU( LUNREP )
         WRITE (LUNREP,*) 'RCBOD-2: Invalid value (zero)!'
         CALL SRSTOP(1)
@@ -331,7 +331,7 @@
 
         AGEFL  = PMSA(IP23)
 
-        IF ((COD.LT.1.0E-06).OR.(BOD5.LT.1.0E-6)) THEN
+        IF ((COD<1.0E-06).OR.(BOD5<1.0E-6)) THEN
           AGEFUN = AGEFL
         ELSE
 
@@ -341,7 +341,7 @@
 
           AGEIND = COD / BOD5
 
-          IF (AGEIND.LE.AGEIL) THEN
+          IF (AGEIND<=AGEIL) THEN
             AGEFUN = AGEFU
 
           ELSE
@@ -354,9 +354,9 @@
 
 !     OXYGEN FUNCTION
 
-      IF (OXY.GE.OOXBOD) THEN
+      IF (OXY>=OOXBOD) THEN
         O2FBOD = 1.
-      ELSEIF (OXY.LE.COXBOD) THEN
+      ELSEIF (OXY<=COXBOD) THEN
         O2FBOD = CFLBOD
       ELSE
         O2FBOD = CFLBOD + (1. - CFLBOD) *
@@ -375,13 +375,13 @@
 
 !     OXYGEN DEMAND
 
-      IF (ISW.EQ.0) THEN
+      IF (ISW==0) THEN
 !       BOD
         OXYDEM = DBOD5 + DBOD52 + DBODU + DBODU2 + DNBOD5 + DNBODU
-      ELSEIF (ISW.EQ.1) THEN
+      ELSEIF (ISW==1) THEN
 !       COD
         OXYDEM = DCODCR + DCODMN
-      ELSEIF (ISW.EQ.2) THEN
+      ELSEIF (ISW==2) THEN
 !       BOD + COD
         OXYDEM = DBOD5 + DBOD52 + DBODU + DBODU2 + DNBOD5 + DNBODU +
      1           DCODCR + DCODMN

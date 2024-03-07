@@ -134,7 +134,7 @@
                isys   = proc%fluxstochi(istochi)%subindx
                scale  = proc%fluxstochi(istochi)%scale
 
-               if ( isys.gt.0 .and. abs(scale).gt.1e-10) then
+               if ( isys>0 .and. abs(scale)>1e-10) then
                   call zoekio ( flxnam, proc%no_fluxoutput, proc%fluxoutput, 20, iflux)
                   iflx = nflx + iflux
                   stoch2(isys,iflx) = scale
@@ -160,10 +160,10 @@
       nrvaro = 0
       do ioutp = 1 , noutp
          isrtou = ioutps(5,ioutp)
-         if ( isrtou .eq. iba2 ) then
+         if ( isrtou == iba2 ) then
             nobalt = 0
             do isys = 1,notot
-               if ( nrvarn + nobalt + 4 .gt. nrvarm ) then
+               if ( nrvarn + nobalt + 4 > nrvarm ) then
                   outputl%cursize=(nrvarn+nobalt+4)*2
                   call resize_integer_array(outputl%pointers ,outputl%cursize,nrvarm)
                   call resize_character_array(outputl%names   ,outputl%cursize,nrvarm)
@@ -189,9 +189,9 @@
                      niflx = proc%no_fluxoutput
                      do iflx = 1, niflx
                         scale = stoch2(isys,nflx+iflx)
-                        if ( abs(scale) .gt. 1.e-10 ) then
+                        if ( abs(scale) > 1.e-10 ) then
                            nobalt = nobalt + 1
-                           if ( nrvarn + nobalt .gt. nrvarm ) then
+                           if ( nrvarn + nobalt > nrvarm ) then
                               outputl%cursize=(nrvarn+nobalt)*2
                               call resize_integer_array(outputl%pointers ,outputl%cursize,nrvarm)
                               call resize_character_array(outputl%names   ,outputl%cursize,nrvarm)
@@ -215,9 +215,9 @@
             nbufou = nocel*nobalt
             nbufmx = max ( nbufmx, nbufou )
 
-         elseif ( isrtou .eq. iba3 ) then
+         elseif ( isrtou == iba3 ) then
 
-            if ( nrvarn + noflx .gt. nrvarm ) then
+            if ( nrvarn + noflx > nrvarm ) then
                outputl%cursize = (nrvarn+noflx)*2
                call resize_integer_array(outputl%pointers ,outputl%cursize,nrvarm)
                call resize_character_array(outputl%names   ,outputl%cursize,nrvarm)
@@ -244,7 +244,7 @@
 
          else
             nrvar = ioutps(4,ioutp)
-            if ( nrvarn + nrvar .gt. nrvarm ) then
+            if ( nrvarn + nrvar > nrvarm ) then
                outputl%cursize = (nrvarn+nrvar)*2
                call resize_integer_array(outputl%pointers ,outputl%cursize,nrvarm)
                call resize_character_array(outputl%names   ,outputl%cursize,nrvarm)

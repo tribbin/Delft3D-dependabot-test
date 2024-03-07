@@ -96,7 +96,7 @@
 
       CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
 
-      IF (IKMRK1.EQ.1.OR.IKMRK1.EQ.3) THEN
+      IF (IKMRK1==1.OR.IKMRK1==3) THEN
 
          CPHD    = MAX(PMSA(IP1),0.0)
          CPHPR   = MAX(PMSA(IP2),0.0)
@@ -120,9 +120,9 @@
          FPRC = FRR * KPRC * TMPPRC * ( CPHD / POROS - CPHDE ) * POROS
          FSOL = KSOL * TMPSOL * CPHPR * ( CPHDE - CPHD / POROS )
 !
-         IF ( FPRC .LT. 0.0) FPRC = 0.0
-         IF ( FSOL .LT. 0.0) FSOL = 0.0
-         IF ( FSOL*DELT .GE. CPHPR) FSOL = 0.5 * CPHPR / DELT
+         IF ( FPRC < 0.0) FPRC = 0.0
+         IF ( FSOL < 0.0) FSOL = 0.0
+         IF ( FSOL*DELT >= CPHPR) FSOL = 0.5 * CPHPR / DELT
 !
 !     Output of module
 !

@@ -81,7 +81,7 @@
 !
 !     Initialize file
 !
-      IF ( INIT .EQ. 1 ) THEN
+      IF ( INIT == 1 ) THEN
          INIT = 0
          WRITE (IOHIS) (MONAME(I),I=1,4)
          WRITE (IOHIS)  NOTOT1+NOTOT2,NODUMP

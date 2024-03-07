@@ -149,11 +149,11 @@
          ENDIF
       ENDIF
 
-      IF ( TIME .GE. TSTOP-0.5*DELT .AND. TIME .LE. TSTOP+0.5*DELT ) THEN
+      IF ( TIME >= TSTOP-0.5*DELT .AND. TIME <= TSTOP+0.5*DELT ) THEN
          IACTION = 3
       ENDIF
 
-      IF ( IACTION .EQ. 0 ) RETURN
+      IF ( IACTION == 0 ) RETURN
 
       IP6 = IPOINT(6)
       IP7 = IPOINT(7)
@@ -171,7 +171,7 @@
             TCOUNT    = PMSA(IP6) + 1.0
             PMSA(IP6) = TCOUNT
 !
-            IF ( TCOUNT .EQ. 1.0 ) THEN
+            IF ( TCOUNT == 1.0 ) THEN
                PMSA(IP7)  = PMSA(IP1)
                PMSA(IP8)  = PMSA(IP1)
             ELSE
@@ -185,9 +185,9 @@
 !
 !        Always do the final processing whether the segment is active at this moment or not
 !
-         IF ( IACTION .EQ. 3 ) THEN
+         IF ( IACTION == 3 ) THEN
             TCOUNT    = PMSA(IP6)
-            IF ( TCOUNT .GT. 0.0 ) THEN
+            IF ( TCOUNT > 0.0 ) THEN
                 PMSA(IP9)  = PMSA(IP9) / TCOUNT
             ELSE
                PMSA(IP9)  = 0.0
@@ -195,7 +195,7 @@
 
                IF ( NOWARN < MAXWARN ) THEN
                   CALL evaluate_waq_attribute(IKNMRK(ISEG), 3, ATTRIB )
-                  IF ( ATTRIB .NE. 0 ) THEN
+                  IF ( ATTRIB /= 0 ) THEN
                      NOWARN = NOWARN + 1
                      WRITE(*,'(a,i0)') 'Average could not be determined for segment ', ISEG
                      WRITE(*,'(a)')    '    - segment not active in the given period. Average and standard deviation set to zero'
@@ -206,7 +206,7 @@
                   ENDIF
                ENDIF
             ENDIF
-            IF ( TCOUNT .GT. 1.0 ) THEN
+            IF ( TCOUNT > 1.0 ) THEN
 !
 !              If we do not have the standard deviation or the mean,
 !              then the calculation may fail (horribly). We detect
@@ -215,7 +215,7 @@
 !              Be tolerant to possible negative values, there may be
 !              some roundoff errors!
 !
-               IF ( IN9 .NE. 0 .AND. IN10 .NE. 0 ) THEN
+               IF ( IN9 /= 0 .AND. IN10 /= 0 ) THEN
                   CDIFF = (PMSA(IP10) - TCOUNT*PMSA(IP9)**2)
                   PMSA(IP10) = SQRT( MAX(CDIFF,0.0) / (TCOUNT-1.0) )
                ENDIF
@@ -224,7 +224,7 @@
 
                IF ( NOWARN < MAXWARN ) THEN
                   CALL evaluate_waq_attribute(IKNMRK(ISEG), 3, ATTRIB )
-                  IF ( ATTRIB .NE. 0 ) THEN
+                  IF ( ATTRIB /= 0 ) THEN
                      NOWARN = NOWARN + 1
                      WRITE(*,'(a,i0)') 'Standard deviation could not be determined for segment ', ISEG
                      WRITE(*,'(a)')    '    - not enough values. Standard deviation set to zero'

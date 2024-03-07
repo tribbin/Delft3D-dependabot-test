@@ -83,7 +83,7 @@ contains
       ! Specific output dir?
       call retrieve_command_argument ( '-output', 3, specout, idummy, rdummy, outputpath, ierr2)
       if (specout) then
-         if (ierr2.eq.0) then
+         if (ierr2==0) then
             write (*,'(A)') 'Found -output switch with the following path:'
             write (*,'(/A)') trim(outputpath)
             write (*,'(/A/)') 'Make sure this path exists, or DELWAQ will not run!'
@@ -106,7 +106,7 @@ contains
 
       !  Pad the model name in the file names
       do ilun = 1 , nolun
-         if ( specout .and. index( lchar(ilun), '.wrk' ) .eq. 0 .and. index( lchar(ilun), '.inp' ) .eq. 0 ) then
+         if ( specout .and. index( lchar(ilun), '.wrk' ) == 0 .and. index( lchar(ilun), '.inp' ) == 0 ) then
             lchar(ilun) = trim(outid)//lchar(ilun)
          else
             lchar(ilun) = trim(runid)//lchar(ilun)
@@ -116,7 +116,7 @@ contains
       ! Remove any existing work files
 
       do ilun = 1 , nolun
-         if ( index( lchar(ilun), '.wrk' ) .gt. 0 ) call delete_file( lchar(ilun), ioerr )
+         if ( index( lchar(ilun), '.wrk' ) > 0 ) call delete_file( lchar(ilun), ioerr )
       enddo
 
       ! Open the neccessary unit numbers
@@ -126,7 +126,7 @@ contains
       call setmlu(lun(29))
       ! open the input file (.inp)
       call open_waq_files( lun(26), lchar(26), 26, 1, ioerr)
-      if ( ioerr .gt. 0 ) then
+      if ( ioerr > 0 ) then
          write ( lun(29), 1000 ) lun(26) , lchar(26)
          call srstop ( 1 )
       endif

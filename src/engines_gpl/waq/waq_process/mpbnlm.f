@@ -113,7 +113,7 @@ C     loop over the segments
          KDIN      = PMSA(IP(5))
          KPHO      = PMSA(IP(6))
          KSI       = PMSA(IP(7))
-         S1_BOTTOM = NINT(PMSA(IP(8))) .EQ. 1
+         S1_BOTTOM = NINT(PMSA(IP(8))) == 1
          CAMS1     = MAX(PMSA(IP(9)),0.0)
          CNIS1     = MAX(PMSA(IP(10)),0.0)
          CPHOS1    = MAX(PMSA(IP(11)),0.0)
@@ -125,11 +125,11 @@ C     loop over the segments
 
 C        water en delwaq-g bodem
 
-         IF ( (IKMRK1.EQ.1) .OR. (IKMRK1.EQ.2) ) THEN
+         IF ( (IKMRK1==1) .OR. (IKMRK1==2) ) THEN
 
             FN   = CNN/(KDIN+CNN)
             FPHO = CPHO/(KPHO+CPHO)
-            IF ( KSI .LT. 1E-20 ) THEN
+            IF ( KSI < 1E-20 ) THEN
                FSI = 1.0
             ELSE
                FSI  = CSI/(KSI+CSI)
@@ -147,11 +147,11 @@ C        water en delwaq-g bodem
 
 C        s1 bodem
 
-         IF ( S1_BOTTOM .AND. (IKMRK2.EQ.0 .OR. IKMRK2.EQ.3) ) THEN
+         IF ( S1_BOTTOM .AND. (IKMRK2==0 .OR. IKMRK2==3) ) THEN
 
             FNS1   = CNNS1/(KDIN+CNNS1)
             FPHOS1 = CPHOS1/(KPHO+CPHOS1)
-            IF ( KSI .LT. 1E-20 ) THEN
+            IF ( KSI < 1E-20 ) THEN
                FSIS1 = 1.0
             ELSE
                FSIS1  = CSIS1/(KSI+CSIS1)

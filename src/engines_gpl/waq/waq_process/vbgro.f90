@@ -156,7 +156,7 @@ contains
 !        lowest water and 2d segments only (also when dry!)
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
          call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-         if (ikmrk1.lt.3 .and. (ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+         if (ikmrk1<3 .and. (ikmrk2==0).or.(ikmrk2==3)) then
 !
 
             VB1        = pmsa( ipnt(  1) )
@@ -213,23 +213,23 @@ contains
             MinVB      = pmsa( ipnt( 52) )
             nrofinputs = 52
 
-            if (ifirst (vbtype) .eq. 0) then
+            if (ifirst (vbtype) == 0) then
                 AgeVB1 = InitAge
             endif
 
-            if (ifirst (vbtype + 9) .eq. 0) then
+            if (ifirst (vbtype + 9) == 0) then
                SWDying = IniSWDying
             endif
 
 !           evaluate use initialisation 0=no, 1=yes
 !           always use iniCovVB1, 100% (default) means ha=haC, if unequal 100% ha<>haC
-            IF (  (SWiniVB1 .EQ. 1) .or. (SWiniVB1 .eq. 0 ) ) THEN
+            IF (  (SWiniVB1 == 1) .or. (SWiniVB1 == 0 ) ) THEN
                 iniCovVB1 = iniCovVB1 / 100
             ELSE
                 CALL write_error_message ('(no valid value for SWiniVB <0,1>' )
             ENDIF
 
-            IF (  (SWregro .NE. 1) .and. (SWregro .ne. 0 ) ) THEN
+            IF (  (SWregro /= 1) .and. (SWregro /= 0 ) ) THEN
                 CALL write_error_message ('(no valid value for SWregro <0,1>' )
             ENDIF
 
@@ -241,9 +241,9 @@ contains
 
 
 ! ---        only process significant coverages
-            if (iniCovVB1 .gt. 0.001) then
+            if (iniCovVB1 > 0.001) then
 
-               if(NINT(SwWV) .eq. 0) then
+               if(NINT(SwWV) == 0) then
 
 !                 original VEGMOD
 
@@ -260,18 +260,18 @@ contains
                   VBAge0ha = (( minVB1 - maxVB1) /(1+exp(sfVB1 * (- hlfAgeVB1))) + maxVB1  ) /100
 
 !                 Check values growth limitation (only 0 or 1)
-                  IF ( (NINT(SWgrowth) .NE. 1) .and. (NINT(SwGrowth) .NE. 0) ) THEN
+                  IF ( (NINT(SWgrowth) /= 1) .and. (NINT(SwGrowth) /= 0) ) THEN
                      CALL write_error_message ('(no valid value for SwGrowthVB <0,1>')
                   ENDIF
 
 !                 Check values mort limitation (only 0 or 1)
-                  IF ( (NINT(SWmrt) .NE. 1) .and. (NINT(SwMrt) .NE. 0) ) THEN
+                  IF ( (NINT(SWmrt) /= 1) .and. (NINT(SwMrt) /= 0) ) THEN
                      CALL write_error_message ('(no valid value for SWMrtVB <0,1>')
                   ENDIF
 
 !                 Checking for nut availabilithy
 
-                  if ( (F4VB + F5VB) - 1.E-10 .lt. 0.0 ) then
+                  if ( (F4VB + F5VB) - 1.E-10 < 0.0 ) then
                      CALL write_error_message ('(no valid values for F4VB and F5VB (allocation factors vegetation  roots)')
                   else
 !                    average Nutrient content of cohort
@@ -285,15 +285,15 @@ contains
                   endif
 
 !                 Evaluate initial conditions at start of simulation
-                  IF ( SWiniVB1 .NE. 0 ) THEN
+                  IF ( SWiniVB1 /= 0 ) THEN
 
 !                    calculate age matching initial biomass
 !                    check and maximise age to 2xhalfage
 
 !                    initial biomass exceeds minimum
-                     IF ( (iniVB1 - minVB1) .gt. 1.E-10) then
+                     IF ( (iniVB1 - minVB1) > 1.E-10) then
 !                        initial biomass less than maximum biomass
-                         IF ( (iniVB1/maxVB1) .lt. 0.99) THEN
+                         IF ( (iniVB1/maxVB1) < 0.99) THEN
                             ageVB1  = hlfAgeVB1 + LOG((minVB1-maxVB1) /(iniVB1-maxVB1) - 1 ) / sfVB1
                          ELSE
                             WRITE (ILUMON, *) 'WARNING : Vegtype ',vbtype, ' init biom .ge. Max: ', iniVB1*dmcfVB1/100, '>=',maxVB1*dmcfVB1/100
@@ -313,22 +313,22 @@ contains
                      VB1ha  = VB1 / iniCovVB1 /100
 
 !                    vegetation is flooded
-                     if ( NINT (SWmrt) .eq. 1 ) then
+                     if ( NINT (SWmrt) == 1 ) then
                          SWDying = 1.0
                      endif
 
 !                    check if vegetation died long enough - regrowth allowed again
-                     if  ( (VB1ha .lt. VBAge0ha) .and. (SWDying .eq. 1) .and.  SWRegro .eq. 1 )  then
+                     if  ( (VB1ha < VBAge0ha) .and. (SWDying == 1) .and.  SWRegro == 1 )  then
 	                     SWDying = 0.0
                         ageVB1 = 0
 	                  endif
 
 !                    calculate new age for decaying vegetation based on current biomass
 !                    convert VBha (Tc/ha-cohort) to maxVB1 (gC/m2-cohort)
-                     if ( SWDying .eq. 1) then
-                        if ( VB1ha .le. VBAge0ha ) then
+                     if ( SWDying == 1) then
+                        if ( VB1ha <= VBAge0ha ) then
                            ageVB1 = 0
-                        elseif ( (VB1ha*100/maxVB1) .lt. 0.99 ) then
+                        elseif ( (VB1ha*100/maxVB1) < 0.99 ) then
                           ageVB1  = hlfAgeVB1 + LOG((minVB1-maxVB1) /(VB1ha*100-maxVB1) - 1 ) / sfVB1
                        else
 !                          cannot calc age
@@ -339,11 +339,11 @@ contains
                      VBA1ha = (( minVB1 - maxVB1) /(1+exp(sfVB1 * (ageVB1 - hlfAgeVB1))) + maxVB1  ) /100
 
 !                    no growth for standing stock either
-                     IF ( ( NINT(SwGrowth) .EQ. 1) .and. (SWDying .eq. 0) .and. SWRegro .eq. 1) THEN
+                     IF ( ( NINT(SwGrowth) == 1) .and. (SWDying == 0) .and. SWRegro == 1) THEN
 
                         dVB1   = ( VBA1ha - VB1ha ) * 100.0 * surf / volume / delt * iniCovVB1
 !                       growth reduction?
-                        if (dVB1 .gt. 1.E-20) then
+                        if (dVB1 > 1.E-20) then
                             NutGroFac = min (1.0, (dVB1MaxNL / dVB1) )
                         else
                             NutGroFac = 1
@@ -360,7 +360,7 @@ contains
                   END IF
 
                   ! if init then no nutrient uptake, set output to zero
-                  if ( SWiniVB1 .NE. 0 ) then
+                  if ( SWiniVB1 /= 0 ) then
                      fVB1 = 0.0
                   else
                      fVB1 = dVB1 * volume / surf
@@ -375,7 +375,7 @@ contains
 !                 Attainable biomass averaged over segment
                   VBA1ha = TBmWV / dmCfVB1 * iniCovVB1
 
-                  if (ifirst (vbtype) .eq. 0 .and. SWiniVB1 .eq. 1) then
+                  if (ifirst (vbtype) == 0 .and. SWiniVB1 == 1) then
 !                    Initialise biomass using target biomass and % coverage without nutrient uptake
 !                    Current density within covered area
                      VB1ha  = TBmWV / dmCfVB1
@@ -386,7 +386,7 @@ contains
                      NutGroFac = 1.0
 !                    No actual growth rate can be calulated...
                      rGWV1 = 0.0
-                  else if (VB1 .lt. MinVB) then
+                  else if (VB1 < MinVB) then
 !                    Very low/no biomass for species with significant coverage
 !                    Current density within covered area
                      VB1ha  = MinVB1 / 100.0 / iniCovVB1
@@ -409,7 +409,7 @@ contains
                          rVB1 = merge( 1.0, 0.0, VB1 > 0.0 )
                      endif
 
-                     if (rVB1 .lt. 1.0 .and. NINT(SwGrowth) .eq. 1 .and. NINT (SWmrt) .eq. 0) then
+                     if (rVB1 < 1.0 .and. NINT(SwGrowth) == 1 .and. NINT (SWmrt) == 0) then
 !                       average Nutrient content of vegetation
                         weighCN = F1VB*CNf1VB + F2VB*CNf2VB + F3VB*CNf3VB + F4VB*CNf4VB + F5VB*CNf5VB
                         weighCP = F1VB*CPf1VB + F2VB*CPf2VB + F3VB*CPf3VB + F4VB*CPf4VB + F5VB*CPf5VB
@@ -421,14 +421,14 @@ contains
                         TEMP20 = TempAir - 20.0
                         TempCof = TcGWV ** TEMP20
 
-                        if (rVB1 .lt. MinRWV) then
+                        if (rVB1 < MinRWV) then
                            dVB1 = VB1 * AcGWV * Rc0GWV * TempCof / volume * surf
                         else
                            dVB1 = VB1 * Rc0GWV * TempCof / volume * surf
                         end if
 
 !                       growth reduction?
-                        if (dVB1 .gt. 1.E-20) then
+                        if (dVB1 > 1.E-20) then
                             NutGroFac = min (1.0, (dVB1MaxNL / dVB1) )
                         else
                             NutGroFac = 1.0
@@ -442,7 +442,7 @@ contains
                         NutGroFac = 1.0
                      end if
                   end if
-                  if (VB1 .gt. MinVB) then
+                  if (VB1 > MinVB) then
                      rGWV1 = dVB1 / VB1
                   else
 !                    No actual growth rate can be calulated...

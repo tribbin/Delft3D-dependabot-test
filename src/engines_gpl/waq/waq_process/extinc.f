@@ -149,7 +149,7 @@
       POC3      = PMSA(IPNT(34))
       POC4      = PMSA(IPNT(35))
 !
-      IF (SW_UIT.EQ.0) THEN
+      IF (SW_UIT==0) THEN
 !
 !  calculate extinction coefficients - no UITZICHT
 !
@@ -163,8 +163,8 @@
         EXT    =  EXT0 + EXTIM + EXTPOC + EXTDOC + EXTALG  + EXTMAC
      J            + EXTSAL
 !
-        IF ( EXT .LT. 1.0E-20 ) THEN
-           IF ( NR_MES .LT. 25 ) THEN
+        IF ( EXT < 1.0E-20 ) THEN
+           IF ( NR_MES < 25 ) THEN
               NR_MES = NR_MES + 1
               WRITE(*,*) ' WARNING : zero or negative extinction'
               WRITE(*,*) ' Extinction due to inorganic matter:',EXTIM
@@ -175,12 +175,12 @@
               WRITE(*,*) ' In segment number                 :',ISEG
               WRITE(*,*) ' Background extinction is assumed.'
            ENDIF
-           IF ( NR_MES .EQ. 25 ) THEN
+           IF ( NR_MES == 25 ) THEN
               NR_MES = NR_MES + 1
               WRITE(*,*) ' 25 WARNINGS on extinction'
               WRITE(*,*) ' Further messages on extinction surpressed'
            ENDIF
-           IF ( EXT0 .LT. 1.E-20 ) THEN
+           IF ( EXT0 < 1.E-20 ) THEN
               EXT = 1.E-15
            ELSE
               EXT = EXT0

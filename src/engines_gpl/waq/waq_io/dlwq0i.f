@@ -114,7 +114,7 @@
       ierr2 = 0
       lockey = keynam
       ikey = index_in_array(lockey, keywords)   ! look in the keywords
-      if ( ikey .gt. 0 ) then
+      if ( ikey > 0 ) then
          write ( lunut , 1000 ) ikey, lockey
          intopt = ibset(intopt,ikey-1)
          select case ( ikey )
@@ -130,7 +130,7 @@
          end select
       else
          ikey = index_in_array(lockey, defkeys)  ! look in the defaults
-         if ( ikey .gt. 0 ) then
+         if ( ikey > 0 ) then
             write ( lunut , 1000 ) ikey, lockey
             intopt = ibclr(intopt,ikey-1)
          else

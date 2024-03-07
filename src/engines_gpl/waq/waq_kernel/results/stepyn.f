@@ -70,21 +70,21 @@
 !
       LFLAG  = .TRUE.
       LFIRST = .FALSE.
-      IF ( ISTEP .LE. 0  .AND.  ISTRT .NE. ISTOP ) THEN
+      IF ( ISTEP <= 0  .AND.  ISTRT /= ISTOP ) THEN
          LFLAG = .FALSE.
          GOTO 100
       ENDIF
-      IF ( ISTRT                  .GT. ITIME     ) THEN
+      IF ( ISTRT                  > ITIME     ) THEN
          LFLAG = .FALSE.
          GOTO 100
       ENDIF
-      IF ( ISTOP                  .LE. ITIME-IDT ) THEN
+      IF ( ISTOP                  <= ITIME-IDT ) THEN
          LFLAG = .FALSE.
          GOTO 100
       ENDIF
-      IF ( MOD(ITIME-ISTRT,ISTEP) .GE. IDT       ) LFLAG = .FALSE.
+      IF ( MOD(ITIME-ISTRT,ISTEP) >= IDT       ) LFLAG = .FALSE.
       IF ( LFLAG ) THEN
-         IF ( ITIME-ISTRT .LT. ISTEP ) LFIRST = .TRUE.
+         IF ( ITIME-ISTRT < ISTEP ) LFIRST = .TRUE.
       ENDIF
 !
   100 CONTINUE

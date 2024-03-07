@@ -95,34 +95,34 @@
       integer(kind=int_wp) ::  ithndl = 0
       if (timon) call timstrt( "fmread", ithndl )
 
-      if ( ioutpt .lt. 4 ) write ( lunut , 2000 )
+      if ( ioutpt < 4 ) write ( lunut , 2000 )
 
       do i1 = 1,nobrk
 
-         if ( gettoken( ctoken, ibrk(i1), itype, ierr2 ) .gt. 0 ) goto 10
-         if ( itype .eq. 1 ) then                                    !  a time string
-            if ( ioutpt .ge. 4 ) write ( lunut , 2010 ) i1, ctoken
+         if ( gettoken( ctoken, ibrk(i1), itype, ierr2 ) > 0 ) goto 10
+         if ( itype == 1 ) then                                    !  a time string
+            if ( ioutpt >= 4 ) write ( lunut , 2010 ) i1, ctoken
             call convert_string_to_time_offset ( ctoken, ibrk(i1), .false., .false., ierr2 )
-            if ( ibrk(i1) .eq. -999 ) then
+            if ( ibrk(i1) == -999 ) then
                write ( lunut , 2020 ) trim(ctoken)
                goto 10
             endif
-            if ( ierr2 .gt. 0 ) then
+            if ( ierr2 > 0 ) then
                write ( lunut , 2030 ) trim(ctoken)
                goto 10
             endif
          else                                                        !  an integer for stop time
-            if ( ioutpt .ge. 4 ) write ( lunut , 2040 ) i1, ibrk(i1)
+            if ( ioutpt >= 4 ) write ( lunut , 2040 ) i1, ibrk(i1)
             call convert_relative_time ( ibrk(i1) , ifact  , dtflg  , dtflg3 )
          endif
 
          do i3 = 1, nitem
             do i2 = 1, nvals
-               if ( gettoken( arrin(i2,i3,i1), ierr2 ) .gt. 0 ) goto 10
+               if ( gettoken( arrin(i2,i3,i1), ierr2 ) > 0 ) goto 10
             enddo
          enddo
 
-         if ( ioutpt .ge. 4 ) then
+         if ( ioutpt >= 4 ) then
 
             do i2 = 1 , nvals , iwidth
                ie1 = min(i2+iwidth-1,nfact)
@@ -141,7 +141,7 @@
 
 !      Scale values
 
-      if ( nfact .eq. 1 ) then
+      if ( nfact == 1 ) then
          do i1 = 2, nvals
             factor(i1) = factor (11)
          enddo

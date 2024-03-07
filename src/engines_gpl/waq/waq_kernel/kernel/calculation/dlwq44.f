@@ -74,7 +74,7 @@
 
       do iseg = 1, noseg
             vol = 1.0
-            if ( abs(volume(iseg)) .gt. 1.0e-25 ) vol = volume(iseg)
+            if ( abs(volume(iseg)) > 1.0e-25 ) vol = volume(iseg)
             do isys = 1, nosys
                conc (isys,iseg) = conc(isys,iseg)/deriv(isys,iseg)
                amass(isys,iseg) = conc(isys,iseg)*vol

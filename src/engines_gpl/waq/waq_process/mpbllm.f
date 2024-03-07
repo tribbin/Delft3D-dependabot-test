@@ -161,7 +161,7 @@ C     loop over the segments
          RDT        = PMSA(IP(14))
          RTSTRT     = PMSA(IP(15))
          AUXSYS     = NINT(PMSA(IP(16)))
-         S1_BOTTOM  = NINT(PMSA(IP(17))) .EQ. 1
+         S1_BOTTOM  = NINT(PMSA(IP(17))) == 1
          RADBOT     = PMSA(IP(18))
          EXTVLS1    = PMSA(IP(19))
          ZSED       = PMSA(IP(20))
@@ -177,7 +177,7 @@ C     loop over the segments
 
 C        check proces parameters
 
-         IF (I_NRDZ.LE.0) CALL write_error_message_with_values('I_NRDZ'   ,FLOAT(I_NRDZ),ISEG,'MPBLLM')
+         IF (I_NRDZ<=0) CALL write_error_message_with_values('I_NRDZ'   ,FLOAT(I_NRDZ),ISEG,'MPBLLM')
 
 C        scale all radiance to PAR, radsurf with enhancement since it is used as top of sediment layer radiation
 
@@ -191,7 +191,7 @@ C         IF ( IKMRK1.EQ.1 .OR. IKMRK1.EQ.2 ) THEN
 
 C           for top layer thicker then euphotic depth all production in euphotic zone, so intergate only over ZSED
 
-            IF ( IKMRK1 .EQ. 2 .AND. ABS(DEPTH - LOCSEDDEPT) .LT. 1.E-20 .AND. DEPTH .GT. ZSED ) THEN
+            IF ( IKMRK1 == 2 .AND. ABS(DEPTH - LOCSEDDEPT) < 1.E-20 .AND. DEPTH > ZSED ) THEN
                DZ   = ZSED  / I_NRDZ
             ELSE
                DZ   = DEPTH / I_NRDZ
@@ -203,7 +203,7 @@ C           Bereken totale lichthoeveelheid en lichtlimitatie per laagje
 
             LIMSURF = 1.0 - EXP(- RADSURF / RADSAT)
             DO IZ = 1 , I_NRDZ
-               IF (IZ .EQ. 1) THEN
+               IF (IZ == 1) THEN
                   ACTDEP = 0.5 * DZ
                ELSE
                   ACTDEP = ACTDEP + DZ
@@ -211,8 +211,8 @@ C           Bereken totale lichthoeveelheid en lichtlimitatie per laagje
 
 C              bereken de fractie algen die naar het sediment oppervlak zijn gemigreerd
 
-               IF ( IKMRK1 .EQ. 2 .AND. SWEMERSION .EQ. 1 ) THEN
-                  IF ( MIGRDEPTH2 .LE. 1E-20 ) THEN
+               IF ( IKMRK1 == 2 .AND. SWEMERSION == 1 ) THEN
+                  IF ( MIGRDEPTH2 <= 1E-20 ) THEN
                      FRACSURF = 0.0
                   ELSE
                      Z        = LOCSEDDEPT - DEPTH + ACTDEP
@@ -236,8 +236,8 @@ C           gemiddelde lichtlimitatie
 
 C           Integratie over de dag
 
-            IF   ( MOD(ITIME-ITSTRT,AUXSYS) .LT. IDT )   THEN
-               IF ( ITIME .EQ. ITSTRT ) THEN
+            IF   ( MOD(ITIME-ITSTRT,AUXSYS) < IDT )   THEN
+               IF ( ITIME == ITSTRT ) THEN
                   WS2       = CUMLIM
                ELSE
                   WS2       = WS1 / AUXSYS
@@ -256,7 +256,7 @@ C         ENDIF
 
 C        S1_BOTTOM
 
-         IF ( S1_BOTTOM .AND. ( IKMRK2 .EQ. 0 .OR. IKMRK2 .EQ. 3 ) ) THEN
+         IF ( S1_BOTTOM .AND. ( IKMRK2 == 0 .OR. IKMRK2 == 3 ) ) THEN
 
             DZ   = ZSED / I_NRDZ
             CUMLIM  = 0.0
@@ -265,7 +265,7 @@ C           Bereken totale lichthoeveelheid en lichtlimitatie per laagje
 
             LIMSURF = 1.0 - EXP(- RADBOT / RADSAT)
             DO IZ = 1 , I_NRDZ
-               IF (IZ .EQ. 1) THEN
+               IF (IZ == 1) THEN
                   ACTDEP = 0.5 * DZ
                ELSE
                   ACTDEP = ACTDEP + DZ
@@ -273,8 +273,8 @@ C           Bereken totale lichthoeveelheid en lichtlimitatie per laagje
 
 C              bereken de fractie algen die naar het sediment oppervlak zijn gemigreerd
 
-               IF ( SWEMERSION .EQ. 1 ) THEN
-                  IF ( MIGRDEPTH2 .LE. 1E-20 ) THEN
+               IF ( SWEMERSION == 1 ) THEN
+                  IF ( MIGRDEPTH2 <= 1E-20 ) THEN
                      FRACSURF = 0.0
                   ELSE
                      RELZ     = MIN(1.0,(MAX(0.0,(ACTDEP-MIGRDEPTH1)/(MIGRDEPTH2-MIGRDEPTH1))))
@@ -296,8 +296,8 @@ C           gemiddelde lichtlimitatie
 
 C           Integratie over de dag
 
-            IF   ( MOD(ITIME-ITSTRT,AUXSYS) .LT. IDT )   THEN
-               IF ( ITIME .EQ. ITSTRT ) THEN
+            IF   ( MOD(ITIME-ITSTRT,AUXSYS) < IDT )   THEN
+               IF ( ITIME == ITSTRT ) THEN
                   WS4       = CUMLIM
                ELSE
                   WS4       = WS3 / AUXSYS

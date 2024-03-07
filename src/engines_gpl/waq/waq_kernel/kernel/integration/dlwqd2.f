@@ -92,7 +92,7 @@
 !
 !     Only for structured 3D
 !
-      IF ( KMAX .LE. 1 ) goto 9999
+      IF ( KMAX <= 1 ) goto 9999
 !
       NHOR = NOSEG/KMAX
 !          for all horizontal segments
@@ -112,9 +112,9 @@
                      DR1 = CONC(ISYS,IL) - CONC(ISYS,ILU)
                      DR2 = CONC(ISYS,IL) - CONC(ISYS,ILD)
 !                    test for local maximum
-                     IF ( DR1 .GT.  DD .AND. DR2 .GT.  DD ) THEN
+                     IF ( DR1 >  DD .AND. DR2 >  DD ) THEN
                         IFIL = 1
-                        IF ( DR1 .GT. DR2 ) THEN
+                        IF ( DR1 > DR2 ) THEN
                            DR   = MIN (0.5*DR1,DR2)
                            DZ1  = ALENG(1,ILU)
                            DZ2  = ALENG(2,ILU)
@@ -131,9 +131,9 @@
                         ENDIF
                      ENDIF
 !     test for local minimum
-                     IF ( DR1 .LT. -DD .AND. DR2 .LT. -DD ) THEN
+                     IF ( DR1 < -DD .AND. DR2 < -DD ) THEN
                         IFIL = 1
-                        IF ( DR1 .LT. DR2 ) THEN
+                        IF ( DR1 < DR2 ) THEN
                            DR   = MAX (0.5*DR1,DR2)
                            DZ1  = ALENG(1,ILU)
                            DZ2  = ALENG(2,ILU)
@@ -150,10 +150,10 @@
                         ENDIF
                      ENDIF
       end do
-                  IF ( IFIL .EQ. 0 ) GOTO 30
+                  IF ( IFIL == 0 ) GOTO 30
       end do
-               IF ( IFIL .EQ. 1 ) THEN
-                  IF ( NOWARN .LT. 1000 ) WRITE ( LUNUT , 1010 ) ISYS,ISEG,ILAY
+               IF ( IFIL == 1 ) THEN
+                  IF ( NOWARN < 1000 ) WRITE ( LUNUT , 1010 ) ISYS,ISEG,ILAY
                   NOWARN = NOWARN + 1
                ENDIF
    30       CONTINUE

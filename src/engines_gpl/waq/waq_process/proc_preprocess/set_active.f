@@ -81,9 +81,9 @@
 
             name10 = constants%name(ico)(8:17)
             ix_dbl = index_in_array(name10, actlst(:no_act))
-            if ( ix_dbl .le. 0 ) then
+            if ( ix_dbl <= 0 ) then
                no_act = no_act + 1
-               if ( no_act .gt. no_act_max ) then
+               if ( no_act > no_act_max ) then
                   write(line,2130)
                   call monsys(line,1)
                   write(line,2110) no_act,no_act_max
@@ -99,14 +99,14 @@
 
       name10 = 'bloom'
       ix_dbl = index_in_array(name10, actlst(:no_act))
-      if ( ix_dbl .gt. 0 ) then
+      if ( ix_dbl > 0 ) then
          name10 = 'phy_blo'
          ix_dbl = index_in_array(name10, actlst(:no_act))
-         if ( ix_dbl .le. 0 ) then
+         if ( ix_dbl <= 0 ) then
             write(line,2140)
             call monsys(line,1)
             no_act = no_act + 1
-            if ( no_act .gt. no_act_max ) then
+            if ( no_act > no_act_max ) then
                write(line,2130)
                call monsys(line,1)
                write(line,2110) no_act,no_act_max

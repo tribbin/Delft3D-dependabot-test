@@ -168,7 +168,7 @@ use ieee_arithmetic
     ! segment loop
     segmentLoop: do iseg = 1 , noseg
         call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
-        if (ikmrk1.eq.1) then
+        if (ikmrk1==1) then
 
             Temp      = PMSA(ipnt(   3 ))   !   temperature                                            (C)
 

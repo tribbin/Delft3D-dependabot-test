@@ -62,7 +62,7 @@
       do iq = noq1 + noq2 + 1, noq1 + noq2 + noq3
          ifrom = ipoint(1,iq)
          ito   = ipoint(2,iq)
-         if ( ifrom .gt. 0 .and. ito .gt. 0 ) then
+         if ( ifrom > 0 .and. ito > 0 ) then
             isegcol(ito) = isegcol(ifrom)
          endif
       enddo
@@ -74,12 +74,12 @@
 
          ! only positive segments
 
-         if ( ifrom .le. 0 .or. ito .le. 0 ) cycle
+         if ( ifrom <= 0 .or. ito <= 0 ) cycle
 
          ! only if from segment is not a water segment
 
          call evaluate_waq_attribute(1,iknmrk(ifrom),ikmrkv)
-         if ( ikmrkv.ne.3 ) cycle
+         if ( ikmrkv/=3 ) cycle
 
          isegcol(ito) = isegcol(ifrom)
 

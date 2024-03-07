@@ -129,11 +129,11 @@
       MIN = -1.0
       SUM = 0.0
       SUM2 = 0.0
-      IF ( NOSTAT .GT. MAXSTA ) THEN
+      IF ( NOSTAT > MAXSTA ) THEN
           NOSTAT = MAXSTA
       ENDIF
 
-      IF ( NOSTAT .LT. 1) THEN
+      IF ( NOSTAT < 1) THEN
           NOSTAT = 1
       ENDIF
 
@@ -147,10 +147,10 @@
         SUM2 = SUM2 + DIST(I) * DIST(I)
 
 !
-      IF (MIN .LT. 0.0) THEN
+      IF (MIN < 0.0) THEN
            MIN = DIST(I)
            INEAR = I
-      ELSEIF (DIST(I) .LT. MIN) THEN
+      ELSEIF (DIST(I) < MIN) THEN
            MIN = DIST(I)
            INEAR = I
       ENDIF
@@ -161,7 +161,7 @@
 !
 !     optie 1:  nearest station
 !
-      IF  ( ICALCSW .EQ. 1 ) THEN
+      IF  ( ICALCSW == 1 ) THEN
           PMSA(IP(MAXSTA*(MAXVAR+2)+NP +1)) = RAD(INEAR)
           PMSA(IP(MAXSTA*(MAXVAR+2)+NP +2)) = VWIND(INEAR)
           PMSA(IP(MAXSTA*(MAXVAR+2)+NP +3)) = DIR(INEAR)
@@ -174,13 +174,13 @@
 !
       ELSE
 !         optie 2 lineair inv dist
-          IF ( ICALCSW .EQ. 2 ) THEN
+          IF ( ICALCSW == 2 ) THEN
               DO I = 1 ,  NOSTAT
                                 WFAC(I) = DIST(I) / SUM
       end do
 !
 !         optie 2b: inv dist kwadratisch
-          ELSEIF ( ICALCSW .EQ. 3 ) THEN
+          ELSEIF ( ICALCSW == 3 ) THEN
               DO I = 1 ,  NOSTAT
                   WFAC(I) = DIST(I)*DIST(I) / SUM2
       end do

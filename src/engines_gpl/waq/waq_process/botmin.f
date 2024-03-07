@@ -103,11 +103,11 @@
       IP9  = IPOINT( 9)
       IP10 = IPOINT(10)
 !
-      IF ( IN3 .EQ. 0 .AND. IN4 .EQ. 0 .AND.
-     *     IN5 .EQ. 0 .AND. IN6 .EQ. 0        ) THEN
+      IF ( IN3 == 0 .AND. IN4 == 0 .AND.
+     *     IN5 == 0 .AND. IN6 == 0        ) THEN
          TEMP   = PMSA(IP5 )
          CRTEMP = PMSA(IP6 )
-         IF ( TEMP .LT. CRTEMP ) THEN
+         IF ( TEMP < CRTEMP ) THEN
 !        Only the zeroth order term
             TEMFAK = 0.0
          ELSE
@@ -126,12 +126,12 @@
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-      IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
+      IF ((IKMRK2==0).OR.(IKMRK2==3)) THEN
 !
       IF ( TFACT ) THEN
          TEMP   = PMSA(IP5 )
          CRTEMP = PMSA(IP6 )
-         IF ( TEMP .LT. CRTEMP ) THEN
+         IF ( TEMP < CRTEMP ) THEN
 !        Only the zeroth order term
             TEMFAK = 0.0
          ELSE
@@ -157,7 +157,7 @@
 !        Calculation of mineralisation flux ( M.L-3.t-1)
 !
       PMSA(IP10)      = ZEMIN       + TEMFAK * ORG
-      IF (ABS(SWITCH).LT.0.5) THEN
+      IF (ABS(SWITCH)<0.5) THEN
 !       NO SWITCH
         FL( 1 + IFLUX ) = ZEMIN/DEPTH + TEMFAK * ORG / DEPTH
         FL( 2 + IFLUX ) = 0.0

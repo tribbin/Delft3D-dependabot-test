@@ -45,7 +45,7 @@
       ILEN = LEN(FILNAM)
       DO I = ILEN , 1 , -1
          IEND = I
-         IF ( FILNAM(I:I) .NE. ' ' ) GOTO 10
+         IF ( FILNAM(I:I) /= ' ' ) GOTO 10
       ENDDO
    10 CONTINUE
 !

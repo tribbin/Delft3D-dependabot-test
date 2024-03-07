@@ -106,19 +106,19 @@ contains
 
          active = btest(iknmrk(iseg),0)
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
-         bodem  = ikmrk1.eq.3
+         bodem  = ikmrk1==3
          if ( active .and. .not. bodem ) then
 
             spmratioem = 0.815 + 3.18e-3*tpm - 1.4e-7*tpm*tpm
             spmratioem = max(0.815,spmratioem)
 
-            if ( swfloceq .eq. 0 ) then
+            if ( swfloceq == 0 ) then
                macro = im1
                micro = im2
-            elseif ( swfloceq .eq. 1 ) then
+            elseif ( swfloceq == 1 ) then
                macro = im2
                micro = im1
-            elseif ( swfloceq .eq. 2 ) then
+            elseif ( swfloceq == 2 ) then
                macro = im2
                micro = im3
             else
@@ -130,7 +130,7 @@ contains
 
             tim     = macro+micro
             macroeq = spmratioem*tim/(1.+spmratioem)
-            if ( macroeq .gt. macro ) then
+            if ( macroeq > macro ) then
                dfloc = (macroeq-macro)*rcfloc
                dfloc = min(dfloc,0.5*micro/delt)
             else
@@ -138,15 +138,15 @@ contains
                dfloc = max(dfloc,-0.5*macro/delt)
             endif
 
-            if ( swfloceq .eq. 0 ) then
+            if ( swfloceq == 0 ) then
                dflocim1   =  dfloc
                dflocim2   = -dfloc
                dflocim3   =  0.0
-            elseif ( swfloceq .eq. 1 ) then
+            elseif ( swfloceq == 1 ) then
                dflocim1   = -dfloc
                dflocim2   =  dfloc
                dflocim3   =  0.0
-            elseif ( swfloceq .eq. 2 ) then
+            elseif ( swfloceq == 2 ) then
                macro = im2
                micro = im3
                dflocim1   =  0.0

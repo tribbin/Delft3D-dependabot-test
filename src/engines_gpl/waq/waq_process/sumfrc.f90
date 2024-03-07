@@ -91,7 +91,7 @@ contains
 
          ! calculate relative fractions
 
-         if ( abs(sum) .lt. 1e-20 ) then
+         if ( abs(sum) < 1e-20 ) then
             rfrac = 1./nfrac
             do ifrac = 1, nfrac
                pmsa(ipnt(nfrac+2+ifrac)) = rfrac

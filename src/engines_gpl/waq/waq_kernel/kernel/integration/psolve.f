@@ -86,7 +86,7 @@
       integer(kind=int_wp) ::ithandl = 0
       if ( timon ) call timstrt ( "psolve", ithandl )
 
-      if ( nolay .eq. 1) then
+      if ( nolay == 1) then
          iadd = 0
       else
          iadd = 2
@@ -94,28 +94,28 @@
 
       noseg = ntrace - nobnd
       nsegl = noseg / nolay
-      if ( nsegl*nolay .ne. noseg ) then
+      if ( nsegl*nolay /= noseg ) then
          write(*,*) 'ERROR in PSOLVE'
          call srstop(1)
       endif
 
-      if ( ioptpc .eq. 0 ) then
+      if ( ioptpc == 0 ) then
 
          x = rhs
 
-      else if( ioptpc .eq. 1 ) then
+      else if( ioptpc == 1 ) then
 
          call lsolve ( ntrace, noseg , nolay  , nsegl  , nomat  ,
      &                 amat  , imat  , diag   , idiag  , x      ,
      &                 rhs   , triwrk, iadd   , iexseg )
 
-      else if( ioptpc .eq. 2 ) then
+      else if( ioptpc == 2 ) then
 
          call usolve ( ntrace, nolay  , nsegl  , nomat  , amat   ,
      &                 imat  , diag   , idiag  , x      , rhs    ,
      &                 triwrk , iadd   , iexseg )
 
-      else if( ioptpc .eq. 3 ) then
+      else if( ioptpc == 3 ) then
 
 !            SSOR (Symmetric Successive Over Relaxation)
 
@@ -128,7 +128,7 @@
 !        THe "D^{-1}" part, note that due to the b.c entries this is
 !        a rather peculiar piece of code
 
-         if ( nolay .eq. 1) then
+         if ( nolay == 1) then
 
 !              diagonal element is scalar
 
@@ -141,7 +141,7 @@
                ilow  = idiag(iseg-1) + 1
                ihigh = idiag(iseg)
                do jcol = ilow+iadd, ihigh
-                  if ( imat(jcol) .gt. noseg ) then
+                  if ( imat(jcol) > noseg ) then
                      rhs(iseg) = rhs(iseg) + amat(jcol) * x(imat(jcol))
                   endif
                enddo
@@ -159,15 +159,15 @@
             do iseg = 1, noseg
                ilow = idiag(iseg-1)+1
                rhs(iseg) = diag(iseg)*x(iseg)
-               if ( imat(ilow  ) .gt. 0 ) rhs(iseg) = rhs(iseg) + amat(ilow  )*x(imat(ilow  ))
-               if ( imat(ilow+1) .gt. 0 ) rhs(iseg) = rhs(iseg) + amat(ilow+1)*x(imat(ilow+1))
+               if ( imat(ilow  ) > 0 ) rhs(iseg) = rhs(iseg) + amat(ilow  )*x(imat(ilow  ))
+               if ( imat(ilow+1) > 0 ) rhs(iseg) = rhs(iseg) + amat(ilow+1)*x(imat(ilow+1))
 
 !              extra "b.c." entries
 
-               if ( iexseg(iseg) .eq. 0 ) cycle
+               if ( iexseg(iseg) == 0 ) cycle
                ihigh = idiag(iseg)
                do jcol = ilow+iadd, ihigh
-                  if ( imat(jcol) .gt. noseg ) then
+                  if ( imat(jcol) > noseg ) then
                      rhs(iseg) = rhs(iseg) + amat(jcol) * x(imat(jcol))
                   endif
                enddo

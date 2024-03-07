@@ -114,8 +114,8 @@
       if ( .not. init_vtrans ) then
          init_vtrans = .true.
          call getmlu(lunrep)
-         if ( noq3 .gt. 0 ) then
-            if (nolay.ne.0) then
+         if ( noq3 > 0 ) then
+            if (nolay/=0) then
                nosegl = nosegw/nolay
             else
                nosegw = -1
@@ -124,7 +124,7 @@
             pmsa(ip14) = 1.0
             if (fm_vtrans) then
                allocate(fmlayer(noseg), fmktop(noseg), fmkbot(noseg),stat=ierr_alloc)
-               if ( ierr_alloc .ne. 0 ) then
+               if ( ierr_alloc /= 0 ) then
                   write ( lunrep , 1000 ) ierr_alloc
                   write ( lunrep , 1001 ) noseg
                endif
@@ -139,7 +139,7 @@
                nolayfm = maxval(fmlayer)
                nolay = nolayfm
                nosegw = noseg
-            else if(nosegl*nolay .ne. nosegw ) then
+            else if(nosegl*nolay /= nosegw ) then
                write(lunrep,*) ' WARNING unstructured 3D application'
                write(lunrep,*) ' Vertical distribution routine VTRANS not possible'
                nolay = 1
@@ -157,7 +157,7 @@
             nolaylocal = nolay
             noseglocal = noseg
             allocate(concv(nolay,noseg),timev(nolay,noseg),fracv(nolay,noseg),dervv(nolay,noseg),stat=ierr_alloc)
-            if ( ierr_alloc .ne. 0 ) then
+            if ( ierr_alloc /= 0 ) then
                write ( lunrep , 1000 ) ierr_alloc
                write ( lunrep , 1001 ) noseg
                write ( lunrep , 1002 ) nolay
@@ -198,7 +198,7 @@
                else
                   do iseg = 1 , noseg
                      ilay = fmlayer(iseg)
-                     if(ilay.gt.0) then
+                     if(ilay>0) then
                         concv(ilay,iseg)=1.0
                      endif
                   enddo
@@ -252,9 +252,9 @@
          do iq = noq12+1,noq
             ifrom = iexpnt(1,iq)
             ito   = iexpnt(2,iq)
-            if ( ifrom .gt. 0 .and. ito .gt. 0 ) then
+            if ( ifrom > 0 .and. ito > 0 ) then
                call evaluate_waq_attribute(1,iknmrk(ito),ikmrk1)
-               if (ikmrk1.eq.1) then
+               if (ikmrk1==1) then
                   disp  = pmsa(ip9) + pmsa(ip13)
                else
                   disp  = 0.0
@@ -291,7 +291,7 @@
          do iq = noq , noq12+1 , -1
             ifrom = iexpnt(1,iq)
             ito   = iexpnt(2,iq)
-            if ( ifrom .gt. 0 .and. ito .gt. 0 ) then
+            if ( ifrom > 0 .and. ito > 0 ) then
                do isub=1,nosub
                   codiag            = dervv(isub,ifrom)
                   diag              = dervv(isub,ito)
@@ -321,7 +321,7 @@
 !        if accumulated time equal or greater then accumulation period then calculate fraction of time
 !        and reset the distribution
 !
-         if ( timtot .ge. (period-delt*0.5) ) then
+         if ( timtot >= (period-delt*0.5) ) then
             fracv = timev/timtot
             concv=0.0
             timev=0.0
@@ -334,7 +334,7 @@
             else
                do iseg = 1 , noseg
                   ilay = fmlayer(iseg)
-                  if(ilay.gt.0) then
+                  if(ilay>0) then
                      concv(ilay,iseg)=1.0
                   endif
                enddo

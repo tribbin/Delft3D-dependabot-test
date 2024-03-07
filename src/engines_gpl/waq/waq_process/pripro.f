@@ -100,13 +100,13 @@
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
       ALG       = PMSA(IP1 )
-      IF ( ALG .LT. 0.0 ) THEN
-         IF ( NR_MES .LT. 25 ) THEN
+      IF ( ALG < 0.0 ) THEN
+         IF ( NR_MES < 25 ) THEN
             NR_MES = NR_MES + 1
             WRITE ( ILUMON , * ) 'WARNING :negative algae correction',
      +                           ' segment=',ISEG,' conc=',ALG
          ENDIF
-         IF ( NR_MES .EQ. 25 ) THEN
+         IF ( NR_MES == 25 ) THEN
             NR_MES = NR_MES + 1
             WRITE(ILUMON,*) ' 25 WARNINGS on negative algae'
             WRITE(ILUMON,*) ' Further messages on algae surpressed'
@@ -135,10 +135,10 @@
 !     Linear transition from MORT0 to MORTS
 !        between SAL1 and SAL2
 
-      IF ( SAL1 .GT. 0.0 .AND. SAL2 .GT. SAL1 ) THEN
-          IF ( SAL .LE. SAL1 ) THEN
+      IF ( SAL1 > 0.0 .AND. SAL2 > SAL1 ) THEN
+          IF ( SAL <= SAL1 ) THEN
               ACTMOR = MORT0
-          ELSEIF ( SAL .GE. SAL2 ) THEN
+          ELSEIF ( SAL >= SAL2 ) THEN
               ACTMOR = MORTS
           ELSE
               ACTMOR = MORT0 + (SAL-SAL1)/(SAL2-SAL1)*(MORTS-MORT0)

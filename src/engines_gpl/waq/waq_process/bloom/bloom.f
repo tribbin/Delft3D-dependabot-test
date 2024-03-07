@@ -104,7 +104,7 @@
 ! If the light intensity is very low, declare the problem 'infeasible',
 ! don't rerun, only write output. But do not do this for 3DL approach the
 ! efficiency can be obtained in other layers with light.
-      if (csol .lt. solmin .and. .not. active_3dl .and. .not. active_efft) then
+      if (csol < solmin .and. .not. active_3dl .and. .not. active_efft) then
          irerun = 0
          errind = ' '
          ni = 0
@@ -113,7 +113,7 @@
 
 ! Determine indices for interpolation of day length correction factors.
       do index2 = 1,24
-         if (dl(index2) .ge. day) exit
+         if (dl(index2) >= day) exit
       end do
       index1 = index2 - 1
 
@@ -147,7 +147,7 @@
                   root(2) = effi*exttot/emin(k)
                endif
             else
-               if ( ifix_3dl(k) .lt. 0 ) then
+               if ( ifix_3dl(k) < 0 ) then
                   effi = effic_3dl(k,iseg_3dl)
                else
                   call effi_3dl(effi,k)
@@ -157,7 +157,7 @@
             endif
             aroot(2*k-1)=root(1)
             aroot(2*k)=root(2)
-            if (root(2) .gt. groot(2)) then
+            if (root(2) > groot(2)) then
                groot(2) = root(2)
                iskmax = k
             end if
@@ -168,8 +168,8 @@
 !  Replace them by the MAXIMUM, but only for types, whose KMAX is
 !  positive. Do nothing if KMAX is negative.
          do k = it2(j,1),it2(j,2)
-            if (k .eq. iskmax) cycle
-            if (aroot(2*k) .le. 0.0) cycle
+            if (k == iskmax) cycle
+            if (aroot(2*k) <= 0.0) cycle
             aroot(2*k-1)=aroot(2*iskmax-1)
             aroot(2*k)=aroot(2*iskmax)
          end do
@@ -180,7 +180,7 @@
 !  solutions, which are recomputed without mortality constraints.
 !  Store the type number of each group with the highest KMAX value
 !  in JKMAX.
-         if (lgroch .eq. 1 .or. lobfun .eq. 1) then
+         if (lgroch == 1 .or. lobfun == 1) then
             call maxgro(xinit, groot, exttot, emin(iskmax), j, iskmax, dep)
             bgro(j) = b(nuexro + j)
          end if
@@ -188,7 +188,7 @@
       end do
 
 ! Print KMIN and KMAX roots of types if option "DUMP" is on.
-      if (idump .ne. 0) then
+      if (idump /= 0) then
          write (outdbg,180) (aroot(i),i=1,2*nuspec,2)
   180    format (' KMIN: ',20(f7.2,1x))
          write (outdbg,190) (aroot(i),i=2,2*nuspec,2)
@@ -207,8 +207,8 @@
   205 nin=0
       int=0
       lsolu = .false.
-      if (ni .ne. 0) go to 220
-      if (idump .ne. 0) write (outdbg,210)
+      if (ni /= 0) go to 220
+      if (idump /= 0) write (outdbg,210)
   210 format (5x,'No species permitted in any interval')
       infeas=1
       inhib = 0
@@ -236,12 +236,12 @@
 
 !  Determine allowable species for feasibility interval J.
       call exclud (j,linf,irs)
-      if (linf .eq. 0) go to 230
+      if (linf == 0) go to 230
       inow = inow - 1
-      if (linf .eq. 1) go to 240
+      if (linf == 1) go to 240
 
 !  LINF = 2: photo inhibition.
-      if (idump .ne. 0) write (outdbg,225) j
+      if (idump /= 0) write (outdbg,225) j
   225 format(5x,'no species in interval ',i2,' due to photo inhibition')
       nin = nin + 1
       inhib = 1
@@ -250,9 +250,9 @@
 !  Solve, test for feasibility, and find total biomass.
   230 continue
       call solvlp(inow,x,biomax,ier,irs,nonuni,numuni,lib)
-      if (ier .ne. 0 .and. inow .eq. 1) irs3 = irs(3)
+      if (ier /= 0 .and. inow == 1) irs3 = irs(3)
       linf=ier
-      if (ier .eq. 0) lsolu = .true.
+      if (ier == 0) lsolu = .true.
   240 call print6(bio,biomax,x,xdef,inow,j,linf,irs,int,nin,nonuni,nonun,numuni,numun,lib)
   250 continue
       end do
@@ -261,14 +261,14 @@
       infeas=0
       if (lsolu) go to 280
       infeas=1
-      if (idump .ne. 0) write (outdbg,260)
+      if (idump /= 0) write (outdbg,260)
   260 format (5x,'no solution--all intervals are infeasible')
 
 !  Infeasible solution. Call FIXINF to deal with this problem.
   270 continue
       irs(3) = irs3
       call fixinf(xdef,bio,exttot,extb,inhib,ni,irerun,irs,infeas,errind,jkmax,aroot,cdate,swblsa)
-      if (irerun .ne. 0) go to 200
+      if (irerun /= 0) go to 200
 
 !----------------------------------------------------------------------
 !              START SECOND PART OF THE SUBROUTINE
@@ -289,14 +289,14 @@
 
   280 continue
       call prinsu(xdef,xeco,bio(2),total,ntstot,itnum,15)
-      if (idump .ne. 0) call prinma(xdef,bio(2),total,ni,nin,int)
+      if (idump /= 0) call prinma(xdef,bio(2),total,ni,nin,int)
 
 !  If two intervals have the same maximum biomass, print both of them
 !  in the complete and summarized output.
-      if (lst .eq. 1) then
+      if (lst == 1) then
         call prinsu(xst,xecost,biost,totst,ntstot,itnum,15)
         ntsst = ntstot
-        if (idump .ne. 0) call prinma(xst,biost,totst,ni,nin,intst)
+        if (idump /= 0) call prinma(xst,biost,totst,ni,nin,intst)
       end if
 
 !  Compute the total extinction
@@ -307,7 +307,7 @@
       k1 = nurows
       do k = 1,nuspec
          k1 = k1 + 1
-         if (xdef(k1) .ge. 1.d-6) then
+         if (xdef(k1) >= 1.d-6) then
             ekxi = ekx (k) * xdef (k1)
             exlive = exlive + ekxi
          end if

@@ -104,7 +104,7 @@ contains
 
 !     set the logicals for dispersion and scaling and other fixed items
 
-      lscale = iscale .eq. 1
+      lscale = iscale == 1
       idp    = idpnt(isys)
       ivp    = ivpnt(isys)
 
@@ -119,11 +119,11 @@ contains
          ifrom = ipoint(1,iq)
          ito   = ipoint(2,iq)
 
-         if ( ifrom .eq. 0 .or. ito .eq. 0 ) cycle
-         if ( ifrom .gt. 0 ) then
+         if ( ifrom == 0 .or. ito == 0 ) cycle
+         if ( ifrom > 0 ) then
             if ( .not. btest(iknmrk(ifrom),0) ) cycle   ! identified dry at start and end of timestep
          endif
-         if ( ito   .gt. 0 ) then
+         if ( ito   > 0 ) then
             if ( .not. btest(iknmrk(ito  ),0) ) cycle
          endif
 
@@ -131,10 +131,10 @@ contains
 
          a    = area(iq)
          q    = flow(iq)
-         if ( a .lt. 1.0e-25 )  a = 1.0
-         if ( iq .le. noq1 ) then
+         if ( a < 1.0e-25 )  a = 1.0
+         if ( iq <= noq1 ) then
             e  = disp(1)
-         else if ( iq .le. noq1+noq2 ) then
+         else if ( iq <= noq1+noq2 ) then
             e  = disp(2)
          else
             e  = disp(3)
@@ -143,12 +143,12 @@ contains
 
 !             add additional dispersions and fluxes
 
-         if ( idp .gt. 0 ) e = e + disper(idp,iq)*mixlen(iq)
-         if ( ivp .gt. 0 ) q = q + velo  (ivp,iq)*a
+         if ( idp > 0 ) e = e + disper(idp,iq)*mixlen(iq)
+         if ( ivp > 0 ) q = q + velo  (ivp,iq)*a
 
 !             the backward differencing in space
 
-         if ( q .gt. 0.0 ) then
+         if ( q > 0.0 ) then
            q1 =   q
            q2 = 0.0
          else
@@ -158,11 +158,11 @@ contains
 
 !        fill the matrix
 
-         if ( ifrom .gt. 0  ) then
+         if ( ifrom > 0  ) then
             diag ( ifrom  ) = diag ( ifrom  ) + q1 + e
             amat (fmat(iq)) = amat (fmat(iq)) + q2 - e
          endif
-         if ( ito   .gt. 0  ) then
+         if ( ito   > 0  ) then
             diag (  ito   ) = diag (  ito   ) - q2 + e
             amat (tmat(iq)) = amat (tmat(iq)) - q1 - e
          endif
@@ -181,7 +181,7 @@ contains
 
 !      check on zero's required for methods 17 and 18
 
-            if ( abs(diag(iq)) .lt. 1.0d-100) diag(iq) = 1.0
+            if ( abs(diag(iq)) < 1.0d-100) diag(iq) = 1.0
 
             do jq = ifrom, ito
                amat(jq) = amat(jq) / diag(iq)

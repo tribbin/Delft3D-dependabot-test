@@ -80,7 +80,7 @@
          do igro = 1, nspe
                efftalg = pmsa(ip(2+igro))
                limralg = pmsa(ip(32+igro))
-               if (istep .eq. 0) then
+               if (istep == 0) then
                   ! Store result over past period
                   pmsa(ip(62+igro)) = efftalg
                   ! Reset integration variable to zero and add contribution of present time step to tracer
@@ -95,7 +95,7 @@
       enddo
 !     Add 1 to counter and check for period
       istep = istep + 1
-      if ( istep .eq. navera ) istep = istep - navera
+      if ( istep == navera ) istep = istep - navera
 !
       return
 !

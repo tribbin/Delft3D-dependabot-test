@@ -91,13 +91,13 @@
       is = 0
       nuecog = 0
    60   is = is + 1
-        if ((algtyp(0,is).gt.-100.).and.(is.le.ntyp_m)) then
-          if (is.eq.1) then
+        if ((algtyp(0,is)>-100.).and.(is<=ntyp_m)) then
+          if (is==1) then
             j=1
             it2(1,1)=1
-          elseif (is.eq.ntyp_m) then
+          elseif (is==ntyp_m) then
             it2(j,2) = ntyp_m
-          elseif (nint(algtyp(1,is)).ne.nint(algtyp(1,is-1))) then
+          elseif (nint(algtyp(1,is))/=nint(algtyp(1,is-1))) then
             it2(j,2) = is-1
             j = j + 1
             it2(j,1) = is
@@ -109,7 +109,7 @@
 
       nuecog = j
       nuspec = is - 1
-      if ((is.eq.ntyp_m).and.(algtyp(0,ntyp_m).gt.-100.)) nuspec =ntyp_m
+      if ((is==ntyp_m).and.(algtyp(0,ntyp_m)>-100.)) nuspec =ntyp_m
 
 !  Set the algae characteristics
       lmixo = .false.
@@ -123,14 +123,14 @@
             write(spname(i)(3:3),'(i1)') k
             ctodry(i) = algtyp(3,i)
             ekx(i)    = algtyp(2,i) * 0.001 / ctodry(i)
-            if (algtyp(16,i).gt.0.0) lmixo = .true.
-            if (algtyp(17,i).gt.0.0) lmixo = .true.
-            if (algtyp(18,i).gt.0.0) lfixn = .true.
+            if (algtyp(16,i)>0.0) lmixo = .true.
+            if (algtyp(17,i)>0.0) lmixo = .true.
+            if (algtyp(18,i)>0.0) lfixn = .true.
             chltoc(i) = 1./ algtyp(7,i)
             chlr(i)   = chltoc(i)*ctodry(i)
             pmax1(i)  = algtyp(8,i)
             pmax2(i)  = algtyp(9,i)
-            if (nint(algtyp(10,i)).eq.0) then
+            if (nint(algtyp(10,i))==0) then
                lpmax(i) = 1
             else
                lpmax(i) = 0
@@ -207,7 +207,7 @@
       endif
       cstra(nunuco+1) = 'KMIN    '
       cstra(nunuco+2) = 'KMAX    '
-      if (nunuco.gt.nunucom) then
+      if (nunuco>nunucom) then
          write(outdbg,*) 'ERROR: Number of contraints if greater than the maximum number of constraints in BLOOM'
          write(*,*) 'ERROR: Number of contraints if greater than the maximum number of constraints in BLOOM'
          call srstop(1)
@@ -287,7 +287,7 @@
       write (outdbg,'(a)') ' Present species growth coefficients:'
       write (outdbg,'(a)') ' Species    PPMax   TCPMx TFPMx     Mort0   TCMrt   MResp   TCRSsp  SDMix'
       do i=1,nuspec
-         if (lpmax(i) .eq. 1) then
+         if (lpmax(i) == 1) then
             cpmax = 'LINEAR  '
          else
             cpmax = 'EXPONENT'
@@ -343,13 +343,13 @@
          nucols=nucols+nuecog
       endif
 
-      if (nuspec .gt. mt)  then
+      if (nuspec > mt)  then
          write(outdbg,*) 'ERROR: Number of types if greater than the maximum number of types in BLOOM'
          write(*,*) 'ERROR: Number of types if greater than the maximum number of types in BLOOM'
          call srstop(1)
       end if
 
-      if (nunuco .gt. mn)  then
+      if (nunuco > mn)  then
          write(outdbg,*) 'ERROR: Number of nutrients if greater than the maximum number of nutrients in BLOOM'
          write(*,*) 'ERROR: Number of nutrients if greater than the maximum number of nutrients in BLOOM'
          call srstop(1)

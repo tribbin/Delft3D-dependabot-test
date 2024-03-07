@@ -105,7 +105,7 @@ c     LOGICAL First
 
 !        Check on active segments
          CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
-         IF (IKMRK1.EQ.1) THEN
+         IF (IKMRK1==1) THEN
 
             Surf        = PMSA( IPNT(  1) )
             Depth       = PMSA( IPNT(  2) )
@@ -127,7 +127,7 @@ c     LOGICAL First
 
             ! actual height is fraction of maximum height
 
-            if ( smmax .gt. 1e-20 ) then
+            if ( smmax > 1e-20 ) then
                Hact        = min( absHmax * SM/smmax , TotalDepth - 0.001 )
                Hact        = max(Hact,0.01)
             else
@@ -154,11 +154,11 @@ c     LOGICAL First
             Z2ad = Z2a / Hact
 
 !           Switch = 1:  linear Biomass distribution
-            If (SwDisSM .EQ. 1 ) Then
+            If (SwDisSM == 1 ) Then
 
 !              Check Ffac: 0,1 or 2
 
-               If (Ffac  .LT.  0 .OR. Ffac .GT. 2) Then
+               If (Ffac  <  0 .OR. Ffac > 2) Then
                   call getmlu( lunrep )
                   write (lunrep,*) 'MACDIS: Illegal option for Macrophyte form factor - should be between 0 and 2'
                   write (lunrep,*) '   Value now: ', ffac
@@ -172,10 +172,10 @@ c     LOGICAL First
                B = (SM / Hact) * (Ffac * (Zm + TotalDepth) -2 * Zm) / Hact
 
 !              Macrophyte is not in segment:
-               If (Zm .GT. Z2) Then
+               If (Zm > Z2) Then
                   BmLaySM = 0
 !                 Macropyhte is completely in segment:
-               Elseif (Zm .LT. Z1 ) Then
+               Elseif (Zm < Z1 ) Then
                   BmLaySM = (A/2)  * (Z2**2 -Z1**2) + B * (Z2 -Z1)
 !                 Macropyhte is partialy in segment: TIP !!!!
                Else
@@ -186,9 +186,9 @@ c     LOGICAL First
 
 !              Switch = 2:  Exponential Biomass distribution
 
-            ElseIf (SwDisSM .EQ. 2) Then
+            ElseIf (SwDisSM == 2) Then
 
-               If (Ffac  .LE.  0 .OR. Ffac .GT. 50.0 ) Then
+               If (Ffac  <=  0 .OR. Ffac > 50.0 ) Then
                   call getmlu( lunrep )
                   write (lunrep,*) 'MACDIS: Incorrect value for Macrophyte form factor - ',
      &                             'should be positive and lower than or equal to 50'
@@ -201,10 +201,10 @@ c     LOGICAL First
 
                A = SM / Hactd / ((exp(Ffac * Hactd) - 1.0)/ Ffac - Hactd)
 !              Macrophyte is not in segment:
-               If (Hact .LT. Z1a) Then
+               If (Hact < Z1a) Then
                   BmLaySM = 0
 !              Macrophyte is completely in segment:
-               Elseif (Hact .GT. Z2a) Then
+               Elseif (Hact > Z2a) Then
                   BmLaySM = A * ( (exp(Ffac * Z2ad) - exp(Ffac * Z1ad)) / Ffac - (Z2ad - Z1ad) )
 !              Macrophyte is partially in segment: TIP !!!
                Else
@@ -221,15 +221,15 @@ c     LOGICAL First
             !
             If ( Hmax < 0.0 ) Then
                 CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-                If ( IKMRK2 .EQ. 0 .OR. IKMRK2 .EQ. 1 ) Then
+                If ( IKMRK2 == 0 .OR. IKMRK2 == 1 ) Then
                     PMSA(IPOINT(14)+(IBotSeg-1)*INCREM(14   )) = ISEG
                 Endif
             Endif
 
-            If (SM .GT. 0) Then
+            If (SM > 0) Then
                FrBmLay = BmLaySm / SM
             Else
-               If ( iseg .eq. IBotseg ) Then
+               If ( iseg == IBotseg ) Then
                   FrBmLay = 1.0
                Else
                   FrBmLay = 0.0

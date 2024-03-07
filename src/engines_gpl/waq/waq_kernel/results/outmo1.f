@@ -79,7 +79,7 @@
 !
       DO I=1,NODUMP
          ISEG = IDUMP(I)
-         IF ( DNAME(I) .EQ. SPACE ) THEN
+         IF ( DNAME(I) == SPACE ) THEN
             WRITE (IOUT,2080) ISEG    ,(ARRA(K,ISEG),K=ID,NEND)
          ELSE
             WRITE (IOUT,2090) DNAME(I),(ARRA(K,ISEG),K=ID,NEND)

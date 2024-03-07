@@ -44,7 +44,7 @@
 !  Open statement for BLOOM II input files.
       filnam = trim(runnam)//'.frm'
       open (newunit=infrm,file=filnam,iostat = iost)
-      if (iost .ne. 0) then
+      if (iost /= 0) then
          write (*,*) 'blfile: error opening .frm file'
          write (lunrep,*) 'blfile: error opening .frm file'
          call srstop(1)
@@ -53,7 +53,7 @@
 ! Open statement for BLOOM II debug file.
       filnam = trim(runnam)//'.dbg'
       open (newunit=outdbg,file=filnam,iostat = iost)
-      if (iost .ne. 0) then
+      if (iost /= 0) then
          write (*,*) 'blfile: error opening .dbg file'
          write (lunrep,*) 'blfile: error opening .dbg file'
          call srstop(1)

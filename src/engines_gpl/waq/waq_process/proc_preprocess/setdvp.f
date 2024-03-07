@@ -66,7 +66,7 @@
 
       ! only action if there are already new dispersions, we will reset the number of new dispersions ndspn
 
-      if ( ndspn .gt. 0 ) then
+      if ( ndspn > 0 ) then
 
          ndspn     = 0
          allocate(dsto_new(nosys,nodisp+ndspx))
@@ -76,7 +76,7 @@
 
             ! only if a dispersion acts on this substance
 
-            if ( idpnt(isys) .gt. 0 .or. idpnw(isys) .gt. 0 ) then
+            if ( idpnt(isys) > 0 .or. idpnw(isys) > 0 ) then
 
                ! determine if there is already a new dispersion with equal (1e-20) stochi factors
 
@@ -87,22 +87,22 @@
                   ! the dispersion arrays from the input stochi always 0.0 (not used)  or 1.0 (used)
 
                   do idisp = 1, nodisp
-                     if ( idpnt(isys) .eq. idisp ) then
+                     if ( idpnt(isys) == idisp ) then
 
                         ! stochi on dispersion array always 1.0
 
-                        if ( abs(dsto_new(i_dspn,idisp)-1.0) .gt. 1.e-20 ) then
+                        if ( abs(dsto_new(i_dspn,idisp)-1.0) > 1.e-20 ) then
                            dsto_equal = .false.
                         endif
                      else
-                        if ( abs(dsto_new(i_dspn,idisp)) .gt. 1.e-20 ) then
+                        if ( abs(dsto_new(i_dspn,idisp)) > 1.e-20 ) then
                            dsto_equal = .false.
                         endif
                      endif
                   enddo
 
                   do idspx = 1, ndspx
-                     if ( abs(dsto(isys,idspx)-dsto_new(i_dspn,nodisp+idspx)) .gt. 1.e-20 ) then
+                     if ( abs(dsto(isys,idspx)-dsto_new(i_dspn,nodisp+idspx)) > 1.e-20 ) then
                         dsto_equal = .false.
                      endif
                   enddo
@@ -125,7 +125,7 @@
                   ! set stochi factors
 
                   idisp = idpnt(isys)
-                  if ( idisp .gt. 0 ) then
+                  if ( idisp > 0 ) then
                      dsto_new(ndspn,idisp) = 1.0
                   endif
 

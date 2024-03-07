@@ -709,7 +709,7 @@ logical function SetBalanceOutputOptions(type, lump_processes, lump_loads, lump_
       noq3 = number_exchanges(3)
       noq4 = number_exchanges(4)
       nolay = number_layers
-      if (noq .gt. 0) then
+      if (noq > 0) then
          nobnd = -minval(pointer_table(:, 1:noq))
       else
          nobnd = 0
@@ -1921,7 +1921,7 @@ logical function SetBalanceOutputOptions(type, lump_processes, lump_loads, lump_
             write (luninp, '(a)') '2 ; all substances and extra output'
             write (luninp, '(i5,a)') size(output_param), ' ; number of extra variables'
             do i = 1, size(output_param)
-               if (k .eq. 1 .or. k .eq. 3) then
+               if (k == 1 .or. k == 3) then
                   write (luninp, '(a,1x,a)') output_param(i), ''' '''
                else
                   write (luninp, '(a,1x,a)') output_param(i)

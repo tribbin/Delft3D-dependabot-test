@@ -91,14 +91,14 @@
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-      IF (IKMRK2.EQ.0 .OR. IKMRK2.EQ.3) THEN
+      IF (IKMRK2==0 .OR. IKMRK2==3) THEN
 !
       VWIND   = PMSA(IP1 )
       FETCH   = PMSA(IP2 )
       DEPTH   = PMSA(IP3 )
       INIDEP  = PMSA(IP4 )
 
-      IF (FETCH .LT. 1E-20 )  CALL write_error_message ('FETCH in CALWAVE zero')
+      IF (FETCH < 1E-20 )  CALL write_error_message ('FETCH in CALWAVE zero')
 
 !     Initialisation
       H       = 0.0
@@ -106,10 +106,10 @@
       T       = 0.0
 
 !     Check if user wants to use value of inidepth (pos values only)
-      IF (INIDEP .LT. 0.0) INIDEP = DEPTH
+      IF (INIDEP < 0.0) INIDEP = DEPTH
 
 !     Shear stress by wind
-      IF (VWIND .LT. 0.0001) GOTO 150
+      IF (VWIND < 0.0001) GOTO 150
 
 !     Dimensionless fetch length.
       FS   = G * FETCH / VWIND**2

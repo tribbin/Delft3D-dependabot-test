@@ -156,7 +156,7 @@ contains
             louts = nsubs+1
             loute = nsubs
             npmsa = lins+line+louts+loute
-            if (npmsa.gt.npmsamax) then
+            if (npmsa>npmsamax) then
                 write (*,*) 'lins = ',lins
                 write (*,*) 'line = ',line
                 write (*,*) 'louts = ',louts
@@ -247,7 +247,7 @@ contains
 
           iseg = isegl + (rec_pav-1)*nosegl
           call evaluate_waq_attribute(1,iknmrk(iseg),iatt1) ! pick up first attribute
-          if (iatt1.gt.0) then
+          if (iatt1>0) then
 
           ropaved = max(pmsa(ipnt(ip_ropaved)),0.0)
           lotpav = pmsa(ipnt(ip_lotpav))
@@ -285,7 +285,7 @@ contains
 
           iseg = isegl + (rec_unp-1)*nosegl
           call evaluate_waq_attribute(1,iknmrk(iseg),iatt1) ! pick up first attribute
-          if (iatt1.gt.0) then
+          if (iatt1>0) then
 
           ! rounpaved = max(pmsa(ipnt(ip_rounpaved)),0.0)  THIS IS THE RIGHT STATEMENT AFTER CORRECTION OF BIN FILE
           rounpaved = max(  pmsa(ipoint(ip_rounpaved)+(iseg-1)*increm(ip_rounpaved))   ,0.0) ! TEMP fix
@@ -324,7 +324,7 @@ contains
 
           iseg = isegl + (rec_sfw-1)*nosegl
           call evaluate_waq_attribute(1,iknmrk(iseg),iatt1) ! pick up first attribute
-          if (iatt1.gt.0) then
+          if (iatt1>0) then
 
           ! fluxes
           fluxexp = sngl(totflxin(nsubs,rec_sfw))

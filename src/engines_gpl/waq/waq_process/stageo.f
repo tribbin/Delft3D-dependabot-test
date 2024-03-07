@@ -128,7 +128,7 @@
       DELT   = PMSA(IP5)
       THRESH = PMSA(IP6)
 
-      IF ( THRESH .LE. 0.0 ) THEN
+      IF ( THRESH <= 0.0 ) THEN
          CALL GETMLU( LUNREP )
          WRITE( LUNREP, * ) 'ERROR in STAGEO'
          WRITE( LUNREP, * )
@@ -175,11 +175,11 @@
          ENDIF
       ENDIF
 
-      IF ( TIME .GE. TSTOP-0.5*DELT .AND. TIME .LE. TSTOP+0.5*DELT ) THEN
+      IF ( TIME >= TSTOP-0.5*DELT .AND. TIME <= TSTOP+0.5*DELT ) THEN
          IACTION = 3
       ENDIF
 
-      IF ( IACTION .EQ. 0 ) RETURN
+      IF ( IACTION == 0 ) RETURN
 
       IP7 = IPOINT(7)
       IP8 = IPOINT(8)
@@ -195,7 +195,7 @@
             TCOUNT    = PMSA(IP7) + DELT
             PMSA(IP7) = TCOUNT
 
-            IF ( PMSA(IP1) .GE. THRESH ) THEN
+            IF ( PMSA(IP1) >= THRESH ) THEN
                PMLOG      = LOG(PMSA(IP1)) * DELT
                PMSA(IP8)  = PMSA(IP8) + DELT
                PMSA(IP9)  = PMSA(IP9) + PMLOG
@@ -208,9 +208,9 @@
 !
 !        Always do the final processing whether the segment is active at this moment or not
 !
-         IF ( IACTION .EQ. 3 ) THEN
-            IF ( TCOUNT .GT. 0.0 ) THEN
-               IF ( PMSA(IP8) .GT. 0.0 ) THEN
+         IF ( IACTION == 3 ) THEN
+            IF ( TCOUNT > 0.0 ) THEN
+               IF ( PMSA(IP8) > 0.0 ) THEN
                   PMSA(IP9) = EXP( PMSA(IP9) / PMSA(IP8) )
                ELSE
                   PMSA(IP9) = 0.0
@@ -222,7 +222,7 @@
 
                IF ( NOWARN < MAXWARN ) THEN
                   CALL evaluate_waq_attribute(IKNMRK(ISEG), 3, ATTRIB )
-                  IF ( ATTRIB .NE. 0 ) THEN
+                  IF ( ATTRIB /= 0 ) THEN
                      NOWARN = NOWARN + 1
                      WRITE(*,'(a,i0)') 'Geometric mean could not be determined for segment ', ISEG
                      WRITE(*,'(a)')    '    - not enough values. Mean set to zero'

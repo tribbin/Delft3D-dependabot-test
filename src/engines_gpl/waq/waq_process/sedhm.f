@@ -71,7 +71,7 @@
       do iseg = 1 , noseg
       if (btest(iknmrk(iseg),0)) then
       call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-      if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+      if ((ikmrk2==0).or.(ikmrk2==3)) then
 
       fl1    = pmsa( ipnt(1 ) )
       fl2    = pmsa( ipnt(2 ) )
@@ -130,7 +130,7 @@
 
          ifrom  = iexpnt(1,iq)
 
-         if ( ifrom .gt. 0 ) then
+         if ( ifrom > 0 ) then
             fhmim1 = pmsa( ipnt(15) + (ifrom-1) * increm(15) )
             fhmim2 = pmsa( ipnt(16) + (ifrom-1) * increm(16) )
             fhmim3 = pmsa( ipnt(17) + (ifrom-1) * increm(17) )

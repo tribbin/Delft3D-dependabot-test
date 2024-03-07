@@ -133,9 +133,9 @@ use m_evaluate_waq_attribute
     do iseg = 1 , noseg
 
         call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
-        if (ikmrk1.eq.1) then
+        if (ikmrk1==1) then
             call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-            if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+            if ((ikmrk2==0).or.(ikmrk2==3)) then
                 ! species independent items
                 Tau         = PMSA(ipnt(   5 ))  !    total bottom shear stress                              (N/m2)
                 Depth       = PMSA(ipnt(   6 ))  !    depth of segment                                       (m)
@@ -158,9 +158,9 @@ use m_evaluate_waq_attribute
 
                     ! Calculate sedimentation probabality-------------------------------------------------------------------------------
                     ! Units: (-)
-                    if (Tau .eq. -1.0) then
+                    if (Tau == -1.0) then
                         PSed = 1.0
-                    elseif (TaucSDiat .lt. 1e-20 )  then
+                    elseif (TaucSDiat < 1e-20 )  then
                         PSed = 0.0
                     else
                         ! comapre with critical shear stress
@@ -174,7 +174,7 @@ use m_evaluate_waq_attribute
 
                     spInc = iflux + nrLossFluxes * (iSpec - 1)
 
-                    if (Depth .lt. MinDepth) then
+                    if (Depth < MinDepth) then
                         MaxSed_C   = 0.0
                         MaxSed_Chl = 0.0
                         MaxSed_N   = 0.0
@@ -247,11 +247,11 @@ use m_evaluate_waq_attribute
         i_origin  = iexpnt(1,ioq)
         i_dest    = iexpnt(2,ioq)
 
-        if ( i_origin .gt. 0 .and. i_dest .gt. 0 ) then
+        if ( i_origin > 0 .and. i_dest > 0 ) then
             ! find first index of the origin and destination segment
             call evaluate_waq_attribute(1,iknmrk(i_origin ),ikmrkv)
             call evaluate_waq_attribute(1,iknmrk(i_dest),ikmrkn)
-            if (ikmrkv.eq.1 .and. ikmrkn.eq.1) then
+            if (ikmrkv==1 .and. ikmrkn==1) then
                 ! water-water exchange
                 ! convert value from m/d to m/s
                 Depth  = PMSA( ipnt(6) + (i_origin - 1) * increm(6) )
@@ -261,7 +261,7 @@ use m_evaluate_waq_attribute
 
                 do iSpec = 1, nrSpec
 
-                    if ( Depth .gt. MinDepth .and. Depth2 .gt. MinDepth2 ) then
+                    if ( Depth > MinDepth .and. Depth2 > MinDepth2 ) then
                         PMSA(ipnt( inpItems + nrSpec + nrSpec * nrSpecOut + iSpec)) = PMSA(ipnt(inpItems + iSpec))/numSecPerDay
                     else
                         PMSA(ipnt( inpItems + nrSpec + nrSpec * nrSpecOut + iSpec )) = 0.0

@@ -163,7 +163,7 @@ contains
 
       IFRACS = 1
 
-      IF ( nproc .eq. 0 ) goto 9999
+      IF ( nproc == 0 ) goto 9999
 
 !     Count calls of this module
 !
@@ -173,7 +173,7 @@ contains
 
 !     BLOOM fractional step (derivs assumed zero at entry)
 
-      if ( ipbloo .gt. 0 ) then         !     Check presence of BLOOM module for this run
+      if ( ipbloo > 0 ) then         !     Check presence of BLOOM module for this run
          ivar   = prvvar(ioffbl)
          iarr   = vararr(ivar)
          iv_idx = varidx(ivar)
@@ -184,7 +184,7 @@ contains
 
 !        This timestep fractional step ?
 
-         if ( mod(istep-1,ndtblo) .eq. 0 ) then
+         if ( mod(istep-1,ndtblo) == 0 ) then
             flux = 0.0
 
 !           set dts and delt, bloom itself will multiply with prondt
@@ -201,27 +201,27 @@ contains
                              iknmrk , noq1   , noq2   , noq3   , noq4   ,          &
                              pronam , dll_opb)
 
-            if ( ipbloo .ne. nproc ) then
+            if ( ipbloo /= nproc ) then
                nfluxp = iflux(ipbloo+1) - iflux(ipbloo)
             else
                nfluxp = noflux - iflux(ipbloo) + 1
             endif
-            if ( nfluxp .gt. 0 ) then
+            if ( nfluxp > 0 ) then
 !              Construct derivatives for these fluxes on this grid
                call wq_processes_derivatives ( deriv            , notot       , noflux , stochi      , iflux (ipbloo) , &
                                                nfluxp           , flux        , noseg  , volume      , prondt(ipbloo) )
 
 !              For balances store FLXDMP
-               if ( ibflag .gt. 0 ) then
+               if ( ibflag > 0 ) then
                   ndt = prondt(ipbloo)*dts/86400.0
                   do iseg = 1 , noseg
-                     if ( isdmp(iseg) .gt. 0 ) then
+                     if ( isdmp(iseg) > 0 ) then
                         nflux1 = iflux (ipbloo)
                         vol = volume(iseg)
                         ips = isdmp(iseg)
-                        if(ips.lt.1) cycle
+                        if(ips<1) cycle
                         do iflx = nflux1 , nflux1 + nfluxp - 1
-                           if(flux(iflx,iseg).gt.0) then
+                           if(flux(iflx,iseg)>0) then
                               flxdmp(1,iflx,ips) = flxdmp(1,iflx,ips) + flux(iflx,iseg)*vol*ndt
                            else
                               flxdmp(2,iflx,ips) = flxdmp(2,iflx,ips) - flux(iflx,iseg)*vol*ndt
@@ -233,9 +233,9 @@ contains
 
             endif
 
-            if ( istep .eq. 1 ) then
+            if ( istep == 1 ) then
                deriv(:,:) = 0.0d0
-               if ( ibflag .gt. 0 ) flxdmp = 0.0d0
+               if ( ibflag > 0 ) flxdmp = 0.0d0
             else
 !              Scale fluxes and update "processes" accumulation arrays
                atfac = 1.0/real(itfact,8)
@@ -257,9 +257,9 @@ contains
 
       do iproc = 1,nproc
 !        NOT bloom
-         if ( iproc .ne. ipbloo ) then
+         if ( iproc /= ipbloo ) then
 !           Check fractional step
-            if ( mod( istep-1, prondt(iproc) ) .eq. 0 ) then
+            if ( mod( istep-1, prondt(iproc) ) == 0 ) then
 
                ! set dts and delt for this process in the default array
                ipp_dts    = nodef - 2*nproc + iproc
@@ -287,7 +287,7 @@ contains
 
 !     Calculate new velocities
       if (flux_int == 2) then
-         if ( nveln  .gt. 0 .and. flux_int .ne. 1 ) then
+         if ( nveln  > 0 .and. flux_int /= 1 ) then
             call wq_processes_velocities ( velonw , nveln  , ivpnew ,          &
                           velx   , nvelx  , vsto   , nosys  , &
                             noq    )
@@ -295,13 +295,13 @@ contains
       endif
 
 !     Set fractional step
-      if ( noflux .gt. 0 .and. ifracs .eq. 1 ) then
+      if ( noflux > 0 .and. ifracs == 1 ) then
 
          ! no fluxes at first step of fractional step
 
-         if ( istep .eq. 1 ) then
+         if ( istep == 1 ) then
             deriv(:,:) = 0.0d0
-            if ( ibflag .gt. 0 ) flxdmp = 0.0d0
+            if ( ibflag > 0 ) flxdmp = 0.0d0
          else
 
 !           Scale fluxes and update "processes" accumulation arrays
@@ -312,7 +312,7 @@ contains
 
             if (flux_int == 1) then
 !              let WAQ integrate the process fluxes
-               if ( nveln  .gt. 0 ) then
+               if ( nveln  > 0 ) then
 !                 Add effect of additional flow velocities
                   call wq_processes_integrate_velocities ( nosys    , notot    , noseg    , noq      , nveln    , &
                                                            velx     , area     , volume   , iexpnt   , iknmrk   , &
@@ -382,13 +382,13 @@ contains
          idim2  = arrdm2(iarr)
 
 !        Set pointer structure
-         if ( iarknd .eq. 1 ) then
+         if ( iarknd == 1 ) then
             ipmsa (k+ivario-1) = ip_arr + iv_idx - 1
             increm(k+ivario-1) = 0
-         elseif ( iarknd .eq. 2 ) then
+         elseif ( iarknd == 2 ) then
             ipmsa (k+ivario-1) = ip_arr + iv_idx - 1
             increm(k+ivario-1) = idim1
-         elseif ( iarknd .eq. 3 ) then
+         elseif ( iarknd == 3 ) then
             ipmsa (k+ivario-1) = ip_arr + (iv_idx-1)*idim1
             increm(k+ivario-1) = 1
          else
@@ -453,16 +453,16 @@ contains
       if ( timon ) call timstrt ( "twopro_wqm", ithndl )
 
       do iproc = 1, nproc
-         if ( iproc .eq. ipbloo ) cycle
-         if ( mod( istep-1, prondt(iproc) ) .ne. 0 ) cycle
+         if ( iproc == ipbloo ) cycle
+         if ( mod( istep-1, prondt(iproc) ) /= 0 ) cycle
 
 !        See if this process produces fluxes
-         if ( iproc .ne. nproc ) then
+         if ( iproc /= nproc ) then
             nfluxp = iflux(iproc+1) - iflux(iproc)
          else
             nfluxp = noflux - iflux(iproc) + 1
          endif
-         if ( nfluxp .eq. 0 ) cycle
+         if ( nfluxp == 0 ) cycle
 
 !        Construct derivatives from these fluxes on this grid
          call wq_processes_derivatives( deriv           , notot          , noflux , stochi         , iflux (iproc), &
@@ -470,15 +470,15 @@ contains
 
 !        For the use in balances, store fluxes in 'flxdmp' using aggregation pointer 'isdmp'
          ndt = prondt(iproc)*real(dts)/86400.0
-         if ( ibflag .gt. 0 ) then
+         if ( ibflag > 0 ) then
             do iseg = 1 , noseg
-               if ( isdmp(iseg) .gt. 0 ) then
+               if ( isdmp(iseg) > 0 ) then
                   nflux1 = iflux (iproc)
                   vol = volume(iseg)
                   ips = isdmp(iseg)
-                  if(ips.lt.1) cycle
+                  if(ips<1) cycle
                   do iflx = nflux1 , nflux1 + nfluxp - 1
-                     if(flux(iflx,iseg).gt.0) then
+                     if(flux(iflx,iseg)>0) then
                         flxdmp(1,iflx,ips) = flxdmp(1,iflx,ips) + flux(iflx,iseg)*vol*ndt
                      else
                         flxdmp(2,iflx,ips) = flxdmp(2,iflx,ips) - flux(iflx,iseg)*vol*ndt

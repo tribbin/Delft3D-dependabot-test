@@ -123,7 +123,7 @@ contains
 
 ! first check the substance
 
-    if (quantity .le. notot) then
+    if (quantity <= notot) then
        quantity_id = quantity
      endif
 

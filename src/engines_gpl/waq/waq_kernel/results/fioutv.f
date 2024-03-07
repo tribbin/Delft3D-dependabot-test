@@ -118,11 +118,11 @@
 !
 !     GRID
 !
-      IF ( IGRID .EQ. IGSEG ) THEN
+      IF ( IGRID == IGSEG ) THEN
          NOCEL = NOSEG
-      ELSEIF ( IGRID .EQ. IGMON ) THEN
+      ELSEIF ( IGRID == IGMON ) THEN
          NOCEL = NODUMP
-      ELSEIF ( IGRID .EQ. IGGRD ) THEN
+      ELSEIF ( IGRID == IGGRD ) THEN
          NOCEL = NX*NY
       ENDIF
 !
@@ -132,11 +132,11 @@
 !
 !        What segment ?
 !
-         IF ( IGRID .EQ. IGSEG ) THEN
+         IF ( IGRID == IGSEG ) THEN
             ISEG = ICEL
-         ELSEIF ( IGRID .EQ. IGMON ) THEN
+         ELSEIF ( IGRID == IGMON ) THEN
             ISEG = IDUMP(ICEL)
-         ELSEIF ( IGRID .EQ. IGGRD ) THEN
+         ELSEIF ( IGRID == IGGRD ) THEN
             ISEG = LGRID(ICEL)
          ENDIF
 
@@ -146,39 +146,39 @@
 !
 !           What value
 !
-            IF ( ISEG .LT. 0 ) THEN
-               IF ( IP .GE. IOCONC .AND. IP .LT. IOCONC+NOSYS ) THEN
+            IF ( ISEG < 0 ) THEN
+               IF ( IP >= IOCONC .AND. IP < IOCONC+NOSYS ) THEN
                   IIP = (-ISEG-1)*NOSYS + IP-IOCONC+1
                   OUTVAL(IICEL) = BOUND(IIP)
                ELSE
                   OUTVAL(IICEL) = RMISS
                ENDIF
-            ELSEIF ( ISEG .EQ. 0 ) THEN
+            ELSEIF ( ISEG == 0 ) THEN
                OUTVAL(IICEL) = RMISS
             ELSE
-               IF ( IP .GE. IODEF  ) THEN
+               IF ( IP >= IODEF  ) THEN
                   OUTVAL(IICEL) = DEFAUL(IP-IODEF+1)
-               ELSEIF ( IP .GE. IOLOC  ) THEN
+               ELSEIF ( IP >= IOLOC  ) THEN
                   IIP = (ISEG-1)*NOLOC + IP-IOLOC+1
                   OUTVAL(IICEL) = PROLOC(IIP)
-               ELSEIF ( IP .GE. IOCONC ) THEN
+               ELSEIF ( IP >= IOCONC ) THEN
                   OUTVAL(IICEL) = CONC(IP-IOCONC+1,ISEG)
-               ELSEIF ( IP .GE. IOSFUN ) THEN
+               ELSEIF ( IP >= IOSFUN ) THEN
                   OUTVAL(IICEL) = SEGFUN(ISEG,IP-IOSFUN+1)
-               ELSEIF ( IP .GE. IOFUNC ) THEN
+               ELSEIF ( IP >= IOFUNC ) THEN
                   OUTVAL(IICEL) = FUNC(IP-IOFUNC+1)
-               ELSEIF ( IP .GE. IOPA ) THEN
+               ELSEIF ( IP >= IOPA ) THEN
                   IIP = (ISEG-1)*NOPA + IP-IOPA+1
                   OUTVAL(IICEL) = PARAM(IIP)
-               ELSEIF ( IP .GE. IOCONS ) THEN
+               ELSEIF ( IP >= IOCONS ) THEN
                   OUTVAL(IICEL) = CONS(IP-IOCONS+1)
-               ELSEIF ( IP .EQ. 3 ) THEN
+               ELSEIF ( IP == 3 ) THEN
                   OUTVAL(IICEL) = REAL(IDT)
-               ELSEIF ( IP .EQ. 2 ) THEN
+               ELSEIF ( IP == 2 ) THEN
                   OUTVAL(IICEL) = REAL(ITIME)
-               ELSEIF ( IP .EQ. 1 ) THEN
+               ELSEIF ( IP == 1 ) THEN
                   OUTVAL(IICEL) = VOLUME(ISEG)
-               ELSEIF ( IP .LE. 0 ) THEN
+               ELSEIF ( IP <= 0 ) THEN
                   OUTVAL(IICEL) = RMISS
                ENDIF
             ENDIF

@@ -113,7 +113,7 @@
 !
       NOSTR = NINT(PMSA(IP1))
 !
-      IF (NOSTR .GT. 100.0) THEN
+      IF (NOSTR > 100.0) THEN
          CALL GETMLU(lunrep)
          write(lunrep,*) 'Error: Number of structures',
      +                   ' greater than 100'
@@ -140,12 +140,12 @@
 !        Oxygen production if discharge over crest is larger than
 !        zero. Aeration takes place in downstream segment-----------
 !
-         IF (DISCH .GT. 0.0) THEN
+         IF (DISCH > 0.0) THEN
              UPSEG = SEGL
              DNSEG = SEGR
              UPWL  = WLL
              DNWL  = WLR
-         ELSEIF (DISCH .LT. 0.0) THEN
+         ELSEIF (DISCH < 0.0) THEN
              UPSEG = SEGR
              DNSEG = SEGL
              UPWL  = WLR
@@ -177,7 +177,7 @@
 !        Switch for gameson (SWAER = 0) or hybride of gameson and
 !        nakasone (SWAER = 1)-----------------------------------
 !
-         IF (SWAER .LT. 0.5) THEN
+         IF (SWAER < 0.5) THEN
 !
 !            SWAER = 0, gameson---------------------------------
 !

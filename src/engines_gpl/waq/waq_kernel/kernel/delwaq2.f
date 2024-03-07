@@ -199,7 +199,7 @@
 !        the file does exist, so continue processing
 !
          CALL open_waq_files ( LUNIN , LCHAR(1), 1     , 2     , IERR  )
-         IF ( IERR .GT. 0 ) GOTO 999
+         IF ( IERR > 0 ) GOTO 999
          READ  ( LUNIN )   IN
          READ  ( LUNIN )   II
          READ  ( LUNIN )   IMR     , IMI  , IMC
@@ -222,7 +222,7 @@
                CALL startup_screen (LUN(19))
             ENDIF
 
-            IF (ACTION .EQ. ACTION_FULLCOMPUTATION) THEN
+            IF (ACTION == ACTION_FULLCOMPUTATION) THEN
                WRITE(*,*)
                WRITE(*,'(A9,A)') '  runid: ',TRIM(RUNID)
                WRITE(*,*)
@@ -238,7 +238,7 @@
      &                 filtype, gridps , dlwqd  , ierr   )
 !
 
-         IF ( IERR .GT. 0 ) GOTO 992
+         IF ( IERR > 0 ) GOTO 992
 !
 !        end of initialisation
 !

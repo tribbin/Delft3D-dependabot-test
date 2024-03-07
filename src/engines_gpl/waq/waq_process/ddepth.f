@@ -73,12 +73,12 @@
       IFLUX = 0
       DO ISEG = 1 , NOSEG
       CALL evaluate_waq_attribute(3,IKNMRK(ISEG),IKMRK3)
-      IF (IKMRK3.EQ.1 .OR. IKMRK3.EQ.3) THEN
+      IF (IKMRK3==1 .OR. IKMRK3==3) THEN
 !
       VOLUME = PMSA(IP1 )
       SURF   = PMSA(IP2 )
 
-      IF (SURF    .LT. 1E-30) THEN
+      IF (SURF    < 1E-30) THEN
          write ( message(32:55) , '(i9,1x,e14.6)' ) iseg, surf
          CALL write_error_message ( message )
       ENDIF

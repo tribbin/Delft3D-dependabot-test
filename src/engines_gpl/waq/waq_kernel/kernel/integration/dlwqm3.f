@@ -97,34 +97,34 @@
       do iq = 1 , noq
          ifrom = ipoint(1,iq)
          ito   = ipoint(2,iq)
-         if ( ifrom .eq. 0 .or. ito .eq. 0 ) cycle
+         if ( ifrom == 0 .or. ito == 0 ) cycle
 
 ! compute from- and to concentrations
-         if ( ifrom .gt. 0 ) then
+         if ( ifrom > 0 ) then
             ci = conc (isys, ifrom)
          else
             ci = bound(isys,-ifrom)
          endif
-         if ( ito   .gt. 0 ) then
+         if ( ito   > 0 ) then
             cj = conc (isys, ito  )
          else
             cj = bound(isys,-ito  )
          endif
 
 ! compute flux from i to j
-         if ( flowtot(iq) .gt. 0 ) then         ! flow from i to j
+         if ( flowtot(iq) > 0 ) then         ! flow from i to j
             fluxij = flowtot(iq)*ci - disptot(iq)*(cj-ci)
          else                                   ! flow from j to i
             fluxij = flowtot(iq)*cj - disptot(iq)*(cj-ci)
          endif
 
 ! add flux to both neighbours
-         if ( ifrom .gt. 0 ) rhs(ifrom) = rhs(ifrom) - (1-theta(iq))*fluxij
-         if ( ito   .gt. 0 ) rhs(ito  ) = rhs(ito  ) + (1-theta(iq))*fluxij
+         if ( ifrom > 0 ) rhs(ifrom) = rhs(ifrom) - (1-theta(iq))*fluxij
+         if ( ito   > 0 ) rhs(ito  ) = rhs(ito  ) + (1-theta(iq))*fluxij
       enddo
 
 ! scale rhs (diagonal scaling to improve convergence of gmres)
-      if ( iscale .eq. 1 ) then
+      if ( iscale == 1 ) then
          do iseg = 1, noseg+nobnd
             rhs(iseg) = rhs(iseg) / diag(iseg)
          enddo

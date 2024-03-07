@@ -98,7 +98,7 @@ contains
 
          ! no oxidation if no oxygen
 
-         if ( oxy .le. 0.0 ) then
+         if ( oxy <= 0.0 ) then
 
             ffesox     = 0.0
             ffes2ox    = 0.0
@@ -117,10 +117,10 @@ contains
 
             ! maximise fluxes if neccesary
 
-            if ( ffesox .gt. fes/delt ) then
+            if ( ffesox > fes/delt ) then
                ffesox = 0.5*fes/delt
             endif
-            if ( ffes2ox .gt. fes2/delt ) then
+            if ( ffes2ox > fes2/delt ) then
                ffes2ox = 0.5*fes2/delt
             endif
 

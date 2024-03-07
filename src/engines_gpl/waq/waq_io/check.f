@@ -84,7 +84,7 @@
          case ( 0 )               !   look for end of block
             call status%increase_error_count()
             write ( lunut , 2010 ) iblock
-            do while ( ierr2 .eq. 0 )
+            do while ( ierr2 == 0 )
                ihulp = gettoken ( cdummy, idummy, rdummy, itype, ierr2 )
             enddo
          case ( 3 )               !   fatal
@@ -93,9 +93,9 @@
             call srstop ( 1 )
       end select
 
-      if ( ierr2 .eq. 2 ) then          !   end block found check number
+      if ( ierr2 == 2 ) then          !   end block found check number
          write ( chulp , '(i1)' ) iblock
-         if ( chulp .ne. cdummy(2:2) ) then
+         if ( chulp /= cdummy(2:2) ) then
             write ( lunut , 2020 ) iblock
             call status%increase_error_count()
             write ( lunut , 2040 ) status%ierr
@@ -110,7 +110,7 @@
 
 !        normal end (can be with error)
 
-      if ( iwidth .eq. 5 ) then
+      if ( iwidth == 5 ) then
          write ( lunut , 2050 ) iblock
       else
          write ( lunut , 2060 ) iblock

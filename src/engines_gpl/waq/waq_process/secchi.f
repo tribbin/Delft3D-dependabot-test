@@ -90,13 +90,13 @@
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 !
           SW_UITZ = PMSA(IP(11))
-          IF (NINT(SW_UITZ) .EQ. 0) THEN
+          IF (NINT(SW_UITZ) == 0) THEN
 !
 !  Calculate secchi depth without UITZICHT
 !
               EXT = PMSA(IP(1))
               PAC = PMSA(IP(22))
-              IF ( EXT .GT. 0.0 ) THEN
+              IF ( EXT > 0.0 ) THEN
                   SECCH = PAC/EXT
               ELSE
                   SECCH = -999.

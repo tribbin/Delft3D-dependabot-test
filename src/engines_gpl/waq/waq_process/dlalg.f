@@ -72,7 +72,7 @@
       DL        = PMSA(IP1 )
       KMDL      = PMSA(IP2 )
 
-      IF (DL .LT. 1E-20 )  CALL write_error_message ('DL in DLALG zero')
+      IF (DL < 1E-20 )  CALL write_error_message ('DL in DLALG zero')
 
 !     Actueel licht / licht voor groei verzadiging
       PMSA(IP3 )   =  MIN ( DL, KMDL) / KMDL

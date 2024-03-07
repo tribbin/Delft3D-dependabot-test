@@ -145,7 +145,7 @@
 
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-      IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
+      IF ((IKMRK2==0).OR.(IKMRK2==3)) THEN
 !
       SOMSED  = PMSA(IP1 )
       RESS1   = PMSA(IP2 )
@@ -180,9 +180,9 @@
       EXCBS2  =  0.0
 
 ! --- First option (fixed layer thickness)
-      IF ( ISW .EQ. 0 ) THEN
+      IF ( ISW == 0 ) THEN
 
-         IF (ACTHS1 .LT. FIXS1 ) THEN
+         IF (ACTHS1 < FIXS1 ) THEN
             BURS1 = 0.0
          ELSE
             EXCBS1 = (ACTHS1-FIXS1)*RHOS1*(1.0-PORS1) / DELT
@@ -190,7 +190,7 @@
 
          ENDIF
 
-         IF (ACTHS2 .LT. FIXS2 ) THEN
+         IF (ACTHS2 < FIXS2 ) THEN
             BURS2 = 0.0
          ELSE
             EXCBS2 = (ACTHS2-FIXS2)*RHOS2*(1.0-PORS2) / DELT
@@ -198,7 +198,7 @@
          ENDIF
 
 ! --- Second  option (variable layer with variable but maximum thickness)
-      ELSEIF ( ISW .EQ. 1 ) THEN
+      ELSEIF ( ISW == 1 ) THEN
 
       DMS1 = ACTHS1 * SURF * RHOS1 * (1.-PORS1)
       DMS2 = ACTHS2 * SURF * RHOS2 * (1.-PORS2)

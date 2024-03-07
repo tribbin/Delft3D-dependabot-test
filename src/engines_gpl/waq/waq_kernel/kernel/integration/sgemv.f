@@ -154,26 +154,26 @@
      $         .NOT.LSAME( TRANS, 'T' ).AND.
      $         .NOT.LSAME( TRANS, 'C' )      )THEN
          INFO = 1
-      ELSE IF( M.LT.0 )THEN
+      ELSE IF( M<0 )THEN
          INFO = 2
-      ELSE IF( N.LT.0 )THEN
+      ELSE IF( N<0 )THEN
          INFO = 3
-      ELSE IF( LDA.LT.MAX( 1, M ) )THEN
+      ELSE IF( LDA<MAX( 1, M ) )THEN
          INFO = 6
-      ELSE IF( INCX.EQ.0 )THEN
+      ELSE IF( INCX==0 )THEN
          INFO = 8
-      ELSE IF( INCY.EQ.0 )THEN
+      ELSE IF( INCY==0 )THEN
          INFO = 11
       END IF
-      IF( INFO.NE.0 )THEN
+      IF( INFO/=0 )THEN
          CALL XERBLA( 'SGEMV ', INFO )
          goto 9999  !   RETURN
       END IF
 *
 *     Quick return if possible.
 *
-      IF( ( M.EQ.0 ).OR.( N.EQ.0 ).OR.
-     $    ( ( ALPHA.EQ.ZERO ).AND.( BETA.EQ.ONE ) ) )
+      IF( ( M==0 ).OR.( N==0 ).OR.
+     $    ( ( ALPHA==ZERO ).AND.( BETA==ONE ) ) )
      $   goto 9999  !   RETURN
 *
 *     Set  LENX  and  LENY, the lengths of the vectors x and y, and set
@@ -186,12 +186,12 @@
          LENX = M
          LENY = N
       END IF
-      IF( INCX.GT.0 )THEN
+      IF( INCX>0 )THEN
          KX = 1
       ELSE
          KX = 1 - ( LENX - 1 )*INCX
       END IF
-      IF( INCY.GT.0 )THEN
+      IF( INCY>0 )THEN
          KY = 1
       ELSE
          KY = 1 - ( LENY - 1 )*INCY
@@ -202,9 +202,9 @@
 *
 *     First form  y := beta*y.
 *
-      IF( BETA.NE.ONE )THEN
-         IF( INCY.EQ.1 )THEN
-            IF( BETA.EQ.ZERO )THEN
+      IF( BETA/=ONE )THEN
+         IF( INCY==1 )THEN
+            IF( BETA==ZERO )THEN
                DO , I = 1, LENY
                   Y( I ) = ZERO
       end do
@@ -215,7 +215,7 @@
             END IF
          ELSE
             IY = KY
-            IF( BETA.EQ.ZERO )THEN
+            IF( BETA==ZERO )THEN
                DO , I = 1, LENY
                   Y( IY ) = ZERO
                   IY      = IY   + INCY
@@ -228,16 +228,16 @@
             END IF
          END IF
       END IF
-      IF( ALPHA.EQ.ZERO )
+      IF( ALPHA==ZERO )
      $    goto 9999  !   RETURN
       IF( LSAME( TRANS, 'N' ) )THEN
 *
 *        Form  y := alpha*A*x + y.
 *
          JX = KX
-         IF( INCY.EQ.1 )THEN
+         IF( INCY==1 )THEN
             DO , J = 1, N
-               IF( X( JX ).NE.ZERO )THEN
+               IF( X( JX )/=ZERO )THEN
                   TEMP = ALPHA*X( JX )
                   DO , I = 1, M
                      Y( I ) = Y( I ) + TEMP*A( I, J )
@@ -247,7 +247,7 @@
       end do
          ELSE
             DO , J = 1, N
-               IF( X( JX ).NE.ZERO )THEN
+               IF( X( JX )/=ZERO )THEN
                   TEMP = ALPHA*X( JX )
                   IY   = KY
                   DO , I = 1, M
@@ -263,7 +263,7 @@
 *        Form  y := alpha*A'*x + y.
 *
          JY = KY
-         IF( INCX.EQ.1 )THEN
+         IF( INCX==1 )THEN
             DO , J = 1, N
                TEMP = ZERO
                DO , I = 1, M

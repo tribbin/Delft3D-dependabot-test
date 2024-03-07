@@ -47,7 +47,7 @@
       real(kind=dp) ::death, temp, temp2, tmpcor
 !
       temp2 = temp
-      if (temp .lt. temlim) then
+      if (temp < temlim) then
          do i = 1,nuspec
             rmort(i) = basmor
          end do
@@ -55,16 +55,16 @@
       else
          death = 0.0
          do i = 1,nuspec
-            if (rmort2(i).ge.0) then
+            if (rmort2(i)>=0) then
                tmpcor = rmort2(i)
             else
                tmpcor = 1.0
             endif
             rmort(i) = rmort1(i) * tmpcor ** temp2
-            if ((rmort2(i).lt.0.).and.(temp.gt.-1.*rmort2(i))) then
+            if ((rmort2(i)<0.).and.(temp>-1.*rmort2(i))) then
                rmort(i) = max(rmort(i),(temp+rmort2(i)) * rmort3(i))
             end if
-            if (rmort(i) .gt. death) death = rmort(i)
+            if (rmort(i) > death) death = rmort(i)
          end do
       end if
       return

@@ -83,7 +83,7 @@ contains
             ip = isdmp(iseg)
             do i = isys, isys+nsys-1
                amass2( i       ,   2  ) = amass2( i, 2 ) + conc(i,iseg)*sol(i-isys+1,iseg)
-               if ( ip .gt. 0 ) then
+               if ( ip > 0 ) then
                   dmps( i, ip ) = dmps( i, ip ) + conc(i,iseg)*sol(i-isys+1,iseg)
                endif
                conc  ( i       , iseg ) = sol(i-isys+1,iseg)

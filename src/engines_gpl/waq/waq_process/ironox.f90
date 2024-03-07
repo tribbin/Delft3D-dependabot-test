@@ -114,7 +114,7 @@ contains
          delt       = pmsa( ipnt( 15) )
          poros      = pmsa( ipnt( 16) )
 
-         if ( oxy .le. 0.0 ) then
+         if ( oxy <= 0.0 ) then
             dioo = 0.0
          else
             tfiox = tciox**(temp-20.)
@@ -124,7 +124,7 @@ contains
             dioo  = (kioo1*frfe2dis + kioo2*frfe2ohd + kioo3*frfe2oh2d)*feiid*oxy/poros
          endif
 
-         if ( oxy .le. 0.0 ) then
+         if ( oxy <= 0.0 ) then
             dion = 0.0
          else
             tfiox = tciox**(temp-20.)
@@ -136,7 +136,7 @@ contains
 
          ! maximise fluxes if neccesary
 
-         if ( dioo + dion .gt. feiid/delt ) then
+         if ( dioo + dion > feiid/delt ) then
             dioo = (dioo/(dioo+dion))*0.5*feiid/delt
             dion = (dion/(dioo+dion))*0.5*feiid/delt
          endif

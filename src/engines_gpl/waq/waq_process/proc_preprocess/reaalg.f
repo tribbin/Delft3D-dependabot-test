@@ -62,7 +62,7 @@
 !
       read(lunblm,*,err=900) notyp
       read(lunblm,*,err=901) nocof
-      if (verspe.lt.2.0) then
+      if (verspe<2.0) then
          read(lunblm,2000,err=902) (cofnam(i),i=1,nocof)
          do iatyp = 1 , notyp
             read(lunblm,2010,err=903) alggrp(iatyp),abrgrp(iatyp),
@@ -78,7 +78,7 @@
          enddo
       endif
       read(lunblm,*,err=904) noutgrp
-      if (verspe.lt.2.0) then
+      if (verspe<2.0) then
          do i = 1 , noutgrp
             read(lunblm,*,err=905) outgrp(i)
          enddo
@@ -86,7 +86,7 @@
          read(lunblm,*,err=905) (outgrp(i), i = 1 , noutgrp)
       endif
       read(lunblm,*,err=906) nouttyp
-      if (verspe.lt.2.0) then
+      if (verspe<2.0) then
          do i = 1 , nouttyp
             read(lunblm,*,err=907) outtyp(i)
          enddo
@@ -94,7 +94,7 @@
          read (lunblm,*,err=907) (outtyp(i), i = 1 , nouttyp)
       endif
       read(lunblm,*,err=908) noprot
-      if (verspe.lt.2.0) then
+      if (verspe<2.0) then
          do i = 1 , noprot
             read(lunblm,*,err=909) namprot(i),nampact(i)
          enddo
@@ -102,7 +102,7 @@
          read(lunblm,*,err=909) (namprot(i),nampact(i), i = 1 , noprot)
       endif
       read(lunblm,*,err=910) nopralg
-      if (verspe.lt.2.0) then
+      if (verspe<2.0) then
          do i = 1 , nopralg
             read(lunblm,*,err=911) nampralg(i)
          enddo

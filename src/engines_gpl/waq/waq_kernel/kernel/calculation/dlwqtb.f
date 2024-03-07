@@ -105,13 +105,13 @@
    10 IJ   = IJ + 1
       IORD = J(IJ)
       IJ   = IJ + 1
-      IF ( IORD .EQ. 1 ) THEN
+      IF ( IORD == 1 ) THEN
          NPNT = J(IJ)
          NPST = IJ
          NDIM = J(NPST+NPNT+1)
          NDST = NPST+NPNT+1
       ENDIF
-      IF ( IORD .EQ. 2 ) THEN
+      IF ( IORD == 2 ) THEN
          NDIM = J(IJ)
          NDST = IJ
          NPNT = J(NDST+NDIM+1)
@@ -128,7 +128,7 @@
 !
 !           Setting of default values
 !
-      IF ( NPNT .EQ. 0 ) THEN
+      IF ( NPNT == 0 ) THEN
          DO I2 = 1 , NDIM
             IA = IA + 1
             IB = IOFF+J(NDST+I2)
@@ -143,15 +143,15 @@
 !
 !       IOPT = 1 : Block function , IOPT = 2 : Linearly interpolated
 !
-      IF ( IOPT .EQ. 1 .OR. IOPT .EQ. 2 ) THEN
+      IF ( IOPT == 1 .OR. IOPT == 2 ) THEN
 !
 !           Get the right time in the block
 !
-         IF ( NOBRK .GT. 1 ) THEN
+         IF ( NOBRK > 1 ) THEN
             ITIM1 = J(IJ+1)
             ITIM2 = J(IJ+NOBRK)
             IDT   = ITIM2 - ITIM1
-            IF ( ITIME .LT. ITIM1 ) THEN
+            IF ( ITIME < ITIM1 ) THEN
                IREC = 1
                ITIM1 = 0
                ITIM2 = 1
@@ -159,14 +159,14 @@
                GOTO 50
             ENDIF
             ITIMF = ITIME
-            IF ( ITIME .GE. ITIM2 )
+            IF ( ITIME >= ITIM2 )
      *                ITIMF = ITIME - ( (ITIME-ITIM2)/IDT + 1 ) * IDT
 !
 !           Make interpolation constants if IOPT = 2
 !
             DO I = 2 , NOBRK
-               IF ( J(IJ+I) .GT. ITIMF ) THEN
-                  IF ( IOPT .EQ. 2 ) THEN
+               IF ( J(IJ+I) > ITIMF ) THEN
+                  IF ( IOPT == 2 ) THEN
                      ITIM1 = ITIMF   - J(IJ+I-1)
                      ITIM2 = J(IJ+I) - ITIMF
                   ELSE
@@ -189,7 +189,7 @@
 !
    50    I = IA + (IREC-1)*NTT
 !           Inner loop in A over the substances
-         IF ( IORD .EQ. 1 ) THEN
+         IF ( IORD == 1 ) THEN
             DO I1 = 1 , NPNT
                II = J(NPST+I1)
                IB = (II-1)*NOTOT
@@ -198,10 +198,10 @@
 !
 !                 Ignore negative indexes (0 equal to flow wastes??)
 !
-                  IF ( IC .GE. 0 ) THEN
+                  IF ( IC >= 0 ) THEN
                      I  = I + 1
                      AA = A(I)
-                     IF ( NOBRK .GT. 1 ) THEN
+                     IF ( NOBRK > 1 ) THEN
                         AB = A(I+NTT)
                      ELSE
                         AB = 0.0
@@ -210,32 +210,32 @@
                      IT2C = ITIM2
                      IDTC   = IDT
 !     Dealing with missing values
-                     IF ( AA .EQ. AMISS .OR. AB .EQ. AMISS )
+                     IF ( AA == AMISS .OR. AB == AMISS )
      *                 CALL DLWMIS( A    , I    , AMISS , NTT   , IREC ,
      *                              J    , IJ   , NOBRK , ITIMF , IOPT ,
      *                              IT1C , IT2C , IDTC  , AA    , AB   )
 !           If no value is found, then skip the assignment, except flow set missing
-                     IF ( IT1C .NE. 0 .OR. IT2C .NE. 0 ) THEN
+                     IF ( IT1C /= 0 .OR. IT2C /= 0 ) THEN
 !           Make the wanted value
                         AA = ( IT2C*AA + IT1C*AB ) / IDTC
-                        IF ( II .GT. 0 ) THEN
+                        IF ( II > 0 ) THEN
                            AVAL(IB+IC) = AA
                         ELSE
 !              Set a whole type
                            DO I3 = 1 , NOITM
-                              IF ( KTYPE(I3) .EQ. -II ) THEN
+                              IF ( KTYPE(I3) == -II ) THEN
                                  AVAL ( (I3-1)*NOTOT + IC ) = AA
                               ENDIF
       end do
                         ENDIF
-                     ELSEIF ( IC - IOFF .EQ. 0 ) THEN
+                     ELSEIF ( IC - IOFF == 0 ) THEN
 !                       for flow accept missing (detected flow)
-                        IF ( II .GT. 0 ) THEN
+                        IF ( II > 0 ) THEN
                            AVAL(IB+IC) = AMISS
                         ELSE
 !                          Set a whole type
                            DO I3 = 1 , NOITM
-                              IF ( KTYPE(I3) .EQ. -II ) THEN
+                              IF ( KTYPE(I3) == -II ) THEN
                                  AVAL ( (I3-1)*NOTOT + IC ) = AMISS
                               ENDIF
                            ENDDO
@@ -254,11 +254,11 @@
          ELSE
             DO I1 = 1 , NDIM
                IC = IOFF+J(NDST+I1)
-               IF ( IC .GE. 0 ) THEN
+               IF ( IC >= 0 ) THEN
                   DO I2 = 1 , NPNT
                      I  = I + 1
                      AA = A(I)
-                     IF ( NOBRK .GT. 1 ) THEN
+                     IF ( NOBRK > 1 ) THEN
                         AB = A(I+NTT)
                      ELSE
                         AB = 0.0
@@ -267,32 +267,32 @@
                      IT2C = ITIM2
                      IDTC   = IDT
 !     Dealing with missing values
-                     IF ( AA .EQ. AMISS .OR. AB .EQ. AMISS )
+                     IF ( AA == AMISS .OR. AB == AMISS )
      *                 CALL DLWMIS( A    , I    , AMISS , NTT   , IREC ,
      *                              J    , IJ   , NOBRK , ITIMF , IOPT ,
      *                              IT1C , IT2C , IDTC  , AA    , AB   )
 !           If no value is found, then skip the assignment
-                     IF ( IT1C .NE. 0 .OR. IT2C .NE. 0 ) THEN
+                     IF ( IT1C /= 0 .OR. IT2C /= 0 ) THEN
 !           Make the wanted value
                         AA = ( IT2C*AA + IT1C*AB ) / IDTC
                         II = J(NPST+I2)
-                        IF ( II .GT. 0 ) THEN
+                        IF ( II > 0 ) THEN
                            IB = (J(NPST+I2)-1)*NOTOT
                            AVAL(IB+IC) = AA
                         ELSE
                            DO I3 = 1 , NOITM
-                              IF ( KTYPE(I3) .EQ. -II )
+                              IF ( KTYPE(I3) == -II )
      *                           AVAL ( (I3-1)*NOTOT + IC ) = AA
       end do
                         ENDIF
-                     ELSEIF ( IC -IOFF .EQ. 0 ) THEN
+                     ELSEIF ( IC -IOFF == 0 ) THEN
 !                       for flow accept missing (detected flow)
-                        IF ( II .GT. 0 ) THEN
+                        IF ( II > 0 ) THEN
                            IB = (J(NPST+I2)-1)*NOTOT
                            AVAL(IB+IC) = AMISS
                         ELSE
                            DO I3 = 1 , NOITM
-                              IF ( KTYPE(I3) .EQ. -II )
+                              IF ( KTYPE(I3) == -II )
      *                           AVAL ( (I3-1)*NOTOT + IC ) = AMISS
                            ENDDO
                         ENDIF
@@ -312,7 +312,7 @@
 !
 !       IOPT = 3 and 4 : Harmonics and fouriers, treated equally
 !
-      IF ( IOPT .EQ. 3 .OR. IOPT .EQ. 4 ) THEN
+      IF ( IOPT == 3 .OR. IOPT == 4 ) THEN
 !
          DO I = 1 , NOBRK
 !
@@ -322,7 +322,7 @@
             IPERIO = J(IJ)
             IA = IA + 1
             APHASE = A(IA)
-            IF ( I .EQ. 1 ) THEN
+            IF ( I == 1 ) THEN
                FUNC = 1.0
             ELSE
                FUNC = SIN( (FLOAT(ITIME)/IPERIO-APHASE)*TWOPI )
@@ -331,13 +331,13 @@
 !            multiply with amplitudes and set values
 !
 !              Inner loop in A over the substances
-            IF ( IORD .EQ. 1 ) THEN
+            IF ( IORD == 1 ) THEN
                DO I1 = 1 , NPNT
                   IB = (J(NPST+I1)-1)*NOTOT
                   DO I2 = 1 , NDIM
                      IC = IOFF+J(NDST+I2)
                      IA = IA + 1
-                     IF ( I .EQ. 1 ) THEN
+                     IF ( I == 1 ) THEN
                         AVAL(IB+IC) = FUNC*A(IA)
                      ELSE
                         AVAL(IB+IC) = FUNC*A(IA) + AVAL(IB+IC)
@@ -351,7 +351,7 @@
                   DO I2 = 1 , NPNT
                      IB = (J(NPST+I2)-1)*NOTOT
                      IA = IA + 1
-                     IF ( I .EQ. 1 ) THEN
+                     IF ( I == 1 ) THEN
                         AVAL(IB+IC) = FUNC*A(IA)
                      ELSE
                         AVAL(IB+IC) = FUNC*A(IA) + AVAL(IB+IC)
@@ -364,8 +364,8 @@
 !
 !       Return until finished
 !
-  150 IF ( IJ .LT. IIMAX ) GOTO 10
-      IF ( IJ .EQ. IIMAX ) THEN
+  150 IF ( IJ < IIMAX ) GOTO 10
+      IF ( IJ == IIMAX ) THEN
          IIPNT = IIPNT + IJ
          IRPNT = IRPNT + IA
          goto 9999    !   RETURN
@@ -400,14 +400,14 @@
 !           Search backward for the first valid point
       LL = I
       DO JJ = IREC , 1 , -1
-         IF ( A(LL) .NE. AMISS ) GOTO 20
+         IF ( A(LL) /= AMISS ) GOTO 20
          LL = LL - NTT
       end do
       JJ = 0
 !           Search forward for the first valid point
    20 LL = I + NTT
       DO KK = IREC+1 , NOBRK
-         IF ( A(LL) .NE. AMISS ) GOTO 40
+         IF ( A(LL) /= AMISS ) GOTO 40
          LL = LL + NTT
       end do
       KK = 0
@@ -416,11 +416,11 @@
       IT1C = 0
       IT2C = 0
 !           There was a backward valid point
-      IF ( JJ .NE. 0 ) THEN
+      IF ( JJ /= 0 ) THEN
          AA = A(I + (JJ-IREC)*NTT )
-         IF ( IOPT .EQ. 1 ) IT2C = 1
-         IF ( IOPT .EQ. 2 ) THEN
-            IF ( KK .NE. 0 ) THEN
+         IF ( IOPT == 1 ) IT2C = 1
+         IF ( IOPT == 2 ) THEN
+            IF ( KK /= 0 ) THEN
                IT1C = ITIMF - J(IJ+JJ)
             ELSE
                IT2C = 1
@@ -428,11 +428,11 @@
          ENDIF
       ENDIF
 !           There was a forward valid point
-      IF ( KK .NE. 0 ) THEN
+      IF ( KK /= 0 ) THEN
          AB = A(I + (KK-IREC)*NTT )
-         IF ( IOPT .EQ. 1 .AND. JJ .EQ. 0 ) IT1C = 1
-         IF ( IOPT .EQ. 2 ) THEN
-            IF ( JJ .NE. 0 ) THEN
+         IF ( IOPT == 1 .AND. JJ == 0 ) IT1C = 1
+         IF ( IOPT == 2 ) THEN
+            IF ( JJ /= 0 ) THEN
                IT2C = J(IJ+KK) - ITIMF
             ELSE
                IT1C = 1
@@ -440,7 +440,7 @@
          ENDIF
       ENDIF
       IDTC = IT1C + IT2C
-      IF ( IDTC .EQ. 0 ) IDTC = 1
+      IF ( IDTC == 0 ) IDTC = 1
 !
       if ( timon ) call timstop ( ithandl )
       RETURN

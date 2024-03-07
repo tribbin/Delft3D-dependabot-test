@@ -80,10 +80,10 @@
          enddo
       enddo
 
-      if ( mod(intopt,16) .ge. 8  ) then
+      if ( mod(intopt,16) >= 8  ) then
          do iseg = 1 , noseg
             ip = isdmp(iseg)
-            if ( ip .gt. 0 ) then
+            if ( ip > 0 ) then
                do i    = isys , isys +nsys-1
                   dmps(i,ip)= dmps(i,ip) + deriv(i,iseg)
                enddo

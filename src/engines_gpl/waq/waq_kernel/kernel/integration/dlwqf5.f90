@@ -107,7 +107,7 @@ contains
       write ( lunrep , * )
       defnam = 'swprecond'
       idef = index_in_array( defnam, coname)
-      if ( idef .gt. 0 ) then
+      if ( idef > 0 ) then
          ioptpc = nint(cons(idef))
          write ( lunrep , 2010 )
       else
@@ -131,7 +131,7 @@ contains
       write ( lunrep , * )
       defnam = 'maxiter'
       idef = index_in_array( defnam, coname)
-      if ( idef .gt. 0 ) then
+      if ( idef > 0 ) then
          iter   = nint(cons(idef))
          write ( lunrep , 2080 )
       else
@@ -141,7 +141,7 @@ contains
 
 !     Check value
 
-      if ( iter .gt. 0 ) then ; write ( lunrep , 2100 ) iter
+      if ( iter > 0 ) then ; write ( lunrep , 2100 ) iter
       else                    ; ierr = ierr + 1
                                 write ( lunrep , 2110 ) iter
       endif
@@ -155,7 +155,7 @@ contains
       write ( lunrep , * )
       defnam = 'tolerance'
       idef = index_in_array( defnam, coname)
-      if ( idef .gt. 0 ) then
+      if ( idef > 0 ) then
          tol    = cons(idef)
          write ( lunrep , 2120 )
       else
@@ -165,7 +165,7 @@ contains
 
 !     Check value
 
-      if ( tol  .gt. 0.0 ) then ; write ( lunrep , 2140 ) tol
+      if ( tol  > 0.0 ) then ; write ( lunrep , 2140 ) tol
       else                      ; ierr = ierr + 1
                                   write ( lunrep , 2150 ) tol
       endif
@@ -175,7 +175,7 @@ contains
       write ( lunrep , * )
       defnam = 'swscale'
       idef = index_in_array( defnam, coname)
-      if ( idef .gt. 0 ) then
+      if ( idef > 0 ) then
          iscale = nint(cons(idef))
          write ( lunrep , 2160 )
       else
@@ -197,7 +197,7 @@ contains
       write ( lunrep , * )
       defnam = 'iteration report'
       idef = index_in_array( defnam, coname)
-      if ( idef .gt. 0 ) then
+      if ( idef > 0 ) then
          itrep  = nint(cons(idef))
          write ( lunrep , 2210 )
       else

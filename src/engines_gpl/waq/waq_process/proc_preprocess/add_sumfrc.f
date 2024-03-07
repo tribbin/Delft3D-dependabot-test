@@ -80,7 +80,7 @@
          proc%no_dispstochi = 0
          proc%no_velostochi = 0
          allocate(proc%input_item(proc%no_input),proc%output_item(proc%no_output),stat=ierr_alloc)
-         if ( ierr_alloc .ne. 0 ) then
+         if ( ierr_alloc /= 0 ) then
             write(lunrep,*) 'error allocating work array in routine add_sumfrc:',ierr_alloc
             write(lunrep,*) 'array length:',proc%no_input,proc%no_output
             write(*,*) 'error allocating array:',ierr_alloc
@@ -96,7 +96,7 @@
          proc%input_item(1)%ip_val = 0
          item%name                 = proc%input_item(1)%name
          iret                      = itempropcollfind( allitems, item )
-         if ( iret .le. 0 ) then
+         if ( iret <= 0 ) then
             item%text    = proc%input_item(1)%name
             item%default = sfracs%nfrac(isys)
             item%waqtype = waqtype_none
@@ -105,7 +105,7 @@
          proc%input_item(1)%item=>allitems%itemproppnts(iret)%pnt
 
          do ifrac = 1, sfracs%nfrac(isys)
-            if ( ifrac .lt. 100 ) then
+            if ( ifrac < 100 ) then
                write(suffix,'(i2.2)') ifrac
             else
                write(suffix,'(i3.3)') ifrac
@@ -117,7 +117,7 @@
             proc%input_item(1+ifrac)%ip_val = 0
             item%name                       = proc%input_item(1+ifrac)%name
             iret                            = itempropcollfind( allitems, item )
-            if ( iret .le. 0 ) then
+            if ( iret <= 0 ) then
                item%text    = proc%input_item(1+ifrac)%name
                item%default = 0.0
                item%waqtype = waqtype_none
@@ -130,7 +130,7 @@
 
          item%name = sfracs%name(isys)
          iret      = itempropcollfind( allitems, item )
-         if ( iret .le. 0 ) then
+         if ( iret <= 0 ) then
             item%default = -999.
             item%text    = sfracs%name(isys)
             item%waqtype = waqtype_none
@@ -146,7 +146,7 @@
          ! output relative fractions
 
          do ifrac = 1, sfracs%nfrac(isys)
-            if ( ifrac .lt. 100 ) then
+            if ( ifrac < 100 ) then
                write(suffix,'(i2.2)') ifrac
             else
                write(suffix,'(i3.3)') ifrac
@@ -158,7 +158,7 @@
             proc%output_item(1+ifrac)%ip_val = 0
             item%name                       = proc%output_item(1+ifrac)%name
             iret                            = itempropcollfind( allitems, item )
-            if ( iret .le. 0 ) then
+            if ( iret <= 0 ) then
                item%text    = proc%output_item(1+ifrac)%name
                item%default = -999.
                item%waqtype = waqtype_none

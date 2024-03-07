@@ -126,9 +126,9 @@
 !     sedimentation towards the bottom
 
       CALL evaluate_waq_attribute(1,IKNMRK(ISEG),IKMRK1)
-      IF (IKMRK1.EQ.1) THEN
+      IF (IKMRK1==1) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-      IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
+      IF ((IKMRK2==0).OR.(IKMRK2==3)) THEN
 !
       CONC    = MAX (0.0, PMSA(IP1) )
       ZERSED  = PMSA(IP2 )
@@ -149,15 +149,15 @@
 
 !     if fraction IM1 in second layer P > PMAX then ALPHA = 0 meaning no sedimentations towards S2
 
-      IF ( P .GE. PMAX ) THEN
+      IF ( P >= PMAX ) THEN
          ALPHA = 0.0
       ENDIF
 
 !     Calculate sedimenation probability
 
-      IF (TAU .EQ. -1.0) THEN
+      IF (TAU == -1.0) THEN
           PSED = 1.0
-      ELSEIF (TCRSED .LT. 1E-20 )  THEN
+      ELSEIF (TCRSED < 1E-20 )  THEN
           PSED = 0.0
       ELSE
 !         vergelijking met critische schuifspanning
@@ -168,7 +168,7 @@
 !     Calculate potential sedimentation fluxes
 !     No sedimentation when depth below min depth
 
-      IF ( DEPTH .LT. MINDEP) THEN
+      IF ( DEPTH < MINDEP) THEN
          MAXSED       = 0.0
          FL( 1+IFLUX) = 0.0
          FL( 2+IFLUX) = 0.0
@@ -231,13 +231,13 @@
          IVAN  = IEXPNT(1,IQ)
          INAAR = IEXPNT(2,IQ)
 
-         IF ( IVAN .GT. 0 .AND. INAAR .GT. 0 ) THEN
+         IF ( IVAN > 0 .AND. INAAR > 0 ) THEN
 
 !           Zoek eerste kenmerk van- en naar-segmenten
 
             CALL evaluate_waq_attribute(1,IKNMRK(IVAN ),IKMRKV)
             CALL evaluate_waq_attribute(1,IKNMRK(INAAR),IKMRKN)
-            IF (IKMRKV.EQ.1.AND.IKMRKN.EQ.3) THEN
+            IF (IKMRKV==1.AND.IKMRKN==3) THEN
 
 !               Bodem-water uitwisseling: NUL FLUX OM OOK OUDE PDF's
 !                                         TE KUNNEN GEBRUIKEN
@@ -248,7 +248,7 @@
 !               PMSA(IP17) = MAXSED/86400./CONC
                 FL ( 1 + (IVAN-1)*NOFLUX ) = 0.0
 
-            ELSEIF (IKMRKV.EQ.1.AND.IKMRKN.EQ.1) THEN
+            ELSEIF (IKMRKV==1.AND.IKMRKN==1) THEN
 
 !               Water-water uitwisseling
 !rs             merk op: sedimentatie tussen waterlagen: geen taucr correctie,
@@ -259,7 +259,7 @@
                 DEPTH2 = PMSA(IP6+(INAAR-1)*IN6)
                 MINDEP = PMSA(IP8+(IVAN -1)*IN8)
                 MINDE2 = PMSA(IP8+(INAAR-1)*IN8)
-                IF ( DEPTH .GT. MINDEP .AND. DEPTH2 .GT. MINDE2 ) THEN
+                IF ( DEPTH > MINDEP .AND. DEPTH2 > MINDE2 ) THEN
                     PMSA(IP17) = PMSA(IP13)/86400.
                 ELSE
                     PMSA(IP17) = 0.0
@@ -314,9 +314,9 @@
 
 !           Calculate sedimenation probability
 
-            IF (TAU .EQ. -1.0) THEN
+            IF (TAU == -1.0) THEN
                 PSED = 1.0
-            ELSEIF (TCRSED .LT. 1E-20 )  THEN
+            ELSEIF (TCRSED < 1E-20 )  THEN
                 PSED = 0.0
             ELSE
 !               vergelijking met critische schuifspanning
@@ -326,7 +326,7 @@
 !           Bereken de potentiele sedimentatie fluxen
 !           Geen sedimentatie onder een minimale diepte
 
-            IF ( DEPTH .LT. MINDEP) THEN
+            IF ( DEPTH < MINDEP) THEN
                MAXSED       = 0.0
             ELSE
                POTSED = ZERSED + ( VSED * CONC ) * PSED
@@ -336,7 +336,7 @@
 
             ENDIF
 
-            IF ( CONC .GT. 1.E-10 ) THEN
+            IF ( CONC > 1.E-10 ) THEN
                PMSA(IP17+(IQ-1)*IN17) = MAXSED/86400./CONC
             ENDIF
 

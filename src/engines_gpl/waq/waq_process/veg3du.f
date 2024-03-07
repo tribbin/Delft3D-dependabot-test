@@ -165,7 +165,7 @@
          ibotseg     = NINT(pmsa(ipnt(4)))
          inicovvbxx  = pmsa(ipoint( 19)+(ibotseg-1)*increm( 19)) / 100.
 
-         if (inicovvbxx .gt. 0.001) then
+         if (inicovvbxx > 0.001) then
 
             depth       = pmsa(ipnt(1))
             totaldepth  = pmsa(ipnt(2))
@@ -194,21 +194,21 @@
 
             ! percentage uptake = uptake/available/percentage coverage
 
-            if ( vbxxnavail .gt. 1e-20 ) then
+            if ( vbxxnavail > 1e-20 ) then
                pNvbxxup=fNvbxxup*delt/vbxxNavail
 !              pn5vbxxup=fn5vbxxup*delt/vbxxnavail
             else
                pNvbxxup=0.0
 !              pn5vbxxup=0.0
             endif
-            if ( vbxxpavail .gt. 1e-20 ) then
+            if ( vbxxpavail > 1e-20 ) then
                pPvbxxup=fPvbxxup*delt/vbxxPavail
 !              pp5vbxxup=fp5vbxxup*delt/vbxxpavail
             else
                pPvbxxup=0.0
 !              pp5vbxxup=0.0
             endif
-            if ( vbxxsavail .gt. 1e-20 ) then
+            if ( vbxxsavail > 1e-20 ) then
                pSvbxxup=fSvbxxup*delt/vbxxSavail
 !              ps5vbxxup=fs5vbxxup*delt/vbxxsavail
             else
@@ -216,7 +216,7 @@
 !              ps5vbxxup=0.0
             endif
 
-            if ( ikmrk1.eq.1 .and. hmax .gt. 0.0 ) then
+            if ( ikmrk1==1 .and. hmax > 0.0 ) then
 
                ! active water segment
 
@@ -225,9 +225,9 @@
                z1 = localdepth - depth
                z2 = localdepth
 
-               if (zm .gt. z2) then
+               if (zm > z2) then
                   ! not in segment:
-               elseif (zm .lt. z1 ) then
+               elseif (zm < z1 ) then
                   ! partialy in segment:
                   frlay = (z2-zm)/depth
                   fN1vbxxupy = pNvbxxup*nh4*frlay*depth/delt
@@ -249,7 +249,7 @@
 
             ! Alternative layered sediment - the segment might be dry or wet, does not matter
 
-            if ( ikmrk1 .ne. 3 .and. (ikmrk2 .eq. 0 .or. ikmrk2 .eq. 3) .and. hmax < 0.0 ) then
+            if ( ikmrk1 /= 3 .and. (ikmrk2 == 0 .or. ikmrk2 == 3) .and. hmax < 0.0 ) then
                hroot = min(-hmax,hsed)
                s1_fN1vbxxupy = pNvbxxup*s1_nh4/delt      ! removed factor hroot ...
                s1_fN2vbxxupy = pNvbxxup*s1_no3/delt
@@ -275,7 +275,7 @@
                enddo
             endif
 
-            if (ikmrk1.eq.3 .and. hmax .lt. 0.0) then
+            if (ikmrk1==3 .and. hmax < 0.0) then
 
                ! delwaq-g segment, distribution over the bottom segments
 
@@ -283,7 +283,7 @@
                hmax = min(hmax,totaldepth)
                z1 = localdepth - depth
 
-               if (hmax .gt. localdepth) then
+               if (hmax > localdepth) then
                   ! completely in segment:
                   fN1vbxxupy = pNvbxxup*nh4*depth/delt
                   fN2vbxxupy = pNvbxxup*no3*depth/delt
@@ -291,7 +291,7 @@
                   fP2vbxxupy = pPvbxxup*po4*depth/delt
                   fS1vbxxupy = pSvbxxup*so4*depth/delt
                   fS2vbxxupy = pSvbxxup*sud*depth/delt
-               elseif (hmax .gt. z1 ) then
+               elseif (hmax > z1 ) then
                   ! partialy in segment:
                   frlay = (hmax-z1)/depth
                   fN1vbxxupy = pNvbxxup*nh4*frlay*depth/delt

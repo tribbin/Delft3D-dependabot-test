@@ -50,7 +50,7 @@
 !        Store the original value
          mrtm1(ialg) = rmort1(ialg)
 !        Salinity dep. mortality ??
-         if (mrtm2(ialg).gt.0.) then
+         if (mrtm2(ialg)>0.) then
             cl = min(cl, 35000.0)
             rmort1(ialg) =  (mrtm2(ialg) - mrtm1(ialg)) / (1.0 + exp(mrtb1(ialg) * (cl-mrtb2(ialg)))) + mrtm1(ialg)
          endif

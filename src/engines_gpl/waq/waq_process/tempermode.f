@@ -85,15 +85,15 @@
 !        What is the meaning of modelled temperatures (one or two may be modelled)
 
 !        User defines total and natural
-         IF ( ISWTMP .EQ. 0 ) THEN
+         IF ( ISWTMP == 0 ) THEN
             TTEMP = MTEMP
             ETEMP = TTEMP - TMPNAT
 !        User defines excess and natural            
-         ELSEIF ( ISWTMP .EQ. 1 ) THEN
+         ELSEIF ( ISWTMP == 1 ) THEN
             ETEMP = MTEMP
             TTEMP = ETEMP + TMPNAT
 !        User defines excess and total    
-         ELSEIF ( ISWTMP .EQ. 2 ) THEN
+         ELSEIF ( ISWTMP == 2 ) THEN
             ETEMP = MTEMP
             TTEMP = TMPNAT  
          ELSE

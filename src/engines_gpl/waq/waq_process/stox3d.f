@@ -82,7 +82,7 @@
 
          IFROM = IEXPNT(1,IQ)
 
-         IF ( IFROM .GT. 0 ) THEN
+         IF ( IFROM > 0 ) THEN
 
 !           Invoer op segment niveau naar uitvoer op exchange niveau
 

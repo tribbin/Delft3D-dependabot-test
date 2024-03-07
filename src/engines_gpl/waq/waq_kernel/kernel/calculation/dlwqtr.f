@@ -152,8 +152,8 @@
 !
 !          read surface areas
 !
-         IF ( ISURF .GT. 0 ) THEN
-            IF ( ILFLAG .EQ. 1 .AND. NOQ3 .GT. 0 ) THEN
+         IF ( ISURF > 0 ) THEN
+            IF ( ILFLAG == 1 .AND. NOQ3 > 0 ) THEN
                LINIT = .TRUE.
                WRITE(LUNREP,2040)
             ENDIF
@@ -166,7 +166,7 @@
             ELSE
                OPEN ( NEWUNIT = LCCCO, FILE='areachar.dat', FORM  ='UNFORMATTED',
      +                                 STATUS='OLD'       , IOSTAT=IER2         )
-               IF ( IER2 .NE. 0 ) THEN
+               IF ( IER2 /= 0 ) THEN
                   WRITE (LUNREP,2010)
                   WRITE ( *    ,2010)
                   IER = IER + 1
@@ -175,12 +175,12 @@
                   READ ( LCCCO ) NMAXA, MMAXA, NMA, NMA, NMA, IDUMMY
                   LAYT = NOSEG/NMA
                   NMT = NMA*LAYT
-                  IF ( NMT .NE. NOSEG ) THEN
+                  IF ( NMT /= NOSEG ) THEN
                      WRITE (LUNREP,2050) NMA,LAYT,NMT,NOSEG
                      WRITE (  *   ,2050) NMA,LAYT,NMT,NOSEG
                      IER = IER + 1
                   ENDIF
-                  IF ( IER .EQ. 0 ) THEN
+                  IF ( IER == 0 ) THEN
                      READ ( LCCCO ) (PARAM(ISURF,K),K=1,NMA)
                      DO ILAY = 2, LAYT
                         DO ISEG = 1, NMA
@@ -193,7 +193,7 @@
                ENDIF
             ENDIF
 !
-            IF ( IER .NE. 0 ) THEN
+            IF ( IER /= 0 ) THEN
                CALL SRSTOP(1)
             ENDIF
          ENDIF
@@ -208,13 +208,13 @@
          DO IQ = NOQ1 + NOQ2 + 1, NOQ
               IFROM = IPOINT(1,IQ)
               ITO   = IPOINT(2,IQ)
-              IF ( IFROM .GT. 0 ) THEN
-                 IF ( PARAM(ISURF,IFROM) .GT. 1.0E-15 ) THEN
+              IF ( IFROM > 0 ) THEN
+                 IF ( PARAM(ISURF,IFROM) > 1.0E-15 ) THEN
                       ALENG(1,IQ) = VOLUME(IFROM)/PARAM(ISURF,IFROM)/2.
                  ENDIF
               ENDIF
-              IF ( ITO   .GT. 0 ) THEN
-                 IF ( PARAM(ISURF,IFROM) .GT. 1.0E-15 ) THEN
+              IF ( ITO   > 0 ) THEN
+                 IF ( PARAM(ISURF,IFROM) > 1.0E-15 ) THEN
                       ALENG(2,IQ) = VOLUME(ITO)/PARAM(ISURF,IFROM)/2.
                  ENDIF
               ENDIF

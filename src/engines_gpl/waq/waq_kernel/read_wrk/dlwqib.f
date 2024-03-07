@@ -89,13 +89,13 @@
       J(IJ+NPNT+2) = NDIM
       IJ = IJ + NPNT + NDIM + 5
 !        default for all items
-      IF ( NPNT .EQ. 0 ) NPNT = 1
+      IF ( NPNT == 0 ) NPNT = 1
 !
 !       3 and 4 are harmonics
 !
       IOPT = J(IJ-2)
       NTAL = 0
-      IF ( IOPT .EQ. 3 .OR. IOPT .EQ. 4 ) NTAL = 1
+      IF ( IOPT == 3 .OR. IOPT == 4 ) NTAL = 1
 !
 !       Nr of breakpoints or harmonics
 !

@@ -105,13 +105,13 @@
 ! total extinction to the background extinction.
 ! Note: this is also the final solution in dynamic runs when everything
 ! else fails.
-      if (lmorch .eq. 1) go to 40
+      if (lmorch == 1) go to 40
    10 continue
       do j=1,nunuco
          x(j)=b(j)
       end do
       x(nuabco)=0.0
-      if (inhib .eq. 1) then
+      if (inhib == 1) then
          x(nufili)=0.0
       else
          x(nufili)=1.0
@@ -130,7 +130,7 @@
 ! Was the problem rerun already? Is there still hope for a neat
 ! solution?
    40 continue
-      if (irerun .eq. 3) then
+      if (irerun == 3) then
          write (outdbg,50) cdate
    50    format (/,' ',' !!! SEVERE ERROR MESSAGE time ',A8,'.')
          write (outdbg,60) irs(2)
@@ -144,7 +144,7 @@
 ! If there are no intervals at all, or if the infeasibility is not due
 ! to a mortality constraint, set all species at their mortality
 ! constraint.
-      if (ni .eq. 0 .or. irs(3) .le. nuexro + nuecog) go to 130
+      if (ni == 0 .or. irs(3) <= nuexro + nuecog) go to 130
 
 ! ----------------------------------------------------------------------
 ! Problem is infeasible due to a mortality constraint. 
@@ -162,33 +162,33 @@
 !
 ! Note: Restore the original growth constraint vector.
          index = irs(3) - nuexro - nuecog
-         if (index .gt. nuecog) go to 130
-         if (irerun .ne. 2) irmax = 0
+         if (index > nuecog) go to 130
+         if (irerun /= 2) irmax = 0
          irmax = irmax + 1
-         if (irmax .gt. nuspec) go to 130
+         if (irmax > nuspec) go to 130
          irerun = 2
          errind = '*'
          extrem = extb
-         if (idump .eq. 1) write (outdbg,90) cdate
+         if (idump == 1) write (outdbg,90) cdate
    90    format (/,' ',' *** Warning message for time ',A8,'.')
          do k = 1,nuecog
             b(k + nuexro) = bgro(k)
             extrem = extrem + b(nuexro+nuecog+k) * a(nuabco,jkmax(k))
          end do
 
-         if (swblsa .eq. 1) then
+         if (swblsa == 1) then
             b(irs(3)) = 0.0
-            if (idump .eq. 1) write (outdbg,110) grname (index)
+            if (idump == 1) write (outdbg,110) grname (index)
   110          format (' Mortality constraint of species ',A8,' is violated.',/,' This constraint is dropped.')
          else
             do k = it2(index,1), it2(index,2)
-               if (aroot(2*k) .lt. extrem) then
+               if (aroot(2*k) < extrem) then
                    aroot(2*k) = extrem
-                   if (idump .eq. 1) write (outdbg, 120) grname(index)
+                   if (idump == 1) write (outdbg, 120) grname(index)
   120              format (' Mortality constraint of species ',A8,'is violated.',/,' KMAX NOW set above mortality constaint.')
                else
                    b(irs(3)) = 0.0
-                   if (idump .eq. 1) write (outdbg, 110) grname(index)
+                   if (idump == 1) write (outdbg, 110) grname(index)
                end if
             end do
          end if
@@ -219,7 +219,7 @@
          do k = it2(j,1),it2(j,2)
             xdefk = x(nurows + k)
             isplim(k) = 0
-            if (xdefk .lt. 1.d-6) cycle
+            if (xdefk < 1.d-6) cycle
             mof = mof + 1
             isplim(k) = nurows - nuecog + j
             biomax = biomax + xdefk
@@ -227,7 +227,7 @@
                sumnut(i) = sumnut(i) + a(i,k) * xdefk
             end do
          end do
-         if (mof .gt. 0) x(nurows-nuecog+j) = 0.0d1
+         if (mof > 0) x(nurows-nuecog+j) = 0.0d1
       end do
       bio(2) = biomax
       x(nucols+2) = bio(2)
@@ -244,9 +244,9 @@
 !     valid extinction intervals do exist.
       do i = 1,nunuco
          xi = b(i) - sumnut(i)
-         if (xi .lt. 0.0) then
-            if (swblsa .ne. 1) then
-               if (idump .eq. 1) then
+         if (xi < 0.0) then
+            if (swblsa /= 1) then
+               if (idump == 1) then
                   write (outdbg,50) cdate
                   write (outdbg,180) cstra(i)
   180             format (' One of the mortality constraints violates the ',A8,' constraint.',/,' Problem is infeasible.')
@@ -254,9 +254,9 @@
                end if
                go to 10
             else
-               if (ni .eq. 0) then
+               if (ni == 0) then
                   xi = 0.0
-                  if (idump .eq. 1) then
+                  if (idump == 1) then
                       write (outdbg,90) cdate
                       write (outdbg,190) cstra(i)
   190                 format (' One of the mortality constraints violates the ',A8,' constraint.',/,' Negative concentrations ',
@@ -264,7 +264,7 @@
                       errind = '*'
                end if
                else
-                 if (idump .eq. 1) then
+                 if (idump == 1) then
                     write (outdbg,90) cdate
                     write (outdbg,200) cstra(i)
   200               format (' One of the mortality constraints violates the ',A8,' constraint.',/,
@@ -283,12 +283,12 @@
          x(i) = xi
       end do
 
-      if (inhib .eq. 1) then
+      if (inhib == 1) then
          x(nufili)=0.0d0
       else
          x(nufili)=1.0
       end if
-      if (ni .eq. 0) then
+      if (ni == 0) then
          x(nuabco) = 0.0d0
       else
          x(nuabco) = 1.0

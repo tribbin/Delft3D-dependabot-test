@@ -71,7 +71,7 @@
 !
 !     Check number of substances for this grid
 !
-      IF ( NOTOTG .LT. 1 ) THEN
+      IF ( NOTOTG < 1 ) THEN
          IPGRID = -1
          goto 9999
       ENDIF
@@ -82,9 +82,9 @@
       IGRID  = IPGRID
       NPATH  = 1
    10 CONTINUE
-      IF ( IGRID .NE. 1 )  THEN
+      IF ( IGRID /= 1 )  THEN
          IGRID  = GRDREF(IGRID)
-         IF ( IGRID .LE. 0 ) THEN
+         IF ( IGRID <= 0 ) THEN
 
 !           not defined on reference grid
             IPGRID = -2
@@ -92,7 +92,7 @@
 
          ENDIF
          NPATH = NPATH + 1
-         IF ( NPATH .GT. NOGRID ) THEN
+         IF ( NPATH > NOGRID ) THEN
 !
 !           Base grid not found in reference
 !
@@ -119,14 +119,14 @@
 !           Check path previously found
 !
             DO IPATH = NPATH , 1 , -1
-               IF ( GRPATH(IPATH) .EQ. IGRID ) THEN
+               IF ( GRPATH(IPATH) == IGRID ) THEN
                   IPGRID = IGRID
                   NPATH  = IPATH
                   GOTO 50
                ENDIF
             ENDDO
             NCHECK = NCHECK + 1
-            IF ( NCHECK .GT. NOGRID ) THEN
+            IF ( NCHECK > NOGRID ) THEN
                IPGRID = -2
                goto 9999
             ENDIF

@@ -88,7 +88,7 @@
 
       do
 
-         if ( i_lowest_rank .eq. nproc .or. nloop .gt. nproc) exit
+         if ( i_lowest_rank == nproc .or. nloop > nproc) exit
 
          iproc1        = i_lowest_rank
          i_lowest_rank = nproc
@@ -111,7 +111,7 @@
      +                                nofun , constants, paname, funame, sfname,
      +                                valnam, ivalip   , line  )
 
-                        if ( ivalip .eq. -1 ) then
+                        if ( ivalip == -1 ) then
                            new_rank = iproc2
                            goto 10
                         endif
@@ -134,7 +134,7 @@
      +                                nofun , constants, paname, funame, sfname,
      +                                valnam, ivalip   , line  )
 
-                        if ( ivalip .eq. -1 ) then
+                        if ( ivalip == -1 ) then
                            new_rank = iproc2
                            goto 10
                         endif
@@ -148,7 +148,7 @@
 
             ! insert process at new position
 
-            if ( new_rank .lt. iproc ) then
+            if ( new_rank < iproc ) then
                i_lowest_rank = min(i_lowest_rank,new_rank)
                aProces = ProcesDef%ProcesProps(iproc)
                do iproc2 = iproc , new_rank + 1 , -1
@@ -163,7 +163,7 @@
       ! check if there is conflict, report it but allow it to continue, to be done
       ! this is tricky because the user has no means to influence the final order
 
-      if ( nloop .gt. nproc ) then
+      if ( nloop > nproc ) then
          write(lurep,'(a)') ' WARNING: circular input output relation detected in process library'
          call status%increase_warning_count()
       endif

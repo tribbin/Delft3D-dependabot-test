@@ -66,7 +66,7 @@
 
       do iseg = 1 , noseg
          idx    = pmsa(ip(1))
-         if (idx.eq.0) then
+         if (idx==0) then
              attrib = iknmrk(iseg)
          else
              call evaluate_waq_attribute(idx,iknmrk(iseg),attrib)

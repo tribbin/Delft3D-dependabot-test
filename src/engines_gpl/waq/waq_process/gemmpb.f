@@ -332,7 +332,7 @@ C     loop over the segments
          !FNI_MPB2       = PMSA(IP(37))
          TRESH_MPB1     = PMSA(IP(38))
          TRESH_MPB2     = PMSA(IP(39))
-         S1_BOTTOM      = NINT(PMSA(IP(40))) .EQ. 1
+         S1_BOTTOM      = NINT(PMSA(IP(40))) == 1
          FLT_S1_MPB1    = PMSA(IP(41))
          FLT_S1_MPB2    = PMSA(IP(42))
          FTMP_S1_MPB1   = PMSA(IP(43))
@@ -375,21 +375,21 @@ C     loop over the segments
 
 C           check proces parameters
 
-         IF (ZSED.LT.1E-20)  CALL write_error_message_with_values('ZSed'   ,ZSED   ,ISEG,'GEMMPB')
-         IF (SURF.LT.1E-20)  CALL write_error_message_with_values('Surf'   ,SURF   ,ISEG,'GEMMPB')
-         IF (RT_MPB1.LE.0.0) CALL write_error_message_with_values('RT_MPB1',RT_MPB1,ISEG,'GEMMPB')
-         IF (MT_MPB1.LE.0.0) CALL write_error_message_with_values('MT_MPB1',MT_MPB1,ISEG,'GEMMPB')
-         IF (RT_MPB2.LE.0.0) CALL write_error_message_with_values('RT_MPB2',RT_MPB2,ISEG,'GEMMPB')
-         IF (MT_MPB2.LE.0.0) CALL write_error_message_with_values('MT_MPB2',MT_MPB2,ISEG,'GEMMPB')
+         IF (ZSED<1E-20)  CALL write_error_message_with_values('ZSed'   ,ZSED   ,ISEG,'GEMMPB')
+         IF (SURF<1E-20)  CALL write_error_message_with_values('Surf'   ,SURF   ,ISEG,'GEMMPB')
+         IF (RT_MPB1<=0.0) CALL write_error_message_with_values('RT_MPB1',RT_MPB1,ISEG,'GEMMPB')
+         IF (MT_MPB1<=0.0) CALL write_error_message_with_values('MT_MPB1',MT_MPB1,ISEG,'GEMMPB')
+         IF (RT_MPB2<=0.0) CALL write_error_message_with_values('RT_MPB2',RT_MPB2,ISEG,'GEMMPB')
+         IF (MT_MPB2<=0.0) CALL write_error_message_with_values('MT_MPB2',MT_MPB2,ISEG,'GEMMPB')
 
 C        Active water segments and bottom segments
 
-         IF ( IKMRK1.EQ.1 .OR. IKMRK1.EQ.2 ) THEN
+         IF ( IKMRK1==1 .OR. IKMRK1==2 ) THEN
 
 C           for top layer thicker then euphotic depth all production in euphotic zone, this increases the biomass concentration
 C           to avoid a whole lot of scaling of the fluxes etc we do this by enhancing the PPMAX ? this gives problems for logistic restraint which is on biomass
 
-            IF ( IKMRK1 .EQ. 2 .AND. ABS(DEPTH - LOCSEDDEPT) .LT. 1.E-20 .AND. DEPTH .GT. ZSED ) THEN
+            IF ( IKMRK1 == 2 .AND. ABS(DEPTH - LOCSEDDEPT) < 1.E-20 .AND. DEPTH > ZSED ) THEN
                EUF_FACT   = DEPTH/ZSED
                TRESH_MPB1 = TRESH_MPB1 / EUF_FACT
                TRESH_MPB2 = TRESH_MPB2 / EUF_FACT
@@ -402,7 +402,7 @@ C           to avoid a whole lot of scaling of the fluxes etc we do this by enha
 C           logistic growth restraint (o.a. CO2 limitation)
 C           (only for the bottom segments)
 
-            IF ( IKMRK1 .EQ. 2 ) THEN
+            IF ( IKMRK1 == 2 ) THEN
                MPB1FMC = MAX((CCAP_MPB1-BIOMAS_MPB1_EUF)/CCAP_MPB1,0.0)
                MPB2FMC = MAX((CCAP_MPB2-BIOMAS_MPB2_EUF)/CCAP_MPB2,0.0)
             ELSE
@@ -424,9 +424,9 @@ C           Respiration
 
 C           when oxygen depletion and when respiration exceeds growth then no growth and respiration (do not take into account excretion), extra mortality
 
-            IF ( OXY .LT. MPBOXYCRIT ) THEN
+            IF ( OXY < MPBOXYCRIT ) THEN
 
-               IF ( FRES_MPB1 .GT. FGP_MPB1 ) THEN
+               IF ( FRES_MPB1 > FGP_MPB1 ) THEN
                   PMCH20_MPB1 = 0.0
                   R_MT20_MPB1 = 0.0
                   M1_20_MPB1  = MPB1MO_20
@@ -435,7 +435,7 @@ C           when oxygen depletion and when respiration exceeds growth then no gr
                   FRES_MPB1   = 0.0
                ENDIF
 
-               IF ( FRES_MPB2 .GT. FGP_MPB2 ) THEN
+               IF ( FRES_MPB2 > FGP_MPB2 ) THEN
                   PMCH20_MPB2 = 0.0
                   R_MT20_MPB2 = 0.0
                   M1_20_MPB2  = MPB2MO_20
@@ -457,7 +457,7 @@ C           uptake mag niet groter zijn dan beschikbaarheid
             FGP_MPB1_ORG = FGP_MPB1
             FGP_MPB2_ORG = FGP_MPB2
             N_UPTAKE  = (FGP_MPB1-FRES_MPB1)*NCRAT_MPB1 + (FGP_MPB2-FRES_MPB2)*NCRAT_MPB2
-            IF ( N_UPTAKE .GT. DN   ) THEN
+            IF ( N_UPTAKE > DN   ) THEN
 
                FACTOR_MPB1 = FGP_MPB1*NCRAT_MPB1/(FGP_MPB1*NCRAT_MPB1+FGP_MPB2*NCRAT_MPB2)
                FACTOR_MPB2 = 1.-FACTOR_MPB1
@@ -468,12 +468,12 @@ C           uptake mag niet groter zijn dan beschikbaarheid
                FRES_MPB1 = MRES_MPB1 + R_PR_MPB1 * FGP_MPB1
                FRES_MPB2 = MRES_MPB2 + R_PR_MPB2 * FGP_MPB2
 
-               IF ( FGP_MPB1_ORG .GT. 1.E-20) THEN
+               IF ( FGP_MPB1_ORG > 1.E-20) THEN
                   MPB1FMN = FGP_MPB1 / FGP_MPB1_ORG
                ELSE
                   MPB1FMN = 0.0
                ENDIF
-               IF ( FGP_MPB2_ORG .GT. 1.E-20) THEN
+               IF ( FGP_MPB2_ORG > 1.E-20) THEN
                   MPB2FMN = FGP_MPB2 / FGP_MPB2_ORG
                ELSE
                   MPB2FMN = 0.0
@@ -484,7 +484,7 @@ C           uptake mag niet groter zijn dan beschikbaarheid
                MPB2FMN = 1.0
             ENDIF
             P_UPTAKE  = (FGP_MPB1-FRES_MPB1)*PCRAT_MPB1 + (FGP_MPB2-FRES_MPB2)*PCRAT_MPB2
-            IF ( P_UPTAKE .GT. DP   ) THEN
+            IF ( P_UPTAKE > DP   ) THEN
 
                FACTOR_MPB1 = FGP_MPB1*PCRAT_MPB1/(FGP_MPB1*PCRAT_MPB1+FGP_MPB2*PCRAT_MPB2)
                FACTOR_MPB2 = 1.-FACTOR_MPB1
@@ -495,12 +495,12 @@ C           uptake mag niet groter zijn dan beschikbaarheid
                FRES_MPB1 = MRES_MPB1 + R_PR_MPB1 * FGP_MPB1
                FRES_MPB2 = MRES_MPB2 + R_PR_MPB2 * FGP_MPB2
 
-               IF ( FGP_MPB1_ORG .GT. 1.E-20) THEN
+               IF ( FGP_MPB1_ORG > 1.E-20) THEN
                   MPB1FMP = FGP_MPB1 / FGP_MPB1_ORG
                ELSE
                   MPB1FMP = 0.0
                ENDIF
-               IF ( FGP_MPB2_ORG .GT. 1.E-20) THEN
+               IF ( FGP_MPB2_ORG > 1.E-20) THEN
                   MPB2FMP = FGP_MPB2 / FGP_MPB2_ORG
                ELSE
                   MPB2FMP = 0.0
@@ -511,7 +511,7 @@ C           uptake mag niet groter zijn dan beschikbaarheid
                MPB2FMP = 1.0
             ENDIF
             SI_UPTAKE  = (FGP_MPB1-FRES_MPB1)*SCRAT_MPB1 + (FGP_MPB2-FRES_MPB2)*SCRAT_MPB2
-            IF ( SI_UPTAKE .GT. DSI  ) THEN
+            IF ( SI_UPTAKE > DSI  ) THEN
 
                FACTOR_MPB1 = FGP_MPB1*SCRAT_MPB1/(FGP_MPB1*SCRAT_MPB1+FGP_MPB2*SCRAT_MPB2)
                FACTOR_MPB2 = 1.-FACTOR_MPB1
@@ -522,12 +522,12 @@ C           uptake mag niet groter zijn dan beschikbaarheid
                FRES_MPB1 = MRES_MPB1 + R_PR_MPB1 * FGP_MPB1
                FRES_MPB2 = MRES_MPB2 + R_PR_MPB2 * FGP_MPB2
 
-               IF ( FGP_MPB1_ORG .GT. 1.E-20) THEN
+               IF ( FGP_MPB1_ORG > 1.E-20) THEN
                   MPB1FMS = FGP_MPB1 / FGP_MPB1_ORG
                ELSE
                   MPB1FMS = 0.0
                ENDIF
-               IF ( FGP_MPB2_ORG .GT. 1.E-20) THEN
+               IF ( FGP_MPB2_ORG > 1.E-20) THEN
                   MPB2FMS = FGP_MPB2 / FGP_MPB2_ORG
                ELSE
                   MPB2FMS = 0.0
@@ -552,7 +552,7 @@ C           NH4 over NO3 preferency
 
             !FN_MPB1 = FAM_MPB1 + (1.-FAM_MPB1)*FNI_MPB1
             FN_MPB1 = FNI_MPB1 + FAM_MPB1
-            IF ( FN_MPB1 .GT. 1.E-20 ) THEN
+            IF ( FN_MPB1 > 1.E-20 ) THEN
                FNO3_MPB1 = FNI_MPB1 / FN_MPB1
                FNH4_MPB1 = FAM_MPB1 / FN_MPB1
             ELSE
@@ -561,7 +561,7 @@ C           NH4 over NO3 preferency
             ENDIF
             !FN_MPB2 = FAM_MPB2 + (1.-FAM_MPB2)*FNI_MPB2
             FN_MPB2 = FNI_MPB2 + FAM_MPB2
-            IF ( FN_MPB2 .GT. 1.E-20 ) THEN
+            IF ( FN_MPB2 > 1.E-20 ) THEN
                FNO3_MPB2 = FNI_MPB2 / FN_MPB2
                FNH4_MPB2 = FAM_MPB2 / FN_MPB2
             ELSE
@@ -601,12 +601,12 @@ C           additional output
             FMPB2RES   = FRES_MPB2
             FMPB1FGPM2 = FMPB1FGP*DEPTH
             FMPB2FGPM2 = FMPB2FGP*DEPTH
-            IF ( BIOMAS_MPB1 .GT. 1.E-20 ) THEN
+            IF ( BIOMAS_MPB1 > 1.E-20 ) THEN
                FMPB1FGPD  = FMPB1FGP/BIOMAS_MPB1
             ELSE
                FMPB1FGPD  = 0.0
             ENDIF
-            IF ( BIOMAS_MPB2 .GT. 1.E-20 ) THEN
+            IF ( BIOMAS_MPB2 > 1.E-20 ) THEN
                FMPB2FGPD  = FMPB2FGP/BIOMAS_MPB2
             ELSE
                FMPB2FGPD  = 0.0
@@ -691,7 +691,7 @@ C           output parameters in PMSA
 
 C        S1_BOTTOM fluxes
 
-         IF ( S1_BOTTOM .AND. ( IKMRK2 .EQ. 0 .OR. IKMRK2 .EQ. 3 ) ) THEN
+         IF ( S1_BOTTOM .AND. ( IKMRK2 == 0 .OR. IKMRK2 == 3 ) ) THEN
 
 C           Converting biomass from gC/m2 to gC/m3
 
@@ -741,7 +741,7 @@ C           uptake mag niet groter zijn dan beschikbaarheid (mineralisatieflux)
             FGP_MPB1_ORG = FGP_MPB1
             FGP_MPB2_ORG = FGP_MPB2
             N_UPTAKE  = (FGP_MPB1-FRES_MPB1)*NCRAT_MPB1 + (FGP_MPB2-FRES_MPB2)*NCRAT_MPB2
-            IF ( N_UPTAKE .GT. dMinN) THEN
+            IF ( N_UPTAKE > dMinN) THEN
 
                FACTOR_MPB1 = FGP_MPB1*NCRAT_MPB1/(FGP_MPB1*NCRAT_MPB1+FGP_MPB2*NCRAT_MPB2)
                FACTOR_MPB2 = 1.-FACTOR_MPB1
@@ -752,12 +752,12 @@ C           uptake mag niet groter zijn dan beschikbaarheid (mineralisatieflux)
                FRES_MPB1 = MRES_MPB1 + R_PR_MPB1 * FGP_MPB1
                FRES_MPB2 = MRES_MPB2 + R_PR_MPB2 * FGP_MPB2
 
-               IF ( FGP_MPB1_ORG .GT. 1.E-20) THEN
+               IF ( FGP_MPB1_ORG > 1.E-20) THEN
                   MPB1FMNS1 = FGP_MPB1 / FGP_MPB1_ORG
                ELSE
                   MPB1FMNS1 = 0.0
                ENDIF
-               IF ( FGP_MPB2_ORG .GT. 1.E-20) THEN
+               IF ( FGP_MPB2_ORG > 1.E-20) THEN
                   MPB2FMNS1 = FGP_MPB2 / FGP_MPB2_ORG
                ELSE
                   MPB2FMNS1 = 0.0
@@ -768,7 +768,7 @@ C           uptake mag niet groter zijn dan beschikbaarheid (mineralisatieflux)
                MPB2FMNS1 = 1.0
             ENDIF
             P_UPTAKE  = (FGP_MPB1-FRES_MPB1)*PCRAT_MPB1 + (FGP_MPB2-FRES_MPB2)*PCRAT_MPB2
-            IF ( P_UPTAKE .GT. dMinP) THEN
+            IF ( P_UPTAKE > dMinP) THEN
 
                FACTOR_MPB1 = FGP_MPB1*PCRAT_MPB1/(FGP_MPB1*PCRAT_MPB1+FGP_MPB2*PCRAT_MPB2)
                FACTOR_MPB2 = 1.-FACTOR_MPB1
@@ -779,12 +779,12 @@ C           uptake mag niet groter zijn dan beschikbaarheid (mineralisatieflux)
                FRES_MPB1 = MRES_MPB1 + R_PR_MPB1 * FGP_MPB1
                FRES_MPB2 = MRES_MPB2 + R_PR_MPB2 * FGP_MPB2
 
-               IF ( FGP_MPB1_ORG .GT. 1.E-20) THEN
+               IF ( FGP_MPB1_ORG > 1.E-20) THEN
                   MPB1FMPS1 = FGP_MPB1 / FGP_MPB1_ORG
                ELSE
                   MPB1FMPS1 = 0.0
                ENDIF
-               IF ( FGP_MPB2_ORG .GT. 1.E-20) THEN
+               IF ( FGP_MPB2_ORG > 1.E-20) THEN
                   MPB2FMPS1 = FGP_MPB2 / FGP_MPB2_ORG
                ELSE
                   MPB2FMPS1 = 0.0
@@ -795,7 +795,7 @@ C           uptake mag niet groter zijn dan beschikbaarheid (mineralisatieflux)
                MPB2FMPS1 = 1.0
             ENDIF
             SI_UPTAKE  = (FGP_MPB1-FRES_MPB1)*SCRAT_MPB1 + (FGP_MPB2-FRES_MPB2)*SCRAT_MPB2
-            IF ( SI_UPTAKE .GT. dMinS) THEN
+            IF ( SI_UPTAKE > dMinS) THEN
 
                FACTOR_MPB1 = FGP_MPB1*SCRAT_MPB1/(FGP_MPB1*SCRAT_MPB1+FGP_MPB2*SCRAT_MPB2)
                FACTOR_MPB2 = 1.-FACTOR_MPB1
@@ -806,12 +806,12 @@ C           uptake mag niet groter zijn dan beschikbaarheid (mineralisatieflux)
                FRES_MPB1 = MRES_MPB1 + R_PR_MPB1 * FGP_MPB1
                FRES_MPB2 = MRES_MPB2 + R_PR_MPB2 * FGP_MPB2
 
-               IF ( FGP_MPB1_ORG .GT. 1.E-20) THEN
+               IF ( FGP_MPB1_ORG > 1.E-20) THEN
                   MPB1FMSS1 = FGP_MPB1 / FGP_MPB1_ORG
                ELSE
                   MPB1FMSS1 = 0.0
                ENDIF
-               IF ( FGP_MPB2_ORG .GT. 1.E-20) THEN
+               IF ( FGP_MPB2_ORG > 1.E-20) THEN
                   MPB2FMSS1 = FGP_MPB2 / FGP_MPB2_ORG
                ELSE
                   MPB2FMSS1 = 0.0
@@ -906,12 +906,12 @@ C           output parameters
             FMPB2RESS1 = FRES_MPB2
             FMPB1GPS1M = FGP_MPB1/SURF
             FMPB2GPS1M = FGP_MPB1/SURF
-            IF ( BIOMAS_S1_MPB1 .GT. 1.E-20 ) THEN
+            IF ( BIOMAS_S1_MPB1 > 1.E-20 ) THEN
                FMPB1GPS1D = FGP_MPB1/BIOMAS_S1_MPB1
             ELSE
                FMPB1GPS1D = 0.0
             ENDIF
-            IF ( BIOMAS_S1_MPB2 .GT. 1.E-20 ) THEN
+            IF ( BIOMAS_S1_MPB2 > 1.E-20 ) THEN
                FMPB2GPS1D = FGP_MPB1/BIOMAS_S1_MPB2
             ELSE
                FMPB2GPS1D = 0.0

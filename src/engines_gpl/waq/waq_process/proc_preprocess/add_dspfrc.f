@@ -76,7 +76,7 @@
 
          ! only for processes which are split up
 
-         if ( procesdef%procesprops(iproc)%sfrac_type .eq. SFRAC_SPLITFLUX) then
+         if ( procesdef%procesprops(iproc)%sfrac_type == SFRAC_SPLITFLUX) then
 
             ! check for dispersion stochi with fractions
 
@@ -89,14 +89,14 @@
 
                   ! skip dummy rules, factor equal zero
 
-                  if ( abs(proc%dispstochi(istochi)%scale) .gt. 1e-10 ) then
+                  if ( abs(proc%dispstochi(istochi)%scale) > 1e-10 ) then
 
                      if (string_equals(basnam(1:10), proc%dispstochi(istochi)%substance)) then
 
                         ! dispersion found add the fractions with the same dipersion name and the same factor
 
                         allocate(new_dispstochi(proc%no_dispstochi+nfrac),stat=ierr_alloc)
-                        if ( ierr_alloc .ne. 0 ) then
+                        if ( ierr_alloc /= 0 ) then
                            write(lunrep,*) 'error allocating work array in routine add_dspfrc:',ierr_alloc
                            write(lunrep,*) 'array length:',proc%no_dispstochi+nfrac
                            write(*,*) 'error allocating array:',ierr_alloc
@@ -110,7 +110,7 @@
                         ! add the new ones
 
                         do ifrac = 1, nfrac
-                           if ( ifrac .lt. 100 ) then
+                           if ( ifrac < 100 ) then
                               write(suffix,'(i2.2)') ifrac
                            else
                               write(suffix,'(i3.3)') ifrac
@@ -140,14 +140,14 @@
 
                   ! skip dummy rules, factor equal zero
 
-                  if ( abs(proc%velostochi(istochi)%scale) .gt. 1e-10 ) then
+                  if ( abs(proc%velostochi(istochi)%scale) > 1e-10 ) then
 
                      if (string_equals( basnam(1: 10), proc%velostochi(istochi)%substance)) then
 
                         ! velocity found add the fractions with the same velocity name and the same factor
 
                         allocate(new_velostochi(proc%no_velostochi+nfrac),stat=ierr_alloc)
-                        if ( ierr_alloc .ne. 0 ) then
+                        if ( ierr_alloc /= 0 ) then
                            write(lunrep,*) 'error allocating work array in routine add_dspfrc:',ierr_alloc
                            write(lunrep,*) 'array length:',proc%no_velostochi+nfrac
                            write(*,*) 'error allocating array:',ierr_alloc
@@ -161,7 +161,7 @@
                         ! add the new ones
 
                         do ifrac = 1, nfrac
-                           if ( ifrac .lt. 100 ) then
+                           if ( ifrac < 100 ) then
                               write(suffix,'(i2.2)') ifrac
                            else
                               write(suffix,'(i3.3)') ifrac

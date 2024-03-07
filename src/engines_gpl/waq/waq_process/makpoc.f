@@ -96,7 +96,7 @@
 !***********************************************************************
 
 !     Calculate amount POC to be made
-      IF (OCPOM * FRC1 .LT. 1.0D0) THEN
+      IF (OCPOM * FRC1 < 1.0D0) THEN
            POC1  =  FRC1 * IM1 /(1- OCPOM * FRC1)
       ELSE
            CALL GETMLU( LUNREP )
@@ -108,7 +108,7 @@
            CALL SRSTOP( 1 )
       END IF
 
-      IF (OCPOM * FRC2 .LT. 1.0D0) THEN
+      IF (OCPOM * FRC2 < 1.0D0) THEN
            POC2  =  FRC2 * IM2 /(1- OCPOM * FRC2)
       ELSE
            CALL GETMLU( LUNREP )
@@ -120,7 +120,7 @@
            CALL SRSTOP( 1 )
       END IF
 
-      IF (OCPOM * FRC3 .LT. 1.0D0) THEN
+      IF (OCPOM * FRC3 < 1.0D0) THEN
            POC3  =  FRC3 * IM3 /(1- OCPOM * FRC3)
       ELSE
            CALL GETMLU( LUNREP )

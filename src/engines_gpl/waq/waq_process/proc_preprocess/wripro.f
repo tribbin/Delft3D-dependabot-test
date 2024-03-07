@@ -113,10 +113,10 @@
       WRITE (LUWRKP) ( STOCHI(K), K = 1 , NOTOT*NFLUX )
       WRITE (LUWRKP) ( DSTO(K)  , K = 1 , NOSYS*NDSPX )
       WRITE (LUWRKP) ( VSTO(K)  , K = 1 , NOSYS*NVELX )
-      IF ( NDSPN .GT. 0 ) THEN
+      IF ( NDSPN > 0 ) THEN
          WRITE (LUWRKP) ( IDPNW(K)  , K = 1 , NOSYS )
       ENDIF
-      IF ( NVELN .GT. 0 ) THEN
+      IF ( NVELN > 0 ) THEN
          WRITE (LUWRKP) ( IVPNW(K)  , K = 1 , NOSYS )
       ENDIF
       WRITE (LUWRKP) ( PRONAM(K), K = 1 , NPROC )

@@ -135,14 +135,14 @@
       do ialg = 1 , ntyp_m
          ip = nipfix + ialg + ntyp_m
          ifix(ialg) = nint(pmsa(ipoint(ip)))
-         if (ifix(ialg) .gt. 0) then
+         if (ifix(ialg) > 0) then
 
             !find corresponding type in rest of the algae
 
             do ialg2 = 1 , ntyp_m
                ip = nipfix + ialg2 + ntyp_m
                jfix = nint(pmsa(ipoint(ip)))
-               if ( jfix .eq. -1*ifix(ialg) ) then
+               if ( jfix == -1*ifix(ialg) ) then
                   ialg_fixed(ialg) = ialg2
                   exit
                endif
@@ -157,7 +157,7 @@
 
          do ialg = 1 , ntyp_m
             jalg = ialg_fixed(ialg)
-            if (ifix(ialg) .gt. 0 .and. jalg .gt. 0) then
+            if (ifix(ialg) > 0 .and. jalg > 0) then
 
                ! calculate total suspended up till the bottom
 
@@ -170,7 +170,7 @@
                   bloomalg = max(pmsa(ip),0.0)
                   msusp = msusp + bloomalg*volume  ! total mass suspended type in g
                   call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-                  if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+                  if ((ikmrk2==0).or.(ikmrk2==3)) then
 
                      ip = ipoint(nipfix+jalg)+ (iseg-1)*increm(nipfix+jalg)
                      bloomalg = max(pmsa(ip),0.0)
@@ -190,7 +190,7 @@
                tau       = pmsa(ip1+(isegb-1)*in1)
                taucrulva = pmsa(ip2+(isegb-1)*in2)
                fixgrad   = pmsa(ip3+(isegb-1)*in3)
-               if (taucrulva .gt. 0.) then
+               if (taucrulva > 0.) then
                   frfixedalg = min(1. , max(0. , fixgrad - tau / taucrulva))
                else
                   frfixedalg = 0.
@@ -199,7 +199,7 @@
 
                mtot  = msusp + mfix
                dsedresalg = frfixedalg*mtot-mfix
-               if ( dsedresalg .gt. 0 ) then
+               if ( dsedresalg > 0 ) then
 
                   ! rooting event decrease suspended material proportionally
 
@@ -243,7 +243,7 @@
             do ialg = 1 , ntyp_m
                ip = nipfix+ialg
                ipp = ipoint(ip)+ (iseg-1)*increm(ip)
-               if ( ifix(ialg) .lt. 0 ) then
+               if ( ifix(ialg) < 0 ) then
                   bloomalg = pmsa(ipp)/volume
                else
                   bloomalg = pmsa(ipp)

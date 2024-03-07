@@ -74,11 +74,11 @@
             proc => procesdef%procesprops(iproc)
             call extract_value_from_group(lun_patr,proc%name,'sfrac_type',type)
             call upper_case(type,type,len(type))
-            if ( type .eq. 'SPLITFLUX' ) then
+            if ( type == 'SPLITFLUX' ) then
                proc%sfrac_type = SFRAC_SPLITFLUX
-            elseif ( type .eq. 'DUPLICATE' ) then
+            elseif ( type == 'DUPLICATE' ) then
                proc%sfrac_type = SFRAC_DUPLICATE
-            elseif ( type .eq. 'EXPAND' ) then
+            elseif ( type == 'EXPAND' ) then
                proc%sfrac_type = SFRAC_EXPAND
             endif
 

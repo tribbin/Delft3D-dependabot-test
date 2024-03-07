@@ -84,7 +84,7 @@
       IF (BTEST(IKNMRK(ISEG),0)) THEN
 ! 0-inactive cell  1-active cell
        CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-       IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
+       IF ((IKMRK2==0).OR.(IKMRK2==3)) THEN
 ! place in layers   0-depth integerated (2D) 1-top 2-between 3-bottom
 !
 
@@ -94,10 +94,10 @@
         TOTDEP  =      PMSA(IP4 )
         ICHZTP  = NINT(PMSA(IP5 ))
 
-        IF (ICHZTP.EQ.1) THEN
+        IF (ICHZTP==1) THEN
 !       Shear stress by flow according to White/Colebrook - protect against very small depth
          CHZ = 18. * LOG10 ( 12.* (TOTDEP+ROUGH) / ROUGH  )
-        ELSE IF (ICHZTP.EQ.2) THEN
+        ELSE IF (ICHZTP==2) THEN
 !       Chezy according to Manning
          CHZ = ( TOTDEP ** ONESIX) / MANCOF
         END IF

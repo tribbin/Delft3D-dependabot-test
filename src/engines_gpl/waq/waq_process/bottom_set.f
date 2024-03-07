@@ -75,12 +75,12 @@
          type(BotColmn), pointer :: tset(:)
          type(BotColmn)          :: aBotColmn
 !                          check if there is space left
-         if ( aBotColmnColl%cursize .eq. aBotColmnColl%maxsize ) then
+         if ( aBotColmnColl%cursize == aBotColmnColl%maxsize ) then
             allocate ( tset( aBotColmnColl%maxsize + MAX_NUM ) ) ! allocate new space
             do i = 1 , aBotColmnColl%maxsize
                tset(i) = aBotColmnColl%set(i)                    ! copy the old array
             enddo        ! throw away the old array
-            if ( aBotColmnColl%maxsize .ne. 0 ) deallocate ( aBotColmnColl%set )
+            if ( aBotColmnColl%maxsize /= 0 ) deallocate ( aBotColmnColl%set )
             aBotColmnColl%set     => tset     ! put new array in place
             aBotColmnColl%maxsize =  aBotColmnColl%maxsize + MAX_NUM  ! increase maximum
          endif

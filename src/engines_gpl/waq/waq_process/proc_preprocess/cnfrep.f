@@ -60,15 +60,15 @@
          ! the one to one processes
 
          do ipro = 1 , noprot
-            if ( namep1 .eq. nampact(ipro) ) then
+            if ( namep1 == nampact(ipro) ) then
                found = .true.
                do iproc2=1,nproc
                   call upper_case(procid(iproc2),namep2,10)
-                  if ( namep2 .eq. namprot(ipro) ) then
+                  if ( namep2 == namprot(ipro) ) then
                      do ic = 1 , nconf
                         iprcnf = (iproc-1)*nconf + ic
                         iprcnf2= (iproc2-1)*nconf + ic
-                        if ( icnpro(iprcnf2).gt.0 ) then
+                        if ( icnpro(iprcnf2)>0 ) then
                            icnpro(iprcnf) = icnpro(iprcnf2)
                         endif
                      enddo
@@ -87,14 +87,14 @@
                   namep3 = nampralg(ipro)
                   call get_trimmed_length(namep3,ilen)
                   write(namep3(ilen+1:),'(i2.2)') ialg
-                  if ( namep1 .eq. namep3 ) then
+                  if ( namep1 == namep3 ) then
                      do iproc2=1,nproc
                         call upper_case(procid(iproc2),namep2,10)
-                        if ( namep2 .eq. namprot(ipro) ) then
+                        if ( namep2 == namprot(ipro) ) then
                            do ic = 1 , nconf
                               iprcnf = (iproc-1)*nconf + ic
                               iprcnf2= (iproc2-1)*nconf + ic
-                              if ( icnpro(iprcnf2).gt.0 ) then
+                              if ( icnpro(iprcnf2)>0 ) then
                                  icnpro(iprcnf) = icnpro(iprcnf2)
                               endif
                            enddo

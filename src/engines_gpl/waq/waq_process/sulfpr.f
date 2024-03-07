@@ -137,9 +137,9 @@
 !
 !           Correct fluxes depending on under- or supersaturation
 !
-            IF ( FLUXPR .LT. 0.0) FLUXPR = 0.0
-            IF ( FLUXDS .LT. 0.0) FLUXDS = 0.0
-            IF ( FLUXDS*DELT .GE. CSP) FLUXDS = 0.5 * CSP / DELT
+            IF ( FLUXPR < 0.0) FLUXPR = 0.0
+            IF ( FLUXDS < 0.0) FLUXDS = 0.0
+            IF ( FLUXDS*DELT >= CSP) FLUXDS = 0.5 * CSP / DELT
 !
             FL( 1+IFLUX ) = FLUXPR
             FL( 2+IFLUX ) = FLUXDS

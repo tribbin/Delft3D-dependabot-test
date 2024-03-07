@@ -99,7 +99,7 @@
       LCHARMAP = ' '
       LCHARMAP(1:248) = LCHAR(23)(1:248)
       DO I=248,1,-1
-         IF ( LCHARMAP(I:I) .EQ. '.' ) THEN
+         IF ( LCHARMAP(I:I) == '.' ) THEN
             LCHARMAP(I:I+7) = "_res.map"
             GOTO 20
          ENDIF

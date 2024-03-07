@@ -113,7 +113,7 @@ contains
    ALLOCATE(aProcesProp%input_item(aProcesProp%no_input),  &
             aProcesProp%output_item(aProcesProp%no_output), &
             STAT=IERR_ALLOC)
-   IF ( IERR_ALLOC .NE. 0 ) THEN
+   IF ( IERR_ALLOC /= 0 ) THEN
       WRITE(LUNREP,*) 'ERROR allocating IOitem array:',IERR_ALLOC
       WRITE(LUNREP,*) 'in routine SETDAY_1, array length:', aProcesProp%no_input, aProcesProp%no_output
       WRITE(*,*) 'ERROR allocating array:', IERR_ALLOC
@@ -208,7 +208,7 @@ contains
    ELSE
       ISUSED(IKEY) = 1
       READ(KEYVAL(IKEY),'(E20.0)',IOSTAT=IERR2) CCRIT
-      IF ( IERR2 .NE. 0 ) THEN
+      IF ( IERR2 /= 0 ) THEN
          WRITE(LUNREP,*)'ERROR interpreting critical level:', KEYVAL(IKEY)
          call status%increase_error_count()
       ENDIF
@@ -231,7 +231,7 @@ contains
       aItemProp%default = 1.0
    ELSE
       ISUSED(IKEY) = 1
-      IF ( KEYVAL(IKEY)(1:1) .EQ. 'Y' .OR. KEYVAL(IKEY)(1:1) .EQ. 'y' ) THEN
+      IF ( KEYVAL(IKEY)(1:1) == 'Y' .OR. KEYVAL(IKEY)(1:1) == 'y' ) THEN
          ABOVE = 1.0
       ELSE
          ABOVE = 0.0
@@ -272,7 +272,7 @@ contains
       ISUSED(IKEY) = 1
    ENDIF
    CALL get_trimmed_length(SUFFIX,ISLEN)
-   IF (SUFFIX(1:ISLEN) .NE. ' ' ) THEN
+   IF (SUFFIX(1:ISLEN) /= ' ' ) THEN
       SUFFIX =SUFFIX(1:ISLEN)//'_'//PERSFX
    ELSE
       SUFFIX ='PERC_'//PERSFX
@@ -320,7 +320,7 @@ contains
    ! check the use of the key words
 
    DO IKEY = 1 , NOKEY
-      IF ( ISUSED(IKEY) .EQ. 0 ) THEN
+      IF ( ISUSED(IKEY) == 0 ) THEN
          call status%increase_warning_count()
          WRITE(LUNREP,*) 'WARNING: keyword not used'
          WRITE(LUNREP,*) 'key   :',KEYNAM(IKEY)

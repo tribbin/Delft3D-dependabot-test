@@ -79,14 +79,14 @@
 
 !          read number of items in this block
 
-      if ( gettoken( npnt, ierr2 ) .gt. 0 ) goto 10
+      if ( gettoken( npnt, ierr2 ) > 0 ) goto 10
 
 !          read the item numbers
 
       do i = 1, npnt
-         if ( gettoken( ipnt(i), ierr2 ) .gt. 0 ) goto 10
+         if ( gettoken( ipnt(i), ierr2 ) > 0 ) goto 10
          ipnt(i) = iabs ( ipnt(i) )
-         if ( ipnt(i) .gt. nmax ) then
+         if ( ipnt(i) > nmax ) then
             write ( lunut, 2000 ) ipnt(i), nmax
             ierr = ierr + 1
          endif
@@ -95,7 +95,7 @@
 !          write them if needed
 
       write( lunut ,2010 ) npnt
-      if ( ioutpt .ge. 3 ) then
+      if ( ioutpt >= 3 ) then
          write( lunut ,2020 ) ( ipnt(i) , i = 1, npnt )
       else
          write( lunut ,2030 )
@@ -103,7 +103,7 @@
 
 !       Set negative values if IOPT = 1 ( block function )
 
-      if ( iopt .eq. 1 ) then
+      if ( iopt == 1 ) then
          do i = 1, npnt
             ipnt(i) = -ipnt(i)
          enddo

@@ -257,102 +257,102 @@
 !
       IVAR = -1
 !
-      IF ( IAR_NR .EQ. IIVOL ) THEN
-         IF ( INDX .GT. 1 ) GOTO 900
+      IF ( IAR_NR == IIVOL ) THEN
+         IF ( INDX > 1 ) GOTO 900
          IVAR = IVVOL + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIAREA ) THEN
-         IF ( INDX .GT. 1 ) GOTO 900
+      IF ( IAR_NR == IIAREA ) THEN
+         IF ( INDX > 1 ) GOTO 900
          IVAR = IVARE + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIFLOW ) THEN
-         IF ( INDX .GT. 1 ) GOTO 900
+      IF ( IAR_NR == IIFLOW ) THEN
+         IF ( INDX > 1 ) GOTO 900
          IVAR = IVFLO + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IILENG ) THEN
-         IF ( INDX .GT. 2 ) GOTO 900
+      IF ( IAR_NR == IILENG ) THEN
+         IF ( INDX > 2 ) GOTO 900
          IVAR = IVLEN + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IICONS ) THEN
-         IF ( INDX .GT. NOCONS ) GOTO 900
+      IF ( IAR_NR == IICONS ) THEN
+         IF ( INDX > NOCONS ) GOTO 900
          IVAR = IVCNS + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIPARM ) THEN
-         IF ( INDX .GT. NOPA ) GOTO 900
+      IF ( IAR_NR == IIPARM ) THEN
+         IF ( INDX > NOPA ) GOTO 900
          IVAR = IVPAR + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIFUNC ) THEN
-         IF ( INDX .GT. NOFUN ) GOTO 900
+      IF ( IAR_NR == IIFUNC ) THEN
+         IF ( INDX > NOFUN ) GOTO 900
          IVAR = IVFUN + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IISFUN ) THEN
-         IF ( INDX .GT. NOSFUN ) GOTO 900
+      IF ( IAR_NR == IISFUN ) THEN
+         IF ( INDX > NOSFUN ) GOTO 900
          IVAR = IVSFU + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IICONC ) THEN
-         IF ( INDX .GT. NOTOT ) GOTO 900
+      IF ( IAR_NR == IICONC ) THEN
+         IF ( INDX > NOTOT ) GOTO 900
          IVAR = IVCNC + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIMASS ) THEN
-         IF ( INDX .GT. NOTOT ) GOTO 900
+      IF ( IAR_NR == IIMASS ) THEN
+         IF ( INDX > NOTOT ) GOTO 900
          IVAR = IVMAS + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIDERV ) THEN
-         IF ( INDX .GT. NOTOT ) GOTO 900
+      IF ( IAR_NR == IIDERV ) THEN
+         IF ( INDX > NOTOT ) GOTO 900
          IVAR = IVDER + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIDISP ) THEN
-         IF ( INDX .GT. NODISP ) GOTO 900
+      IF ( IAR_NR == IIDISP ) THEN
+         IF ( INDX > NODISP ) GOTO 900
          IVAR = IVDSP + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIVELO ) THEN
-         IF ( INDX .GT. NOVELO ) GOTO 900
+      IF ( IAR_NR == IIVELO ) THEN
+         IF ( INDX > NOVELO ) GOTO 900
          IVAR = IVVEL + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIDEFA ) THEN
-         IF ( INDX .GT. NODEF ) GOTO 900
+      IF ( IAR_NR == IIDEFA ) THEN
+         IF ( INDX > NODEF ) GOTO 900
          IVAR = IVDEF + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIPLOC ) THEN
-         IF ( INDX .GT. NOLOC ) GOTO 900
+      IF ( IAR_NR == IIPLOC ) THEN
+         IF ( INDX > NOLOC ) GOTO 900
          IVAR = IVLOC + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIDSPX  ) THEN
-         IF ( INDX .GT. NDSPX ) GOTO 900
+      IF ( IAR_NR == IIDSPX  ) THEN
+         IF ( INDX > NDSPX ) GOTO 900
          IVAR = IVDSX + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIVELX  ) THEN
-         IF ( INDX .GT. NVELX ) GOTO 900
+      IF ( IAR_NR == IIVELX  ) THEN
+         IF ( INDX > NVELX ) GOTO 900
          IVAR = IVVLX + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IILOCX  ) THEN
-         IF ( INDX .GT. NLOCX ) GOTO 900
+      IF ( IAR_NR == IILOCX  ) THEN
+         IF ( INDX > NLOCX ) GOTO 900
          IVAR = IVLCX + INDX - 1
       ENDIF
 !
-      IF ( IAR_NR .EQ. IIFLUX  ) THEN
-         IF ( INDX .GT. NFLUX ) GOTO 900
+      IF ( IAR_NR == IIFLUX  ) THEN
+         IF ( INDX > NFLUX ) GOTO 900
          IVAR = IVFLX + INDX - 1
       ENDIF
 !
-      IF ( IVAR .EQ. -1 ) GOTO 900
+      IF ( IVAR == -1 ) GOTO 900
 !
       RETURN
 !

@@ -56,7 +56,7 @@
    50    format (2x,a8,11x,4(f11.4,3x))
       end do
       biopos = bio2
-      if (biopos .lt. 0.0) biopos = 0.0
+      if (biopos < 0.0) biopos = 0.0
       write (outdbg,70) biopos
    70 format (2X,'Total biomass',6X,F11.4,3X,'g/m3')
       write (outdbg,90) total

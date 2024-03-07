@@ -68,16 +68,16 @@
       root(1)=-1.0
       root(2)=-1.0
       s0=dexp(-zvec(nz))
-      if (surf .le. s0) return
+      if (surf <= s0) return
 
 !  Find interval containing all roots
       x=-dlog(surf)
       call ebcalc(x,fx,derx,numgr)
       phi=(fun(nz,numgr)-fx)/emin
       y=x+phi
-      if (derx .ge. emin) root(1)=0.0
-      if (y .ge. zvec(nz)) root(2)=phi/dmix
-      if (root(1) .ge. 0.0 .and. root(2) .ge. 0.0) return
+      if (derx >= emin) root(1)=0.0
+      if (y >= zvec(nz)) root(2)=phi/dmix
+      if (root(1) >= 0.0 .and. root(2) >= 0.0) return
 
 !  Split interval to isolate each root.
       rootsexist = .false.
@@ -87,13 +87,13 @@
          a(1)=0.5*(b(1)+b(2))
          call ebcalc(a(1),fm,fpr,numgr)
          ebar=(fm-fx)/(a(1)-x)
-         if (ebar .ge. emin) then
+         if (ebar >= emin) then
             rootsexist = .true.
             exit
          end if
          deriv=(fpr-ebar)/(a(1)-x)
-         if (deriv .lt. 0.0) b(2)=a(1)
-         if (deriv .ge. 0.0) b(1)=a(1)
+         if (deriv < 0.0) b(2)=a(1)
+         if (deriv >= 0.0) b(1)=a(1)
       end do
 
 !  No roots exist
@@ -104,13 +104,13 @@
 !  We have separated the roots.
       a(2)=a(1)
       do i=1,2
-         if (root(i) .ge. 0.0) cycle
+         if (root(i) >= 0.0) cycle
          do k=1,10
             xm=0.5*(a(i)+b(i))
             call ebcalc(xm,fm,fp,numgr)
             ebar=(fm-fx)/(xm-x)
-            if (ebar .gt. emin) a(i)=xm
-            if (ebar .le. emin) b(i)=xm
+            if (ebar > emin) a(i)=xm
+            if (ebar <= emin) b(i)=xm
          end do
          root(i)=(0.5*(a(i)+b(i))-x)/dmix
       end do

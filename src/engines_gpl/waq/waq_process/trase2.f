@@ -124,12 +124,12 @@
          INAAR = IEXPNT(2,IQ)
 
 !        Zoek eerste kenmerk van- en naar-segmenten
-         IF ( IVAN .GT. 0 ) THEN
+         IF ( IVAN > 0 ) THEN
              CALL evaluate_waq_attribute(1,IKNMRK(IVAN ),IKMRKV)
          ELSE
              IKMRKV = -1
          ENDIF
-         IF ( INAAR .GT. 0 ) THEN
+         IF ( INAAR > 0 ) THEN
              CALL evaluate_waq_attribute(1,IKNMRK(INAAR),IKMRKN)
          ELSE
              IKMRKN = -1
@@ -138,17 +138,17 @@
 !        extra diffusion during emersion
 
          XTRDIF = 1.0
-         IF ( IVAN .GT. 0 ) THEN
+         IF ( IVAN > 0 ) THEN
             SWEMERSION = NINT(PMSA(IP3+(IVAN -1)*IN3))
-            IF ( SWEMERSION .EQ. 1 ) THEN
+            IF ( SWEMERSION == 1 ) THEN
                XTRDIF = PMSA(IP4+(IVAN -1)*IN4)
             ENDIF
          ENDIF
 
          NEWBOT = .FALSE.
 
-         IF ( (IKMRKV.EQ.1 .AND. IKMRKN.EQ.3)  .OR.
-     +        (IKMRKV.EQ.0 .AND. IKMRKN.EQ.3) ) THEN
+         IF ( (IKMRKV==1 .AND. IKMRKN==3)  .OR.
+     +        (IKMRKV==0 .AND. IKMRKN==3) ) THEN
 
 !.....WATER-SEDIMENT INTERFACE
 
@@ -161,7 +161,7 @@
 
          ENDIF
 
-         IF ( (IKMRKV.EQ.3 .AND. IKMRKN.EQ.3) ) THEN
+         IF ( (IKMRKV==3 .AND. IKMRKN==3) ) THEN
 
 !.....SEDIMENT-SEDIMENT INTERFACE
 
@@ -174,7 +174,7 @@
 
          ENDIF
 
-         IF (IKMRKV.EQ.3 .AND. IKMRKN.EQ.-1) THEN
+         IF (IKMRKV==3 .AND. IKMRKN==-1) THEN
 
 !.....DEEP SEDIMENT BOUNDARY
 

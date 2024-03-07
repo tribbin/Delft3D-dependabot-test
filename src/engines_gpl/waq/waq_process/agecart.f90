@@ -83,7 +83,7 @@ contains
 !
          fl  ( Iageprod    ) = ageprod
 
-         if (watersrc .gt. age_threshold) then
+         if (watersrc > age_threshold) then
              pmsa(ipnt(4))       = ageconc / watersrc
          else
              pmsa(ipnt(4))       = -999.0

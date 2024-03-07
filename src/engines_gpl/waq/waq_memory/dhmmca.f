@@ -229,7 +229,7 @@
          arrlen(i_car) = arrdm1(i_car)*arrdm2(i_car)*arrdm3(i_car)*5
          if ( .not. l_decl ) write ( 328, 2040 ) i_car-iasize-ijsize, arrnam(i_car), arrlen(i_car)
          itotc         = itotc + arrlen(i_car)
-         if ( itotc .lt. 0 ) then
+         if ( itotc < 0 ) then
             write(lunrep,2005)
             call srstop(1)
          endif
@@ -249,9 +249,9 @@ cjvb                                     ??lp
             iartyp = arrtyp(i_car)
             iarlen = arrlen(i_car)
             namarr = arrnam(i_car)
-            if ( iarlen .gt. 0 ) then
+            if ( iarlen > 0 ) then
                ip = make_pointer(part, iartyp ,iarlen)
-               if ( ip .le. 0 ) then
+               if ( ip <= 0 ) then
                   write(lunrep,2010) namarr
                   call srstop(1)
                endif

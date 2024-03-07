@@ -47,7 +47,7 @@
 !
       NALG  = NINT(PMSA(IPOINT(1)))
       ISWFIX= NINT(PMSA(IPOINT(2)))
-      IF ( ISWFIX .EQ. 1 ) THEN
+      IF ( ISWFIX == 1 ) THEN
          NIPALG = 4
       ELSE
          NIPALG = 2
@@ -71,16 +71,16 @@
           IP = 3 + NALG + IALG
           BIOMAS = PMSA ( IPOINT(IP) + (ISEG-1)*INCREM(IP) )
 
-          IF ( ISWFIX .EQ. 1 ) THEN
+          IF ( ISWFIX == 1 ) THEN
              IP = 3 + 2*NALG + IALG
              IFIX   = NINT(PMSA ( IPOINT(IP) + (ISEG-1)*INCREM(IP) ))
-             IF ( IFIX .LT. 0 ) THEN
+             IF ( IFIX < 0 ) THEN
 
                 ! Rooted algae, inlclude only if sdmix positive
 
                 IP = 3 + 3*NALG + IALG
                 SDMIX = PMSA ( IPOINT(IP) + (ISEG-1)*INCREM(IP) )
-                IF ( SDMIX .GT. 1E-10 ) THEN
+                IF ( SDMIX > 1E-10 ) THEN
                    BIOMAS = BIOMAS/DEPTH
                 ELSE
                    BIOMAS = 0.0
@@ -88,7 +88,7 @@
              ENDIF
           ENDIF
 
-          IF ( BIOMAS .GT. 0.0 )
+          IF ( BIOMAS > 0.0 )
      J    EXTALG = EXTALG + BIOMAS*EXTCF
 
       end do

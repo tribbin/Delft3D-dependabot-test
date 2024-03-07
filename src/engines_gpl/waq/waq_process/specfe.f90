@@ -127,7 +127,7 @@ contains
 
          ! if concentration small then calculate fractions with 1.e-20
 
-         if ( feiiid .lt. 1.e-20 ) then
+         if ( feiiid < 1.e-20 ) then
             cfe3dt     = 1.e-20/(56000.*poros)
          endif
 
@@ -139,7 +139,7 @@ contains
          cfe3d1     = cfe3dt/(1.+kfe31/h_ion+kfe32/(h_ion*h_ion))
          cfe3d2     = kfe31*cfe3d1/h_ion
          cfe3d3     = cfe3dt - cfe3d1 - cfe3d2
-         if ( cfe3d3 .lt. 0.0 ) then
+         if ( cfe3d3 < 0.0 ) then
             cfe3d3     = kfe32*cfe3d1/(h_ion*h_ion)
          endif
 
@@ -149,13 +149,13 @@ contains
          frfe3d     = cfe3d1/cfe3dt
          frfe3ohd   = cfe3d2/cfe3dt
          frfe3oh2d  = 1.0 - frfe3d - frfe3ohd
-         if ( frfe3oh2d .lt. 0.0 ) then
+         if ( frfe3oh2d < 0.0 ) then
             frfe3oh2d = cfe3d3/cfe3dt
          endif
 
          ! if concentration small then recalculate the concentrations of the fractions with original feiiid concentration
 
-         if ( feiiid .lt. 1.e-20 ) then
+         if ( feiiid < 1.e-20 ) then
             cfe3dt     = feiiid/(56000.*poros)
             disfe3     = cfe3dt * frfe3d
             disfe3oh   = cfe3dt * frfe3ohd
@@ -168,7 +168,7 @@ contains
 
          ! if concentration small then calculate fractions with 1.e-20
 
-         if ( feiid .lt. 1.e-20 ) then
+         if ( feiid < 1.e-20 ) then
             cfe2dt     = 1.e-20/(56000.*poros)
          endif
 
@@ -180,7 +180,7 @@ contains
          cfe2d1     = cfe2dt/(1.+kfe21/h_ion+kfe22/(h_ion*h_ion))
          cfe2d2     = kfe21*cfe2d1/h_ion
          cfe2d3     = cfe2dt - cfe2d1 - cfe2d2
-         if ( cfe2d3 .lt. 0.0 ) then
+         if ( cfe2d3 < 0.0 ) then
             cfe2d3     = kfe22*cfe2d1/(h_ion*h_ion)
          endif
 
@@ -190,13 +190,13 @@ contains
          frfe2d     = cfe2d1/cfe2dt
          frfe2ohd   = cfe2d2/cfe2dt
          frfe2oh2d  = 1.0 - frfe2d - frfe2ohd
-         if ( frfe2oh2d .lt. 0.0 ) then
+         if ( frfe2oh2d < 0.0 ) then
             frfe2oh2d = cfe2d3/cfe2dt
          endif
 
          ! if concentration small then recalculate the concentrations of the fractions with original feiid concentration
 
-         if ( feiid .lt. 1.e-20 ) then
+         if ( feiid < 1.e-20 ) then
             cfe2dt     = feiid/(56000.*poros)
             disfe2     = cfe2dt * frfe2d
             disfe2oh   = cfe2dt * frfe2ohd

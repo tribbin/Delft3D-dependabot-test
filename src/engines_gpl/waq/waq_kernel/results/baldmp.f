@@ -100,7 +100,7 @@
          DO IQC = 1 , NQC
             ITEL1 = ITEL1 + 1
             IQ    = IPDMP(ITEL1)
-            IF ( IQ .GT. 0 ) THEN
+            IF ( IQ > 0 ) THEN
                IPQ  = IQDMP(IQ)
                DO ISYS = 1 , NOSYS
                   ASMASS(ISYS,IDUMP,5) = ASMASS(ISYS,IDUMP,5) +
@@ -128,7 +128,7 @@
          DO ISC = 1 , NSC
             ITEL2 = ITEL2 + 1
             ISEG  = IPDMP(ITEL2)
-            IF ( ISEG .GT. 0 ) THEN
+            IF ( ISEG > 0 ) THEN
                IPS   = ISDMP(ISEG)
                DO ISYS = 1 , NOTOT
                   ASMASS(ISYS,IDUMP,1) = ASMASS(ISYS,IDUMP,1) +

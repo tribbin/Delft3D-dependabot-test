@@ -81,10 +81,10 @@
 !     We construeren nu de FLUXDUMPEN
 !
       DO ISEG = 1 , NOSEG
-         IF ( ISDMP(ISEG) .GT. 0 ) THEN
+         IF ( ISDMP(ISEG) > 0 ) THEN
             VOL   = VOLUME(ISEG)
             IPS   = ISDMP(ISEG)
-            IF ( IGRID .NE. 1 ) THEN
+            IF ( IGRID /= 1 ) THEN
                ISEG2 = GRDSEG(ISEG,IGRID)
             ELSE
                ISEG2 = ISEG

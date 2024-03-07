@@ -71,7 +71,7 @@
       ! just print a message if data comes from an external source
 
       if ( dlwqdata%extern ) then
-         if ( dlwqdata%filetype .eq. FILE_BINARY ) then
+         if ( dlwqdata%filetype == FILE_BINARY ) then
             write ( lunut , 1130 ) trim(dlwqdata%filename)
          else
             write ( lunut , 1135 ) trim(dlwqdata%filename)
@@ -94,7 +94,7 @@
 
          ! print scale factors
 
-         if ( ioutpt .ge. 4 ) then
+         if ( ioutpt >= 4 ) then
             write ( lunut , 1010 )
             do ipar = 1,nopar,iwidth
                ie = min(ipar+iwidth-1,nopar)
@@ -121,7 +121,7 @@
          do ibrk = 1, nobrk
             do iloc = 1 , noloc
                do ipar = 1 , nopar
-                  if ( iorder .eq. ORDER_PARAM_LOC ) then
+                  if ( iorder == ORDER_PARAM_LOC ) then
                      dlwqdata%values(ipar,iloc,ibrk)= dlwqdata%values(ipar,iloc,ibrk)*dlwqdata%factor_param(ipar)
                   else
                      dlwqdata%values(iloc,ipar,ibrk)= dlwqdata%values(iloc,ipar,ibrk)*dlwqdata%factor_param(ipar)
@@ -137,26 +137,26 @@
 
       ! convert breakpoints, no more, already been done directly after the read
 
-      if ( nobrk .gt. 1 ) then
-         if ( ioutpt .ge. 4 ) write ( lunut , 1040 ) strng3, nobrk
-         if ( deflts .and. ioutpt .ge. 4 ) write ( lunut , 1050 )
+      if ( nobrk > 1 ) then
+         if ( ioutpt >= 4 ) write ( lunut , 1040 ) strng3, nobrk
+         if ( deflts .and. ioutpt >= 4 ) write ( lunut , 1050 )
       else
          if ( deflts ) then
-            if ( ioutpt .ge. 4 ) write ( lunut , 1050 )
+            if ( ioutpt >= 4 ) write ( lunut , 1050 )
          else
-            if ( ioutpt .ge. 4 ) write ( lunut , 1060 )
+            if ( ioutpt >= 4 ) write ( lunut , 1060 )
          endif
       endif
 
       ! write formatted output
 
-      if ( ioutpt .ge. 4 ) then
+      if ( ioutpt >= 4 ) then
          do ibrk = 1,nobrk
-            if ( nobrk .gt. 1 ) then
-               if ( ftype .eq. 1 ) write ( lunut, 1070 ) strng3, ibrk, dlwqdata%times(ibrk)
-               if ( ftype .eq. 2 ) write ( lunut, 1070 ) strng3, ibrk, dlwqdata%times(ibrk)
-               if ( ftype .eq. 3 ) write ( lunut, 1080 ) ibrk, dlwqdata%times(ibrk),dlwqdata%phase(ibrk)
-               if ( ftype .eq. 4 ) write ( lunut, 1090 ) ibrk, dlwqdata%times(ibrk),dlwqdata%phase(ibrk)
+            if ( nobrk > 1 ) then
+               if ( ftype == 1 ) write ( lunut, 1070 ) strng3, ibrk, dlwqdata%times(ibrk)
+               if ( ftype == 2 ) write ( lunut, 1070 ) strng3, ibrk, dlwqdata%times(ibrk)
+               if ( ftype == 3 ) write ( lunut, 1080 ) ibrk, dlwqdata%times(ibrk),dlwqdata%phase(ibrk)
+               if ( ftype == 4 ) write ( lunut, 1090 ) ibrk, dlwqdata%times(ibrk),dlwqdata%phase(ibrk)
             endif
             do ipar = 1,nopar,iwidth
                ie = min(ipar+iwidth-1,nopar)
@@ -180,7 +180,7 @@
                   else
                      iploc = iloc
                   endif
-                  if ( iorder .eq. ORDER_PARAM_LOC ) then
+                  if ( iorder == ORDER_PARAM_LOC ) then
                      write ( lunut, 1120 ) iploc,(dlwqdata%values(k,iloc,ibrk),k=ipar,ie)
                   else
                      write ( lunut, 1120 ) iploc,(dlwqdata%values(iloc,k,ibrk),k=ipar,ie)
@@ -218,9 +218,9 @@
 
       character*20 function car_used(i)
       integer(kind=int_wp) :: i
-      if ( i .gt. 0 ) then
+      if ( i > 0 ) then
          car_used = 'used'
-      elseif ( i .eq. 0 ) then
+      elseif ( i == 0 ) then
          car_used = 'FLOW'
       else
          car_used = 'ignored'

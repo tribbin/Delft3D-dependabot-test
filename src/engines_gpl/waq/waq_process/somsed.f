@@ -79,7 +79,7 @@
       DO ISEG = 1 , NOSEG
       IF (BTEST(IKNMRK(ISEG),0)) THEN
       CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-      IF ((IKMRK2.EQ.0).OR.(IKMRK2.EQ.3)) THEN
+      IF ((IKMRK2==0).OR.(IKMRK2==3)) THEN
 !
 
       FLX1    = PMSA(IP(1 ))
@@ -150,10 +150,10 @@
 
 !        Zoek eerste kenmerk van- en naar-segmenten
 
-         IF ( IVAN .GT. 0 .AND. INAAR .GT. 0 ) THEN
+         IF ( IVAN > 0 .AND. INAAR > 0 ) THEN
          CALL evaluate_waq_attribute(1,IKNMRK(IVAN ),IKMRKV)
          CALL evaluate_waq_attribute(1,IKNMRK(INAAR),IKMRKN)
-         IF (IKMRKV.EQ.1.AND.IKMRKN.EQ.1) THEN
+         IF (IKMRKV==1.AND.IKMRKN==1) THEN
 
 !            Water-water uitwisseling
 
@@ -173,9 +173,9 @@
              VP4 = PMSA(IP(33))
              CTOT = C1 + C2 + C3
              CPTOT = CP1 + CP2 + CP3 + CP4
-             IF ( CTOT .GT. 0.0 )
+             IF ( CTOT > 0.0 )
      J       PMSA(IP(39)) = ( C1*V1+C2*V2+C3*V3 ) / CTOT
-             IF ( CPTOT .GT. 0.0 )
+             IF ( CPTOT > 0.0 )
      J       PMSA(IP(40)) = ( CP1*VP1+CP2*VP2+CP3*VP3+CP4*VP4 ) / CPTOT
          ENDIF
          ENDIF

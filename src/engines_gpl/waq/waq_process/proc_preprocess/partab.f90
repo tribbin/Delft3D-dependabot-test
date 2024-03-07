@@ -133,7 +133,7 @@
                         if ( isinput( notot , syname, nocons, constants, nopa  ,                &
      &                                paname, nofun , funame, nosfun   , sfname,                &
      &                                proc2%input_item(iin)%name,                               &
-     &                                proc1%output_item(iout)%name) .gt. 0 ) then
+     &                                proc1%output_item(iout)%name) > 0 ) then
                            nitem = nitem + 1
                         endif
                      enddo
@@ -148,7 +148,7 @@
                         if ( isinput( notot , syname, nocons, constants, nopa  ,                &
      &                                paname, nofun , funame, nosfun   , sfname,                &
      &                                proc2%input_item(iin)%name,                               &
-     &                                proc1%fluxoutput(iout)%name) .gt. 0 ) then
+     &                                proc1%fluxoutput(iout)%name) > 0 ) then
                            nitem = nitem + 1
                         endif
                      enddo
@@ -165,22 +165,22 @@
       iprocs = 0
       needed = 0
       nrref  = 0
-      do while ( nproc .le. noproc )
+      do while ( nproc <= noproc )
          do iproc1 = 1 , noproc                                     ! count backward references
             proc1 => procesdef%procesprops(iproc1)
             if ( proc1%active ) then
-               if ( needed(iproc1) .eq. -1 ) cycle                  ! this process is already ordered
+               if ( needed(iproc1) == -1 ) cycle                  ! this process is already ordered
                nitem = 0
                do iin = 1 , proc1%no_input
                   do iproc2 = 1 , iproc1-1                          ! only the previous processes can provide
                      proc2 => procesdef%procesprops(iproc2)
                      if ( proc2%active ) then
-                        if ( needed(iproc2) .eq. -1 ) cycle
+                        if ( needed(iproc2) == -1 ) cycle
                         do iout = 1 , proc2%no_output
                            if ( isinput( notot , syname, nocons, constants, nopa  ,                &
      &                                   paname, nofun , funame, nosfun   , sfname,                &
      &                                   proc1%input_item(iin)%name,                               &
-     &                                   proc2%output_item(iout)%name) .gt. 0 ) then
+     &                                   proc2%output_item(iout)%name) > 0 ) then
                               nitem = nitem + 1
                            endif
                         enddo
@@ -188,14 +188,14 @@
                            if ( isinput( notot , syname, nocons, constants, nopa  ,                &
      &                                   paname, nofun , funame, nosfun   , sfname,                &
      &                                   proc1%input_item(iin)%name,                               &
-     &                                   proc2%fluxoutput(iout)%name) .gt. 0 ) then
+     &                                   proc2%fluxoutput(iout)%name) > 0 ) then
                               nitem = nitem + 1
                            endif
                         enddo
                      endif
                   enddo
                enddo
-               if ( nitem .eq. 0 ) then                             ! save the processes that are able to run
+               if ( nitem == 0 ) then                             ! save the processes that are able to run
                   iprocs  = iprocs + 1                              ! in separate arrays
                   prorder(iprocs) = iproc1
                   work   (iprocs) = profreq(iproc1)
@@ -204,10 +204,10 @@
                endif
             endif
          enddo
-         if ( nproc .eq. iprocs+1 ) exit                            ! no further progress made
+         if ( nproc == iprocs+1 ) exit                            ! no further progress made
          do iproc1 = nproc , iprocs                                 ! simple bubblesort of those that can run
             do iproc2 = iprocs, iproc1+1, -1                        ! to get those with hihest forward refs first
-               if ( work(iproc2) .gt. work(iproc2-1) ) then
+               if ( work(iproc2) > work(iproc2-1) ) then
                   iin = work   (iproc2-1)
                   work   (iproc2-1) = work   (iproc2)
                   work   (iproc2  ) = iin
@@ -221,25 +221,25 @@
          iout = 0
          do iproc1 = nproc , iprocs
             needed(prorder(iproc1)) = -1                            ! mark these processes dealt with
-            if ( profreq(prorder(iproc1)) .eq. 0 ) then             ! take care that at the end there are
+            if ( profreq(prorder(iproc1)) == 0 ) then             ! take care that at the end there are
                iout = iout+1                                        ! at least 5 without forward reference
-               if ( iout .eq. 5 ) then                              ! Is 5 enough to prevent the running of a
+               if ( iout == 5 ) then                              ! Is 5 enough to prevent the running of a
                   iin = iproc1                                      ! process that has not got its input resolved
                   exit                                              ! yet during parallel processing ?
                endif                                                ! You can take a larger value here, but then
             endif                                                   ! you might run out of separators later on.
          enddo                                                      ! There will at least be a check at runtime
-         if ( iin .ne. 0 ) iprocs = iin
+         if ( iin /= 0 ) iprocs = iin
          nproc = iprocs+1
       enddo
-      if ( nothread .gt. 1 ) then
+      if ( nothread > 1 ) then
 
 !         if at the end there are still processes left, then add them at the end with a warning
 
          do iproc1 = 1, noproc
             proc1 => procesdef%procesprops(iproc1)
             if ( proc1%active ) then
-               if ( needed(iproc1) .eq. -1 ) cycle
+               if ( needed(iproc1) == -1 ) cycle
                iprocs  = iprocs + 1
                prorder(iprocs) = iproc1
                write(line,'(a,a)') ' WARNING: possibly unresolved input for process: ',               &
@@ -262,7 +262,7 @@
                prorder(iprocs) = iproc1
             endif
          enddo
-         if ( nproc .ne. iin ) then
+         if ( nproc /= iin ) then
             write(line,'(a,2i5)') ' ERROR: no match in number of active processes: ',nproc,iin
             call monsys( line , 2 )
          endif
@@ -295,7 +295,7 @@
 
 !         make the refrence table: proref
 
-      if ( nrref .eq. 0 ) nrref = 1
+      if ( nrref == 0 ) nrref = 1
       allocate ( proref( nrref, naproc ) )
       proref = 0
       do iproc1 = 1 , naproc
@@ -304,14 +304,14 @@
             nitem = 0
             do iin = 1 , proc1%no_input
                do iproc2 = 1 , noproc
-                  if ( iproc2 .eq. iproc1 ) cycle
+                  if ( iproc2 == iproc1 ) cycle
                   proc2 => procesdef%procesprops(iproc2)
                   if ( proc2%active ) then
                      do iout = 1 , proc2%no_output
                         if ( isinput( notot , syname, nocons, constants, nopa  ,                &
      &                                paname, nofun , funame, nosfun   , sfname,                &
      &                                proc1%input_item (iin )%name,                             &
-     &                                proc2%output_item(iout)%name) .gt. 0 ) then
+     &                                proc2%output_item(iout)%name) > 0 ) then
                            nitem = nitem + 1
                            proref(nitem,iproc1) = iproc2
                         endif
@@ -320,7 +320,7 @@
                         if ( isinput( notot , syname, nocons, constants, nopa  ,                &
      &                                paname, nofun , funame, nosfun   , sfname,                &
      &                                proc1%input_item(iin )%name,                              &
-     &                                proc2%fluxoutput(iout)%name) .gt. 0 ) then
+     &                                proc2%fluxoutput(iout)%name) > 0 ) then
                            nitem = nitem + 1
                            proref(nitem,iproc1) = iproc2
                         endif
@@ -342,12 +342,12 @@
                do iproc2 = 1 , noproc
                   proc2 => procesdef%procesprops(iproc2)
                   if ( proc2%active ) then
-                     if ( iproc2 .ne. iproc1 ) then
+                     if ( iproc2 /= iproc1 ) then
                         do iout = 1 , proc2%no_fluxoutput
                            if ( isinput( notot , syname, nocons, constants, nopa  ,                &
      &                                   paname, nofun , funame, nosfun   , sfname,                &
      &                                   proc1%input_item(iin )%name,                              &
-     &                                   proc2%fluxoutput(iout)%name) .gt. 0 ) then
+     &                                   proc2%fluxoutput(iout)%name) > 0 ) then
                               proc1%input_item(iin)%ip_val = ioff + nfl + iout
                            endif
                         enddo
@@ -391,11 +391,11 @@
 !
       locnam = valnam
       status = -1
-      do while (status .eq. -1)
+      do while (status == -1)
          call valpoi ( notot , nopa     , nosfun, syname, nocons,                &
      &                 nofun , constants, paname, funame, sfname,                &
      &                 locnam, ivalip, line  )
-         if ( ivalip .ne. -1 ) then
+         if ( ivalip /= -1 ) then
             status = 0
          else
             if ( string_equals(locnam, input) ) then
@@ -403,7 +403,7 @@
             else
                ! if name contains star, remove it
                i_star = index(locnam,'*')
-               if ( i_star .gt. 1 ) then
+               if ( i_star > 1 ) then
                   locnam(i_star:) = ' '
                else
                   status = 0

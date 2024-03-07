@@ -57,7 +57,7 @@
 
       if (timon) call timstrt( "blmeff", ithndl )
 
-      if (verspe.lt.2.0) then
+      if (verspe<2.0) then
 !
 ! read efficiency database
 ! Read the first record. This contains the names of
@@ -72,7 +72,7 @@
          read (line, *, err=100, end=100) spnam2(1:maxspe)
   100    continue
          do i = 1, maxspe
-            if (spnam2(i)(1:1).eq.' ') exit
+            if (spnam2(i)(1:1)==' ') exit
             numtyp = numtyp + 1
          end do
 !
@@ -87,7 +87,7 @@
 
       do i = 1, nuecog
          nfnd = index_in_array(grname(i)(:8),spnam2(:numtyp))
-         if (nfnd .ge. 1) then
+         if (nfnd >= 1) then
             ifnd (i) = nfnd
          else
             write(lunrep,'(3A)') 'ERROR: Could not find species ', trim(grname(i)), ' in the efficicy tables of the bloom.spe file'
@@ -101,7 +101,7 @@
 !
       call insort (ifnd, nuecog)
 
-      if (verspe.lt.2.0) then
+      if (verspe<2.0) then
 !
 !  Read the entire efficiency data base file using the same statements
 !  as in INPUT2 of BLOOM II
@@ -131,7 +131,7 @@
 !
 ! Write names of those groups and types that were selected.
 !
-      if (verspe.lt.2.0) then
+      if (verspe<2.0) then
           write (lunfrm,245)
       else
           write (lunfrm,246)
@@ -144,7 +144,7 @@
 !
 ! Write the light curves the groups that were selected.
 !
-      if (verspe.ge.2.0) then
+      if (verspe>=2.0) then
           write (lunfrm,291) npoint, tefcur, 'lightintensity_efficiency_curves'
           do i=1,npoint
              write (lunfrm,301) power(i), (effic(i,ifnd(j)),j=1,nuecog)
@@ -153,7 +153,7 @@
 !
 ! Write the efficiency data for those species that were selected.
 !
-      if (verspe.ge.2.0) then
+      if (verspe>=2.0) then
           write (lunfrm,291) nz,tefcur, 'zvec_fun_lookuptable'
           do i=1,nz
              write (lunfrm,301) zvec(i), (fun(i,ifnd(j)),j=1,nuecog)
@@ -189,7 +189,7 @@
 10    continue
       ready = .true.
       do i = 1, lenarr - 1
-         if (inarr(i) .gt. inarr(i+1)) then
+         if (inarr(i) > inarr(i+1)) then
             ready = .false.
             ihelp = inarr(i)
             inarr(i) = inarr(i+1)

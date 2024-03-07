@@ -103,14 +103,14 @@
 !     Calculate Self-Cooling only for top layer segments
 !
           CALL evaluate_waq_attribute(2,IKNMRK(ISEG),IKMRK2)
-                IF (IKMRK2.EQ.0 .OR. IKMRK2.EQ.1) THEN          
+                IF (IKMRK2==0 .OR. IKMRK2==1) THEN
                    SelfCool = -1. * (HtTot2 - HtTot) 
                     
 !                  heat exchange coefficient = 1/d
 ! 
                     HeatFlux  = - SelfCool * 86400.0 * Surtemp /  (RhoWat * Cp * Depth)
 !
-                    IF (SurTemp .GT. 0.0) THEN
+                    IF (SurTemp > 0.0) THEN
 !                       Limitation of FL(1) to amount of excess temperature present
                         HeatFlux = MAX (- SurTemp/DELT, HeatFlux )
                     ENDIF

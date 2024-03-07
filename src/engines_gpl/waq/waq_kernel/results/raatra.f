@@ -89,17 +89,17 @@
          DO IQC = 1 , NQC
             ITEL1 = ITEL1 + 1
             IQ    = IQRAAI(ITEL1)
-            IF ( IQ .GT. 0 ) THEN
+            IF ( IQ > 0 ) THEN
                IPQ  = IQDMP(IQ)
                DO ISYS = 1 , NOSYS
-                  IF ( IOPT .EQ. 1 ) THEN
+                  IF ( IOPT == 1 ) THEN
                      TRRAAI(ISYS,IRAAI) = TRRAAI(ISYS,IRAAI)+
      +                                    DMPQ(ISYS,IPQ,1)  -
      +                                    DMPQ(ISYS,IPQ,2)
-                  ELSEIF ( IOPT .EQ. 2 ) THEN
+                  ELSEIF ( IOPT == 2 ) THEN
                      TRRAAI(ISYS,IRAAI) = TRRAAI(ISYS,IRAAI)+
      +                                    DMPQ(ISYS,IPQ,1)
-                  ELSEIF ( IOPT .EQ. 3 ) THEN
+                  ELSEIF ( IOPT == 3 ) THEN
                      TRRAAI(ISYS,IRAAI) = TRRAAI(ISYS,IRAAI)-
      +                                    DMPQ(ISYS,IPQ,2)
                   ENDIF
@@ -107,14 +107,14 @@
             ELSE
                IPQ  = IQDMP(-IQ)
                DO ISYS = 1 , NOSYS
-                  IF ( IOPT .EQ. 1 ) THEN
+                  IF ( IOPT == 1 ) THEN
                      TRRAAI(ISYS,IRAAI) = TRRAAI(ISYS,IRAAI)-
      +                                    DMPQ(ISYS,IPQ,1)  +
      +                                    DMPQ(ISYS,IPQ,2)
-                  ELSEIF ( IOPT .EQ. 2 ) THEN
+                  ELSEIF ( IOPT == 2 ) THEN
                      TRRAAI(ISYS,IRAAI) = TRRAAI(ISYS,IRAAI)+
      +                                    DMPQ(ISYS,IPQ,2)
-                  ELSEIF ( IOPT .EQ. 3 ) THEN
+                  ELSEIF ( IOPT == 3 ) THEN
                      TRRAAI(ISYS,IRAAI) = TRRAAI(ISYS,IRAAI)-
      +                                    DMPQ(ISYS,IPQ,1)
                   ENDIF

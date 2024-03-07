@@ -78,14 +78,14 @@
       do iq = 1, noq1+noq2
          ifrom = ipoint(1,iq)
          ito   = ipoint(2,iq)
-         if ( ifrom .eq. 0 .or. ito .eq. 0 ) cycle
-         if ( ifrom .gt. 0 ) nomat = nomat + 1
-         if ( ito   .gt. 0 ) nomat = nomat + 1
+         if ( ifrom == 0 .or. ito == 0 ) cycle
+         if ( ifrom > 0 ) nomat = nomat + 1
+         if ( ito   > 0 ) nomat = nomat + 1
       enddo
 
 !         see if there is a third direction
 
-      if ( noq3 .ne. 0 ) nomat = nomat + 2*noseg
+      if ( noq3 /= 0 ) nomat = nomat + 2*noseg
 
       if (timon) call timstop( ithndl )
       return

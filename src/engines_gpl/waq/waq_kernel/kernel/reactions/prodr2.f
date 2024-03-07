@@ -79,9 +79,9 @@
       DO ISYS = 1,NOTOT
          DO IFLUX = NFLUX1 , NFLUX1 + NFLUXP - 1
             ST = STOCHI(ISYS,IFLUX)
-            IF ( ST .NE. 0.0 ) THEN
+            IF ( ST /= 0.0 ) THEN
                FACT = FDT*ST
-               IF ( ABS(FACT-1.0) .LT. 1.E-10 ) THEN
+               IF ( ABS(FACT-1.0) < 1.E-10 ) THEN
                   DO ISEG = 1 , NOSEG
                         DERIV(ISYS,ISEG) = DERIV(ISYS,ISEG) +
      +                                     FLUX(IFLUX,ISEG)*VOLUME(ISEG)

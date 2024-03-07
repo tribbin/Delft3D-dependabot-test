@@ -98,9 +98,9 @@
       do iq = 1 , noq
          ifrom = ipoint(1,iq)
          ito   = ipoint(2,iq)
-         if ( ifrom .eq. 0 .or. ito .eq. 0 ) cycle
+         if ( ifrom == 0 .or. ito == 0 ) cycle
 
-         if ( flowtot(iq) .gt. 0.0 ) then
+         if ( flowtot(iq) > 0.0 ) then
            q1 = ( flowtot(iq) + disptot(iq) ) * theta(iq)
            q2 = ( 0.0         - disptot(iq) ) * theta(iq)
          else
@@ -108,11 +108,11 @@
            q2 = ( flowtot(iq) - disptot(iq) ) * theta(iq)
          endif
 
-         if ( ifrom .gt. 0  ) then
+         if ( ifrom > 0  ) then
             diag( ifrom  ) = diag( ifrom  ) + q1
             mat (fmat(iq)) = mat (fmat(iq)) + q2
          endif
-         if ( ito   .gt. 0  ) then
+         if ( ito   > 0  ) then
             diag(  ito   ) = diag(  ito   ) - q2
             mat (tmat(iq)) = mat (tmat(iq)) - q1
          endif
@@ -121,14 +121,14 @@
 ! finally scale the matrix to avoid possible round-off errors in gmres
 ! this scaling may need some adaption for future domain decomposition b.c.
 
-      if ( iscale .eq. 1 ) then
+      if ( iscale == 1 ) then
          do iseg = 1, noseg + nobnd
             ifrom = rowpnt(iseg-1) + 1
             ito = rowpnt(iseg)
 
 ! check on zero's required for methods 17 and 18
 
-            if ( abs(diag(iseg)) .lt. 1.0e-35 ) diag(iseg) = 1.0
+            if ( abs(diag(iseg)) < 1.0e-35 ) diag(iseg) = 1.0
 
             do iq = ifrom, ito
                mat(iq) = mat(iq) / diag(iseg)

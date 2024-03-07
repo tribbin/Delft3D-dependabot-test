@@ -99,7 +99,7 @@ contains
 
 ! initialise bottom segment pointer
 
-      if (ifirst(VBType).eq.0) then
+      if (ifirst(VBType)==0) then
          ip = ipoint( 16)
          inc = increm( 16)
 
@@ -111,9 +111,9 @@ contains
 
          do iseg = 1,noseg
             call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
-            if (ikmrk1.lt.3) then
+            if (ikmrk1<3) then
                call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-               if ((ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+               if ((ikmrk2==0).or.(ikmrk2==3)) then
                   pmsa(ip + inc * (iseg - 1)) = real(iseg)
                endif
             endif
@@ -124,9 +124,9 @@ contains
          do iq = noq1+noq2+noq3, noq1 + noq2 +1, -1
             ifrom   = iexpnt(1,iq)
             ito     = iexpnt(2,iq)
-            if ( ifrom .gt. 0 .and. ito .gt. 0 ) then
+            if ( ifrom > 0 .and. ito > 0 ) then
                ibotseg = pmsa(ip + inc * (ito - 1))
-               if ( ibotseg .gt. 0 ) then
+               if ( ibotseg > 0 ) then
                   pmsa(ip + inc * (ifrom - 1)) = real(ibotseg)
                endif
             endif
@@ -137,9 +137,9 @@ contains
          do iq = noq1+noq2+noq3+1, noq1+noq2+noq3+noq4
             ifrom   = iexpnt(1,iq)
             ito     = iexpnt(2,iq)
-            if ( ifrom .gt. 0 .and. ito .gt. 0 ) then
+            if ( ifrom > 0 .and. ito > 0 ) then
                ibotseg = pmsa(ip + inc * (ifrom - 1))
-               if ( ibotseg .gt. 0 ) then
+               if ( ibotseg > 0 ) then
                   pmsa(ip + inc * (ito - 1)) = real(ibotseg)
                endif
             endif
@@ -155,7 +155,7 @@ contains
 !        lowest water and 2d segments only
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
          call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-         if (ikmrk1.lt.3 .and. (ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+         if (ikmrk1<3 .and. (ikmrk2==0).or.(ikmrk2==3)) then
 
             SwEmersion = pmsa( ipnt(  1) )
             SwWV       = NINT(pmsa( ipnt(  2) ))
@@ -173,34 +173,34 @@ contains
             SWVB01Gro = 1.0
             SwVB01Mrt = 0.0
 
-            if ( SwWV .eq. 0) then
-               if (ifirst(1) .eq. 0) then
+            if ( SwWV == 0) then
+               if (ifirst(1) == 0) then
                   nsfVB = Initnsf
                endif
 
-               if ( NINT(SwEmersion) .eq. 0 ) then
+               if ( NINT(SwEmersion) == 0 ) then
                   nsfVB = nsfVB + DELT
                   SWVB01Gro = 0.0
                else
                   nsfVB = 0
                endif
 
-               if (nsfVB .gt. CrnsfVB01) then
+               if (nsfVB > CrnsfVB01) then
                   SwVB01Mrt = 1.0
                endif
             else
-               if (ifirst(vbtype) .eq. 0) then
+               if (ifirst(vbtype) == 0) then
                   nscdVB01 = Initnscd
                   nsfVB = 0.0
                endif
-               if ( TotalDepth .gt. CrdepVB01 ) then
+               if ( TotalDepth > CrdepVB01 ) then
                   nscdVB01 = nscdVB01 + DELT
                   SWVB01Gro = 0.0
                else
                   nscdVB01 = 0
                endif
 
-               if (nscdVB01 .gt. CrnsfVB01) then
+               if (nscdVB01 > CrnsfVB01) then
                   SwVB01Mrt = 1.0
                endif
 
@@ -218,7 +218,7 @@ contains
 !
       end do
 
-      if (SwWV .eq. 0) then
+      if (SwWV == 0) then
          ifirst (1) = 1
       else
          ifirst (vbtype) = 1

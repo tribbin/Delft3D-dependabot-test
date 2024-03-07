@@ -140,7 +140,7 @@
             PIP   = AAP + VIVP + APATP
             TotP  = TOP + PO4 + PIP
 !
-            IF ( TIM .GT. 0.0 ) THEN
+            IF ( TIM > 0.0 ) THEN
             FrAAP = AAP/TIM
             FrVAP = (VIVP+APATP)/TIM
             ELSE

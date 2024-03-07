@@ -215,7 +215,7 @@ contains
 !        lowest water and 2d segments only
          call evaluate_waq_attribute(1,iknmrk(iseg),ikmrk1)
          call evaluate_waq_attribute(2,iknmrk(iseg),ikmrk2)
-         if (ikmrk1.lt.3 .and. (ikmrk2.eq.0).or.(ikmrk2.eq.3)) then
+         if (ikmrk1<3 .and. (ikmrk2==0).or.(ikmrk2==3)) then
 !
          VB1        = pmsa( ipnt(  1) )
          F1VB01     = pmsa( ipnt(  2) )
@@ -263,7 +263,7 @@ contains
 !
 !   *****     Insert your code here  *****
 !
-         if ( ( NINT (SwVB01Mrt) .eq. 1) .or. ( NINT (SwDying) .eq. 1)) then
+         if ( ( NINT (SwVB01Mrt) == 1) .or. ( NINT (SwDying) == 1)) then
 !           inundation mortality
             rcdecact = rcdec
          else
@@ -271,14 +271,14 @@ contains
             rcdecact = 0.0
          endif
 
-         if (NINT(SwWV) .eq. 1) then
+         if (NINT(SwWV) == 1) then
 !           if wetland vegetation model, also turnover due to senescence mortality and grazing
 !           Ratio of current biomass to attainable biomass
             rVB1 = VB1 / ((TBmWV + tiny(TBmWV)) * 100.0)
             TEMP20 = TempAir - 20.0
             TempCof = TcMSWV ** TEMP20
 
-            If (rVB1 .gt. MaxRWV) then
+            If (rVB1 > MaxRWV) then
 !              Add accelarated senescence mortality with biomass above target biomass
                rcdecact = rcdecact + AcMWV * Rc0MSWV * TempCof
             else
@@ -294,7 +294,7 @@ contains
 
 
 !        check if vegetation cohort is dead or still dying off or we use the Wetland Vegetation option
-         if ( ( ( NINT (SwVB01Mrt) .eq. 1) .or. ( NINT (SwDying) .eq. 1) .or. (NINT(SwWV) .eq. 1) ) .and. (fMrtVB .gt. 0.0) ) then
+         if ( ( ( NINT (SwVB01Mrt) == 1) .or. ( NINT (SwDying) == 1) .or. (NINT(SwWV) == 1) ) .and. (fMrtVB > 0.0) ) then
 
 !           calculate 2D fluxes of vegetation compartments
 !           seems redundant to split C-flux by veg. compartment

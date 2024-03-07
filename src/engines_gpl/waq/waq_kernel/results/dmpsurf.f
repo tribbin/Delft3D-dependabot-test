@@ -66,9 +66,9 @@
          do isc = 1 , nsc
             itel  = itel + 1
             iseg  = ipdmp(ndmpar+itel)
-            if ( iseg .gt. 0 ) then
+            if ( iseg > 0 ) then
                icol = isegcol(iseg)
-               if ( i_surf(icol) .eq. 0 ) then
+               if ( i_surf(icol) == 0 ) then
                   dmp_surf(idump) = dmp_surf(idump) + surf  (iseg)
                   i_surf(icol) = 1
                endif

@@ -120,22 +120,22 @@
       aGrid%space_var_nolay =  .false.
       aGrid%nolay           =  1                  ! default, may be overridden
       aGrid%nolay_var       => null()
-      if ( gettoken( ctoken, ierr2 ) .gt. 0 ) goto 1000    ! get name
+      if ( gettoken( ctoken, ierr2 ) > 0 ) goto 1000    ! get name
       aGrid%name            =  ctoken
       write ( lunut , 2000 ) aGrid%name
       if ( oldproc ) then
-         if ( gettoken( agrid%iref, ierr2 ) .gt. 0 ) goto 1000
+         if ( gettoken( agrid%iref, ierr2 ) > 0 ) goto 1000
          agrid%name_ref = gridps%pointers(agrid%iref)%name
       endif
 
       do
 
-         if ( gettoken( ctoken, itoken, itype, ierr2 ) .gt. 0 ) goto 1000
-         if ( itype .eq. 1 ) then                              ! it is a string
+         if ( gettoken( ctoken, itoken, itype, ierr2 ) > 0 ) goto 1000
+         if ( itype == 1 ) then                              ! it is a string
             select case ( ctoken )
 
                case ( 'NOLAY' )
-                  if ( gettoken( aGrid%nolay, ierr2 ) .gt. 0 ) goto 1000
+                  if ( gettoken( aGrid%nolay, ierr2 ) > 0 ) goto 1000
                   write ( lunut , 2010 ) aGrid%nolay
 
                case ( 'NOAGGREGATION' )
@@ -146,12 +146,12 @@
                   exit                                         ! input for the grid is ready
 
                case ( 'AGGREGATIONFILE' )                      ! it is the filename keyword
-                  if ( gettoken( ctoken, ierr2 ) .gt. 0 ) goto 1000
+                  if ( gettoken( ctoken, ierr2 ) > 0 ) goto 1000
                   call open_waq_files ( lun(33), ctoken, 33, 1, ierr2 )
-                  if ( ierr2 .ne. 0 ) goto 1000
+                  if ( ierr2 /= 0 ) goto 1000
                   read  ( lun(33) ,   *  ) nmax,mmax,noseg_fil,idummy,idummy
                   write ( lunut   , 2020 ) ctoken, nmax, mmax, noseg_fil
-                  if ( noseg_fil .ne. noseg_lay ) then
+                  if ( noseg_fil /= noseg_lay ) then
                      write ( lunut , 2030 ) noseg_fil, noseg_lay
                      goto 1000
                   endif
@@ -166,11 +166,11 @@
                   exit
 
                case ( 'REFERENCEGRID' )
-                  if ( gettoken( ctoken, ierr2 ) .gt. 0 ) goto 1000
+                  if ( gettoken( ctoken, ierr2 ) > 0 ) goto 1000
                   aGrid%name_ref = ctoken
                   write ( lunut , 2040 ) aGrid%name_ref
                   i_grid = gridpointercollfind( GridPs, aGrid%name_ref )
-                  if ( i_grid .gt. 0 ) then
+                  if ( i_grid > 0 ) then
                      aGrid%iref      = i_grid
                   else
                      write ( lunut , 2050 )
@@ -188,8 +188,8 @@
             allocate ( aGrid%iarray(noseg) )
             aGrid%iarray(1) = itoken                           ! this integer is first pointer
             do iseg = 2, noseg_lay
-               if ( gettoken( aGrid%iarray(iseg), ierr2 ) .gt. 0 ) goto 1000
-               if ( aGrid%iarray(iseg) .gt. noseg_lay ) then
+               if ( gettoken( aGrid%iarray(iseg), ierr2 ) > 0 ) goto 1000
+               if ( aGrid%iarray(iseg) > noseg_lay ) then
                   write ( lunut , 2070 ) aGrid%iarray(iseg)
                   call status%increase_error_count()
                endif
@@ -206,13 +206,13 @@
       iwork  = 0
       do iseg = 1 , noseg_lay
          iseg2 = aGrid%iarray(iseg)
-         if ( iseg2 .gt. 0 ) then
+         if ( iseg2 > 0 ) then
             noseg2 = max(noseg2,iseg2)
             iwork(iseg2) = iwork(iseg2) + 1
          endif
       enddo
       do iseg2 = 1 , noseg2
-         if ( iwork(iseg2) .eq. 0 ) then
+         if ( iwork(iseg2) == 0 ) then
             write ( lunut , 2080 ) iseg2
             call status%increase_error_count()
          endif
@@ -268,19 +268,19 @@
       iamerge = 0
       iread = 0
 
-      if ( gettoken( nkopt, ierr2 ) .gt. 0 ) goto 900
+      if ( gettoken( nkopt, ierr2 ) > 0 ) goto 900
 
       do i = 1 , nkopt                                      !   read those blocks
 
-         if ( gettoken( nopt, ierr2 ) .gt. 0 ) goto 900
+         if ( gettoken( nopt, ierr2 ) > 0 ) goto 900
          allocate ( ikenm(nopt) )
          do j = 1, nopt                                        !   get the attribute numbers
-            if ( gettoken( ikenm(j), ierr2 ) .gt. 0 ) goto 900
+            if ( gettoken( ikenm(j), ierr2 ) > 0 ) goto 900
          enddo
 
-         if ( gettoken( ikopt1, ierr2 ) .gt. 0 ) goto 900      !   the file option for this info
-         if ( ikopt1 .eq. 0 ) then                             !   binary file
-            if ( gettoken( filename, ierr2 ) .gt. 0 ) goto 910    !   the name of the binary file
+         if ( gettoken( ikopt1, ierr2 ) > 0 ) goto 900      !   the file option for this info
+         if ( ikopt1 == 0 ) then                             !   binary file
+            if ( gettoken( filename, ierr2 ) > 0 ) goto 910    !   the name of the binary file
             open( newunit = lunbin, file = filename, status = 'old', access = 'stream', iostat = ierr2 )
             if ( ierr2 == 0 ) then
                read  ( lunbin, iostat = ierr2 ) ( iread(j), j=1, noseg )
@@ -292,26 +292,26 @@
                 write ( lunut , 2020 ) trim(filename)
             endif
          else
-            if ( gettoken( ikopt2, ierr2 ) .gt. 0 ) goto 900   !   second option
+            if ( gettoken( ikopt2, ierr2 ) > 0 ) goto 900   !   second option
 
             select case ( ikopt2 )
 
                case ( 1 )                                      !   no defaults
                   do j = 1, noseg
-                     if ( gettoken( iread(j), ierr2 ) .gt. 0 ) goto 900
+                     if ( gettoken( iread(j), ierr2 ) > 0 ) goto 900
                   enddo
 
                case ( 2 )                                      !   default with overridings
-                  if ( gettoken( ikdef, ierr2 ) .gt. 0 ) goto 900
-                  if ( gettoken( nover, ierr2 ) .gt. 0 ) goto 900
+                  if ( gettoken( ikdef, ierr2 ) > 0 ) goto 900
+                  if ( gettoken( nover, ierr2 ) > 0 ) goto 900
                   do iseg = 1 , noseg
                      iread(iseg) = ikdef
                   enddo
-                  if ( nover .gt. 0 ) then
+                  if ( nover > 0 ) then
                      do j = 1, nover
-                        if ( gettoken( iover , ierr2 ) .gt. 0 ) goto 900
-                        if ( gettoken( idummy, ierr2 ) .gt. 0 ) goto 900
-                        if ( iover .lt. 1 .or. iover .gt. noseg ) then
+                        if ( gettoken( iover , ierr2 ) > 0 ) goto 900
+                        if ( gettoken( idummy, ierr2 ) > 0 ) goto 900
+                        if ( iover < 1 .or. iover > noseg ) then
                            write ( lunut , 2030 ) j, iover
                            call status%increase_error_count()
                         else
@@ -334,7 +334,7 @@
 
 !                 see if merged already
 
-            if ( ikmerge(iknm1) .ne. 0  ) then
+            if ( ikmerge(iknm1) /= 0  ) then
                write ( lunut , 2260 ) iknm2, iknm1
                call status%increase_error_count()
                exit
@@ -342,8 +342,8 @@
 
 !                 see if valid
 
-            if ( iknm1 .le. 0 .or. iknm1 .gt. 10 ) then
-               if ( iknm1 .eq. 0 ) then
+            if ( iknm1 <= 0 .or. iknm1 > 10 ) then
+               if ( iknm1 == 0 ) then
                   write ( lunut , 2270 ) iknm2
                   call status%increase_error_count()
                   exit
@@ -377,7 +377,7 @@
 
       ! We read the number of time-dependent attributes - there should be none
       !
-      if ( gettoken( nopt, ierr2 ) .gt. 0 ) goto 900   !   second option
+      if ( gettoken( nopt, ierr2 ) > 0 ) goto 900   !   second option
       if ( nopt /= 0 ) then
           write( lunut, 2050 )
           goto 900
@@ -387,19 +387,19 @@
 
       ! Handle errors
   900 continue
-      if ( ierr2 .gt. 0 ) then
+      if ( ierr2 > 0 ) then
         call status%increase_error_count()
       end if
 
-      if ( ierr2 .eq. 3 ) call srstop(1)
+      if ( ierr2 == 3 ) call srstop(1)
       write( lunut, 2000 )
       return
 
   910 continue
-      if ( ierr2 .gt. 0 ) then
+      if ( ierr2 > 0 ) then
         call status%increase_error_count()
       end if
-      if ( ierr2 .eq. 3 ) call srstop(1)
+      if ( ierr2 == 3 ) call srstop(1)
       write( lunut, 2001 )
 
       return

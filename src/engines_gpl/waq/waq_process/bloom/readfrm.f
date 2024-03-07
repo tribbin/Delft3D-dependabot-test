@@ -54,20 +54,20 @@
       verfrm = 1.0
       read ( infrm    , '(a)' ) aline
       ioff =  index(aline, 'BLOOMFRM_VERSION')
-      if(ioff.eq.0) then
+      if(ioff==0) then
          rewind( infrm )
       else
          read (aline(ioff+17:ioff+20),*) verfrm
          read (infrm,199) (grname(j),j=1,nuecog)
          read (infrm,199) (spname(i),i=1,nuspec)
-         if(verfrm.gt.2.00) then
+         if(verfrm>2.00) then
             read (infrm,*) npoint
             do i=1,npoint
                read (infrm,*) power(i), (effic(i,j),j=1,nuecog)
             end do
          endif
       endif
-      if(verfrm.gt.2.00) then
+      if(verfrm>2.00) then
          read (infrm,200) nz,tefcur
          do i=1,nz
             read (infrm,210) zvec(i), (fun(i,j),j=1,nuecog)

@@ -45,7 +45,7 @@ contains
       !  allocate workspace
       call retrieve_command_argument('-imax', 1, lfound, imax, rdummy, cdummy, status%ierr)
       if (lfound) then
-         if (status%ierr .eq. 0) then
+         if (status%ierr == 0) then
             write (lunrep, '(A,I12)') " Command line argument -IMAX, size of integer work array:", imax
          else
             write (lunrep, '(A)') " ERROR: interpreting command line argument -IMAX, size of integer work array:"
@@ -58,7 +58,7 @@ contains
       end if
       call retrieve_command_argument('-rmax', 1, lfound, rmax, rdummy, cdummy, status%ierr)
       if (lfound) then
-         if (status%ierr .eq. 0) then
+         if (status%ierr == 0) then
             write (lunrep, '(A,I12)') " Command line argument -RMAX, size of real work array:", rmax
          else
             write (lunrep, '(A)') " ERROR: interpreting command line argument -RMAX, size of real work array:"
@@ -71,7 +71,7 @@ contains
       end if
       call retrieve_command_argument('-cmax', 1, lfound, cmax, rdummy, cdummy, status%ierr)
       if (lfound) then
-         if (status%ierr .eq. 0) then
+         if (status%ierr == 0) then
             write (lunrep, '(A,I12)') " Command line argument -CMAX, size of character work array:", cmax
          else
             write (lunrep, '(A)') " ERROR: interpreting command line argument -CMAX, size of character work array:"
@@ -83,21 +83,21 @@ contains
          cmax = icmax
       end if
       allocate (iar(imax), stat=ierr_alloc)
-      if (ierr_alloc .ne. 0) then
+      if (ierr_alloc /= 0) then
          write (lunrep, '(A,I6,A,I12)') " ERROR: allocating integer work array:", ierr_alloc, " with length:", imax
          status%ierr = 1
          call delwaq1_write_messages(status)
          return
       end if
       allocate (rar(rmax), stat=ierr_alloc)
-      if (ierr_alloc .ne. 0) then
+      if (ierr_alloc /= 0) then
          write (lunrep, '(A,I6,A,I12)') " ERROR: allocating real work array:", ierr_alloc, " with length:", rmax
          status%ierr = 1
          call delwaq1_write_messages(status)
          return
       end if
       allocate (car(cmax), stat=ierr_alloc)
-      if (ierr_alloc .ne. 0) then
+      if (ierr_alloc /= 0) then
          write (lunrep, '(A,I6,A,I12)') " ERROR: allocating character work array:", ierr_alloc, " with length:", cmax
          status%ierr = 1
          call delwaq1_write_messages(status)

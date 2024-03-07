@@ -78,7 +78,7 @@
       IP5  = IPOINT( 5)
       IP6  = IPOINT( 6)
 !
-      IF ( IN2 .EQ. 0 .AND. IN3 .EQ. 0 .AND. IN5 .EQ. 0 ) THEN
+      IF ( IN2 == 0 .AND. IN3 == 0 .AND. IN5 == 0 ) THEN
          ACTRAD = PMSA(IP2 )
          SATRAD = PMSA(IP3 )
          TFGRO  = PMSA(IP5 )
@@ -114,7 +114,7 @@
 !
       PMSA(IP6) = MAX(MIN(FRAD,1.0),0.0)
 !
-      IF (SATRAD .LT. 1E-20 )  CALL write_error_message ('SATRAD in RADALG zero')
+      IF (SATRAD < 1E-20 )  CALL write_error_message ('SATRAD in RADALG zero')
 
  8900 CONTINUE
 !

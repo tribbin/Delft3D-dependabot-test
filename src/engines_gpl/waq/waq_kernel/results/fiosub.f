@@ -143,12 +143,12 @@
 !
 !        If one segment don't bother to calculate mean value
 !
-         if ( nsc .eq. 1 ) then
+         if ( nsc == 1 ) then
             itel2 = itel2 + 1
             iseg  = ipdmp(itel2)
-            if ( danam(idump)(1:6) .eq. 'MOVING' ) then
+            if ( danam(idump)(1:6) == 'MOVING' ) then
                do ifun = 1, nofun
-                  if ( danam(idump) .eq. funame(ifun) ) then
+                  if ( danam(idump) == funame(ifun) ) then
                      iseg = nint(func(ifun))
                   endif
                enddo
@@ -156,8 +156,8 @@
 !
 !           The substances
 !
-            if ( ncout .gt. 0 ) then
-               if ( iseg .lt. 0 ) then
+            if ( ncout > 0 ) then
+               if ( iseg < 0 ) then
                   do isys = 1 , nosys
                      iidump = iofdmp+isys
                      iip = (-iseg-1)*nosys + isys
@@ -167,7 +167,7 @@
                      iidump = iofdmp+isys
                      outval(iidump) = rmiss
                   enddo
-               elseif ( iseg .eq. 0 ) then
+               elseif ( iseg == 0 ) then
                   do isys = 1 , notot
                      iidump = iofdmp+isys
                      outval(iidump) = rmiss
@@ -185,38 +185,38 @@
             do ivar = 1 , nrvar
                ip = iopoin(ivar)
                iidump = iofdmp+ncout+ivar
-               if ( iseg .lt. 0 ) then
-                  if ( ip .ge. ioconc .and. ip .lt. ioconc+nosys ) then
+               if ( iseg < 0 ) then
+                  if ( ip >= ioconc .and. ip < ioconc+nosys ) then
                      iip = (-iseg-1)*nosys + ip-ioconc+1
                      outval(iidump) = bound(iip)
                   else
                      outval(iidump) = rmiss
                   endif
-               elseif ( iseg .eq. 0 ) then
+               elseif ( iseg == 0 ) then
                   outval(iidump) = rmiss
                else
-                  if ( ip .ge. iodef  ) then
+                  if ( ip >= iodef  ) then
                      outval(iidump) = defaul(ip-iodef+1)
-                  elseif ( ip .ge. ioloc  ) then
+                  elseif ( ip >= ioloc  ) then
                      iip = (iseg-1)*noloc + ip-ioloc+1
                      outval(iidump) = proloc(iip)
-                  elseif ( ip .ge. ioconc ) then
+                  elseif ( ip >= ioconc ) then
                      outval(iidump) = conc(ip-ioconc+1,iseg)
-                  elseif ( ip .ge. iosfun ) then
+                  elseif ( ip >= iosfun ) then
                      outval(iidump) = segfun(iseg,ip-iosfun+1)
-                  elseif ( ip .ge. iofunc ) then
+                  elseif ( ip >= iofunc ) then
                      outval(iidump) = func(ip-iofunc+1)
-                  elseif ( ip .ge. iopa ) then
+                  elseif ( ip >= iopa ) then
                      outval(iidump) = param(ip-iopa+1,iseg)
-                  elseif ( ip .ge. iocons ) then
+                  elseif ( ip >= iocons ) then
                      outval(iidump) = cons(ip-iocons+1)
-                  elseif ( ip .eq. 3 ) then
+                  elseif ( ip == 3 ) then
                      outval(iidump) = real(idt)
-                  elseif ( ip .eq. 2 ) then
+                  elseif ( ip == 2 ) then
                      outval(iidump) = real(itime)
-                  elseif ( ip .eq. 1 ) then
+                  elseif ( ip == 1 ) then
                      outval(iidump) = volume(iseg)
-                  elseif ( ip .le. 0 ) then
+                  elseif ( ip <= 0 ) then
                      outval(iidump) = rmiss
                   endif
                endif
@@ -227,21 +227,21 @@
 !
 !           The substances ( if asked ) in one loop
 !
-            if ( ncout .gt. 0 ) then
+            if ( ncout > 0 ) then
 !
 !              Zero the accummulative variables, OUTVAL already done.
 !
                hlpcum = 0.0
                cumsrf = 0.0
-               if ( nosys .ne. notot ) then
+               if ( nosys /= notot ) then
                   cumsrf = 1.0
                   indx = index_in_array( 'SURF      ', paname(:nopa))
-                  if  ( indx .gt. 0 ) then
+                  if  ( indx > 0 ) then
                      cumsrf = 0.0
                      parm = .true.
                   else
                      indx = index_in_array( 'SURF      ', sfname(:nosfun))
-                     if  ( indx .gt. 0 ) then
+                     if  ( indx > 0 ) then
                         cumsrf = 0.0
                         parm = .false.
                      endif
@@ -253,7 +253,7 @@
 !
 !                 Accumulate VOLUME, substances in OUTVAL
 !
-                  if ( iseg .gt. 0 ) then
+                  if ( iseg > 0 ) then
                      hlpvar = volume(iseg)
                      hlpcum = hlpcum + hlpvar
 !
@@ -267,8 +267,8 @@
 
 !       take care of mass/m2 for inactive substances if possible
 
-                     if ( nosys .ne. notot ) then
-                        if  ( indx .gt. 0 ) then
+                     if ( nosys /= notot ) then
+                        if  ( indx > 0 ) then
                            if ( parm ) then
                               srf = param (indx,iseg)
                            else
@@ -292,13 +292,13 @@
 !
 !              Calculate mean for then active and inactive substances
 !
-               if ( abs(hlpcum) .gt. 1.0e-20 ) then
+               if ( abs(hlpcum) > 1.0e-20 ) then
                   do isys = 1 , nosys
                      iidump = iofdmp+isys
                      outval(iidump) = outval(iidump) / hlpcum
                   enddo
                endif
-               if ( abs(cumsrf) .gt. 1.0e-20 ) then
+               if ( abs(cumsrf) > 1.0e-20 ) then
                   do isys = nosys+1, notot
                      iidump = iofdmp+isys
                      outval(iidump) = outval(iidump) / cumsrf
@@ -322,80 +322,80 @@
 !
 !                 The output variable
 !
-                  if ( iseg .gt. 0 ) then
+                  if ( iseg > 0 ) then
                      ip = iopoin(ivar)
-                     if ( iseg .lt. 0 ) then
-                        if ( ip.ge.ioconc .and. ip.lt.ioconc+nosys ) then
+                     if ( iseg < 0 ) then
+                        if ( ip>=ioconc .and. ip<ioconc+nosys ) then
                            iip = (-iseg-1)*nosys + ip-ioconc+1
                            valvar = bound(iip)
                         else
                            valvar = 0.0
                         endif
-                     elseif ( iseg .eq. 0 ) then
+                     elseif ( iseg == 0 ) then
                         valvar = 0.0
                      else
-                        if ( ip .ge. iodef  ) then
+                        if ( ip >= iodef  ) then
                            valvar = defaul(ip-iodef+1)
-                        elseif ( ip .ge. ioloc  ) then
+                        elseif ( ip >= ioloc  ) then
                            iip = (iseg-1)*noloc + ip-ioloc+1
                            valvar = proloc(iip)
-                        elseif ( ip .ge. ioconc ) then
+                        elseif ( ip >= ioconc ) then
                            valvar = conc(ip-ioconc+1,iseg)
-                        elseif ( ip .ge. iosfun ) then
+                        elseif ( ip >= iosfun ) then
                            valvar = segfun(iseg,ip-iosfun+1)
-                        elseif ( ip .ge. iofunc ) then
+                        elseif ( ip >= iofunc ) then
                            valvar = func(ip-iofunc+1)
-                        elseif ( ip .ge. iopa ) then
+                        elseif ( ip >= iopa ) then
                            valvar = param(ip -iopa+1,iseg)
-                        elseif ( ip .ge. iocons ) then
+                        elseif ( ip >= iocons ) then
                            valvar = cons(ip-iocons+1)
-                        elseif ( ip .eq. 3 ) then
+                        elseif ( ip == 3 ) then
                            valvar = real(idt)
-                        elseif ( ip .eq. 2 ) then
+                        elseif ( ip == 2 ) then
                            valvar = real(itime)
-                        elseif ( ip .eq. 1 ) then
+                        elseif ( ip == 1 ) then
                            valvar = volume(iseg)
-                        elseif ( ip .le. 0 ) then
+                        elseif ( ip <= 0 ) then
                            valvar = rmiss
                         endif
                      endif
 !
 !                    The weigth variable
 !
-                     if ( iseg .lt. 0 ) then
+                     if ( iseg < 0 ) then
                         hlpvar = 1.0
-                     elseif ( iseg .eq. 0 ) then
+                     elseif ( iseg == 0 ) then
                         hlpvar = 0.0
                      else
-                        if ( ip2 .ge. iodef  ) then
+                        if ( ip2 >= iodef  ) then
                            hlpvar = defaul(ip2-iodef+1)
-                        elseif ( ip2 .ge. ioloc  ) then
+                        elseif ( ip2 >= ioloc  ) then
                            iip = (iseg-1)*noloc + ip2-ioloc+1
                            hlpvar = proloc(iip)
-                        elseif ( ip2 .ge. ioconc ) then
+                        elseif ( ip2 >= ioconc ) then
                            hlpvar = conc(ip2-ioconc+1,iseg)
-                        elseif ( ip2 .ge. iosfun ) then
+                        elseif ( ip2 >= iosfun ) then
                            hlpvar = segfun(iseg,ip2-iosfun+1)
-                        elseif ( ip2 .ge. iofunc ) then
+                        elseif ( ip2 >= iofunc ) then
                            hlpvar = func(ip2-iofunc+1)
-                        elseif ( ip2 .ge. iopa ) then
+                        elseif ( ip2 >= iopa ) then
                            hlpvar = param(ip2-iopa+1,iseg)
-                        elseif ( ip2 .ge. iocons ) then
+                        elseif ( ip2 >= iocons ) then
                            hlpvar = cons(ip2-iocons+1)
-                        elseif ( ip2 .eq. 3 ) then
+                        elseif ( ip2 == 3 ) then
                            hlpvar = real(idt)
-                        elseif ( ip2 .eq. 2 ) then
+                        elseif ( ip2 == 2 ) then
                            hlpvar = real(itime)
-                        elseif ( ip2 .eq. 1 ) then
+                        elseif ( ip2 == 1 ) then
                            hlpvar = volume(iseg)
-                        elseif ( ip2 .eq. 0 ) then
+                        elseif ( ip2 == 0 ) then
                            hlpvar = 0.0
-                        elseif ( ip2 .lt. 0 ) then
+                        elseif ( ip2 < 0 ) then
                            hlpvar = 1.
                         endif
                      endif
 !
-                     if ( ip2 .eq. 0 ) then
+                     if ( ip2 == 0 ) then
                         valcum = valcum + valvar
                      else
                         valcum = valcum + valvar * hlpvar
@@ -410,7 +410,7 @@
 !
                iidump = iofdmp+ncout+ivar
 !
-               if ( abs(hlpcum) .gt. 1.0e-20 ) then
+               if ( abs(hlpcum) > 1.0e-20 ) then
                   outval(iidump) = valcum / hlpcum
                else
                   outval(iidump) = valcum

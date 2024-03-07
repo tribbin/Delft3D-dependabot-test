@@ -74,7 +74,7 @@
       VOLUME = PMSA(IP1 )
       DEPTH  = PMSA(IP2 )
 
-      IF (DEPTH .LT. 1E-30) CALL write_error_message ('DEPTH in DSURF zero')
+      IF (DEPTH < 1E-30) CALL write_error_message ('DEPTH in DSURF zero')
 
 !***********************************************************************
 !**** Calculate SURF

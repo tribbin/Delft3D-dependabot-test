@@ -83,12 +83,12 @@ contains
          ifrom = ipnt(1,iq)
          ito   = ipnt(2,iq)
          flux  = flow(iq)*idt
-         if ( ifrom .gt. 0 ) vol2(ifrom) = vol2(ifrom) - flux
-         if ( ito   .gt. 0 ) vol2(ito  ) = vol2(ito  ) + flux
+         if ( ifrom > 0 ) vol2(ifrom) = vol2(ifrom) - flux
+         if ( ito   > 0 ) vol2(ito  ) = vol2(ito  ) + flux
       enddo
       do iq = 1, noseg
-         if ( iknmkv(iq) .eq. 0 ) vol2(iq) = voll(iq)
-         if ( abs(vol2(iq)) .lt. 1.0E-25 ) vol2(iq) = 1.0
+         if ( iknmkv(iq) == 0 ) vol2(iq) = voll(iq)
+         if ( abs(vol2(iq)) < 1.0E-25 ) vol2(iq) = 1.0
       enddo
 
       if ( timon ) call timstop ( ithandl )

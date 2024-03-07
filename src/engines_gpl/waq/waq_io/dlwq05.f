@@ -130,12 +130,12 @@
       IERR2   =  0
       Iwar2   =  0
 !
-      IF ( NOBND .EQ. 0 ) THEN
+      IF ( NOBND == 0 ) THEN
          WRITE ( LUNUT , 2000 )
          IFOUND = GETTOKEN ( CHULP, IDUMMY, RDUMMY, ITYPE, IERR2 )
-         IF (IERR2 .EQ. 2) THEN
+         IF (IERR2 == 2) THEN
             GOTO 175
-         ELSE IF (ITYPE.EQ.2 .AND. IDUMMY.EQ.0) THEN
+         ELSE IF (ITYPE==2 .AND. IDUMMY==0) THEN
             WRITE ( LUNUT , 2120 )
             GOTO 170
          ENDIF
@@ -149,16 +149,16 @@
 !                                              types are 20 characters
 !
       ALLOCATE(BNDID(NOBND),BNDNAME(NOBND),BNDTYPE(NOBND),BNDID_LONG(NOBND),BNDTYPE_LONG(NOBND),IBNDTYPE(NOBND),STAT=IERR_ALLOC)
-      IF ( IERR_ALLOC .NE. 0 ) THEN
+      IF ( IERR_ALLOC /= 0 ) THEN
          WRITE ( LUNUT , 2300 ) IERR_ALLOC
          WRITE ( LUNUT , 2310 ) NOBND
          CALL SRSTOP(1)
       ENDIF
       NOBTYP = 0
-      IF ( IOUTPT .LT. 3 ) THEN
+      IF ( IOUTPT < 3 ) THEN
          WRITE ( LUNUT , 2005 )
       ELSE
-         IF ( IWIDTH .EQ. 5 ) THEN
+         IF ( IWIDTH == 5 ) THEN
             WRITE ( LUNUT , 2010 )
          ELSE
             WRITE ( LUNUT , 2020 )
@@ -178,7 +178,7 @@
          CALL RDTOK1 ( LUNUT , ILUN  , LCH          , LSTACK, CCHAR ,
      *                 IPOSR , NPOS  , BNDID_LONG(I), IHULP , RHULP ,
      *                 ITYPE , IERR2 )
-         IF ( IERR2 .GT. 0 ) GOTO 170
+         IF ( IERR2 > 0 ) GOTO 170
 
 
          ! read also name and type
@@ -187,23 +187,23 @@
          CALL RDTOK1 ( LUNUT , ILUN , LCH       , LSTACK, CCHAR ,
      *                 IPOSR , NPOS , BNDNAME(I), IHULP , RHULP ,
      *                 ITYPE , IERR2)
-         IF ( IERR2 .GT. 0 ) GOTO 170
+         IF ( IERR2 > 0 ) GOTO 170
          ITYPE = 1
          CALL RDTOK1 ( LUNUT , ILUN , LCH            , LSTACK, CCHAR ,
      *                 IPOSR , NPOS , BNDTYPE_LONG(I), IHULP , RHULP ,
      *                 ITYPE , IERR2)
-         IF ( IERR2 .GT. 0 ) GOTO 170
+         IF ( IERR2 > 0 ) GOTO 170
 
 
-         IF ( BNDID_LONG(I)  .EQ. ' ' ) WRITE ( BNDID_LONG(I), '(''Boundary-ID'',I7)' ) I
-         IF ( BNDNAME(I)     .EQ. ' ' ) WRITE ( BNDNAME(I), '(''Boundary name '',I7)' ) I
-         IF ( BNDTYPE_LONG(I).EQ. ' ' ) BNDTYPE_LONG(I) = 'Boundary type 1'
+         IF ( BNDID_LONG(I)  == ' ' ) WRITE ( BNDID_LONG(I), '(''Boundary-ID'',I7)' ) I
+         IF ( BNDNAME(I)     == ' ' ) WRITE ( BNDNAME(I), '(''Boundary name '',I7)' ) I
+         IF ( BNDTYPE_LONG(I)== ' ' ) BNDTYPE_LONG(I) = 'Boundary type 1'
 
          BNDID(I)   = BNDID_LONG(I)
          BNDTYPE(I) = BNDTYPE_LONG(I)
 
-         IF ( IOUTPT .GE. 3 ) THEN
-            IF ( IWIDTH .EQ. 5 ) THEN
+         IF ( IOUTPT >= 3 ) THEN
+            IF ( IWIDTH == 5 ) THEN
                WRITE ( LUNUT, 2030 ) BNDID(I),BNDNAME(I),BNDTYPE(I)
             ELSE
                WRITE ( LUNUT, 2040 ) I,BNDID(I),BNDNAME(I),BNDTYPE(I)
@@ -217,7 +217,7 @@
             IFOUND = index_in_array(BNDID(I),BNDID(:I-1))
             IF ( IFOUND >= 0 ) THEN
                IFOUND2 = index_in_array(BNDID_LONG(I),BNDID_LONG(:I-1))
-               IF ( IFOUND .EQ. IFOUND2 ) THEN
+               IF ( IFOUND == IFOUND2 ) THEN
                   WRITE(LUNUT,2270) BNDID(I)
                   call status%increase_warning_count()
                ELSE
@@ -231,14 +231,14 @@
 
          ITYPE = index_in_array(BNDTYPE(I),BNDTYPE(:nobtyp))
          ITYP2 = index_in_array(BNDTYPE_LONG(I),BNDTYPE_LONG(:nobtyp))
-         IF ( ITYPE .NE. ITYP2 ) THEN
+         IF ( ITYPE /= ITYP2 ) THEN
             WRITE(LUNUT,2290) TRIM(BNDTYPE_LONG(I))
             call status%increase_error_count()
          ENDIF
 
          ! if type found set type, otherwise add type
 
-         IF ( ITYPE .GT. 0 ) THEN
+         IF ( ITYPE > 0 ) THEN
             IBNDTYPE(I) = ITYPE
          ELSE
             NOBTYP = NOBTYP + 1
@@ -255,7 +255,7 @@
 
       WRITE ( LUNUT ,   *  )
       WRITE ( LUNUT , 2060 ) NOBTYP
-      IF ( IOUTPT .LT. 2 ) THEN
+      IF ( IOUTPT < 2 ) THEN
          WRITE ( LUNUT , 2065 )
       ELSE
          WRITE ( LUNUT , 2066 )
@@ -270,7 +270,7 @@
 !
 !     dummy time lags
 !
-      IF ( NOSYS .EQ. 0 ) THEN
+      IF ( NOSYS == 0 ) THEN
          WRITE ( LUNWR ) ( 0 , I=1, NOBND )
          WRITE ( LUNUT , 2090 )
          GOTO 170
@@ -285,7 +285,7 @@
       CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK, CCHAR ,
      *              IPOSR , NPOS  , CDUMMY, IAROPT, RHULP ,
      *              ITYPE , IERR2 )
-      IF ( IERR2 .GT. 0 ) THEN
+      IF ( IERR2 > 0 ) THEN
          WRITE ( LUNUT , 2101 )
          ITYPE = 1
          DO
@@ -314,14 +314,14 @@
 !       time lags constant without defaults
 !
    70 WRITE ( LUNUT , 2130 )
-      IF ( IIMAX .LT. NOBND ) THEN
+      IF ( IIMAX < NOBND ) THEN
         WRITE ( LUNUT , 2140 ) NOBND,IIMAX,NOBND-IIMAX
         DO K = 1, NOBND
           ITYPE = 2
           CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK, CCHAR ,
      *                  IPOSR , NPOS  , CDUMMY, IDUMMY, RHULP ,
      *                  ITYPE , IERR2 )
-          IF ( IERR2 .GT. 0 ) GOTO 170
+          IF ( IERR2 > 0 ) GOTO 170
       end do
         call status%increase_error_count()
         GOTO 160
@@ -331,25 +331,25 @@
          CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK, CCHAR ,
      *                 IPOSR , NPOS  , CDUMMY, IAR(K), RHULP ,
      *                 ITYPE , IERR2 )
-         IF ( IERR2 .GT. 0 ) GOTO 170
+         IF ( IERR2 > 0 ) GOTO 170
       end do
-      IF ( IOUTPT .LT. 3 ) THEN
+      IF ( IOUTPT < 3 ) THEN
          WRITE ( LUNUT , 2145 )
       ELSE
          WRITE ( LUNUT , 2150 )
       ENDIF
       IF ( DTFLG1 ) THEN
            CALL CONVER ( IAR   , NOBND , IFACT , DTFLG1 , DTFLG3 )
-           IF ( IOUTPT .GE. 3 ) WRITE ( LUNUT , 2160 )
+           IF ( IOUTPT >= 3 ) WRITE ( LUNUT , 2160 )
      *         ( IAR(K)/31536000       , MOD(IAR(K),31536000)/86400,
      *           MOD(IAR(K),86400)/3600, MOD(IAR(K),3600)/60       ,
      *           MOD(IAR(K),60)        ,      K = 1 , NOBND        )
       ELSE
-           IF ( IOUTPT .GE. 3 ) WRITE ( LUNUT , 2170 )
+           IF ( IOUTPT >= 3 ) WRITE ( LUNUT , 2170 )
      *         ( IAR(K),                      K = 1 , NOBND        )
       ENDIF
       DO I=1,NOBND
-      IF ( IAR(I) .LT. 0 ) THEN
+      IF ( IAR(I) < 0 ) THEN
            WRITE ( LUNUT , 2180 ) IAR(I)
            call status%increase_error_count()
       ENDIF
@@ -364,8 +364,8 @@
       CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK, CCHAR ,
      *              IPOSR , NPOS  , CDUMMY, IDEF  , RHULP ,
      *              ITYPE , IERR2 )
-      IF ( IERR2 .GT. 0 ) GOTO 170
-      IF ( IDEF .LT. 0 ) THEN
+      IF ( IERR2 > 0 ) GOTO 170
+      IF ( IDEF < 0 ) THEN
          WRITE ( LUNUT , 2180 ) IDEF
          call status%increase_error_count()
       ENDIF
@@ -378,7 +378,7 @@
       CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK, CCHAR ,
      *              IPOSR , NPOS  , CDUMMY, NOVER , RHULP ,
      *              ITYPE , IERR2 )
-      IF ( IERR2 .GT. 0 ) GOTO 170
+      IF ( IERR2 > 0 ) GOTO 170
       IF ( DTFLG1 ) THEN
          call convert_relative_time ( idef , IFACT , DTFLG1, DTFLG3 )
          WRITE ( LUNUT , 2210 )
@@ -395,13 +395,13 @@
          CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK      , CCHAR ,
      *                 IPOSR , NPOS  , CDUMMY, IAR(K+NOBND), RHULP ,
      *                 ITYPE , IERR2 )
-         IF ( IERR2 .GT. 0 ) GOTO 170
+         IF ( IERR2 > 0 ) GOTO 170
          IBND  = MAX(1,MIN(IABS(IAR(K+NOBND)),NOBND))
          ITYPE = 2
          CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK   , CCHAR ,
      *                 IPOSR , NPOS  , CDUMMY, IAR(IBND), RHULP ,
      *                 ITYPE , IERR2 )
-         IF ( IERR2 .GT. 0 ) GOTO 170
+         IF ( IERR2 > 0 ) GOTO 170
       end do
 !
       DO K = 1, NOVER-MXOVER
@@ -409,27 +409,27 @@
          CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK, CCHAR ,
      *                 IPOSR , NPOS  , CDUMMY, IDUMMY, RHULP ,
      *                 ITYPE , IERR2 )
-         IF ( IERR2 .GT. 0 ) GOTO 170
+         IF ( IERR2 > 0 ) GOTO 170
          ITYPE = 2
          CALL RDTOK1 ( LUNUT , ILUN  , LCH   , LSTACK, CCHAR ,
      *                 IPOSR , NPOS  , CDUMMY, IDUMMY, RHULP ,
      *                 ITYPE , IERR2 )
-         IF ( IERR2 .GT. 0 ) GOTO 170
+         IF ( IERR2 > 0 ) GOTO 170
       end do
-      IF ( NOVER .GT. MXOVER ) THEN
+      IF ( NOVER > MXOVER ) THEN
          WRITE ( LUNUT , 2200 ) NOBND,NOVER,IIMAX,NOBND+NOVER-IIMAX
          call status%increase_error_count()
          GOTO 160
       ENDIF
       IF ( DTFLG1 )
      *   CALL CONVER ( IAR   , NOBND , IFACT , DTFLG1 , DTFLG3 )
-      IF ( NOVER .GT. 0 .AND. IOUTPT .GE. 3 ) WRITE ( LUNUT , 2230 )
+      IF ( NOVER > 0 .AND. IOUTPT >= 3 ) WRITE ( LUNUT , 2230 )
       DO I=1, NOVER
          IBND = IABS( IAR(I+NOBND) )
-         IF ( IBND .GT. NOBND .OR. IBND .EQ. 0 ) THEN
+         IF ( IBND > NOBND .OR. IBND == 0 ) THEN
               WRITE ( LUNUT , 2180 ) IAR(I+NOBND)
               call status%increase_error_count()
-         ELSEIF ( IOUTPT .GE. 3 ) THEN
+         ELSEIF ( IOUTPT >= 3 ) THEN
             IT =   IAR (IBND)
             IF ( DTFLG1 ) THEN
                WRITE ( LUNUT , 2240 ) IBND  ,
@@ -460,14 +460,14 @@
       deallocate( drar )
       deallocate( bndid, bndtype )
 
-      IF ( IERR2 .EQ.  0 ) goto 180
-      IF ( IERR2 .GT.  0 ) THEN
+      IF ( IERR2 ==  0 ) goto 180
+      IF ( IERR2 >  0 ) THEN
         call status%increase_error_count_with(ierr2)
          IERR2 = 0
          GOTO 170
       ENDIF
 
-      IF ( INTSRT .EQ. 6 .OR. INTSRT .EQ. 7 ) THEN
+      IF ( INTSRT == 6 .OR. INTSRT == 7 ) THEN
          NOSUBS = NOTOT
       ELSE
          NOSUBS = NOSYS
@@ -485,8 +485,8 @@
   170 CONTINUE
       IF ( ALLOCATED(BNDID  ) ) DEALLOCATE(BNDID  )
       IF ( ALLOCATED(BNDTYPE) ) DEALLOCATE(BNDTYPE)
-      IF ( IERR2 .GT. 0 ) call status%increase_error_count()
-      IF ( IERR2 .EQ. 3 ) CALL SRSTOP(1)
+      IF ( IERR2 > 0 ) call status%increase_error_count()
+      IF ( IERR2 == 3 ) CALL SRSTOP(1)
   175 call check  ( chulp  , iwidth , 5      , ierr2  , status)
   180 if ( timon ) call timstop( ithndl )
       RETURN

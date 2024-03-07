@@ -110,8 +110,8 @@
 !     no part of carbon to autolyse!
        FDCA = 0.0
        FDCD = 0.0
-       IF (FMRT1A .LT. 1.0) FDCA = FMRT2A / (1-FMRT1A)
-       IF (FMRT1D .LT. 1.0) FDCD = FMRT2D / (1-FMRT1D)
+       IF (FMRT1A < 1.0) FDCA = FMRT2A / (1-FMRT1A)
+       IF (FMRT1D < 1.0) FDCD = FMRT2D / (1-FMRT1D)
 
 !@    Production of DETC
       FL ( 1 + IFLUX ) = ( MORT1 * FDCA +

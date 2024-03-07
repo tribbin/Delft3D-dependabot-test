@@ -197,8 +197,8 @@
       INTEGER(kind=int_wp) ::I_550 , LAMBDA, TELLER
       LOGICAL DOSECC
 !
-      IF ( CHLORO .GE. 0.0 .OR. DETRIT .GE. 0.0 .OR.
-     1     GLOEIR .GE. 0.0) THEN
+      IF ( CHLORO >= 0.0 .OR. DETRIT >= 0.0 .OR.
+     1     GLOEIR >= 0.0) THEN
          C_MU = COS ( ANGLE * 0.0174533)
          IF ( DOSECC )
      J   CALL BEP_D  ( C_GL1 , C_GL2 , C_DET , HELHUM, CORCHL,
@@ -225,7 +225,7 @@
 !
 !           ALGEN ABSOROPTIE EN VERSTROOIING
 !
-            IF ( CHLORO .LT. 0.000001) THEN
+            IF ( CHLORO < 0.000001) THEN
                A_CHL = 0.0
                B_CHL = 0.0
             ELSE
@@ -351,7 +351,7 @@
 !
 !     CHLOROFYL
 !
-      IF ( CHLORO .LT. 0.000001) THEN
+      IF ( CHLORO < 0.000001) THEN
          A_CHL = 0.0
          B_CHL = 0.0
       ELSE

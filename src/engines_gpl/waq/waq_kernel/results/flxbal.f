@@ -79,7 +79,7 @@
       DO ISYS = 1,NOTOT
          DO I = 1 , 4
             IBALT = IBALT + 1
-            IF ( I .EQ. 1 .OR. I .EQ. 3 ) THEN
+            IF ( I == 1 .OR. I == 3 ) THEN
                DO IDMP = 1 , NDMPAR
                   BALINT(IBALT,IDMP) = ASMASS(ISYS,IDMP,I+2)
                ENDDO
@@ -91,9 +91,9 @@
          ENDDO
          DO IFLX = 1 , NOFLUX
             ST = STOCHI(ISYS,IFLX)
-            IF ( ABS(ST) .GT. 1.E-20 ) THEN
+            IF ( ABS(ST) > 1.E-20 ) THEN
                IBALT = IBALT + 1
-               IF ( IBALT .GT. NOBALT ) THEN
+               IF ( IBALT > NOBALT ) THEN
                   CALL GETMLU(LUREP)
                   WRITE(LUREP,*) 'ERROR, INTERNAL FLXBAL'
                   WRITE(*,*)     'ERROR, INTERNAL FLXBAL'

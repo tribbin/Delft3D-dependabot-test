@@ -73,7 +73,7 @@
       if ( timon ) call timstrt ( "dlwqm7", ithandl )
 
       mixlen = 0.0
-      if ( ilflag .eq. 0 ) then     ! deals with spatially constant lengthes
+      if ( ilflag == 0 ) then     ! deals with spatially constant lengthes
          do iq = 1, noq1
             mixlen(iq) = area(iq)/aleng(1,1)
          enddo
@@ -85,7 +85,7 @@
          enddo
       else                               ! deals with spatially varying  lengthes
          do iq = 1, noq
-            if ( aleng(1,iq) + aleng(2,iq) .gt. 1.0E-25 ) then
+            if ( aleng(1,iq) + aleng(2,iq) > 1.0E-25 ) then
                mixlen(iq) = area(iq)/(aleng(1,iq) + aleng(2,iq))
             endif
          enddo
@@ -96,30 +96,30 @@
          do iq = 1,noq1+noq2
             ifrom = ipoint(1,iq)
             ito   = ipoint(2,iq)
-            if ( ifrom .le. 0 .or. ito .le. 0 ) mixlen(iq) = 0.0
-            if ( abs(flow(iq)) .lt. 10.0e-25 )  mixlen(iq) = 0.0
+            if ( ifrom <= 0 .or. ito <= 0 ) mixlen(iq) = 0.0
+            if ( abs(flow(iq)) < 10.0e-25 )  mixlen(iq) = 0.0
          enddo
       else if ( btest(iopt,1) ) then
          do iq = 1,noq1+noq2
             ifrom = ipoint(1,iq)
             ito   = ipoint(2,iq)
-            if ( ifrom .le. 0 .or. ito .le. 0 ) mixlen(iq) = 0.0
+            if ( ifrom <= 0 .or. ito <= 0 ) mixlen(iq) = 0.0
          enddo
       else if ( btest(iopt,0) ) then
          do iq = 1,noq1+noq2
             ifrom = ipoint(1,iq)
             ito   = ipoint(2,iq)
-            if ( abs(flow(iq)) .lt. 10.0e-25 )  mixlen(iq) = 0.0
+            if ( abs(flow(iq)) < 10.0e-25 )  mixlen(iq) = 0.0
          enddo
       endif
 
       do iq = 1,noq                                                   ! drying and flooding
             ifrom = ipoint(1,iq)
             ito   = ipoint(2,iq)
-            if ( ifrom .gt. 0 ) then
+            if ( ifrom > 0 ) then
                if ( .not. btest(iknmrk(ifrom),0) ) mixlen(iq) = 0.0   ! identified dry at start and end of timestep
             endif                                                     ! aggregated time step can be wet in between
-            if ( ito   .gt. 0 ) then                                  ! start and end, that is why a check on 1 cm3/s
+            if ( ito   > 0 ) then                                  ! start and end, that is why a check on 1 cm3/s
                if ( .not. btest(iknmrk(ito  ),0) ) mixlen(iq) = 0.0   ! life is not easy
             endif
       enddo

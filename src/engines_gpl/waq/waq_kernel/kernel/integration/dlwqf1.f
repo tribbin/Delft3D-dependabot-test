@@ -80,15 +80,15 @@
       do iq = 1, noq1+noq2
          i = ipoint(1,iq)
          j = ipoint(2,iq)
-         if ( i .eq. 0 .or. j .eq. 0 ) cycle
-         if ( i .gt. 0 ) rowpnt(i) = rowpnt(i) + 1
-         if ( j .gt. 0 ) rowpnt(j) = rowpnt(j) + 1
+         if ( i == 0 .or. j == 0 ) cycle
+         if ( i > 0 ) rowpnt(i) = rowpnt(i) + 1
+         if ( j > 0 ) rowpnt(j) = rowpnt(j) + 1
       enddo
 
 !         see if there is a third direction
 
       iadd = 0
-      if ( noq .ne. noq1+noq2 ) iadd = 2  !  in 3D first 2 co diagonals are the vertical
+      if ( noq /= noq1+noq2 ) iadd = 2  !  in 3D first 2 co diagonals are the vertical
 
 !         accumulate to pointer start of rows
 
@@ -99,7 +99,7 @@
       do iseg = noseg+1 , noseg+nobnd
          rowpnt(iseg) = rowpnt(iseg-1)
       enddo
-      if ( rowpnt( noseg+nobnd ) .gt. nomat ) then
+      if ( rowpnt( noseg+nobnd ) > nomat ) then
          write ( * , * ) ' System error in fast solvers matrix.'
          write ( * , * ) ' NOMAT = ',nomat, ', Required = ', rowpnt( noseg+nobnd )
          call srstop(1)
@@ -110,21 +110,21 @@
       do iq = 1, noq1+noq2
          i = ipoint(1,iq)
          j = ipoint(2,iq)
-         if ( i .eq. 0 .or. j .eq. 0 ) cycle
+         if ( i == 0 .or. j == 0 ) cycle
          i2 = i
-         if ( i .lt. 0 ) i2 = noseg-i
+         if ( i < 0 ) i2 = noseg-i
          j2 = j
-         if ( j .lt. 0 ) j2 = noseg-j
-         if ( i .gt. 0 ) then
+         if ( j < 0 ) j2 = noseg-j
+         if ( i > 0 ) then
             ip = iwrk(i) + 1 + iadd
-            if ( i .gt. 1 ) ip = ip+rowpnt(i-1)
+            if ( i > 1 ) ip = ip+rowpnt(i-1)
             imat(ip) = j2
             fmat(iq) = ip
             iwrk(i ) = iwrk(i ) + 1
          endif
-         if ( j .gt. 0 ) then
+         if ( j > 0 ) then
             jp = iwrk(j) + 1 + iadd
-            if ( j .gt. 1 ) jp = jp+rowpnt(j-1)
+            if ( j > 1 ) jp = jp+rowpnt(j-1)
             imat(jp) = i2
             tmat(iq) = jp
             iwrk(j ) = iwrk(j ) + 1
@@ -136,28 +136,28 @@
       do iq = noq1+noq2+1 , noq
          i = ipoint(1,iq)
          j = ipoint(2,iq)
-         if ( i .eq. 0 .or. j .eq. 0 ) cycle
+         if ( i == 0 .or. j == 0 ) cycle
          i2 = i
-         if ( i .lt. 0 ) i2 = noseg-i
+         if ( i < 0 ) i2 = noseg-i
          j2 = j
-         if ( j .lt. 0 ) j2 = noseg-j
-         if ( i .gt. 0 ) then
-            if ( j .lt. i ) then        ! first  off-diagonal element -> previous layer
+         if ( j < 0 ) j2 = noseg-j
+         if ( i > 0 ) then
+            if ( j < i ) then        ! first  off-diagonal element -> previous layer
                ip = 1
             else                        ! second off-diagonal element -> next layer
                ip = 2
             endif
-            if ( i .gt. 1 ) ip = ip+rowpnt(I-1)
+            if ( i > 1 ) ip = ip+rowpnt(I-1)
             imat(ip) = j2
             fmat(iq) = ip
          endif
-         if ( j .gt. 0 ) then
-            if ( j .lt. i ) then        ! first  off-diagonal element -> previous layer
+         if ( j > 0 ) then
+            if ( j < i ) then        ! first  off-diagonal element -> previous layer
                jp = 2
             else                        ! second off-diagonal element -> next layer
                jp = 1
             endif
-            if ( j .gt. 1 ) jp = jp+rowpnt(J-1)
+            if ( j > 1 ) jp = jp+rowpnt(J-1)
             imat(jp) = i2
             tmat(iq) = jp
          endif

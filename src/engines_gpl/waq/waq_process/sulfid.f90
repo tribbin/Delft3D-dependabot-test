@@ -99,7 +99,7 @@ contains
          temp       = pmsa( ipnt(  7) )
          poros      = pmsa( ipnt(  8) )
 
-         if ( sud .gt. 1e-20 ) then
+         if ( sud > 1e-20 ) then
 
             ! speciation
 
@@ -117,7 +117,7 @@ contains
             frh2sdis   = csd1/csdt
             frhsdis    = csd2/csdt
             frsdis     = 1.0 - frh2sdis - frhsdis
-            if ( frsdis .lt. 0.0 ) then
+            if ( frsdis < 0.0 ) then
                frsdis = csd3/csdt
             endif
 

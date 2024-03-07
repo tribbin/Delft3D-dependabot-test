@@ -88,14 +88,14 @@
       do iq = 1, noq1+noq2
          i = ipoint(1,iq)
          j = ipoint(2,iq)
-         if ( i .gt. 0 ) thetaseg(i) = thetaseg(i) + max( 0.0,  flowtot(iq) ) + disptot(iq)
-         if ( j .gt. 0 ) thetaseg(j) = thetaseg(j) + max( 0.0, -flowtot(iq) ) + disptot(iq)
+         if ( i > 0 ) thetaseg(i) = thetaseg(i) + max( 0.0,  flowtot(iq) ) + disptot(iq)
+         if ( j > 0 ) thetaseg(j) = thetaseg(j) + max( 0.0, -flowtot(iq) ) + disptot(iq)
       enddo
 
 !         store local theta coefficients per volume in thetaseg
 
       do iseg = 1, noseg
-         if ( thetaseg(iseg) .gt. 0 ) thetaseg(iseg) = max( 0.0 , 1.0 - volold(iseg)/( real(idt) * thetaseg(iseg) ) )
+         if ( thetaseg(iseg) > 0 ) thetaseg(iseg) = max( 0.0 , 1.0 - volold(iseg)/( real(idt) * thetaseg(iseg) ) )
       enddo
 
 !         store local theta coefficients per edge in theta
@@ -103,18 +103,18 @@
       do iq = 1, noq1+noq2
          i = ipoint(1,iq)
          j = ipoint(2,iq)
-         if (i .gt. 0 .and. j .gt. 0) then
+         if (i > 0 .and. j > 0) then
             theta(iq) = max( thetaseg(i), thetaseg(j) )
          endif
-         if ( i .gt. 0 .and. j .lt. 0 ) theta(iq)=thetaseg(i) ! j is a boundary segment
-         if ( i .lt. 0 .and. j .gt. 0 ) theta(iq)=thetaseg(j) ! i is a boundary segment
+         if ( i > 0 .and. j < 0 ) theta(iq)=thetaseg(i) ! j is a boundary segment
+         if ( i < 0 .and. j > 0 ) theta(iq)=thetaseg(j) ! i is a boundary segment
       enddo
 
 ! replace antidiffusion error by diffusion error
 
       if ( .not. antidiffusion ) then ! implicit coefficients minimal 0.5 (default setting)
          do iq = 1, noq1+noq2
-            if ( theta(iq) .gt. 0 ) theta(iq) = max( 0.5, theta(iq) )
+            if ( theta(iq) > 0 ) theta(iq) = max( 0.5, theta(iq) )
          enddo
       endif
 
@@ -123,13 +123,13 @@
       do iq = 1, noq1+noq2
          i = ipoint(1,iq)
          j = ipoint(2,iq)
-         if ( i .gt. 0 ) thetaseg(i) = max( thetaseg(i), theta(iq) )
-         if ( j .gt. 0 ) thetaseg(j) = max( thetaseg(j), theta(iq) )
+         if ( i > 0 ) thetaseg(i) = max( thetaseg(i), theta(iq) )
+         if ( j > 0 ) thetaseg(j) = max( thetaseg(j), theta(iq) )
       enddo
       iexp   = 0
       iexseg = 0
       do iseg = 1, noseg
-         if ( thetaseg(iseg) .lt. 1.0e-25 ) then
+         if ( thetaseg(iseg) < 1.0e-25 ) then
             iexp         = iexp+1
          else
             iexseg(iseg) = 1

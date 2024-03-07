@@ -112,8 +112,8 @@
                ! check if constant is used as input in this process
 
                do i_input = 1 , proc%no_input
-                  if ( proc%input_item(i_input)%type .eq. IOTYPE_SEGMENT_INPUT ) then
-                     if ( ipcons .eq. proc%input_item(i_input)%ip_val ) then
+                  if ( proc%input_item(i_input)%type == IOTYPE_SEGMENT_INPUT ) then
+                     if ( ipcons == proc%input_item(i_input)%ip_val ) then
                         variable_is_used = .true.
                         exit
                      endif
@@ -154,7 +154,7 @@
                ! check if constant is used as input in this process
 
                do i_input = 1 , proc%no_input
-                  if ( ippa .eq. proc%input_item(i_input)%ip_val ) then
+                  if ( ippa == proc%input_item(i_input)%ip_val ) then
                      variable_is_used = .true.
                      exit
                   endif
@@ -188,7 +188,7 @@
                ! check if constant is used as input in this process
 
                do i_input = 1 , proc%no_input
-                  if ( ipfun .eq. proc%input_item(i_input)%ip_val ) then
+                  if ( ipfun == proc%input_item(i_input)%ip_val ) then
                      variable_is_used = .true.
                      exit
                   endif
@@ -222,7 +222,7 @@
                ! check if constant is used as input in this process
 
                do i_input = 1 , proc%no_input
-                  if ( ipsfun .eq. proc%input_item(i_input)%ip_val ) then
+                  if ( ipsfun == proc%input_item(i_input)%ip_val ) then
                      variable_is_used = .true.
                      exit
                   endif

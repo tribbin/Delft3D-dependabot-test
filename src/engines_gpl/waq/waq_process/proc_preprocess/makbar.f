@@ -115,7 +115,7 @@
       do iproc = 1 , nproc
 
          proc1 => procesdef%procesprops(iproc)
-         if (proc1%sfrac_type .eq. SFRAC_DUPLICATED_ORIGINAL) then
+         if (proc1%sfrac_type == SFRAC_DUPLICATED_ORIGINAL) then
             !
             ! prevent the original version of duplicated processes from showing up in
             ! warning list
@@ -143,9 +143,9 @@
 
          do i_input = 1 , proc1%no_input
 
-            if ( proc1%input_item(i_input)%type .eq. IOTYPE_SEGMENT_INPUT ) then
+            if ( proc1%input_item(i_input)%type == IOTYPE_SEGMENT_INPUT ) then
 
-               if ( .not.is_missing(proc1%input_item(i_input)%actdef) .and. imolev .lt. 7 ) cycle
+               if ( .not.is_missing(proc1%input_item(i_input)%actdef) .and. imolev < 7 ) cycle
                valnam = proc1%input_item(i_input)%name
                valtxt = proc1%input_item(i_input)%item%text
                write(line,'(4a)') '       [',valnam,'] ',valtxt
@@ -161,7 +161,7 @@
 
                ! output of previous proces ? , is this switched on , switch it on
 
-               if ( ivalip .eq. -1 ) then
+               if ( ivalip == -1 ) then
 
                   ! output of previous proces ? , including own pre-workspace
 
@@ -172,7 +172,7 @@
                      ! flux of process
 
                      call zoekio ( valnam, proc2%no_fluxoutput, proc2%fluxoutput, 20, iflux)
-                     if ( iflux .gt. 0 ) then
+                     if ( iflux > 0 ) then
                         if ( proc2%linvok ) then
                            write ( line , '(3a)' ) '       Using flux from proces [',proc2%name,']'
                            ivalip = -2
@@ -185,7 +185,7 @@
                      ! output variable of process
 
                      call zoekio ( valnam, proc2%no_output, proc2%output_item, 20, ioutput, IOTYPE_SEGMENT_OUTPUT)
-                     if ( ioutput .gt. 0 ) then
+                     if ( ioutput > 0 ) then
                         if ( proc2%linvok ) then
                            write ( line , '(3a)' ) '       Using output from proces [',proc2%name,']'
                            ivalip = -3
@@ -197,12 +197,12 @@
 
                   enddo
                endif
-               if ( ivalip .eq. -1 ) then
+               if ( ivalip == -1 ) then
 
                   ! if this is a fraction input then first look for the generic name
 
                   i_star = index(valnam,'*')
-                  if ( i_star .gt. 1 ) then
+                  if ( i_star > 1 ) then
                      valnam(i_star:) = ' '
                      write(line,'(a)') '       fraction specific input not found, trying generic name'
                      call monsys( line , 7 )
@@ -215,7 +215,7 @@
                      write(line,'(a)') '       not found'
                      proc1%linvok = .false.
                      nmis = nmis + 1
-                     if ( nmis .le. mismax ) then
+                     if ( nmis <= mismax ) then
                         misnam(nmis) = valnam
                         mistxt(nmis) = valtxt
                      endif
@@ -232,9 +232,9 @@
 
          do i_input = 1 , proc1%no_input
 
-            if ( proc1%input_item(i_input)%type .eq. IOTYPE_EXCHANG_INPUT ) then
+            if ( proc1%input_item(i_input)%type == IOTYPE_EXCHANG_INPUT ) then
 
-               if ( .not.is_missing(proc1%input_item(i_input)%actdef) .and. imolev .lt. 7 ) cycle
+               if ( .not.is_missing(proc1%input_item(i_input)%actdef) .and. imolev < 7 ) cycle
                valnam = proc1%input_item(i_input)%name
                valtxt = proc1%input_item(i_input)%item%text
                write(line,'(4a)') '       [',valnam,'] ',valtxt
@@ -250,7 +250,7 @@
 
                ! output of previous proces ? , is this switched on , switch it on
 
-               if ( ivalip .eq. -1 ) then
+               if ( ivalip == -1 ) then
 
                   ! output of previous proces ? , including own pre-workspace
 
@@ -261,7 +261,7 @@
                      ! xoutput variable of process
 
                      call zoekio ( valnam, proc2%no_output, proc2%output_item, 20, ioutput, IOTYPE_EXCHANG_OUTPUT)
-                     if ( ioutput .gt. 0 ) then
+                     if ( ioutput > 0 ) then
                         if ( proc2%linvok ) then
                            write ( line , '(3a)' ) '       Using output from proces [',proc2%name,']'
                            ivalip = -3
@@ -273,12 +273,12 @@
 
                   enddo
                endif
-               if ( ivalip .eq. -1 ) then
+               if ( ivalip == -1 ) then
 
                   ! if this is a fraction input then first look for the generic name
 
                   i_star = index(valnam,'*')
-                  if ( i_star .gt. 1 ) then
+                  if ( i_star > 1 ) then
                      valnam(i_star:) = ' '
                      write(line,'(a)') '       fraction specific input not found, trying generic name'
                      call monsys( line , 7 )
@@ -291,7 +291,7 @@
                      write(line,'(a)') '       not found'
                      proc1%linvok = .false.
                      nmis = nmis + 1
-                     if ( nmis .le. mismax ) then
+                     if ( nmis <= mismax ) then
                         misnam(nmis) = valnam
                         mistxt(nmis) = valtxt
                      endif
@@ -306,7 +306,7 @@
   550    continue
          if ( laswi ) then
             iact = index_in_array( proc1%name, actlst(:no_act))
-            if ( iact .gt. 0 ) then
+            if ( iact > 0 ) then
                if ( proc1%linvok ) then
                   proc1%active = .true.
                   write(line,'(a)') '   Process is activated'
@@ -314,7 +314,7 @@
                   write(line,'(a,a)') '   Process subroutine: ', proc1%routine
                   call monsys( line , 4 )
                else
-                  if (proc1%name(1:8).eq.'VertDisp') then
+                  if (proc1%name(1:8)=='VertDisp') then
                      call status%increase_warning_count()
                      write(line,'(a)') '   WARNING : VertDisp can NOT be switched on, is this a 2D model?'
                   else
@@ -326,7 +326,7 @@
                      write(line,'(4a)') '   Not found:[',misnam(imis),'] ', mistxt(imis)
                      call monsys( line , 4 )
                   enddo
-                  if ( nmis .gt. mismax ) then
+                  if ( nmis > mismax ) then
                      write(line,'(a)') '   and more ...'
                      call monsys( line , 4 )
                   endif

@@ -45,19 +45,19 @@ C----------------------------------------------------------------------C
       end do
       DO IK = 1,N
       DO  IR = IK+1,N
-      IF (ABS(A(IK,IH(IR))).GT.ABS(A(IK,IH(IK)))) THEN
+      IF (ABS(A(IK,IH(IR)))>ABS(A(IK,IH(IK)))) THEN
       IDUM = IH(IR)
       IH(IR) = IH(IK)
       IH(IK) = IDUM
       ENDIF
       end do
-      IF (ABS(A(IK,IH(IK))).LT.1D-10) THEN
+      IF (ABS(A(IK,IH(IK)))<1D-10) THEN
       IER = -IK
       RETURN
       ENDIF
       DO IR = IK+1,N
       F = A(IK,IH(IR))/A(IK,IH(IK))
-      IF (ABS(F).LT.1E-10) GOTO 50
+      IF (ABS(F)<1E-10) GOTO 50
       DO J=1,M
       B(IH(IR),J) = B(IH(IR),J) - F*B(IH(IK),J)
       end do

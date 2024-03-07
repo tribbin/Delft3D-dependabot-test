@@ -84,8 +84,8 @@
 
          sfracs%linked(isfrac)= 0
          do isfrac2 = 1, isfrac - 1
-            if ( sfracs%nfrac(isfrac2) .eq. sfracs%nfrac(isfrac) ) then
-               if ( sfracs%linked(isfrac2) .eq. 0 ) then
+            if ( sfracs%nfrac(isfrac2) == sfracs%nfrac(isfrac) ) then
+               if ( sfracs%linked(isfrac2) == 0 ) then
                   sfracs%linked(isfrac2) = isfrac2
                endif
                sfracs%linked(isfrac) = isfrac2

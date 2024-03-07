@@ -295,7 +295,7 @@ contains
       ! initialise statistical processes
       statprocesdef%cursize = 0
       statprocesdef%maxsize = 0
-      if (sttfil.ne.' ') then
+      if (sttfil/=' ') then
          simulation_start_time_scu  = itstrt_process
          simulation_stop_time_scu = itstop_process
          system_time_factor_seconds = isfact
@@ -347,10 +347,10 @@ contains
 
       ! open openpb dll
 
-      if (shared_dll_so.ne.' ') then
+      if (shared_dll_so/=' ') then
          dll_opb = 0 ! in C this one could be 4 or 8 bytes, so make sure the last bytes are zero
          ierr2 = open_shared_library(dll_opb, shared_dll_so)
-         if ( ierr2 .ne. 0) then
+         if ( ierr2 /= 0) then
             write(lunlsp,*) 'ERROR: opening open process library dll/so: ', trim(shared_dll_so)
             write(lunlsp,*) 'Try specifying the full path'
             ierr = ierr + 1
@@ -369,7 +369,7 @@ contains
          if ( lfound ) then
             write(line,'(a)' ) ' found -target_serial command line switch'
             call monsys(line,1)
-            if ( ierr2.ne. 0 ) then
+            if ( ierr2/= 0 ) then
                old_items%target_serial = target_serial
                write(line,'(a)')' no serial number given, using current'
                call monsys(line,1)
@@ -390,7 +390,7 @@ contains
       if ( lfound ) then
          write(line,'(a)' ) ' found -conf command line switch'
          call monsys(line,1)
-         if ( ierr2.ne. 0 ) then
+         if ( ierr2/= 0 ) then
             write(line,'(a)')' no configuration id given, using default'
             call monsys(line,1)
             config = ' '
@@ -404,12 +404,12 @@ contains
 
       ! eco coupling
 
-      l_eco = blmfil .ne. ' '
+      l_eco = blmfil /= ' '
 
       if (.not.l_eco) then
          blmnam = 'ACTIVE_BLOOM_P'
          blm_act = dlwq_find(constants,blmnam)
-         if ( blm_act .gt. 0 .and. .not.swi_nopro) then
+         if ( blm_act > 0 .and. .not.swi_nopro) then
             blmfil = 'bloom.spe'
             inquire(file=blmfil,exist=l_eco)
             if (l_eco) then
@@ -438,7 +438,7 @@ contains
          read ( lunblm    , '(a)' ) line
          verspe = 1.0
          ioff =  index(line, 'BLOOMSPE_VERSION_')
-         if(ioff.eq.0) then
+         if(ioff==0) then
             rewind( lunblm )
          else
             read (line(ioff+17:), *, err = 100) verspe
@@ -474,7 +474,7 @@ contains
          do ialg = 1 , notyp
             name10 = algtyp(ialg)
             isys = index_in_array( name10, syname)
-            if ( isys .gt. 0 ) then
+            if ( isys > 0 ) then
                noalg        = noalg + 1
                algact(ialg) = 1
                typnam(noalg)= algtyp(ialg)
@@ -493,9 +493,9 @@ contains
             ! set algal group list
             nogrp = 0
             do iatyp = 1 , notyp
-               if ( algact(iatyp) .eq. 1 ) then
+               if ( algact(iatyp) == 1 ) then
                   igrp = index_in_array( alggrp(iatyp), grpnam)
-                  if ( igrp .le. 0 ) then
+                  if ( igrp <= 0 ) then
                      nogrp = nogrp + 1
                      grpnam(nogrp)= alggrp(iatyp)
                      grpabr(nogrp)= abrgrp(iatyp)
@@ -512,7 +512,7 @@ contains
 
       swinam = 'only_active'
       ix_act = dlwq_find(constants,swinam)
-      if ( ix_act .gt. 0 ) then
+      if ( ix_act > 0 ) then
          write(line,'(a)' ) ' found only_active constant'
          call monsys(line,1)
          write(line,'(a)' ) ' only activated processes are switched on'
@@ -530,7 +530,7 @@ contains
       ! if not active only and no configuration set default
 
       if ( .not. laswi ) then
-         if ( config .eq. ' ' ) then
+         if ( config == ' ' ) then
             if ( l_eco ) then
                config = 'eco'
             else
@@ -567,7 +567,7 @@ contains
 
       ! add the statistical processes in the structure
 
-      if ( statprocesdef%cursize .gt. 0 ) then
+      if ( statprocesdef%cursize > 0 ) then
          do istat = 1 , statprocesdef%cursize
             statprocesdef%procesprops(istat)%sfrac_type = 0
             iret = procespropcolladd( procesdef , statprocesdef%procesprops(istat) )
@@ -592,12 +592,12 @@ contains
       noout_statt = 0
       noout_state = 0
 !     first statistics with temporal output
-      if ( statprocesdef%cursize .gt. 0 ) then
+      if ( statprocesdef%cursize > 0 ) then
          do istat = 1 , statprocesdef%cursize
             do iitem = 1 , statprocesdef%procesprops(istat)%no_output
-               if ( statprocesdef%procesprops(istat)%output_item(iitem)%type .eq. iotype_segment_output ) then
+               if ( statprocesdef%procesprops(istat)%output_item(iitem)%type == iotype_segment_output ) then
                   statproc = statprocesdef%procesprops(istat)%routine
-                  if (statproc.eq.'STADAY'.or.statproc.eq.'STADPT') then
+                  if (statproc=='STADAY'.or.statproc=='STADPT') then
                      statname = statprocesdef%procesprops(istat)%output_item(iitem)%name
                      noout = outputs%cursize + 1
                      noout_statt = noout_statt + 1
@@ -613,12 +613,12 @@ contains
          enddo
       endif
 !     then statistics with end output
-      if ( statprocesdef%cursize .gt. 0 ) then
+      if ( statprocesdef%cursize > 0 ) then
          do istat = 1 , statprocesdef%cursize
             do iitem = 1 , statprocesdef%procesprops(istat)%no_output
-               if ( statprocesdef%procesprops(istat)%output_item(iitem)%type .eq. iotype_segment_output ) then
+               if ( statprocesdef%procesprops(istat)%output_item(iitem)%type == iotype_segment_output ) then
                   statproc = statprocesdef%procesprops(istat)%routine
-                  if (.not.(statproc.eq.'STADAY'.or.statproc.eq.'STADPT')) then
+                  if (.not.(statproc=='STADAY'.or.statproc=='STADPT')) then
                      statname = statprocesdef%procesprops(istat)%output_item(iitem)%name
                      noout = outputs%cursize + 1
                      noout_state = noout_state + 1
@@ -635,7 +635,7 @@ contains
       endif
 
       ! replace names of bloom algea with actual names
-      if ( l_eco .and. nbpr .gt. 0 ) then
+      if ( l_eco .and. nbpr > 0 ) then
 
          ! now replace process parameters
 
@@ -739,7 +739,7 @@ contains
 
       ! if not all input present , stop with exit code
 
-      if ( nmis .gt. 0 ) then
+      if ( nmis > 0 ) then
          write(lunlsp,*) ' not all input available.'
          write(lunlsp,*) ' number off missing variables :',nmis
          write(lunlsp,*) ' simulation impossible.'
@@ -831,7 +831,7 @@ contains
                flxnam = proc%fluxstochi(istochi)%ioitem
                isys   = proc%fluxstochi(istochi)%subindx
                scale  = proc%fluxstochi(istochi)%scale
-               if ( isys.gt.0 .and. abs(scale).gt.1e-10) then
+               if ( isys>0 .and. abs(scale)>1e-10) then
                   call zoekio ( flxnam, proc%no_fluxoutput, proc%fluxoutput, 20, iflx)
                   stochi(isys,nflx + iflx) = scale
                   fluxname(nflx + iflx) = flxnam(1:10)
@@ -850,7 +850,7 @@ contains
       ifluxsys = 0
       do isys = 1 , notot
          do iflx = 1 , nflux
-            if(stochi(isys,iflx).ne.0.0) then
+            if(stochi(isys,iflx)/=0.0) then
                ifluxsys = ifluxsys + 1
                nfluxsys(isys) = nfluxsys(isys) + 1
                fluxsys(ifluxsys) = iflx
@@ -882,7 +882,7 @@ contains
          subname = syname(isys)
          call str_lower(subname)
          iindx = index_in_array(subname,ainame)
-         if ( iindx .gt. 0) then
+         if ( iindx > 0) then
             substdname(isys) = allitems%itemproppnts(iindx)%pnt%stdn
             subunit(isys) = allitems%itemproppnts(iindx)%pnt%stdu
             subdescr(isys) = trim(allitems%itemproppnts(iindx)%pnt%text)//' '// &
@@ -890,8 +890,8 @@ contains
          else
             ! Is it an algae?
             ialg = index_in_array( subname(1:10), algtyp)
-            if ( ialg .gt. 0) then
-               if (algcof(icof, ialg) .ge. 0) then
+            if ( ialg > 0) then
+               if (algcof(icof, ialg) >= 0) then
                   substdname(isys) = ' '
                   subunit(isys) = 'g m-3'
                   subdescr(isys) = algdsc(ialg)//' (gC/m3)'
@@ -913,19 +913,19 @@ contains
          outname = outputs%names(ioutp)
          call str_lower(outname)
          iindx = index_in_array(outname,ainame)
-         if ( iindx .gt. 0) then
+         if ( iindx > 0) then
             outputs%std_var_name(ioutp) = allitems%itemproppnts(iindx)%pnt%stdn
             outputs%units(ioutp) = allitems%itemproppnts(iindx)%pnt%unit
             outputs%description(ioutp) = allitems%itemproppnts(iindx)%pnt%text//' '//allitems%itemproppnts(iindx)%pnt%unit
-         else if (outname.eq.'theta') then
+         else if (outname=='theta') then
             outputs%std_var_name(ioutp) = ' '
             outputs%units(ioutp) = ' '
             outputs%description(ioutp) = 'Local-theta, generated by numerical scheme (-)'
          else
             ! Is it an algae?
             ialg = index_in_array( outname(1:10), algtyp)
-            if ( ialg .gt. 0) then
-               if (algcof(icof, ialg) .ge. 0) then
+            if ( ialg > 0) then
+               if (algcof(icof, ialg) >= 0) then
                   outputs%std_var_name(ioutp) = ' '
                   outputs%units(ioutp) = 'g m-3'
                   outputs%description(ioutp) = algdsc(ialg)//' (gC/m3)'

@@ -73,12 +73,12 @@
 !     write altoys.inp for all output in history file
 !
       open ( lunwrk , file = 'altoys.inp' )
-      if ( ioutps(5,3) .eq. ihi3 ) then
+      if ( ioutps(5,3) == ihi3 ) then
          do isys = 1 , notot
             write(lunwrk,1000) syname(isys),syname(isys)
       end do
       endif
-      if ( ioutps(5,3) .eq. ihi3 .or. ioutps(5,3) .eq. ihi4) then
+      if ( ioutps(5,3) == ihi3 .or. ioutps(5,3) == ihi4) then
          ioffv = ioutps(4,1) + ioutps(4,2)
          nrvar = ioutps(4,3)/2
          do ivar = 1 , nrvar
@@ -89,7 +89,7 @@
 !
 !     write batoys.inp for all substances
 !
-      if ( ioutps(5,5) .eq. ibal ) then
+      if ( ioutps(5,5) == ibal ) then
          open ( lunwrk , file = 'batoys.inp' )
          write(lunwrk,1010) notot
          do isys = 1 , notot
@@ -106,7 +106,7 @@
       filpst = lchar(21)
       filstu = filpst
       indx = index(filpst,'.his ')
-      if ( indx .gt. 0 ) then
+      if ( indx > 0 ) then
          filpst(indx:) = '.pst'
          filstu(indx:) = '.stu'
       endif
@@ -114,7 +114,7 @@
       indx = min ( indx   , 255 )
       ilen = len(lchar(36))
       indx2 = index(lchar(36),' ')
-      if ( indx2 .eq. 0 ) then
+      if ( indx2 == 0 ) then
          indx2 = ilen
       else
          indx2 = indx2 - 1

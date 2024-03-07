@@ -80,7 +80,7 @@
 
       do igrid = 1 , nogrid
          iset = 0
-         if ( igrid .eq. 1 ) iset = 1
+         if ( igrid == 1 ) iset = 1
          ivar = 0
          ivar = ivar + 1  ;  vgrset(ivar,igrid) = iset    ! volume
          ivar = ivar + 1  ;  vgrset(ivar,igrid) = iset    ! area

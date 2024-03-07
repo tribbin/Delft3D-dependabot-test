@@ -91,11 +91,11 @@
       if ( fd_nef < 0 ) then
         error  = CRENEF (fd_nef, datnam, defnam, &
                                 coding, access)
-        if (error.ne.0 .and. .not.wrilog) then
+        if (error/=0 .and. .not.wrilog) then
           error = -211
           goto 10000
         endif
-        if ( error.ne.0 ) goto 9999
+        if ( error/=0 ) goto 9999
       endif
 
       if (wrilog) then
@@ -105,7 +105,7 @@
         j=0
  123    continue
           j=j+1
-          if (elmnam .eq. elmnms(j)) goto 124
+          if (elmnam == elmnms(j)) goto 124
           goto 123
  124    continue
         buflen = nbytsg(j) ! size single precision integer
@@ -114,14 +114,14 @@
         enddo
         error  = getelt(fd_nef,grpnam,elmnam, &
                        uindex,1     ,buflen,buffr )
-        if (error.ne.0) goto 9999
+        if (error/=0) goto 9999
       endif
 !-----------------------------------------------------------------------
 !-----error:
 !     writing: most likely error non existing group, so define it
 !     reading: error, no error expected
 !-----------------------------------------------------------------------
-      if ( error .ne. 0 .and. wrilog ) then
+      if ( error /= 0 .and. wrilog ) then
 ! Create elements
         do lelmnr=1,nelems
           error  = DEFELM(fd_nef        ,elmnms(  lelmnr), &
@@ -134,22 +134,22 @@
           end do
 ! Create cells
         error  = DEFCEL(fd_nef,grpnam,nelems,elmnms)
-        if ( error .ne. 0 ) goto 9999
+        if ( error /= 0 ) goto 9999
 ! Create group on definition file
         error  = DEFGRP(fd_nef,grpnam,grpnam,1,0,1)
-        if ( error .ne. 0 ) goto 9999
+        if ( error /= 0 ) goto 9999
 ! Create group on data       file
         error  = CREDAT(fd_nef,grpnam,grpnam)
-        if ( error .ne. 0 ) goto 9999
+        if ( error /= 0 ) goto 9999
 ! try again to write data
         error  = putelt(fd_nef,grpnam,elmnam, &
                        uindex,1     ,buffr        )
-        if ( error .ne. 0 ) goto 9999
+        if ( error /= 0 ) goto 9999
       endif
 !
 !     No error when reading elements
 !
-      if (error.eq.0 .and. .not.wrilog) then
+      if (error==0 .and. .not.wrilog) then
 	write(*,*) 'putget'
 	write(*,*) elmnam
 	write(*,*) elmtps
@@ -159,23 +159,23 @@
         error = INQELM(fd_nef,elmnam,elmtps,nbytsg, &
                       elmqta,elmant,elmdas,elmndm,elmdim)
 
-        if (error  .ne. 0) goto 9999
+        if (error  /= 0) goto 9999
         lelmnr = 0
         do n = 1,nelems
-           if (elmnam .eq. elmnms(n)) then
+           if (elmnam == elmnms(n)) then
               lelmnr = n
               goto 220
            endif
     end do
   220   continue
-        if (lelmnr.ne.0) goto 9999
+        if (lelmnr/=0) goto 9999
 !----------------------------------------------------------
         do i = 1,elmndm
 !----------------------------------------------------------
 !----------Compare local and global dimensions, not equal
 !          => new error number and exit
 !----------------------------------------------------------
-           if (elmdim(i) .ne. elmdms(1+i,lelmnr)) then
+           if (elmdim(i) /= elmdms(1+i,lelmnr)) then
               error  = -15025
               goto 9999
            endif
@@ -184,7 +184,7 @@
       goto 10000
 !-----------------------------------------------------------------------
  9999 continue
-      if (error .ne. 0) ierror = Neferr(1, errstr)
+      if (error /= 0) ierror = Neferr(1, errstr)
 10000 continue
 !      ierror = clsnef( fd_nef )
 !

@@ -78,19 +78,19 @@
       CONCTR = PMSA(IP2 )
       DECAYR = PMSA(IP3 )
 !
-      IF (DECAYR .LT. 1E-20 ) CALL write_error_message ('RCDECTR in WATAGE zero')
+      IF (DECAYR < 1E-20 ) CALL write_error_message ('RCDECTR in WATAGE zero')
 
 !     Calculate age
 !
-      IF ( CONCWA .LE. 1.0E-20 ) THEN
+      IF ( CONCWA <= 1.0E-20 ) THEN
           AGE = -999.
-      ELSEIF ( CONCTR .LE. 1.0E-20 ) THEN
+      ELSEIF ( CONCTR <= 1.0E-20 ) THEN
           AGE = -999.
-      ELSEIF ( CONCTR .GT. CONCWA ) THEN
+      ELSEIF ( CONCTR > CONCWA ) THEN
           AGE = -999.
       ELSE
           ARGUM =  CONCTR/CONCWA
-          IF (ARGUM .LT. 1E-20 ) THEN
+          IF (ARGUM < 1E-20 ) THEN
               AGE = -999.
           ELSEIF ( ABS(ARGUM-1.0) > 1.0E-3 ) THEN
               AGE = - LOG(ARGUM) / DECAYR

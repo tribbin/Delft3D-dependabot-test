@@ -116,17 +116,17 @@
 !     Calculation of the precipitation or dissolution flux
 !     dependent on dissolved oxygen
 !
-         IF ( OXY .GE. CROXY ) THEN
+         IF ( OXY >= CROXY ) THEN
             FPRC   = 0.0
             TMPSOL = TCSOL**(TEMP - 20.0)
             FSOL   = KSOL * TMPSOL * CPHPR * OXY / POROS
-            IF ( FSOL .LT. 0.0) FSOL = 0.0
-            IF ( FSOL*DELT .GE. CPHPR) FSOL = 0.5 * CPHPR / DELT
+            IF ( FSOL < 0.0) FSOL = 0.0
+            IF ( FSOL*DELT >= CPHPR) FSOL = 0.5 * CPHPR / DELT
          ELSE
             FSOL   = 0.0
             TMPPRC = TCPRC**(TEMP - 20.0)
             FPRC   = KPRC * TMPPRC * ( CPHD / POROS - CPHDE ) * POROS
-            IF ( FPRC .LT. 0.0) FPRC = 0.0
+            IF ( FPRC < 0.0) FPRC = 0.0
          ENDIF
 !
 !     Output of module
