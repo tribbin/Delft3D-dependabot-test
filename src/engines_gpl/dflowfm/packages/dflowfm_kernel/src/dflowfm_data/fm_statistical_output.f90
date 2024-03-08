@@ -24,6 +24,7 @@ private
 
    double precision, dimension(:,:), allocatable, target :: obscrs_data !< observation cross section constituent data on observation cross sections to be written
    double precision, dimension(:), allocatable, target :: SBCX, SBCY, SBWX, SBWY, SSWX, SSWY, SSCX, SSCY
+   double precision, dimension(:), allocatable, target :: time_dredged, time_ploughed
 
    contains
    
@@ -71,6 +72,23 @@ private
       Y(k+1:k+ntot) = valobs(:,IPNT_Y)/rhol
    end do
    end subroutine assign_sediment_transport
+   
+   !> Wrapper function that will allocate and fill the dredge time arrays
+   subroutine calculate_dred_time_fraction(source_input)
+   use m_dad
+   use m_flowtimes, only: time1
+   double precision, pointer, dimension(:), intent(inout) :: source_input !< Pointer to source input array for the "SSWX" item, to be assigned once on first call.
+   integer :: ntot
+   double precision :: cof0
+   
+   ntot = dadpar%nadred+dadpar%nasupl
+   call allocate_and_associate(source_input,ntot,time_dredged,time_ploughed)
+   
+   cof0 = 1d0 ; if( time1 > 0d0 ) cof0 = time1
+   time_dredged = dadpar%tim_dredged/cof0
+   time_ploughed = dadpar%tim_ploughed/cof0
+   
+   end subroutine calculate_dred_time_fraction
    
    !> Wrapper function that will allocate and fill the sediment transport arrays
    subroutine calculate_sediment_SSW(source_input)
@@ -1120,6 +1138,10 @@ private
                      nc_dim_ids = nc_dims_2D)
 
       ! Sediment model
+      !call addoutval(out_quan_conf_his, IDX_HIS_SED_FRAC_NAME,                 &
+      !               'Wrihis_sediment', 'sedfrac_name',              &
+      !               'sediment fraction identifier',             &
+      !               '', '', UNC_LOC_DREDGE, nc_atts = atts(1:1))
       call addoutval(out_quan_conf_his, IDX_HIS_SED,                                                                         &
                      'Wrihis_sediment', 'sed', 'Sediment concentration',                                                     &
                      '', 'kg m-3', UNC_LOC_STATION, nc_atts = atts(1:1), description='Write sediment transport to his file', &
@@ -1286,14 +1308,14 @@ private
                      '', 'm3 s-1', UNC_LOC_LATERAL, nc_atts = atts(1:1))
       
       ! HIS: Dredge & Dump variables
-      call addoutval(out_quan_conf_his, IDX_HIS_DRED_AREA_NAME,                 &
-                     'Wrihis_dred', 'dredge_area_name',              &
-                     'dredge area identifier',             &
-                     '', '', UNC_LOC_DREDGE, nc_atts = atts(1:1))
-      call addoutval(out_quan_conf_his, IDX_HIS_DUMP_AREA_NAME,                 &
-                     'Wrihis_dred', 'dump_area_name',              &
-                     'dump area identifier',             &
-                     '', '', UNC_LOC_DUMP, nc_atts = atts(1:1))
+      !call addoutval(out_quan_conf_his, IDX_HIS_DRED_AREA_NAME,                 &
+      !               'Wrihis_dred', 'dredge_area_name',              &
+      !               'dredge area identifier',             &
+      !               '', '', UNC_LOC_DREDGE, nc_atts = atts(1:1))
+      !call addoutval(out_quan_conf_his, IDX_HIS_DUMP_AREA_NAME,                 &
+      !               'Wrihis_dred', 'dump_area_name',              &
+      !               'dump area identifier',             &
+      !               '', '', UNC_LOC_DUMP, nc_atts = atts(1:1))
       call addoutval(out_quan_conf_his, IDX_HIS_DRED_LINK_DISCHARGE,                 &
                      'Wrihis_dred', 'dred_link_discharge',              &
                      'Cumulative dredged material transported via links per fraction',             &
@@ -2422,8 +2444,8 @@ private
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DRED_LINK_DISCHARGE),   temp_pointer               )
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DRED_DISCHARGE),        dadpar%totvoldred               )
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DUMP_DISCHARGE),        dadpar%totvoldump               )
-         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DRED_TIME_FRAC),        dadpar%totvoldump               )
-         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_PLOUGH_TIME_FRAC),      dadpar%totvoldump               )
+         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DRED_TIME_FRAC),     null(), calculate_dred_time_fraction)
+         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_PLOUGH_TIME_FRAC),  time_ploughed)
          !
          !
          !cof0 = 1d0 ; if( time_his > 0d0 ) cof0 = time_his

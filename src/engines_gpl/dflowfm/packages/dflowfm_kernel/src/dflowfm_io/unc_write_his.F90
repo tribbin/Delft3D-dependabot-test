@@ -543,6 +543,11 @@ subroutine unc_write_his(tim)            ! wrihis
             ierr = nf90_def_dim(ihisfile, 'ndredlink', dadpar%nalink, id_dredlinkdim)
             ierr = nf90_def_dim(ihisfile, 'ndred', dadpar%nadred+dadpar%nasupl, id_dreddim)
             ierr = nf90_def_dim(ihisfile, 'ndump', dadpar%nadump, id_dumpdim)
+            ierr = nf90_def_var(ihisfile, 'dredge_area_name',         nf90_char,   (/ id_strlendim, id_dreddim /), id_dred_name)
+            ierr = nf90_put_att(ihisfile, id_dred_name,  'long_name'    , 'dredge area identifier')
+
+            ierr = nf90_def_var(ihisfile, 'dump_area_name',         nf90_char,   (/ id_strlendim, id_dumpdim /), id_dump_name)
+            ierr = nf90_put_att(ihisfile, id_dump_name,  'long_name'    , 'dump area identifier')
         endif
 
         if ( jacheckmonitor.eq.1 ) then
@@ -566,6 +571,9 @@ subroutine unc_write_his(tim)            ! wrihis
            do ivar = IDX_HIS_SBCX,IDX_HIS_SSCY ! set sediment transport unit just in time
               out_quan_conf_his%statout(ivar)%unit = transpunit
            enddo
+           
+           ierr = nf90_def_var(ihisfile, 'sedfrac_name', nf90_char, (/ id_strlendim, id_sedtotdim /), id_frac_name)
+           ierr = nf90_put_att(ihisfile, id_frac_name,'long_name', 'sediment fraction identifier')
         endif
         
 
@@ -937,11 +945,11 @@ subroutine unc_write_his(tim)            ! wrihis
 
         if (dad_included) then
            do i=1,(dadpar%nadred+dadpar%nasupl)
-              ierr = nf90_put_var(ihisfile, IDX_HIS_DRED_AREA_NAME, trimexact(dadpar%dredge_areas(i), strlen_netcdf), (/ 1, i /))
+              ierr = nf90_put_var(ihisfile, id_dred_name, trimexact(dadpar%dredge_areas(i), strlen_netcdf), (/ 1, i /))
            enddo
            !
            do i=1,dadpar%nadump
-              ierr = nf90_put_var(ihisfile, IDX_HIS_DUMP_AREA_NAME, trimexact(dadpar%dump_areas(i), strlen_netcdf), (/ 1, i /))
+              ierr = nf90_put_var(ihisfile, id_dump_name, trimexact(dadpar%dump_areas(i), strlen_netcdf), (/ 1, i /))
            enddo
         endif
         if (timon) call timstop ( handle_extra(63))
@@ -1020,9 +1028,9 @@ subroutine unc_write_his(tim)            ! wrihis
          )
          ierr = nf90_put_var(ihisfile, id_var, out_variable_set_his%statout(ivar)%stat_output, start = (/ 1, it_his /))
       case (UNC_LOC_STATION)
-         ierr = nf90_put_var(ihisfile, id_var, out_variable_set_his%statout(ivar)%stat_output, start = (/ 1, 1, it_his /), count = (/ dadpar%nalink, stmpar%lsedtot, 1 /))
-      case (UNC_LOC_DRED_LINK)
          ierr = nf90_put_var(ihisfile, id_var, out_variable_set_his%statout(ivar)%stat_output, count = build_nc_dimension_id_count_array(config%nc_dim_ids), start = build_nc_dimension_id_start_array(config%nc_dim_ids))
+      case (UNC_LOC_DRED_LINK)
+         ierr = nf90_put_var(ihisfile, id_var, out_variable_set_his%statout(ivar)%stat_output, start = (/ 1, 1, it_his /), count = (/ dadpar%nalink, stmpar%lsedtot, 1 /))
       case (UNC_LOC_GLOBAL)
          if (timon) call timstrt('unc_write_his IDX data', handle_extra(67))
          ierr = nf90_put_var(ihisfile, id_var, out_variable_set_his%statout(ivar)%stat_output,  start=(/ it_his /))
@@ -1059,7 +1067,6 @@ subroutine unc_write_his(tim)            ! wrihis
        end if
 #endif
        end if
-       
     endif
 
     ! Write x/y-, lat/lon- and z-coordinates for the observation stations every time (needed for moving observation stations)

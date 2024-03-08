@@ -282,6 +282,7 @@ private
    integer, public :: IDX_HIS_QFRCON
    integer, public :: IDX_HIS_QTOT
 
+   integer, public :: IDX_HIS_SED_FRAC_NAME
    integer, public :: IDX_HIS_SED
    integer, public :: IDX_HIS_WS
    integer, public :: IDX_HIS_SEDDIF
