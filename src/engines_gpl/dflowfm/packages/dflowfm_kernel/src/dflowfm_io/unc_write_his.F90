@@ -2555,17 +2555,68 @@ subroutine write_station_netcdf_variable(i_his_file, output_variable_item)
    starts = build_nc_dimension_id_start_array(local_config%nc_dim_ids)
 
    positions = [(i, integer :: i = 1, size(counts))]
-   station_id_index = findloc(build_nc_dimension_id_list(local_config%nc_dim_ids), id_statdim)
+   station_id_index = findloc(build_nc_dimension_id_list(local_config%nc_dim_ids), value = id_statdim, dim = 1)
    ! Bring the dimension corresponding to stations to the front, because it comes first in valobs
    positions(1) = station_id_index
-   position(station_id_index) = 1
-   counts = counts(positions)
-   starts = starts(positions)
+   positions(station_id_index) = 1
    ! Unflatten the array to its proper dimensions (counts), reorder the dimensions to place stations to the front, and flatten it back
-   transformed_data = reshape(reshape(output_variable_item%stat_output, counts, order = positions), size(output_variable_item%stat_output))
+   select case (size(counts))
+      case (1)
+         transformed_data = reshape_implicit_1d(output_variable_item%stat_output, counts, positions)
+      case (2)
+         transformed_data = reshape_implicit_2d(output_variable_item%stat_output, counts, positions)
+      case (3)
+         transformed_data = reshape_implicit_3d(output_variable_item%stat_output, counts, positions)
+      case (4)
+         transformed_data = reshape_implicit_4d(output_variable_item%stat_output, counts, positions)
+      case (5)
+         transformed_data = reshape_implicit_5d(output_variable_item%stat_output, counts, positions)
+      case default
+         call err('Internal error, please report: cannot reshape stat_output, implicit shape has too many dimensions')
+   end select
 
    ierr = nf90_put_var(ihisfile, local_id_var, transformed_data, count = counts, start = starts)
 end subroutine write_station_netcdf_variable
+
+function reshape_implicit_1d(source, implicit_shape, order) result(res)
+   double precision, intent(in) :: source(:)
+   integer, intent(in) :: implicit_shape(1)
+   integer, intent(in) :: order(:)
+   double precision :: res(size(source))
+   res = reshape(reshape(source, implicit_shape, order = order), shape(source))
+end function reshape_implicit_1d
+
+function reshape_implicit_2d(source, implicit_shape, order) result(res)
+   double precision, intent(in) :: source(:)
+   integer, intent(in) :: implicit_shape(2)
+   integer, intent(in) :: order(:)
+   double precision :: res(size(source))
+   res = reshape(reshape(source, implicit_shape, order = order), shape(source))
+end function reshape_implicit_2d
+
+function reshape_implicit_3d(source, implicit_shape, order) result(res)
+   double precision, intent(in) :: source(:)
+   integer, intent(in) :: implicit_shape(3)
+   integer, intent(in) :: order(:)
+   double precision :: res(size(source))
+   res = reshape(reshape(source, implicit_shape, order = order), shape(source))
+end function reshape_implicit_3d
+
+function reshape_implicit_4d(source, implicit_shape, order) result(res)
+   double precision, intent(in) :: source(:)
+   integer, intent(in) :: implicit_shape(4)
+   integer, intent(in) :: order(:)
+   double precision :: res(size(source))
+   res = reshape(reshape(source, implicit_shape, order = order), shape(source))
+end function reshape_implicit_4d
+
+function reshape_implicit_5d(source, implicit_shape, order) result(res)
+   double precision, intent(in) :: source(:)
+   integer, intent(in) :: implicit_shape(5)
+   integer, intent(in) :: order(:)
+   double precision :: res(size(source))
+   res = reshape(reshape(source, implicit_shape, order = order), shape(source))
+end function reshape_implicit_5d
 
 end subroutine unc_write_his
 
