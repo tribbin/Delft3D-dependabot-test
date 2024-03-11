@@ -625,8 +625,13 @@
  if ( allocated(dtcell) ) then
     deallocate(dtcell)
  endif
- allocate ( dtcell(ndkx) , stat = ierr)
- call aerr('dtcell(ndkx)', ierr , ndkx) ; dtcell = 0d0
+ if (dtcell_is_2D()) then
+     allocate ( dtcell(ndx) , stat = ierr)
+     call aerr('dtcell(ndx)', ierr , ndx) ; dtcell = 0d0
+ else
+     allocate ( dtcell(ndkx) , stat = ierr)
+     call aerr('dtcell(ndkx)', ierr , ndkx) ; dtcell = 0d0
+ endif
 
  ! for 1D only
  if (network%loaded) then
