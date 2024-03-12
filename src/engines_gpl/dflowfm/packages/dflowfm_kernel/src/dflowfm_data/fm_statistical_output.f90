@@ -1019,11 +1019,11 @@ private
                      'upward_sea_water_velocity', 'm s-1', UNC_LOC_STATION, nc_atts = atts(1:1),                                 &
                      nc_dim_ids = nc_dims_3D_center)
       call addoutval(out_quan_conf_his, IDX_HIS_DEPTH_AVERAGED_X_VELOCITY,                                                                     &
-                     'Wrihis_velocity_vector', 'depth_averaged_x_velocity', 'flow element center depth-averaged velocity vector, x-component', &
+                     'Wrihis_velocity_vector', 'depth-averaged_x_velocity', 'flow element center depth-averaged velocity vector, x-component', &
                      'sea_water_depth-averaged_x_velocity', 'm s-1', UNC_LOC_STATION, nc_atts = atts(1:1),                                     &
                      nc_dim_ids = nc_dims_2D)
       call addoutval(out_quan_conf_his, IDX_HIS_DEPTH_AVERAGED_Y_VELOCITY,                                                                     &
-                     'Wrihis_velocity_vector', 'depth_averaged_y_velocity', 'flow element center depth-averaged velocity vector, y-component', &
+                     'Wrihis_velocity_vector', 'depth-averaged_y_velocity', 'flow element center depth-averaged velocity vector, y-component', &
                      'sea_water_depth-averaged_y_velocity', 'm s-1', UNC_LOC_STATION, nc_atts = atts(1:1),                                     &
                      nc_dim_ids = nc_dims_2D)
       call addoutval(out_quan_conf_his, IDX_HIS_VELOCITY_MAGNITUDE,                                                                        &
@@ -1879,8 +1879,9 @@ private
       use m_transport, only: NUMCONST, itemp, isalt, ised1
       use m_sediment, only: stm_included, stmpar
       use m_longculverts, only: nlongculverts
-      USE m_monitoring_crosssections, only: ncrs
+      use m_monitoring_crosssections, only: ncrs
       use m_monitoring_runupgauges, only: nrug, rug
+      use m_lateral, only : numlatsg, qplat, qplatAve, qLatRealAve, qLatReal
       USE, INTRINSIC :: ISO_C_BINDING
 
       type(t_output_quantity_config_set), intent(inout) :: output_config !< output config for which an output set is needed.
@@ -2138,7 +2139,7 @@ private
             call add_stat_output_items(output_set, output_config%statout(IDX_HIS_WATERDEPTH),valobs(:,IPNT_HS)                               )
          endif
       endif
-      if( jahisvelvec > 0 ) then
+      if (jahisvelvec > 0) then
          if (numobs+nummovobs > 0) then
             if (model_is_3D()) then
                call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCX:IPNT_UCX+kmx)), temp_pointer, [kmx*ntot])
@@ -2148,14 +2149,13 @@ private
                call add_stat_output_items(output_set, output_config%statout(IDX_HIS_Y_VELOCITY),temp_pointer)
 
                call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCZ:IPNT_UCZ+kmx)), temp_pointer, [kmx*ntot])
-               call add_stat_output_items(output_set, output_config%statout(IDX_HIS_Z_VELOCITY),temp_pointer)
+               call add_stat_output_items(output_set, output_config%statout(IDX_HIS_Z_VELOCITY), temp_pointer)
 
-               call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DEPTH_AVERAGED_X_VELOCITY),valobs(:,IPNT_UCXQ)             )
-               call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DEPTH_AVERAGED_Y_VELOCITY),valobs(:,IPNT_UCYQ)             )
+               call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DEPTH_AVERAGED_X_VELOCITY), valobs(:, IPNT_UCXQ))
+               call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DEPTH_AVERAGED_Y_VELOCITY), valobs(:, IPNT_UCYQ))
             else
-               call add_stat_output_items(output_set, output_config%statout(IDX_HIS_X_VELOCITY),valobs(:,IPNT_UCX)                             )
-               call add_stat_output_items(output_set, output_config%statout(IDX_HIS_Y_VELOCITY),valobs(:,IPNT_UCY)                             )
-               call add_stat_output_items(output_set, output_config%statout(IDX_HIS_Z_VELOCITY),valobs(:,IPNT_UCZ)                            )
+               call add_stat_output_items(output_set, output_config%statout(IDX_HIS_X_VELOCITY), valobs(:, IPNT_UCX))
+               call add_stat_output_items(output_set, output_config%statout(IDX_HIS_Y_VELOCITY), valobs(:, IPNT_UCY))
             endif
          endif
       endif
