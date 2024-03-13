@@ -28,6 +28,7 @@ module grid_utils
     use m_error_status
     use timers
     use rd_token
+    use m_srstop
 
     implicit none
 
@@ -516,7 +517,6 @@ contains
         !!          The routine checks that every cell of this new grid contains at least one cell
         !!          of the reference grid.
 
-        use m_srstop
         use m_open_waq_files
         use dlwqgrid_mod     !   for the storage of contraction grids
 
