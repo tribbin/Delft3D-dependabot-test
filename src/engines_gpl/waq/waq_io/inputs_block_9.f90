@@ -25,7 +25,7 @@ module inputs_block_9
     use m_rdodef
     use m_outboo
     use simulation_input_options, only : process_simulation_input_options
-    use m_getopo
+    use output_pointers, only : get_output_pointers
     use m_error_status
 
     implicit none
@@ -204,7 +204,7 @@ contains
 
                 !           Get output pointers
 
-                call getopo(noutp, nrvar, nrvarm, car, iar, &
+                call get_output_pointers(noutp, nrvar, nrvarm, car, iar, &
                         nmis, notot, sysid, nocons, coname, &
                         nopa, paname, nofun, funame, nosfun, &
                         sfname, lunut)
