@@ -20,7 +20,7 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_rdodef
+module input_utils
     use m_waq_precision
     use m_error_status
 
@@ -536,4 +536,4 @@ contains
 
     end subroutine read_item_num
 
-end module m_rdodef
+end module input_utils
