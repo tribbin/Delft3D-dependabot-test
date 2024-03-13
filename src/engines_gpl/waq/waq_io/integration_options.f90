@@ -26,8 +26,10 @@ module integration_options
 
     implicit none
 
-contains
+    private
+    public :: check_integration_option
 
+contains
 
     subroutine check_integration_option(keynam, intopt, lunut, ierr2)
 
@@ -63,7 +65,6 @@ contains
         integer(kind = int_wp), intent(inout) :: intopt             !< integration option
         integer(kind = int_wp), intent(in) :: lunut              !< unit number report file
         integer(kind = int_wp), intent(out) :: ierr2              !< 0 if keyword found
-
 
         integer(kind = int_wp), parameter :: nokey = 19
         character*(40)  lockey
