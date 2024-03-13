@@ -64,11 +64,10 @@ contains
         use alloc_mod
         use timers       !   performance timers
         use m_sysi          ! Timer characteristics
-        use date_time_utils, only : convert_string_to_time_offset, simulation_start_time_scu, simulation_stop_time_scu, &
-                convert_relative_time
+        use date_time_utils, only : convert_string_to_time_offset, simulation_start_time_scu, &
+                simulation_stop_time_scu, convert_relative_time
         use waq_timers, only : timer
-        use m_rearaa
-        use m_readmp
+        use monitoring_areas, only : read_monitoring_transects, read_monitoring_areas
         use m_dlwq0i
         use m_time_validation
 
@@ -476,7 +475,7 @@ contains
         !             new input processssing
 
         ierr2 = 0
-        call readmp (lun, lchar, filtype, duname, nsegdmp, &
+        call read_monitoring_areas (lun, lchar, filtype, duname, nsegdmp, &
                 isegdmp, dmpbal, ndmpar, ntdmps, ioutpt, &
                 ierr2, status)
         if (ierr2 /= 0) goto 30
@@ -492,7 +491,7 @@ contains
 
         ierr2 = 0
         nullify(raname)
-        call rearaa (lun, lchar, filtype, raname, nexcraai, &
+        call read_monitoring_transects (lun, lchar, filtype, raname, nexcraai, &
                 iexcraai, ioptraai, noraai, ntraaq, ioutpt, &
                 ierr2, status)
         if (ierr2 /= 0) goto 30
