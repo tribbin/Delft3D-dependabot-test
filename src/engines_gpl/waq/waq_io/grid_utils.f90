@@ -692,7 +692,7 @@ contains
         type(error_status), intent(inout) :: status !< current error status
 
         integer(kind = int_wp) :: i, j, nkopt, ikopt1, ikopt2, ierr2, lunbin, iover, ikdef, idummy
-        integer(kind = int_wp) :: noseg, nopt, nover, attrib, active, iknm1, iknm2, iknmrk, ivalk
+        integer(kind = int_wp) :: noseg, nopt, nover, attrib, active, iknm1, iknm2, iknmrk, ivalk, iseg
         integer(kind = int_wp), allocatable, dimension(:) :: iamerge  !!  composite attribute array
         !!  array with indicators whether attributes are already set
         integer(kind = int_wp), allocatable, dimension(:) :: ikmerge
