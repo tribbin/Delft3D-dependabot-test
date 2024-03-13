@@ -22,8 +22,8 @@
 !!  rights reserved.
 module inputs_block_8
     use m_waq_precision
-    use m_read_initials
-    use simulation_input_options, only: process_simulation_input_options, validate_simulation_time_steps, &
+    use initial_conditions, only : read_initial_conditions
+    use simulation_input_options, only : process_simulation_input_options, validate_simulation_time_steps, &
             read_constant_data
     use m_error_status
 
@@ -269,7 +269,7 @@ contains
                 goto 10
             endif
             push = .true.
-            call read_initials (lun, lchar, filtype, inpfil, notot, &
+            call read_initial_conditions (lun, lchar, filtype, inpfil, notot, &
                     syname, iwidth, ioutpt, gridps, noseg, &
                     values, ierr2, status)
             itime = 0
@@ -304,6 +304,6 @@ contains
         2100 format (/, ' ERROR: Binary initials file is assumed to have bed substances in mass/gridcell rather than mass/m2!')
         2110 format (/, ' WARNING: Binary initials file is assumed to have bed substances in mass/gridcell!')
 
-    end
+    end subroutine read_block_8_initial_conditions
 
 end module inputs_block_8
