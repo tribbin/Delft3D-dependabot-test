@@ -86,7 +86,7 @@ contains
         !     offset_common          integer        1            output  comon offset in i_array and names_to_check
         !
         !
-        use m_dlwq5h
+        use usefor, only : compact_usefor_list
         use timers       !   performance timers
         use date_time_utils, only : convert_string_to_time_offset, convert_relative_time
 

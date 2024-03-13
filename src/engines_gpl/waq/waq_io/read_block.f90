@@ -761,7 +761,7 @@ contains
             dtflg3, ierr, status)
 
         ! Checks if column header exists
-        use m_compact_usefor
+        use usefor, only : compact_usefor
         use dlwq_hyd_data ! for definition and storage of data
         use rd_token
         use timers       !   performance timers

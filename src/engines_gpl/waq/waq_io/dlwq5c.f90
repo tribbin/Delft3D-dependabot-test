@@ -35,15 +35,7 @@ contains
             nodim, iorder, scale, itmnr, idmnr, &
             amiss, nobrk, ierr, status)
 
-        !
-        !     Deltares        Sector Waterresources And Environment
-        !
-        !     Created            : May '97  by L. Postma
-        !
-        !     Modified           :
-        !
-        !     Function           : Boundary and waste data new style
-        !                          Data retrieval from an ODS file
+        ! Boundary and waste data new style Data retrieval from an ODS file
         !
         !     Subroutines called : conver - converting times of breakpoints
         !
@@ -108,7 +100,7 @@ contains
         !     IF (SCALE) First NODIM entries the scale factors
         !     Then the matrix of values to be read in eg in this routine
         !
-        use m_dlwq5h
+        use usefor, only : compact_usefor_list
         use m_gettme
         use m_getpar
         use m_getmat
