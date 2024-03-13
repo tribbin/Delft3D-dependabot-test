@@ -29,7 +29,7 @@ module m_opt1
 
 contains
 
-    subroutine opt1 (iopt1, lun, is, lchar, filtype, &
+    subroutine opt1(iopt1, lun, is, lchar, filtype, &
             dtflg1, dtflg3, nitem, ierr, status, &
             dont_read)
 
@@ -318,7 +318,7 @@ contains
 
     end subroutine opt1
 
-    subroutine validate_simulation_time_steps (lunut, sget, afile, bfile, istep, &
+    subroutine validate_simulation_time_steps(lunut, sget, afile, bfile, istep, &
             it2, it3, it4, numbr, ierr)
 
         use m_get_filepath_and_pathlen
