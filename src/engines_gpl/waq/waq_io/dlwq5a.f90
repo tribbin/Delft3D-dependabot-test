@@ -26,7 +26,7 @@ module m_dlwq5a
     use waq_timers, only : read_time_delay
     use m_dlwqj3
     use m_dlwq5g
-    use m_dlwq5e
+    use assign_matrix, only : assign_matrix
     use m_dlwq5d
     use m_dlwq5c
     use m_error_status
@@ -530,7 +530,7 @@ contains
             else
                 !          Assigns according to computational rules
                 nr2 = ntr + nottt * nobrk
-                call dlwq5e (lunut, iar, count_items_in_use_rule, itmnr, nodim, & ! process parsed values in table  (process operations if any) and store results in rar(nr2:)
+                call assign_matrix (lunut, iar, count_items_in_use_rule, itmnr, nodim, & ! process parsed values in table  (process operations if any) and store results in rar(nr2:)
                         idmnr, iorder, rar, iopt, rar(ntr:), &
                         nocol, nobrk, amiss, iar(nti:), rar(nr2:))
                 strng3 = 'breakpoint'
@@ -589,7 +589,7 @@ contains
                     amiss, nobrk, ierr2, status)
             if (ierr2 /= 0) goto 510
             nr2 = ntr + count_items_in_use_rule * nodim * nobrk
-            call dlwq5e (lunut, iar, count_items_in_use_rule, itmnr, nodim, &
+            call assign_matrix (lunut, iar, count_items_in_use_rule, itmnr, nodim, &
                     idmnr, iorder, rar, iopt, rar(ntr:), &
                     nodim, nobrk, amiss, iar(nti:), rar(nr2:))
             strng3 = 'breakpoint'

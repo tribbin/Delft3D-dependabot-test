@@ -26,7 +26,7 @@ module matrix_utils
     implicit none
 
     private
-    public :: dmatrix, compute_matrix_size, compute_matrix, print_matrix, scale_array
+    public :: dmatrix, compute_matrix_size, compute_matrix, print_matrix, scale_array, assign_matrix
 
 contains
 
@@ -55,6 +55,316 @@ contains
         if (timon) call timstop(ithndl)
 
     end subroutine scale_array
+
+    subroutine assign_matrix(lunut, iar, noitm, itmnr, nodim, &
+            idmnr, iorder, rar, iopt, rmat, &
+            nocol, nobrk, amiss, iarp, rmatu)
+
+        !! Assign matrix according to computational rules
+        !!     LOGICAL UNITS      : LUNUT - report file
+        !!
+
+        !     PARAMETERS    :
+        !
+        !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
+        !     ---------------------------------------------------------
+        !     IAR     INTEGER    *         INPUT   array with arithmetic rules
+        !     NOITM   INTEGER    1         IN      number of items for computation
+        !     ITMNR   INTEGER    1         IN      number of items for output
+        !     NODIM   INTEGER    1         IN/OUT  number of conc. for comput.
+        !     IDMNR   INTEGER    1         IN/OUT  number of conc. for output
+        !     IORDER  INTEGER    1         INPUT   =1 items first: =2 concen first
+        !     RAR     REAL       *         INPUT   real constants in formulae
+        !     IOPT    LOGICAL    *         INPUT   3 & 4 is Fourier or harmonics
+        !     RMAT    REAL       *         INPUT   real matrix of read values
+        !     NOBRK   INTEGER    1         OUTPUT  number of records read
+        !     AMISS   REAL       1         INPUT   this is a missing value
+        !     IARP    INTEGER    *         INPUT   array with item pointers in RMAT
+        !     RMATU   REAL       *         OUTPUT  real matrix of evaluated values
+        !
+        !
+        use timers       !   performance timers
+
+        LOGICAL       MINIEM, MAXIEM
+        integer(kind = int_wp) :: ithndl = 0
+        integer(kind = int_wp) :: ioff1, noitm, itmnr, idmnr, nodim, iorder, ioff0
+        integer(kind = int_wp) :: locbas, iloc, itel, itels, ifrst, ibrk, ioff, iopt
+        integer(kind = int_wp) :: ip, ip2, lunut, iloco, nocol, nobrk, ioff2
+        integer :: iar(:), i, iarp(:)
+        real :: accum, rmatu(:), amaxv, amiss, aminv
+        real :: rar(:), rmat(:)
+
+        if (timon) call timstrt("assign_matrix", ithndl)
+
+        ! some initialisation
+        miniem = .false.
+        maxiem = .false.
+        ! loop end-value in integer array to determine ip
+        ioff1 = noitm + itmnr + idmnr + nodim
+        if (iorder == 1) then
+            ioff0 = noitm + itmnr + idmnr
+            locbas = nodim
+        endif
+        if (iorder == 2) then
+            ioff0 = nodim + idmnr + itmnr
+            locbas = noitm
+        endif
+        iloc = 0
+
+        ! counter in output matrix
+        itel = 0
+        accum = 0.0
+        itels = 0
+
+        ! implied loop counter for matrix, outer loop
+        ifrst = 0
+        if (iorder == 1 .and. noitm == 0) ifrst = -1
+        if (iorder == 2 .and. nodim == 0) ifrst = -1
+        ibrk = 1
+        ioff = 0
+
+        ! assignment loop
+        ! if harmonics then deal with the phase
+        10 if (iloc == 0 .and. (iopt==3.or.iopt==4) &
+                .and.  ifrst == 0) then
+            ioff = ioff + 1
+            accum = rmat(ioff)
+            itel = itel + 1
+            rmatu(itel) = 0
+        endif
+        iloc = iloc + 1
+        ip = iar(iloc + ioff0)
+        ip2 = iar(iloc + ioff1)
+        ! normal processing
+        if (ip > -900000) then
+            ! close pending arrithmatic in the previous itel
+            if (itel /= 0) then
+                if (rmatu(itel) /= amiss .and. accum /= amiss) then
+                    rmatu(itel) = rmatu(itel) + accum
+                else
+                    rmatu(itel) = amiss
+                endif
+                if (maxiem) then
+                    if (rmatu(itel) > amaxv .and. &
+                            rmatu(itel) /= amiss) then
+                        write (lunut, 1000) ibrk, iloco, ifrst + 1
+                        write (lunut, 1010) rmatu(itel), amaxv
+                        rmatu(itel) = amaxv
+                    endif
+                endif
+                if (miniem) then
+                    if (rmatu(itel) < aminv .and. &
+                            rmatu(itel) /= amiss) then
+                        write (lunut, 1000) ibrk, iloco, ifrst + 1
+                        write (lunut, 1020) rmatu(itel), aminv
+                        rmatu(itel) = aminv
+                    endif
+                endif
+                maxiem = .false.
+                miniem = .false.
+            endif
+            if (ip > 0) then
+                accum = rmat(ip2 + ioff)
+            else
+                accum = rar(-ip)
+            endif
+            itel = itel + 1
+            rmatu(itel) = 0
+            iloco = ip
+        endif
+        ! ignore value
+        if (ip <= -1300000000) then
+            ip = 0
+        endif
+        ! a maximum value need to be applied
+        if (ip <= -1190000000) then
+            ip = ip + 1200000000
+            if (rmatu(itel) /= amiss .and. accum /= amiss) then
+                rmatu(itel) = rmatu(itel) + accum
+            else
+                rmatu(itel) = amiss
+            endif
+            accum = 0.0
+            maxiem = .true.
+            if (ip == 0) then
+                amaxv = rmat(ip2 + ioff)
+            endif
+            if (ip < 0) amaxv = rar(-ip)
+            if (ip > 0) amaxv = rmatu(itels + ip)
+        endif
+        ! a minimum value need to be applied
+        if (ip <= -1090000000) then
+            ip = ip + 1100000000
+            if (rmatu(itel) /= amiss .and. accum /= amiss) then
+                rmatu(itel) = rmatu(itel) + accum
+            else
+                rmatu(itel) = amiss
+            endif
+            accum = 0.0
+            miniem = .true.
+            if (ip == 0) then
+                aminv = rmat(ip2 + ioff)
+            endif
+            if (ip < 0) aminv = rar(-ip)
+            if (ip > 0) aminv = rmatu(itels + ip)
+        endif
+
+        ! a minus sign need to be applied
+        if (ip <= -900000000) then
+            ip = ip + 1000000000
+            if (rmatu(itel) /= amiss .and. accum /= amiss) then
+                rmatu(itel) = rmatu(itel) + accum
+            else
+                rmatu(itel) = amiss
+            endif
+            if (ip == 0) then
+                accum = -rmat(ip2 + ioff)
+            endif
+            if (ip < 0) accum = -rar(-ip)
+            if (ip > 0) accum = -rmatu(itels + ip)
+            if (accum == -amiss) accum = amiss
+        endif
+
+        ! a plus sign need to be applied
+        if (ip <= -90000000) then
+            ip = ip + 100000000
+            if (rmatu(itel) /= amiss .and. accum /= amiss) then
+                rmatu(itel) = rmatu(itel) + accum
+            else
+                rmatu(itel) = amiss
+            endif
+            if (ip == 0) then
+                accum = rmat(ip2 + ioff)
+            endif
+            if (ip < 0) accum = rar(-ip)
+            if (ip > 0) accum = rmatu(itels + ip)
+        endif
+
+        ! a division need to be applied
+        if (ip <= -9000000) then
+            ip = ip + 10000000
+            if (ip == 0) then
+                if (rmat(ip2 + ioff) /= amiss .and. accum /= amiss) then
+                    accum = accum / rmat(ip2 + ioff)
+                else
+                    accum = amiss
+                endif
+            endif
+            if (ip < 0) then
+                if (rar(-ip) /= amiss .and. accum /= amiss) then
+                    accum = accum / rar(-ip)
+                else
+                    accum = amiss
+                endif
+            endif
+            if (ip > 0) then
+                if (rmat(itels + ip) /= amiss .and. accum /= amiss) then
+                    accum = accum / rmatu(itels + ip)
+                else
+                    accum = amiss
+                endif
+            endif
+        endif
+
+        ! a multiplication need to be applied
+        if (ip <= -900000) then
+            ip = ip + 1000000
+            if (ip == 0) then
+                if (rmat(ip2 + ioff) /= amiss .and. accum /= amiss) then
+                    accum = accum * rmat(ip2 + ioff)
+                else
+                    accum = amiss
+                endif
+            endif
+            if (ip < 0) then
+                if (rar(-ip) /= amiss .and. accum /= amiss) then
+                    accum = accum * rar(-ip)
+                else
+                    accum = amiss
+                endif
+            endif
+            if (ip > 0) then
+                if (rmat(itels + ip) /= amiss .and. accum /= amiss) then
+                    accum = accum * rmatu(itels + ip)
+                else
+                    accum = amiss
+                endif
+            endif
+        endif
+        if (iloc == locbas) then
+            if (rmatu(itel) /= amiss .and. accum /= amiss) then
+                rmatu(itel) = rmatu(itel) + accum
+            else
+                rmatu(itel) = amiss
+            endif
+            if (maxiem) then
+                if (rmatu(itel) > amaxv .and. &
+                        rmatu(itel) /= amiss) then
+                    write (lunut, 1000) ibrk, iloco, ifrst + 1
+                    write (lunut, 1010) rmatu(itel), amaxv
+                    rmatu(itel) = amaxv
+                endif
+            endif
+            if (miniem) then
+                if (rmatu(itel) < aminv .and. &
+                        rmatu(itel) /= amiss) then
+                    write (lunut, 1000) ibrk, iloco, ifrst + 1
+                    write (lunut, 1020) rmatu(itel), aminv
+                    rmatu(itel) = aminv
+                endif
+            endif
+            maxiem = .false.
+            miniem = .false.
+            accum = 0.0
+            ifrst = ifrst + 1
+            itels = itel
+            iloc = 0
+            ioff = ioff + nocol
+        endif
+
+        ! are we to expect a new record ?
+        if ((iorder == 1 .and. ifrst==noitm) .or. &
+                (iorder == 2 .and. ifrst==nodim))then
+            ifrst = 0
+            if (iorder == 1 .and. noitm == 0) ifrst = -1
+            if (iorder == 2 .and. nodim == 0) ifrst = -1
+            ibrk = ibrk + 1
+        endif
+        if (ibrk <= nobrk) goto 10
+
+        ! compact the pointers
+        ioff1 = ioff1 + locbas
+        if (iorder == 1) then
+            ioff0 = itmnr
+            ioff2 = noitm + itmnr
+            do i = 1, idmnr
+                iar(ioff0 + i) = iar(ioff2 + i) ! it's here where the value -1300000000 gets in
+            end do
+            do i = 1, nobrk
+                iar(ioff0 + idmnr + i) = iar(ioff1 + i)
+            end do
+        endif
+        if (iorder == 2) then ! concentration first
+            ioff0 = idmnr
+            ioff2 = nodim + idmnr
+            do i = 1, itmnr
+                iar(ioff0 + i) = iar(ioff2 + i) ! it's here where the value -1300000000 gets in
+            end do
+            do i = 1, nobrk
+                iar(ioff0 + itmnr + i) = iar(ioff1 + i)
+            end do
+        endif
+        if (timon) call timstop(ithndl)
+        return
+
+        1000 FORMAT (' INFO: Processing breakpoint', I6, ' for substance', I3, &
+                ' at station', I5)
+        1010 FORMAT (' the value of ', E15.6, ' is overwritten by the maximum ', &
+                ' of ', E15.6, ' !')
+        1020 FORMAT (' the value of ', E15.6, ' is overwritten by the minimum ', &
+                ' of ', E15.6, ' !')
+
+    end subroutine assign_matrix
 
     subroutine dmatrix (ntot, nvals, nvarar, nvarnw, nobrk1, &
             nobrk2, ibrk, ibrknw, tab, tabnw, &
