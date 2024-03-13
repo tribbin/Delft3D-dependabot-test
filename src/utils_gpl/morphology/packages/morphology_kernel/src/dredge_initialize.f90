@@ -40,7 +40,8 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
     use m_alloc
     use message_module, only: write_error
     use dredge_data_module
-    !
+    use m_dad, only: dredge_dimension_length
+        
     implicit none
 !
 ! Global variables
@@ -133,7 +134,7 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
        !
        ! For each dredge area count the global number of points
        !
-       do ia = 1, nadred+nasupl
+       do ia = 1, dredge_dimension_length
           pdredge => dredge_prop(ia)
           if (dredge_prop(ia)%itype == DREDGETYPE_NOURISHMENT) cycle
           !
@@ -355,7 +356,7 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
        ! Only one domain, so no exchange needed for any dredge or dump area
        !
        dredge_domainnr = 1
-       do ia = 1, nadred+nasupl
+       do ia = 1, dredge_dimension_length
           dredge_prop(ia)%in1domain = .true.
        enddo
        do ib = 1, nadump

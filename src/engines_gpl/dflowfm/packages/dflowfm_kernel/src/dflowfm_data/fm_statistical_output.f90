@@ -74,21 +74,20 @@ private
    end subroutine assign_sediment_transport
    
    !> Wrapper function that will allocate and fill the dredge time arrays
-   subroutine calculate_dred_time_fraction(source_input)
+   subroutine calculate_dredge_time_fraction(source_input)
    use m_dad
    use m_flowtimes, only: time1
    double precision, pointer, dimension(:), intent(inout) :: source_input !< Pointer to source input array for the "SSWX" item, to be assigned once on first call.
-   integer :: ntot
+   integer :: num_dredges
    double precision :: cof0
    
-   ntot = dadpar%nadred+dadpar%nasupl
-   call allocate_and_associate(source_input,ntot,time_dredged,time_ploughed)
+   call allocate_and_associate(source_input,dredge_dimension_length,time_dredged,time_ploughed)
    
    cof0 = 1d0 ; if( time1 > 0d0 ) cof0 = time1
    time_dredged = dadpar%tim_dredged/cof0
    time_ploughed = dadpar%tim_ploughed/cof0
    
-   end subroutine calculate_dred_time_fraction
+   end subroutine calculate_dredge_time_fraction
    
    !> Wrapper function that will allocate and fill the sediment transport arrays
    subroutine calculate_sediment_SSW(source_input)
@@ -1340,7 +1339,7 @@ private
       
          !if(dad_included) then  ! Output for dredging and dumping
         !    ierr = nf90_def_dim(ihisfile, 'ndredlink', dadpar%nalink, id_dredlinkdim)
-        !    ierr = nf90_def_dim(ihisfile, 'ndred', dadpar%nadred+dadpar%nasupl, id_dreddim)
+        !    ierr = nf90_def_dim(ihisfile, 'ndred', dredge_dimension_length, id_dreddim)
         !    ierr = nf90_def_dim(ihisfile, 'ndump', dadpar%nadump, id_dumpdim)
         !
         !    ierr = nf90_def_var(ihisfile, 'dredge_area_name',         nf90_char,   (/ id_strlendim, id_dreddim /), id_dred_name)
@@ -2444,13 +2443,13 @@ private
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DRED_LINK_DISCHARGE),   temp_pointer               )
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DRED_DISCHARGE),        dadpar%totvoldred               )
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DUMP_DISCHARGE),        dadpar%totvoldump               )
-         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DRED_TIME_FRAC),     null(), calculate_dred_time_fraction)
+         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DRED_TIME_FRAC),     null(), calculate_dredge_time_fraction)
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_PLOUGH_TIME_FRAC),  time_ploughed)
          !
          !
          !cof0 = 1d0 ; if( time_his > 0d0 ) cof0 = time_his
-         !ierr = nf90_put_var(ihisfile, id_dred_tfrac  , dadpar%tim_dredged/cof0  , start = (/ 1, it_his /), count = (/ dadpar%nadred+dadpar%nasupl, 1 /))
-         !ierr = nf90_put_var(ihisfile, id_plough_tfrac, dadpar%tim_ploughed/cof0 , start = (/ 1, it_his /), count = (/ dadpar%nadred+dadpar%nasupl, 1 /))
+         !ierr = nf90_put_var(ihisfile, id_dred_tfrac  , dadpar%tim_dredged/cof0  , start = (/ 1, it_his /), count = (/ dredge_dimension_length, 1 /))
+         !ierr = nf90_put_var(ihisfile, id_plough_tfrac, dadpar%tim_ploughed/cof0 , start = (/ 1, it_his /), count = (/ dredge_dimension_length, 1 /))
       endif
       ! TODO: UNST-7239: runup gauges
 
