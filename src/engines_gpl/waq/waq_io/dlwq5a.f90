@@ -23,7 +23,7 @@
 module m_dlwq5a
     use m_waq_precision
     use m_string_utils
-    use m_read_time_delay
+    use waq_timers, only : read_time_delay
     use m_dlwqj3
     use m_dlwq5g
     use m_dlwq5e

@@ -66,7 +66,7 @@ contains
         use m_sysi          ! Timer characteristics
         use date_time_utils, only : convert_string_to_time_offset, simulation_start_time_scu, simulation_stop_time_scu, &
                 convert_relative_time
-        use m_waq_timer
+        use waq_timers, only : timer
         use m_rearaa
         use m_readmp
         use m_dlwq0i
