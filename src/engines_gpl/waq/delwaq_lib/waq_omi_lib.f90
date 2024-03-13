@@ -33,8 +33,7 @@
 module waq_omi_utils
     use m_waq_precision
     use monitoring_areas, only : create_write_monitoring_area_array
-    use m_dlwq0i
-    !    use matrix_utils
+    use integration_options, only: check_integration_option
     use inputs_block_9
     use m_delwaq2_main
     use m_dlwqp1
@@ -86,9 +85,9 @@ contains
 
         lunut = 10
         if (option) then
-            call dlwq0i(keyword_true, intopt, lunut, ierr2)
+            call check_integration_option(keyword_true, intopt, lunut, ierr2)
         else
-            call dlwq0i(keyword_false, intopt, lunut, ierr2)
+            call check_integration_option(keyword_false, intopt, lunut, ierr2)
         end if
     end subroutine set_intopt
 

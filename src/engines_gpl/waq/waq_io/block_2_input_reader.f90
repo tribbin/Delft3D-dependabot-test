@@ -68,12 +68,8 @@ contains
                 simulation_stop_time_scu, convert_relative_time
         use waq_timers, only : timer
         use monitoring_areas, only : read_monitoring_transects, read_monitoring_areas
-        use m_dlwq0i
+        use integration_options, only : check_integration_option
         use m_time_validation
-
-        !     parameters
-
-        !     kind           function         name                Descriptipon
 
         character(*), intent(inout), dimension(*) :: lchar !< array with file names of the files
 
@@ -249,7 +245,7 @@ contains
         nototp = 0
         if (gettoken(cdummy, idummy, itype, ierr2) > 0) goto 30
         do while (itype == 1)                                      ! read a collection of tokens
-            call dlwq0i (cdummy, intopt, lunut, ierr2)
+            call check_integration_option (cdummy, intopt, lunut, ierr2)
             if (btest(intopt, 17) .and. alone) then
                 alone = .false.
 
