@@ -23,7 +23,7 @@
 module inputs_block_3
     use m_waq_precision
     use m_read_hydfile
-    use m_opt1
+    use simulation_input_options
     use m_opt0
     use grid_utils, only : read_multiple_grids
 
@@ -52,7 +52,7 @@ contains
 
         ! Subroutines called: grid    read grid structures
         !                     read_constants_time_variables    read constant/time-variable block
-        !                     opt1    get & open ( include ) file
+        !                     process_simulation_input_options    get & open ( include ) file
         !                     open_waq_files  open file
         !                     evaluate_waq_attribute  get an attribute from an attribute integer
         !                     srstop  stop with error code
@@ -295,7 +295,7 @@ contains
                 ny = 0
             case default
                 ! call with record length 0 => IMOPT1 of -4 not allowed
-                call opt1 (imopt1, lun, 6, lchar, filtype, &
+                call process_simulation_input_options (imopt1, lun, 6, lchar, filtype, &
                         dtflg1, dtflg3, 0, local_status%ierr, local_status, &
                         .false.)
                 if (local_status%ierr > 0) goto 240
@@ -365,7 +365,7 @@ contains
 
             if (gettoken(ikopt1, local_status%ierr) > 0) goto 240      !   the file option for this info
             write (lunut, 2130) ikopt1
-            call opt1 (ikopt1, lun, 40, lchar, filtype, &
+            call process_simulation_input_options (ikopt1, lun, 40, lchar, filtype, &
                     dtflg1, dtflg3, 0, local_status%ierr, local_status, &
                     .false.)
             if (local_status%ierr  > 0) goto 240
@@ -498,7 +498,7 @@ contains
             ifiopk = 0
             if (gettoken(ikopt1, local_status%ierr) > 0) goto 240
             write (lunut, 2130) ikopt1
-            call opt1 (ikopt1, lun, 40, lchar, filtype, &
+            call process_simulation_input_options (ikopt1, lun, 40, lchar, filtype, &
                     dtflg1, dtflg3, 0, local_status%ierr, local_status, &
                     .false.)
             if (local_status%ierr > 0) goto 240

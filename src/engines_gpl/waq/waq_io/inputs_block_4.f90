@@ -26,7 +26,7 @@ module inputs_block_4
     use m_scale
     use m_pointi
     use m_opt2
-    use m_opt1
+    use simulation_input_options
     use m_opt0
     use m_dmpare
     use m_dlwq0f
@@ -61,7 +61,7 @@ contains
         !>               - information on the time series of from- and to lengthes
 
 
-        ! Subroutines called : BOUND, read_constants_time_variables, OPT1, read_constant_data, SCALE, CHECK, open_waq_files, RDTOK1 tokenized data reading
+        ! Subroutines called : BOUND, read_constants_time_variables, process_simulation_input_options, read_constant_data, SCALE, CHECK, open_waq_files, RDTOK1 tokenized data reading
 
         !   Logical units      : LUN(27) = unit stripped DELWAQ input file
         !                        LUN(29) = unit formatted output file
@@ -354,7 +354,7 @@ contains
             write (lunut, 2180)  iopt1
 
             if (regular) then  !        Regular grid
-                call opt1 (iopt1, lun, 8, lchar, filtype, &
+                call process_simulation_input_options (iopt1, lun, 8, lchar, filtype, &
                         dtflg1, dtflg3, 0, ierr2, status, &
                         .false.)
                 if (ierr2  > 0) goto 100
@@ -367,7 +367,7 @@ contains
             endif
         endif
         if (has_hydfile .or. .not. (regular)) then  ! Irregular grid/hyd-file
-            call opt1 (iopt1, lun, 44, lchar, filtype, &
+            call process_simulation_input_options (iopt1, lun, 44, lchar, filtype, &
                     dtflg1, dtflg3, 0, ierr2, status, &
                     has_hydfile)
             if (ierr2  > 0) goto 100
@@ -527,7 +527,7 @@ contains
         endif
         idum = 0
 
-        call opt1 (iopt1, lun, idum, lchar, filtype, &
+        call process_simulation_input_options (iopt1, lun, idum, lchar, filtype, &
                 dtflg1, dtflg3, 0, ierr2, status, &
                 .false.)
         if (ierr2  > 0) goto 100

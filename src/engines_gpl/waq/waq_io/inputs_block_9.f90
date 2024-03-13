@@ -24,7 +24,7 @@ module inputs_block_9
     use m_waq_precision
     use m_rdodef
     use m_outboo
-    use m_opt1
+    use simulation_input_options
     use m_getopo
     use m_error_status
 
@@ -146,7 +146,7 @@ contains
         !     Handle file option
 
         ierr2 = gettoken(lchloc, iopt1, itype, ierr2)          !  < -1 not
-        if (itype == 2) then                                 !    -1 external placed on the stack by opt1
+        if (itype == 2) then                                 !    -1 external placed on the stack by process_simulation_input_options
             write (lunut, 2000) iopt1                          !     0 not
             infile = .true.                                       !     1 this file, no action
         else       !        "old" file no block 9                !     2 added here for "no file"
@@ -162,7 +162,7 @@ contains
             infile = .false.
             write (lunut, 2020)
         else                             !        Handle option -1 and 1
-            call opt1   (iopt1, lun, 18, lchar, filtype, &
+            call process_simulation_input_options   (iopt1, lun, 18, lchar, filtype, &
                     ldummy, ldummy, 0, ierr2, status, &
                     .false.)
             if (ierr2 > 0) goto 100

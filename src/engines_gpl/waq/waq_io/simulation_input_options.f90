@@ -20,7 +20,7 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_opt1
+module simulation_input_options
     use m_waq_precision
     use m_string_utils
     use m_error_status
@@ -29,7 +29,7 @@ module m_opt1
 
 contains
 
-    subroutine opt1(iopt1, lun, is, lchar, filtype, &
+    subroutine process_simulation_input_options(iopt1, lun, is, lchar, filtype, &
             dtflg1, dtflg3, nitem, ierr, status, &
             dont_read)
 
@@ -75,7 +75,7 @@ contains
         integer(kind = int_wp) :: k         ! implicit loop counter
         real(kind = real_wp) :: adummy    ! dummy to read data from file
         integer(kind = int_wp) :: ithndl = 0
-        if (timon) call timstrt("opt1", ithndl)
+        if (timon) call timstrt("process_simulation_input_options", ithndl)
 
         !           See what type of file it is
         !           -4 the file is steering file for a series of binary files
@@ -316,7 +316,7 @@ contains
                 ' Allowed difference with T0 is usually ca. 68 years.')
         2150 format (/' ERROR: Not a valid token at this position: ', A)
 
-    end subroutine opt1
+    end subroutine process_simulation_input_options
 
     subroutine validate_simulation_time_steps(lunut, sget, afile, bfile, istep, &
             it2, it3, it4, numbr, ierr)
@@ -433,4 +433,4 @@ contains
 
     end subroutine validate_simulation_time_steps
 
-end module m_opt1
+end module simulation_input_options

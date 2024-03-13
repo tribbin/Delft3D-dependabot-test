@@ -23,7 +23,7 @@
 module inputs_block_6
     use m_waq_precision
     use m_string_utils
-    use m_opt1
+    use simulation_input_options
     use m_opt0
     use m_dlwq5a
     use m_error_status
@@ -129,7 +129,7 @@ contains
         if (gettoken(nowst, ierr2) > 0) goto 20
         if (nowst < 0) then       !   it says that info comes from auxiliary file
             write (lunut, 2000) nowst
-            call opt1   (-1, lun, 15, lchar, filtype, &
+            call process_simulation_input_options   (-1, lun, 15, lchar, filtype, &
                     dtflg1, dtflg3, 0, ierr2, status, &
                     .false.)
             if (ierr2 > 0) goto 20

@@ -48,7 +48,7 @@
 
       use m_read_data
       use m_print_matrix
-      use m_opt1
+      use simulation_input_options
       use m_compute_matrix
       use m_cli_utils, only : retrieve_command_argument
       use dlwqgrid_mod          ! for the storage of contraction grids
@@ -271,7 +271,7 @@
 
             ! handle file option, should we resolve the use of 17? = work file segment-functions
 
-            call opt1( -4    , lun    , 17    , lchar  , filtype, & 
+            call process_simulation_input_options( -4    , lun    , 17    , lchar  , filtype, &
                       dtflg1, dtflg3 , noseg , ierr2  , status   , & 
                       .false.)
             if ( ierr2 /= 0 ) exit

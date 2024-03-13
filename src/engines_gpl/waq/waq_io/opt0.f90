@@ -61,7 +61,7 @@ contains
         !!                  lun( 4) = unit intermediate file (pointers)
         !!                  lun(is) = unit intermediate file (items)
 
-        use m_opt1
+        use simulation_input_options
         use m_open_waq_files
         use timers       !   performance timers
         use rd_token
@@ -133,7 +133,7 @@ contains
         ierr = 0
         if (skip) goto 10
 
-        !        Read first option, write zero dispersion if OPT1=0
+        !        Read first option, write zero dispersion if process_simulation_input_options=0
 
         if (dont_read) then
             iopt1 = -2
@@ -162,7 +162,7 @@ contains
         endif
 
         write (lunut, 2000) iopt1
-        call opt1   (iopt1, lun, is, lchar, filtype, &
+        call process_simulation_input_options   (iopt1, lun, is, lchar, filtype, &
                 dtflg1, dtflg3, ndtot, ierr2, status, &
                 dont_read)
         if (ierr2 > 0) goto 50

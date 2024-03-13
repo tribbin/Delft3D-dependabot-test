@@ -24,7 +24,7 @@ module inputs_block_8
     use m_waq_precision
     use m_read_initials
     use m_opt2
-    use m_opt1
+    use simulation_input_options
     use m_error_status
 
     implicit none
@@ -55,7 +55,7 @@ contains
         !!       - The simulation system only produces mass/m2 .map files for restart
         !!          purposes any more.
 
-        !!  Subroutines called : opt1    ( which file is it ? )
+        !!  Subroutines called : process_simulation_input_options    ( which file is it ? )
         !!                       read_constant_data    ( read the data from an ASCII file )
         !!                       rdtok1  ( tokenized data reading )
         !!                       open_waq_files  ( to open the binary intermediate file )
@@ -162,7 +162,7 @@ contains
 
         !        Get the input file name
 
-        call opt1   (icopt1, lun, 18, lchar, filtype, &
+        call process_simulation_input_options   (icopt1, lun, 18, lchar, filtype, &
                 ldummy, ldummy, 0, ierr2, status, &
                 .false.)
         if (ierr2  > 0) goto 10

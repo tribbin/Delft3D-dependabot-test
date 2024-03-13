@@ -57,16 +57,16 @@ contains
         !     Created           : September 1995  by Jan van Beek
 
         !     Modified          : April     1997 by R. Bruinsma: Tokenized data file reading added
-        !                         July      2002 by Leo Postma : Call to Opt1 changed.
+        !                         July      2002 by Leo Postma : Call to process_simulation_input_options changed.
         !                         May       2011 by Leo Postma : Fortran-90 look and feel
 
-        !     Subroutine called : OPT1   -
+        !     Subroutine called : process_simulation_input_options   -
         !                         ZOEK   - to searchs strings
 
         !     Logical units     : LUN(27) = unitnumber stripped DELWAQ input file
         !                         LUN(29) = unitnumber formatted output file
 
-        use m_opt1
+        use simulation_input_options
         use rd_token     !   for the reading of tokens
         use timers       !   performance timers
         use date_time_utils, only : convert_string_to_time_offset
@@ -117,7 +117,7 @@ contains
             goto 20
         case (-1)                     ! old style <other ASCII file>
             write (lunut, 2000)  iropt1
-            call opt1   (iropt1, lun, 0, lchar, filtype, &
+            call process_simulation_input_options   (iropt1, lun, 0, lchar, filtype, &
                     ldummy, ldummy, 0, ierr2, status, &
                     .false.)
             if (ierr2 > 0) goto 20
