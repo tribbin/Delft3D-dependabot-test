@@ -20,7 +20,7 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_read_initials
+module initial_conditions
     use m_waq_precision
     use m_error_status
 
@@ -29,15 +29,11 @@ module m_read_initials
 contains
 
 
-    subroutine read_initials (lun, lchar, filtype, inpfil, notot, &
+    subroutine read_initial_conditions(lun, lchar, filtype, inpfil, notot, &
             syname, iwidth, ioutpt, gridps, noseg, &
             conc, ierr, status)
 
-        !     Deltares Software Centre
-
-        !     function : read block 8 of input, initial condtions keyword type of input
-
-        !     global declarations
+        !! read block 8 of input, initial condtions keyword type of input
 
         use m_read_block
         use m_check
@@ -46,10 +42,6 @@ contains
         use dlwq_hyd_data  ! for definition and storage of data
         use rd_token
         use timers       !   performance timers
-
-        implicit none
-
-        !     declaration of arguments
 
         integer(kind = int_wp), intent(inout) :: lun(*)        ! unit numbers used
         character(len = *), intent(inout) :: lchar(*)     ! filenames
@@ -87,7 +79,7 @@ contains
         integer(kind = int_wp) :: idummy                ! dummy
         real(kind = real_wp) :: rdummy                ! dummy
         integer(kind = int_wp) :: ithndl = 0
-        if (timon) call timstrt("read_initials", ithndl)
+        if (timon) call timstrt("read_initial_conditions", ithndl)
 
 
         ! read initial conditions
@@ -119,7 +111,6 @@ contains
             if (ctoken == 'INITIALS') then
 
                 ! new file strucure
-
                 push = .true.
                 call read_block (lun, lchar, filtype, inpfil, ioutpt, &
                         iwidth, substances, constants, parameters, functions, &
@@ -134,9 +125,7 @@ contains
                 idata = dlwqdatacolladd(initials, dlwqdata)
 
             else
-
                 ! unrecognised keyword
-
                 if (ctoken(1:1) /= '#') then
                     write (lunut, 2050) trim(ctoken)
                     ierr = ierr + 1
@@ -145,15 +134,13 @@ contains
                     ierr2 = 2
                     exit
                 endif
-
             endif
 
             ! jvb? first_token = .false.
 
         enddo
 
-        !     do not write but evaluate and pass back
-
+        ! do not write but evaluate and pass back
         conc = 0.0
         itime = 0
 
@@ -180,10 +167,8 @@ contains
         if (timon) call timstop(ithndl)
         return
 
-        ! output formats
-
         2050 format (/' ERROR, unrecognized token: ', A)
         2060 format (/' ERROR: evaluating initial conditions')
-    end
+    end subroutine read_initial_conditions
 
-end module m_read_initials
+end module initial_conditions
