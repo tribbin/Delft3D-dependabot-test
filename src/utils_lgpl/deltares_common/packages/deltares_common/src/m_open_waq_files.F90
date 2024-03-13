@@ -272,7 +272,7 @@ module m_open_waq_files
         logical, intent(in), optional :: replace !< use replace status for opmode 1
 
         logical :: old_supported = .true.
-        integer :: stat
+        integer :: stat = 0
 
         if (present(support_old_status)) then
             old_supported = support_old_status
@@ -281,7 +281,7 @@ module m_open_waq_files
         select case ( opmode )
             case ( 1,2 )
                 call open_unformatted_stream(lun, finam, opmode, ierr, nropen)
-                stat = ierr
+                return
             case ( 11, 12 )
                 if (old_supported .and. opmode == 12) then
                     open ( lun, file = finam, iostat=stat, form='unformatted' , status = 'old' )
@@ -319,7 +319,7 @@ module m_open_waq_files
         logical, intent(in), optional :: replace !< use replace status for opmode 1
 
         logical :: replace_
-        integer :: stat
+        integer :: stat = 0
 
         replace_ = .false.
         if ( present(replace) ) then
