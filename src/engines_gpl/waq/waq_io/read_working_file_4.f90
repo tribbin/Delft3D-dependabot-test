@@ -20,7 +20,7 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_rdwrk4
+module m_read_working_file_4
     use m_waq_precision
     use m_srstop
 
@@ -29,7 +29,7 @@ module m_rdwrk4
 contains
 
 
-    subroutine rdwrk4 (iin, lurep, modid, sysid, notot, &
+    subroutine read_working_file_4 (iin, lurep, modid, sysid, notot, &
             nodump, nosys, nobnd, nowst, nocons, &
             nopa, noseg, nseg2, coname, paname, &
             funame, nofun, sfname, nosfun, nodisp, &
@@ -37,32 +37,21 @@ contains
             ndmpar, ntdmpq, ntdmps, noqtt, noraai, &
             ntraaq, nobtyp, nowtyp, nogrid, grdref, &
             sysgrd, sysndt)
-        !>\file
-        !>                          Reads part of the DelwaQ system file
-        !>
-        !>                          This routine re-reads the DelwaQ system file.\n
-        !>                          It is called by dlwqp1, to get the names of the
-        !>                          substances, constants, parameters, functions and
-        !>                          segment functions.\n
-        !>                          This information is used by dlwqp1 to set up the
-        !>                          administratration around processes and to sort the
-        !>                          processes in appropriate order.
-
-        !     Deltares Software Centre
-
-        !     LOGICAL UNITNUMBERS : IIN     - system intermediate file
-        !                           LUREP   - monitoring output file
-
-        !     SUBROUTINES CALLED  : SRSTOP, stops execution
+        !!  Reads part of the DelwaQ system file
+        !!
+        !!                          This routine re-reads the DelwaQ system file.\n
+        !!                          It is called by dlwqp1, to get the names of the
+        !!                          substances, constants, parameters, functions and
+        !!                          segment functions.\n
+        !!                          This information is used by dlwqp1 to set up the
+        !!                          administratration around processes and to sort the
+        !!                          processes in appropriate order.
+        !!     LOGICAL UNITNUMBERS : IIN     - system intermediate file
+        !!                           LUREP   - monitoring output file
+        !!     SUBROUTINES CALLED  : SRSTOP, stops execution
 
         use dlwqgrid_mod
         use timers       !   performance timers
-
-        implicit none
-
-        !     Parameters         :
-
-        !     kind           function         name                Descriptipon
 
         integer(kind = int_wp), intent(in) :: iin                !< system intermediate file
         integer(kind = int_wp), intent(in) :: lurep              !< unit number report file
@@ -102,8 +91,6 @@ contains
         integer(kind = int_wp), intent(out) :: sysgrd(notot)     !< Grid number substance
         integer(kind = int_wp), intent(out) :: sysndt(notot)     !< Step size substance
 
-        !     Local
-
         integer(kind = int_wp) :: idummy         !  dummy integer
         real(kind = real_wp) :: rdummy         !  dummy real
         character(20) c20dum        !  dummy 20 byte character
@@ -116,32 +103,29 @@ contains
         integer(kind = int_wp) :: ierror         !  error return variable
         type(GridPointer) :: aGrid  !  a single grid
         integer(kind = int_wp) :: ithndl = 0
-        if (timon) call timstrt("rdwrk4", ithndl)
+        if (timon) call timstrt("read_working_file_4", ithndl)
 
-        !         read from the system file
-
+        ! read from the system file
         nosss = noseg + nseg2
 
-        !       => group 1
+        ! => group 1
 
         read (iin, end = 20, err = 20)   modid(1), modid(2), modid(3), modid(4)
         read (iin, end = 20, err = 20) (sysid(k), k = 1, notot)
         if (nodump > 0) read (iin, end = 20, err = 20) (idummy, c20dum, k = 1, nodump)
 
-        !       => group 2
-
+        ! => group 2
         if (ndmpar > 0) read (iin, end = 20, err = 20) (c20dum, k = 1, ndmpar)
         if (ndmpar > 0) read (iin, end = 20, err = 20) (idummy, k = 1, ndmpar)
         if (noraai > 0) read (iin, end = 20, err = 20) (c20dum, k = 1, noraai)
 
-        !       => group 3
-
-        !     sub-grid
+        ! => group 3
+        ! sub-grid
         do igrid = 1, nogrid
             read (iin, end = 20, err = 20)  idummy, grdref(igrid), (idummy, iseg = 1, nosss)
         enddo
 
-        !     dummy, the grid structures immediately deallocate the pointers
+        ! dummy, the grid structures immediately deallocate the pointers
         do igrid = 1, nogrid
             ierror = GridRead(iin, aGrid, nosss)
             if (ierror /= 0) goto 20
@@ -151,8 +135,7 @@ contains
         read (iin, end = 20, err = 20) (sysgrd(isys), isys = 1, notot)
         read (iin, end = 20, err = 20) (sysndt(isys), isys = 1, notot)
 
-        !       => group attributes
-
+        ! => group attributes
         read (iin, end = 20, err = 20) (idummy, k = 1, nosss)
         if (nodisp > 0) read (iin, end = 20, err = 20) (diname(k), k = 1, nodisp)
         if (novelo > 0) read (iin, end = 20, err = 20) (vename(k), k = 1, novelo)
@@ -177,26 +160,26 @@ contains
         read (iin, end = 20, err = 20) idummy, (rdummy, k = 1, 3)
 
         if (nobnd  > 0) then
-            !          id's and names  (=new! (ver 4.900))
+            ! id's and names  (=new! (ver 4.900))
             do i = 1, nobnd
                 read (iin, end = 20, err = 20) c20dum, c40dum
             enddo
-            !          type-strings  (=new! (ver 4.900))
+            ! type-strings  (=new! (ver 4.900))
             read (iin, end = 20, err = 20) (c20dum, k = 1, nobtyp)
-            !          type-integers per boundary (=new! (ver 4.900))
+            ! type-integers per boundary (=new! (ver 4.900))
             read (iin, end = 20, err = 20) (idummy, k = 1, nobnd)
-            !          read time lags
+            ! read time lags
             read (iin, end = 20, err = 20) (idummy, k = 1, nobnd)
         endif
 
         if (nowst  > 0) then
-            !          segnums, id's and names  (=new! (ver 4.900))
+            ! segnums, id's and names  (=new! (ver 4.900))
             do i = 1, nowst
                 read (iin, end = 20, err = 20) idummy, idummy, c20dum, c40dum
             enddo
-            !          type-strings  (=new! (ver 4.900))
+            ! type-strings  (=new! (ver 4.900))
             read (iin, end = 20, err = 20) (c20dum, k = 1, nowtyp)
-            !          type-integers per wasteload (=new! (ver 4.900))
+            ! type-integers per wasteload (=new! (ver 4.900))
             read (iin, end = 20, err = 20) (idummy, k = 1, nowst)
         endif
 
@@ -205,21 +188,19 @@ contains
         if (nofun  > 0) read (iin, end = 20, err = 20) (funame(k), k = 1, nofun)
         if (nosfun > 0) read (iin, end = 20, err = 20) (sfname(k), k = 1, nosfun)
 
-        !         completion successful
-
+        ! completion successful
         if (timon) call timstop(ithndl)
         return
 
-        !         unsuccessful read
-
+        ! unsuccessful read
         20 write (lurep, 2010)
         call srstop(1)
 
-        !         output formats
-
+        ! output formats
         2010 format ('1  ERROR reading binary system file !!'/ &
                 '   initialisation NOT successful    !!'/ &
                 '   simulation impossible            !!')
 
-    end
-end module m_rdwrk4
+    end subroutine read_working_file_4
+
+end module m_read_working_file_4
