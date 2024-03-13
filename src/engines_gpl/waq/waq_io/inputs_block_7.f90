@@ -20,26 +20,23 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_dlwq07
+module inputs_block_7
     use m_waq_precision
     use m_read_block
     use m_error_status
 
     implicit none
 
+    private
+    public :: read_block_7_process_parameters
+
 contains
 
-
-    subroutine dlwq07 (lun, lchar, filtype, inpfil, syname, &
+    subroutine read_block_7_process_parameters (lun, lchar, filtype, inpfil, syname, &
             iwidth, ioutpt, gridps, constants, chkpar, &
             status)
 
-        !     Deltares Software Centre
-
-        !>\File
-        !>               Reads block 7 of input, process parameters
-
-        !     Global declarations
+        !! Reads block 7 of input, process parameters
 
         use m_check
         use m_srstop
@@ -50,15 +47,8 @@ contains
         use partmem, only : alone, lsettl, layt        ! for the interface with Delpar (Tau and VertDisp)
         use timers       !   performance timers
         use m_sysn
-        implicit none
-
-        !     implicit none
 
         include 'omp_lib.h'
-
-        !     declaration of arguments
-
-        !     kind                    function         name           Descriptipon
 
         integer(kind = int_wp), intent(inout) :: lun(*)        !< unit numbers used
         character(len = *), intent(inout) :: lchar(*)     !< filenames
@@ -98,7 +88,7 @@ contains
         logical :: vdfpart              ! is vertical diffusion present
         integer(kind = int_wp) :: special               ! index of special parameters
         integer(kind = int_wp) :: ithndl = 0
-        if (timon) call timstrt("dlwq07", ithndl)
+        if (timon) call timstrt("read_block_7_process_parameters", ithndl)
 
         !        Read initial conditions
 
@@ -305,4 +295,4 @@ contains
         !
     END
 
-end module m_dlwq07
+end module inputs_block_7

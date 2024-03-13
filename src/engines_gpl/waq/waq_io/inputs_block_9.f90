@@ -20,7 +20,7 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_dlwq09
+module inputs_block_9
     use m_waq_precision
     use m_rdodef
     use m_outboo
@@ -30,13 +30,14 @@ module m_dlwq09
 
     implicit none
 
+    private
+    public :: read_block_9
+
 contains
 
-
-    subroutine dlwq09 (lun, lchar, filtype, car, iar, &
+    subroutine read_block_9 (lun, lchar, filtype, car, iar, &
             icmax, iimax, iwidth, &
             ioutpt, ioutps, outputs, status)
-        !> Defines variables for output per available output file
 
         use m_defout
         use m_check
@@ -47,10 +48,6 @@ contains
         use timers       !   performance timers
         use m_sysn          ! System characteristics
         use m_sysi          ! Timer characteristics
-
-        implicit none
-
-        !     kind           function         name                Description
 
         integer(kind = int_wp), intent(inout) :: lun   (*)          !< array with unit numbers
         character(*), intent(inout) :: lchar (*)         !< array with file names of the files
@@ -65,8 +62,6 @@ contains
         type(OutputPointers)                Outputs           !< output collection
 
         type(error_status), intent(inout) :: status !< current error status
-
-        !     Local
 
         integer(kind = int_wp) :: nrvar (noutp)  ! Number of extra output vars
         integer(kind = int_wp) :: iostrt(noutp)  ! Output start time (scu)
@@ -98,7 +93,7 @@ contains
         LOGICAL       LDUMMY
         character*255 lchloc            ! Local character variable for file name
         integer(kind = int_wp) :: ithndl = 0
-        if (timon) call timstrt("dlwq09", ithndl)
+        if (timon) call timstrt("read_block_9", ithndl)
 
         ! Some init
         ibflag = (mod(intopt, 16) > 7)
@@ -276,6 +271,6 @@ contains
         2060 format (/1X, 59('*'), ' B L O C K -', I2, ' ', 5('*')/)
         2070 format (/1X, 109('*'), ' B L O C K -', I2, ' ', 5('*')/)
 
-    end
+    end subroutine read_block_9
 
-end module m_dlwq09
+end module inputs_block_9

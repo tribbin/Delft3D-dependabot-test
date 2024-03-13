@@ -20,7 +20,7 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_dlwq03
+module inputs_block_3
     use m_waq_precision
     use m_read_hydfile
     use m_opt1
@@ -29,40 +29,40 @@ module m_dlwq03
 
     implicit none
 
+    private
+    public :: read_block_3_grid_lauout
+
 contains
 
 
-    subroutine dlwq03 (lun, lchar, filtype, nrftot, nrharm, &
+    subroutine read_block_3_grid_lauout (lun, lchar, filtype, nrftot, nrharm, &
             ivflag, dtflg1, iwidth, dtflg3, &
             ioutpt, gridps, syname, status, &
             has_hydfile, nexch)
 
-        !       Deltares Software Centre
-
-        !>\file
-        !>              Reads grid layout; attributes and the computational volumes
+        !! Reads grid layout; attributes and the computational volumes
         !>
-        !>              This routine reads:
-        !>                 - the number of computational volumes
-        !>                 - the number of layers (optional)
-        !>                 - the number and info of additional grids (optional)
-        !>                 - any wish for a printed grid layout
-        !>                 - constant attribute arrays
-        !>                 - time varying attribute arrays
-        !>                 - information on the time series of volumes
+        !> This routine reads:
+        !>      - the number of computational volumes
+        !>      - the number of layers (optional)
+        !>      - the number and info of additional grids (optional)
+        !>      - any wish for a printed grid layout
+        !>      - constant attribute arrays
+        !>      - time varying attribute arrays
+        !>      - information on the time series of volumes
 
-        !       Subroutines called: grid    read grid structures
-        !                           opt0    read constant/time-variable block
-        !                           opt1    get & open ( include ) file
-        !                           open_waq_files  open file
-        !                           evaluate_waq_attribute  get an attribute from an attribute integer
-        !                           srstop  stop with error code
-        !                           check   end of block
+        ! Subroutines called: grid    read grid structures
+        !                     opt0    read constant/time-variable block
+        !                     opt1    get & open ( include ) file
+        !                     open_waq_files  open file
+        !                     evaluate_waq_attribute  get an attribute from an attribute integer
+        !                     srstop  stop with error code
+        !                     check   end of block
 
-        !       Logical units     : LUN(40) = unit number to read attributes from binary file
-        !                           LUN( 2) = unit intermediate file (system)
-        !                           LUN( 6) = unit intermediate file (grid)
-        !                           LUN( 7) = unit intermediate file (volumes)
+        ! Logical units     : LUN(40) = unit number to read attributes from binary file
+        !                     LUN( 2) = unit intermediate file (system)
+        !                     LUN( 6) = unit intermediate file (grid)
+        !                     LUN( 7) = unit intermediate file (volumes)
 
         use m_check
         use m_srstop
@@ -77,11 +77,6 @@ contains
         use m_sysn          ! System characteristics
         use m_error_status
 
-        implicit none
-
-        !     Parameters
-
-        !     kind           function         name                Descriptipon
 
         integer(kind = int_wp), intent(inout) :: lun    (*)         !< array with unit numbers
         character(*), intent(inout) :: lchar  (*)        !< array with file names of the files
@@ -141,7 +136,7 @@ contains
         type(error_status) :: local_status !< local status
 
         integer(kind = int_wp) :: ithndl = 0
-        if (timon) call timstrt("dlwq03", ithndl)
+        if (timon) call timstrt("read_block_3_grid_lauout", ithndl)
 
         disper = .false.
         volume = 1
@@ -765,4 +760,4 @@ contains
         end subroutine check_volume_time
     end
 
-end module m_dlwq03
+end module inputs_block_3

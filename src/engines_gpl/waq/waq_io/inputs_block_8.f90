@@ -20,7 +20,7 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_dlwq08
+module inputs_block_8
     use m_waq_precision
     use m_read_initials
     use m_opt2
@@ -29,51 +29,41 @@ module m_dlwq08
 
     implicit none
 
+    private
+    public :: read_block_8_initial_conditions
+
 contains
 
 
-    subroutine dlwq08 (lun, lchar, filtype, noseg, notot, &
+    subroutine read_block_8_initial_conditions(lun, lchar, filtype, noseg, notot, &
             syname, iwidth, ioutpt, inpfil, &
             gridps, status)
 
-        !       Deltares Software Centre
+        !!  Reads initial conditions
+        !! This routine reads the initial conditions
+        !!      - MASS/M2 is an allowed keyword to indicate that ASCII input
+        !!          of passive substances is expressed in mass/m2
+        !!       - ASCII with defaults and overridings is the same since 1988
+        !!       - ASCII without defaults requires 1 keyword and values for
+        !!          all volumes per substance, so 12345*2.27 ; substance 1 etc.
+        !!          and 11522*0.0 823*3.14  ; for a passive substance in 15 layers.
+        !!          The simulation system (dryfld.f) migrates automatically the
+        !!          lowest value to the first active cell in a Z-layer model
+        !!       - Binary files not being a .map file are assumed to be in mass/gridcell
+        !!       - .map files are scanned for the presence of the mass/m2 token at
+        !!          the end of title string 3 by the simulation system (dlwqi0.f)
+        !!       - The simulation system only produces mass/m2 .map files for restart
+        !!          purposes any more.
 
-        !>\file
-        !>          Reads initial conditions
-        !>
-        !>          This routine reads the initial conditions
-        !>          - MASS/M2 is an allowed keyword to indicate that ASCII input
-        !>            of passive substances is expressed in mass/m2
-        !>          - ASCII with defaults and overridings is the same since 1988
-        !>          - ASCII without defaults requires 1 keyword and values for
-        !>            all volumes per substance, so 12345*2.27 ; substance 1 etc.
-        !>            and 11522*0.0 823*3.14  ; for a passive substance in 15 layers.
-        !>            The simulation system (dryfld.f) migrates automatically the
-        !>            lowest value to the first active cell in a Z-layer model
-        !>          - Binary files not being a .map file are assumed to be in mass/gridcell
-        !>          - .map files are scanned for the presence of the mass/m2 token at
-        !>            the end of title string 3 by the simulation system (dlwqi0.f)
-        !>          - The simulation system only produces mass/m2 .map files for restart
-        !>            purposes any more.
+        !!  Subroutines called : opt1    ( which file is it ? )
+        !!                       opt2    ( read the data from an ASCII file )
+        !!                       rdtok1  ( tokenized data reading )
+        !!                       open_waq_files  ( to open the binary intermediate file )
+        !!                       check   ( to see of the group was read correctly )
 
-        !      Created            : April     1988 by Marjolein E. Sileon / Leo Postma
-
-        !      Modified           : April     1997 by R. Bruinsma: Tokenized input data file reading added
-        !                           July      2002 by Leo Postma : Call to Opt1 changed.
-        !                           April     2010 by Leo Postma : allocated array for the values
-        !                           September 2010 by Leo Postma : mass/m2 for non-transported substances
-        !                           February  2011 by Leo Postma : input order changed for no-default reading
-        !                                                          new rd_token implemented
-
-        !      Subroutines called : opt1    ( which file is it ? )
-        !                           opt2    ( read the data from an ASCII file )
-        !                           rdtok1  ( tokenized data reading )
-        !                           open_waq_files  ( to open the binary intermediate file )
-        !                           check   ( to see of the group was read correctly )
-
-        !      Logical units      : lun(27) = unit DELWAQ input file
-        !                           lun(29) = unit formatted output file
-        !                           lun(18) = unit intermediate file (initials)
+        !! Logical units : lun(27) = unit DELWAQ input file
+        !!                 lun(29) = unit formatted output file
+        !!                 lun(18) = unit intermediate file (initials)
 
         use m_check
         use m_srstop
@@ -83,11 +73,6 @@ contains
         use rd_token
         use timers         ! performance timers
         use string_module  ! string manipulation tools
-        implicit none
-
-        !     Arguments           :
-
-        !     Kind                    Function         Name               Description
 
         integer(kind = int_wp), intent(inout) :: lun  (*)       !< array with unit numbers
         character       (*), intent(inout) :: lchar(*)       !< filenames
@@ -127,7 +112,7 @@ contains
         integer(kind = int_wp) :: itime      ! time in map file
         integer(kind = int_wp) :: ithndl = 0
 
-        if (timon) call timstrt("dlwq08", ithndl)
+        if (timon) call timstrt("read_block_8_initial_conditions", ithndl)
 
         !        Initialisations
 
@@ -321,4 +306,4 @@ contains
 
     end
 
-end module m_dlwq08
+end module inputs_block_8

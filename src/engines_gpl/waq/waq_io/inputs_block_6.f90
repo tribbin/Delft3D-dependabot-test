@@ -20,7 +20,7 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_dlwq06
+module inputs_block_6
     use m_waq_precision
     use m_string_utils
     use m_opt1
@@ -30,56 +30,39 @@ module m_dlwq06
 
     implicit none
 
+    private
+    public :: read_block_6_waste_loads_withdrawals
+
 contains
 
-
-    subroutine dlwq06 (lun, lchar, filtype, icmax, car, &
+    subroutine read_block_6_waste_loads_withdrawals (lun, lchar, filtype, icmax, car, &
             iimax, iar, irmax, rar, notot, &
             noseg, sname, nowst, nowtyp, nrftot, &
             nrharm, dtflg1, dtflg3, iwidth, &
             ioutpt, chkpar, status)
 
-        !       Deltares Software Centre
-
-        !>\file
-        !>                          Reads all inputs associated with waste loads and withdrawals
-        !>
-        !>                          This routine reads:
-        !>                             - the number of wasteloads and withdrawals
-        !>                             - the wasteloads ID's and volume numbers (and names and types for modern files)
-        !>                             - the wasteload concentration/mass values
-
-        !     Created            : April    1988 by Marjolein Sileon and Leo Postma
-
-        !     Modified           : April    1997 by Rinze Bruinsma  : Tokenized input data file reading added
-        !                          July     2002 by Leo Postma      : Call to Opt1 changed.
-        !                          December 2010 by Leo Postma      : Addition diffuse sources
-        !                                                             Fortran 90 style
-        !                                                             simpler call to tokenized input
-
-        !     Function           : Reads waste loads
-
-        !     Subroutines called : opt0     : previous versions input processing (one matrix does all)
-        !                          gettoken : tokenized data input
-        !                          srstop   : stop after error with return code
-        !                          zoek     : search for presence of a string
-        !                          dlwq5a   : modern context sensitive input data processing
-        !                          check    : check whether end of data block is encountred correctly
-
-        !     Logical units :      lun(27) = unit DELWAQ input file
-        !                          lun(29) = unit formatted output file
-        !                          lun( 2) = unit intermediate file (system)
-        !                          lun( 3) = unit intermediate file (harmonics)
-        !                          lun( 4) = unit intermediate file (pointers)
-        !                          lun(15) = unit intermediate file (waste load)
+        !! Reads all inputs associated with waste loads and withdrawals
+        !! This routine reads:
+        !!      - the number of wasteloads and withdrawals
+        !!      - the wasteloads ID's and volume numbers (and names and types for modern files)
+        !!      - the wasteload concentration/mass values
+        !! Subroutines called : opt0     : previous versions input processing (one matrix does all)
+        !!                      gettoken : tokenized data input
+        !!                      srstop   : stop after error with return code
+        !!                      zoek     : search for presence of a string
+        !!                      dlwq5a   : modern context sensitive input data processing
+        !!                      check    : check whether end of data block is encountred correctly
+        !! Logical units : lun(27) = unit DELWAQ input file
+        !!                 lun(29) = unit formatted output file
+        !!                 lun( 2) = unit intermediate file (system)
+        !!                 lun( 3) = unit intermediate file (harmonics)
+        !!                 lun( 4) = unit intermediate file (pointers)
+        !!                 lun(15) = unit intermediate file (waste load)
 
         use m_check
         use m_srstop
         use rd_token
         use timers       !   performance timers
-        implicit none
-
-        !     Arguments:
 
         integer(kind = int_wp), intent(inout) :: lun    (:)      !< array with unit numbers
         character(*), intent(inout) :: lchar  (:)     !< Filenames for the items
@@ -132,7 +115,7 @@ contains
         logical                        ldummy          !  dummy logical
         integer(kind = int_wp) :: idummy           !  dummy integer
         integer(kind = int_wp) :: ithndl = 0
-        if (timon) call timstrt("dlwq06", ithndl)
+        if (timon) call timstrt("read_block_6_waste_loads_withdrawals", ithndl)
 
         !     Init
 
@@ -385,6 +368,6 @@ contains
         2220 format (' Note: one or more special waste loads - parameter/se &
                 gment function LENGTH required')
 
-    end
+    end subroutine read_block_6_waste_loads_withdrawals
 
-end module m_dlwq06
+end module inputs_block_6
