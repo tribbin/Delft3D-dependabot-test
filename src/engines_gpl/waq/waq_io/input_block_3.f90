@@ -77,7 +77,6 @@ contains
         use m_sysn          ! System characteristics
         use m_error_status
 
-
         integer(kind = int_wp), intent(inout) :: lun    (*)         !< array with unit numbers
         character(*), intent(inout) :: lchar  (*)        !< array with file names of the files
         integer(kind = int_wp), intent(inout) :: filtype(*)         !< type of binary file
@@ -659,103 +658,98 @@ contains
         2551 format (/ ' Mesh used for Delwaq 1D output: ', A)
         2599 format (/ ' NetCDF error message: ', A)
 
-    contains
+    end subroutine read_block_3_grid_layout
+
+    subroutine check_volume_time(lunut, filvol, noseg, ierr2)
+        !! Check the contents of the volumes file: id the time step compatible?
+        use m_sysi          ! Timer characteristics
+
+        integer(kind = int_wp), intent(in) :: lunut       !< LU-number of the report file
+        character(len = *), intent(in) :: filvol     !< Name of the volumes file to be checked
+        integer(kind = int_wp), intent(in) :: noseg       !< Number of segments
+        integer(kind = int_wp), intent(out) :: ierr2       !< Whether an error was found or not
+
+        integer(kind = int_wp) :: i, ierr
+        integer(kind = int_wp) :: luvol
+        integer(kind = int_wp) :: time1, time2, time3
+        real(kind = real_wp) :: dummy
+        character(len = 14) :: string
+
+        open(newunit = luvol, file = filvol, access = 'stream', &
+                status = 'old', iostat = ierr)
 
         !
-        ! Check the contents of the volumes file: id the time step compatible?
+        ! The existence has already been checked, if the file does
+        ! not exist, skip the check
         !
-        subroutine check_volume_time(lunut, filvol, noseg, ierr2)
+        if (ierr /= 0) then
+            return
+        endif
 
-            use m_sysi          ! Timer characteristics
+        !
+        ! For "steering files", we need an extra check
+        ! - skip the check on the times though
+        !
+        ! Ignore the error condition - it might occur with
+        ! very small models (one or two segments, for instance)
+        !
+        read(luvol, iostat = ierr) string
+        if (string == 'Steering file ') then
+            return
+        endif
 
-            integer(kind = int_wp), intent(in) :: lunut       !< LU-number of the report file
-            character(len = *), intent(in) :: filvol     !< Name of the volumes file to be checked
-            integer(kind = int_wp), intent(in) :: noseg       !< Number of segments
-            integer(kind = int_wp), intent(out) :: ierr2       !< Whether an error was found or not
+        !
+        ! Regular volume files
+        !
+        read(luvol, iostat = ierr, pos = 1) time1, (dummy, i = 1, noseg)
+        if (ierr /= 0) then
+            ierr2 = ierr2 + 1
+            write (lunut, 110) ierr
+            return
+        endif
+        read(luvol, iostat = ierr) time2, (dummy, i = 1, noseg)
+        if (ierr /= 0) then
+            write (lunut, 120)
+            return
+        endif
+        read(luvol, iostat = ierr) time3, (dummy, i = 1, noseg)
+        if (ierr /= 0) then
+            write (lunut, 130)
+            return
+        endif
 
-            integer(kind = int_wp) :: i, ierr
-            integer(kind = int_wp) :: luvol
-            integer(kind = int_wp) :: time1, time2, time3
-            real(kind = real_wp) :: dummy
-            character(len = 14) :: string
+        !
+        ! The times must be increasing and the intervals must be the same
+        !
+        if (time1 >= time2 .or. time2 >= time3) then
+            ierr2 = ierr2 + 1
+            write (lunut, 140) time1, time2, time3
+            return
+        endif
+        if ((time2 - time1) /= (time3 - time2)) then
+            ierr2 = ierr2 + 1
+            write (lunut, 150) time1, time2, time3
+            return
+        endif
+        if (mod((time2 - time1), idt) /= 0) then
+            ierr2 = ierr2 + 1
+            write (lunut, 160) time1, time2, time3, idt
+            return
+        endif
 
-            open(newunit = luvol, file = filvol, access = 'stream', &
-                    status = 'old', iostat = ierr)
+        110 format(' ERROR: the volumes file seems to be too small' &
+                /, '        Error code: ', i0)
+        120 format(' NOTE: the volumes file appears to hold one record only')
+        130 format(' NOTE: the volumes file appears to hold two records only' &
+                )
+        140 format(' ERROR: the times in the volumes file are not monotonical &
+                ly increasing', /, ' Successive times: ', 3i12)
+        150 format(' ERROR: the times in the volumes file are not equidistant &
+                ', /, ' Successive times: ', 3i12)
+        160 format(' ERROR: the time step does not divide the time interval i &
+                n the volumes file', &
+                /, ' Successive times in the volumes file: ', 3i12, &
+                /, 'Time step for water quality: ', i12)
 
-            !
-            ! The existence has already been checked, if the file does
-            ! not exist, skip the check
-            !
-            if (ierr /= 0) then
-                return
-            endif
-
-            !
-            ! For "steering files", we need an extra check
-            ! - skip the check on the times though
-            !
-            ! Ignore the error condition - it might occur with
-            ! very small models (one or two segments, for instance)
-            !
-            read(luvol, iostat = ierr) string
-            if (string == 'Steering file ') then
-                return
-            endif
-
-            !
-            ! Regular volume files
-            !
-            read(luvol, iostat = ierr, pos = 1) time1, (dummy, i = 1, noseg)
-            if (ierr /= 0) then
-                ierr2 = ierr2 + 1
-                write (lunut, 110) ierr
-                return
-            endif
-            read(luvol, iostat = ierr) time2, (dummy, i = 1, noseg)
-            if (ierr /= 0) then
-                write (lunut, 120)
-                return
-            endif
-            read(luvol, iostat = ierr) time3, (dummy, i = 1, noseg)
-            if (ierr /= 0) then
-                write (lunut, 130)
-                return
-            endif
-
-            !
-            ! The times must be increasing and the intervals must be the same
-            !
-            if (time1 >= time2 .or. time2 >= time3) then
-                ierr2 = ierr2 + 1
-                write (lunut, 140) time1, time2, time3
-                return
-            endif
-            if ((time2 - time1) /= (time3 - time2)) then
-                ierr2 = ierr2 + 1
-                write (lunut, 150) time1, time2, time3
-                return
-            endif
-            if (mod((time2 - time1), idt) /= 0) then
-                ierr2 = ierr2 + 1
-                write (lunut, 160) time1, time2, time3, idt
-                return
-            endif
-
-            110 format(' ERROR: the volumes file seems to be too small' &
-                    /, '        Error code: ', i0)
-            120 format(' NOTE: the volumes file appears to hold one record only')
-            130 format(' NOTE: the volumes file appears to hold two records only' &
-                    )
-            140 format(' ERROR: the times in the volumes file are not monotonical &
-                    ly increasing', /, ' Successive times: ', 3i12)
-            150 format(' ERROR: the times in the volumes file are not equidistant &
-                    ', /, ' Successive times: ', 3i12)
-            160 format(' ERROR: the time step does not divide the time interval i &
-                    n the volumes file', &
-                    /, ' Successive times in the volumes file: ', 3i12, &
-                    /, 'Time step for water quality: ', i12)
-
-        end subroutine check_volume_time
-    end
-
+    end subroutine check_volume_time
 end module inputs_block_3
