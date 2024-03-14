@@ -204,7 +204,7 @@ contains
         IF (LUNWR > 0) THEN
             I1DUM = 0
             I2DUM = 0
-            CALL DLWQJ2 (LUNWR, NOBRK, NOTOT, 1, IAR(IOFFB:), & ! write table in binary format to wrk file.
+            CALL write_breakpoint_data_blocks (LUNWR, NOBRK, NOTOT, 1, IAR(IOFFB:), & ! write table in binary format to wrk file.
                     RMAT, I1DUM, I2DUM)
             !     jvb1    IF ( IOPT .NE. 0 ) THEN
             IFILSZ = IFILSZ + I1DUM

@@ -28,36 +28,27 @@ module m_dlwqj2
 contains
 
 
-    SUBROUTINE DLWQJ2 (LUNWR, NOBRK, NOTOT, ITAL, IAR, &
-            RAR, IFILSZ, JFILSZ)
-        !
-        !
-        !     Deltares        SECTOR WATERRESOURCES AND ENVIRONMENT
-        !
-        !     CREATED            : May '96  by L. Postma
-        !
-        !     MODIFIED           :
-        !
-        !     FUNCTION           : Writes blocks of breakpoint data
-        !
-        !     SUBROUTINES CALLED : none
-        !
-        !     LOGICAL UNITS      : LUNWR   = binary/unformatted work file
-        !
-        !     PARAMETERS    :
-        !
-        !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
-        !     ---------------------------------------------------------
-        !     LUNWR   INTEGER     1       INPUT   unit number output work file
-        !     NOBRK   INTEGER     1       INPUT   nr of breakpoints to write
-        !     NOTOT   INTEGER     1       INPUT   size of one matrix of data
-        !     ITAL    INTEGER     1       INPUT   nr of integers per breakpoint
-        !     IAR     INTEGER     *       INPUT   breakpoint timers
-        !     RAR     REAL*4      *       INPUT   matrix storage
-        !     IFILSZ  INTEGER     1       IN/OUT  cumulative integer space count
-        !     JFILSZ  INTEGER     1       IN/OUT  cumulative real space count
-        !
-        !
+    SUBROUTINE write_breakpoint_data_blocks(LUNWR, NOBRK, NOTOT, ITAL, IAR, RAR, IFILSZ, JFILSZ)
+
+        !! Writes blocks of breakpoint data
+        !!
+        !! LOGICAL UNITS: LUNWR   = binary/unformatted work file
+
+
+        !!     PARAMETERS    :
+        !!
+        !!     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
+        !!     ---------------------------------------------------------
+        !!     LUNWR   INTEGER     1       INPUT   unit number output work file
+        !!     NOBRK   INTEGER     1       INPUT   nr of breakpoints to write
+        !!     NOTOT   INTEGER     1       INPUT   size of one matrix of data
+        !!     ITAL    INTEGER     1       INPUT   nr of integers per breakpoint
+        !!     IAR     INTEGER     *       INPUT   breakpoint timers
+        !!     RAR     REAL*4      *       INPUT   matrix storage
+        !!     IFILSZ  INTEGER     1       IN/OUT  cumulative integer space count
+        !!     JFILSZ  INTEGER     1       IN/OUT  cumulative real space count
+        !!
+        !!
         use timers       !   performance timers
 
         integer(kind = int_wp) :: ithndl = 0
@@ -65,14 +56,12 @@ contains
         integer(kind = int_wp) :: k, I, NOTOT
         integer :: lunwr, nobrk, itel, jtel, iar(:), ifilsz, jfilsz
         real(kind = real_wp) :: rar(:)
-        if (timon) call timstrt("dlwqj2", ithndl)
-        !
-        !           Write nr of breakpoints first
-        !
+        if (timon) call timstrt("write_breakpoint_data_blocks", ithndl)
+
+        ! Write nr of breakpoints first
         WRITE (LUNWR) NOBRK
-        !
-        !           Initialize counters for the loop
-        !
+
+        ! Initialize counters for the loop
         ITEL = 0
         JTEL = 0
         DO I = 1, NOBRK
@@ -81,14 +70,13 @@ contains
             ITEL = ITEL + ITAL
             JTEL = JTEL + NOTOT
         end do
-        !
-        !           Update the space count
-        !
+
+        ! Update the space count
         IFILSZ = IFILSZ + NOBRK * ITAL + 1
         JFILSZ = JFILSZ + NOBRK * NOTOT
-        !
+
         if (timon) call timstop(ithndl)
-        RETURN
-    END
+
+    END SUBROUTINE write_breakpoint_data_blocks
 
 end module m_dlwqj2

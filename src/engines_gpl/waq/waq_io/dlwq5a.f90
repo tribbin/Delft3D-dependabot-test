@@ -114,8 +114,7 @@ contains
 
         type(error_status), intent(inout) :: status !< current error status
 
-        !     Local declarations
-
+        ! Local declarations
         character     calit*10, caldit*10, strng1*10, strng2*10, strng3*10
         integer(kind = int_wp) :: iorder, count_items_in_use_rule, nodim, iflag, itype, &
                 chkflg, ident, nottc, lunwr2, &
@@ -184,9 +183,8 @@ contains
         binfil = .false.
         newrec = .false.
         time_dependent = .false.
-        !
-        !     Open the binary work file and provide a zero overall default
-        !
+
+        ! Open the binary work file and provide a zero overall default
         call open_waq_files (lun(iu), lchar(iu), iu, 1, ioerr)
         if (iu == 14) then
             write (lunwr2) ' 4.900BOUND '
