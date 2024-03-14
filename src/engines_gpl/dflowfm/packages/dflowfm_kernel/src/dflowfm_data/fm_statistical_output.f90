@@ -2401,7 +2401,7 @@ private
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_LATERAL_REALIZED_DISCHARGE_AVERAGE        ),qLatRealAve               )
       endif
       if (dad_included) then  ! Output for dredging and dumping
-         temp_pointer(1:size(stmpar%sedpar%rhosol,1)*dadpar%nalink) => dadpar%link_sum(:,:)
+         temp_pointer(1:size(stmpar%sedpar%rhosol,1)*dadpar%nalink) => dadpar%link_sum
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DRED_LINK_DISCHARGE),   temp_pointer               )
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DRED_DISCHARGE),        dadpar%totvoldred               )
          call add_stat_output_items(output_set, output_config%statout(IDX_HIS_DUMP_DISCHARGE),        dadpar%totvoldump               )
