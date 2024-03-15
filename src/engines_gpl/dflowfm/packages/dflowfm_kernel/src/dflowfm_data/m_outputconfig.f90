@@ -285,6 +285,7 @@ private
    integer, public :: IDX_HIS_BODSED
    integer, public :: IDX_HIS_DPSED
 
+   integer, public :: IDX_HIS_HWQ_ABSTRACT
    integer, public :: IDX_HIS_TRACERS_ABSTRACT
 
    integer, public :: IDX_HIS_OBSCRS_DISCHARGE

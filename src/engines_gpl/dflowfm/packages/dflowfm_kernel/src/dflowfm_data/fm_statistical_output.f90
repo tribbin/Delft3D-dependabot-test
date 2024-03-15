@@ -22,6 +22,7 @@ private
    type(t_nc_dim_ids), parameter :: nc_dims_3D_interface_center = t_nc_dim_ids(laydim_interface_center = .true., statdim = .true., timedim = .true.)
    type(t_nc_dim_ids), parameter :: nc_dims_3D_interface_edge = t_nc_dim_ids(laydim_interface_edge = .true., statdim = .true., timedim = .true.)
 
+   double precision, dimension(:, :), allocatable, target :: water_quality_output_data !< Water quality data to be written, each column contains one water_quality_output variable
    double precision, dimension(:,:), allocatable, target :: obscrs_data !< observation cross section constituent data on observation cross sections to be written
    double precision, dimension(:,:), allocatable, target :: station_tracer_data !< (numstations, numtracers*numlayers) tracer data on observation stations to be written
    double precision, dimension(:),   allocatable, target :: SBCX, SBCY, SBWX, SBWY, SSWX, SSWY, SSCX, SSCY
@@ -113,6 +114,70 @@ private
    call assign_sediment_transport(SBCX,SBCY,IPNT_SBCX1,IPNT_SBCY1,ntot)
    end subroutine calculate_sediment_SBC
 
+   !> Procedure called to transform the valobs data for writing to the water_quality_output NetCDF variables
+   subroutine transform_water_quality_inputs(source_input)
+      use m_observations, only: numobs, nummovobs
+      use m_flow, only: kmx
+      use m_observations, only: valobs, IPNT_HWQ1
+      use processes_input, only: num_wq_user_outputs => noout_user
+      double precision, pointer, dimension(:), intent(inout) :: source_input   !< Pointer to source input array for water_quality_output_# item, unused
+
+      integer :: ntot, variable_index, num_layers, start_index
+      double precision, pointer, dimension(:, :) :: valobs_slice
+      ntot = numobs + nummovobs
+      num_layers = max(1, kmx)
+
+      do variable_index = 1, num_wq_user_outputs
+         start_index = IPNT_HWQ1 + (variable_index - 1) * num_layers
+         valobs_slice => valobs(:, start_index : start_index + num_layers - 1)
+         water_quality_output_data(:, variable_index) = reshape(transpose(valobs_slice), [num_layers * ntot])
+      end do
+   end subroutine transform_water_quality_inputs
+
+   subroutine add_station_water_quality_configs(output_config_set, idx_his_hwq)
+      use processes_input, only: num_wq_user_outputs => noout_user
+      use results, only : OutputPointers
+      use m_fm_wq_processes, only: wq_user_outputs => outputs
+      use m_ug_nc_attribute, only: ug_nc_attribute
+      use string_module, only: replace_multiple_spaces_by_single_spaces
+      use netcdf_utils, only: ncu_set_att
+      use m_observations, only: numobs, nummovobs
+      use m_flow, only: kmx
+      type(t_output_quantity_config_set), intent(inout) :: output_config_set   !< Output configuration for the HIS file.
+      integer, allocatable, dimension(:), intent(  out) :: idx_his_hwq
+
+      integer               :: i, ntot, num_layers
+      character(len=255)    :: name, description
+      type(ug_nc_attribute) :: atts(2)
+
+      num_layers = max(1, kmx)
+
+      if (.not. allocated(water_quality_output_data)) then
+         ntot = numobs + nummovobs
+         allocate(water_quality_output_data(num_layers * ntot, num_wq_user_outputs))
+         allocate(idx_his_hwq(num_wq_user_outputs))
+      else
+         call err('Internal error, please report: water_quality_output_data was already allocated')
+      endif
+
+      call ncu_set_att(atts(1), 'geometry', 'station_geom')
+
+      ! Just-in-time add *config* item for water quality output variables
+      do i = 1, num_wq_user_outputs
+         write (name, "('water_quality_output_',I0)") i
+         description = trim(wq_user_outputs%names(i))//' - '//trim(wq_user_outputs%description(i))//' in flow element'
+         call replace_multiple_spaces_by_single_spaces(description)
+         call ncu_set_att(atts(2), 'description', description)
+
+         call addoutval(output_config_set, idx_his_hwq(i), 'Wrihis_water_quality_output', trim(name), &
+                        trim(wq_user_outputs%names(i)), '', trim(wq_user_outputs%units(i)), UNC_LOC_STATION, &
+                        nc_atts = atts, nc_dim_ids = output_config_set%statout(IDX_HIS_HWQ_ABSTRACT)%nc_dim_ids)
+
+         output_config_set%statout(idx_his_hwq(i))%input_value = output_config_set%statout(IDX_HIS_HWQ_ABSTRACT)%input_value
+      end do
+
+   end subroutine add_station_water_quality_configs
+
    !> Initialize (allocate) observation crosssection data array obscrs_data.
    !! This subroutine should be called only once, such that afterward individual calls
    !! to add_stat_output_items can point to obscrs_data(:,i) slices in this array.
@@ -122,7 +187,7 @@ private
    !! * obscrs_data(1:ncrs, 5+2*NUMCONST_MDU+(1:2 + stmpar%lsedtot)): sediment transport quantities
    !! Also, the output config items for sediment and other constituents are also registered
    !! (only now, with the model fully loaded, because earlier the constituents were not yet known).
-   subroutine init_obscrs_data_and_config(num_const_items, output_config, idx_const)
+   subroutine init_obscrs_data_and_config(num_const_items, output_config_set, idx_const)
    use m_monitoring_crosssections, only: ncrs
    use m_ug_nc_attribute
    use m_transport, only: NUMCONST_MDU, const_names, isedn, ised1, const_units
@@ -132,14 +197,14 @@ private
    use netcdf_utils, only: ncu_set_att
    use MessageHandling, only: err
 
-   integer,                            intent(  out) :: num_const_items !< Number of constituent items (including sediment).
-   type(t_output_quantity_config_set), intent(inout) :: output_config   !< Output configuration for the HIS file.
-   integer, allocatable, dimension(:), intent(  out) :: idx_const       !< Indexes for the constituent output variables. To be used for
-                                                                        !< the registration of the variables in the output set.
+   integer,                            intent(  out) :: num_const_items   !< Number of constituent items (including sediment).
+   type(t_output_quantity_config_set), intent(inout) :: output_config_set !< Output configuration for the HIS file.
+   integer, allocatable, dimension(:), intent(  out) :: idx_const         !< Indexes for the constituent output variables. To be used for
+                                                                          !< the registration of the variables in the output set.
    integer ::  num, lenunitstr, lsed
    character(len=idlen) :: conststr
    character(len=idlen) :: unitstr
-   type(ug_nc_attribute) :: atts(5)
+   type(ug_nc_attribute) :: atts(1)
 
    if (ncrs == 0) then
       return
@@ -184,13 +249,13 @@ private
       endif
 
       ! Just-in-time add *config* item for this constituent current transport
-      call addoutval(output_config, idx_const(2*num-1),                                       &
+      call addoutval(output_config_set, idx_const(2*num-1),                                       &
             'Wrihis_crs_constituents', 'cross_section_'//trim(conststr), &
             'Flux (based on upwind flow cell) for '//trim(conststr), &
             '', trim(unitstr), UNC_LOC_OBSCRS, nc_atts = atts(1:1))
 
-      output_config%statout(idx_const(2*num-1))%input_value =     &
-            output_config%statout(IDX_HIS_OBSCRS_CONST_ABSTRACT)%input_value
+      output_config_set%statout(idx_const(2*num-1))%input_value =     &
+            output_config_set%statout(IDX_HIS_OBSCRS_CONST_ABSTRACT)%input_value
 
 
       ! Just-in-time add *config* item for this constituent cumulative transport
@@ -199,13 +264,13 @@ private
          unitstr = unitstr(1:lenunitstr-4) ! Trim off ' s-1'
       end if
 
-      call addoutval(output_config, idx_const(2*num),                                       &
+      call addoutval(output_config_set, idx_const(2*num),                                       &
             'Wrihis_crs_constituents', 'cross_section_cumulative_'//trim(conststr), &
             'Cumulative flux (based on upwind flow cell) for '//trim(conststr), &
             '', trim(unitstr), UNC_LOC_OBSCRS, nc_atts = atts(1:1))
 
-      output_config%statout(idx_const(2*num))%input_value =     &
-            output_config%statout(IDX_HIS_OBSCRS_CONST_ABSTRACT)%input_value
+      output_config_set%statout(idx_const(2*num))%input_value =     &
+            output_config_set%statout(IDX_HIS_OBSCRS_CONST_ABSTRACT)%input_value
 
    enddo
    !
@@ -223,12 +288,12 @@ private
 
       do lsed = 1,stmpar%lsedtot    ! Making bedload on crosssections per fraction
          ! Just-in-time add *config* item for this fraction's bed load sediment transport
-         call addoutval(output_config, idx_const(NUMCONST_MDU*2 + 2 + lsed),                                       &
+         call addoutval(output_config_set, idx_const(NUMCONST_MDU*2 + 2 + lsed),                                       &
                'Wrihis_constituents', 'cross_section_bedload_sediment_transport_'//trim(stmpar%sedpar%namsed(lsed)), &
                'Cumulative bed load sediment transport for fraction '//trim(stmpar%sedpar%namsed(lsed)), &
                '', 'kg', UNC_LOC_OBSCRS, nc_atts = atts(1:1))
-         output_config%statout(idx_const(NUMCONST_MDU*2 + 2 + lsed))%input_value =     &
-               output_config%statout(IDX_HIS_OBSCRS_SED_BTRANSPORT_PERFRAC_ABSTRACT)%input_value
+         output_config_set%statout(idx_const(NUMCONST_MDU*2 + 2 + lsed))%input_value =     &
+               output_config_set%statout(IDX_HIS_OBSCRS_SED_BTRANSPORT_PERFRAC_ABSTRACT)%input_value
       enddo
    endif
 
@@ -341,13 +406,13 @@ private
    !> Adds output configs for every tracer on observation stations just in time,
    !! because the tracers are only known during model initialization.
    !! Returns config indices for these variables such that they can be added to the output items for the same tracers
-   subroutine add_station_tracer_configs(output_config, idx_tracers_stations)
+   subroutine add_station_tracer_configs(output_config_set, idx_tracers_stations)
       use m_alloc, only: realloc
       use netcdf_utils, only: ncu_sanitize_name
       use m_ug_nc_attribute, only: ug_nc_attribute
       use m_transportdata, only: const_names, const_units, ITRA1, ITRAN
-      type(t_output_quantity_config_set), intent(inout) :: output_config           !< Output configuration for the HIS file.
-      integer, allocatable,               intent(  out) :: idx_tracers_stations(:) !< Indices of just-in-time added tracers in output_config set array
+      type(t_output_quantity_config_set), intent(inout) :: output_config_set       !< Output configuration for the HIS file.
+      integer, allocatable,               intent(  out) :: idx_tracers_stations(:) !< Indices of just-in-time added tracers in output_config_set array
 
       integer :: num_tracers
       character(len=idlen) :: constituent_string
@@ -376,11 +441,11 @@ private
          endif
 
          ! add output config item
-         call addoutval(output_config, idx_tracers_stations(tracer_index), 'Wrihis_constituents', constituent_string, &
+         call addoutval(output_config_set, idx_tracers_stations(tracer_index), 'Wrihis_constituents', constituent_string, &
                         const_names(constituent_index), '', unit_string, UNC_LOC_STATION, nc_dim_ids = nc_dims_3D_center)
 
-         output_config%statout(idx_tracers_stations(tracer_index))%input_value =     &
-            output_config%statout(IDX_HIS_TRACERS_ABSTRACT)%input_value
+         output_config_set%statout(idx_tracers_stations(tracer_index))%input_value = &
+            output_config_set%statout(IDX_HIS_TRACERS_ABSTRACT)%input_value
       end do
    end subroutine add_station_tracer_configs
 
@@ -391,7 +456,7 @@ private
    use m_observations, only: numobs, nummovobs
    type(t_output_variable_set),        intent(inout) :: output_set              !< Output set that item will be added to
    type(t_output_quantity_config_set), intent(in   ) :: output_config_set       !< Read config items out of config set
-   integer,                            intent(in   ) :: idx_tracers_stations(:) !< Indices of just-in-time added tracers in output_config set array
+   integer,                            intent(in   ) :: idx_tracers_stations(:) !< Indices of just-in-time added tracers in output_config_set array
 
    integer :: num_tracers, num_layers, ntot, variable_index
 
@@ -1309,11 +1374,17 @@ private
                      'Sediment mass in fluff layer',             &
                      '', 'kg', UNC_LOC_STATION, nc_atts = atts(1:1), nc_dim_ids = t_nc_dim_ids(statdim = .true., sedsusdim = .true. , timedim = .true.))
 
+      ! The following output value is an abstract entry representing all water quality outputs.
+      ! The actual output variables will only be added later, during init_fm_statistical_output_his().
+      ! This is necessary for reading the key from the MDU file and providing the input value.
+      call addoutval(out_quan_conf_his, IDX_HIS_HWQ_ABSTRACT, 'Wrihis_water_quality_output', 'water_quality_output_abstract', &
+                     '', '', '-', UNC_LOC_STATION, nc_atts = atts(1:1), description = 'Write all water quality outputs to his file', &
+                     nc_dim_ids = nc_dims_3D_center)
+
       call addoutval(out_quan_conf_his, IDX_HIS_TRACERS_ABSTRACT, &
                      'Wrihis_tracers', 'station_tracer_abstract', '', &
                      '', '-', UNC_LOC_STATION, description = 'Write tracers to his file')
 
-      !
       ! HIS: Variables on observation cross sections
       !
       call ncu_set_att(atts(1), 'geometry', 'cross_section_geom')
@@ -1881,6 +1952,8 @@ private
       use m_longculverts, only: nlongculverts
       use m_monitoring_crosssections, only: ncrs
       use m_monitoring_runupgauges, only: nrug, rug
+      use m_fm_wq_processes, only: jawaqproc
+      use processes_input, only: num_wq_user_outputs => noout_user
       use m_lateral, only : numlatsg, qplat, qplatAve, qLatRealAve, qLatReal
       USE, INTRINSIC :: ISO_C_BINDING
 
@@ -1889,9 +1962,11 @@ private
 
       double precision, pointer, dimension(:) :: temp_pointer
 
-      procedure(process_data_double_interface),  pointer :: function_pointer => NULL()
+      procedure(process_data_double_interface), pointer :: function_pointer => NULL()
 
       integer :: i, ntot, num_const_items, nlyrs
+      integer, allocatable, dimension(:) :: id_hwq
+      integer, allocatable, dimension(:) :: idx_his_hwq
       integer, allocatable, dimension(:) :: idx_constituents_crs, idx_tracers_stations
 
       ntot = numobs + nummovobs
@@ -2141,10 +2216,10 @@ private
          if (numobs+nummovobs > 0) then
             if (model_is_3D()) then
                call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCX:IPNT_UCX+kmx)), temp_pointer, [kmx*ntot])
-               call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_X_VELOCITY),temp_pointer)
+               call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_X_VELOCITY), temp_pointer)
 
                call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCY:IPNT_UCY+kmx)), temp_pointer, [kmx*ntot])
-               call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_Y_VELOCITY),temp_pointer)
+               call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_Y_VELOCITY), temp_pointer)
 
                call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCZ:IPNT_UCZ+kmx)), temp_pointer, [kmx*ntot])
                call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_Z_VELOCITY), temp_pointer)
@@ -2229,7 +2304,7 @@ private
       if( (jasal > 0 .or. jatem > 0 .or. jased > 0 )  .and. jahisrho > 0) then
          if (model_is_3D()) then
             call c_f_pointer (c_loc(valobs(1:ntot,IPNT_RHOP:IPNT_RHOP+kmx)), temp_pointer, [kmx*ntot])
-            call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_POTENTIAL_DENSITY   ),temp_pointer                                )
+            call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_POTENTIAL_DENSITY), temp_pointer)
 
             call c_f_pointer (c_loc(valobs(1:ntot,IPNT_BRUV:IPNT_BRUV+kmx)), temp_pointer, [kmx*ntot])
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_BRUNT_VAISALA_N2),temp_pointer                              )
@@ -2245,7 +2320,7 @@ private
       ! Wave model
       if (jawave>0 .and. jahiswav > 0) then
          call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_HWAV    ),valobs(:,IPNT_WAVEH)                                    )
-         !call add_stat_output_items(output_set, output_config%statout(IDX_HIS_HWAV_SIG),valobs(:,IPNT_HS)                                    )
+         !call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_HWAV_SIG),valobs(:,IPNT_HS)                                    )
          ! TODO: hwav sig vs. rms
          call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_TWAV    ),valobs(:,IPNT_WAVET)                                    )
          call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_PHIWAV  ),valobs(:,IPNT_WAVED)                                    )
@@ -2256,7 +2331,7 @@ private
          call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_UORB    ),valobs(:,IPNT_WAVEU)                              )
          if (model_is_3D() .and. .not. flowwithoutwaves) then
             call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCXST:IPNT_UCXST+kmx)), temp_pointer, [kmx*ntot])
-            call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_USTOKES),temp_pointer)
+            call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_USTOKES), temp_pointer)
 
             call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCYST:IPNT_UCYST+kmx)), temp_pointer, [kmx*ntot])
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_VSTOKES),temp_pointer)
@@ -2324,7 +2399,7 @@ private
          else
             temp_pointer(1:(IVAL_SFN-IPNT_SF1+1)*ntot) => valobs(:,IPNT_SF1:IVAL_SFN)
          end if
-         call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_SED),temp_pointer)
+         call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_SED), temp_pointer)
       endif
       if (IVAL_WS1 > 0) then
          if (model_is_3D()) then
@@ -2412,6 +2487,16 @@ private
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_MFLUFF),temp_pointer)
          end if
       endif
+      ! Water quality variables
+      if(jawaqproc > 0 .and. num_wq_user_outputs > 0) then
+         call add_station_water_quality_configs(out_quan_conf_his, idx_his_hwq)
+
+         ! The first statistical output item is responsible for transforming all water_quality_stat data in valobs
+         call add_stat_output_items(output_set, output_config_set%statout(idx_his_hwq(1)), water_quality_output_data(:,1), transform_water_quality_inputs)
+         do i = 2, num_wq_user_outputs
+            call add_stat_output_items(output_set, output_config_set%statout(idx_his_hwq(i)), water_quality_output_data(:,i))
+         end do
+      end if
 
       ! Transported constituents
       call add_station_tracer_configs(output_config_set, idx_tracers_stations)
@@ -2458,156 +2543,156 @@ private
       ! TODO: UNST-7239: runup gauges
 
 
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_S0                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_S1                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_POTEVAP                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_ACTEVAP                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_PRESCREVAP                                                )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_VOL1                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WATERDEPTH                                                )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_HU                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_NEGDPT                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_NEGDPT_CUM                                                )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_NOITER                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_NOITER_CUM                                                )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_LIMTSTEP                                                  )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_LIMTSTEP_CUM                                              )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_COURANT                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_AU                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_U1                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_U0                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_UCXQ_EULERIAN                                             )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_UCYQ_EULERIAN                                             )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_UCXQ                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_UCYQ                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_UCMAG                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_UCMAG_EULER                                               )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_UCMAGA_GLM                                                )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_UCMAGA                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WW1                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_RHO                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_VIU                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_DIU                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_Q1                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_Q1_MAIN                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_FIXED_WEIR_ENERGY_LOSS                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SPIRCRV                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SPIRINT                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_NUMLIMDT                                                  )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TAUSX                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TAUSY                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TAUS                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TAUSMAX                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_Z0UCUR                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_Z0UROU                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SA1                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CZS                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CZU                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CFU                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CFUTYP                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TEM1                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CONST                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_MORS                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TURKIN1                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_VICWWU                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TUREPS1                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TUREPS1_3                                                 )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TUREPS1_4                                                 )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CFRT_0                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CFRT_1                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CFRT_2                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CFRT                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CFCL                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_RAINFALL_RATE                                             )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_INTERCEPTION_WATERDEPTH                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_PATM                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WINDX                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WINDY                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WINDXU                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WINDYU                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WINDX_SFERIC                                              )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WINDY_SFERIC                                              )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WINDXU_SFERIC                                             )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WINDYU_SFERIC                                             )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WINDSTRESSX                                               )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WINDSTRESSY                                               )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WINDSTRESSX_SFERIC                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WINDSTRESSY_SFERIC                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TAIR                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_RHUM                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CLOU                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_QSUN                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_QEVA                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_QCON                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_QLONG                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_QFREVA                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_QFRCON                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_QTOT                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TIDALPOTENTIAL                                            )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SALPOTENTIAL                                              )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_INTERNAL_TIDES_DISSIPATION                                )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TNUDGE                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_NUDGE_TEM                                                 )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_NUDGE_SAL                                                 )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_NUDGE_DTEM                                                )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_NUDGE_DSAL                                                )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_HWAV                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_HWAV_SIG                                                  )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TP                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_DIR                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SXWAV                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SYWAV                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SXBWAV                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SYBWAV                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_MX                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_MY                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_DISSURF                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_DISWCAP                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_UORB                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_E                                                         )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_R                                                         )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_DR                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_D                                                         )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_DF                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SXX                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SYY                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SXY                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CWAV                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CGWAV                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SIGMWAV                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_KWAV                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_NWAV                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CTHETA                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_L1                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SWE                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_SWT                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_UST_CC                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_VST_CC                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_USTOKES                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_VSTOKES                                                   )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_THETAMEAN                                                 )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TWAV                                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_FX                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_FY                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WAVFU                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WAVFV                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_DTCELL                                                    )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_TIME_WATER_ON_GROUND                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_FREEBOARD                                                 )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WATERDEPTH_ON_GROUND                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_VOLUME_ON_GROUND                                          )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CURRENT_TOTAL_NET_INFLOW_1D2D                             )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CUMULATIVE_TOTAL_NET_INFLOW_1D2D                          )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CURRENT_TOTAL_NET_INFLOW_LATERAL                          )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_CUMULATIVE_TOTAL_NET_INFLOW_LATERAL                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_WATER_LEVEL_GRADIENT                                      )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_MAP_QIN                                                       )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_CLS_S1                                                        )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_CLS_WATERDEPTH                                                )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_CLS_UCMAG                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_CLS_UCMAG_EULER                                               )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_CLS_UCDIR                                                     )
-      !call add_stat_output_items(output_set, output_config%statout(IDX_CLS_UCDIR_EULER                                               )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_S0                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_S1                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_POTEVAP                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_ACTEVAP                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_PRESCREVAP                                                )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_VOL1                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WATERDEPTH                                                )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_HU                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_NEGDPT                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_NEGDPT_CUM                                                )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_NOITER                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_NOITER_CUM                                                )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_LIMTSTEP                                                  )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_LIMTSTEP_CUM                                              )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_COURANT                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_AU                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_U1                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_U0                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_UCXQ_EULERIAN                                             )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_UCYQ_EULERIAN                                             )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_UCXQ                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_UCYQ                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_UCMAG                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_UCMAG_EULER                                               )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_UCMAGA_GLM                                                )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_UCMAGA                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WW1                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_RHO                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_VIU                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_DIU                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_Q1                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_Q1_MAIN                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_FIXED_WEIR_ENERGY_LOSS                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SPIRCRV                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SPIRINT                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_NUMLIMDT                                                  )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TAUSX                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TAUSY                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TAUS                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TAUSMAX                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_Z0UCUR                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_Z0UROU                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SA1                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CZS                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CZU                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CFU                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CFUTYP                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TEM1                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CONST                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_MORS                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TURKIN1                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_VICWWU                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TUREPS1                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TUREPS1_3                                                 )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TUREPS1_4                                                 )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CFRT_0                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CFRT_1                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CFRT_2                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CFRT                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CFCL                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_RAINFALL_RATE                                             )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_INTERCEPTION_WATERDEPTH                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_PATM                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WINDX                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WINDY                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WINDXU                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WINDYU                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WINDX_SFERIC                                              )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WINDY_SFERIC                                              )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WINDXU_SFERIC                                             )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WINDYU_SFERIC                                             )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WINDSTRESSX                                               )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WINDSTRESSY                                               )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WINDSTRESSX_SFERIC                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WINDSTRESSY_SFERIC                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TAIR                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_RHUM                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CLOU                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_QSUN                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_QEVA                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_QCON                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_QLONG                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_QFREVA                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_QFRCON                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_QTOT                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TIDALPOTENTIAL                                            )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SALPOTENTIAL                                              )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_INTERNAL_TIDES_DISSIPATION                                )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TNUDGE                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_NUDGE_TEM                                                 )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_NUDGE_SAL                                                 )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_NUDGE_DTEM                                                )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_NUDGE_DSAL                                                )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_HWAV                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_HWAV_SIG                                                  )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TP                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_DIR                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SXWAV                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SYWAV                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SXBWAV                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SYBWAV                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_MX                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_MY                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_DISSURF                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_DISWCAP                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_UORB                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_E                                                         )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_R                                                         )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_DR                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_D                                                         )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_DF                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SXX                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SYY                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SXY                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CWAV                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CGWAV                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SIGMWAV                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_KWAV                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_NWAV                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CTHETA                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_L1                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SWE                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_SWT                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_UST_CC                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_VST_CC                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_USTOKES                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_VSTOKES                                                   )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_THETAMEAN                                                 )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TWAV                                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_FX                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_FY                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WAVFU                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WAVFV                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_DTCELL                                                    )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_TIME_WATER_ON_GROUND                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_FREEBOARD                                                 )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WATERDEPTH_ON_GROUND                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_VOLUME_ON_GROUND                                          )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CURRENT_TOTAL_NET_INFLOW_1D2D                             )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CUMULATIVE_TOTAL_NET_INFLOW_1D2D                          )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CURRENT_TOTAL_NET_INFLOW_LATERAL                          )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_CUMULATIVE_TOTAL_NET_INFLOW_LATERAL                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_WATER_LEVEL_GRADIENT                                      )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_MAP_QIN                                                       )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_CLS_S1                                                        )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_CLS_WATERDEPTH                                                )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_CLS_UCMAG                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_CLS_UCMAG_EULER                                               )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_CLS_UCDIR                                                     )
+      !call add_stat_output_items(output_set, output_config_set%statout(IDX_CLS_UCDIR_EULER                                               )
       !
       call process_output_quantity_configs(output_config_set)
       call initialize_statistical_output(output_set)
