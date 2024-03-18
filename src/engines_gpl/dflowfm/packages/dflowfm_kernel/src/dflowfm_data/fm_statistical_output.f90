@@ -2219,13 +2219,13 @@ private
       if (jahisvelvec > 0) then
          if (numobs+nummovobs > 0) then
             if (model_is_3D()) then
-               call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCX:IPNT_UCX+kmx)), temp_pointer, [kmx*ntot])
+               temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_UCX:IPNT_UCX+kmx)
                call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_X_VELOCITY), temp_pointer)
 
-               call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCY:IPNT_UCY+kmx)), temp_pointer, [kmx*ntot])
+               temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_UCY:IPNT_UCY+kmx)
                call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_Y_VELOCITY), temp_pointer)
 
-               call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCZ:IPNT_UCZ+kmx)), temp_pointer, [kmx*ntot])
+               temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_UCZ:IPNT_UCZ+kmx)
                call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_Z_VELOCITY), temp_pointer)
 
                call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_DEPTH_AVERAGED_X_VELOCITY), valobs(:, IPNT_UCXQ))
@@ -2239,14 +2239,14 @@ private
       if (jahisvelocity > 0) then
          if (jaeulervel==0) then
             if (model_is_3D()) then
-               call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UMAG:IPNT_UMAG+kmx)), temp_pointer, [kmx*ntot])
+               temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_UMAG:IPNT_UMAG+kmx)
                call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_VELOCITY_MAGNITUDE),temp_pointer)
             else
                call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_VELOCITY_MAGNITUDE),valobs(:,IPNT_UMAG)                                        )
             endif
          else
             if (model_is_3D()) then
-               call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UMAG:IPNT_UMAG+kmx)), temp_pointer, [kmx*ntot])
+               temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_UMAG:IPNT_UMAG+kmx)
                call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_VELOCITY_MAGNITUDE_EULERIAN),temp_pointer)
             else
                call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_VELOCITY_MAGNITUDE_EULERIAN),valobs(:,IPNT_UMAG)                                        )
@@ -2255,7 +2255,7 @@ private
       endif
       if (jahisdischarge > 0) then
          if (model_is_3D()) then
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_QMAG:IPNT_QMAG+kmx)), temp_pointer, [kmx*ntot])
+            temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_QMAG:IPNT_QMAG+kmx)
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_DISCHARGE_MAGNITUDE),temp_pointer)
          else
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_DISCHARGE_MAGNITUDE),valobs(:,IPNT_QMAG)                                       )
@@ -2265,31 +2265,31 @@ private
       ! Turbulence model
       if (model_is_3D()) then
          if (iturbulencemodel >= 3 .and. jahistur > 0) then
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_TKIN:IPNT_TKIN+kmx)), temp_pointer, [kmx*ntot])
+            temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_TKIN:IPNT_TKIN+kmx)
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_TKE      ),temp_pointer                            )
          endif
          if (iturbulencemodel == 3 .and. jahistur >0) then
-            call c_f_pointer (c_loc(valobs(1:ntot,IDX_HIS_EPS:IDX_HIS_EPS+kmx)), temp_pointer, [kmx*ntot])
+            temp_pointer(1:kmx*ntot) => valobs(1:ntot,IDX_HIS_EPS:IDX_HIS_EPS+kmx)
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_EPS      ),temp_pointer                     )
          endif
          if (iturbulencemodel > 1) then
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_VICWW:IPNT_VICWW+kmx)), temp_pointer, [kmx*ntot])
+            temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_VICWW:IPNT_VICWW+kmx)
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_VICWW    ),temp_pointer                         )
          endif
          if (iturbulencemodel == 4 .and. jahistur > 0) then
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_TEPS:IPNT_TEPS+kmx)), temp_pointer, [kmx*ntot])
+            temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_TEPS:IPNT_TEPS+kmx)
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_TAU     ),temp_pointer                      )
          endif
       endif
       if (idensform > 0 .and. jaRichardsononoutput > 0 .and. model_is_3D()) then
-         call c_f_pointer (c_loc(valobs(1:ntot,IPNT_RICH:IPNT_RICH+kmx)), temp_pointer, [kmx*ntot])
+         temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_RICH:IPNT_RICH+kmx)
          call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_RICH),temp_pointer)
       endif
 
       ! Gravity + buoyancy
       if (jasal > 0 .and. jahissal > 0) then
          if (model_is_3D()) then
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_SA1:IPNT_SA1+kmx)), temp_pointer, [kmx*ntot])
+            temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_SA1:IPNT_SA1+kmx)
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_SALINITY   ),temp_pointer                                )
          else
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_SALINITY   ),valobs(:,IPNT_SA1)                                )
@@ -2298,7 +2298,7 @@ private
 
       if (jatem > 0 .and. jahistem > 0) then
          if (model_is_3D()) then
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_TEM1:IPNT_TEM1+kmx)), temp_pointer, [kmx*ntot])
+            temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_TEM1:IPNT_TEM1+kmx)
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_TEMPERATURE),temp_pointer)
          else
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_TEMPERATURE),valobs(:,IPNT_TEM1))
@@ -2307,13 +2307,13 @@ private
 
       if( (jasal > 0 .or. jatem > 0 .or. jased > 0 )  .and. jahisrho > 0) then
          if (model_is_3D()) then
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_RHOP:IPNT_RHOP+kmx)), temp_pointer, [kmx*ntot])
+            temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_RHOP:IPNT_RHOP+kmx)
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_POTENTIAL_DENSITY), temp_pointer)
 
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_BRUV:IPNT_BRUV+kmx)), temp_pointer, [kmx*ntot])
+            temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_BRUV:IPNT_BRUV+kmx)
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_BRUNT_VAISALA_N2),temp_pointer                              )
             if (idensform > 10) then
-               call c_f_pointer (c_loc(valobs(1:ntot,IPNT_RHO:IPNT_RHO+kmx)), temp_pointer, [kmx*ntot])
+               temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_RHO:IPNT_RHO+kmx)
                call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_DENSITY),temp_pointer                                )
             endif
          else
@@ -2334,10 +2334,10 @@ private
          end if
          call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_UORB    ),valobs(:,IPNT_WAVEU)                              )
          if (model_is_3D() .and. .not. flowwithoutwaves) then
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCXST:IPNT_UCXST+kmx)), temp_pointer, [kmx*ntot])
+            temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_UCXST:IPNT_UCXST+kmx)
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_USTOKES), temp_pointer)
 
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_UCYST:IPNT_UCYST+kmx)), temp_pointer, [kmx*ntot])
+            temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_UCYST:IPNT_UCYST+kmx)
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_VSTOKES),temp_pointer)
          else
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_USTOKES),valobs(:,IPNT_UCXST)                                 )
@@ -2392,14 +2392,14 @@ private
       ! Sediment model
       if (jased > 0 .and. .not. stm_included) then
          if (model_is_3D()) then
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_SED:IPNT_SED+kmx)), temp_pointer, [kmx*ntot])
+            temp_pointer(1:kmx*ntot) => valobs(1:ntot,IPNT_SED:IPNT_SED+kmx)
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_SED),temp_pointer)
          else
             call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_SED),valobs(:,IPNT_SED)                                  )
          endif
       else if (stm_included .and. ISED1 > 0 .and. jahissed > 0 .and. IVAL_SF1 > 0) then
          if (model_is_3D()) then
-            call c_f_pointer (c_loc(valobs(1:ntot,IVAL_SF1:IVAL_SFN+(IVAL_SFN-IVAL_SF1*kmx))), temp_pointer, [(IVAL_SFN-IPNT_SF1+1)*kmx*ntot])
+            temp_pointer(1:(IVAL_SFN-IPNT_SF1+1)*kmx*ntot) => valobs(1:ntot,IVAL_SF1:IVAL_SFN+(IVAL_SFN-IVAL_SF1*kmx))
          else
             temp_pointer(1:(IVAL_SFN-IPNT_SF1+1)*ntot) => valobs(:,IPNT_SF1:IVAL_SFN)
          end if
@@ -2407,14 +2407,14 @@ private
       endif
       if (IVAL_WS1 > 0) then
          if (model_is_3D()) then
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_WS1:IPNT_WS1+(IVAL_WSN-IVAL_WS1*kmx))), temp_pointer, [(IVAL_WSN-IPNT_WS1+1)*kmx*ntot])
+            temp_pointer(1:(IVAL_WSN-IPNT_WS1+1)*kmx*ntot) => valobs(1:ntot,IPNT_WS1:IPNT_WS1+(IVAL_WSN-IVAL_WS1*kmx))
          else
-            call c_f_pointer (c_loc(valobs(1:ntot,IPNT_WS1:IVAL_WSN)), temp_pointer, [(IVAL_WSN-IPNT_WS1+1)*ntot])
+            temp_pointer(1:(IVAL_WSN-IPNT_WS1+1)*ntot) => valobs(1:ntot,IPNT_WS1:IVAL_WSN)
          endif
          call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_WS),temp_pointer                                                        )
       endif
       if (IVAL_SEDDIF1 > 0) then
-         call c_f_pointer (c_loc(valobs(1:ntot,IPNT_WS1:IPNT_WS1+(IVAL_WSN-IVAL_WS1*kmx))), temp_pointer, [(IVAL_WSN-IPNT_WS1+1)*kmx*ntot])
+         temp_pointer(1:(IVAL_WSN-IPNT_WS1+1)*kmx*ntot) => valobs(1:ntot,IPNT_WS1:IPNT_WS1+(IVAL_WSN-IVAL_WS1*kmx))
          call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_SEDDIF),temp_pointer                                          )
       endif
 
