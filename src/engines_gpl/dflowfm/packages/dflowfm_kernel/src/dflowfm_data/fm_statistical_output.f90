@@ -507,10 +507,6 @@ private
       type(ug_nc_attribute)                             :: atts(1)
       integer                                           :: i
 
-      if (numwqbots == 0) then
-         return
-      end if
-
       call realloc(idx_hwqb_subs_stations, numwqbots, keepExisting = .false., fill = 0)
       
       call ncu_set_att(atts(1), 'geometry', 'station_geom')
@@ -526,7 +522,7 @@ private
          endif
 
          ! add output config item
-         call addoutval(output_config_set, idx_hwqb_subs_stations(i), 'Wrihis_waqb', waqb_sub_name, &
+         call addoutval(output_config_set, idx_hwqb_subs_stations(i), 'Wrihis_wqb', waqb_sub_name, &
                         trim(wqbotnames(i)), '', unit_string, UNC_LOC_STATION, nc_dim_ids = nc_dims_2D, nc_atts = atts)
 
          output_config_set%statout(idx_hwqb_subs_stations(i))%input_value = &
@@ -556,14 +552,6 @@ private
       type(ug_nc_attribute)                             :: atts(1)
       integer                                           :: i
 
-      if (numwqbots == 0) then
-         return
-      end if
-      
-      if (.not. wqbot3D_output == 1) then
-         return
-      end if
-
       call realloc(idx_hwqb3d_subs_stations, numwqbots, keepExisting = .false., fill = 0)
       
       call ncu_set_att(atts(1), 'geometry', 'station_geom')
@@ -579,7 +567,7 @@ private
          endif
 
          ! add output config item
-         call addoutval(output_config_set, idx_hwqb3d_subs_stations(i), 'Wrihis_waqb', waqb_sub_name, &
+         call addoutval(output_config_set, idx_hwqb3d_subs_stations(i), 'Wrihis_wqb', waqb_sub_name, &
                         trim(wqbotnames(i))//' (3D)', '', unit_string, UNC_LOC_STATION, nc_dim_ids = nc_dims_3D_center, nc_atts = atts)
 
          output_config_set%statout(idx_hwqb3d_subs_stations(i))%input_value = &
@@ -600,10 +588,6 @@ private
 
       integer :: i
 
-      if (numwqbots == 0) then
-         return
-      end if
-
       do i = 1, numwqbots
          call add_stat_output_items(output_set, output_config_set%statout(idx_hwqb_subs_stations(i)), valobs(:,IPNT_WQB1 + i-1))
       end do
@@ -621,14 +605,6 @@ private
       integer,                            intent(in   ) :: idx_hwqb3d_subs_stations(:) !< Indices of just-in-time added waq bottom substances in output_config_set array
 
       integer :: i
-
-      if (numwqbots == 0) then
-         return
-      end if
-      
-      if (.not. wqbot3D_output == 1) then
-         return
-      end if
 
       do i = 1, numwqbots
          call add_stat_output_items(output_set, output_config_set%statout(idx_hwqb3d_subs_stations(i)), valobs(:,IPNT_WQB3D1 + i-1))
@@ -1547,6 +1523,14 @@ private
       call addoutval(out_quan_conf_his, IDX_HIS_TRACERS_ABSTRACT, &
                      'Wrihis_tracers', 'station_tracer_abstract', '', &
                      '', '-', UNC_LOC_STATION, description = 'Write tracers to his file')
+
+      call addoutval(out_quan_conf_his, IDX_HIS_HWQB_SUBS_ABSTRACT, &
+                     'Wrihis_wqb', 'station_wqb_abstract', '', &
+                     '', '-', UNC_LOC_STATION, description = 'Write waq bottom substances to his file')
+
+      call addoutval(out_quan_conf_his, IDX_HIS_HWQB3D_SUBS_ABSTRACT, &
+                     'Wriwaqbot3Doutput', 'station_wqb3d_abstract', '', &
+                     '', '-', UNC_LOC_STATION, description = 'Write waq bottom 3D substances to his file')
 
       ! HIS: Variables on observation cross sections
       !
@@ -2691,11 +2675,16 @@ private
             call add_stat_output_items(output_set, output_config_set%statout(idx_his_hwq(i)), water_quality_output_data(:,i))
          end do
       end if
+      
       ! Water quality bottom substances
-      call add_station_hwqb_subs_configs(output_config_set, idx_hwqb_subs_stations)
-      call add_station_hwqb_output_items(output_set, output_config_set, idx_hwqb_subs_stations)
-      call add_station_hwqb3d_subs_configs(output_config_set, idx_hwqb3d_subs_stations)
-      call add_station_hwqb3d_output_items(output_set, output_config_set, idx_hwqb3d_subs_stations)
+      if (numwqbots > 0) then
+         call add_station_hwqb_subs_configs(output_config_set, idx_hwqb_subs_stations)
+         call add_station_hwqb_output_items(output_set, output_config_set, idx_hwqb_subs_stations)
+         if (model_is_3D()) then
+            call add_station_hwqb3d_subs_configs(output_config_set, idx_hwqb3d_subs_stations)
+            call add_station_hwqb3d_output_items(output_set, output_config_set, idx_hwqb3d_subs_stations)
+         end if
+      end if
 
       ! Transported constituents
       if (model_has_tracers()) then
