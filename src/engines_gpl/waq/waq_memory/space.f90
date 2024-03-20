@@ -1,4 +1,4 @@
-!!  Copyright (C)  Stichting Deltares, 2012-2023.
+!!  Copyright (C)  Stichting Deltares, 2012-2024.
 !!
 !!  This program is free software: you can redistribute it and/or modify
 !!  it under the terms of the GNU General Public License version 3,
@@ -25,7 +25,6 @@ MODULE WORKSPACE
 
     use m_waq_precision
     use m_srstop
-    USE PARTITION_ARRAYS
     USE DHMMAR_MOD
     USE DHMMCA_MOD
     USE DHMMJA_MOD
@@ -35,6 +34,7 @@ MODULE WORKSPACE
     use m_sysa          ! Pointers in real array workspace
     use m_sysj          ! Pointers in integer array workspace
     use m_sysc          ! Pointers in character array workspace
+    use m_array_manipulation, only : memory_partition ! module for computing the pointers into the arrays
 
 
     CONTAINS
@@ -126,19 +126,19 @@ MODULE WORKSPACE
                                MOD(ITOT,   1000000)/   1000, &
                                MOD(ITOT,      1000)
         IEFLAG = 0
-        IF ( ITOTA .GT. IMAXA .AND. IMAXA .NE. 0 .AND. L_DECL ) THEN
+        IF ( ITOTA > IMAXA .AND. IMAXA /= 0 .AND. L_DECL ) THEN
             WRITE ( LUNREP, 2010 ) ITOTA, IMAXA
             IEFLAG = 1
         ENDIF
-        IF ( ITOTI .GT. IMAXI .AND. IMAXI .NE. 0 .AND. L_DECL ) THEN
+        IF ( ITOTI > IMAXI .AND. IMAXI /= 0 .AND. L_DECL ) THEN
             WRITE ( LUNREP, 2020 ) ITOTI, IMAXI
             IEFLAG = 1
         ENDIF
-        IF ( ITOTC .GT. IMAXC .AND. IMAXC .NE. 0 .AND. L_DECL ) THEN
+        IF ( ITOTC > IMAXC .AND. IMAXC /= 0 .AND. L_DECL ) THEN
             WRITE ( LUNREP, 2030 ) ITOTC, IMAXC
             IEFLAG = 1
         ENDIF
-        IF ( IEFLAG .EQ.    1 ) THEN
+        IF ( IEFLAG ==    1 ) THEN
             WRITE ( LUNREP, 2040 )
             CALL SRSTOP(1)
         ENDIF
@@ -152,7 +152,7 @@ MODULE WORKSPACE
 
             DEALLOCATE( A )                ! It was allocated at the start
 
-            ALLOCATE( CNEW(part%cpoint) )
+            ALLOCATE( CNEW(part%char_pointer) )
             CNEW = ' '
             DO K2 = 1,SIZE(CNAME)
                 DO K1 = 1,20
@@ -162,13 +162,13 @@ MODULE WORKSPACE
             DEALLOCATE( C )
             C = CNEW
 
-            ALLOCATE( JNEW(part%jpoint) )
+            ALLOCATE( JNEW(part%index_pointer) )
             JNEW = 0
             JNEW(1:SIZE(J)) = J
             DEALLOCATE( J )
             J = JNEW
 
-            ALLOCATE( A(part%apoint) )
+            ALLOCATE( A(part%alpha_pointer) )
             A    = 0.0
 
         ENDIF
