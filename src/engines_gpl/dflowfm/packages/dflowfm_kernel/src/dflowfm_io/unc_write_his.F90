@@ -1550,32 +1550,7 @@ subroutine unc_write_his(tim)            ! wrihis
       endif
 
       if (jahispump > 0 .and. npumpsg > 0) then
-         
-         !do i=1,npumpsg
-         !   ierr = nf90_put_var(ihisfile, id_pump_dis,     valpump(2,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_pump_s1up,    valpump(3,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_pump_s1dn,    valpump(4,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_pump_struhead,valpump(5,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_pump_cap,     valpump(6,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_pump_disdir,  valpump(12,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_pump_stage,int(valpump(7,i)),(/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_pump_head,    valpump(8,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_pump_redufact,valpump(9,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_pump_s1del,   valpump(10,i),(/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_pump_s1suc,   valpump(11,i),(/ i, it_his /))
-         !end do
-        ! ierr = nf90_put_var(ihisfile, id_pump_dis,     valobs(1:npumpsg,IVAL_DIS),      (/ 1, it_his /))
-        ! ierr = nf90_put_var(ihisfile, id_pump_s1up,    valobs(1:npumpsg,IVAL_S1UP),     (/ 1, it_his /))
-        ! ierr = nf90_put_var(ihisfile, id_pump_s1dn,    valobs(1:npumpsg,IVAL_S1DN),     (/ 1, it_his /))
-        ! ierr = nf90_put_var(ihisfile, id_pump_struhead,valobs(1:npumpsg,IVAL_HEAD),     (/ 1, it_his /))
-        ! ierr = nf90_put_var(ihisfile, id_pump_cap,     valobs(1:npumpsg,IVAL_PP_CAP),   (/ 1, it_his /))
-        ! ierr = nf90_put_var(ihisfile, id_pump_disdir,  valobs(1:npumpsg,IVAL_PP_DISDIR),(/ 1, it_his /))
-        !ierr = nf90_put_var(ihisfile, id_pump_stage,int(valobs(1:npumpsg,IVAL_PP_STAG)),(/ 1, it_his /))
-        ! ierr = nf90_put_var(ihisfile, id_pump_head,    valobs(1:npumpsg,IVAL_PP_HEAD),  (/ 1, it_his /))
-        ! ierr = nf90_put_var(ihisfile, id_pump_redufact,valobs(1:npumpsg,IVAL_PP_RED),   (/ 1, it_his /))
-        ! ierr = nf90_put_var(ihisfile, id_pump_s1del,   valobs(1:npumpsg,IVAL_PP_S1DEL), (/ 1, it_his /))
-        ! ierr = nf90_put_var(ihisfile, id_pump_s1suc,   valobs(1:npumpsg,IVAL_PP_S1SUC), (/ 1, it_his /))
-        ! ! write geometry variables at the first time of history output
+         ! write geometry variables at the first time of history output
          if (it_his == 1) then
             if (network%sts%numPumps > 0) then ! new pump
                ierr = nf90_put_var(ihisfile, id_pumpgeom_node_coordx, geomXPump,     start = (/ 1 /), count = (/ nNodesPump /))
@@ -1630,6 +1605,7 @@ subroutine unc_write_his(tim)            ! wrihis
       end if
 
       if (jahisorif > 0 .and. network%sts%numOrifices > 0) then
+         ! write geometry variables at the first time of history output
          do i=1,network%sts%numOrifices
             ierr = nf90_put_var(ihisfile, id_orifgen_dis   ,        valorifgen(IVAL_DIS,i),        (/ i, it_his /))
             ierr = nf90_put_var(ihisfile, id_orifgen_s1up  ,        valorifgen(IVAL_S1UP,i),       (/ i, it_his /))
@@ -1656,19 +1632,8 @@ subroutine unc_write_his(tim)            ! wrihis
                end if
          end if
 
-      if (timon) call timstrt('unc_write_his bridge data', handle_extra(58))
-      if (jahisbridge > 0 .and. network%sts%numBridges > 0) then
-         !do i=1,network%sts%numBridges
-         !   ierr = nf90_put_var(ihisfile, id_bridge_dis,   valbridge(2,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_bridge_s1up,  valbridge(3,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_bridge_s1dn,  valbridge(4,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_bridge_head,  valbridge(5,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_bridge_au,    valbridge(6,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_bridge_vel,   valbridge(7,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_bridge_blup,  valbridge(8,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_bridge_bldn,  valbridge(9,i), (/ i, it_his /))
-         !   ierr = nf90_put_var(ihisfile, id_bridge_bl_act,valbridge(10,i),(/ i, it_his /))
-         !enddo
+         if (timon) call timstrt('unc_write_his bridge data', handle_extra(58))
+         if (jahisbridge > 0 .and. network%sts%numBridges > 0) then
             ierr = nf90_put_var(ihisfile, id_bridge_dis,   valbridge(IVAL_DIS, 1:network%sts%numBridges),     (/ 1, it_his /))
             ierr = nf90_put_var(ihisfile, id_bridge_s1up,  valbridge(IVAL_S1UP, 1:network%sts%numBridges),    (/ 1, it_his /))
             ierr = nf90_put_var(ihisfile, id_bridge_s1dn,  valbridge(IVAL_S1DN, 1:network%sts%numBridges),    (/ 1, it_his /))
@@ -1678,19 +1643,19 @@ subroutine unc_write_his(tim)            ! wrihis
             ierr = nf90_put_var(ihisfile, id_bridge_blup,  valbridge(IVAL_BLUP, 1:network%sts%numBridges),    (/ 1, it_his /))
             ierr = nf90_put_var(ihisfile, id_bridge_bldn,  valbridge(IVAL_BLDN, 1:network%sts%numBridges),    (/ 1, it_his /))
             ierr = nf90_put_var(ihisfile, id_bridge_bl_act,valbridge(IVAL_BLACTUAL,1:network%sts%numBridges), (/ 1, it_his /))
-         ! write geometry variables at the first time of history output
-         if (it_his == 1) then
-            if (timon) call timstrt('Bridge geom', handle_extra(74))
+            ! write geometry variables at the first time of history output
+            if (it_his == 1) then
+               if (timon) call timstrt('Bridge geom', handle_extra(74))
                ierr = nf90_put_var(ihisfile, id_bridgegeom_node_coordx, geomXBridge,     start = (/ 1 /), count = (/ nNodesBridge /))
                ierr = nf90_put_var(ihisfile, id_bridgegeom_node_coordy, geomYBridge,     start = (/ 1 /), count = (/ nNodesBridge /))
                ierr = nf90_put_var(ihisfile, id_bridgegeom_node_count,  nodeCountBridge, start = (/ 1 /), count = (/ network%sts%numBridges /))
                if (allocated(geomXBridge))     deallocate(geomXBridge)
                if (allocated(geomYBridge))     deallocate(geomYBridge)
                if (allocated(nodeCountBridge)) deallocate(nodeCountBridge)
-            if (timon) call timstop(handle_extra(74))
-               end if
+               if (timon) call timstop(handle_extra(74))
+            end if
          end if
-      if (timon) call timstop(handle_extra(58))
+         if (timon) call timstop(handle_extra(58))
 
       if (jahisculv > 0 .and. network%sts%numCulverts > 0) then
          do i=1,network%sts%numCulverts

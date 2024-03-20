@@ -369,7 +369,7 @@ do i=1,nstr
       call realloc(L1dambreaksg,ndambreaksignals) ; L1dambreaksg(ndambreaksignals) = ndambreaklinks + 1
       call realloc(L2dambreaksg,ndambreaksignals) ; L2dambreaksg(ndambreaksignals) = ndambreaklinks + ndambr
 
-      ndambreaklinks   = ndambreaklinks   + ndambr
+      ndambreaklinks = ndambreaklinks + ndambr
 
 
    case ('gate', 'weir', 'generalstructure') !< The various generalstructure-based structures
