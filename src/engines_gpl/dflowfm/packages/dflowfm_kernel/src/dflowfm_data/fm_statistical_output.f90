@@ -486,9 +486,9 @@ private
 
    end subroutine add_station_tracer_output_items
    
-   !> Adds output configs for the waq bottom substances on observation stations just in time,
+   !> Add output configs for the waq bottom substances on observation stations just in time,
    !! because these substances are only known during model initialization.
-   !! Returns config indices for these variables such that they can be added to the output items for the same substances
+   !! Return config indices for these variables such that they can be added to the output items for the same substances
    subroutine add_station_hwqb_subs_configs(output_config_set, idx_hwqb_subs_stations)
    
       use m_fm_wq_processes, only: numwqbots, wqbotnames, wqbotunits
@@ -499,8 +499,8 @@ private
       
       implicit none
       
-      type(t_output_quantity_config_set), intent(inout) :: output_config_set         !< Output configuration for the HIS file.
-      integer, allocatable,               intent(  out) :: idx_hwqb_subs_stations(:) !< Indices of just-in-time added waq bottom    substances in output_config_set array
+      type(t_output_quantity_config_set), intent(inout) :: output_config_set         !< Output configuration set for the HIS file.
+      integer, allocatable,               intent(  out) :: idx_hwqb_subs_stations(:) !< Indices of just-in-time added waq bottom substances in output_config_set array
       
       character(len=idlen)                              :: waqb_sub_name
       character(len=idlen)                              :: unit_string
@@ -512,7 +512,6 @@ private
       call ncu_set_att(atts(1), 'geometry', 'station_geom')
 
       do i = 1, numwqbots
-
          waqb_sub_name = wqbotnames(i)
          call ncu_sanitize_name(waqb_sub_name)
 
@@ -531,9 +530,9 @@ private
    
    end subroutine add_station_hwqb_subs_configs
    
-   !> Adds output configs for the 3D waq bottom substances on observation stations just in time,
+   !> Add output configs for the 3D waq bottom substances on observation stations just in time,
    !! because these substances are only known during model initialization.
-   !! Returns config indices for these variables such that they can be added to the output items for the same substances
+   !! Return config indices for these variables such that they can be added to the output items for the same substances
    subroutine add_station_hwqb3d_subs_configs(output_config_set, idx_hwqb3d_subs_stations)
    
       use m_fm_wq_processes, only: wqbot3D_output, numwqbots, wqbotnames, wqbotunits
@@ -557,7 +556,6 @@ private
       call ncu_set_att(atts(1), 'geometry', 'station_geom')
 
       do i = 1, numwqbots
-
          waqb_sub_name = wqbotnames(i)
          call ncu_sanitize_name(waqb_sub_name)
 
