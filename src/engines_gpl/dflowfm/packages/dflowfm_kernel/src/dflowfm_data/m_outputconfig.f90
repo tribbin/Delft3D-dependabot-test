@@ -657,8 +657,7 @@ end subroutine addoutval
 !> convert id_nc_type to actual nc_type for his file variables
 function id_nc_type2nc_type_his( id_nc_type) result( nc_type)
    use netcdf, only: nf90_byte, nf90_char, nf90_short, nf90_int, nf90_float, nf90_double
-   use m_map_his_precision, only: md_nc_his_precision
-   use string_module, only: str_lower
+   use m_map_his_precision, only: md_nc_his_precision, netcdf_data_type
    implicit none
    
    integer, intent(in   ) :: id_nc_type   !< ID indicating NetCDF variable type, one of: id_nc_double, id_nc_int, etc.
@@ -669,15 +668,7 @@ function id_nc_type2nc_type_his( id_nc_type) result( nc_type)
       call mess(LEVEL_ERROR,'id_nc_type2nc_type_his - Internal error: id_nc_type must be one of the id_nc_[type]s!')
    case (id_nc_undefined)
       ! Use the netcdf precision for his files defined in the mdu
-      call str_lower(md_nc_his_precision)
-         select case (trim(md_nc_his_precision))
-         case ('double')
-             nc_type = nf90_double
-         case ('float', 'single')
-             nc_type = nf90_float
-         case default
-             call mess(LEVEL_ERROR, 'Did not recognise NcHisDataPrecision value. It must be double, single or float.')
-      end select
+      nc_type = netcdf_data_type(md_nc_his_precision)
    case (id_nc_byte)
       nc_type = nf90_byte
    case (id_nc_char)
