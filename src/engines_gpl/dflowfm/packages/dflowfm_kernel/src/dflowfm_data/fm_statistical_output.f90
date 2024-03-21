@@ -2370,7 +2370,7 @@ private
       endif
       
       if (ja_airdensity + ja_computed_airdensity > 0 .and. jahis_airdensity > 0) then
-         call add_stat_output_items(output_set, output_config%statout(IDX_HIS_AIR_DENSITY),valobs(:,IPNT_AIRDENSITY))
+         call add_stat_output_items(output_set, output_config_set%statout(IDX_HIS_AIR_DENSITY),valobs(:,IPNT_AIRDENSITY))
       end if
 
       ! Heat flux model
