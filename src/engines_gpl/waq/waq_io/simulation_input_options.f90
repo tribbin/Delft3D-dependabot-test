@@ -1158,7 +1158,7 @@ contains
         !!           - the zero'th period contains the value nvals*nitem
         !!           - the zero'th phase contains the number of harmoncs
         !!           The routine is entered with ierr = -1  for boundaries and -2 for wastes
-        !     Subroutines called : conver
+        !     Subroutines called : convert_time_format
         !!                          cnvtim
         !!
         !!     Functions called   : gettok tokenized input data file reading
@@ -1166,10 +1166,9 @@ contains
         !!     Logical units      : lunut  = unit formatted output file
         !!                          lununf = unit unformatted output file
 
-        use m_conver
+        use date_time_utils, only : convert_time_format, convert_relative_time
         use rd_token       ! for the reading of tokens
         use timers       !   performance timers
-        use date_time_utils, only : convert_relative_time
 
         integer(kind = int_wp), intent(in) :: iopt           !< 3 Harmonics, 4 Fourier
         integer(kind = int_wp), intent(in) :: nitem          !< number of input items
@@ -1222,7 +1221,7 @@ contains
                     if (gettoken(value(k, i), ierr2) > 0) goto 100
                 enddo
             enddo
-            call conver (iperio(2), nhar, ifact, dtflg, dtflg3)
+            call convert_time_format (iperio(2), nhar, ifact, dtflg, dtflg3)
             value(1, 1) = float(nhar)
 
         case (4)        !      read values if IOPT = 4 ( fourier function )

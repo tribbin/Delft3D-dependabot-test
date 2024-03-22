@@ -41,7 +41,7 @@ contains
         !!      noopt = 2 : the map        file
         !!      noopt = 3 : the history    file
         !! Logical units : lunut = unitnumber formatted output file
-        !! Subroutines called : conver  converts a 'DATE' integer to seconds
+        !! Subroutines called : convert_time_format  converts a 'DATE' integer to seconds
         !!                          convert_string_to_time_offset  converts an absolute time string to seconds
 
         use rd_token     !   for the reading of tokens

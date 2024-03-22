@@ -33,21 +33,10 @@ contains
             SCALE, ODS, BINFIL, IOPT, IPRO, &
             ITFACT, DTFLG1, DTFLG3, IFILSZ, JFILSZ, &
             CAR, STRNG1, STRNG2, STRNG3, IOUTPT)
+
+        ! Prints and writes blocks of data
         !
-        !
-        !     Deltares        SECTOR WATERRESOURCES AND ENVIRONMENT
-        !
-        !     CREATED            : May '96  by L. Postma
-        !
-        !     MODIFIED           :
-        !     jvb  ook voor constanten hebben we in delwaq2 initieel werkruimte nodig als deze kleiner is als de werkruimte
-        !     voor de tijdsafhankelijke zaken. Maar als er bijvoorbeeld geen tijdsafhankelijke zaken zijn komen we in
-        !     delwaq2 in de problemen. Voorlopig tel ik al het werkgeheugen van de contstanten mee.
-        !                          March 2000 L. Postma simplified
-        !
-        !     FUNCTION           : Prints and writes blocks of data
-        !
-        !     SUBROUTINES CALLED : CONVER - converting times of breakpoints
+        !     SUBROUTINES CALLED : convert_time_format - converting times of breakpoints
         !
         !     LOGICAL UNITS      : LUNWR   = unit intermediate file
         !                          LUNUT   = unit formatted output file
@@ -82,10 +71,9 @@ contains
         !     STRNG2  CHAR*(*)    1       INPUT   write string 2 (values/concs)
         !     STRNG3  CHAR*(*)    1       INPUT   write string 3 (brkp/harm)
         !     IOUTPT  INTEGER     1       INPUT   output file option
-        !
-        !
+
         use m_dlwqj2
-        use m_conver
+        use date_time_utils, only : convert_time_format
         use timers       !   performance timers
 
         LOGICAL :: SCALE, ODS, BINFIL, defaults_on
@@ -189,7 +177,7 @@ contains
         IF (NOBRK > 1) THEN
             IF (IOUTPT >= 4) WRITE (LUNUT, 1040) STRNG3, NOBRK
             IF (.NOT. ODS) &
-                    CALL CONVER (IAR(IOFFB:), NOBRK, ITFACT, DTFLG1, DTFLG3)
+                    CALL convert_time_format (IAR(IOFFB:), NOBRK, ITFACT, DTFLG1, DTFLG3)
             IF (defaults_on .AND. IOUTPT >= 4) WRITE (LUNUT, 1050)
         ELSE
             IF (defaults_on) THEN

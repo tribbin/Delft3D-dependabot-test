@@ -34,7 +34,7 @@ module inputs_block_5
 
 contains
 
-    subroutine read_block_5_boundary_conditions (lun, lchar, filtype, car, iar, &
+    subroutine read_block_5_boundary_conditions(lun, lchar, filtype, car, iar, &
             rar, nrftot, nrharm, nobnd, nosys, &
             notot, nobtyp, irmax, iimax, dtflg1, &
             iwidth, intsrt, dtflg3, sname, &
@@ -45,7 +45,7 @@ contains
         !!      - the Tatcher-Harleman time lags
         !!      - the Open boundary concentrations
         !!
-        !! Subroutines called : CONVER, read_constants_time_variables, CHECK, CNVTIM, RDTOK1 tokenized data reading
+        !! Subroutines called : convert_time_format, read_constants_time_variables, CHECK, CNVTIM, RDTOK1
         !! Logical units : LUN(27) = unit stripped DELWAQ input file
         !                  LUN(29) = unit formatted output file
         !                  LUN( 2) = unit intermediate file (system)
@@ -53,13 +53,12 @@ contains
         !                  LUN( 4) = unit intermediate file (pointers)
         !                  LUN(14) = unit intermediate file (boundaries)
 
-        use m_conver
         use error_handling, only : check_error
         use m_srstop
         use m_cli_utils, only : retrieve_command_argument
         use rd_token     !   for the reading of tokens
         use timers       !   performance timers
-        use date_time_utils, only : convert_relative_time
+        use date_time_utils, only : convert_relative_time, convert_time_format
 
         integer(kind = int_wp), intent(in) :: irmax              !< size of the real workspace
         integer(kind = int_wp), intent(inout) :: lun(:)             !< array with unit numbers
@@ -315,7 +314,7 @@ contains
             write (lunut, 2150)
         endif
         if (dtflg1) then
-            call conver (iar, nobnd, ifact, dtflg1, dtflg3)
+            call convert_time_format (iar, nobnd, ifact, dtflg1, dtflg3)
             if (ioutpt >= 3) write (lunut, 2160) &
                     (iar(k) / 31536000, mod(iar(k), 31536000) / 86400, &
                     mod(iar(k), 86400) / 3600, mod(iar(k), 3600) / 60, &
@@ -397,7 +396,7 @@ contains
             goto 160
         endif
         if (dtflg1) &
-                call conver (iar, nobnd, ifact, dtflg1, dtflg3)
+                call convert_time_format (iar, nobnd, ifact, dtflg1, dtflg3)
         if (nover > 0 .and. ioutpt >= 3) write (lunut, 2230)
         do i = 1, nover
             ibnd = iabs(iar(i + nobnd))

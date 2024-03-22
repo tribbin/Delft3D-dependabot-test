@@ -37,7 +37,7 @@ contains
 
         ! Boundary and waste data new style Data retrieval from an ODS file
         !
-        !     Subroutines called : conver - converting times of breakpoints
+        !     Subroutines called : convert_time_format - converting times of breakpoints
         !
         !     Logical units      : lunut   = report file
         !

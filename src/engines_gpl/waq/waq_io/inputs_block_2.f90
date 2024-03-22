@@ -49,7 +49,6 @@ contains
         !>    - start, step and stop time of the history file
         !>    - start, step and stop time of the map file
 
-        use m_conver
         use error_handling, only : check_error
         use m_report_date_time
         use m_rdpart
@@ -65,7 +64,7 @@ contains
         use timers       !   performance timers
         use m_sysi          ! Timer characteristics
         use date_time_utils, only : convert_string_to_time_offset, simulation_start_time_scu, &
-                simulation_stop_time_scu, convert_relative_time
+                simulation_stop_time_scu, convert_relative_time, convert_time_format
         use waq_timers, only : timer
         use monitoring_areas, only : read_monitoring_transects, read_monitoring_areas
         use integration_options, only : check_integration_option
@@ -413,7 +412,7 @@ contains
             write (lun(4)) -1, (0, k = 1, 3)
 
             if (dtflg1) then
-                call conver (iar, nobrk * 2, 1, dtflg1, dtflg3)
+                call convert_time_format (iar, nobrk * 2, 1, dtflg1, dtflg3)
             end if
 
             if (ioutpt >= 4) then
