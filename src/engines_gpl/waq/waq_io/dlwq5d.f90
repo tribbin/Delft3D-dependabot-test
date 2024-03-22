@@ -31,7 +31,7 @@ contains
     SUBROUTINE DLWQ5D (LUNUT, IAR, RAR, IIMAX, IRMAX, &
             IPOSR, NPOS, ILUN, LCH, LSTACK, &
             CCHAR, CHULP, NOTOT, NOTOTC, time_dependent, NOBRK, &
-            time_function_type, DTFLG1, DTFLG3, ITFACT, ITYPE, &
+            time_function_type, is_date_format, is_yyddhh_format, ITFACT, ITYPE, &
             IHULP, RHULP, IERR, ierr3)
         !! Boundary and waste data new style
         !
@@ -63,8 +63,8 @@ contains
         !     ITTIM   INTEGER    1         INPUT   0 if steady, 1 if time function
         !     NOBRK   INTEGER    1         OUTPUT  number of records read
         !     time_function_type    INTEGER    1         INPUT   3 is harmonics, 4 is fourier
-        !     DTFLG1  LOGICAL    1         INPUT   True if time in 'date' format
-        !     DTFLG3  LOGICAL    1         INPUT   True if YYetc instead of DDetc
+        !     is_date_format  LOGICAL    1         INPUT   True if time in 'date' format
+        !     is_yyddhh_format  LOGICAL    1         INPUT   True if YYetc instead of DDetc
         !     ITFACT  INTEGER    1         INPUT   factor between clocks
         !     ITYPE   INTEGER    1         OUTPUT  type of info at end
         !     IERR    INTEGER    1         OUTPUT  return code
@@ -80,7 +80,7 @@ contains
         CHARACTER*(*) LCH(LSTACK), CHULP
         CHARACTER*1   CCHAR
         DIMENSION     IAR(*), ILUN(LSTACK)
-        LOGICAL       NEWREC, DTFLG1, DTFLG3, IGNORE
+        LOGICAL       NEWREC, is_date_format, is_yyddhh_format, IGNORE
         integer(kind = int_wp) :: ihulp
         integer(kind = int_wp) :: ithndl = 0
         integer(kind = int_wp) :: nobrk, itel, itel2, ierr3, itype
@@ -131,7 +131,7 @@ contains
             ENDIF
             IHULP = ITFACT * IHULP
         ELSEIF (ITYPE == 2) THEN
-            call convert_relative_time (IHULP, 1, DTFLG1, DTFLG3)
+            call convert_relative_time (IHULP, 1, is_date_format, is_yyddhh_format)
         else
             ihulp = 0
         ENDIF

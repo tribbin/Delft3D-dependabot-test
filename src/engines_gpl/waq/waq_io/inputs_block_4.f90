@@ -38,7 +38,7 @@ module inputs_block_4
 contains
 
     subroutine read_block_4_flow_dims_pointers (lun, lchar, filtype, nrftot, nrharm, &
-            ilflag, dtflg1, iwidth, intsrt, dtflg3, &
+            ilflag, is_date_format, iwidth, intsrt, is_yyddhh_format, &
             output_verbose_level, nsegdmp, isegdmp, nexcraai, &
             iexcraai, ioptraai, gridps, status, &
             has_hydfile, nexch)
@@ -92,10 +92,10 @@ contains
         integer(kind = int_wp), intent(inout) :: nrftot (*)         !< number of function items
         integer(kind = int_wp), intent(inout) :: nrharm (*)         !< number of harmonic items
         integer(kind = int_wp), intent(out) :: ilflag             !< length flag
-        logical, intent(in) :: dtflg1            !< 'date'-format 1st timescale
+        logical, intent(in) :: is_date_format            !< 'date'-format 1st timescale
         integer(kind = int_wp), intent(in) :: iwidth             !< width of the output file
         integer(kind = int_wp), intent(in) :: intsrt             !< integration option
-        logical, intent(in) :: dtflg3            !< 'date'-format (F;ddmmhhss,T;yydddhh)
+        logical, intent(in) :: is_yyddhh_format            !< 'date'-format (F;ddmmhhss,T;yydddhh)
         integer(kind = int_wp), intent(in) :: output_verbose_level             !< flag for more or less output
         integer(kind = int_wp), intent(in) :: nsegdmp (*)        !< number of volumes in this monitoring area
         integer(kind = int_wp), intent(inout) :: isegdmp (*)        !< computational volume numbers
@@ -353,7 +353,7 @@ contains
 
             if (regular) then  !        Regular grid
                 call process_simulation_input_options (iopt1, lun, 8, lchar, filtype, &
-                        dtflg1, dtflg3, 0, ierr2, status, &
+                        is_date_format, is_yyddhh_format, 0, ierr2, status, &
                         .false.)
                 if (ierr2  > 0) goto 100
                 noqt = noq4
@@ -366,7 +366,7 @@ contains
         endif
         if (has_hydfile .or. .not. (regular)) then  ! Irregular grid/hyd-file
             call process_simulation_input_options (iopt1, lun, 44, lchar, filtype, &
-                    dtflg1, dtflg3, 0, ierr2, status, &
+                    is_date_format, is_yyddhh_format, 0, ierr2, status, &
                     has_hydfile)
             if (ierr2  > 0) goto 100
             noqt = noq + noq4
@@ -411,8 +411,8 @@ contains
         ierr2 = 0
         call read_constants_time_variables   (lun, 9, noq1, noq2, noq3, &
                 nodisp, 1, nrftot(3), nrharm(3), ifact, &
-                dtflg1, disper, volume, iwidth, lchar, &
-                filtype, dtflg3, output_verbose_level, ierr2, &
+                is_date_format, disper, volume, iwidth, lchar, &
+                filtype, is_yyddhh_format, output_verbose_level, ierr2, &
                 status, .false.)
         call status%increase_error_count_with(ierr2)
         disper = .false.
@@ -423,8 +423,8 @@ contains
         ierr2 = 0
         call read_constants_time_variables   (lun, 10, noq1, noq2, noq3, &
                 1, 1, nrftot(4), nrharm(4), ifact, &
-                dtflg1, disper, volume, iwidth, lchar, &
-                filtype, dtflg3, output_verbose_level, ierr2, &
+                is_date_format, disper, volume, iwidth, lchar, &
+                filtype, is_yyddhh_format, output_verbose_level, ierr2, &
                 status, has_hydfile)
         call status%increase_error_count_with(ierr2)
 
@@ -434,8 +434,8 @@ contains
         ierr2 = 0
         call read_constants_time_variables   (lun, 11, noq1, noq2, noq3, &
                 1, 1, nrftot(5), nrharm(5), ifact, &
-                dtflg1, disper, volume, iwidth, lchar, &
-                filtype, dtflg3, output_verbose_level, ierr2, &
+                is_date_format, disper, volume, iwidth, lchar, &
+                filtype, is_yyddhh_format, output_verbose_level, ierr2, &
                 status, has_hydfile)
         call status%increase_error_count_with(ierr2)
         if (.not. alone) then
@@ -452,8 +452,8 @@ contains
             ierr2 = 0
             call read_constants_time_variables   (lun, 12, noq1, noq2, noq3, &
                     novelo, 1, nrftot(6), nrharm(6), ifact, &
-                    dtflg1, disper, volume, iwidth, lchar, &
-                    filtype, dtflg3, output_verbose_level, ierr2, &
+                    is_date_format, disper, volume, iwidth, lchar, &
+                    filtype, is_yyddhh_format, output_verbose_level, ierr2, &
                     status, .false.)
             call status%increase_error_count_with(ierr2)
         endif
@@ -482,8 +482,8 @@ contains
             ierr2 = 0
             call read_constants_time_variables   (lun, 13, noq1, noq2, noq3, &
                     2, 1, nrftot(7), nrharm(7), ifact, &
-                    dtflg1, disper, volume, iwidth, lchar, &
-                    filtype, dtflg3, output_verbose_level, ierr2, &
+                    is_date_format, disper, volume, iwidth, lchar, &
+                    filtype, is_yyddhh_format, output_verbose_level, ierr2, &
                     status, has_hydfile)
 
         case default
@@ -526,7 +526,7 @@ contains
         idum = 0
 
         call process_simulation_input_options (iopt1, lun, idum, lchar, filtype, &
-                dtflg1, dtflg3, 0, ierr2, status, &
+                is_date_format, is_yyddhh_format, 0, ierr2, status, &
                 .false.)
         if (ierr2  > 0) goto 100
 

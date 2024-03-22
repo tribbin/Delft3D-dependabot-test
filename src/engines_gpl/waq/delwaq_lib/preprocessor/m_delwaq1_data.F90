@@ -62,9 +62,9 @@ module m_delwaq1_data
     ! files, unit numbers, include file stack, input file settings
     integer :: filtype(nlun)
     character(len = lchmax) :: runid                  !< runid
-    logical :: dtflg1                 !< first flag concerning time formats
+    logical :: is_date_format                 !< first flag concerning time formats
     logical :: dtflg2                 !< second flag concerning time formats
-    logical :: dtflg3                 !< third flag concerning time formats
+    logical :: is_yyddhh_format                 !< third flag concerning time formats
     logical :: has_hydfile            !< does the input file refer to a hyd file?
     integer, dimension(3) :: nexch                  !< number of exchanges in each direction from hyd file
     type(inputfilestack) :: inpfil                 !< input file strucure with include stack and flags

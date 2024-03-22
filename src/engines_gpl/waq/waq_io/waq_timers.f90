@@ -31,8 +31,8 @@ module waq_timers
 contains
 
 
-    subroutine timer(dtflg1, it1, it2, it3, noopt, &
-            dtflg3, ierr)
+    subroutine timer(is_date_format, it1, it2, it3, noopt, &
+            is_yyddhh_format, ierr)
 
         !! Reads and reports timers
         !!
@@ -48,12 +48,12 @@ contains
         use timers       !   performance timers
         use date_time_utils, only : convert_string_to_time_offset, convert_relative_time
 
-        logical, intent(in) :: dtflg1         !< 'date'-format
+        logical, intent(in) :: is_date_format         !< 'date'-format
         integer(kind = int_wp), intent(out) :: it1             !< start time
         integer(kind = int_wp), intent(out) :: it2             !< stop  time
         integer(kind = int_wp), intent(out) :: it3             !< time step
         integer(kind = int_wp), intent(in) :: noopt           !< kind of timer
-        logical, intent(in) :: dtflg3         !< yydddhh instead of ddhhmmss
+        logical, intent(in) :: is_yyddhh_format         !< yydddhh instead of ddhhmmss
         integer(kind = int_wp), intent(out) :: ierr            !< not zero if error
 
         integer(kind = int_wp) :: itype           !  help variable for tokenized reading
@@ -78,7 +78,7 @@ contains
                 goto 9999
             endif
         else
-            call convert_relative_time (it1, 1, dtflg1, dtflg3)
+            call convert_relative_time (it1, 1, is_date_format, is_yyddhh_format)
         endif
 
         if (gettoken(cdummy, it2, itype, ierr) > 0) goto 9999
@@ -93,7 +93,7 @@ contains
                 goto 9999
             endif
         else
-            call convert_relative_time (it2, 1, dtflg1, dtflg3)
+            call convert_relative_time (it2, 1, is_date_format, is_yyddhh_format)
         endif
 
         if (gettoken(cdummy, it3, itype, ierr) > 0) goto 9999
@@ -108,11 +108,11 @@ contains
                 goto 9999
             endif
         else
-            call convert_relative_time (it3, 1, dtflg1, dtflg3)
+            call convert_relative_time (it3, 1, is_date_format, is_yyddhh_format)
         endif
 
         write (lunut, 2000) txt(noopt)
-        if (dtflg1) then
+        if (is_date_format) then
             write (lunut, 2010)it1 / 31536000, mod(it1, 31536000) / 86400, &
                     mod(it1, 86400) / 3600, mod(it1, 3600) / 60, &
                     mod(it1, 60), &

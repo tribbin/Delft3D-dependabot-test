@@ -33,27 +33,13 @@ contains
     subroutine dlwq5g (lunut, i_array, count_items_assign, count_items_comp_rule, count_subs_assign, &
             count_subs_comp_rule, index_first, i_max, names_to_check, start_in_line, &
             npos, ilun, lch, lstack, cchar, &
-            chulp, nocol, dtflg1, dtflg3, itfact, &
+            chulp, nocol, is_date_format, is_yyddhh_format, itfact, &
             itype, ihulp, rhulp, error_idx, status)
+
+        ! Checks if column header exists
+        ! Logical Units : LUN(27) = unit stripped DELWAQ input file
+        !                 LUN(29) = unit formatted output file
         !
-        !
-        !     Deltares        Sector Waterresources And Environment
-        !
-        !     Created            : March '00  by L. Postma
-        !
-        !     Modified           :
-        !
-        !     Function           : Checks if column header exists
-        !
-        !     Subroutines Called : none
-        !
-        !     Logical Units      : LUN(27) = unit stripped DELWAQ input file
-        !                          LUN(29) = unit formatted output file
-        !
-        !     Parameters    :
-        !
-        !     Name                    Kind         Length     Funct.  Description
-        !     ------------------------------------------------------------------------------------
         !     lunut                  integer        1            input   unit number for ascii output
         !     i_array                integer      i_max          in/out  integer workspace array
         !     i_max                  integer        1            input   max. integer workspace dimension
@@ -74,8 +60,8 @@ contains
         !     cchar                  char*1         1            input   comment character
         !     chulp                  char*(*)       1            output  space for limiting token
         !     nocol                  integer        1            output  number of collums in matrix
-        !     dtflg1                 logical        1            input   true if time in 'date' format
-        !     dtflg3                 logical        1            input   true if yyetc instead of ddetc
+        !     is_date_format                 logical        1            input   true if time in 'date' format
+        !     is_yyddhh_format                 logical        1            input   true if yyetc instead of ddetc
         !     itfact                 integer        1            input   factor between clocks
         !     itype                  integer        1            output  type of info at end
         !     ihulp                  integer        1            output  parameter read to be transferred
@@ -94,7 +80,7 @@ contains
         character*(*) lch   (lstack), chulp, names_to_check(:)
         character     cchar*1, strng*8
         dimension     i_array(:), ilun(lstack)
-        logical       dtflg1, dtflg3, first, must_read_more
+        logical       is_date_format, is_yyddhh_format, first, must_read_more
         integer(kind = INT64) :: ihulp8
         integer(kind = int_wp) :: ithndl = 0
         integer(kind = int_wp) :: i, count_items_comp_rule, count_subs_assign, count_subs_comp_rule, index_first, offset_names
@@ -168,7 +154,7 @@ contains
                 write (lunut, 1000) nocol, chulp, strng
             else
                 if (itype == 2) then ! an integer has arrived
-                    call convert_relative_time (ihulp, itfact, dtflg1, dtflg3)
+                    call convert_relative_time (ihulp, itfact, is_date_format, is_yyddhh_format)
                 endif
                 error_idx = -1
                 must_read_more = .false.

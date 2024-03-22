@@ -37,7 +37,7 @@ contains
     subroutine read_block_6_waste_loads_withdrawals (lun, lchar, filtype, icmax, car, &
             iimax, iar, irmax, rar, notot, &
             noseg, sname, nowst, nowtyp, nrftot, &
-            nrharm, dtflg1, dtflg3, iwidth, &
+            nrharm, is_date_format, is_yyddhh_format, iwidth, &
             output_verbose_level, chkpar, status)
 
         !! Reads all inputs associated with waste loads and withdrawals
@@ -79,8 +79,8 @@ contains
         integer(kind = int_wp), intent(out) :: nowtyp          !< number of waste load types
         integer(kind = int_wp), intent(inout) :: nrftot(11)    !< number of function items per kind
         integer(kind = int_wp), intent(inout) :: nrharm(11)    !< number of harmonic items per kind
-        logical, intent(in) :: dtflg1         !< if true then 'date'-format for 2nd time scale
-        logical, intent(in) :: dtflg3         !< 'date'-format (F;ddmmhhss,T;yydddhh)
+        logical, intent(in) :: is_date_format         !< if true then 'date'-format for 2nd time scale
+        logical, intent(in) :: is_yyddhh_format         !< 'date'-format (F;ddmmhhss,T;yydddhh)
         integer(kind = int_wp), intent(in) :: iwidth          !< width of the output file
         integer(kind = int_wp), intent(in) :: output_verbose_level          !< Degree of output in report file
         logical, intent(out) :: chkpar(2)     !< Check for parameters SURF and LENGTH
@@ -129,7 +129,7 @@ contains
         if (nowst < 0) then       !   it says that info comes from auxiliary file
             write (lunut, 2000) nowst
             call process_simulation_input_options   (-1, lun, 15, lchar, filtype, &
-                    dtflg1, dtflg3, 0, ierr2, status, &
+                    is_date_format, is_yyddhh_format, 0, ierr2, status, &
                     .false.)
             if (ierr2 > 0) goto 20
             if (gettoken(nowst, ierr2) > 0) goto 20
@@ -318,7 +318,7 @@ contains
         call dlwq5a (lun, lchar, 15, iwidth, icmax, &
                 car, iimax, iar, irmax, rar, &
                 sname, wstid, wsttype, nowst, idummy, &
-                nowtyp, drar, dtflg1, dtflg3, &
+                nowtyp, drar, is_date_format, is_yyddhh_format, &
                 output_verbose_level, ierr2, status)
         deallocate(drar)
         if (ierr2 ==  0) then

@@ -30,7 +30,7 @@ contains
 
 
     subroutine fmread (nitem, item, nvals, nfact, factor, &
-            nobrk, ibrk, arrin, dtflg, dtflg3, &
+            nobrk, ibrk, arrin, dtflg, is_yyddhh_format, &
             ifact, iwidth, output_verbose_level, ierr)
 
         !! Reads blocks of matrices of input values and scales them
@@ -61,7 +61,7 @@ contains
         integer(kind = int_wp), intent(out) :: ibrk  (nobrk)              !< breakpoints read
         real(kind = real_wp), intent(out) :: arrin (nvals, nitem, nobrk)  !< breakpoints read
         logical  (4), intent(in) :: dtflg                     !< 'date'-format time scale
-        logical  (4), intent(in) :: dtflg3                    !< (F;ddmmhhss,T;yydddhh)
+        logical  (4), intent(in) :: is_yyddhh_format                    !< (F;ddmmhhss,T;yydddhh)
         integer(kind = int_wp), intent(in) :: ifact                      !< factor between timings
         integer(kind = int_wp), intent(in) :: iwidth                     !< width of the output file
         integer(kind = int_wp), intent(in) :: output_verbose_level                     !< how extensive is output ?
@@ -95,7 +95,7 @@ contains
                 endif
             else                                                        !  an integer for stop time
                 if (output_verbose_level >= 4) write (lunut, 2040) i1, ibrk(i1)
-                call convert_relative_time (ibrk(i1), ifact, dtflg, dtflg3)
+                call convert_relative_time (ibrk(i1), ifact, dtflg, is_yyddhh_format)
             endif
 
             do i3 = 1, nitem

@@ -22,6 +22,7 @@
 !!  rights reserved.
 module m_dlwq5a
     use m_waq_precision
+    use timers
     use m_string_utils
     use waq_timers, only : read_time_delay
     use m_dlwq5g
@@ -74,7 +75,6 @@ contains
         use error_handling, only : check_error
         use m_open_waq_files
         use rd_token
-        use timers       !   performance timers
         use dlwq_hyd_data
         use m_sysn          ! System characteristics
         use m_sysi          ! Timer characteristics
@@ -778,7 +778,6 @@ contains
         !! Prints and writes blocks of data
 
         use date_time_utils, only : convert_time_format
-        use timers       !   performance timers
 
         logical :: has_scale_factors, info_from_binary_file, defaults_on
         logical, intent(in) :: convert_breakpoint   !! T = Breakpoints are converted
@@ -978,7 +977,6 @@ contains
             real_array, int_count, real_count)
 
         !! Writes blocks of breakpoint data
-        use timers       !   performance timers
 
         integer(kind = int_wp), intent(in) :: num_integers                  !! nr of integers per breakpoint
         integer(kind = int_wp), intent(in) :: num_items                     !! nr of breakpoints to write

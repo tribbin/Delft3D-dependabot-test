@@ -28,7 +28,7 @@ module m_read_data
 contains
 
 
-    subroutine read_data(data_block, itfact, dtflg1, dtflg3, ierr)
+    subroutine read_data(data_block, itfact, is_date_format, is_yyddhh_format, ierr)
 
         !! read a (time dependent) data matrix from input
 
@@ -39,8 +39,8 @@ contains
 
         type(t_dlwqdata), intent(inout) :: data_block   ! data block
         integer(kind = int_wp), intent(in) :: itfact        ! factor between clocks
-        logical, intent(in) :: dtflg1       ! true if time in 'date' format
-        logical, intent(in) :: dtflg3       ! true if yyetc instead of ddetc
+        logical, intent(in) :: is_date_format       ! true if time in 'date' format
+        logical, intent(in) :: is_yyddhh_format       ! true if yyetc instead of ddetc
         integer(kind = int_wp), intent(inout) :: ierr          ! cummulative error count
 
         ! local declarations
@@ -123,7 +123,7 @@ contains
                         exit breakpoints
                     endif
                 else
-                    call convert_relative_time (itoken, itfact, dtflg1, dtflg3)
+                    call convert_relative_time (itoken, itfact, is_date_format, is_yyddhh_format)
                 endif
 
                 nobrk = nobrk + 1

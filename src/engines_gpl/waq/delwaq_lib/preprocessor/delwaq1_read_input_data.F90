@@ -87,14 +87,14 @@ contains
         nullify (iexcraai)
         nullify (ioptraai)
         call read_block_2_from_input(lun, lchar, filtype, nrftot, nlines, &
-                npoins, dtflg1, dtflg2, nodump, iopt, &
-                noint, iwidth, dtflg3, ndmpar, ntdmps, &
+                npoins, is_date_format, dtflg2, nodump, iopt, &
+                noint, iwidth, is_yyddhh_format, ndmpar, ntdmps, &
                 noraai, ntraaq, nosys, notot, nototp, &
                 output_verbose_level, nsegdmp, isegdmp, nexcraai, &
                 iexcraai, ioptraai, status)
 
         call read_block_3_grid_layout(lun, lchar, filtype, nrftot, nrharm, &
-                ivflag, dtflg1, iwidth, dtflg3, &
+                ivflag, is_date_format, iwidth, is_yyddhh_format, &
                 output_verbose_level, gridps, syname, status, &
                 has_hydfile, nexch)
 
@@ -104,7 +104,7 @@ contains
         if (.not. associated(iexcraai)) allocate (iexcraai(1))
         if (.not. associated(ioptraai)) allocate (ioptraai(1))
         call read_block_4_flow_dims_pointers(lun, lchar, filtype, nrftot, nrharm, &
-                ilflag, dtflg1, iwidth, intsrt, dtflg3, &
+                ilflag, is_date_format, iwidth, intsrt, is_yyddhh_format, &
                 output_verbose_level, nsegdmp, isegdmp, nexcraai, &
                 iexcraai, ioptraai, gridps, status, &
                 has_hydfile, nexch)
@@ -117,8 +117,8 @@ contains
         deltim = otime
         call read_block_5_boundary_conditions(lun, lchar, filtype, car, iar, &
                 rar, nrftot, nrharm, nobnd, nosys, &
-                notot, nobtyp, rmax, imax, dtflg1, &
-                iwidth, intsrt, dtflg3, syname, &
+                notot, nobtyp, rmax, imax, is_date_format, &
+                iwidth, intsrt, is_yyddhh_format, syname, &
                 icmak, output_verbose_level, status)
 
         deltim = otime
@@ -127,13 +127,13 @@ contains
         call read_block_6_waste_loads_withdrawals(lun, lchar, filtype, icmak, car(k), &
                 imax, iar, rmax, rar, notot, &
                 nosss, syname, nowst, nowtyp, nrftot, &
-                nrharm, dtflg1, dtflg3, iwidth, &
+                nrharm, is_date_format, is_yyddhh_format, iwidth, &
                 output_verbose_level, chkpar, status)
 
         novec = 50
-        inpfil%dtflg1 = dtflg1
+        inpfil%is_date_format = is_date_format
         inpfil%dtflg2 = dtflg2
-        inpfil%dtflg3 = dtflg3
+        inpfil%is_yyddhh_format = is_yyddhh_format
         inpfil%itfact = itfact
 
         nrharm(10) = 0
@@ -158,7 +158,7 @@ contains
         call setup_statistical(lunrep, npos, cchar, &
                 ilun, lch, &
                 lstack, output_verbose_level, &
-                dtflg1, dtflg3, &
+                is_date_format, is_yyddhh_format, &
                 statprocesdef, allitems, &
                 status)
         write (lunrep, '(//'' Messages presented in this .lst file:'')')

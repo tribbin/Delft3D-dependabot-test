@@ -31,8 +31,8 @@ module m_block_2_input_reader
 contains
 
     subroutine read_block_2_from_input (lun, lchar, filtype, nrftot, nlines, &
-            npoins, dtflg1, dtflg2, nodump, iopt, &
-            noint, iwidth, dtflg3, ndmpar, ntdmps, &
+            npoins, is_date_format, dtflg2, nodump, iopt, &
+            noint, iwidth, is_yyddhh_format, ndmpar, ntdmps, &
             noraai, ntraaq, nosys, notot, nototp, &
             output_verbose_level, nsegdmp, isegdmp, nexcraai, &
             iexcraai, ioptraai, status)
@@ -95,9 +95,9 @@ contains
         integer(kind = int_wp), intent(out) :: nototp   !< notot inclusive of partcle substances
         integer(kind = int_wp), intent(in) :: output_verbose_level   !< flag for more or less output
 
-        logical, intent(out) :: dtflg1 !< 'date'-format 1st timescale
+        logical, intent(out) :: is_date_format !< 'date'-format 1st timescale
         logical, intent(out) :: dtflg2 !< 'date'-format 2nd timescale
-        logical, intent(out) :: dtflg3 !< 'date'-format (F;ddmmhhss,T;yydddhh)
+        logical, intent(out) :: is_yyddhh_format !< 'date'-format (F;ddmmhhss,T;yydddhh)
 
         type(error_status) :: status !< current error status
 
@@ -132,9 +132,9 @@ contains
 
         !       Initialisation of timers
 
-        dtflg1 = .false.
+        is_date_format = .false.
         dtflg2 = .false.
-        dtflg3 = .false.
+        is_yyddhh_format = .false.
         isflag = 0
         iposr = 0
         ierr2 = 0
@@ -159,7 +159,7 @@ contains
         !        Day string for date1                                              for date2:
 
         if (date1 == 'DDHHMMSS' .or. date1 == 'ddhhmmss') then
-            dtflg1 = .true.
+            is_date_format = .true.
             isflag = 1
             write (lunut, *)' System clock in date-format  DDHHMMSS '
             if (date2 == 'DDHHMMSS' .or. date2 == 'ddhhmmss') then    ! allowed
@@ -180,8 +180,8 @@ contains
             !        Year string for date1
 
         elseif (date1 == 'YYDDDHH' .or. date1 == 'yydddhh') then
-            dtflg1 = .true.
-            dtflg3 = .true.
+            is_date_format = .true.
+            is_yyddhh_format = .true.
             isflag = 1
             write (lunut, *) ' System clock in date-format  YYDDDHH '
             if (date2 == 'YYDDDHH' .or. date2 == 'yydddhh') then      ! allowed
@@ -290,7 +290,7 @@ contains
         enddo
         if (itype == 2) then
             itstrt = idummy                                             !  it was an integer for start time
-            call convert_relative_time (itstrt, 1, dtflg1, dtflg3)    !  convert it to seconds
+            call convert_relative_time (itstrt, 1, is_date_format, is_yyddhh_format)    !  convert it to seconds
         endif
         if (.not. alone) then
             if (itstrt /= itstrtp) then
@@ -317,7 +317,7 @@ contains
             endif
         else                                                           !  an integer for stop time
             itstop = idummy
-            call convert_relative_time (itstop, 1, dtflg1, dtflg3)
+            call convert_relative_time (itstop, 1, is_date_format, is_yyddhh_format)
         endif
         if (.not. alone) then
             if (itstop /= itstopp) then
@@ -339,7 +339,7 @@ contains
                     ') smaller than start time(', itstrt, ').'
             call status%increase_error_count()
         endif
-        if (dtflg1) then
+        if (is_date_format) then
             write (lunut, '(A, A, /, A, A)') &
                     ' Start of simulation :', get_formatted_date_time(itstrt), &
                     ' End of simulation   :', get_formatted_date_time(itstop)
@@ -370,8 +370,8 @@ contains
             ! constant time step
         case (0)
             if (gettoken(idt, ierr2) > 0) goto 30
-            if (dtflg1) then
-                call convert_relative_time (idt, 1, dtflg1, dtflg3)
+            if (is_date_format) then
+                call convert_relative_time (idt, 1, is_date_format, is_yyddhh_format)
                 write (lunut, *) ' Integration time stepsize is :' // get_formatted_date_time(idt)
             else
                 write (lunut, '(A, I9)') ' Integration time stepsize is :', idt
@@ -411,14 +411,14 @@ contains
             npoins = npoins + 1 + 3
             write (lun(4)) -1, (0, k = 1, 3)
 
-            if (dtflg1) then
-                call convert_time_format (iar, nobrk * 2, 1, dtflg1, dtflg3)
+            if (is_date_format) then
+                call convert_time_format (iar, nobrk * 2, 1, is_date_format, is_yyddhh_format)
             end if
 
             if (output_verbose_level >= 4) then
                 write (lunut, '(A,/)') ' Breakpoint          Timestep '
 
-                if (dtflg1) then
+                if (is_date_format) then
                     do k = 1, nobrk * 2, 2
                         write (lunut, '(A, 3X, A)') &
                                 get_formatted_date_time(iar(k)), &
@@ -508,13 +508,13 @@ contains
 
         if ((intsrt <  6 .or. intsrt > 9) .and. &
                 (intsrt < 17 .or. intsrt > 18)) then
-            call timer  (dtflg1, imstrt, imstop, imstep, 1, dtflg3, ierr2)
+            call timer  (is_date_format, imstrt, imstop, imstep, 1, is_yyddhh_format, ierr2)
             if (ierr2 > 0) goto 30
 
-            call timer  (dtflg1, idstrt, idstop, idstep, 2, dtflg3, ierr2)
+            call timer  (is_date_format, idstrt, idstop, idstep, 2, is_yyddhh_format, ierr2)
             if (ierr2 > 0) goto 30
 
-            call timer  (dtflg1, ihstrt, ihstop, ihstep, 3, dtflg3, ierr2)
+            call timer  (is_date_format, ihstrt, ihstop, ihstep, 3, is_yyddhh_format, ierr2)
             if (ierr2 > 0) goto 30
         endif
         ierr2 = 0

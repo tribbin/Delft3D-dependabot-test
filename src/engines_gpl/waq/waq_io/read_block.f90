@@ -105,7 +105,7 @@ contains
         logical :: lsegfuncheck ! Do check if segmentfunctions are correct
         integer(kind = INT64) :: filesize      ! Reported size of the file
 
-        logical       dtflg1, dtflg2, dtflg3
+        logical       is_date_format, dtflg2, is_yyddhh_format
         integer(kind = int_wp) :: chkflg, itfact
         integer(kind = int_wp) :: nocol         ! number of columns in input
         integer(kind = int_wp) :: ithndl = 0
@@ -156,9 +156,9 @@ contains
         ! initialise a number of variables
         ierr = 0
         amiss = -999.0
-        dtflg1 = inpfil%dtflg1
+        is_date_format = inpfil%is_date_format
         dtflg2 = inpfil%dtflg2
-        dtflg3 = inpfil%dtflg3
+        is_yyddhh_format = inpfil%is_yyddhh_format
         itfact = inpfil%itfact
 
         ! loop over the input (tokens) till input is ready or error
@@ -255,7 +255,7 @@ contains
 
                 ! handle file option, should we resolve the use of 17? = work file segment-functions
                 call process_simulation_input_options(-4, lun, 17, lchar, filtype, &
-                        dtflg1, dtflg3, noseg, ierr2, status, &
+                        is_date_format, is_yyddhh_format, noseg, ierr2, status, &
                         .false.)
                 if (ierr2 /= 0) exit
 
@@ -534,8 +534,8 @@ contains
                     ! Check if an inner loop column header exists for the data matrix
 
                     nocol = noits
-                    call read_header(waq_param, data_param, nocol, itfact, dtflg1, &
-                            dtflg3, ierr2, status)
+                    call read_header(waq_param, data_param, nocol, itfact, is_date_format, &
+                            is_yyddhh_format, ierr2, status)
                     if (ierr2 /= 0) goto 100
 
                     ! when data_loc is not filled only
@@ -559,7 +559,7 @@ contains
                     data_buffer%iorder = data_block%iorder
                     data_buffer%functype = data_block%functype
 
-                    call read_data(data_buffer, itfact, dtflg1, dtflg3, ierr2)
+                    call read_data(data_buffer, itfact, is_date_format, is_yyddhh_format, ierr2)
                     if (ierr2 /= 0) goto 100
 
                     call validate_time_series_strictly_increasing(lunut, data_buffer, ierr2)
@@ -757,8 +757,8 @@ contains
         get_original_noseg = noseg
     end function get_original_noseg
 
-    subroutine read_header(waq_param, data_param, nocol, itfact, dtflg1, &
-            dtflg3, ierr, status)
+    subroutine read_header(waq_param, data_param, nocol, itfact, is_date_format, &
+            is_yyddhh_format, ierr, status)
 
         ! Checks if column header exists
         use usefor, only : compact_usefor
@@ -772,8 +772,8 @@ contains
         type(t_dlwq_item), intent(inout) :: data_param   ! list of param items in the data
         integer(kind = int_wp), intent(inout) :: nocol         ! number of columns in input
         integer(kind = int_wp), intent(in) :: itfact        ! factor between clocks
-        logical, intent(in) :: dtflg1       ! true if time in 'date' format
-        logical, intent(in) :: dtflg3       ! true if yyetc instead of ddetc
+        logical, intent(in) :: is_date_format       ! true if time in 'date' format
+        logical, intent(in) :: is_yyddhh_format       ! true if yyetc instead of ddetc
         integer(kind = int_wp), intent(out) :: ierr          ! error indication
 
         type(error_status), intent(inout) :: status !< current error status

@@ -41,7 +41,7 @@ contains
             CCHAR, &
             ILUN, LCH, &
             LSTACK, output_verbose_level, &
-            DTFLG1, DTFLG3, &
+            is_date_format, is_yyddhh_format, &
             StatProcesDef, AllItems, &
             status)
 
@@ -62,8 +62,8 @@ contains
         character(*), intent(inout) :: lch  (*)         !! filename include stack for input
         integer(kind = int_wp), intent(in) :: lstack            !! include file stack size
         integer(kind = int_wp), intent(out) :: output_verbose_level            !! flag for more or less output
-        logical, intent(in) :: dtflg1           !! 'date'-format 1st timescale
-        logical, intent(in) :: dtflg3           !! 'date'-format (F;ddmmhhss,T;yydddhh)
+        logical, intent(in) :: is_date_format           !! 'date'-format 1st timescale
+        logical, intent(in) :: is_yyddhh_format           !! 'date'-format (F;ddmmhhss,T;yydddhh)
         type(ProcesPropColl) :: StatProcesDef    !! the statistical proces definition
         type(ItemPropColl) :: AllItems         !! all items of the proces system
 
@@ -114,8 +114,8 @@ contains
         WRITE(LUNREP, 2000)
         IPOSR = 0
         CALL RDSTAT (LUNREP, IPOSR, NPOS, CCHAR, &
-                ILUN, LCH, LSTACK, output_verbose_level, DTFLG1, &
-                DTFLG3, status, NOSTAT, NKEY, NOKEY, &
+                ILUN, LCH, LSTACK, output_verbose_level, is_date_format, &
+                is_yyddhh_format, status, NOSTAT, NKEY, NOKEY, &
                 KEYNAM, KEYVAL, NPERIOD, PERNAM, PERSFX, &
                 PSTART, PSTOP)
 
@@ -180,7 +180,7 @@ contains
         DO IPERIOD = 1, NPERIOD
             WRITE(LUNREP, '(3A)') 'PERIOD [', PERNAM(IPERIOD), ']'
             WRITE(LUNREP, '(3A)') 'SUFFIX [', PERSFX(IPERIOD), ']'
-            IF (DTFLG1) THEN
+            IF (is_date_format) THEN
                 IHULP1 = PSTART(IPERIOD)
                 IHULP2 = PSTOP(IPERIOD)
                 WRITE(LUNREP, 2020)  IHULP1 / 31536000, MOD(IHULP1, 31536000) / 86400, &
@@ -212,7 +212,7 @@ contains
                     ISPROC = ISPROC + 1
                     CALL SETDAY (LUNREP, NOKEY(ISTAT), &
                             KEYNAM2(IKSTAT), KEYVAL2(IKSTAT), &
-                            DTFLG1, DTFLG3, &
+                            is_date_format, is_yyddhh_format, &
                             ISPROC, aProcesProp, &
                             AllItems, status)
 

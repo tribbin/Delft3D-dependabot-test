@@ -49,7 +49,7 @@ program tests_dlwq5a
         character(200) :: car(20)
         integer(kind = int_wp) :: iar(20)
         real(kind = real_wp) :: rar(20)
-        logical :: dtflg1, dtflg3
+        logical :: is_date_format, is_yyddhh_format
         integer(kind = int_wp) :: iimax = 2500000
         integer(kind = int_wp) :: irmax = 10000000
         integer(kind = int_wp) :: icmax = 1000000
@@ -155,8 +155,8 @@ contains
         call this%status%initialize(0, 0, 0)
         this%lchar(14) = trim(data_path) // '/' // trim(case_name) // '.wrk'
         this%lchar(26) = trim(data_path) // '/' // trim(case_name) // '.inc'
-        this%dtflg1 = .true.
-        this%dtflg3 = .false.
+        this%is_date_format = .true.
+        this%is_yyddhh_format = .false.
         ! lun:  global variable declared in m_delwaq1_data
         ilun(1) = this%lun(26)   ! ilun: global variable declared in rd_token
         lch(1) = this%lchar(26)  ! lch:  global variable declared in rd_token
@@ -208,7 +208,7 @@ contains
         call dlwq5a(fixture%lun, fixture%lchar, 14, fixture%iwidth, fixture%icmax, &
                 fixture%car, fixture%iimax, fixture%iar, fixture%irmax, fixture%rar, &
                 fixture%sname, fixture%bc_ids, fixture%bc_types(1:fixture%nobtyp), fixture%nobnd, fixture%nosys, &
-                fixture%nobtyp, fixture%drar, fixture%dtflg1, fixture%dtflg3, fixture%output_verbose_level, &
+                fixture%nobtyp, fixture%drar, fixture%is_date_format, fixture%is_yyddhh_format, fixture%output_verbose_level, &
                 fixture%ierr2, fixture%status)
     end subroutine parse_bc
 

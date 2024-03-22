@@ -36,8 +36,8 @@ contains
 
     subroutine read_block_5_boundary_conditions(lun, lchar, filtype, car, iar, &
             rar, nrftot, nrharm, nobnd, nosys, &
-            notot, nobtyp, irmax, iimax, dtflg1, &
-            iwidth, intsrt, dtflg3, sname, &
+            notot, nobtyp, irmax, iimax, is_date_format, &
+            iwidth, intsrt, is_yyddhh_format, sname, &
             icmax, output_verbose_level, status)
         !! Reads all inputs associated with open boundaries
         !! This routine reads:
@@ -74,10 +74,10 @@ contains
         integer(kind = int_wp), intent(inout) :: nosys              !< number of transported substances
         integer(kind = int_wp), intent(out) :: nobtyp             !< number of open model boundary types
         integer(kind = int_wp), intent(in) :: iimax              !< size of the integer workspace
-        logical, intent(in) :: dtflg1             !< 'date'-format 1st timescale
+        logical, intent(in) :: is_date_format             !< 'date'-format 1st timescale
         integer(kind = int_wp), intent(in) :: iwidth             !< width of the output file
         integer(kind = int_wp), intent(in) :: intsrt             !< integration option
-        logical, intent(in) :: dtflg3             !< 'date'-format (f;ddmmhhss,t;yydddhh)
+        logical, intent(in) :: is_yyddhh_format             !< 'date'-format (f;ddmmhhss,t;yydddhh)
         character(20), intent(inout) :: sname(:)           !< array with substance names
         integer(kind = int_wp), intent(in) :: icmax              !< size of the character workspace
         integer(kind = int_wp), intent(in) :: output_verbose_level             !< flag for more or less output
@@ -313,8 +313,8 @@ contains
         else
             write (lunut, 2150)
         endif
-        if (dtflg1) then
-            call convert_time_format (iar, nobnd, ifact, dtflg1, dtflg3)
+        if (is_date_format) then
+            call convert_time_format (iar, nobnd, ifact, is_date_format, is_yyddhh_format)
             if (output_verbose_level >= 3) write (lunut, 2160) &
                     (iar(k) / 31536000, mod(iar(k), 31536000) / 86400, &
                     mod(iar(k), 86400) / 3600, mod(iar(k), 3600) / 60, &
@@ -353,8 +353,8 @@ contains
                 iposr, npos, cdummy, nover, rhulp, &
                 itype, ierr2)
         if (ierr2 > 0) goto 170
-        if (dtflg1) then
-            call convert_relative_time (idef, ifact, dtflg1, dtflg3)
+        if (is_date_format) then
+            call convert_relative_time (idef, ifact, is_date_format, is_yyddhh_format)
             write (lunut, 2210) &
                     idef / 31536000, mod(idef, 31536000) / 86400, &
                     mod(idef, 86400) / 3600, mod(idef, 3600) / 60, &
@@ -395,8 +395,8 @@ contains
             call status%increase_error_count()
             goto 160
         endif
-        if (dtflg1) &
-                call convert_time_format (iar, nobnd, ifact, dtflg1, dtflg3)
+        if (is_date_format) &
+                call convert_time_format (iar, nobnd, ifact, is_date_format, is_yyddhh_format)
         if (nover > 0 .and. output_verbose_level >= 3) write (lunut, 2230)
         do i = 1, nover
             ibnd = iabs(iar(i + nobnd))
@@ -405,7 +405,7 @@ contains
                 call status%increase_error_count()
             elseif (output_verbose_level >= 3) then
                 it = iar (ibnd)
-                if (dtflg1) then
+                if (is_date_format) then
                     write (lunut, 2240) ibnd, &
                             it / 31536000, mod(it, 31536000) / 86400, &
                             mod(it, 86400) / 3600, mod(it, 3600) / 60, &
@@ -426,7 +426,7 @@ contains
         call dlwq5a (lun, lchar, 14, iwidth, icmax, &
                 car, iimax, iar, irmax, rar, &
                 sname, bndid, bndtype(1:nobtyp), nobnd, nosys, &
-                nobtyp, drar, dtflg1, dtflg3, &
+                nobtyp, drar, is_date_format, is_yyddhh_format, &
                 output_verbose_level, ierr2, status)
         deallocate(drar)
         deallocate(bndid, bndtype)
@@ -447,8 +447,8 @@ contains
         IERRH = -1
         call read_constants_time_variables   (lun, 14, 0, 0, nobnd, &
                 nosubs, nosubs, nrftot(8), nrharm(8), ifact, &
-                dtflg1, disper, volume, iwidth, lchar, &
-                filtype, dtflg3, output_verbose_level, ierrh, &
+                is_date_format, disper, volume, iwidth, lchar, &
+                filtype, is_yyddhh_format, output_verbose_level, ierrh, &
                 status, .false.)
         call status%increase_error_count_with(ierrh)
 

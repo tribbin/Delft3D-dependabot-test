@@ -34,7 +34,7 @@ module simulation_input_options
 contains
 
     subroutine process_simulation_input_options(iopt1, lun, is, lchar, filtype, &
-            dtflg1, dtflg3, nitem, ierr, status, &
+            is_date_format, is_yyddhh_format, nitem, ierr, status, &
             dont_read)
 
         !!  Processing of first input file option
@@ -54,8 +54,8 @@ contains
         integer(kind = int_wp), intent(inout) :: lun  (*)        !< DELWAQ Unit number array
         integer(kind = int_wp), intent(in) :: is              !< entry in LUN for item
         character*(*), intent(inout) :: lchar(*)       !< IN/OUT  Filenames
-        logical, intent(in) :: dtflg1         !< 'date'-format 1st time scale
-        logical, intent(in) :: dtflg3         !< 'date'-format (F;ddmmhhss,T;yydddhh)
+        logical, intent(in) :: is_date_format         !< 'date'-format 1st time scale
+        logical, intent(in) :: is_yyddhh_format         !< 'date'-format (F;ddmmhhss,T;yydddhh)
         integer(kind = int_wp), intent(in) :: nitem           !< nr of input items expected
         integer(kind = int_wp), intent(inout) :: filtype(*)      !< type of binary file
         integer(kind = int_wp), intent(inout) :: ierr            !< Local error flag
@@ -192,7 +192,7 @@ contains
                         goto 30
                     endif
                 else
-                    call convert_relative_time (it1, 1, dtflg1, dtflg3)
+                    call convert_relative_time (it1, 1, is_date_format, is_yyddhh_format)
                 endif
                 if (gettoken(cdummy, it2, itype, ierr2) > 0) goto 30    ! 'to' time
                 if (itype == 1) then
@@ -207,7 +207,7 @@ contains
                         goto 30
                     endif
                 else
-                    call convert_relative_time (it2, 1, dtflg1, dtflg3)
+                    call convert_relative_time (it2, 1, is_date_format, is_yyddhh_format)
                 endif
                 if (gettoken(cdummy, it3, itype, ierr2) > 0) goto 30    ! 'step'
                 if (itype == 1) then
@@ -222,7 +222,7 @@ contains
                         goto 30
                     endif
                 else
-                    call convert_relative_time (it3, 1, dtflg1, dtflg3)
+                    call convert_relative_time (it3, 1, is_date_format, is_yyddhh_format)
                 endif
                 if (gettoken(sfile, ierr2) > 0) then       !     Get file string
                     ierr2 = -1
@@ -608,7 +608,7 @@ contains
     end subroutine read_constant_data
 
     subroutine read_time_dependent_variables(lun, lchar, is, nitem, nvals, &
-            nscal, ifact, dtflg, dtflg3, nrfunc, &
+            nscal, ifact, dtflg, is_yyddhh_format, nrfunc, &
             nrharm, iwidth, output_verbose_level, ierr)
 
         !!  Read time dependent variables
@@ -669,7 +669,7 @@ contains
         integer(kind = int_wp), intent(in) :: nscal              !< number of scale values
         integer(kind = int_wp), intent(in) :: ifact              !< factor between clocks
         logical, intent(in) :: dtflg             !< 'date'-format for output ?
-        logical, intent(in) :: dtflg3            !< 'date'-format (F;ddmmhhss,T;yydddhh)
+        logical, intent(in) :: is_yyddhh_format            !< 'date'-format (F;ddmmhhss,T;yydddhh)
         integer(kind = int_wp), intent(out) :: nrfunc             !< number of functions
         integer(kind = int_wp), intent(out) :: nrharm             !< number of harmonic functions
         integer(kind = int_wp), intent(in) :: iwidth             !< width of the output file
@@ -789,7 +789,7 @@ contains
                     if (gettoken(factor(iscal), ierr2) > 0) goto 100
                 enddo
                 call fmread (nvarnw, itemId(ntotal), nval1, nscal, factor, &
-                        nobrk2, break2, value2, dtflg, dtflg3, &
+                        nobrk2, break2, value2, dtflg, is_yyddhh_format, &
                         ifact, iwidth, output_verbose_level, ierr)
 
                 if (bound .or. waste .or. funcs) then
@@ -827,7 +827,7 @@ contains
                     ierr2 = -2                                    ! system file, for others
                 endif
                 call read_fourier_harmoic_func_values(iopt3, nvarnw, nval1, itemId(ntotal), nrec2, &
-                        nharms, ifact, dtflg, dtflg3, lunuit, &
+                        nharms, ifact, dtflg, is_yyddhh_format, lunuit, &
                         iwidth, output_verbose_level, ierr2)
                 ierr = ierr + ierr2
                 if (bound .or. waste .or. funcs) then
@@ -904,8 +904,8 @@ contains
 
     subroutine read_constants_time_variables(lun, is, noql1, noql2, noql3, &
             ndim2, ndim3, nrftot, nrharm, ifact, &
-            dtflg1, disper, volume, iwidth, lchar, &
-            filtype, dtflg3, output_verbose_level, ierr, &
+            is_date_format, disper, volume, iwidth, lchar, &
+            filtype, is_yyddhh_format, output_verbose_level, ierr, &
             status, dont_read)
 
         !!  Reads a block with constant or time variable data
@@ -947,13 +947,13 @@ contains
         integer(kind = int_wp), intent(inout) :: nrftot         !< number of functions
         integer(kind = int_wp), intent(inout) :: nrharm         !< number of harmonics
         integer(kind = int_wp), intent(in) :: ifact          !< factor between time scales
-        logical, intent(in) :: dtflg1        !< 'date'-format 1st time scale
+        logical, intent(in) :: is_date_format        !< 'date'-format 1st time scale
         logical, intent(in) :: disper        !< .true. then dispersion
         integer(kind = int_wp), intent(inout) :: volume         !< if 1 then volume ( out: 0 = computed volumes )
         integer(kind = int_wp), intent(in) :: iwidth         !< width of the output file
         character(*), intent(inout) :: lchar  (*)    !< array with file names of the files
         integer(kind = int_wp), intent(inout) :: filtype(*)     !< type of binary file
-        logical, intent(in) :: dtflg3        !< 'date'-format (F;ddmmhhss,T;yydddhh)
+        logical, intent(in) :: is_yyddhh_format        !< 'date'-format (F;ddmmhhss,T;yydddhh)
         integer(kind = int_wp), intent(in) :: output_verbose_level         !< how extensive is output ?
         integer(kind = int_wp), intent(inout) :: ierr           !< cumulative error count
         logical, intent(in) :: dont_read  !< do not actually read tokens, if true, the information is already provided
@@ -1033,7 +1033,7 @@ contains
 
         write (lunut, 2000) iopt1
         call process_simulation_input_options   (iopt1, lun, is, lchar, filtype, &
-                dtflg1, dtflg3, ndtot, ierr2, status, &
+                is_date_format, is_yyddhh_format, ndtot, ierr2, status, &
                 dont_read)
         if (ierr2 > 0) goto 50
 
@@ -1106,7 +1106,7 @@ contains
             if (bound) ierr2 = -1
             if (waste) ierr2 = -2
             call read_time_dependent_variables (lun, lchar, is, ndim1, ndim2, &
-                    ndim3, ifact, dtflg1, dtflg3, nrftot, &
+                    ndim3, ifact, is_date_format, is_yyddhh_format, nrftot, &
                     nrharm, iwidth, output_verbose_level, ierr2)
             if (ierr2 > 0) goto 50
 
@@ -1137,7 +1137,7 @@ contains
     end subroutine read_constants_time_variables
 
     subroutine read_fourier_harmoic_func_values(iopt, nitem, nvals, item, nrec, &
-            nhtot, ifact, dtflg, dtflg3, lununf, &
+            nhtot, ifact, dtflg, is_yyddhh_format, lununf, &
             iwidth, output_verbose_level, ierr)
 
         !! Reads function values (Fourier and Harmonic components)
@@ -1178,7 +1178,7 @@ contains
         integer(kind = int_wp), intent(inout) :: nhtot          !< total harmonic array space
         integer(kind = int_wp), intent(in) :: ifact          !< factor between clocks
         logical, intent(in) :: dtflg         !< "date"-format
-        logical, intent(in) :: dtflg3        !< 'date'-format (F;ddmmhhss,T;yydddhh)
+        logical, intent(in) :: is_yyddhh_format        !< 'date'-format (F;ddmmhhss,T;yydddhh)
         integer(kind = int_wp), intent(in) :: lununf         !< unit nr unformatted file
         integer(kind = int_wp), intent(in) :: iwidth         !< width of theoutput file
         integer(kind = int_wp), intent(in) :: output_verbose_level         !< how extensive output ?
@@ -1221,7 +1221,7 @@ contains
                     if (gettoken(value(k, i), ierr2) > 0) goto 100
                 enddo
             enddo
-            call convert_time_format (iperio(2), nhar, ifact, dtflg, dtflg3)
+            call convert_time_format (iperio(2), nhar, ifact, dtflg, is_yyddhh_format)
             value(1, 1) = float(nhar)
 
         case (4)        !      read values if IOPT = 4 ( fourier function )
@@ -1235,7 +1235,7 @@ contains
                     if (gettoken(value(k, i), ierr2) > 0) goto 100
                 enddo
             enddo
-            call convert_relative_time (ibase, ifact, dtflg, dtflg3)
+            call convert_relative_time (ibase, ifact, dtflg, is_yyddhh_format)
             value(1, 1) = float(nhar)
             do i = 2, nhar + 1
                 iperio(i) = ibase / (i - 1)

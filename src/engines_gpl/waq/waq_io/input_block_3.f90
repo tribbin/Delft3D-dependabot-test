@@ -34,7 +34,7 @@ module inputs_block_3
 contains
 
     subroutine read_block_3_grid_layout (lun, lchar, filtype, nrftot, nrharm, &
-            ivflag, dtflg1, iwidth, dtflg3, &
+            ivflag, is_date_format, iwidth, is_yyddhh_format, &
             output_verbose_level, gridps, syname, status, &
             has_hydfile, nexch)
 
@@ -81,9 +81,9 @@ contains
         integer(kind = int_wp), intent(inout) :: nrftot (*)         !< number of function items
         integer(kind = int_wp), intent(inout) :: nrharm (*)         !< number of harmonic items
         integer(kind = int_wp), intent(out) :: ivflag             !< computed volumes ?
-        logical, intent(in) :: dtflg1            !< 'date'-format 1st timescale
+        logical, intent(in) :: is_date_format            !< 'date'-format 1st timescale
         integer(kind = int_wp), intent(in) :: iwidth             !< width of the output file
-        logical, intent(in) :: dtflg3            !< 'date'-format (F;ddmmhhss,T;yydddhh)
+        logical, intent(in) :: is_yyddhh_format            !< 'date'-format (F;ddmmhhss,T;yydddhh)
         integer(kind = int_wp), intent(in) :: output_verbose_level             !< flag for more or less output
         character(20), intent(in) :: syname (*)        !< array with substance names
         logical, intent(out) :: has_hydfile       !< if true, much information comes from the hyd-file
@@ -295,7 +295,7 @@ contains
             case default
                 ! call with record length 0 => IMOPT1 of -4 not allowed
                 call process_simulation_input_options (imopt1, lun, 6, lchar, filtype, &
-                        dtflg1, dtflg3, 0, local_status%ierr, local_status, &
+                        is_date_format, is_yyddhh_format, 0, local_status%ierr, local_status, &
                         .false.)
                 if (local_status%ierr > 0) goto 240
                 if (gettoken(nx, local_status%ierr) > 0) goto 240
@@ -365,7 +365,7 @@ contains
             if (gettoken(ikopt1, local_status%ierr) > 0) goto 240      !   the file option for this info
             write (lunut, 2130) ikopt1
             call process_simulation_input_options (ikopt1, lun, 40, lchar, filtype, &
-                    dtflg1, dtflg3, 0, local_status%ierr, local_status, &
+                    is_date_format, is_yyddhh_format, 0, local_status%ierr, local_status, &
                     .false.)
             if (local_status%ierr  > 0) goto 240
             if (ikopt1 == 0) then                             !   binary file
@@ -498,7 +498,7 @@ contains
             if (gettoken(ikopt1, local_status%ierr) > 0) goto 240
             write (lunut, 2130) ikopt1
             call process_simulation_input_options (ikopt1, lun, 40, lchar, filtype, &
-                    dtflg1, dtflg3, 0, local_status%ierr, local_status, &
+                    is_date_format, is_yyddhh_format, 0, local_status%ierr, local_status, &
                     .false.)
             if (local_status%ierr > 0) goto 240
             if (ikopt1 == 0) then
@@ -536,8 +536,8 @@ contains
 
         call read_constants_time_variables   (lun, 7, 0, 0, noseg, &
                 1, 1, nrftot(2), nrharm(2), ifact, &
-                dtflg1, disper, volume, iwidth, lchar, &
-                filtype, dtflg3, output_verbose_level, local_status%ierr, &
+                is_date_format, disper, volume, iwidth, lchar, &
+                filtype, is_yyddhh_format, output_verbose_level, local_status%ierr, &
                 local_status, has_hydfile)
 
         call check_volume_time(lunut, lchar(7), noseg, local_status%ierr)

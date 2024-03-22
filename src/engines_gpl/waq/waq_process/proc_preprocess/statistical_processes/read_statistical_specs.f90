@@ -31,8 +31,8 @@ contains
 
 
     SUBROUTINE RDSTAT (LUNREP, IPOSR, NPOS, CCHAR, &
-            ILUN, LCH, LSTACK, output_verbose_level, DTFLG1, &
-            DTFLG3, status, NOSTAT, NKEY, NOKEY, &
+            ILUN, LCH, LSTACK, output_verbose_level, is_date_format, &
+            is_yyddhh_format, status, NOSTAT, NKEY, NOKEY, &
             KEYNAM, KEYVAL, NPERIOD, PERNAM, PERSFX, &
             PSTART, PSTOP)
         ! Reads statistical output spec. block 10
@@ -54,8 +54,8 @@ contains
         !     LCH     CHAR*(*) LSTACK      IN/OUT  Filename stack
         !     LSTACK  INTEGER(kind=int_wp) ::1           INPUT   size of the stack
         !     output_verbose_level  INTEGER(kind=int_wp) ::1           INPUT   output file option
-        !     DTFLG1  LOGICAL  1           INPUT   'date'-format 1st timescale
-        !     DTFLG3  LOGICAL  1           INPUT   'date'-format (F;ddmmhhss,T;yydddhh)
+        !     is_date_format  LOGICAL  1           INPUT   'date'-format 1st timescale
+        !     is_yyddhh_format  LOGICAL  1           INPUT   'date'-format (F;ddmmhhss,T;yydddhh)
         !     NOSTAT  INTEGER(kind=int_wp) ::1           OUTPUT  number of statistical processes
         !     NKEY    INTEGER(kind=int_wp) ::1           OUTPUT  total number of keywords
         !     NOKEY   INTEGER(kind=int_wp) ::NOSTAT      OUTPUT  number of keywords per stat. proc.
@@ -75,7 +75,7 @@ contains
 
         INTEGER(kind = int_wp) :: LUNREP, IPOSR, NPOS, LSTACK, output_verbose_level, &
                 NOSTAT, NKEY
-        LOGICAL :: DTFLG1, DTFLG3
+        LOGICAL :: is_date_format, is_yyddhh_format
         INTEGER(kind = int_wp) :: ILUN(*)
         CHARACTER*(*) :: LCH  (*)
         CHARACTER*1 :: CCHAR
@@ -252,7 +252,7 @@ contains
                         call status%increase_error_count()
                     ENDIF
                 ELSE
-                    call convert_relative_time (istart, 1, DTFLG1, DTFLG3)
+                    call convert_relative_time (istart, 1, is_date_format, is_yyddhh_format)
                 ENDIF
                 PSTART(NPERIOD) = max(itstrt, istart)
 
@@ -273,7 +273,7 @@ contains
                         call status%increase_error_count()
                     ENDIF
                 ELSE
-                    call convert_relative_time (istop, 1, DTFLG1, DTFLG3)
+                    call convert_relative_time (istop, 1, is_date_format, is_yyddhh_format)
                 ENDIF
                 PSTOP(NPERIOD) = min(itstop, istop)
 
