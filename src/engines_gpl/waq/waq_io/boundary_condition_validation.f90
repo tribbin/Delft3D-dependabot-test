@@ -30,12 +30,12 @@ module m_dlwq5b
     implicit none
 
     private
-    public :: dlwq5b
+    public :: parse_boundary_condition_data
 
 contains
 
 
-    subroutine dlwq5b(lunut, iposr, npos, cchar, char_arr, &
+    subroutine parse_boundary_condition_data(lunut, iposr, npos, cchar, char_arr, &
             iar, max_char_size, max_int_size, all_names, all_types, &
             num_bc_waste, num_bc_waste_types, parsed_items_count, noits, chkflg, &
             caller, ilun, lch, lstack, itype, &
@@ -109,7 +109,7 @@ contains
                         'FUNCTIONS     ', &
                         'SEG_FUNCTIONS '  ]
 
-        if (timon) call timstrt("dlwq5b", ithndl)
+        if (timon) call timstrt("parse_boundary_condition_data", ithndl)
 
         ! some initialisations
         usefor_on = .false.
@@ -436,18 +436,14 @@ contains
         end do read_and_process
 
         1015 format(' Input ', A, ' nr:', I5, ' is ', A, ' nr:', I5)
-        1020 format(' Input ', A, ' nr:', I5, ' is ', A, ' nr:', I5, ' with ID  : ', &
-                A20)
-        1030 format(' Input ', A, ' nr:', I5, ' is ', A, ' nr:', I5, ' with type: ', &
-                A20)
+        1020 format(' Input ', A, ' nr:', I5, ' is ', A, ' nr:', I5, ' with ID  : ', A20)
+        1030 format(' Input ', A, ' nr:', I5, ' is ', A, ' nr:', I5, ' with type: ', A20)
         1035 format(' ERROR: no reserved keyword expected: ', A20)
-        1040 format(' WARNING: Input ', A, ' nr:', I5, ' with name: ', A20, &
-                ' is not a valid ID, data ignored')
+        1040 format(' WARNING: Input ', A, ' nr:', I5, ' with name: ', A20, ' is not a valid ID, data ignored')
         1060 format(' ERROR: number: ', I5, ' is not a valid item number !')
-        1070 format(' ERROR: multiplication is only allowed in USEFOR', &
-                ' context !')
+        1070 format(' ERROR: multiplication is only allowed in USEFOR', ' context !')
 
-    end subroutine dlwq5b
+    end subroutine parse_boundary_condition_data
 
     subroutine update_counters(counter_a, counter_b, counter_c)
         integer(kind = int_wp), intent(inout) :: counter_a, counter_b, counter_c
