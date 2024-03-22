@@ -20,7 +20,7 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_dlwq5a
+module boundary_conditions
     use m_waq_precision
     use timers
     use m_string_utils
@@ -35,10 +35,10 @@ module m_dlwq5a
 
 contains
 
-    subroutine dlwq5a(logical_unit, filenames, file_i, iwidth, max_char_size, &
+    subroutine read_boundary_concentrations(logical_unit, filenames, file_i, iwidth, max_char_size, &
             char_arr, max_int_size, int_workspace, max_real_size, real_workspace, &
             substances_names, bc_waste_ids, bc_waste_types, num_bc_waste, substances_count, &
-            num_bnd_waste_types, dp_workspace, is_date_format, is_yyddhh_format, output_verbose_level, ierr2, status)
+            num_bc_waste_types, dp_workspace, is_date_format, is_yyddhh_format, output_verbose_level, ierr2, status)
 
         !> Boundary and waste data new style
         !>
@@ -71,7 +71,7 @@ contains
         ! logical_unit(14) = unit intermediate file (boundaries)
         ! logical_unit(15) = unit intermediate file (wastes)
 
-        use m_dlwq5b
+        use m_dlwq5b, only : dlwq5b
         use error_handling, only : check_error
         use m_open_waq_files
         use rd_token
@@ -95,7 +95,7 @@ contains
         integer(kind = int_wp), intent(in) :: max_int_size            !< maximum size of integer workspace
         integer(kind = int_wp), intent(inout) :: num_bc_waste      !< number of bounds/wastes
         integer(kind = int_wp), intent(inout) :: substances_count !< number of substances
-        integer(kind = int_wp), intent(in) :: num_bnd_waste_types           !< number of boundary/waste types
+        integer(kind = int_wp), intent(in) :: num_bc_waste_types           !< number of boundary/waste types
         integer(kind = int_wp), intent(in) :: max_real_size            !< maximum size of real workspace
         integer(kind = int_wp), intent(in) :: output_verbose_level           !< how extensive will the output be
         integer(kind = int_wp), intent(out) :: ierr2            !< return code of this routine
@@ -133,7 +133,7 @@ contains
         integer(kind = int_wp) :: iitem
         integer(kind = int_wp) :: count_unique_items_in_use_rule
 
-        if (timon) call timstrt("dlwq5a", ithndl)
+        if (timon) call timstrt("read_boundary_concentrations", ithndl)
 
         ! Initialise a number of variables
         lunut = logical_unit(29)
@@ -292,7 +292,7 @@ contains
             iim = max_int_size - ioff
             call dlwq5b (lunut, iposr, npos, cchar, char_arr(ioff:), &
                     int_workspace(ioff:), icm, iim, bc_waste_ids, bc_waste_types, &
-                    num_bc_waste, num_bnd_waste_types, count_items_in_use_rule, noits, chkflg, &
+                    num_bc_waste, num_bc_waste_types, count_items_in_use_rule, noits, chkflg, &
                     calit, ilun, lch, lstack, &
                     itype, real_workspace, nconst, itmnr, chulp, &
                     output_verbose_level, ierr2, status)
@@ -369,7 +369,7 @@ contains
             if (ident <= 1) then ! ITEM, IDENTICALITEM
                 call dlwq5b (lunut, iposr, npos, cchar, char_arr(ioff:), &
                         int_workspace(ioff:), icm, iim, bc_waste_ids, bc_waste_types, &
-                        num_bc_waste, num_bnd_waste_types, count_items_in_use_rule, noits, chkflg, &
+                        num_bc_waste, num_bc_waste_types, count_items_in_use_rule, noits, chkflg, &
                         calit, ilun, lch, lstack, itype, &
                         real_workspace, nconst, itmnr, chulp, output_verbose_level, &
                         ierr2, status)
@@ -1010,4 +1010,4 @@ contains
 
     end subroutine write_breakpoint_data_blocks
 
-end module m_dlwq5a
+end module boundary_conditions

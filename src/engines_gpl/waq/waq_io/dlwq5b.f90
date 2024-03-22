@@ -35,38 +35,37 @@ module m_dlwq5b
 contains
 
 
-    subroutine dlwq5b(lunut, iposr, npos, cchar, car, &
-            iar, icmax, iimax, all_names, all_types, &
-            num_bc_waste, bc_wl_types_count, parsed_items_count, noits, chkflg, &
+    subroutine dlwq5b(lunut, iposr, npos, cchar, char_arr, &
+            iar, max_char_size, max_int_size, all_names, all_types, &
+            num_bc_waste, num_bc_waste_types, parsed_items_count, noits, chkflg, &
             caller, ilun, lch, lstack, itype, &
-            rar, nconst, itmnr, parsed_str, output_verbose_level, &
+            real_array, nconst, itmnr, parsed_str, output_verbose_level, &
             error_ind, status)
 
         use m_string_utils, only : index_in_array, join_strings, string_equals
 
-        !   Arguments
-        integer(kind = int_wp), intent(in) :: icmax        !< Max. Char workspace dimension
-        integer(kind = int_wp), intent(in) :: iimax        !< Max. Int. Workspace dimension
+        integer(kind = int_wp), intent(in) :: max_char_size        !< Max. Char workspace dimension
+        integer(kind = int_wp), intent(in) :: max_int_size        !< Max. Int. Workspace dimension
         integer(kind = int_wp), intent(in) :: chkflg       !< Check on input or add items
         integer(kind = int_wp), intent(in) :: lunut        !< Unit Formatted Output File
         integer(kind = int_wp), intent(inout) :: iposr        !< Start position on input line
         integer(kind = int_wp), intent(in) :: npos         !< Nr of significant characters
         integer(kind = int_wp), intent(out) :: iar(:)       !< Integer workspace
         integer(kind = int_wp), intent(inout) :: num_bc_waste  !< Number of bounds/wastes
-        integer(kind = int_wp), intent(in) :: bc_wl_types_count       !< Number of bound/waste types
+        integer(kind = int_wp), intent(in) :: num_bc_waste_types       !< Number of bound/waste types
         integer(kind = int_wp), intent(out) :: parsed_items_count        !< Number of items read
         integer(kind = int_wp), intent(out) :: noits        !< Number of items for scale
         integer(kind = int_wp), intent(inout) :: ilun(lstack) !< Unitnumb include stack
         integer(kind = int_wp), intent(in) :: lstack       !< Include file stack size
         integer(kind = int_wp), intent(out) :: itype        !< Type of the token read ('at exit')
-        integer(kind = int_wp), intent(out) :: nconst       !< Number of values in rar
+        integer(kind = int_wp), intent(out) :: nconst       !< Number of values in real_array
         integer(kind = int_wp), intent(in) :: output_verbose_level       !< Output file option
         integer(kind = int_wp), intent(out) :: error_ind    !< Error indicator
 
-        real(kind = real_wp), intent(out) :: rar(:)       !< Array with real values
+        real(kind = real_wp), intent(out) :: real_array(:)       !< Array with real values
 
         character(1), intent(in) :: cchar        !< Comment character
-        character(*), intent(out) :: car(:)       !< Character workspace
+        character(*), intent(out) :: char_arr(:)       !< Character workspace
         character(*), intent(inout) :: all_names(:)     !< Id's of the boundaries/wastes
         character(*), intent(in) :: all_types(:)     !< Types of the boundaries/wastes
         character(10), intent(in) :: caller       !< Calling subject
@@ -83,32 +82,32 @@ contains
         integer(kind = int_wp) :: itmnr, ioff, ioffc, ioffi
         real(kind = real_wp) :: parsed_real
         character(3), parameter :: operations(6) = ['*  ', '/  ', '+  ', '-  ', 'MIN', 'MAX']
-        character(14), parameter :: keywords(25) = & 
-               ['BLOCK         ', &
-                'BINARY_FILE   ', &
-                'CONCENTRATIONS', &
-                'CONCENTRATION ', &
-                'CONSTANTS     ', &
-                'DATA          ', &
-                'DATA_ITEM     ', &
-                'LINEAR        ', &
-                'ITEM          ', &
-                'IDENTICALITEM ', &
-                'USEDATA_ITEM  ', &
-                'FORITEM       ', &
-                'TIME_DELAY    ', &
-                'ODS_FILE      ', &
-                'ABSOLUTE      ', &
-                'TIME          ', &
-                'HARMONICS     ', &
-                'FOURIERS      ', &
-                'SCALE         ', &
-                'DEFAULTS      ', &
-                'ALL           ', &
-                'SEGMENTS      ', &
-                'PARAMETERS    ', &
-                'FUNCTIONS     ', &
-                'SEG_FUNCTIONS '  ]
+        character(14), parameter :: keywords(25) = &
+                ['BLOCK         ', &
+                        'BINARY_FILE   ', &
+                        'CONCENTRATIONS', &
+                        'CONCENTRATION ', &
+                        'CONSTANTS     ', &
+                        'DATA          ', &
+                        'DATA_ITEM     ', &
+                        'LINEAR        ', &
+                        'ITEM          ', &
+                        'IDENTICALITEM ', &
+                        'USEDATA_ITEM  ', &
+                        'FORITEM       ', &
+                        'TIME_DELAY    ', &
+                        'ODS_FILE      ', &
+                        'ABSOLUTE      ', &
+                        'TIME          ', &
+                        'HARMONICS     ', &
+                        'FOURIERS      ', &
+                        'SCALE         ', &
+                        'DEFAULTS      ', &
+                        'ALL           ', &
+                        'SEGMENTS      ', &
+                        'PARAMETERS    ', &
+                        'FUNCTIONS     ', &
+                        'SEG_FUNCTIONS '  ]
 
         if (timon) call timstrt("dlwq5b", ithndl)
 
@@ -188,13 +187,13 @@ contains
                 if (operator_on) then
                     do i = 1, itmnr - 1
                         if (iar(i) == -1300000000) cycle
-                        ifound = index_in_array(parsed_str, car(i + ioff:i + ioff))
+                        ifound = index_in_array(parsed_str, char_arr(i + ioff:i + ioff))
                         if (ifound == 1) then
                             noits = noits - 1
                             i2 = iar(itmnr + parsed_items_count)
                             call log_item_number_name(i2, lunut, i, parsed_str)
                             iar(itmnr + parsed_items_count) = i2 + i
-                            car(itmnr + parsed_items_count + ioff) = '&$&$SYSTEM_NAME&$&$!'
+                            char_arr(itmnr + parsed_items_count + ioff) = '&$&$SYSTEM_NAME&$&$!'
                             operator_on = .false.
                             cycle read_and_process
                         end if
@@ -202,7 +201,7 @@ contains
                     i2 = iar(itmnr + parsed_items_count)
                     call log_local_substitution(i2, lunut, parsed_str)
                     iar (itmnr + parsed_items_count + parsed_items_count) = noits
-                    car (itmnr + parsed_items_count + ioff) = parsed_str
+                    char_arr (itmnr + parsed_items_count + ioff) = parsed_str
                     operator_on = .false.
                     cycle read_and_process
                 end if
@@ -227,7 +226,7 @@ contains
                         call log_name_substitution(name_index, lunut, all_names, caller, itmnr, all_types, parsed_real, parsed_str, .false.)
                     end if
                     iar(itmnr + parsed_items_count + parsed_items_count) = noits
-                    car(itmnr + parsed_items_count + ioff) = parsed_str
+                    char_arr(itmnr + parsed_items_count + ioff) = parsed_str
                     usefor_on = .false.
                     substitution_on = .false.
                     ! it is now possible to compute
@@ -246,12 +245,12 @@ contains
                     icm = itmnr + parsed_items_count + ioff
                     call shift_array_right(iar, itmnr, itmnr + parsed_items_count * 2)
                     call shift_array_right(iar, itmnr + parsed_items_count, itmnr + parsed_items_count * 2)
-                    call shift_char_subarray(car, itmnr + ioff, icm)
+                    call shift_char_subarray(char_arr, itmnr + ioff, icm)
                     iar (itmnr) = 0
                     iar (itmnr + parsed_items_count) = itmnr
                     iar (itmnr + parsed_items_count + parsed_items_count) = noits
-                    car (itmnr + ioff) = parsed_str
-                    car (itmnr + parsed_items_count + ioff) = parsed_str
+                    char_arr (itmnr + ioff) = parsed_str
+                    char_arr (itmnr + parsed_items_count + ioff) = parsed_str
                     if (usefor_on) substitution_on = .true.
                     if (logging_on .and. .not. usefor_on) then
                         write (lunut, 1020) caller, itmnr, caller, 0, 'FLOW'
@@ -266,12 +265,12 @@ contains
                     icm = itmnr + parsed_items_count + ioff
                     call shift_array_right(iar, itmnr, itmnr + parsed_items_count * 2)
                     call shift_array_right(iar, itmnr + parsed_items_count, itmnr + parsed_items_count * 2)
-                    call shift_char_subarray(car, itmnr + ioff, icm)
+                    call shift_char_subarray(char_arr, itmnr + ioff, icm)
                     iar(itmnr) = ifound
                     iar(itmnr + parsed_items_count) = itmnr
                     iar(itmnr + parsed_items_count + parsed_items_count) = noits
-                    car(itmnr + ioff) = parsed_str
-                    car(itmnr + parsed_items_count + ioff) = parsed_str
+                    char_arr(itmnr + ioff) = parsed_str
+                    char_arr(itmnr + parsed_items_count + ioff) = parsed_str
                     if (usefor_on) substitution_on = .true.
                     if (logging_on .and. .not. usefor_on) then
                         write (lunut, 1020) caller, itmnr, caller, ifound, all_names(ifound)
@@ -280,18 +279,18 @@ contains
                 end if
 
                 ! parsed_str == item-TYPE. IAR now is negative.
-                ifound = index_in_array(parsed_str(1:len(all_types(1))), all_types(1:bc_wl_types_count))
+                ifound = index_in_array(parsed_str(1:len(all_types(1))), all_types(1:num_bc_waste_types))
                 if (ifound >= 1) then
                     call update_counters(parsed_items_count, noits, itmnr)
                     icm = itmnr + parsed_items_count + ioff
                     call shift_array_right(iar, itmnr, itmnr + parsed_items_count * 2)
                     call shift_array_right(iar, itmnr + parsed_items_count, itmnr + parsed_items_count * 2)
-                    call shift_char_subarray(car, itmnr + ioff, icm)
+                    call shift_char_subarray(char_arr, itmnr + ioff, icm)
                     iar(itmnr) = -ifound
                     iar(itmnr + parsed_items_count) = itmnr
                     iar(itmnr + parsed_items_count + parsed_items_count) = noits
-                    car(itmnr + ioff) = parsed_str
-                    car(itmnr + parsed_items_count + ioff) = parsed_str
+                    char_arr(itmnr + ioff) = parsed_str
+                    char_arr(itmnr + parsed_items_count + ioff) = parsed_str
                     if (usefor_on) substitution_on = .true.
                     if (logging_on .and. .not. usefor_on) then
                         write (lunut, 1030) caller, itmnr, caller, ifound, all_types(ifound)
@@ -308,12 +307,12 @@ contains
                     icm = itmnr + parsed_items_count + ioff
                     call shift_array_right(iar, itmnr, itmnr + parsed_items_count * 2)
                     call shift_array_right(iar, itmnr + parsed_items_count, itmnr + parsed_items_count * 2)
-                    call shift_char_subarray(car(:icm + 1), itmnr + ioff, icm)
+                    call shift_char_subarray(char_arr(:icm + 1), itmnr + ioff, icm)
                     iar (itmnr) = -1300000000 ! pointer should be ignored
                     iar (itmnr + parsed_items_count) = 1300000000 ! item number should be ignored
                     iar (itmnr + parsed_items_count + parsed_items_count) = noits
-                    car (itmnr + ioff) = parsed_str
-                    car (itmnr + parsed_items_count + ioff) = parsed_str
+                    char_arr (itmnr + ioff) = parsed_str
+                    char_arr (itmnr + parsed_items_count + ioff) = parsed_str
                     if (usefor_on) substitution_on = .true.
                     write(lunut, 1040) caller, itmnr, parsed_str
 
@@ -323,7 +322,7 @@ contains
                     !        the rest is moved upward since it is all 1 array
                     num_bc_waste = num_bc_waste + 1
                     ioff = ioff + 1
-                    icm = icmax + num_bc_waste
+                    icm = max_char_size + num_bc_waste
                     call shift_char_subarray(all_names, num_bc_waste, icm)
                     all_names(num_bc_waste) = parsed_str
                     ! plus normal procedure
@@ -333,12 +332,12 @@ contains
                     icm = itmnr + parsed_items_count + ioff
                     call shift_array_right(iar, itmnr, itmnr + parsed_items_count * 2)
                     call shift_array_right(iar, itmnr + parsed_items_count, itmnr + parsed_items_count * 2)
-                    call shift_char_subarray(car, itmnr + ioff, icm)
+                    call shift_char_subarray(char_arr, itmnr + ioff, icm)
                     iar(itmnr) = num_bc_waste
                     iar(itmnr + parsed_items_count) = itmnr
                     iar(itmnr + parsed_items_count + parsed_items_count) = noits
-                    car(itmnr + ioff) = parsed_str
-                    car(itmnr + parsed_items_count + ioff) = parsed_str
+                    char_arr(itmnr + ioff) = parsed_str
+                    char_arr(itmnr + parsed_items_count + ioff) = parsed_str
                     if (usefor_on) substitution_on = .true.
                     if (logging_on .and. .not. usefor_on) then
                         write (lunut, 1020) caller, itmnr, caller, num_bc_waste, all_names(num_bc_waste)
@@ -351,10 +350,10 @@ contains
             if (itype == 2 .or. itype == 3) then
                 if (substitution_on .or. operator_on) then
                     nconst = nconst + 1
-                    rar(nconst) = parsed_real
+                    real_array(nconst) = parsed_real
                     noits = noits - 1
                     i2 = iar(itmnr + parsed_items_count)
-                    car(itmnr + parsed_items_count + ioff) = '&$&$SYSTEM_NAME&$&$!'
+                    char_arr(itmnr + parsed_items_count + ioff) = '&$&$SYSTEM_NAME&$&$!'
                     if (operator_on) then
                         if (logging_on) then
                             call log_number_in_operation(i2, lunut, parsed_real)
@@ -379,13 +378,13 @@ contains
 
             ! Scenario: no item name was given, but an item number
             if (itype == 2) then
-                if (parsed_int <=  num_bc_waste .and. parsed_int >= -bc_wl_types_count) then
+                if (parsed_int <=  num_bc_waste .and. parsed_int >= -num_bc_waste_types) then
                     call update_counters(parsed_items_count, noits, itmnr)
                     icm = itmnr + parsed_items_count + ioff
 
                     call shift_array_right(iar, itmnr, itmnr + parsed_items_count * 2)
                     call shift_array_right(iar, itmnr + parsed_items_count, itmnr + parsed_items_count * 2)
-                    call shift_char_subarray(car, itmnr + ioff, icm)
+                    call shift_char_subarray(char_arr, itmnr + ioff, icm)
 
                     iar (itmnr) = parsed_int
                     iar (itmnr + parsed_items_count) = itmnr
@@ -423,8 +422,8 @@ contains
                         end if
                         parsed_str = all_types(-parsed_int)
                     end if
-                    car (itmnr + ioff) = parsed_str
-                    car (itmnr + parsed_items_count + ioff) = parsed_str
+                    char_arr (itmnr + ioff) = parsed_str
+                    char_arr (itmnr + parsed_items_count + ioff) = parsed_str
                     if (usefor_on) substitution_on = .true.
                     cycle read_and_process
                 else
@@ -433,6 +432,7 @@ contains
                     return
                 end if
             end if
+
         end do read_and_process
 
         1015 format(' Input ', A, ' nr:', I5, ' is ', A, ' nr:', I5)
