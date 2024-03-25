@@ -75,11 +75,11 @@ subroutine flocculate(cfloc, flocdt, breakdt, flocmod)
     integer  :: nflocpop       !< Number of clay populations
     integer  :: nflocsizes     !< Number of floc size classes
     real(fp) :: adt            !< Relaxation factor towards equilibtium [-]
-    real(fp) :: eq_cfloc_micro !< Equilibrium concentration of micro flocs within specific clay population [kg/m3]
-    real(fp) :: eq_cfloc_macro !< Equilibrium concentration of macro flocs within specific clay population [kg/m3]
+    real(fp) :: eq_cfloc_micro !< Equilibrium concentration of micro flocs within specific clay population [g/m3]
+    real(fp) :: eq_cfloc_macro !< Equilibrium concentration of macro flocs within specific clay population [g/m3]
     real(fp) :: macro_frac     !< Fraction of macro flocs mass of total spm mass [-]
-    real(fp) :: tcclay         !< Total clay concentration [kg/m3]
-    real(fp) :: tcpop          !< Total concentration of specific clay population [kg/m3]
+    real(fp) :: tcclay         !< Total clay concentration [g/m3]
+    real(fp) :: tcpop          !< Total concentration of specific clay population [g/m3]
     !
     nflocpop = size(cfloc,1)
     nflocsizes = size(cfloc,2)

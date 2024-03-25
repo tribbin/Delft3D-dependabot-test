@@ -65,7 +65,7 @@ subroutine flocculate_dwq( swfloform, cmacro, cmicro, tpm, tau, total_depth, loc
     real(kind=fp), parameter :: GRAV_fp = 9.81_fp   !< Gravitational acceleration [m/s2]
     real(kind=fp), parameter :: VONKAR_fp = 0.41_fp !< Von Karman constant [-]
     
-    real(kind=fp) :: tpm_fp         !< Total sediment concentration (includes organic material) [kg/m3]
+    real(kind=fp) :: tpm_fp         !< Total sediment concentration (includes organic material) [g/m3]
     real(kind=fp) :: tau_fp         !< Bed shear stress [N/m2]
     real(kind=fp) :: total_depth_fp !< Total depth (distance bottom to surface) [m]
     real(kind=fp) :: local_depth_fp !< Total depth (distance segment to surface) [m]
@@ -78,7 +78,7 @@ subroutine flocculate_dwq( swfloform, cmacro, cmicro, tpm, tau, total_depth, loc
     real(kind=fp) :: ws_micro_fp    !< Fall velocity for micro flocs [m/s]
     real(kind=fp) :: ws_avg_fp      !< Effective settling velocity of SPM [m/s]
 
-    tpm_fp = real(tpm,fp) * 1000.0_fp
+    tpm_fp = real(tpm,fp)
     tau_fp = real(tau,fp)
     total_depth_fp = real(total_depth,fp)
     local_depth_fp = real(local_depth,fp)
