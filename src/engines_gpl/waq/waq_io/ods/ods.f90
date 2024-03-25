@@ -28,28 +28,14 @@ module m_getloc
 contains
 
 
-    SUBROUTINE GETLOC (FNAME, ITYPE, LOCDEF, MAXDEF, IPRDEP, &
-            ITMDEP, MAXLST, LOCLST, LOCTYP, LOCNR, &
-            NRLST, IERROR, OPTION)
-        !
-        !
-        !     Deltares        MARINE & COASTAL MANAGEMENT
-        !
-        !     CREATED            : May '96  by L. Postma
-        !
-        !     MODIFIED           :
-        !
-        !     FUNCTION           : ODS GETLOC routine for DELWAQ HIS-files
-        !
-        !     SUBROUTINES CALLED :
-        !
-        !     LOGICAL UNITS      :
-        !
-        !     PARAMETERS    :
+    subroutine getloc (file_name, itype, locdef, maxdef, iprdep, &
+            itmdep, maxlst, loclst, loctyp, locnr, &
+            nrlst, ierror, option)
+        ! ODS GETLOC routine for DELWAQ HIS-files
         !
         !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
         !     ---------------------------------------------------------
-        !     FNAME   CHAR*256   3        IN/LOC  Complete file name
+        !     file_name   CHAR*256   3        IN/LOC  Complete file name
         !     ITYPE   INTEGER    1        INPUT   File type
         !     LOCDEF  CHAR*20  MAXDEF     INPUT   List with wanted locations
         !     MAXDEF  INTEGER    1        INPUT   Length of LOCDEF
@@ -62,101 +48,92 @@ contains
         !     NRLST   INTEGER    1        OUTPUT  Nr of parameters found
         !     IERROR  INTEGER    1        OUTPUT  Error code
         !     OPTION  CHAR*256   1        IN/OUT  For future use
-        !
-        !
+
         use m_string_manipulation, only : upper_case
         use m_open_waq_files
         use m_file_path_utils, only : extract_file_extension
 
-        CHARACTER*256 FNAME(3), OPTION
-        CHARACTER*20  LOCDEF(MAXDEF), LOCLST(MAXLST)
-        DIMENSION     LOCTYP(MAXLST), LOCNR (MAXLST)
-        LOGICAL       SETALL
+        character*256 file_name(3), option
+        character*20  locdef(maxdef), loclst(maxlst)
+        dimension     loctyp(maxlst), locnr (maxlst)
+        logical       setall
         character*256 :: ext     ! file extension
         integer(kind = int_wp) :: extpos   ! position of extension
         integer(kind = int_wp) :: extlen   ! length of file extension
         logical :: mapfil  ! true if map file extension
         integer(kind = int_wp) :: lun
-        integer(kind = int_wp) :: k, i1, i2, i3, NOTOT, ierror, nodump, idummy
+        integer(kind = int_wp) :: k, i1, i2, i3, notot, ierror, nodump, idummy
         integer(kind = int_wp) :: itype, itmdep, iprdep, nrlst, maxk, nbase
         integer(kind = int_wp) :: locnr, loctyp, maxdef, maxlst
-        !
-        !         Open the DELWAQ .HIS file
-        !
+
+        ! open the delwaq .his file
         lun = 10
-        CALL open_waq_files (lun, FNAME(1), 24, 2, IERROR)
-        IF (IERROR /= 0) RETURN
+        call open_waq_files (lun, file_name(1), 24, 2, ierror)
+        if (ierror /= 0) return
 
         ! map or his
-
-        call extract_file_extension(fname(1), ext, extpos, extlen)
+        call extract_file_extension(file_name(1), ext, extpos, extlen)
         call upper_case(ext, ext, extlen)
-        if (ext == 'MAP') then
+        if (ext == 'map') then
             mapfil = .true.
         else
             mapfil = .false.
         endif
-        !
-        !         Read primary system characteristics
-        !
-        READ (lun, ERR = 100)   FNAME(3)(1:160)
-        READ (lun, ERR = 110)   NOTOT, NODUMP
-        READ (lun, ERR = 120) (FNAME(3)(181:200), K = 1, NOTOT)
-        !
-        !         Read parameter names and try to find the wanted subset
-        !
-        NRLST = 0
-        SETALL = .FALSE.
-        IF (LOCDEF(1) == '*') SETALL = .TRUE.
 
-        DO I1 = 1, NODUMP, MAXLST
-            MAXK = MIN(NODUMP, I1 + MAXLST - NRLST - 1) - I1 + 1
+        ! read primary system characteristics
+        read (lun, err = 100) file_name(3)(1:160)
+        read (lun, err = 110) notot, nodump
+        read (lun, err = 120) (file_name(3)(181:200), k = 1, notot)
+
+        ! read parameter names and try to find the wanted subset
+        nrlst = 0
+        setall = .false.
+        if (locdef(1) == '*') setall = .true.
+
+        do i1 = 1, nodump, maxlst
+            maxk = min(nodump, i1 + maxlst - nrlst - 1) - i1 + 1
             if (.not. mapfil) then
-                READ (lun, ERR = 130) (IDUMMY, LOCLST(K), K = NRLST + 1, NRLST + MAXK)
+                read (lun, err = 130) (idummy, loclst(k), k = nrlst + 1, nrlst + maxk)
             else
                 do k = nrlst + 1, nrlst + maxk
                     write(loclst(k), '(''segment '',i8)') k
                 enddo
             endif
-            NBASE = NRLST
-            DO I2 = 1, MAXK
-                DO I3 = 1, MAXDEF
-                    IF (LOCLST(NBASE + I2) == LOCDEF(I3) .OR. SETALL) THEN
-                        NRLST = NRLST + 1
-                        IF (NRLST > MAXLST) THEN
-                            IERROR = -NODUMP
-                            GOTO 50
-                        ENDIF
-                        LOCLST(NRLST) = LOCLST(NBASE + I2)
-                        LOCNR (NRLST) = I1 + I2 - 1
-                        GOTO 30
-                    ENDIF
+            nbase = nrlst
+            do i2 = 1, maxk
+                do i3 = 1, maxdef
+                    if (loclst(nbase + i2) == locdef(i3) .or. setall) then
+                        nrlst = nrlst + 1
+                        if (nrlst > maxlst) then
+                            ierror = -nodump
+                            goto 50
+                        endif
+                        loclst(nrlst) = loclst(nbase + i2)
+                        locnr (nrlst) = i1 + i2 - 1
+                        goto 30
+                    endif
                 end do
-                30    CONTINUE
+                30    continue
             end do
         end do
-        !
-        !         Supply the desired statistics
-        !
-        50 DO I1 = 1, NRLST
-            LOCTYP(I1) = 2
+
+        ! supply the desired statistics
+        50 do i1 = 1, nrlst
+            loctyp(i1) = 2
         end do
-        GOTO 200
-        !
-        !         Supply the desired statistics
-        !
-        100 IERROR = 10
-        GOTO 200
-        110 IERROR = 11
-        GOTO 200
-        120 IERROR = 12
-        GOTO 200
-        130 IERROR = 13
-        !
-        !         Close the unit
-        !
-        200 CLOSE (lun)
-        RETURN
-    END
+        goto 200
+
+        ! supply the desired statistics
+        100 ierror = 10
+        goto 200
+        110 ierror = 11
+        goto 200
+        120 ierror = 12
+        goto 200
+        130 ierror = 13
+
+        200 close (lun)
+        return
+    end subroutine getloc
 
 end module m_getloc
