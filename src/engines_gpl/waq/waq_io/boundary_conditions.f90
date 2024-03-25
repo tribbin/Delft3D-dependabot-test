@@ -480,8 +480,8 @@ contains
                 goto 510
             endif
             ! Checks if an inner loop column header exists for the data matrix
-            call validate_column_headers (lunut, int_workspace, itmnr, count_items_in_use_rule, idmnr, &
-                    nodim, iorder, max_int_size, char_arr, iposr, &
+            call validate_column_headers(lunut, int_workspace, itmnr, count_items_in_use_rule, idmnr, &
+                    nodim, iorder, char_arr, iposr, &   ! max_int_size,
                     npos, ilun, lch, lstack, cchar, &
                     chulp, nocol, is_date_format, is_yyddhh_format, itfacw, &
                     itype, ihulp, rhulp, ierr2, status)
@@ -1012,66 +1012,64 @@ contains
 
     end subroutine write_breakpoint_data_blocks
 
-    subroutine validate_column_headers(ascii_output_file_unit, i_array, count_items_assign, count_items_comp_rule, count_subs_assign, &
-            count_subs_comp_rule, index_first, i_max, names_to_check, start_in_line, &
+    subroutine validate_column_headers(ascii_output_file_unit, int_array, count_items_assign, count_items_comp_rule, &
+            count_subs_assign, count_subs_comp_rule, index_first, names_to_check, start_in_line, & !max_int_size,
             npos, ilun, lch, lstack, cchar, &
             chulp, nocol, is_date_format, is_yyddhh_format, itfact, &
             itype, ihulp, rhulp, error_idx, status)
 
-        ! Checks if column header exists
-        ! Logical Units : LUN(27) = unit stripped DELWAQ input file
-        !                 LUN(29) = unit formatted output file
-        !
-        !     ascii_output_file_unit                  integer        1            input   unit number for ascii output
-        !     i_array                integer      i_max          in/out  integer workspace array
-        !     i_max                  integer        1            input   max. integer workspace dimension
-        !     count_items_assign     integer        1            in/out  number of items for assignment
-        !     count_items_comp_rule  integer        1            in      number of items in computational rule
-        !     count_items_entries    integer        1            in      number of items entries to be filled
-        !     count_subs_assign      integer        1            in/out  number of subst for assignment
-        !     count_subs_comp_rule   integer        1            in      number of subst in computational rule
-        !     count_subs_entries     integer        1            in      number of subst entries to be filled
-        !     index_first            integer        1            in      1 = items first, 2 = substances first
-        !     names_to_check         char*(*)      count_names   input   names of items to check for presence
-        !     count_names            integer        1            in/out  start position on input line
-        !     start_in_line          integer        1            in/out  start position on input line
-        !     npos                   integer        1            input   number of significant characters
-        !     ilun                   integer       lstack        input   unitnumb include stack
-        !     lch                    char*(*)      lstack        input   file name stack, 4 deep
-        !     lstack                 integer        1            input   include file stack size
-        !     cchar                  char*1         1            input   comment character
-        !     chulp                  char*(*)       1            output  space for limiting token
-        !     nocol                  integer        1            output  number of collums in matrix
-        !     is_date_format                 logical        1            input   true if time in 'date' format
-        !     is_yyddhh_format                 logical        1            input   true if yyetc instead of ddetc
-        !     itfact                 integer        1            input   factor between clocks
-        !     itype                  integer        1            output  type of info at end
-        !     ihulp                  integer        1            output  parameter read to be transferred
-        !     rhulp                  real           1            output  parameter read to be transferred
-        !     error_idx              integer        1            output  error index within current subroutine
-        !     offset_i_array         integer        1            output  offset  in i_array
-        !     offset_names           integer        1            output  offset in names_to_check
-        !     offset_common          integer        1            output  comon offset in i_array and names_to_check
+        !! Checks if column header exists
+        !! Logical Units : LUN(27) = unit stripped DELWAQ input file
+        !!                 LUN(29) = unit formatted output file
+
+        use m_waq_precision
+        use m_error_status
+        use m_string_utils
 
         use usefor, only : compact_usefor_list
         use timers       !   performance timers
         use date_time_utils, only : convert_string_to_time_offset, convert_relative_time
 
-        integer(kind = int_wp) :: i_max
-        character*(*) lch   (lstack), chulp, names_to_check(:)
-        character     cchar*1, strng*8
-        dimension     i_array(:), ilun(lstack)
-        logical       is_date_format, is_yyddhh_format, first, must_read_more
+        integer(kind = int_wp), intent(in) :: ascii_output_file_unit
+        integer(kind = int_wp), intent(in) :: count_items_comp_rule         !! number of items in computational rule
+        integer(kind = int_wp), intent(inout) :: count_subs_assign          !! number of subst for assignment
+        ! integer(kind = int_wp) :: max_int_size             !! max. integer workspace dimension
+
+        integer(kind = int_wp), intent(inout) :: int_array(:)      !! in/out  integer workspace array
+        type(error_status), intent(inout) :: status !< current error status
+
+        character(len = *), intent(in) :: names_to_check(:) !! names of items to check for presence
+        character(len = *), intent(in) :: lch(lstack)       !! file name stack, 4 deep
+        character(len = *), intent(out) :: chulp            !! space for limiting token
+        character, intent(in) :: cchar*1                    !! comment character
+        character :: strng*8
+        logical, intent(in) :: is_date_format               !! true if time in 'date' format
+        logical, intent(in) :: is_yyddhh_format             !! true if yyetc instead of ddetc
+        logical :: first, must_read_more      !!
         integer(kind = INT64) :: ihulp8
         integer(kind = int_wp) :: ithndl = 0
-        integer(kind = int_wp) :: i, count_items_comp_rule, count_subs_assign, count_subs_comp_rule, index_first, offset_names
-        integer(kind = int_wp) :: offset_common, notim
-        integer(kind = int_wp) :: itype, ascii_output_file_unit, ilun, start_in_line, nopos, ihulp, error_idx
-        integer(kind = int_wp) :: i_array, nocol, ifound, itfact, icnt, iods, k
-        integer(kind = int_wp) :: offset_i_array, count_items_assign, count_names, npos, lstack
-        real(kind = real_wp) :: rhulp
-
-        type(error_status), intent(inout) :: status !< current error status
+        integer(kind = int_wp), intent(in) :: count_subs_comp_rule          !! number of subst in computational rule
+        integer(kind = int_wp), intent(inout) :: start_in_line          !! start position on input line
+        integer(kind = int_wp), intent(in) :: index_first               !! 1 = items first, 2 = substances first
+        integer(kind = int_wp) :: offset_common, offset_names !! comon offset in int_array and names_to_check, offset in
+        !! names_to_check
+        integer(kind = int_wp), intent(out) :: itype                    !! type of info at end
+        integer(kind = int_wp), intent(in) :: ilun(lstack)                      !! unitnumb include stack
+        integer(kind = int_wp) :: nopos
+        integer(kind = int_wp) :: i
+        integer(kind = int_wp), intent(out) :: ihulp                 !! parameter read to be transferred
+        integer(kind = int_wp) :: notim
+        integer(kind = int_wp), intent(out) :: error_idx         !! error index within current subroutine
+        integer(kind = int_wp), intent(out) :: nocol     !! number of collums in matrix
+        integer(kind = int_wp) :: ifound
+        integer(kind = int_wp), intent(in) :: itfact            !! factor between clocks
+        integer(kind = int_wp) :: icnt, iods, k
+        integer(kind = int_wp) :: count_items_assign            !! number of items for assignment
+        integer(kind = int_wp) :: count_names
+        integer(kind = int_wp) :: offset_i_array                !! offset  in int_array
+        integer(kind = int_wp), intent(in) :: npos                  !! number of significant characters
+        integer(kind = int_wp), intent(in) :: lstack            !! include file stack size
+        real(kind = real_wp), intent(out) :: rhulp               !!parameter read to be transferred
 
         if (timon) call timstrt("validate_column_headers", ithndl)
 
@@ -1117,7 +1115,7 @@ contains
                 if (first) then
                     first = .false.
                     do i = 1, count_names
-                        i_array(offset_i_array + i) = 0
+                        int_array(offset_i_array + i) = 0
                     end do
                     nocol = 0
                     write (ascii_output_file_unit, *)
@@ -1127,7 +1125,7 @@ contains
                 do i = 1, count_names
                     if (string_equals(chulp(:20), names_to_check(offset_names + i))) then
                         strng = 'used'
-                        i_array(i + offset_i_array) = nocol
+                        int_array(i + offset_i_array) = nocol
                     endif
                 end do
                 write (ascii_output_file_unit, 1000) nocol, chulp, strng
@@ -1151,8 +1149,8 @@ contains
         do i = 1, count_names
             k = i - icnt
             if ((names_to_check(offset_names + k) /= '&$&$SYSTEM_NAME&$&$!') &
-                    .and.  (i_array(offset_i_array + k) <= 0)) then
-                call compact_usefor_list(ascii_output_file_unit, i_array, count_items_assign, &
+                    .and.  (int_array(offset_i_array + k) <= 0)) then
+                call compact_usefor_list(ascii_output_file_unit, int_array, count_items_assign, &
                         count_items_comp_rule, count_subs_assign, &
                         count_subs_comp_rule, index_first, names_to_check, &
                         offset_i_array, offset_names, &
