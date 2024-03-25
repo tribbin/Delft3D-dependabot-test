@@ -27,6 +27,9 @@ module m_dlwq5g
 
     implicit none
 
+    private
+    public :: dlwq5g
+
 contains
 
 
