@@ -572,10 +572,9 @@ contains
                 factor(iscal) = factor(1)
             enddo
         endif
-        call scale_array (array, factor, nitem, nvals)
+        call scale_array (array, factor)
 
-        !     Write if unit specified
-
+        ! Write if unit specified
         if (lun1 > 0) write (lun1) array
         if (timon) call timstop(ithndl)
         return
@@ -1332,7 +1331,7 @@ contains
         real(kind = real_wp), intent(inout) :: factor(nvals)              !< scale factors
         integer(kind = int_wp), intent(in) :: num_records                      !< number of breakpoints
         integer(kind = int_wp), intent(out) :: ibrk  (num_records)              !< breakpoints read
-        real(kind = real_wp), intent(out) :: arrin (nvals, num_items, num_records)  !< breakpoints read
+        real(kind = real_wp), intent(out) :: arrin(nvals, num_items, num_records)  !< breakpoints read
         logical  (4), intent(in) :: is_date_format                     !< 'date'-format time scale
         logical  (4), intent(in) :: is_yyddhh_format                    !< (F;ddmmhhss,T;yydddhh)
         integer(kind = int_wp), intent(in) :: ifact                      !< factor between timings
@@ -1401,7 +1400,7 @@ contains
             enddo
         endif
         do i1 = 1, num_records
-            call scale_array  (arrin(1, 1, i1), factor, num_items, nvals)
+            call scale_array(arrin(:, :, i1), factor)
         enddo
         if (timon) call timstop(ithndl)
         return

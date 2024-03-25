@@ -30,14 +30,12 @@ module matrix_utils
 
 contains
 
-    subroutine scale_array(arrin, factor, nitem, nvals)
+    subroutine scale_array(arrin, factor)
         !! Scales an array
         use timers       !   performance timers
 
-        integer(kind = int_wp), intent(in) :: nvals                      !< number of values
-        integer(kind = int_wp), intent(in) :: nitem                      !< number of items
-        real(kind = real_wp), intent(inout) :: arrin (nvals, nitem)        !< number of items
-        real(kind = real_wp), intent(in) :: factor(nvals)              !< scale factors
+        real(kind = real_wp), intent(inout) :: arrin(:, :)        !< number of items
+        real(kind = real_wp), intent(in) :: factor(size(arrin, 1))              !< scale factors
 
 
         integer(kind = int_wp) :: i1, i2        ! loop counters
@@ -45,9 +43,9 @@ contains
         integer(kind = int_wp) :: ithndl = 0
         if (timon) call timstrt("scale_array", ithndl)
 
-        do i1 = 1, nvals
+        do i1 = 1, size(arrin, 1)
             fact = factor(i1)
-            do i2 = 1, nitem
+            do i2 = 1, size(arrin, 2)
                 arrin (i1, i2) = arrin (i1, i2) * fact
             enddo
         enddo

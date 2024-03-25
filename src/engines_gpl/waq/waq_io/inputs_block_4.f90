@@ -569,7 +569,7 @@ contains
         endif
 
         factor(5) = factor(4)
-        call scale_array (rwork, factor, noq, 5)
+        call scale_array (rwork, factor)
 
         write (lun(2)) idummy, (adummy, k = 1, 3)
         write (lun(2)) idummy, (adummy, k = 1, 3)
