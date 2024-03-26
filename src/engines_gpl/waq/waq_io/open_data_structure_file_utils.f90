@@ -135,12 +135,12 @@ contains
 
     end subroutine get_loc
 
-    subroutine get_time(fname, itype, timdef, maxdef, iprdep, &
+    subroutine get_time(file_name, itype, timdef, maxdef, iprdep, &
             locdep, maxlst, timlst, itmtyp, nrlst, &
             ierror, option)
         ! get_time routine for DELWAQ HIS-files
         !
-        !     FNAME   CHAR*256   3        IN/LOC  Complete file name
+        !     file_name   CHAR*256   3        IN/LOC  Complete file name
         !     ITYPE   INTEGER    1        INPUT   File type
         !     TIMDEF  REAL*8   2,MAXDEF   INPUT   Wanted start and stop time
         !     MAXDEF  INTEGER    1        INPUT   Wanted time dimension
@@ -155,7 +155,7 @@ contains
 
         use time_module
 
-        character*256    fname (3), option
+        character*256    file_name (3), option
         integer(kind = int_wp) :: itmtyp(*)
         real(kind = dp) :: timlst(*), timdef(2, *), atime, otime, second
         logical          setall
@@ -174,11 +174,11 @@ contains
         integer(kind = int_wp) :: isfact, idummy, idate, itime, iprdep
 
         ! open the delwaq .his file
-        call open_waq_files (lun, fname(1), 24, 2, ierror)
+        call open_waq_files (lun, file_name(1), 24, 2, ierror)
         if (ierror /= 0) return
 
         ! map or his
-        call extract_file_extension(fname(1), ext, extpos, extlen)
+        call extract_file_extension(file_name(1), ext, extpos, extlen)
         call upper_case(ext, ext, extlen)
         if (ext == 'map') then
             mapfil = .true.
@@ -187,24 +187,24 @@ contains
         endif
 
         ! read primary system characteristics
-        read (lun, err = 100)   fname(3)(1:160)
-        if (fname(3)(121:123) /= 't0: ' .and. &
-                fname(3)(121:123) /= 't0: ' .and. &
-                fname(3)(121:123) /= 't0= ' .and. &
-                fname(3)(121:123) /= 't0= ') then
+        read (lun, err = 100)   file_name(3)(1:160)
+        if (file_name(3)(121:123) /= 't0: ' .and. &
+                file_name(3)(121:123) /= 't0: ' .and. &
+                file_name(3)(121:123) /= 't0= ' .and. &
+                file_name(3)(121:123) /= 't0= ') then
             goto 150
         endif
-        read (fname(3)(125:128), '(i4)') iyear
-        read (fname(3)(130:131), '(i2)') imonth
-        read (fname(3)(133:134), '(i2)') iday
-        read (fname(3)(136:137), '(i2)') ihour
-        read (fname(3)(139:140), '(i2)') iminut
-        read (fname(3)(142:143), '(i2)') isecnd
-        read (fname(3)(151:158), '(i8)') isfact
+        read (file_name(3)(125:128), '(i4)') iyear
+        read (file_name(3)(130:131), '(i2)') imonth
+        read (file_name(3)(133:134), '(i2)') iday
+        read (file_name(3)(136:137), '(i2)') ihour
+        read (file_name(3)(139:140), '(i2)') iminut
+        read (file_name(3)(142:143), '(i2)') isecnd
+        read (file_name(3)(151:158), '(i8)') isfact
         read (lun, err = 110)   notot, nodump
-        read (lun, err = 120) (fname(3)(181:200), k = 1, notot)
+        read (lun, err = 120) (file_name(3)(181:200), k = 1, notot)
         if (.not. mapfil) then
-            read (lun, err = 130) (idummy, fname(3)(221:240), k = 1, nodump)
+            read (lun, err = 130) (idummy, file_name(3)(221:240), k = 1, nodump)
         endif
         idate = iyear * 10000 + imonth * 100 + iday
         itime = ihour * 10000 + iminut * 100 + isecnd
@@ -253,12 +253,12 @@ contains
 
     end subroutine get_time
 
-    subroutine get_parameter(fname, itype, pardef, maxdef, itmdep, &
+    subroutine get_parameter(file_name, itype, pardef, maxdef, itmdep, &
             locdep, maxlst, lang, parlst, paruni, &
             iprtyp, iprcod, nrlst, ierror, option)
         !! ods get_parameter routine for delwaq his-files
         !
-        !     fname   char*256   3        in/loc  complete file name
+        !     file_name   char*256   3        in/loc  complete file name
         !     itype   integer    1        input   file type
         !     pardef  char*20  maxdef     input   list with wanted par's
         !     maxdef  integer    1        input   length of pardef
@@ -273,7 +273,7 @@ contains
         !     nrlst   integer    1        output  nr of parameters found
         !     ierror  integer    1        output  error code
         !     option  char*256   1        in/out  for future use
-        character*256 :: fname(3), option
+        character*256 :: file_name(3), option
         character*20 :: pardef(maxdef), parlst(maxlst), paruni(maxlst)
         dimension :: iprtyp(maxlst), iprcod(maxlst)
         logical :: setall
@@ -285,11 +285,11 @@ contains
 
         ! open the delwaq .his file
         lun = 10
-        call open_waq_files (lun, fname(1), 24, 2, ierror)
+        call open_waq_files (lun, file_name(1), 24, 2, ierror)
         if (ierror /= 0) return
 
         ! read primary system characteristics
-        read (lun, err = 100)   fname(3)(1:160)
+        read (lun, err = 100)   file_name(3)(1:160)
         read (lun, err = 110)   notot, nodump
 
         ! read parameter names and try to find the wanted subset
@@ -333,28 +333,28 @@ contains
 
     end subroutine get_parameter
 
-    subroutine get_matrix_1(fname, itype, iprcod, loc, tim, &
-            amiss, maxdim, data, ierror, &
+    subroutine get_matrix_1(file_name, itype, iprcod, loc, tim, &
+            missing_value, maxdim, data, ierror, &
             option)
         !! ods get_matrix_1 routine for delwaq his-files
         !!
-        !     fname   char*256   3        in/loc  complete file name
+        !     file_name   char*256   3        in/loc  complete file name
         !     itype   integer    1        input   file type
         !     iprcod  integer  ierror     input   list of wanted parameters
         !     loc     integer   3*3       input   list of indices of locations
         !     tim     real*8     3        input   interval and step for data
-        !     amiss   real*4     2        input   missing value in output/input
+        !     missing_value   real*4     2        input   missing value in output/input
         !     maxdim  integer    1        input   maximum dimension of output arr
         !     data    real*4   maxdim     output  the produced information
         !     ierror  integer    1        in/out  error code
         !     option  char*256   1        in/out  for future use
         use time_module
 
-        character*256 fname (3), option
+        character*256 file_name (3), option
         real(kind = real_wp) :: data(*)
         integer(kind = int_wp) :: loc(*)
         real(kind = dp) :: tim(2), otime, atime, second
-        real(kind = real_wp) :: amiss
+        real(kind = real_wp) :: missing_value
         character*256 :: ext     ! file extension
         integer(kind = int_wp) :: extpos   ! position of extension
         integer(kind = int_wp) :: extlen   ! length of file extension
@@ -368,11 +368,11 @@ contains
         integer(kind = int_wp) :: adummy, itype
 
         ! open the delwaq .his file if needed!
-        call open_waq_files (lun, fname(1), 24, 2, ierror)
+        call open_waq_files (lun, file_name(1), 24, 2, ierror)
         if (ierror /= 0) return
 
         ! map or his
-        call extract_file_extension(fname(1), ext, extpos, extlen)
+        call extract_file_extension(file_name(1), ext, extpos, extlen)
         call upper_case(ext, ext, extlen)
         if (ext == 'MAP') then
             mapfil = .true.
@@ -381,24 +381,24 @@ contains
         endif
 
         ! read primary system characteristics
-        read (lun, err = 100)   fname(3)(1:160)
-        if (fname(3)(121:123) /= 't0: ' .and. &
-                fname(3)(121:123) /= 't0: ' .and. &
-                fname(3)(121:123) /= 't0= ' .and. &
-                fname(3)(121:123) /= 't0= ') then
+        read (lun, err = 100)   file_name(3)(1:160)
+        if (file_name(3)(121:123) /= 't0: ' .and. &
+                file_name(3)(121:123) /= 't0: ' .and. &
+                file_name(3)(121:123) /= 't0= ' .and. &
+                file_name(3)(121:123) /= 't0= ') then
             goto 140
         endif
-        read (fname(3)(125:128), '(i4)') iyear
-        read (fname(3)(130:131), '(i2)') imonth
-        read (fname(3)(133:134), '(i2)') iday
-        read (fname(3)(136:137), '(i2)') ihour
-        read (fname(3)(139:140), '(i2)') iminut
-        read (fname(3)(142:143), '(i2)') isecnd
-        read (fname(3)(151:158), '(i8)') isfact
+        read (file_name(3)(125:128), '(i4)') iyear
+        read (file_name(3)(130:131), '(i2)') imonth
+        read (file_name(3)(133:134), '(i2)') iday
+        read (file_name(3)(136:137), '(i2)') ihour
+        read (file_name(3)(139:140), '(i2)') iminut
+        read (file_name(3)(142:143), '(i2)') isecnd
+        read (file_name(3)(151:158), '(i8)') isfact
         read (lun, err = 110)   notot, nodump
-        read (lun, err = 120) (fname(3)(181:200), k = 1, notot)
+        read (lun, err = 120) (file_name(3)(181:200), k = 1, notot)
         if (.not. mapfil) then
-            read (10, err = 130) (idummy, fname(3)(221:240), k = 1, nodump)
+            read (10, err = 130) (idummy, file_name(3)(221:240), k = 1, nodump)
         endif
         idate = iyear * 10000 + imonth * 100 + iday
         itime = ihour * 10000 + iminut * 100 + isecnd
@@ -439,29 +439,29 @@ contains
 
     end subroutine get_matrix_1
 
-    subroutine get_matrix_2(fname, itype, iprcod, loc, tim, &
-            amiss, maxdim, data, ierror, &
+    subroutine get_matrix_2(file_name, itype, iprcod, loc, tim, &
+            missing_value, maxdim, data, ierror, &
             option)
         !! ods get_matrix_1 routine for delwaq his-files
 
         use time_module
 
-        !     fname   char*256   3        in/loc  complete file name
+        !     file_name   char*256   3        in/loc  complete file name
         !     itype   integer    1        input   file type
         !     iprcod  integer  ierror     input   list of wanted parameters
         !     loc     integer   3*3       input   list of indices of locations
         !     tim     real*8     2        input   interval and step for data
-        !     amiss   real*4     2        input   missing value in output/input
+        !     missing_value   real*4     2        input   missing value in output/input
         !     maxdim  integer    1        input   maximum dimension of output arr
         !     data    real*4   maxdim     output  the produced information
         !     ierror  integer    1        in/out  error code
         !     option  char*256   1        in/out  for future use
 
-        character*256 fname (3), option
+        character*256 file_name (3), option
         real(kind = real_wp) :: data(*)
         integer(kind = int_wp) :: loc(*)
         real(kind = dp) :: tim(2), otime, atime, second
-        real(kind = real_wp) :: amiss
+        real(kind = real_wp) :: missing_value
         character*256 :: ext     ! file extension
         integer(kind = int_wp) :: extpos   ! position of extension
         integer(kind = int_wp) :: extlen   ! length of file extension
@@ -473,11 +473,11 @@ contains
         integer(kind = int_wp) :: adummy, itype
 
         ! open the delwaq .his file if needed
-        call open_waq_files (lun, fname(1), 24, 2, ierror)
+        call open_waq_files (lun, file_name(1), 24, 2, ierror)
         if (ierror /= 0) return
 
         ! map or his
-        call extract_file_extension(fname(1), ext, extpos, extlen)
+        call extract_file_extension(file_name(1), ext, extpos, extlen)
         call upper_case(ext, ext, extlen)
         if (ext == 'MAP') then
             mapfil = .true.
@@ -486,24 +486,24 @@ contains
         endif
 
         ! read primary system characteristics
-        read (lun, err = 100)   fname(3)(1:160)
-        if (fname(3)(121:123) /= 't0: ' .and. &
-                fname(3)(121:123) /= 't0: ' .and. &
-                fname(3)(121:123) /= 't0= ' .and. &
-                fname(3)(121:123) /= 't0= ') then
+        read (lun, err = 100)   file_name(3)(1:160)
+        if (file_name(3)(121:123) /= 't0: ' .and. &
+                file_name(3)(121:123) /= 't0: ' .and. &
+                file_name(3)(121:123) /= 't0= ' .and. &
+                file_name(3)(121:123) /= 't0= ') then
             goto 140
         endif
-        read (fname(3)(125:128), '(i4)') iyear
-        read (fname(3)(130:131), '(i2)') imonth
-        read (fname(3)(133:134), '(i2)') iday
-        read (fname(3)(136:137), '(i2)') ihour
-        read (fname(3)(139:140), '(i2)') iminut
-        read (fname(3)(142:143), '(i2)') isecnd
-        read (fname(3)(151:158), '(i8)') isfact
+        read (file_name(3)(125:128), '(i4)') iyear
+        read (file_name(3)(130:131), '(i2)') imonth
+        read (file_name(3)(133:134), '(i2)') iday
+        read (file_name(3)(136:137), '(i2)') ihour
+        read (file_name(3)(139:140), '(i2)') iminut
+        read (file_name(3)(142:143), '(i2)') isecnd
+        read (file_name(3)(151:158), '(i8)') isfact
         read (lun, err = 110)   notot, nodump
-        read (lun, err = 120) (fname(3)(181:200), k = 1, notot)
+        read (lun, err = 120) (file_name(3)(181:200), k = 1, notot)
         if (.not. mapfil) then
-            read (lun, err = 130) (idummy, fname(3)(221:240), k = 1, nodump)
+            read (lun, err = 130) (idummy, file_name(3)(221:240), k = 1, nodump)
         endif
         idate = iyear * 10000 + imonth * 100 + iday
         itime = ihour * 10000 + iminut * 100 + isecnd
@@ -539,11 +539,11 @@ contains
 
     end subroutine get_matrix_2
 
-    subroutine get_dimension(fname, itype, dim, iprdep, itmdep, &
+    subroutine get_dimension(file_name, itype, dim, iprdep, itmdep, &
             locdep, ndim, ierror, option)
         !! ods get_dimension routine for delwaq his-files
         !!
-        !     fname   char*256   3        in/loc  complete file name
+        !     file_name   char*256   3        in/loc  complete file name
         !     itype   integer    1        input   file type
         !     dim     char*3     1        input   wanted dimension
         !     iprdep  integer    1        input   par code for dimensions
@@ -553,13 +553,13 @@ contains
         !     ierror  integer    1        output  error code
         !     option  char*256   1        in/out  for future use
         !
-        !     note1: fname(3) is used as local character space
+        !     note1: file_name(3) is used as local character space
         !     note2: ndim is not according to ods specs, it returns:
         !            ndim(1) = nr of substances in the file
         !            ndim(2) = nr of locations  in the file
         !            ndim(3) = nr of time steps in the file
 
-        character*256 fname(3), option
+        character*256 file_name(3), option
         character*3   dim
         dimension     ndim(3)
         character*256 :: ext     ! file extension
@@ -575,11 +575,11 @@ contains
 
         ! open the delwaq .his file
         lun = 10
-        call open_waq_files (lun, fname(1), 24, 2, ierror)
+        call open_waq_files (lun, file_name(1), 24, 2, ierror)
         if (ierror /= 0) return
 
         ! map or his
-        call extract_file_extension(fname(1), ext, extpos, extlen)
+        call extract_file_extension(file_name(1), ext, extpos, extlen)
         call upper_case(ext, ext, extlen)
         if (ext == 'MAP') then
             mapfil = .true.
@@ -588,11 +588,11 @@ contains
         endif
 
         ! read primary system characteristics
-        read (lun, err = 100)   fname(3)(1:160)
+        read (lun, err = 100)   file_name(3)(1:160)
         read (lun, err = 110)   notot, nodump
-        read (lun, err = 120) (fname(3)(181:200), k = 1, notot)
+        read (lun, err = 120) (file_name(3)(181:200), k = 1, notot)
         if (.not. mapfil) then
-            read (lun, err = 130) (idummy, fname(3)(221:240), k = 1, nodump)
+            read (lun, err = 130) (idummy, file_name(3)(221:240), k = 1, nodump)
         endif
 
         ! read the values at all times

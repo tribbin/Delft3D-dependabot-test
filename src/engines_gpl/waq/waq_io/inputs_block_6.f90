@@ -103,7 +103,7 @@ contains
         !              2 = conc: use data as concentration even with flow = 0
         !              3 = rain: flow >= 0 use concentration, < 0 use 0.0
         !              4 = well: flow >= 0 use concentration, < 0 use model-C
-        real(kind = dp), allocatable :: drar        (:)  !  double precission workspace (very large !lp)
+        real(kind = dp), allocatable :: dp_array        (:)  !  double precission workspace (very large !lp)
         integer(kind = int_wp) :: binary_work_file            !  binary unit for wasteloads
         integer(kind = int_wp) :: itype            !  type of token that is read
         integer(kind = int_wp) :: ierr2            !  local error indicator
@@ -313,14 +313,14 @@ contains
 
         !          now get the values
 
-        allocate(drar(max_real_size))             ! this array is 100 mb lp
+        allocate(dp_array(max_real_size))             ! this array is 100 mb lp
         idummy = notot + 1
         call read_boundary_concentrations (lun, lchar, 15, iwidth, max_char_size, &
                 char_arr, max_int_size, int_array, max_real_size, real_array, &
                 sname, wstid, wsttype, nowst, idummy, &
-                nowtyp, drar, is_date_format, is_yyddhh_format, &
+                nowtyp, dp_array, is_date_format, is_yyddhh_format, &
                 output_verbose_level, ierr2, status)
-        deallocate(drar)
+        deallocate(dp_array)
         if (ierr2 ==  0) then
             deallocate(wstid, wsttype)
             goto 30

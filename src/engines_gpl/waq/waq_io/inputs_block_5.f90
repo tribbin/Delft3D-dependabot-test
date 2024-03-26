@@ -95,7 +95,7 @@ contains
         character(len = 256), allocatable :: bndid_long(:)        ! array to buffer the non truncated boundary id's
         character(len = 256), allocatable :: bndtype_long(:)      ! array to buffer the non truncated boundary types
         integer(kind = int_wp), allocatable :: ibndtype(:)         ! index boundary type
-        real(kind = dp), allocatable :: drar(:)             !  double precission workspace (very large !lp)
+        real(kind = dp), allocatable :: dp_array(:)             !  double precission workspace (very large !lp)
         logical :: no_id_check            ! command line argument to skip double id check
         real(kind = real_wp) :: rdummy                  ! dummy real in argument list
         integer(kind = int_wp) :: idummy                  ! dummy integer in argument list
@@ -422,13 +422,13 @@ contains
         160 write (lunut, 2260)
         k = nobnd + 1
         l = nobnd + nobtyp + 1
-        allocate(drar(max_real_size))             ! this array is 100 mb lp
+        allocate(dp_array(max_real_size))             ! this array is 100 mb lp
         call read_boundary_concentrations (lun, lchar, 14, iwidth, max_char_size, &
                 char_arr, max_int_size, int_array, max_real_size, real_array, &
                 sname, bndid, bndtype(1:nobtyp), nobnd, nosys, &
-                nobtyp, drar, is_date_format, is_yyddhh_format, &
+                nobtyp, dp_array, is_date_format, is_yyddhh_format, &
                 output_verbose_level, ierr2, status)
-        deallocate(drar)
+        deallocate(dp_array)
         deallocate(bndid, bndtype)
 
         IF (IERR2 ==  0) goto 180

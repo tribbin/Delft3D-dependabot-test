@@ -591,7 +591,7 @@ contains
         write (lun(10)) idummy, (rwork(2, i), i = 1, noq)
         close (lun(10))
 
-        call open_waq_files  (lun(11), lchar(11), 11, 1, ierr2)
+        call open_waq_files (lun(11), lchar(11), 11, 1, ierr2)
         if (ierr2 /= 0) goto 100
         write (lun(11)) idummy, (rwork(3, i), i = 1, noq)
         close (lun(11))
