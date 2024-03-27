@@ -141,11 +141,11 @@ subroutine get_tshear_tdiss( tshear, tdiss, rho_water, tke, tlength, timtur, tau
 !
 ! Local variables 
 !
-    real(fp), parameter :: cd = 0.09_fp ** 0.75_fp   ! turbulence constant [-] cmu^(3/4)
+    real(fp), parameter :: cd = 0.09_fp ** 0.75_fp !< turbulence constant [-] cmu^(3/4)
     
-    real(fp) :: ustar         ! shear velocity [m/s]
-    real(fp) :: z             ! height above the bed [m]
-    real(fp) :: xi            ! relative depth [-]
+    real(fp) :: ustar         !< shear velocity [m/s]
+    real(fp) :: z             !< height above the bed [m]
+    real(fp) :: xi            !< relative depth [-]
 
     if (present(tke)) then
        if (present(timtur)) then ! k-tau
