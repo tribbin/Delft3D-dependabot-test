@@ -60,7 +60,7 @@ if (UNIX)
     set(CMAKE_Fortran_FLAGS_RELEASE              "-O2 -fPIC")
     set(CMAKE_Fortran_FLAGS_DEBUG                "-g -O0 -fPIC")
 
-    set(cpp_compiler_flags                       "-std=c++11")
+    set(cpp_compiler_flags                       "-std=c++17")
     set(cxx_compiler_flags......................."-lstdc++")
     set(automatic_local_variable_storage_flag    -auto)
     set(extend_source132_flag                    -extend-source 132)
@@ -85,7 +85,7 @@ if (UNIX)
 endif(UNIX)
 
 set(qauto_threaded_flags ${automatic_local_variable_storage_flag} ${generate_reentrancy_threaded_flag})
-set(waq_default_flags ${file_preprocessor_flag} ${extend_source132_flag} ${traceback_flag})
+set(waq_default_flags ${file_preprocessor_flag} ${traceback_flag})
 
 
 # Define the custom flag about code coverage with a default value of OFF
