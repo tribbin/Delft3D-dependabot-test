@@ -274,7 +274,7 @@ implicit none
     integer                                   :: md_mapformat         !< map file output format (one of IFORMAT_*)
     integer                                   :: md_unc_conv          !< Unstructured NetCDF conventions (either UNC_CONV_CFOLD or UNC_CONV_UGRID)
     integer                                   :: md_ncformat          !< NetCDF format (3: classic, 4: NetCDF4+HDF5)
-    character(len=255)                        :: md_nccompress        !< Whether ('on') or not ('off') to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4
+    logical                                   :: md_nccompress        !< Whether or not to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4
     integer                                   :: md_fou_step          !< determines if fourier analysis is updated at the end of the user time step or comp. time step
 
     integer, private                          :: ifixedweirscheme_input  !< input value of ifixedweirscheme in mdu file
@@ -376,7 +376,7 @@ use m_fm_icecover, only: fm_ice_null
     md_unc_conv     = UNC_CONV_UGRID  ! TODO: AvD: does this double now with IFORMAT_UGRID?
 
     md_ncformat     = 3               !< NetCDF format (3: classic, 4: NetCDF4+HDF5)
-    md_nccompress   = 'off'           !< Whether ('on') or not ('off') to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4
+    md_nccompress   = .false.         !< Whether or not to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4
 
     md_fou_step     = 0               !< default: fourier analysis is updated on a user-timestep basis
 
@@ -442,7 +442,6 @@ subroutine loadModel(filename)
     use m_flow1d_reader
     use m_flowexternalforcings, only: pillar
     use m_sferic
-    ! use string_module, only: get_dirsep
     use unstruc_caching
     use m_longculverts
     use unstruc_channel_flow
@@ -752,7 +751,7 @@ subroutine readMDUFile(filename, istat)
     integer,      intent(out) :: istat    !< Return status (0=success)
 
     character(len=32):: program
-    logical :: success, ex
+    logical :: success, ex, value_parsed
     character(len=1),dimension(1) :: dummychar
     logical :: dummylog
     character(len=1000) :: charbuf = ' '
@@ -1299,7 +1298,13 @@ subroutine readMDUFile(filename, istat)
     call prop_get_double (md_ptr, 'physics', 'Vicwminb'       , Vicwminb)
     call prop_get_double (md_ptr, 'physics', 'Xlozmidov'      , Xlozmidov)
 
-
+    call prop_get_double (md_ptr, 'physics', 'SchmidtNumberSalinity', Schmidt_number_salinity)
+    call check_positive_value('SchmidtNumberSalinity', Schmidt_number_salinity)
+    call prop_get_double (md_ptr, 'physics', 'PrandtlNumberTemperature', Prandtl_number_temperature)
+    call check_positive_value('PrandtlNumberTemperature', Prandtl_number_temperature)
+    call prop_get_double (md_ptr, 'physics', 'SchmidtNumberTracer', Schmidt_number_tracer)
+    call check_positive_value('SchmidtNumberTracer', Schmidt_number_tracer)
+    
     call prop_get_double (md_ptr, 'physics', 'Smagorinsky'    , Smagorinsky)
     call prop_get_double (md_ptr, 'physics', 'Elder   '       , Elder)
     call prop_get_integer(md_ptr, 'physics', 'irov'           , irov)
@@ -1322,7 +1327,6 @@ subroutine readMDUFile(filename, istat)
     call prop_get_integer(md_ptr, 'physics', 'Salinity'       , jasal)
     call prop_get_double (md_ptr, 'physics', 'InitialSalinity', salini)
     call prop_get_double (md_ptr, 'physics', 'DeltaSalinity'  , deltasalinity)
-
     call prop_get_double (md_ptr, 'physics', 'Sal0abovezlev'  , Sal0abovezlev)
 !    Secondary Flow
     call prop_get_integer(md_ptr, 'physics', 'SecondaryFlow'  , jasecflow)
@@ -1842,9 +1846,12 @@ subroutine readMDUFile(filename, istat)
 
     call prop_get_integer(md_ptr, 'output', 'NcFormat', md_ncformat, success)
     call unc_set_ncformat(md_ncformat)
-    md_nc_his_precision = 0
-    call prop_get_integer(md_ptr, 'output', 'NcHisDataPrecision', md_nc_his_precision, success)
-    call prop_get_string(md_ptr, 'output', 'NcCompression', md_nccompress, success)
+    call prop_get_string(md_ptr, 'output', 'NcMapDataPrecision', md_nc_map_precision, success)
+    call prop_get_string(md_ptr, 'output', 'NcHisDataPrecision', md_nc_his_precision, success)
+    call prop_get_logical(md_ptr, 'output', 'NcCompression', md_nccompress, success, value_parsed)
+    if (success .and. value_parsed == .false.) then
+       call mess(LEVEL_ERROR, 'Did not recognise NcCompression value. It must be 0 or 1.')
+    endif
     call unc_set_nccompress(md_nccompress)
 
     call prop_get_integer(md_ptr, 'output', 'enableDebugArrays', jawritedebug, success)   ! allocate 1d, 2d, 3d arrays to quickly write quantities to map file
@@ -2746,7 +2753,7 @@ subroutine writeMDUFilepointer(mout, writeall, istat)
     character(len=20)              :: rundat
     character(len=128)             :: helptxt
     character(len=256)             :: tmpstr
-    integer                        :: i, ibuf, help
+    integer                        :: i, ibuf
     real(kind=hp)                  :: ti_map_array(3), ti_rst_array(3), ti_his_array(3), ti_waq_array(3), ti_classmap_array(3), ti_st_array(3)
 
     istat = 0 ! Success
@@ -3194,12 +3201,7 @@ endif
 
     call prop_set(prop_ptr, 'numerics', 'Slopedrop2D', Slopedrop2D, 'Apply drop losses only if local bed slope > Slopedrop2D, (<=0: no drop losses)')
 
-    if (Drop1D) then
-       help = 1
-    else
-       help = 0
-    endif
-    call prop_set(prop_ptr, 'numerics', 'Drop1D', help, 'Apply drop losses in 1D (0: no, 1:yes)')
+    call prop_set(prop_ptr, 'numerics', 'Drop1D', merge(1, 0, Drop1D), 'Apply drop losses in 1D (0: no, 1:yes)')
 
     if (writeall .or. Drop3D .ne. 1d0) then
        call prop_set(prop_ptr, 'numerics', 'Drop3D'   , Drop3D, 'Apply droplosses in 3D if z upwind below bob + 2/3 hu*drop3D')
@@ -3443,6 +3445,9 @@ endif
        endif
        call prop_set(prop_ptr, 'physics', 'Xlozmidov',     xlozmidov,    'Ozmidov length scale (m), default=0.0, no contribution of internal waves to vertical diffusion')
     endif
+    call prop_set(prop_ptr, 'physics', 'SchmidtNumberSalinity', Schmidt_number_salinity, 'Turbulent Schmidt number for salinity')
+    call prop_set(prop_ptr, 'physics', 'PrandtlNumberTemperature', Prandtl_number_temperature, 'Turbulent Prandtl number for temperature')
+    call prop_set(prop_ptr, 'physics', 'SchmidtNumberTracer', Schmidt_number_tracer, 'Turbulent Schmidt number for tracer(s)')
     call prop_set(prop_ptr, 'physics', 'Smagorinsky',      Smagorinsky,  'Smagorinsky factor in horizontal turbulence, e.g. 0.15')
     call prop_set(prop_ptr, 'physics', 'Elder',            Elder,        'Elder factor in horizontal turbulence')
     call prop_set(prop_ptr, 'physics', 'irov',             irov,         '0=free slip, 1 = partial slip using wall_ks')
@@ -3546,7 +3551,7 @@ endif
        call prop_set(prop_ptr, 'physics', 'Equili'     , jaequili , 'Equilibrium spiral flow intensity (0: no, 1: yes)')
     endif
 
-    if (ndambreak > 0) then
+    if (ndambreaklinks > 0) then
        call prop_set_string (prop_ptr, 'physics', 'BreachGrowth', trim(dambreakWideningString), 'Method for implementing dambreak widening: symmetric, proportional, or symmetric-asymmetric')
     endif
 
@@ -3921,10 +3926,10 @@ endif
 
     call prop_set(prop_ptr, 'output', 'NcFormat',  md_ncformat, 'Format for all NetCDF output files (3: classic, 4: NetCDF4+HDF5)')
 
-    call prop_set(prop_ptr, 'output', 'NcMapDataPrecision',  md_nc_map_precision, 'Precision for NetCDF data in map files (0: double, 1: single)')
-    call prop_set(prop_ptr, 'output', 'NcHisDataPrecision',  md_nc_his_precision, 'Precision for NetCDF data in his files (0: double, 1: single)')
+    call prop_set(prop_ptr, 'output', 'NcMapDataPrecision', trim(md_nc_map_precision), 'Precision for NetCDF data in map files (double or single)')
+    call prop_set(prop_ptr, 'output', 'NcHisDataPrecision', trim(md_nc_his_precision), 'Precision for NetCDF data in his files (double or single)')
 
-    call prop_set(prop_ptr, 'output', 'NcCompression',  md_nccompress      , 'Whether ("on") or not ("off") to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4')
+    call prop_set(prop_ptr, 'output', 'NcCompression', merge(1, 0, md_nccompress), 'Whether or not (1/0) to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4')
     
     if (writeall .or. unc_nounlimited /= 0) then
        call prop_set(prop_ptr, 'output', 'NcNoUnlimited',  unc_nounlimited, 'Write full-length time-dimension instead of unlimited dimension (1: yes, 0: no). (Might require NcFormat=4.)')
@@ -4267,5 +4272,18 @@ logical function is_not_multiple(time_interval, user_time_step)
     end if
 
 end function is_not_multiple
+
+!> Raise an error when provided value is not positive (also to avoid division by zero) 
+subroutine check_positive_value(mdu_keyword, value)
+    use m_flowparameters, only: eps10
+    implicit none
+    
+    character(*),     intent(in) :: mdu_keyword !< Keyword in the mdu-file
+    double precision, intent(in) :: value       !< Corresponding value
+    
+    if (value < eps10) then
+       call mess(LEVEL_ERROR, trim(mdu_keyword), ' should be larger than 0.')
+    end if
+end subroutine check_positive_value
 
 end module unstruc_model
