@@ -63,7 +63,6 @@ subroutine set_external_forcings(time_in_seconds, initialization, iresult)
    use m_nearfield,            only : nearfield_mode, NEARFIELD_UPDATED, addNearfieldData
    use m_airdensity,           only : get_airdensity
    use dfm_error
-   use m_fm_icecover, only: ja_icecover, ice_af, ice_h, ICECOVER_EXT
    use m_lateral, only : numlatsg
 
    double precision, intent(in   ) :: time_in_seconds  !< Time in seconds
@@ -553,6 +552,7 @@ end function convert_wave_direction_from_nautical_to_cartesian
 
 !> retrieve icecover
 subroutine retrieve_icecover()
+   use m_fm_icecover, only: ja_icecover, ice_af, ice_h, ICECOVER_EXT
 
    if (ja_icecover == ICECOVER_EXT) then
       ice_af = 0.d0
