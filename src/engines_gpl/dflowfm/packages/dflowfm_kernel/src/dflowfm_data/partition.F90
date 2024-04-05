@@ -3819,17 +3819,19 @@ end subroutine partition_make_globalnumbers
    subroutine reduce_statistical_output(output_set)
       use m_statistical_output, only: t_output_variable_set
       use m_missing
+      use m_alloc, only: realloc
 #ifdef HAVE_MPI
       use mpi
 #endif
 
       type(t_output_variable_set), intent(inout) :: output_set !< Output set that we wish to update.
 
-      double precision, parameter :: dsmall = -huge(1d0)
-      integer                     :: i_stat, i_loc
-      double precision, pointer   :: stat_output(:)          !< Array that is to be written to the Netcdf file. In case the current values are
-                                                             !< required this variable points to the basic variable (e.g. s1).
-                                                             !< Otherwise during the simulation the intermediate results are stored.
+      double precision, parameter    :: dsmall = -huge(1d0)
+      integer                        :: i_stat, i_loc
+      double precision, pointer      :: stat_output(:)            !< pointer to statistical output data array 
+      double precision, allocatable  :: output_buffer(:)          !< Buffer Array that is to be written to the Netcdf file. In case the current values are
+                                                                !< required this variable points to the basic variable (e.g. s1).
+                                                                !< Otherwise during the simulation the intermediate results are stored.
       integer                     :: ierror
       
 #ifdef HAVE_MPI
@@ -3837,14 +3839,17 @@ end subroutine partition_make_globalnumbers
          
          ! Set values for locations outside this partition to -huge so mpi_max will work
          stat_output => output_set%statout(i_stat)%stat_output
+         call realloc(output_buffer,size(stat_output))
          do i_loc = 1,size(stat_output)
             if (stat_output(i_loc) == dmiss) then
-               stat_output(i_loc) = dsmall
-            end if
+               output_buffer(i_loc) = dsmall
+            else
+               output_buffer(i_loc) = stat_output(i_loc)
+            endif
          end do
       
          ! Reduce stat_output
-         call MPI_reduce(MPI_in_place, stat_output, size(stat_output), mpi_double_precision, mpi_max, 0, DFM_COMM_DFMWORLD, ierror)
+         call MPI_reduce(output_buffer, stat_output,  size(stat_output), mpi_double_precision, mpi_max, 0, DFM_COMM_DFMWORLD, ierror)
          
          ! Set values for locations outside this partition back to DMISS
          do i_loc = 1,size(stat_output)
