@@ -3021,7 +3021,8 @@ subroutine unc_write_rst_filepointer(irstfile, tim)
         id_ucxq, id_ucyq, &
         id_ucxqbnd, id_ucyqbnd, &
         id_fvcoro, &
-        id_rho, id_rho_bnd
+        id_rho, id_rho_bnd, &
+        id_rhowat, id_rhowat_bnd
 
     integer, allocatable, save :: id_tr1(:), id_rwqb(:), id_bndtradim(:), id_ttrabnd(:), id_ztrabnd(:)
     integer, allocatable, save :: id_sf1(:), id_bndsedfracdim(:), id_tsedfracbnd(:), id_zsedfracbnd(:)
@@ -3039,7 +3040,7 @@ subroutine unc_write_rst_filepointer(irstfile, tim)
     double precision, allocatable, dimension(:)   :: tmp_x, tmp_y, tmp_s0, tmp_s1, tmp_bl, tmp_sa1, tmp_tem1
     double precision, allocatable, dimension(:)   :: tmp_squ, tmp_sqi
     double precision, allocatable, dimension(:)   :: tmp_ucxq, tmp_ucyq
-    double precision, allocatable, dimension(:)   :: tmp_rho
+    double precision, allocatable, dimension(:)   :: tmp_rho, tmp_rhowat
 
     character(len=8) :: numformat
     character(len=2) :: numtrastr, numsedfracstr
@@ -3577,15 +3578,27 @@ subroutine unc_write_rst_filepointer(irstfile, tim)
           endif 
           ! density (only necessary if morphodynamics and fractions in suspension and consider concentrations in density)
           if (stmpar%morpar%densin) then
+             ! rho
              ierr = nf90_def_var(irstfile, 'rho',  nf90_double, id1 , id_rho)
              ierr = nf90_put_att(irstfile, id_rho,   'coordinates'  , 'FlowElem_xcc FlowElem_ycc')
              ierr = nf90_put_att(irstfile, id_rho,   'long_name'    , 'Water density')
              ierr = nf90_put_att(irstfile, id_rho,   'units'        , 'kg m-3')             
              if (jarstbnd > 0 .and. ndxbnd > 0) then
-                ierr = nf90_def_var(irstfile, 'rho_bnd',  nf90_double, id1_bnd , id_rho_bnd) !!!! fill id1_bnd
+                ierr = nf90_def_var(irstfile, 'rho_bnd',  nf90_double, id1_bnd , id_rho_bnd) 
                 ierr = nf90_put_att(irstfile, id_rho_bnd,   'coordinates'  , 'FlowElem_xbnd FlowElem_ybnd')
                 ierr = nf90_put_att(irstfile, id_rho_bnd,   'long_name'    , 'Water density at boundaries')
                 ierr = nf90_put_att(irstfile, id_rho_bnd,   'units'        , 'kg m-3')    
+             endif !(jarstbnd > 0 .and. ndxbnd > 0) then
+             !rhowat
+             ierr = nf90_def_var(irstfile, 'rhowat',  nf90_double, id1 , id_rhowat)
+             ierr = nf90_put_att(irstfile, id_rhowat,   'coordinates'  , 'FlowElem_xcc FlowElem_ycc')
+             ierr = nf90_put_att(irstfile, id_rhowat,   'long_name'    , 'Water density (without sediment)')
+             ierr = nf90_put_att(irstfile, id_rhowat,   'units'        , 'kg m-3')             
+             if (jarstbnd > 0 .and. ndxbnd > 0) then
+                ierr = nf90_def_var(irstfile, 'rhowat_bnd',  nf90_double, id1_bnd , id_rhowat_bnd) 
+                ierr = nf90_put_att(irstfile, id_rhowat_bnd,   'coordinates'  , 'FlowElem_xbnd FlowElem_ybnd')
+                ierr = nf90_put_att(irstfile, id_rhowat_bnd,   'long_name'    , 'Water density (without sediment) at boundaries')
+                ierr = nf90_put_att(irstfile, id_rhowat_bnd,   'units'        , 'kg m-3')    
              endif !(jarstbnd > 0 .and. ndxbnd > 0) then
           endif
       endif
@@ -4638,35 +4651,8 @@ subroutine unc_write_rst_filepointer(irstfile, tim)
           endif !(jarstbnd > 0 .and. ndxbnd > 0)
           ! density (only necessary if morphodynamics and fractions in suspension and consider concentrations in density)
           if (stmpar%morpar%densin) then
-             if (kmx > 0) then !3D
-                work1 = dmiss
-                do kk=1,ndxi
-                   call getkbotktop(kk,kb,kt)
-                   call getlayerindices(kk, nlayb, nrlay)
-                   do k = kb,kt
-                      work1(k-kb+nlayb,kk) = rho(k)
-                   enddo
-                enddo
-                ierr = nf90_put_var(irstfile, id_rho, work1(1:kmx,1:ndxi), (/ 1, 1, itim /), (/ kmx, ndxi, 1 /))
-             else !2D
-                ierr = nf90_put_var(irstfile, id_rho, rho(1:ndxi), (/ 1, itim /), (/ ndxi, 1 /))
-             endif !(kmx > 0)
-             !rho at boundaries
-             if (jarstbnd > 0 .and. ndxbnd > 0) then
-                if (kmx > 0) then !3D
-                   work1 = dmiss
-                   do kk=ndxi+1,ndx
-                      call getkbotktop(kk,kb,kt)
-                      call getlayerindices(kk, nlayb, nrlay)
-                      do k = kb,kt
-                         work1(k-kb+nlayb,kk) = rho(k)
-                      enddo
-                   enddo
-                   ierr = nf90_put_var(irstfile, id_rho_bnd, work1(1:kmx,1:ndxbnd), (/ 1, 1, itim /), (/ kmx, ndxbnd, 1 /))
-                else !2D
-                   ierr = nf90_put_var(irstfile, id_rho_bnd, rho(ndxi+1:ndx), (/ 1, itim /), (/ ndxbnd, 1 /))
-                endif !(kmx > 0)
-             endif
+             call write_rho(irstfile,id_rho   ,id_rho_bnd   ,rho   ,itim)
+             call write_rho(irstfile,id_rhowat,id_rhowat_bnd,rhowat,itim)
           endif !(stmpar%morpar%densin)
        endif !(stmpar%lsedsus .gt. 0)
        ! morbl
@@ -12997,7 +12983,7 @@ subroutine unc_read_map_or_rst(filename, ierr)
                id_jmax, id_ncrs, id_flowelemcrsz, id_flowelemcrsn, &
                id_ucxqbnd, id_ucyqbnd, &
                id_fvcoro, &
-               id_rhobnd
+               id_rhobnd, id_rhowatbnd
 
     integer :: id_tmp
     integer :: layerfrac, layerthk
@@ -13018,7 +13004,7 @@ subroutine unc_read_map_or_rst(filename, ierr)
     double precision, allocatable        :: tmp_s1(:), tmp_bl(:), tmp_s0(:)
     double precision, allocatable        :: tmp_sqi(:), tmp_squ(:)
     double precision, allocatable        :: tmp_ucxq(:), tmp_ucyq(:)
-	double precision, allocatable        :: tmp_rho(:)
+	double precision, allocatable        :: tmp_rho(:), tmp_rhowat(:)
     double precision, allocatable        :: rst_bodsed(:,:), rst_mfluff(:,:), rst_thlyr(:,:)
     double precision, allocatable        :: rst_msed(:,:,:)
     integer,          allocatable        :: itmpvar(:)
@@ -13358,6 +13344,10 @@ subroutine unc_read_map_or_rst(filename, ierr)
         rho_read_rst=.false.
     endif
 
+    ! Read rhowat (flow elem), optional: only from rst file and when sediment and `idens` is true, so no error check
+    ierr = get_var_and_shift(imapfile, 'rhowat', rhowat, tmpvar1, tmp_loc, kmx, kstart, um%ndxi_own, 1, um%jamergedmap, &
+                             um%inode_own, um%inode_merge)
+
     !Read Coriolis Adams-Bashford (flow link)
     if (Corioadamsbashfordfac > 0d0) then
         !We check on it because if the factor is 0, `fvcoro` is not allocated.
@@ -13375,7 +13365,8 @@ subroutine unc_read_map_or_rst(filename, ierr)
           call realloc(tmp_sqi, um%nbnd_read, stat=ierr, keepExisting=.false.)
           call realloc(tmp_ucxq, um%nbnd_read, stat=ierr, keepExisting=.false.)
           call realloc(tmp_ucyq, um%nbnd_read, stat=ierr, keepExisting=.false.)
-          call realloc(tmp_rho , um%nbnd_read, stat=ierr, keepExisting=.false.)
+          call realloc(tmp_rho   , um%nbnd_read, stat=ierr, keepExisting=.false.)
+          call realloc(tmp_rhowat, um%nbnd_read, stat=ierr, keepExisting=.false.)
 
           ierr = nf90_inq_varid(imapfile, 's0_bnd', id_s0bnd)
           if (ierr==0) then
@@ -13427,6 +13418,12 @@ subroutine unc_read_map_or_rst(filename, ierr)
               call check_error(ierr, 'rho_bnd')
           endif
 
+          ierr = nf90_inq_varid(imapfile, 'rhowat_bnd', id_rhowatbnd)
+          if (ierr==0) then
+              ierr = nf90_get_var(imapfile, id_rhowatbnd, tmp_rhowat, start=(/ kstart_bnd, it_read/), count = (/ um%nbnd_read, 1 /))
+              call check_error(ierr, 'rhowat_bnd')
+          endif
+
           if (nerr_/=0) goto 999
 
           if (jampi==0) then
@@ -13442,6 +13439,7 @@ subroutine unc_read_map_or_rst(filename, ierr)
                 ucxq(kk) = tmp_ucxq(i)
                 ucyq(kk) = tmp_ucyq(i)
                 rho(kk)  = tmp_rho(i)
+                rhowat(kk)  = tmp_rhowat(i)
              enddo
           else
              do i = 1, um%nbnd_read ! u and z bnd
@@ -13457,6 +13455,7 @@ subroutine unc_read_map_or_rst(filename, ierr)
                 ucxq(kk) = tmp_ucxq(i)
                 ucyq(kk) = tmp_ucyq(i)
                 rho(kk)  = tmp_rho(i)
+                rhowat(kk)  = tmp_rhowat(i)
              enddo
           endif
        endif
@@ -18120,5 +18119,67 @@ do i = ISED1,ISEDN
 enddo 
 
 end subroutine read_sediment
+
+!> Write rho
+subroutine write_rho(irstfile,id_rho,id_rho_bnd,rho,itim)
+
+use m_flowgeom, only: ndxi, ndx
+use m_flow, only: kmx, work1
+use m_flowparameters, only: jarstbnd
+use m_missing, only: dmiss
+use m_flowexternalforcings, only: ndxbnd_own
+use m_partitioninfo, only: jampi
+
+!input/output
+integer, intent(in) :: irstfile,id_rho,id_rho_bnd, itim
+double precision, allocatable, intent(in) :: rho(:)
+
+!local
+integer :: k, kk, kb, kt, nlayb, nrlay, ierr, ndxbnd
+
+if (jampi == 0) then
+   ndxbnd = ndx - ndxi
+else
+   ndxbnd = ndxbnd_own
+endif
+
+if (kmx > 0) then !3D
+   call get_3d_data(rho,1,ndxi) !output in `work1`
+   ierr = nf90_put_var(irstfile, id_rho, work1(1:kmx,1:ndxi), (/ 1, 1, itim /), (/ kmx, ndxi, 1 /))
+else !2D
+   ierr = nf90_put_var(irstfile, id_rho, rho(1:ndxi), (/ 1, itim /), (/ ndxi, 1 /))
+endif !(kmx > 0)
+!rho at boundaries
+if (jarstbnd > 0 .and. ndxbnd > 0) then
+   if (kmx > 0) then !3D
+      call get_3d_data(rho,ndxi+1,ndx) !output in `work1`
+      ierr = nf90_put_var(irstfile, id_rho_bnd, work1(1:kmx,1:ndxbnd), (/ 1, 1, itim /), (/ kmx, ndxbnd, 1 /))
+   else !2D
+      ierr = nf90_put_var(irstfile, id_rho_bnd, rho(ndxi+1:ndx), (/ 1, itim /), (/ ndxbnd, 1 /))
+   endif !(kmx > 0)
+endif
+
+end subroutine write_rho
+
+subroutine get_3d_data(rho,idx1,idx2)
+
+use m_flow, only: work1
+use m_missing, only: dmiss
+
+double precision, allocatable, intent(in) :: rho(:)
+integer, intent(in) :: idx1, idx2
+
+integer :: k, kk, kb, kt, nlayb, nrlay
+
+work1 = dmiss
+do kk=idx1,idx2
+   call getkbotktop(kk,kb,kt)
+   call getlayerindices(kk, nlayb, nrlay)
+   do k = kb,kt
+      work1(k-kb+nlayb,kk) = rho(k)
+   enddo
+enddo
+
+end subroutine get_3d_data
 
 end module unstruc_netcdf
