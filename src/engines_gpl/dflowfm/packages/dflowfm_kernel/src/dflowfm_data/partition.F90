@@ -3817,7 +3817,7 @@ end subroutine partition_make_globalnumbers
    
    !> Reduce the statistical output values to MPI root process #0.
    subroutine reduce_statistical_output(output_set)
-      use m_statistical_output, only: t_output_variable_set
+      use m_statistical_output_types, only: t_output_variable_set
       use m_missing
       use m_alloc, only: realloc
 #ifdef HAVE_MPI
