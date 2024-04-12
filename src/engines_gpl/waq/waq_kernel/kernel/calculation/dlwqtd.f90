@@ -90,7 +90,7 @@ contains
                 FUNCS (NOFUN), SFUNCS(NOSEG, NOSFUN), &
                 VOLUME(NOSEG + NSEG2), AREA(NOQ + NOQ4), &
                 ALENG (2, NOQ + NOQ4), FLOW(NOQ + NOQ4)
-        CHARACTER*20         CONAME(NOCONS), PANAME(NOPA), &
+        character(len=20)         CONAME(NOCONS), PANAME(NOPA), &
                 FUNAME(NOFUN), SFNAME(NOSFUN)
         integer(kind = int_wp) :: NOSEG, NSEG2, NOLAY, NOGRID, NOQ, NOQ4, NOCONS
         integer(kind = int_wp) :: NOFUN, NOSFUN, NOPA
@@ -99,7 +99,7 @@ contains
         LOGICAL              LGET
         logical :: first_q_column
         REAL(kind = real_wp), Allocatable :: Horsurf(:), Thickn(:)
-        CHARACTER*20         CTAG
+        character(len=20)         CTAG
         integer(kind = int_wp) :: ierr, iq, iseg, nosss
 
         integer(kind = int_wp) :: ithandl = 0

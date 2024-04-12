@@ -53,11 +53,11 @@ contains
         !     IERROR  INTEGER    1        OUTPUT  Error code
         !     OPTION  CHAR*256   1        IN/OUT  For future use
 
-        character*256 file_name(3), option
-        character*20  locdef(maxdef), loclst(maxlst)
+        character(len=256) file_name(3), option
+        character(len=20)  locdef(maxdef), loclst(maxlst)
         dimension     loctyp(maxlst), locnr (maxlst)
         logical       setall
-        character*256 :: ext     ! file extension
+        character(len=256) :: ext     ! file extension
         integer(kind = int_wp) :: extpos   ! position of extension
         integer(kind = int_wp) :: extlen   ! length of file extension
         logical :: mapfil  ! true if map file extension
@@ -156,13 +156,13 @@ contains
 
         use time_module
 
-        character*256    file_name (3), option
+        character(len=256)    file_name (3), option
         integer(kind = int_wp) :: itmtyp(*)
         real(kind = dp) :: timlst(*), timdef(2, *), atime, otime, second
         logical          setall
 
         real(kind = real_wp), allocatable :: rdata(:)
-        character*256 :: ext     ! file extension
+        character(len=256) :: ext     ! file extension
         integer(kind = int_wp) :: extpos   ! position of extension
         integer(kind = int_wp) :: extlen   ! length of file extension
         logical :: mapfil  ! true if map file extension
@@ -274,8 +274,8 @@ contains
         !     nrlst   integer    1        output  nr of parameters found
         !     ierror  integer    1        output  error code
         !     option  char*256   1        in/out  for future use
-        character*256 :: file_name(3), option
-        character*20 :: pardef(maxdef), parlst(maxlst), paruni(maxlst)
+        character(len=256) :: file_name(3), option
+        character(len=20) :: pardef(maxdef), parlst(maxlst), paruni(maxlst)
         dimension :: iprtyp(maxlst), iprcod(maxlst)
         logical :: setall
         integer(kind = int_wp) :: lun
@@ -351,12 +351,12 @@ contains
         !     option  char*256   1        in/out  for future use
         use time_module
 
-        character*256 file_name (3), option
+        character(len=256) file_name (3), option
         real(kind = real_wp) :: data(*)
         integer(kind = int_wp) :: loc(*)
         real(kind = dp) :: tim(2), otime, atime, second
         real(kind = real_wp) :: missing_value
-        character*256 :: ext     ! file extension
+        character(len=256) :: ext     ! file extension
         integer(kind = int_wp) :: extpos   ! position of extension
         integer(kind = int_wp) :: extlen   ! length of file extension
         logical :: mapfil  ! true if map file extension
@@ -458,12 +458,12 @@ contains
         !     ierror  integer    1        in/out  error code
         !     option  char*256   1        in/out  for future use
 
-        character*256 file_name (3), option
+        character(len=256) file_name (3), option
         real(kind = real_wp) :: data(*)
         integer(kind = int_wp) :: loc(*)
         real(kind = dp) :: tim(2), otime, atime, second
         real(kind = real_wp) :: missing_value
-        character*256 :: ext     ! file extension
+        character(len=256) :: ext     ! file extension
         integer(kind = int_wp) :: extpos   ! position of extension
         integer(kind = int_wp) :: extlen   ! length of file extension
         logical :: mapfil  ! true if map file extension
@@ -560,10 +560,10 @@ contains
         !            ndim(2) = nr of locations  in the file
         !            ndim(3) = nr of time steps in the file
 
-        character*256 file_name(3), option
-        character*3   dim
+        character(len=256) file_name(3), option
+        character(len=3)   dim
         dimension     ndim(3)
-        character*256 :: ext     ! file extension
+        character(len=256) :: ext     ! file extension
         integer(kind = int_wp) :: extpos   ! position of extension
         integer(kind = int_wp) :: extlen   ! length of file extension
         logical :: mapfil  ! true if map file extension

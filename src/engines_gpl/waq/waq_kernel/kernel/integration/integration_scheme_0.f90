@@ -71,7 +71,7 @@ contains
         !     kind           function         name                Descriptipon
         type(waq_data_buffer), target :: buffer           !< System total array space
         integer(kind = int_wp), intent(in) :: lun  (*)          !< array with unit numbers
-        character*(*), intent(in) :: lchar(*)          !< array with file names
+        character(len=*), intent(in) :: lchar(*)          !< array with file names
         integer(kind = int_wp), intent(in) :: action            !< type of action to perform
         type(delwaq_data), target :: dlwqd             !< delwaq data structure
         type(GridPointerColl) :: gridps            !< collection of all grid definitions

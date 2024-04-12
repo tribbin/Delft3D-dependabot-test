@@ -50,9 +50,9 @@ contains
         integer(kind = int_wp), intent(in) :: ioutps(7, *)            !< (old) output structure
         type(OutputPointers), intent(in) :: outputs                !< output structure
         integer(kind = int_wp), intent(in) :: notot                  !< total number of substances
-        character*100, intent(in) :: substdname(notot)      !< substance standard name
-        character*40, intent(in) :: subunit(notot)         !< substance unit
-        character*60, intent(in) :: subdescr(notot)        !< substance description
+        character(len=100), intent(in) :: substdname(notot)      !< substance standard name
+        character(len=40), intent(in) :: subunit(notot)         !< substance unit
+        character(len=60), intent(in) :: subdescr(notot)        !< substance description
 
         ! local
 

@@ -129,6 +129,7 @@ contains
         use m_sysj          ! Pointers in integer array workspace
         use m_sysc          ! Pointers in character array workspace
         use m_dlwqdata_save_restore
+        use omp_lib
 
         implicit none
 
@@ -143,9 +144,6 @@ contains
         integer(kind = int_wp) :: action     !< handle to stepwise call
         type(delwaq_data), target :: dlwqd      !< data structure stepwize call
         type(gridpointercoll) :: gridps     !< collection off all grid definitions
-
-        !$    include "omp_lib.h"
-
 
         !     Local declarations
 

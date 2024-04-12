@@ -48,8 +48,7 @@ contains
         use partmem, only : alone, lsettl, layt        ! for the interface with Delpar (Tau and VertDisp)
         use timers       !   performance timers
         use m_sysn
-
-        include 'omp_lib.h'
+        use omp_lib
 
         integer(kind = int_wp), intent(inout) :: lun(*)        !< unit numbers used
         character(len = *), intent(inout) :: lchar(*)     !< filenames

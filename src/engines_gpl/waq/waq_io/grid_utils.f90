@@ -67,7 +67,7 @@ contains
         type(GridPointerColl) :: GridPs            !< collection of grids
         integer(kind = int_wp), intent(out) :: nseg2              !< number of additional bottom volumes
         integer(kind = int_wp), intent(out) :: nogrid             !< number of grids
-        character(20), intent(in) :: syname(notot)     !< names of the substances
+        character(len=20), intent(in) :: syname(notot)     !< names of the substances
 
         type(error_status), intent(inout) :: status !< current error status
 
@@ -75,7 +75,7 @@ contains
         logical :: newinput      ! is it the newer type of grid input ?
         logical :: multigrid     ! is the multiple grid feature used ?
         type(t_grid) :: aGrid         ! a single grid
-        character*255 :: ctoken        ! the character token that is read
+        character(len=255) :: ctoken        ! the character token that is read
         integer(kind = int_wp) :: itoken         ! the integer token that is read
         integer(kind = int_wp) :: isysg(notot)   ! grid number to be used per substance
         integer(kind = int_wp) :: isyst(notot)   ! time step multiplier per substance

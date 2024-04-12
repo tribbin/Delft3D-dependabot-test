@@ -143,13 +143,13 @@ contains
                 IWASTE(*), NRFTOT(*), NRHARM(*), LUN   (*), &
                 IKNMRK(*), INWTYP(*)
         INTEGER(kind = int_wp) :: GRDSEG(NOSEG + NSEG2, NOGRID)
-        CHARACTER*40 MODID (4), BNDNAM(*), WSTNAM(*)
-        CHARACTER*20 SYSID (*), DUMPID(*), BNDID (*), BNDTYP(*), &
+        character(len=40) MODID (4), BNDNAM(*), WSTNAM(*)
+        character(len=20) SYSID (*), DUMPID(*), BNDID (*), BNDTYP(*), &
                 WASTID(*), WSTTYP(*), CONAME(*), PANAME(*), &
                 FUNAME(*), SFNAME(*), DINAME(*), VENAME(*), &
                 DANAM (*), RANAM (*)
         real(kind = real_wp) :: DISP  (*), ALENG (*), CONST (*), PARAM (*)
-        CHARACTER*40  FILLER
+        character(len=40)  FILLER
         type(GridPointerColl), intent(inout) :: GridPs     !< definitions of the grids
         type(delwaq_data), intent(inout) :: dlwqd      !< derived type for persistent storage
         integer(kind = int_wp) :: dmpbal(*)  !< indicates if dump area is included in the balance

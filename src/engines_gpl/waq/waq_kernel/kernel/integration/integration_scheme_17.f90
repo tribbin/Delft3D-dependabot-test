@@ -125,12 +125,10 @@ contains
         !
         type(waq_data_buffer), target :: buffer      !< System total array space
         INTEGER(kind = int_wp), DIMENSION(*) :: LUN
-        CHARACTER*(*), DIMENSION(*) :: LCHAR
+        character(len=*), DIMENSION(*) :: LCHAR
         INTEGER(kind = int_wp) :: ACTION
         TYPE(DELWAQ_DATA) :: DLWQD
         type(GridPointerColl) :: GridPs               ! collection off all grid definitions
-
-        !$    include "omp_lib.h"
 
         !
         !     Local declarations

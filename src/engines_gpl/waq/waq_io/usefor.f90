@@ -160,9 +160,9 @@ contains
         use m_waq_precision
         use m_error_status
 
-        character*(*) char_arr(:)
+        character(len=*) char_arr(:)
         integer(kind = int_wp), intent(inout) :: int_array(:)
-        character*20  charachter_output, message_type
+        character(len=20)  charachter_output, message_type
         integer(kind = int_wp) :: ithndl = 0
         integer(kind = int_wp) :: i1, i3, i4, i5
         integer(kind = int_wp) :: lunut, idx_missing, count_missing, ioffc, iorder, ntt, idmnr, nitm, nodim

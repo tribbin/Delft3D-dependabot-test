@@ -119,7 +119,7 @@ contains
       integer, save              :: nstage              ! number of stages
       integer, save              :: iday = 0            ! for csv output
       integer, save              :: ncum = 0            ! for csv output
-      character*256              :: filcsv
+      character(len=256)              :: filcsv
       integer, save              :: luncsv
       real(sp), pointer,save     :: astage(:)           ! a coefficient in stage development (-)
       real(sp), pointer,save     :: bstage(:)           ! b coefficient in stage development (-)

@@ -709,7 +709,7 @@ contains
         do iq = 1, noqt
             ip1 = ipoint(1, iq)
             ip2 = ipoint(2, iq)
-            if (ip1 > 0 .and. ip2 > 0) jtrack = max(jtrack, iabs(ip1 - ip2))
+            if (ip1 > 0 .and. ip2 > 0) jtrack = max(jtrack, abs(ip1 - ip2))
         enddo
         if (intsrt == 6 .or. intsrt == 7 .or. intsrt == 10) then
             write (lunut, 2020) jtrack

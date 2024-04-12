@@ -135,6 +135,7 @@ contains
         use m_sysj          ! Pointers in integer array workspace
         use m_sysc          ! Pointers in character array workspace
         use m_dlwqdata_save_restore
+        use omp_lib
 
         implicit none
 
@@ -143,12 +144,10 @@ contains
         !
         type(waq_data_buffer), target :: buffer      !< System total array space
         INTEGER(kind = int_wp), DIMENSION(*) :: LUN
-        CHARACTER*(*), DIMENSION(*) :: LCHAR
+        character(len=*), DIMENSION(*) :: LCHAR
         INTEGER(kind = int_wp) :: ACTION
         TYPE(DELWAQ_DATA), TARGET :: DLWQD
         type(GridPointerColl) :: GridPs               ! collection of all grid definitions
-
-        !$    include "omp_lib.h"
 
         !
         !     Local declarations

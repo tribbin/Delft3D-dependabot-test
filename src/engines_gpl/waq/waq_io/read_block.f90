@@ -925,7 +925,7 @@ contains
         endif
 
         ! a keyword was met
-        if (iabs(itype) == 1 .and. &
+        if (abs(itype) == 1 .and. &
                 (ctoken(1:5) == 'BLOCK'        .or. &
                         ctoken(1:6) == 'LINEAR'       .or. &
                         ctoken(1:4) == 'ITEM'         .or. &
@@ -961,7 +961,7 @@ contains
         endif
 
         ! computations
-        if (iabs(itype) == 1 .and. &
+        if (abs(itype) == 1 .and. &
                 (ctoken ==  '*'  .or. ctoken ==  '/'  .or. &
                         ctoken ==  '+'  .or. ctoken ==  '-'  .or. &
                         ctoken == 'MIN' .or. ctoken == 'MAX')) then
@@ -989,7 +989,7 @@ contains
         endif
 
         ! an item used in computations
-        if (iabs(itype) == 1 .and. signon) then
+        if (abs(itype) == 1 .and. signon) then
 
             do i = 1, itmnr - 1
                 if (waq_item%ipnt(i) == -1300000000) cycle
@@ -1023,7 +1023,7 @@ contains
         endif
 
         ! a number is used in computations
-        if (iabs(itype) == 2 .or. iabs(itype) == 3) then
+        if (abs(itype) == 2 .or. abs(itype) == 3) then
             if (setnam .or. signon) then
                 nconst = nconst + 1
                 noits = noits - 1
@@ -1066,7 +1066,7 @@ contains
         endif
 
         ! A local redirection of the name of an item or substance
-        if (iabs(itype) == 1 .and. ctoken == 'USEFOR') then
+        if (abs(itype) == 1 .and. ctoken == 'USEFOR') then
             if (usefor) then
                 write (lunut, 1035) ctoken
                 goto 40

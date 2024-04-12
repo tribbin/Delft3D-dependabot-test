@@ -521,7 +521,7 @@ contains
         if (timon) call timstrt("interpolate_2d_array", ithndl)
 
         ! interpolate
-        factor1 = float(tset - tlow) / float(thigh - tlow)
+        factor1 = real(tset - tlow) / real(thigh - tlow)
         factor2 = 1.0 - factor1
 
         do ivar = 1, nvar
@@ -995,7 +995,7 @@ contains
 
     end subroutine print_matrix
 
-    character*20 function car_used(i)
+    character(len=20) function car_used(i)
         integer(kind = int_wp) :: i
         if (i > 0) then
             car_used = 'used'

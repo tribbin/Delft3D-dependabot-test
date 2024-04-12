@@ -98,8 +98,8 @@ contains
         real(kind = real_wp), intent(out) :: funcs (nofun)             !< Array of function values
         real(kind = real_wp), intent(out) :: sfuncs(noseg + nseg2, nosfun) !< Array of segment functions
         integer(kind = int_wp), intent(in) :: ipoint(npoins)             !< Set of pointers to destination
-        character*(*), intent(in) :: luntxt(*)                  !< text with the unit numbers
-        character*200, intent(in) :: luntx2(*)                  !< text with the binary files
+        character(len=*), intent(in) :: luntxt(*)                  !< text with the unit numbers
+        character(len=200), intent(in) :: luntx2(*)                  !< text with the binary files
         integer(kind = int_wp), intent(in) :: ftype (*)                  !< type of files to be opened
         integer(kind = int_wp), intent(in) :: intsrt                     !< integration option
         integer(kind = int_wp), intent(in) :: isflag                     !< = 1 then 'ddhhmmss' format
