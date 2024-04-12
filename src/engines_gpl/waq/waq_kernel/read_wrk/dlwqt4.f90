@@ -63,7 +63,7 @@
 !     kind     function         name        description
 
       integer(kind=int_wp), intent(inout)          ::lun(*)          ! logical unitnumbers of files
-      character*(*)     , intent(in   )         :: luntxt(*)       ! file names
+      character(len=*)     , intent(in   )         :: luntxt(*)       ! file names
       integer(kind=int_wp), intent(in   )          ::ftype(*)        ! type of the files
       integer(kind=int_wp), intent(in   )          ::lunout          ! unit number monitor file
       integer(kind=int_wp), intent(in   )          ::ilun            ! entry in LUN/LUNTXT for this item
@@ -306,8 +306,8 @@
 
       integer(kind=int_wp) ::LUNOUT, ISFLAG, LLUN, ITIME, ITIME1, MESSGE
 
-      CHARACTER*24  MSGTXT(6)
-      CHARACTER*(*) SFILE
+      character(len=24)  MSGTXT(6)
+      character(len=*) SFILE
       DATA MSGTXT / ' REWIND ON              ' , ' WARNING READING        ' , & 
                    ' REWIND ERROR           ' , ' ERROR READING          ' , & 
                    ' ERROR OPENING          ' , ' ERROR: TIMES TOO LATE  ' /

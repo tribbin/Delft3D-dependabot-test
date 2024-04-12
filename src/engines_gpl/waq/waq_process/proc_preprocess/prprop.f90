@@ -83,7 +83,7 @@ contains
         INTEGER(kind = int_wp) :: iret
         REAL(kind = real_wp) :: ACTDEF
         LOGICAL        SWITUI, SWIT2D
-        CHARACTER*80   LINE
+        character(len=80)   LINE
         integer(kind = int_wp), allocatable :: itemidx(:)          ! index in the aleady existing item collection from the statistics
         integer(kind = int_wp) :: ierr_alloc
         integer(kind = int_wp) :: indx

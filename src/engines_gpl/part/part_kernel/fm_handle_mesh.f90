@@ -340,7 +340,7 @@ subroutine part_setmesh()
       k1 = edge2cell(1,L)
       if ( k1.eq.0 ) cycle
 
-      k1 = iabs(cell2nod(k1))
+      k1 = abs(cell2nod(k1))
 
       jaswap = 0
 

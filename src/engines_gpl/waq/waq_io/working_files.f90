@@ -62,16 +62,16 @@ contains
 
         integer(kind = int_wp) :: ilun
         integer(kind = int_wp) :: ioerr
-        character*(93) :: check
+        character(len=93) :: check
         logical :: specout
         integer(kind = int_wp) :: idummy
         real (kind = real_wp) :: rdummy
-        character*(256) :: outputpath
-        character*(256) :: outputpath2
-        character*(256) :: runidpath
+        character(len=256) :: outputpath
+        character(len=256) :: outputpath2
+        character(len=256) :: runidpath
         integer(kind = int_wp) :: pathlen
         integer(kind = int_wp) :: outpathlen
-        character*(256) :: outid
+        character(len=256) :: outid
         integer(kind = int_wp) :: ierr2
 
         integer(kind = int_wp) :: ithndl = 0

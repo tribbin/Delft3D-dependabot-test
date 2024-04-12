@@ -161,12 +161,12 @@ contains
         real(kind = real_wp) :: rdummy           ! dummy variable
         character :: cdummy          ! dummy variable
 
-        character*20, allocatable :: ainame(:)       ! all item names names in the proc_def
-        character*20 :: subname         ! substance name
-        character*100, allocatable :: substdname(:)   ! substance standard name
-        character*40, allocatable :: subunit(:)      ! substance unit
-        character*60, allocatable :: subdescr(:)     ! substance description
-        character*20 :: outname         ! output name
+        character(len=20), allocatable :: ainame(:)       ! all item names names in the proc_def
+        character(len=20) :: subname         ! substance name
+        character(len=100), allocatable :: substdname(:)   ! substance standard name
+        character(len=40), allocatable :: subunit(:)      ! substance unit
+        character(len=60), allocatable :: subdescr(:)     ! substance description
+        character(len=20) :: outname         ! output name
         integer(kind = int_wp), intent(in) :: refday           ! reference day, varying from 1 till 365
 
         type(error_status) :: main_status
@@ -184,16 +184,16 @@ contains
         integer(kind = int_wp) :: serial           ! serial number process definition
         integer(kind = int_wp) :: target_serial    ! target serial number process definition
         real(kind = real_wp) :: versio           ! version process defintion
-        character*20, allocatable :: actlst(:)
+        character(len=20), allocatable :: actlst(:)
 
         ! settings
 
-        character*80   swinam
-        character*80   blmnam
-        character*80   line
-        character*80   idstr
-        character*20   rundat
-        character*10   config
+        character(len=80)   swinam
+        character(len=80)   blmnam
+        character(len=80)   line
+        character(len=80)   idstr
+        character(len=20)   rundat
+        character(len=10)   config
         logical        lfound, laswi, swi_nopro
         integer(kind = int_wp) :: blm_act                        ! index of ACTIVE_BLOOM_P
 
@@ -207,26 +207,26 @@ contains
         integer(kind = int_wp) :: maxtyp, maxcof
         parameter   (maxtyp = 500, maxcof = 50)
         integer(kind = int_wp) :: notyp, nocof, nogrp
-        character*10  alggrp(maxtyp), algtyp(maxtyp)
-        character*5   abrgrp(maxtyp), abrtyp(maxtyp)
-        character*80  algdsc(maxtyp)
-        character*10  cofnam(maxcof)
+        character(len=10)  alggrp(maxtyp), algtyp(maxtyp)
+        character(len=5)   abrgrp(maxtyp), abrtyp(maxtyp)
+        character(len=80)  algdsc(maxtyp)
+        character(len=10)  cofnam(maxcof)
         real(kind = real_wp) :: algcof(maxcof, maxtyp)
         integer(kind = int_wp) :: algact(maxtyp)
         integer(kind = int_wp) :: noutgrp, nouttyp
-        character*10  outgrp(maxtyp), outtyp(maxtyp)
+        character(len=10)  outgrp(maxtyp), outtyp(maxtyp)
         integer(kind = int_wp) :: noprot, nopralg
-        character*10  namprot(maxtyp), nampact(maxtyp), nampralg(maxtyp)
+        character(len=10)  namprot(maxtyp), nampact(maxtyp), nampralg(maxtyp)
         character(256) filnam       ! File name with extention
 
         ! actual algae
 
         integer(kind = int_wp) :: noalg
-        character*10  name10
-        character*10  grpnam(maxtyp)
-        character*5   grpabr(maxtyp)
-        character*10  typnam(maxtyp)
-        character*5   typabr(maxtyp)
+        character(len=10)  name10
+        character(len=10)  grpnam(maxtyp)
+        character(len=5)   grpabr(maxtyp)
+        character(len=10)  typnam(maxtyp)
+        character(len=5)   typabr(maxtyp)
 
         ! output things
 
@@ -714,8 +714,8 @@ contains
         call realloc(dename, maxdef, keepExisting = .false., Fill = ' ')
 
         defaul = 0.0
-        defaul(5) = float(itstrt_process)
-        defaul(6) = float(itstop_process)
+        defaul(5) = real(itstrt_process)
+        defaul(6) = real(itstop_process)
         call realloc(locnam, novarm, keepExisting = .false., Fill = ' ')
 
         ! put theta in local array if wanted for output, the value will be filled by the integration routine

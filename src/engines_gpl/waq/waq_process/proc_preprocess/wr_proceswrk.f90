@@ -133,8 +133,8 @@ contains
         integer(kind = int_wp), pointer :: progrd(:)
         integer(kind = int_wp), pointer :: prondt(:)
         real(kind = real_wp), pointer :: stochi(:)
-        character*10, allocatable :: pronam(:)
-        character*20, allocatable :: varnam(:)       ! variable names
+        character(len=10), allocatable :: pronam(:)
+        character(len=20), allocatable :: varnam(:)       ! variable names
         integer(kind = int_wp), allocatable :: vararr(:)       ! variable array
         integer(kind = int_wp), allocatable :: varidx(:)       ! variable index
         integer(kind = int_wp), allocatable :: vartda(:)       ! variable type of dis-aggregation

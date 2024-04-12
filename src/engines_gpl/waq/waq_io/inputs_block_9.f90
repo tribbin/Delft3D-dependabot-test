@@ -89,7 +89,7 @@ contains
         logical :: ibflag !< mass balance option flag
         LOGICAL       INFILE, LMOUTP, LDOUTP, LHOUTP
         LOGICAL       LDUMMY
-        character*255 lchloc            ! Local character variable for file name
+        character(len=255) lchloc            ! Local character variable for file name
         integer(kind = int_wp) :: ithndl = 0
         if (timon) call timstrt("read_block_9", ithndl)
 

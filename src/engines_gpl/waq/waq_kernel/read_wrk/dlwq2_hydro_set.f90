@@ -496,8 +496,8 @@ contains
         logical          UPDATE
         !
         weight = aDef%weight
-        if (abs(aDef%weight) < 1.0E-30) weight = float((itLocal - aDef%istart)) / (aDef%istop - aDef%istart)
-        if (abs(aDef%weight + 1.0) < 1.0E-30) weight = float((aDef%istop - itLocal)) / (aDef%istop - aDef%istart)
+        if (abs(aDef%weight) < 1.0E-30) weight = real((itLocal - aDef%istart)) / real(aDef%istop - aDef%istart)
+        if (abs(aDef%weight + 1.0) < 1.0E-30) weight = real((aDef%istop - itLocal)) / real(aDef%istop - aDef%istart)
         !
         if (intopt == 0) then
             do i = 1, nrftot
@@ -510,7 +510,7 @@ contains
             if (aProp%itime1 == aProp%itime2) then
                 fact = 1.0
             else
-                fact = float(itFile - aProp%itime1) / (aProp%itime2 - aProp%itime1)
+                fact = real(itFile - aProp%itime1) / (aProp%itime2 - aProp%itime1)
             endif
             do i = 1, nrftot
                 array3(i) = array3(i) + weight * (fact * aProp%array2(i) + (1.0 - fact) * aProp%array1(i))
@@ -527,7 +527,7 @@ contains
             if (aProp%itime1 == aProp%itime2) then
                 fact = 1.0
             else
-                fact = float(itFile - aProp%itime1) / (aProp%itime2 - aProp%itime1)
+                fact = real(itFile - aProp%itime1) / (aProp%itime2 - aProp%itime1)
             endif
             do i = 1, nrftot
                 array3(i) = array3(i) + weight * (fact * alog(max(aProp%array2(i), 1.0E-25)) + &

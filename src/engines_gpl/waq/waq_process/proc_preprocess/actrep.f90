@@ -57,9 +57,9 @@ contains
 
         ! local decalaration
 
-        character*10 :: name1
-        character*20 :: name20
-        character*80 :: line
+        character(len=10) :: name1
+        character(len=20) :: name20
+        character(len=80) :: line
         integer(kind = int_wp) :: nocons
         integer(kind = int_wp) :: nocon2
         integer(kind = int_wp) :: ico

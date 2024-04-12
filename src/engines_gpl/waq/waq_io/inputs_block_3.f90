@@ -91,7 +91,7 @@ contains
         type(GridPointerColl)           GridPs            !< Collection of grid pointers
         type(error_status), intent(inout) :: status
 
-        character*255           cdummy            !  workspace to read a string
+        character(len=255)           cdummy            !  workspace to read a string
         integer(kind = int_wp) :: idummy             !  location to read an integer
         logical                 disper            !  is read_constants_time_variables called for dispersions ?
         integer(kind = int_wp) :: volume             !  is 1 if read_constants_time_variables is called for volumes ?
@@ -118,8 +118,8 @@ contains
         integer(kind = int_wp) :: ivalk              !  return value dhknmrk
 
         logical                 exist             !  whether a file exists or not
-        character*255           ugridfile         !  name of the ugrid-file
-        character*255           hydfile           !  name of the hyd-file
+        character(len=255)           ugridfile         !  name of the ugrid-file
+        character(len=255)           hydfile           !  name of the hyd-file
         integer(kind = int_wp) :: ncid, ncidout
         integer(kind = int_wp) :: varid, varidout, meshid, timeid, bndtimeid, ntimeid, wqid
         integer(kind = int_wp) :: meshid2d, type_ugrid, meshid1d, networkid, network_geometryid

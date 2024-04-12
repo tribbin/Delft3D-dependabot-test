@@ -145,16 +145,16 @@ CONTAINS
         !
         !
         INTEGER(kind = int_wp), SAVE :: LUN(NLUN)
-        CHARACTER*(LCHMAX), SAVE :: LCHAR(NLUN)
+        character(len=lchmax), SAVE :: LCHAR(NLUN)
         integer(kind = int_wp), save :: filtype(nlun)
-        CHARACTER*(LCHMAX), SAVE :: RUNID
+        character(len=lchmax), SAVE :: RUNID
         LOGICAL, SAVE :: INIT2 = .TRUE. ! To suppress the start-up screen
 
         logical :: lfound
         integer(kind = int_wp) :: idummy, ierr2
         real(kind = real_wp) :: rdummy
         CHARACTER :: cdummy
-        CHARACTER*2 :: C2
+        character(len=2) :: C2
         !
         integer(kind = int_wp), save :: ithndl = 0
         !

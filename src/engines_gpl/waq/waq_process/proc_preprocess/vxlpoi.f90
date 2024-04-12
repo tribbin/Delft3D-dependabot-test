@@ -64,15 +64,15 @@ contains
         use timers       !   performance timers
 
         INTEGER(kind = int_wp) :: NOCONS, NOFUN, NODISP, NOVELO, IVALIP
-        CHARACTER*(*) VALNAM, LINE
-        CHARACTER*(*)            FUNAME(*), &
+        character(len=*) VALNAM, LINE
+        character(len=*)            FUNAME(*), &
                 DINAME(*), VENAME(*)
         type(t_waq_item), intent(inout) :: constants       !< delwaq constants list
         !
         !     Local
         !
         integer(kind = int_wp), PARAMETER :: NOPREF = 4
-        CHARACTER*10 PREDEF(NOPREF)
+        character(len=10) PREDEF(NOPREF)
 
         INTEGER(kind = int_wp) :: ICO, IDSP, IVEL, IFUN
 

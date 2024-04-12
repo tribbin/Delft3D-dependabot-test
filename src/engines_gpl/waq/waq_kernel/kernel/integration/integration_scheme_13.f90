@@ -118,7 +118,7 @@ contains
         !
         type(waq_data_buffer), target :: buffer      !< System total array space
         INTEGER(kind = int_wp), DIMENSION(*) :: LUN
-        CHARACTER*(*), DIMENSION(*) :: LCHAR
+        character(len=*), DIMENSION(*) :: LCHAR
         INTEGER(kind = int_wp) :: ACTION
         TYPE(DELWAQ_DATA), TARGET :: DLWQD
         type(GridPointerColl) :: GridPs               ! collection of all grid definitions
