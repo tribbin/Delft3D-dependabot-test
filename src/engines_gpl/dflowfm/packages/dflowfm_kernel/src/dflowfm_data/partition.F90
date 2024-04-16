@@ -5356,7 +5356,7 @@ end function any_crosssections_lie_across_multiple_partitions
 !> Check if a set of flowlinks lies across multiple partitions
 function flowlinks_are_across_multiple_partitions(flowlinks) result(res)
    use mpi
-   use MessageHandling, only: mess, LEVEL_ERROR
+   use MessageHandling, only: mess, LEVEL_ERROR, LEVEL_WARN
 
    integer, dimension(:), intent(in) :: flowlinks !< Array of flowlink indices to check
    logical                           :: res       !< True if the flowlinks lie across multiple partitions, false otherwise
@@ -5365,8 +5365,9 @@ function flowlinks_are_across_multiple_partitions(flowlinks) result(res)
    integer :: n_partitions_with_flowlinks
    integer :: ierr
    
+   res = .false. !Default return value
+   
    if (jampi == 0) then
-      res = .false.
       return
    end if
 
@@ -5387,11 +5388,9 @@ function flowlinks_are_across_multiple_partitions(flowlinks) result(res)
    end if
    
    if (n_partitions_with_flowlinks == 0) then
-      call mess(LEVEL_ERROR,'Programming error, please report: flowlinks_are_across_multiple_partitions found no partitions with flowlinks!')
+      call mess(LEVEL_WARN,'Programming error, please report: flowlinks_are_across_multiple_partitions found no partitions with flowlinks!')
    elseif (n_partitions_with_flowlinks > 1) then
       res = .true.
-   elseif (n_partitions_with_flowlinks == 1) then
-      res = .false.
    end if
    
 end function flowlinks_are_across_multiple_partitions
