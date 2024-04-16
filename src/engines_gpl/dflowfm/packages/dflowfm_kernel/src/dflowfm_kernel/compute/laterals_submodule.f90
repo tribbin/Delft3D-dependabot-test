@@ -52,9 +52,17 @@ implicit none
       integer :: i
 
       apply_transport_is_used = .false.
-      call realloc(apply_transport, numlatsg, stat=ierr)
-      call realloc(incoming_lat_concentration, (/1, numconst, numlatsg/), stat=ierr)
-      call realloc(outgoing_lat_concentration, (/1, numconst, numlatsg/), stat=ierr)
+      if (allocated(apply_transport)) then
+         do i = 1, numlatsg
+            if (apply_transport(i)==1) then
+               apply_transport_is_used = .true.
+               ! No need to look further
+               exit
+            end if
+         end do
+      end if
+      call realloc(incoming_lat_concentration, (/1, numconst, numlatsg/))
+      call realloc(outgoing_lat_concentration, (/1, numconst, numlatsg/))
 
    end subroutine initialize_lateraldata
 
@@ -103,12 +111,64 @@ implicit none
 
    end subroutine average_concentrations_for_laterals
    
-   !> computations of lateral loads
-   module subroutine get_lateral_loads(ierr)
-      integer, intent(out) :: ierr
-      ierr = 1
-   end subroutine get_lateral_loads
+   !> Calculate lateral discharges at each of the active grid cells, both source (lateral_discharge_in) and sink (lateral_discharge_out). 
+   module subroutine get_lateral_discharge(lateral_discharge_in,lateral_discharge_out)
+      use m_cell_geometry, only: ba
+      use m_flow, only: vol1, hs
+      use m_flowparameters, only: epshu
+      use m_flowtimes, only: dts
+      use m_partitioninfo, only: is_ghost_node
 
+      double precision, dimension(:,:), intent(inout)     :: lateral_discharge_in  !< Lateral discharge flowing into the model (source)
+      double precision, dimension(:,:), intent(inout)     :: lateral_discharge_out !< Lateral discharge extracted out of the model (sink)
+   
+      integer          :: k1, i_cell, i_lateral
+      double precision :: qlat
+
+      if (numlatsg > 0) then
+         lateral_discharge_in = 0d0
+         lateral_discharge_out = 0d0
+         do i_lateral = 1,numlatsg
+            do k1=n1latsg(i_lateral),n2latsg(i_lateral)
+               ! k1 loopt over de actieve elementen van bepaalde lateral, binnen een domein
+               i_cell = nnlat(k1)
+               qlat = qplat(i_lateral)*ba(i_cell)/balat(i_lateral)
+               if (qlat > 0) then
+                  if (.not. is_ghost_node(i_cell)) then 
+                     lateral_discharge_in(i_lateral,i_cell) = lateral_discharge_in(i_lateral,i_cell) + qlat
+                  endif
+               else if (hs(i_cell) > epshu) then
+                  qlat = - min(0.5d0*vol1(i_cell)/dts , -qlat) ! this is required to conserve mass
+                  if (.not. is_ghost_node(i_cell)) then
+                     lateral_discharge_out(i_lateral,i_cell) = lateral_discharge_out(i_lateral,i_cell) - qlat
+                  endif
+               endif
+            enddo
+         enddo
+      endif
+   end subroutine get_lateral_discharge
+   
+   
+   ! Get / add lateral input contribution to the load being transported
+   module subroutine get_lateral_load(transport_load,lateral_discharge_in)
+      use m_transportdata, only: numconst
+
+      double precision, dimension(:,:), intent(in   )     :: lateral_discharge_in !< Lateral discharge going into the model (source)
+      double precision, dimension(:,:), intent(inout)     :: transport_load       !< Load being transported
+
+      integer i_const, i_lateral, i_cell, k1
+
+      do i_const = 1,numconst   
+         do i_lateral = 1,numlatsg
+               do k1=n1latsg(i_lateral),n2latsg(i_lateral)
+                  i_cell = nnlat(k1) 
+                  transport_load(i_const,i_cell) = transport_load(i_const,i_cell) + lateral_discharge_in(i_lateral,i_cell) * incoming_lat_concentration(1,i_const,i_lateral)
+               enddo
+         enddo
+      enddo   
+   end subroutine get_lateral_load
+
+   
    !> At the start of the update, the out_going_lat_concentration must be set to 0 (reset_outgoing_lat_concentration).
    !> In  average_concentrations_for_laterals in out_going_lat_concentration the concentrations*timestep are aggregated.
    !> While in finish_outgoing_lat_concentration, the average over time is actually computed.

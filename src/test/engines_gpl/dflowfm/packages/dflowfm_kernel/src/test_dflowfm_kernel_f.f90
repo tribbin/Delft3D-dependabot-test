@@ -47,10 +47,10 @@ program test_dflowfm_kernel
     call tests_MDU_fileversion
     call tests_1d_grid
     call tests_storageNodes
-    call tests_iniField_1dField
     call tests_read_property
     call tests_compute_airdensity
-    call tests_lateral_loads
+    call tests_lateral
+    call tests_iniField_1dField
     !
     ! Done - properly finalize
     !
