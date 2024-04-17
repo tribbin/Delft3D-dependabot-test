@@ -335,40 +335,47 @@ subroutine set_wave_parameters()
    
    if (jawave == 3 .or. jawave == 6 .or. jawave == 7) then
        
-       if (.not. initialization) then
-           !
-           if (     jawave == 7 .and. waveforcing == 1 ) then
-               !
-               call set_parameters_for_radiation_stress_driven_forces()
-               !
-           elseif ( jawave == 7 .and. waveforcing == 2 ) then
-               !
-               call set_parameters_for_dissipation_driven_forces()
-               !
-           elseif ( jawave == 7 .and. waveforcing == 3 ) then
-               !
-               call set_parameters_for_3d_dissipation_driven_forces()               
-           else
-               !
-               call set_all_wave_parameters()
-           end if
-           !
-       end if
-       
-       ! NB: choose whether to keep if(.not. initialization) hidden in initialize_wave_parameters or in set_wave_parameters
-       
-      if (.not. success) then
-         !
-         ! success = .false. : Most commonly, WAVE data has not been written to the com-file yet:
-         ! - Print a warning
-         ! - Continue with the calculation
-         ! - Just try it the next timestep again
-         ! - success must be set to .true., otherwise the calculation is aborted
-         !
-         message = dumpECMessageStack(LEVEL_WARN,callback_msg)
-         success = .true.
+      if (.not. initialization) then
+          !
+          if (     jawave == 7 .and. waveforcing == 1 ) then
+              !
+              call set_parameters_for_radiation_stress_driven_forces()
+              !
+          elseif ( jawave == 7 .and. waveforcing == 2 ) then
+              !
+              call set_parameters_for_dissipation_driven_forces()
+              !
+          elseif ( jawave == 7 .and. waveforcing == 3 ) then
+              !
+              call set_parameters_for_3d_dissipation_driven_forces()               
+          else
+              !
+              call set_all_wave_parameters()
+              !
+              if (.not. success) then
+                 !
+                 ! success = .false. : Most commonly, WAVE data has not been written to the com-file yet:
+                 ! - Print a warning
+                 ! - Continue with the calculation
+                 ! - Just try it the next timestep again
+                 ! - success must be set to .true., otherwise the calculation is aborted
+                 !
+                 message = dumpECMessageStack(LEVEL_WARN,callback_msg)
+                 success = .true.
+              end if
+          end if
+          !
       end if
-
+      !
+      ! Now do the check on success for non-com file situations, and error when variable is missing
+      !
+      if (.not. success) then
+         write (msgbuf, '(a,i0,a)') 'set_external_forcings:: Offline wave coupling with waveforcing=', waveforcing, '. &
+                              & Variable missing in external forcing file.' 
+         call warn_flush() ! ECMessage stack is not very informative
+         message = dumpECMessageStack(LEVEL_ERROR,callback_msg)
+      endif
+       
       if (jawave == 7) then
           phiwav = convert_wave_direction_from_nautical_to_cartesian(phiwav)
       end if
@@ -406,16 +413,24 @@ subroutine set_wave_parameters()
          ! In MPI case, partition ghost cells are filled properly already, open boundaries are not
          !
          ! velocity boundaries
-         call fill_open_boundary_cells_with_inner_values(nbndu, kbndu)
+         if (nbndu>0) then
+            call fill_open_boundary_cells_with_inner_values(nbndu, kbndu)
+         endif
          !
          ! waterlevel boundaries
-         call fill_open_boundary_cells_with_inner_values(nbndz, kbndz)
+         if (nbndz>0) then
+            call fill_open_boundary_cells_with_inner_values(nbndz, kbndz)
+         endif
          !
          !  normal-velocity boundaries
-         call fill_open_boundary_cells_with_inner_values(nbndn, kbndn)
+         if (nbndn>0) then
+            call fill_open_boundary_cells_with_inner_values(nbndn, kbndn)
+         endif
          !
          !  tangential-velocity boundaries
-         call fill_open_boundary_cells_with_inner_values(nbndt, kbndt)
+         if (nbndt>0) then
+            call fill_open_boundary_cells_with_inner_values(nbndt, kbndt)
+         endif
       end if
    
       if (jawave>0) then
@@ -487,27 +502,27 @@ subroutine set_all_wave_parameters()
 
 end subroutine set_all_wave_parameters 
 
-!> set wave parameters for jawave == 7 (offline wave coupling) and waveforcing == 1 (wave forces via radiation stress)
+!> set wave parameters for jawave == 7 (offline wave coupling) and waveforcing == 1 (wave forces via radiation stress gradients)
 subroutine set_parameters_for_radiation_stress_driven_forces()
 
+    ! don't change this order, ec module depends on it. To be refactored
+    success = success .and. ecGetValues(ecInstancePtr, item_dir , ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_hrms, ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_tp  , ecTime)
-    success = success .and. ecGetValues(ecInstancePtr, item_dir , ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_fx  , ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_fy  , ecTime)
     mxwav  (:) = 0d0
     mywav  (:) = 0d0
     uorbwav(:) = 0d0
 
-    call mess(LEVEL_WARN, 'Incomplete functionality. Wave forces set to zero when Wavemodelnr = 7.')
-
 end subroutine set_parameters_for_radiation_stress_driven_forces
-!> set wave parameters for jawave == 7 (offline wave coupling) and waveforcing == 2 (wave forces via averaged dissipation) 
+!> set wave parameters for jawave == 7 (offline wave coupling) and waveforcing == 2 (wave forces via total dissipation) 
 subroutine set_parameters_for_dissipation_driven_forces()
 
+    ! don't change this order, ec module depends on it. To be refactored
+    success = success .and. ecGetValues(ecInstancePtr, item_dir   , ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_hrms  , ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_tp    , ecTime)
-    success = success .and. ecGetValues(ecInstancePtr, item_dir   , ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_distot, ecTime)
     sxwav  (:) = 0d0
     sywav  (:) = 0d0
@@ -515,17 +530,15 @@ subroutine set_parameters_for_dissipation_driven_forces()
     mywav  (:) = 0d0
     uorbwav(:) = 0d0
 
-    call mess(LEVEL_WARN, 'Incomplete functionality. Wave forces set to zero when Wavemodelnr = 7.')
-
 end subroutine set_parameters_for_dissipation_driven_forces
 
-!> set wave parameters for jawave == 7 (offline wave coupling) and waveforcing == 3 (wave forces via 3D dissipation)
+!> set wave parameters for jawave == 7 (offline wave coupling) and waveforcing == 3 (wave forces via 3D dissipation distribution)
 subroutine set_parameters_for_3d_dissipation_driven_forces()
 
-
-success = success .and. ecGetValues(ecInstancePtr, item_hrms   , ecTime)
+    ! don't change this order, ec module depends on it. To be refactored
     success = success .and. ecGetValues(ecInstancePtr, item_tp     , ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_dir    , ecTime)
+    success = success .and. ecGetValues(ecInstancePtr, item_hrms   , ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_fx     , ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_fy     , ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_dissurf, ecTime) 
@@ -536,12 +549,8 @@ success = success .and. ecGetValues(ecInstancePtr, item_hrms   , ecTime)
     mywav  (:) = 0d0
     uorbwav(:) = 0d0
 
-    call mess(LEVEL_WARN, 'Incomplete functionality. Wave forces set to zero when Wavemodelnr = 7.')
-
 end subroutine set_parameters_for_3d_dissipation_driven_forces
     
-  
-
 !> convert wave direction [degrees] from nautical to cartesian meteorological convention
 elemental function convert_wave_direction_from_nautical_to_cartesian(nautical_wave_direction) result(cartesian_wave_direction)
 
@@ -620,19 +629,19 @@ end subroutine update_network_data
 !> update_subsidence_and_uplift_data
 subroutine update_subsidence_and_uplift_data()
 
- if (.not. sdu_first) then
-         ! preserve the previous 'bedrock_surface_elevation' for computing the subsidence/uplift rate
-         subsupl_tp = subsupl
-      end if
-      if (item_subsiduplift /= ec_undef_int) then
-         success = success .and. ec_gettimespacevalue(ecInstancePtr, 'bedrock_surface_elevation', time_in_seconds)
-      end if
-      if (sdu_first) then
-         ! preserve the first 'bedrock_surface_elevation' field as the initial field
-         subsupl_tp = subsupl
-         subsupl_t0 = subsupl
-         sdu_first  = .false.
-      end if
+    if (.not. sdu_first) then
+       ! preserve the previous 'bedrock_surface_elevation' for computing the subsidence/uplift rate
+       subsupl_tp = subsupl
+    end if
+    if (item_subsiduplift /= ec_undef_int) then
+       success = success .and. ec_gettimespacevalue(ecInstancePtr, 'bedrock_surface_elevation', time_in_seconds)
+    end if
+    if (sdu_first) then
+       ! preserve the first 'bedrock_surface_elevation' field as the initial field
+       subsupl_tp = subsupl
+       subsupl_t0 = subsupl
+       sdu_first  = .false.
+    end if
 
 end subroutine update_subsidence_and_uplift_data
 

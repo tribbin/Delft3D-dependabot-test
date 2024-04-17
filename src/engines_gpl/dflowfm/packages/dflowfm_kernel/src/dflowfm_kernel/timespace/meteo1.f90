@@ -57,6 +57,7 @@ module timespace_parameters
   integer, parameter :: bcascii                        = 17  ! .bc format as ASCII file
   integer, parameter :: field1d                        = 18  ! Scalar quantity on a 1D network, used for initial/parameter fields.
   integer, parameter :: geotiff                        = 19  ! GeoTIFF, used for initial/parameter fields.
+  integer, parameter :: ncwave_weight                  = 20  ! GeoTIFF, used for initial/parameter fields.
   integer, parameter :: max_file_types                 = 103 !  max nr of supported types for end user in ext file.
   ! Enumeration for file types of sub-providers (not directly in ext file)
   integer, parameter :: fourier                        = 101 ! period(hrs), ampl(m), phas(deg) NOTE: not directly used in ext file by users.
@@ -242,7 +243,7 @@ contains
    !> Read the next quantity block that is found in a file.
    !! The (external forcing) file is opened elsewhere and read block-by-block
    !! by consecutive calls to this routine.
-   subroutine readprovider(minp,qid,filename,filetype,method,operand,transformcoef,ja,varname,smask, maxSearchRadius)
+   subroutine readprovider(minp,qid,filename,filetype,method,operand,transformcoef,ja,varname,smask, maxSearchRadius,varname2)
      use m_flowexternalforcings, only: NTRANSFORMCOEF
      use MessageHandling, only : LEVEL_WARN, LEVEL_INFO, mess
      ! globals
@@ -257,6 +258,7 @@ contains
      character (len=*), intent(out)           :: varname          !< variable name within filename; only in case of NetCDF
      character (len=*), intent(out), optional :: smask            !< Name of mask-file applied to source arcinfo meteo-data
      real(kind=hp),     intent(out), optional :: maxSearchRadius  !< max search radius for method == 11
+     character (len=*), intent(out), optional :: varname2         !< second variable for weighted interpolation
 
      ! locals
      character (len=maxnamelen)       :: rec, keywrd
@@ -324,6 +326,14 @@ contains
         varname = adjustl(rec)
      else
         varname = ' '
+     end if
+     
+     keywrd = 'VARNAME2'                           ! get potential second variable for weighted interpolation
+     call zoekopt(minp, rec, keywrd, jaopt)
+     if (jaopt == 1) then
+        varname2 = adjustl(rec)
+     else
+        varname2 = ' '
      end if
 
      if (present(smask)) then                                    ! todo: shouldn't this argument be compulsory ? ..... 
@@ -6862,6 +6872,8 @@ module m_meteo
             ec_filetype = provFile_poly_tim
          case (ncgrid, ncwave)      ! 11, 14
             ec_filetype = provFile_netcdf
+         case (ncwave_weight)       ! 20
+            ec_filetype = provFile_netcdf_weight
          case (ncflow)              ! 12
             ec_filetype = provFile_undefined ! only used for timespaceinitialfield, no EC yet.
          case (bcascii)             ! 17
@@ -7222,6 +7234,10 @@ module m_meteo
          case ('dir', 'wavedirection')
             itemPtr1 => item_dir
             dataPtr1 => phiwav
+            ! debug offline wave, see if needed
+            itemPtr2 => item_hrms
+            dataPtr2 => hwavcom
+            !\debug
             jamapwav_phiwav = 1
          case ('fx','xwaveforce')
             itemPtr1 => item_fx
@@ -7234,11 +7250,11 @@ module m_meteo
         case ('wsbu')
             itemPtr1 => item_wsbu
             dataPtr1 => sbxwav
-            jamapwav_sxbwav = 1
+            jamapwav_sbxwav = 1
          case ('wsbv')
             itemPtr1 => item_wsbv
             dataPtr1 => sbywav
-            jamapwav_sybwav = 1
+            jamapwav_sbywav = 1
          case ('mx')
             itemPtr1 => item_mx
             dataPtr1 => mxwav
@@ -7410,7 +7426,7 @@ module m_meteo
    !> Replacement function for FM's meteo1 'addtimespacerelation' function.
    logical function ec_addtimespacerelation(name, x, y, mask, vectormax, filename, filetype, method, operand, &
                                             xyen, z, pzmin, pzmax, pkbot, pktop, targetIndex, forcingfile, srcmaskfile, &
-                                            dtnodal, quiet, varname, maxSearchRadius, targetMaskSelect, &
+                                            dtnodal, quiet, varname, varname2, maxSearchRadius, targetMaskSelect, &
                                             tgt_data1, tgt_data2, tgt_data3, tgt_data4,  &
                                             tgt_item1, tgt_item2, tgt_item3, tgt_item4,  &
                                             multuni1,  multuni2,  multuni3,  multuni4)
@@ -7445,6 +7461,7 @@ module m_meteo
       real(hp),               optional, intent(in)            :: dtnodal         !< update interval for nodal factors
       logical,                optional, intent(in)            :: quiet           !< When .true., in case of errors, do not write the errors to screen/dia at the end of the routine.
       character(len=*),       optional, intent(in)            :: varname         !< variable name within filename
+      character(len=*),       optional, intent(in)            :: varname2        !< variable name within filename
       real(hp),               optional, intent(in)            :: maxSearchRadius !< max search radius in case method==11
       character(len=1),       optional, intent(in)            :: targetMaskSelect !< 'i'nside (default) or 'o'utside mask polygons
       real(hp), dimension(:), optional, pointer               :: tgt_data1       !< optional pointer to the storage location for target data 1 field
@@ -7615,7 +7632,11 @@ module m_meteo
                   if (present(dtnodal)) then
                      success = ecSetFileReaderProperties(ecInstancePtr, fileReaderId, ec_filetype, filename, refdate_mjd, tzone, ec_second, name, dtnodal=dtnodal/86400.d0, varname=varname)
                   else
-                     success = ecSetFileReaderProperties(ecInstancePtr, fileReaderId, ec_filetype, filename, refdate_mjd, tzone, ec_second, name, varname=varname)
+                     if (present(varname2)) then
+                        success = ecSetFileReaderProperties(ecInstancePtr, fileReaderId, ec_filetype, filename, refdate_mjd, tzone, ec_second, name, varname=varname, varname2=varname2)
+                     else
+                        success = ecSetFileReaderProperties(ecInstancePtr, fileReaderId, ec_filetype, filename, refdate_mjd, tzone, ec_second, name, varname=varname)
+                     endif
                   end if
                   if (.not. success) then
                      ! message = ecGetMessage()
@@ -8033,10 +8054,31 @@ module m_meteo
                 ! wave data is read from a com.nc file produced by D-Waves which contains one time field only
                 fileReaderPtr%one_time_field = .true.
             endif
-         case ('wavesignificantheight', 'waveperiod', 'wavedirection', 'xwaveforce', 'ywaveforce', &
+         case ('wavesignificantheight', 'waveperiod', 'xwaveforce', 'ywaveforce', &
                'freesurfacedissipation','whitecappingdissipation', 'totalwaveenergydissipation')
-            ! the name of the source item created by the file reader will be the same as the ext.force. quant name
+            ! the name of the source item created by the file reader will be the same as the ext.force. var name
             sourceItemName = varname
+         case ('wavedirection')
+            if  (ec_filetype == provFile_netcdf .or. ec_filetype == provFile_netcdf_weight) then
+               sourceItemId   = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'sea_surface_wave_from_direction')     ! standard names from nctablemd.f90
+               sourceItemId_2 = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'sea_surface_wave_significant_height')
+               success = (sourceItemId /= ec_undef_int .and. sourceItemId_2 /= ec_undef_int)
+               if (.not. success) then
+                  goto 1234
+               end if
+            else
+               call mess(LEVEL_FATAL, 'm_meteo::ec_addtimespacerelation: Unsupported filetype for quantity wavedirection.')
+               return
+            end if
+            if (success) success = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId)
+            if (sourceItemId_2>0) then
+               if (success) success = ecAddConnectionSourceItem(ecInstancePtr, connectionId, sourceItemId_2)
+            end if
+            if (success) success = ecAddConnectionTargetItem(ecInstancePtr, connectionId, item_dir)
+            if (success) success = ecAddConnectionTargetItem(ecInstancePtr, connectionId, item_hrms)
+            if (success) success = ecAddItemConnection(ecInstancePtr, item_dir, connectionId)
+            if (success) success = ecAddItemConnection(ecInstancePtr, item_hrms, connectionId)
+            
          case ('airpressure', 'atmosphericpressure')
             if (ec_filetype == provFile_arcinfo) then
                sourceItemName = 'wind_p'
@@ -8676,6 +8718,9 @@ module m_meteo
       end if
       if (trim(group_name) == 'bedrock_surface_elevation') then
          if (.not.ec_gettimespacevalue_by_itemID(instancePtr, item_subsiduplift, irefdate, tzone, tunit, timesteps)) return
+      end if
+      if (index(group_name, 'wavedirection') == 1) then
+         if (.not.ec_gettimespacevalue_by_itemID(instancePtr, item_dir, irefdate, tzone, tunit, timesteps)) return
       end if
       success = .true.
    end function ec_gettimespacevalue_by_name

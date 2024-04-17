@@ -56,6 +56,8 @@ subroutine jonswap_mean2peak_period_factor(gamma0, factor, ier)
     !!--pseudo code and references--------------------------------------------------
     ! NONE
     !!--declarations----------------------------------------------------------------
+    use precision
+    !
     implicit none
     !
     ! Local parameters
@@ -64,18 +66,18 @@ subroutine jonswap_mean2peak_period_factor(gamma0, factor, ier)
     !
     ! Global variables
     !
-    integer, intent(out) :: ier
-    real   , intent(out) :: factor
-    real   , intent(in)  :: gamma0
+    integer, intent(out)     :: ier
+    real(hp)   , intent(out) :: factor
+    real(hp)   , intent(in)  :: gamma0
     !
     ! Local variables
     !
     integer            :: i
-    real               :: fac1
-    real               :: fac2
-    real, dimension(n) :: gamlst
-    real, dimension(n) :: nu01
-    real, dimension(n) :: num10
+    real(hp)               :: fac1
+    real(hp)               :: fac2
+    real(hp), dimension(n) :: gamlst
+    real(hp), dimension(n) :: nu01
+    real(hp), dimension(n) :: num10
     !
     data gamlst/1.00, 2.00, 3.00, 3.30, 3.64, 4.00, 5.00, 6.00, 7.00, &
         &        8.00, 9.00, 10.00, 15.00, 20.00/

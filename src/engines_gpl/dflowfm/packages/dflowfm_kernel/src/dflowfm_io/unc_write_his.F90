@@ -156,6 +156,7 @@ subroutine unc_write_his(tim)            ! wrihis
 
     integer                      :: IP, num, ntmp, n, nlyrs
 
+    logical, save                :: hisfile_warning_given = .false.
     double precision, save       :: curtime_split = 0d0 ! Current time-partition that the file writer has open.
     integer                      :: ntot, k, i, j, jj, ierr, mnp, kk, idims(3),L, Lf, k3, k4, nNodeTot, nNodes, L0, k1, k2, nlinks
     character(len=255)           :: station_geom_container_name, crs_geom_container_name, weir_geom_container_name, orif_geom_container_name, &
@@ -210,8 +211,9 @@ subroutine unc_write_his(tim)            ! wrihis
 
     ! When no crs/obs present, return immediately.
     if (numobs+nummovobs <= 0 .and. ncrs <= 0 .and. jahisbal <= 0 .and. jahiscgen <= 0 .and. nrug <= 0) then
-        if (ihisfile == 0) then
+        if (ihisfile == 0 .and. .not. hisfile_warning_given) then
             call mess(LEVEL_WARN, 'No observations nor cross sections defined. Will not produce a history file.')
+            hisfile_warning_given = .true. ! just do this once
         end if
         ihisfile = -1 ! -1 stands for: no file open, no obs/crs defined.
         return
@@ -3131,28 +3133,28 @@ subroutine unc_write_his(tim)            ! wrihis
           ierr = nf90_put_var(ihisfile, id_varu,    crs(i)%sumvalcur(IPNT_U1A), (/ i, it_his /))
 !          ierr = nf90_put_var(ihisfile, id_varuavg, crs(i)%sumvalavg(IPNT_U1A), (/ i, it_his /))
 
-             IP = IPNT_HUA
-             do num = 1,NUMCONST_MDU
-                IP = IP + 1
-                if (num >= ISED1 .and. num <= ISEDN) then
-                   l = sedtot2sedsus(num-ISED1+1)
-                   select case(stmpar%morpar%moroutput%transptype)
-                   case (0)
-                      rhol = 1d0
-                   case (1)
-                      rhol = stmpar%sedpar%cdryb(l)
-                   case (2)
-                      rhol = stmpar%sedpar%rhosol(l)
-                   end select
-                   toutput_cum = crs(i)%sumvalcum(IP)/rhol
-                   toutput_cur = crs(i)%sumvalcur(IP)/rhol
-                else
-                  toutput_cum = crs(i)%sumvalcum(IP)
-                  toutput_cur = crs(i)%sumvalcur(IP)
-                endif
-                ierr = nf90_put_var(ihisfile, id_const_cum(num), toutput_cum, (/ i, it_his /))
-                ierr = nf90_put_var(ihisfile, id_const(num),     toutput_cur, (/ i, it_his /))
-             end do
+          IP = IPNT_HUA
+          do num = 1,NUMCONST_MDU
+             IP = IP + 1
+             if (num >= ISED1 .and. num <= ISEDN) then
+                l = sedtot2sedsus(num-ISED1+1)
+                select case(stmpar%morpar%moroutput%transptype)
+                case (0)
+                   rhol = 1d0
+                case (1)
+                   rhol = stmpar%sedpar%cdryb(l)
+                case (2)
+                   rhol = stmpar%sedpar%rhosol(l)
+                end select
+                toutput_cum = crs(i)%sumvalcum(IP)/rhol
+                toutput_cur = crs(i)%sumvalcur(IP)/rhol
+             else
+               toutput_cum = crs(i)%sumvalcum(IP)
+               toutput_cur = crs(i)%sumvalcur(IP)
+             endif
+             ierr = nf90_put_var(ihisfile, id_const_cum(num), toutput_cum, (/ i, it_his /))
+             ierr = nf90_put_var(ihisfile, id_const(num),     toutput_cur, (/ i, it_his /))
+          end do
 
           if( jased == 4 ) then
              if( stmpar%lsedtot > 0 ) then

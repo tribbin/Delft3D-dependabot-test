@@ -101,6 +101,7 @@ module m_ec_parameters
    integer, parameter :: provFile_t3D                 = 16  !< temporary type for 3D salinity boundaries
    integer, parameter :: provFile_bc                  = 17  !< BC-format
    integer, parameter :: provFile_fourier_cor         = 18  !< period(hrs), ampl(m), phas(deg) correction
+   integer, parameter :: provFile_netcdf_weight       = 19  !< NetCDF files, for weighted interpolation of one field with values of other field
 
    ! enumeration for access types
    integer, parameter :: accessType_undefined     = 0
@@ -110,6 +111,7 @@ module m_ec_parameters
    integer, parameter :: accessType_evaluate      = 4
 
    ! enumeration for interpolation types
+   ! JRE to do offline wave
    integer, parameter :: interpolate_unknown                    = 0 !< type is uninitialized
    integer, parameter :: interpolate_passthrough                = 1 !< no interpolation is performed
    integer, parameter :: interpolate_timespace                  = 2 !< interpolate in time, then in space
@@ -168,6 +170,7 @@ module m_ec_parameters
    integer, parameter :: convType_qhtable = 15
    integer, parameter :: convType_sigma   = 16
    integer, parameter :: convType_samples = 17
+   integer, parameter :: convType_netcdf_weight = 18
 
    ! Error states, in addition to success=.true./.false. returns.
    integer, parameter :: EC_UNKNOWN_ERROR      = -1 !< Unknown error.

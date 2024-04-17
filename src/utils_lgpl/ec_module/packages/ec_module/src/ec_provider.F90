@@ -241,7 +241,7 @@ module m_ec_provider
 
       !> Initialize a new FileReader, by constructing the complete tree of source Items.
       !! On the opposite end of the EC-module is a kernel, which constructs the complete tree of target Items.
-      recursive function ecProviderInitializeFileReader(instancePtr, fileReaderId, fileType, fileName, refdat, tzone, tsunit, quantityName, forcingFile, dtnodal, varname) result(success)
+      recursive function ecProviderInitializeFileReader(instancePtr, fileReaderId, fileType, fileName, refdat, tzone, tsunit, quantityName, forcingFile, dtnodal, varname, varname2) result(success)
          logical                                :: success      !< function status
          type(tEcInstance),          pointer    :: instancePtr  !< intent(in)
          integer,                    intent(in) :: fileReaderId !< unique FileReader id
@@ -254,6 +254,7 @@ module m_ec_provider
          character(len=*), optional, intent(in) :: forcingFile  !< name of the forcing file (if quantityName is given)
          real(kind=hp),    optional, intent(in) :: dtnodal      !< Nodal factors update interval
          character(len=*), optional, intent(in) :: varname      !< variable name within filename
+         character(len=*), optional, intent(in) :: varname2     !< variable name 2 within filename
          !
          type(tEcFileReader), pointer  :: fileReaderPtr  !< FileReader corresponding to fileReaderId
          character(len=:), allocatable :: l_quantityName !< local string with quantityName
@@ -274,29 +275,34 @@ module m_ec_provider
 
             if (.not. ecSupportOpenExistingFile(fileReaderPtr%fileHandle, fileReaderPtr%fileName)) return
             select case (fileReaderPtr%ofType)                 ! Inventory of the opened netcdf-file
-            case (provFile_netcdf)
-               if (.not. ecProviderNetcdfReadvars(fileReaderPtr)) then
-                  ! todo: error handling with message
-                  return
-               end if
-               if (size(fileReaderPtr%dim_length)>=5) then
-                  if (fileReaderPtr%relndx>fileReaderPtr%dim_length(3)) then
-                     call setECMessage("ERROR: ec_provider::ecProviderInitializeFileReader: Number of realization is outside the ensemble size.")
+               case (provFile_netcdf, provFile_netcdf_weight)
+                  if (.not. ecProviderNetcdfReadvars(fileReaderPtr)) then
+                     ! todo: error handling with message
                      return
                   end if
-               end if
+                  if (size(fileReaderPtr%dim_length)>=5) then
+                     if (fileReaderPtr%relndx>fileReaderPtr%dim_length(3)) then
+                        call setECMessage("ERROR: ec_provider::ecProviderInitializeFileReader: Number of realization is outside the ensemble size.")
+                        return
+                     end if
+                  end if
             end select
 
             if(present(dtnodal)) then
                if (.not. ecProviderInitializeTimeFrame(fileReaderPtr, refdat, tzone, tsunit, dtnodal)) return
             else
-               if (.not. ecProviderInitializeTimeFrame(fileReaderPtr, refdat, tzone, tsunit)) return
+               if (.not. ecProviderInitializeTimeFrame(fileReaderPtr, refdat, tzone, tsunit)) return       ! 25 timesteps, okay
             end if
 
             fileReaderPtr%nItems = 0
 
             ! Create source Items and their contained types, based on file type and file header.
-            if (present(quantityName) .and. present(varname)) then
+            
+            ! JRE to do offline waves
+            if (present(quantityName) .and. present(varname) .and. present(varname2)) then
+               l_quantityName = trim(quantityName)
+               if (.not. ecProviderCreateItems(instancePtr, fileReaderPtr, forcingFile, l_quantityName, varname, varname2)) return
+            else if (present(quantityName) .and. present(varname)) then
                l_quantityName = trim(quantityName)
                if (.not. ecProviderCreateItems(instancePtr, fileReaderPtr, forcingFile, l_quantityName, varname)) return
             else if (present(quantityName)) then
@@ -315,7 +321,7 @@ module m_ec_provider
       ! =======================================================================
 
       !> Create source Items and their contained types, based on file type and file header.
-      function ecProviderCreateItems(instancePtr, fileReaderPtr, bctfilename, quantityname, varname) result(success)
+      function ecProviderCreateItems(instancePtr, fileReaderPtr, bctfilename, quantityname, varname, varname2) result(success)
          logical                         :: success          !< function status
          type(tEcInstance),     pointer  :: instancePtr      !< intent(in)
          type(tEcFileReader),   pointer  :: fileReaderPtr    !< intent(inout)
@@ -323,6 +329,7 @@ module m_ec_provider
                                                              !< but also for bct-file
          character(len=*), intent(in), optional :: bctfilename      !< file name of bct-file with data
          character(len=*), intent(in), optional :: varname          !< variable name within filename
+         character(len=*), intent(in), optional :: varname2         !< variable name 2 within filename
          !
          success = .false.
          select case(fileReaderPtr%ofType)
@@ -383,7 +390,7 @@ module m_ec_provider
                            "dewpoint_airtemperature_cloudiness_solarradiation",           &
                            "sea_ice_area_fraction", "sea_ice_thickness",                  &
                            "solarradiation", "longwaveradiation", "wavesignificantheight", &
-                           "waveperiod", "friction_coefficient_time_dependent", "wavedirection", &
+                           "waveperiod", "wavedirection","friction_coefficient_time_dependent", &
                            "xwaveforce", "ywaveforce", &
                            "freesurfacedissipation","whitecappingdissipation","totalwaveenergydissipation")
                         success = ecProviderCreateNetcdfItems(instancePtr, fileReaderPtr, quantityname, varname)
@@ -405,7 +412,16 @@ module m_ec_provider
                else
                   call setECMessage("ERROR: ec_provider::ecProviderCreateItems: NetCDF requires a quantity name.")
                end if
-            case (provFile_t3D)
+            case (provFile_netcdf_weight)
+               if (present(quantityname)) then
+                  select case(quantityname)
+                     case ("wavedirection")
+                        success = ecProviderCreateNetcdfItems(instancePtr, fileReaderPtr, quantityname, varname)
+                  end select
+               else
+                  call setECMessage("ERROR: ec_provider::ecProviderCreateItems: weighted NetCDF requires a quantity name.")
+               end if
+               case (provFile_t3D)
                success = ecProviderCreatet3DItems(instancePtr, fileReaderPtr)
             case default
                call setECMessage("ERROR: ec_provider::ecProviderCreateItems: Unknown file type.")
@@ -2648,6 +2664,8 @@ module m_ec_provider
          case ('wavedirection')
              ncvarnames(1) = 'theta0'
              ncstdnames(1) = 'sea_surface_wave_from_direction'
+             ncvarnames(2) = 'hs'
+             ncstdnames(2) = 'sea_surface_wave_significant_height'
          case ('xwaveforce')
              ncvarnames(1) = 'xfor'
              ncstdnames(1) = 'xfor'
@@ -2661,10 +2679,10 @@ module m_ec_provider
              ncvarnames(1) = 'swcap'
              ncstdnames(1) = 'swcap'
          case ('totalwaveenergydissipation')
-             ncvarnames(1) = varname
-             ncstdnames(1) = varname    
-             case default                                        ! experiment: gather miscellaneous variables from an NC-file,
-             if (index(quantityName,'waqsegmentfunction')==1) then
+             ncvarnames(1) = 'dissip'
+             ncstdnames(1) = 'total_energy_dissipation'    
+         case default                                        ! experiment: gather miscellaneous variables from an NC-file,
+            if (index(quantityName,'waqsegmentfunction')==1) then
                  ncvarnames(1) = quantityName
                ncstdnames(1) = quantityName
             else if (index(quantityName,'initialtracer')==1) then
@@ -2903,7 +2921,7 @@ module m_ec_provider
                end if
 
                ! Check if the dimension(sizes) of the 1st and 2nd coordinate variable agree
-               if (any(crd_dimlen(1:ndims,2)/=crd_dimlen(1:ndims,2))) then
+               if (any(crd_dimlen(1:ndims,2)/=crd_dimlen(1:ndims,1))) then
                   return
                   ! TODO: error message
                end if
@@ -2971,16 +2989,19 @@ module m_ec_provider
                   nrel = 0
                endif
 
+               ! this goes wrong when time is defined before space in nc file
                if (grid_type == elmSetType_samples) then
-                  ncol = fileReaderPtr%dim_length(dimids(1))
+                  !ncol = fileReaderPtr%dim_length(dimids(1))
+                  ncol = crd_dimlen(1,1)
                   nrow = 1
                   nlay = crd_dimlen(1,3)
                else
-                  ncol = fileReaderPtr%dim_length(dimids(1))
+                  !ncol = fileReaderPtr%dim_length(dimids(1))
+                  ncol = size(fgd_data,2)
                   nrow = 1
                   nlay = 0
                   if (size(dimids) >= 2) then
-                     nrow = fileReaderPtr%dim_length(dimids(2))
+                     nrow = size(fgd_data,1) !fileReaderPtr%dim_length(dimids(2))
                      if (size(dimids) > 3+dim_offset) then
                         nlay = fileReaderPtr%dim_length(dimids(3+dim_offset))
                      endif
@@ -3404,7 +3425,7 @@ module m_ec_provider
                success = .true.
             case (provFile_grib)
                call setECMessage("ERROR: ec_provider::ecProviderInitializeTimeFrame: Unsupported file type.")
-            case (provFile_netcdf)
+            case (provFile_netcdf, provFile_netcdf_weight)
                success = ecNetcdfInitializeTimeFrame(fileReaderPtr)
                if (.not. success) then
                   success = ecNetcdfInitializeHarmonicsFrame(fileReaderPtr)
@@ -3925,8 +3946,6 @@ module m_ec_provider
    ! Collects names and standard names of variables in the netcdf as well as the varids associated with dimids
    ! The latter is used later to guess coordinates belonging to a variable
    if (nvar>0) then
-!     allocate(fileReaderPtr%standard_names(nvar))          ! Note: one of these may be obsolete (if we only check standard names)
-!     allocate(fileReaderPtr%variable_names(nvar))
       call realloc(fileReaderPtr%standard_names,nvar)       ! Note: one of these may be obsolete (if we only check standard names)
       call realloc(fileReaderPtr%variable_names,nvar)
       fileReaderPtr%standard_names = ''

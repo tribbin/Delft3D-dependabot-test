@@ -367,7 +367,8 @@ module m_ec_converter
          ! Safety check while interpolate_spacetimeSaveWeightFactors is still liberally used.
          if (.not. (connection%converterPtr%ofType == convType_curvi .or. &
                     connection%converterPtr%ofType == convType_polytim .or. &
-                    connection%converterPtr%ofType == convType_netcdf)) then
+                    connection%converterPtr%ofType == convType_netcdf .or. &
+                    connection%converterPtr%ofType == convType_netcdf_weight)) then
             success = .true.
             return
          end if
@@ -1050,6 +1051,9 @@ module m_ec_converter
                success = ecConverterQhtable(connection)
             case(convType_samples)
                success = ecConverterSamples(connection, timesteps%mjd())
+            ! jre to do offline waves   
+            case(convType_netcdf_weight)
+               success = ecConverterNetcdf_weighted(connection, timesteps%mjd())
             case default
                call setECMessage("ERROR: ec_converter::ecConverterPerformConversions: Unknown Converter type requested.")
          end select
@@ -2656,6 +2660,7 @@ module m_ec_converter
          type(tEcItem), pointer  :: windxPtr   ! pointer to item for windx
          type(tEcItem), pointer  :: windyPtr   ! pointer to item for windy
          type(tEcItem), pointer  :: wavedirPtr ! pointer to item for wave direction
+         type(tEcItem), pointer  :: wavehgtPtr ! pointer to item for wave height
          logical :: has_x_wind, has_y_wind
          logical :: has_wave_direction
          logical :: has_harmonics            !< Indicate if the quantity is defined in phase and amplitude instead of time.
@@ -2674,6 +2679,8 @@ module m_ec_converter
          integer                    :: jsferic
          type(kdtree_instance)      :: treeinst
          real(hp), dimension(:), allocatable :: x_extrapolate    ! temporary array holding targetelementset x for setting up kdtree for interpolation
+         real(hp), dimension(:), allocatable :: waveheight       ! temporary array holding source dataset for wave direction interpolation
+         real(hp), dimension(:), allocatable :: ytemp            ! temporary array holding source dataset for wave direction interpolation
          integer                    :: col0, row0, col1, row1    ! bounding box in meteo-space spanned by the target elementset
 
          real(hp) :: amplitude       ! harmonics: amplitude
@@ -2691,6 +2698,7 @@ module m_ec_converter
          integer                        :: Ndatasize
          integer, dimension(2)          :: idx
 
+         integer                        :: istat
          !
          PI = datan(1.d0)*4.d0
          success = .false.
@@ -2707,7 +2715,8 @@ module m_ec_converter
          has_x_wind = .False.
          has_y_wind = .False.
          wavedirPtr => null()
-         has_wave_direction = .False.
+         wavehgtPtr => null()
+         has_wave_direction = .false.
          !
          do i=1, connection%nSourceItems
            if (connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='eastward_wind') then
@@ -2725,13 +2734,23 @@ module m_ec_converter
               has_y_wind = .True.
            endif
            !
-           ! Interpolation of wave direction given in degrees
-           if (connection%SourceItemsPtr(i)%ptr%quantityPtr%name=='wavedirection') then
+           ! Check presence fields
+           if (trim(connection%SourceItemsPtr(i)%ptr%quantityPtr%name)=='sea_surface_wave_from_direction') then
               wavedirPtr => connection%SourceItemsPtr(i)%ptr
+              do j=1, connection%nSourceItems
+                 if (trim(connection%SourceItemsPtr(j)%ptr%quantityPtr%name)=='sea_surface_wave_significant_height') then
+                    wavehgtPtr => connection%SourceItemsPtr(j)%ptr
+                 endif
+              end do
+              if (.not. associated(wavehgtPtr)) then 
+                 return
+              endif
               has_wave_direction = .true.
-           endif
-         enddo
-         !
+              allocate(waveheight(wavehgtPtr%elementsetPtr%ncoordinates))
+              waveheight = wavehgtPtr%SourceT0fieldptr%arr1d
+           end if
+         end do
+         !         !
          if (has_x_wind .and. has_y_wind) then
              ! This should only be performed if the standard_name for the x-component was x_wind or grid_eastward_wind (and similar for the y-component)
              ! If eastward_wind was given, this operation should formally be ommitted, according to the CF-convention
@@ -2746,10 +2765,6 @@ module m_ec_converter
                   windxPtr%SourceT1fieldptr%arr1dptr(ipt) = xtmp
                enddo
             endif
-         endif
-         !
-         if (has_wave_direction) then
-         
          endif
          !
          ! ===== interpolation =====
@@ -3101,15 +3116,21 @@ module m_ec_converter
                                  if (connection%converterPtr%operandType==operand_replace_if_value) then
                                     targetValues(j) = 0.0_hp
                                  end if
-                                 targetValues(j) = targetValues(j) + a0 * sourcevals(1, 1, 1, 1) * indexWeight%weightFactors(1,j)        !  4                 3
-                                 targetValues(j) = targetValues(j) + a1 * sourcevals(1, 1, 1, 2) * indexWeight%weightFactors(1,j)
-                                 targetValues(j) = targetValues(j) + a0 * sourcevals(2, 1, 1, 1) * indexWeight%weightFactors(2,j)
-                                 targetValues(j) = targetValues(j) + a1 * sourcevals(2, 1, 1, 2) * indexWeight%weightFactors(2,j)
-                                 targetValues(j) = targetValues(j) + a0 * sourcevals(2, 2, 1, 1) * indexWeight%weightFactors(3,j)
-                                 targetValues(j) = targetValues(j) + a1 * sourcevals(2, 2, 1, 2) * indexWeight%weightFactors(3,j)
-                                 targetValues(j) = targetValues(j) + a0 * sourcevals(1, 2, 1, 1) * indexWeight%weightFactors(4,j)
-                                 targetValues(j) = targetValues(j) + a1 * sourcevals(1, 2, 1, 2) * indexWeight%weightFactors(4,j)        !  1                 2
-                                 if (allocated(x_extrapolate)) x_extrapolate(j)=targetElementSet%x(j)                      ! x_extrapolate is a copy of the x with missing points marked by ec_undef_hp
+                                 if (has_wave_direction) then
+                                    !sv0 = 
+                                    !sv1 = 
+                                    !targetValues(j) = cyclic_interpolation(sv0, sv1, a0, a1)
+                                 else
+                                    targetValues(j) = targetValues(j) + a0 * sourcevals(1, 1, 1, 1) * indexWeight%weightFactors(1,j)        !  4                 3
+                                    targetValues(j) = targetValues(j) + a1 * sourcevals(1, 1, 1, 2) * indexWeight%weightFactors(1,j)
+                                    targetValues(j) = targetValues(j) + a0 * sourcevals(2, 1, 1, 1) * indexWeight%weightFactors(2,j)
+                                    targetValues(j) = targetValues(j) + a1 * sourcevals(2, 1, 1, 2) * indexWeight%weightFactors(2,j)
+                                    targetValues(j) = targetValues(j) + a0 * sourcevals(2, 2, 1, 1) * indexWeight%weightFactors(3,j)
+                                    targetValues(j) = targetValues(j) + a1 * sourcevals(2, 2, 1, 2) * indexWeight%weightFactors(3,j)
+                                    targetValues(j) = targetValues(j) + a0 * sourcevals(1, 2, 1, 1) * indexWeight%weightFactors(4,j)
+                                    targetValues(j) = targetValues(j) + a1 * sourcevals(1, 2, 1, 2) * indexWeight%weightFactors(4,j)        !  1                 2
+                                    if (allocated(x_extrapolate)) x_extrapolate(j)=targetElementSet%x(j)                      ! x_extrapolate is a copy of the x with missing points marked by ec_undef_hp
+                                 end if
                               end if
                            end if   ! 2D or 3D sources
                         end do      ! points j
@@ -3207,10 +3228,28 @@ module m_ec_converter
                call setECMessage("ERROR: ec_converter::ecConverterNetcdf: Unsupported interpolation type requested.")
                return
          end select
+         
          success = .true.
       end function ecConverterNetcdf
 
       ! =======================================================================
+      ! JRE to do offline waves
+      function ecConverterNetcdf_weighted(connection, timesteps) result (success)
+         
+         implicit none
+         
+         logical                            :: success    !< function status
+         type(tEcConnection), intent(inout) :: connection !< access to Converter and Items
+         real(hp),            intent(in)    :: timesteps  !< convert to this number of timesteps past the kernel's reference date
+         
+         call setECMessage("INFO: ec_converter::ecConverterNetcdf_weighted: function called.")
+               
+         success = .true.
+         
+      
+      end function ecConverterNetcdf_weighted
+      
+      
 
       !> For every connected target item,
       !> if the target field has an associated scalar pointer, fill it with the first element of the arr1DPtr array.

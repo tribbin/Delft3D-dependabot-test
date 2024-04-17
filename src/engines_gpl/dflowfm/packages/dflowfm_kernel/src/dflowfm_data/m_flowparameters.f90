@@ -127,7 +127,7 @@
  integer                           :: jawave            !< Include wave model nr, 0=no, 1=fetchlimited hurdle stive + swart, 3=SWAN, 4=XBeach wave driver, 5=Const, 6=SWAN-NetCDF, 7=Offline Wave Coupling
 
  integer                           :: waveforcing       !< Wave forcing type, 0=no, 1=based on radiation stress gradients, 2=based on dissipation, NOT implemented yet, 3=based on dissipation at free surface and water column, NOT implemented yet
- double precision                  :: JONSWAPgamma0     !< Peak enhancement factor JONSWAP
+ double precision                  :: JONSWAPgamma0=3.3 !< Peak enhancement factor JONSWAP
  
  logical                           :: flowWithoutWaves = .false.  !< True: Do not use Wave data in the flow computations, it will only be passed through to D-WAQ
 
@@ -537,8 +537,8 @@ integer                            :: javau3onbnd = 0   !< vert. adv. u1 bnd Upw
  integer                           :: jamapwav_phiwav           !< output waves to map file for variable phiwav, 0: no, 1: yes
  integer                           :: jamapwav_sxwav            !< output waves to map file for variable sxwav,  0: no, 1: yes
  integer                           :: jamapwav_sywav            !< output waves to map file for variable sywav,  0: no, 1: yes
- integer                           :: jamapwav_sxbwav           !< output waves to map file for variable sxbwav, 0: no, 1: yes
- integer                           :: jamapwav_sybwav           !< output waves to map file for variable sybwav, 0: no, 1: yes
+ integer                           :: jamapwav_sbxwav           !< output waves to map file for variable sxbwav, 0: no, 1: yes
+ integer                           :: jamapwav_sbywav           !< output waves to map file for variable sybwav, 0: no, 1: yes
  integer                           :: jamapwav_mxwav            !< output waves to map file for variable mxwav,  0: no, 1: yes
  integer                           :: jamapwav_mywav            !< output waves to map file for variable mywav,  0: no, 1: yes
  integer                           :: jamapwav_dsurf            !< output waves to map file for variable dsurf,  0: no, 1: yes

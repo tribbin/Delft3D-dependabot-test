@@ -28,10 +28,11 @@
 !-------------------------------------------------------------------------------
 
 ! 
-! 
 
-function flow_initwaveforcings_runtime() result(retval)              ! This is the general hook-up to wave conditions
-
+!
+   
+! This is the general hook-up to wave conditions for online wave coupling
+function flow_initwaveforcings_runtime() result(retval)              
  use m_flowparameters
  use m_flowtimes                                     ! Two stages: 1 = collect elsets for which data is provided
  use m_flowgeom                                      !             2 = add relations between elsets and their providers

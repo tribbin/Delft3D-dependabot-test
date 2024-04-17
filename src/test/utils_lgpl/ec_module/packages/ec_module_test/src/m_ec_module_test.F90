@@ -718,6 +718,8 @@ contains
               FileTypeNumber = provFile_grib
           case ('netcdf')
               FileTypeNumber = provFile_netcdf
+          case ('netcdf_weighted')
+              FileTypeNumber = provFile_netcdf_weight
           case ('qhtable')
               FileTypeNumber = provFile_qhtable
           case ('t3d')

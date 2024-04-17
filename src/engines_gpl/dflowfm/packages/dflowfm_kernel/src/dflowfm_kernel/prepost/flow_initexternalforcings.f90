@@ -79,7 +79,7 @@ integer function flow_initexternalforcings() result(iresult)              ! This
    character(len=256)            :: filename, sourcemask
    integer                       :: L, Lf, mout, kb, LL, Lb, Lt, ierr, k, k1, k2, ja, method, n1, n2, kbi, Le, n, j, mx, n4, kk, kt, ktmax, layer, lenqidnam
    character (len=256)           :: fnam, rec, filename0
-   character (len=64)            :: varname
+   character (len=256)           :: varname, varname2
    character (len=NAMTRACLEN)    :: tracnam, qidnam
    character (len=NAMWAQLEN)     :: wqbotnam
    character (len=NAMSFLEN)      :: sfnam, qidsfnam
@@ -806,7 +806,7 @@ integer function flow_initexternalforcings() result(iresult)              ! This
       do while (ja .eq. 1)                                ! read *.ext file
          call delpol()                                    ! ook jammer dan
          maxSearchRadius = -1
-         call readprovider(mext,qid,filename,filetype,method,operand,transformcoef,ja,varname,sourcemask,maxSearchRadius)
+         call readprovider(mext,qid,filename,filetype,method,operand,transformcoef,ja,varname,sourcemask,maxSearchRadius,varname2)
          if (ja == 1) then
             call resolvePath(filename, md_extfile_dir)
 
@@ -1988,6 +1988,7 @@ integer function flow_initexternalforcings() result(iresult)              ! This
                   call qnerror('Reading *.ext forcings file '''//trim(md_extfile)//''', ', 'QUANTITY "waveperiod" found but "Wavemodelnr" is not 6 or 7', trim(qid))
                   success = .false.
                endif
+           ! JRE to do offline waves    
            else if (trim(qid) == "wavedirection") then
                if (jawave == 7) then
                   success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)

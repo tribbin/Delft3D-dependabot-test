@@ -488,6 +488,7 @@ module m_ec_module
                if (present(dtnodal)) then
                   res = ecProviderInitializeFileReader(instancePtr, fileReaderId, filetype, filename, tgt_mjd, tgt_tzone, tgt_tunit, name, dtnodal=dtnodal)
                else
+                  ! jre to do offline waves
                   res = ecProviderInitializeFileReader(instancePtr, fileReaderId, filetype, filename, tgt_mjd, tgt_tzone, tgt_tunit, name)
                end if
                if (.not. res) return
@@ -763,6 +764,8 @@ module m_ec_module
          convtype = convType_polytim
       case (provFile_netcdf)
          convtype = convType_netcdf
+      case (provFile_netcdf_weight)
+         convtype = convType_netcdf_weight   
       case (provFile_qhtable)
          convtype = convType_qhtable
       case default

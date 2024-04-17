@@ -36,6 +36,7 @@
       use m_sferic
       use m_flowtimes
       use m_xbeach_netcdf
+      use m_transform_wave_physics
 
       use unstruc_display
 
@@ -95,12 +96,12 @@
       !
       if (jawave==7 .and. .not. flowWithoutWaves) then
          ! 
-         call transform_wave_physics(  hwavcom      ,phiwav    ,twav      ,hs     , &
-                                     & sxwav        ,sywav     ,mxwav     ,mywav  , &
-                                     & distot       ,dissurf   ,diswcap           , &
-                                     & ndx          ,1         ,hwav      ,twav   , &
-                                     & ag           ,.true.    ,waveforcing       , &
-                                     & JONSWAPgamma0, sbxwav   ,sbywav    ,ierr   )
+         call transform_wave_physics_hp(  hwavcom      ,phiwav    ,twav      ,hs     , &
+                                        & sxwav        ,sywav     ,mxwav     ,mywav  , &
+                                        & distot       ,dsurf     ,dwcap             , &
+                                        & ndx          ,1         ,hwav      ,twav   , &
+                                        & ag           ,.true.    ,waveforcing       , &
+                                        & JONSWAPgamma0, sbxwav   ,sbywav    ,ierror   )
          !
          if( kmx == 0 ) then
             call tauwave()       ! 3D, done in update_verticalprofiles
