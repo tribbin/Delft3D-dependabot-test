@@ -227,6 +227,14 @@ contains
       use m_partitioninfo, only: any_crosssections_lie_across_multiple_partitions
       use m_monitoring_crosssections, only: crs
       use MessageHandling, only: mess, LEVEL_WARN
+      use m_structures, only: model_has_weirs_across_partitions, &
+                              model_has_general_structures_across_partitions, &
+                              model_has_orifices_across_partitions, &
+                              model_has_universal_weirs_across_partitions, &
+                              model_has_culverts_across_partitions, &
+                              model_has_pumps_across_partitions, &
+                              model_has_bridges_across_partitions, &
+                              model_has_long_culverts_across_partitions
    
       type(t_output_variable_set),                                 intent(inout) :: output_set    !< Output set that item will be added to
       type(t_output_quantity_config), target,                      intent(in   ) :: output_config !< Output quantity config linked to this output item, a pointer to it will be stored in the new output item.
@@ -247,13 +255,62 @@ contains
             cycle
          else
       
-            ! Disable statistical output items on cross-sections if any cross-sections lie across multiple partitions
-            if (output_config%location_specifier == UNC_LOC_OBSCRS .and. &
-                any_crosssections_lie_across_multiple_partitions(crs) .and. &
-                (item%operation_type == SO_MIN .or. item%operation_type == SO_MAX .or. item%operation_type == SO_AVERAGE)) then
-               call mess(LEVEL_WARN,'Disabling output item "' // trim(output_config%name) // '(' // trim(operation_type2string(item%operation_type)) // ')"' // &
-                                    ' as at least one observation cross-section lies across multiple partitions, which could produce invalid output')
-               cycle
+            ! Disable statistics in time on structures if any of them lie across multiple partitions
+            if (item%operation_type == SO_MIN .or. item%operation_type == SO_MAX .or. item%operation_type == SO_AVERAGE) then
+               ! Cross-sections
+               if (output_config%location_specifier == UNC_LOC_OBSCRS .and. any_crosssections_lie_across_multiple_partitions(crs)) then
+                  call mess(LEVEL_WARN,'Disabling output item "' // trim(output_config%name) // '(' // trim(operation_type2string(item%operation_type)) // ')"' // &
+                                       ' as at least one observation cross-section lies across multiple partitions, which could produce invalid output')
+                  cycle
+               end if
+               ! Weirs
+               if (output_config%location_specifier == UNC_LOC_WEIRGEN .and. model_has_weirs_across_partitions) then
+                  call mess(LEVEL_WARN,'Disabling output item "' // trim(output_config%name) // '(' // trim(operation_type2string(item%operation_type)) // ')"' // &
+                                       ' as at least one weir lies across multiple partitions, which could produce invalid output')
+                  cycle
+               end if
+               ! General structures
+               if (output_config%location_specifier == UNC_LOC_GENSTRU .and. model_has_general_structures_across_partitions) then
+                  call mess(LEVEL_WARN,'Disabling output item "' // trim(output_config%name) // '(' // trim(operation_type2string(item%operation_type)) // ')"' // &
+                                       ' as at least one general structure lies across multiple partitions, which could produce invalid output')
+                  cycle
+               end if
+               ! Orifices
+               if (output_config%location_specifier == UNC_LOC_ORIFICE .and. model_has_orifices_across_partitions) then
+                  call mess(LEVEL_WARN,'Disabling output item "' // trim(output_config%name) // '(' // trim(operation_type2string(item%operation_type)) // ')"' // &
+                                       ' as at least one orifice lies across multiple partitions, which could produce invalid output')
+                  cycle
+               end if
+               ! Universal weirs
+               if (output_config%location_specifier == UNC_LOC_UNIWEIR .and. model_has_universal_weirs_across_partitions) then
+                  call mess(LEVEL_WARN,'Disabling output item "' // trim(output_config%name) // '(' // trim(operation_type2string(item%operation_type)) // ')"' // &
+                                       ' as at least one universal weir lies across multiple partitions, which could produce invalid output')
+                  cycle
+               end if
+               ! Culverts
+               if (output_config%location_specifier == UNC_LOC_CULVERT .and. model_has_culverts_across_partitions) then
+                  call mess(LEVEL_WARN,'Disabling output item "' // trim(output_config%name) // '(' // trim(operation_type2string(item%operation_type)) // ')"' // &
+                                       ' as at least one culvert lies across multiple partitions, which could produce invalid output')
+                  cycle
+               end if
+               ! Pumps
+               if (output_config%location_specifier == UNC_LOC_PUMP .and. model_has_pumps_across_partitions) then
+                  call mess(LEVEL_WARN,'Disabling output item "' // trim(output_config%name) // '(' // trim(operation_type2string(item%operation_type)) // ')"' // &
+                                       ' as at least one pump lies across multiple partitions, which could produce invalid output')
+                  cycle
+               end if
+               ! Bridges
+               if (output_config%location_specifier == UNC_LOC_BRIDGE .and. model_has_bridges_across_partitions) then
+                  call mess(LEVEL_WARN,'Disabling output item "' // trim(output_config%name) // '(' // trim(operation_type2string(item%operation_type)) // ')"' // &
+                                       ' as at least one bridge lies across multiple partitions, which could produce invalid output')
+                  cycle
+               end if
+               ! Long culverts
+               if (output_config%location_specifier == UNC_LOC_LONGCULVERT .and. model_has_long_culverts_across_partitions) then
+                  call mess(LEVEL_WARN,'Disabling output item "' // trim(output_config%name) // '(' // trim(operation_type2string(item%operation_type)) // ')"' // &
+                                       ' as at least one long culvert lies across multiple partitions, which could produce invalid output')
+                  cycle
+               end if
             end if
             
             output_set%count = output_set%count + 1
