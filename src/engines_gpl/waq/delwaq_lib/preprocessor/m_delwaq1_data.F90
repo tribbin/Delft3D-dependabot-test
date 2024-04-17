@@ -21,19 +21,18 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
 
-!>\file
-!>                    m_delwaq1_data  - contains data needed for initialisation of delwaq1
 
 module m_delwaq1_data
+    !! m_delwaq1_data  - contains data needed for initialisation of delwaq1
 
     use m_delwaq1_const
-    use dlwqgrid_mod        !   for the storage of contraction grids
-    use dlwq_hyd_data    !   for definition and storage of data
+    use m_grid_utils_external        !   for the storage of contraction grids
+    use m_waq_data_structure    !   for definition and storage of data
     use results, only : OutputPointers       !!   for the output names and pointers
     use timers       !   performance timers
 
     use ProcesSet
-    use Workspace
+    use Workspace, only : set_array_indexes
     use Rd_token
 
     use m_sysn          ! System characteristics
@@ -49,30 +48,28 @@ module m_delwaq1_data
     character(len = lchmax) :: lchar(nlun)            !< file names input / output files
     integer :: iopt(noint)            !< integration option list
 
-    !     work arrays
+    ! work arrays
     integer :: imax                   !< dynamic size integer work array
     integer :: rmax                   !< dynamic size real work array
     integer :: cmax                   !< dynamic size character work array
     integer, allocatable :: iar(:)                 !< integer work array
-    real, allocatable :: rar(:)                 !< real work array
-    character(len = 20), allocatable :: car(:)                 !< character work array
+    real, allocatable :: real_array(:)                 !< real work array
+    character(len = 20), allocatable :: char_arr(:)                 !< character work array
 
     type(waq_data_buffer) :: buffer
 
-    !
-    !     files, unit numbers, include file stack, input file settings
-    !
+
+    ! files, unit numbers, include file stack, input file settings
     integer :: filtype(nlun)
     character(len = lchmax) :: runid                  !< runid
-    logical :: dtflg1                 !< first flag concerning time formats
-    logical :: dtflg2                 !< second flag concerning time formats
-    logical :: dtflg3                 !< third flag concerning time formats
+    logical :: is_date_format                 !< first flag concerning time formats
+    logical :: is_ddhhmmss_format                 !< second flag concerning time formats
+    logical :: is_yyddhh_format                 !< third flag concerning time formats
     logical :: has_hydfile            !< does the input file refer to a hyd file?
     integer, dimension(3) :: nexch                  !< number of exchanges in each direction from hyd file
-    type(inputfilestack) :: inpfil                 !< input file strucure with include stack and flags
-    !
-    !     various input-output structures
-    !
+    type(t_input_file) :: inpfil                 !< input file structure with include stack and flags
+
+    ! various input-output structures
     integer :: nrftot(noitm)          !< number of function per item
     integer :: nrharm(noitm)          !< number of harmoncs per item
     integer :: ioutps(7, nooutp)      !< output file defintion structure
@@ -87,10 +84,9 @@ module m_delwaq1_data
     integer, pointer :: ioptraai(:)            !< option number for transects
     type(ProcesPropColl) :: StatProcesDef          !< the statistical proces definition
     type(ItemPropColl) :: AllItems               !< all items of the proces system
-    type(t_dlwq_item) :: constants              !< delwaq constants list
-    !
-    !     help variables
-    !
+    type(t_waq_item) :: constants              !< delwaq constants list
+
+    ! help variables
     logical :: nolic                  !< No valid license?
     logical :: lfound                 !< help variable indicating if command line argument is found
     character(len = 20) :: rundat                 !< execution date-time string
@@ -99,7 +95,7 @@ module m_delwaq1_data
     integer(4) :: nomult                 !< number of multiple substances
     integer(4) :: iwidth                 !< width of the output file
     integer(4) :: refday                 !< reference day, varying from 1 till 365
-    integer(4) :: ioutpt                 !< flag for more or less output
+    integer(4) :: output_verbose_level                 !< flag for more or less output
     logical :: chkpar(2)              !< flags to check for parameters SURF and LENGTH (used for special waste loads)
     type(GridPointerColl) GridPs
     type(OutputPointers) :: Outputs
@@ -118,9 +114,7 @@ module m_delwaq1_data
     integer :: ioerr
     integer(4), save :: ithndl = 0
 
-    !
-    !       initialisations
-    !
+    ! initialisations
     data lun/14, 15, 16, 17, 18, 19, 20, 21, 22, 23, &
             24, 25, 26, 27, 28, 29, 30, 31, 32, 33, &
             34, 35, 36, 37, 38, 39, 40, 41, 42, 43, &

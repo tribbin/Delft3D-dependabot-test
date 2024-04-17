@@ -46,7 +46,7 @@ contains
         call store_command_arguments(argv)
 
         narg = get_number_of_arguments()            ! but timer is switched 'off' by default
-        if (narg == 0) narg = iargc() + 1
+        if (narg == 0) narg = command_argument_count() + 1
         do arg_index = 1, narg
             call get_argument_from_list(arg_index, arg)
             if (arg == "timer" .or. arg == "TIMER") then
@@ -80,10 +80,10 @@ contains
             nrharm(i) = 0
         end do
         StatProcesDef%maxsize = 0
-        StatProcesDef%cursize = 0
+        StatProcesDef%current_size = 0
         AllItems%maxsize = 0
-        AllItems%cursize = 0
-        GridPs%cursize = 0
+        AllItems%current_size = 0
+        GridPs%current_size = 0
         GridPs%maxsize = 0
 
         call create_work_file_one(lun, lchar, nolun, runid)

@@ -40,8 +40,8 @@ contains
     SUBROUTINE setup_statistical(LUNREP, NPOS, &
             CCHAR, &
             ILUN, LCH, &
-            LSTACK, IOUTPT, &
-            DTFLG1, DTFLG3, &
+            LSTACK, output_verbose_level, &
+            is_date_format, is_yyddhh_format, &
             StatProcesDef, AllItems, &
             status)
 
@@ -61,9 +61,9 @@ contains
         integer(kind = int_wp), intent(inout) :: ilun (*)          !! unitnumber include stack
         character(*), intent(inout) :: lch  (*)         !! filename include stack for input
         integer(kind = int_wp), intent(in) :: lstack            !! include file stack size
-        integer(kind = int_wp), intent(out) :: ioutpt            !! flag for more or less output
-        logical, intent(in) :: dtflg1           !! 'date'-format 1st timescale
-        logical, intent(in) :: dtflg3           !! 'date'-format (F;ddmmhhss,T;yydddhh)
+        integer(kind = int_wp), intent(out) :: output_verbose_level            !! flag for more or less output
+        logical, intent(in) :: is_date_format           !! 'date'-format 1st timescale
+        logical, intent(in) :: is_yyddhh_format           !! 'date'-format (F;ddmmhhss,T;yydddhh)
         type(ProcesPropColl) :: StatProcesDef    !! the statistical proces definition
         type(ItemPropColl) :: AllItems         !! all items of the proces system
 
@@ -76,46 +76,46 @@ contains
         INTEGER(kind = int_wp), POINTER :: STA_NO_IN(:)
         INTEGER(kind = int_wp), POINTER :: STA_NO_OUT(:)
         INTEGER(kind = int_wp), POINTER :: STA_SWITR(:)
-        CHARACTER*20, POINTER :: STA_IN_NAM(:)
-        CHARACTER*50, POINTER :: STA_IN_TXT(:)
+        character(len=20), POINTER :: STA_IN_NAM(:)
+        character(len=50), POINTER :: STA_IN_TXT(:)
         REAL(kind = real_wp), POINTER :: STA_IN_DEF(:)
-        CHARACTER*20, POINTER :: STA_OUT_NAM(:)
-        CHARACTER*50, POINTER :: STA_OUT_TXT(:)
-        CHARACTER*10, POINTER :: STA_MODNAM(:)
+        character(len=20), POINTER :: STA_OUT_NAM(:)
+        character(len=50), POINTER :: STA_OUT_TXT(:)
+        character(len=10), POINTER :: STA_MODNAM(:)
 
-        INTEGER(kind = int_wp) :: NKEY, IPOSR, NSPROC
-        CHARACTER*20, POINTER :: KEYNAM(:)
-        CHARACTER*20, POINTER :: KEYVAL(:)
-        CHARACTER*20, ALLOCATABLE :: KEYNAM2(:)
-        CHARACTER*20, ALLOCATABLE :: KEYVAL2(:)
+        INTEGER(kind = int_wp) :: NKEY, input_file_start_position, NSPROC
+        character(len=20), POINTER :: KEYNAM(:)
+        character(len=20), POINTER :: KEYVAL(:)
+        character(len=20), ALLOCATABLE :: KEYNAM2(:)
+        character(len=20), ALLOCATABLE :: KEYVAL2(:)
         INTEGER(kind = int_wp), POINTER :: NOKEY(:)
 
         INTEGER(kind = int_wp) :: NPERIOD
-        CHARACTER*20, POINTER :: PERNAM(:)
-        CHARACTER*20, POINTER :: PERSFX(:)
+        character(len=20), POINTER :: PERNAM(:)
+        character(len=20), POINTER :: PERSFX(:)
         INTEGER(kind = int_wp), POINTER :: PSTART(:)
         INTEGER(kind = int_wp), POINTER :: PSTOP(:)
 
         INTEGER(kind = int_wp) :: NSVAI, NSVAO, ISWITR
-        CHARACTER*20, POINTER :: VAINAM(:)
-        CHARACTER*50, POINTER :: VAITXT(:)
+        character(len=20), POINTER :: VAINAM(:)
+        character(len=50), POINTER :: VAITXT(:)
         REAL(kind = real_wp), POINTER :: VAIDEF(:)
-        CHARACTER*20, POINTER :: VAONAM(:)
-        CHARACTER*50, POINTER :: VAOTXT(:)
+        character(len=20), POINTER :: VAONAM(:)
+        character(len=50), POINTER :: VAOTXT(:)
 
         INTEGER(kind = int_wp) :: IKSTAT, ISTAT, IKEY, IFOUND, IERR_ALLOC, &
                 NOSTAT, ISPROC, IPERIOD, IRET, IHULP1, &
                 IHULP2
-        CHARACTER*20 :: KEY
-        CHARACTER*4 :: CH4
+        character(len=20) :: KEY
+        character(len=4) :: CH4
         integer(kind = int_wp) :: ithndl = 0
         if (timon) call timstrt("setup_statistical", ithndl)
 
         WRITE(LUNREP, 2000)
-        IPOSR = 0
-        CALL RDSTAT (LUNREP, IPOSR, NPOS, CCHAR, &
-                ILUN, LCH, LSTACK, IOUTPT, DTFLG1, &
-                DTFLG3, status, NOSTAT, NKEY, NOKEY, &
+        input_file_start_position = 0
+        CALL RDSTAT (LUNREP, input_file_start_position, NPOS, CCHAR, &
+                ILUN, LCH, LSTACK, output_verbose_level, is_date_format, &
+                is_yyddhh_format, status, NOSTAT, NKEY, NOKEY, &
                 KEYNAM, KEYVAL, NPERIOD, PERNAM, PERSFX, &
                 PSTART, PSTOP)
 
@@ -180,7 +180,7 @@ contains
         DO IPERIOD = 1, NPERIOD
             WRITE(LUNREP, '(3A)') 'PERIOD [', PERNAM(IPERIOD), ']'
             WRITE(LUNREP, '(3A)') 'SUFFIX [', PERSFX(IPERIOD), ']'
-            IF (DTFLG1) THEN
+            IF (is_date_format) THEN
                 IHULP1 = PSTART(IPERIOD)
                 IHULP2 = PSTOP(IPERIOD)
                 WRITE(LUNREP, 2020)  IHULP1 / 31536000, MOD(IHULP1, 31536000) / 86400, &
@@ -212,7 +212,7 @@ contains
                     ISPROC = ISPROC + 1
                     CALL SETDAY (LUNREP, NOKEY(ISTAT), &
                             KEYNAM2(IKSTAT), KEYVAL2(IKSTAT), &
-                            DTFLG1, DTFLG3, &
+                            is_date_format, is_yyddhh_format, &
                             ISPROC, aProcesProp, &
                             AllItems, status)
 
