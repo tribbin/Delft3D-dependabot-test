@@ -42,13 +42,7 @@ program test_get_shmds_f90
 
     do t = 1, nTimes
 
-#ifdef __INTEL_COMPILER
-        call sleepqq(100)
-#elif (defined(WIN32))
-        call sleep(100)
-#else
-        call DIOSYNCcSLEEP(100)
-#endif
+        call CUTIL_SLEEP(100)
 
         curTime = curTime + 10.D+00
 

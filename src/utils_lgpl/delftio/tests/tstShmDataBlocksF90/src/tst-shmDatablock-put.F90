@@ -36,14 +36,7 @@ program test_put_shmds_f90
     integer :: sleepMilliSec = 999
 
     do t = 1, nTimes
-#ifdef __INTEL_COMPILER
-        call sleepqq(sleepMilliSec)
-#elif (defined(WIN32))
-        call sleep(sleepMilliSec)
-#else
-        write(*,*) 'sleeping'
-        call DIOSYNCcSLEEP(sleepMilliSec)
-#endif
+        call CUTIL_SLEEP(sleepMilliSec)
         curTime = curTime + 10.D+00
         write(*,*) 'Step: ', t, ' Sending: ', curTime
         call DioShmDataBlockPutDouble(name, curTime)
