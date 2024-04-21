@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,30 +27,33 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> fill constituent array
 subroutine fill_constituents(jas) ! if jas == 1 do sources
-   use m_transport
-   use m_flowgeom
-   use m_flow
-   use m_sediment
-   use m_mass_balance_areas
-   use m_partitioninfo
-   use m_sferic, only: jsferic, fcorio
-   use m_flowtimes , only : dnt, dts
-   use unstruc_messages
-   use m_flowparameters, only: janudge
-   use m_missing
-   use timers
+   use m_transport,            only: ISED1, ISPIR, NUMCONST, ISALT, ITEMP, ITRA1, ITRAN, constituents, const_sour, const_sink, difsedu, difsedw
+   use m_flowgeom,             only: ndx, ndxi, ba
+   use m_flow,                 only: kmx, ndkx, zws, hs, sq, vol1, spirint, spirucm, spircrv, fcoris, czssf
+   use m_wind,                 only: heatsrc
+   use m_physcoef,             only: dicouv, dicoww, difmolsal, difmoltem, difmoltracer, Jaallowcoolingbelowzero, ag, vonkar
+   use m_nudge,                only: nudge_rate, nudge_tem, nudge_sal
+   use m_turbulence,           only: sigsal, sigtem, sigtracer, sigdifi, sigsed, wsf
+   use m_flowexternalforcings, only: wstracers, numsrc, ksrc, qsrc, ccsrc
+   use m_sediment,             only: sed, sedtra, stm_included, stmpar, jased, mxgr, ws
+   use m_mass_balance_areas,   only: jamba, mbadefdomain, mbafluxheat, mbafluxsorsin
+   use m_partitioninfo,        only: jampi, idomain, my_rank
+   use m_sferic,               only: jsferic, fcorio
+   use m_flowtimes ,           only : dts, time1, tstart_user, tfac
+   use m_flowparameters,       only: janudge, jasecflow, jatem, jaequili, epshu, epshs, testdryflood, icorio
+   use m_missing,              only: dmiss
+   use timers,                 only: timon, timstrt, timstop
 
    implicit none
 
-   character(len=128)          :: message
+   integer, intent(in)         :: jas
 
    double precision            :: dvoli
-   integer, intent(in)         :: jas
    integer                     :: i, iconst, j, kk, kkk, k, kb, kt, n, kk2, L, imba, jamba_src
    double precision, parameter :: dtol=1d-8
    double precision            :: spir_ce, spir_be, spir_e, alength_a, time_a, alpha, fcoriocof, qsrck, qsrckk, dzss
@@ -76,6 +79,22 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
          end do
       end if
    end do
+
+   if (stm_included) then
+      if (stmpar%morpar%bedupd .and. time1 >= tstart_user + stmpar%morpar%tmor*tfac) then
+         if ( ISED1.ne.0 ) then
+            do k=1,ndx
+               if (hs(k)<stmpar%morpar%sedthr) then
+                  do i=1,mxgr
+                     iconst = ISED1+i-1
+                     call getkbotktop(k,kb,kt)
+                     constituents(iconst,kb:kt) = 0d0
+                  end do
+               endif
+            end do
+         end if
+      endif
+   endif
 
    difsedu = 0d0 ; difsedw = 0d0 ; sigdifi = 0d0
 
@@ -113,7 +132,7 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
          if (dicouv .ge. 0d0) difsedu(iconst) = 0d0
          if (dicoww .ge. 0d0) then
             difsedw(iconst) = dicoww
-            sigdifi(iconst) = 1d0/sigsed
+            sigdifi(iconst) = 1d0/sigsed(iconst)
          endif
          if (jased < 4) wsf(iconst) = ws(i)
       end do
@@ -121,10 +140,10 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
 
    if ( ITRA1.gt.0 ) then
       do i=ITRA1,ITRAN
-         difsedu(i)   =            difmoltr
+         difsedu(i)   =            difmoltracer
          if (dicoww .ge. 0d0) then
-             difsedw(i) = dicoww + difmoltr
-             sigdifi(i) = 1d0
+             difsedw(i) = dicoww + difmoltracer
+             sigdifi(i) = 1d0/sigtracer
          endif
          wsf(i) = wstracers(i - itra1 + 1)
       end do
@@ -133,12 +152,7 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
 !  sources
    do kk=1,Ndx
 
-      if (jamba > 0) then
-         imba = mbadefdomain(kk)
-      else
-         imba = 0
-      endif
-
+ 
 !     nudging
       Trefi = 0d0
       if ( janudge.eq.1 .and. jas.eq.1 ) then
@@ -153,17 +167,16 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
 
 !        temperature
          if (jatem > 1) then
-            if (heatsrc(k) > 0d0) then
-               const_sour(ITEMP,k) =  heatsrc(k)*dvoli
-               if (imba > 0) then
-                   mbafluxheat(1,imba) = mbafluxheat(1,imba) +  heatsrc(k)*dts
+            if (Jaallowcoolingbelowzero == 0) then  ! default behaviour since 2017
+                                                    ! no cooling below 0 degrees  
+               if (heatsrc(k) > 0d0) then
+                  const_sour(ITEMP,k) = heatsrc(k)*dvoli
+               else if (heatsrc(k) < 0d0) then
+                  const_sink(ITEMP,k) = -heatsrc(k)*dvoli / max(constituents(itemp, k),0.001)
                endif
-            else if (heatsrc(k) < 0d0) then
-               const_sink(ITEMP,k) = -heatsrc(k)*dvoli / max(constituents(itemp, k),0.001)
-               if (imba > 0) then
-                   mbafluxheat(2,imba) = mbafluxheat(2,imba) - heatsrc(k)*dts
-               endif
-            endif
+            else                                    ! allowing cooling below 0 degrees 
+               const_sour(ITEMP,k) = heatsrc(k)*dvoli
+            endif 
          endif
 
 !        nudging
@@ -216,22 +229,36 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
                   iconst = i+ISED1-1
                   const_sour(iconst,kkk) = const_sour(iconst,kkk)+sedtra%sourse(kk,i)
                   const_sink(iconst,kkk) = const_sink(iconst,kkk)+sedtra%sinkse(kk,i)
+                  
                   if (stmpar%morpar%flufflyr%iflufflyr .gt. 0) then
                      const_sour(iconst,kkk) = const_sour(iconst,kkk) + stmpar%morpar%flufflyr%sourf(i,kk)
                      const_sink(iconst,kkk) = const_sink(iconst,kkk) + stmpar%morpar%flufflyr%sinkf(i,kk)
                   end if
 
-                 ! BEGIN DEBUG
-                 ! if ( constituents(iconst,kb)+dts*const_sour(iconst,kb).lt.0d0 ) then
-                 !    write(message, "('const. source < -const/dt, iconst=', I0, ', kk=', I0)") iconst, kk
-                 !    call mess(LEVEL_WARN, trim(message))
-                 ! end if
-                 ! END DEBUG
                end if
             end do
          end if
       end if
    end do
+
+   if (jamba > 0 .and. jatem > 0) then   ! Positive and negative sums for jamba, checking just once   
+                                         
+      do kk=1,Ndx
+         imba = mbadefdomain(kk)
+         if (imba > 0) then 
+            call getkbotktop(kk,kb,kt)
+            do k=kb,kt
+               if (heatsrc(k) > 0d0) then
+                   mbafluxheat(1,imba) = mbafluxheat(1,imba) + heatsrc(k)*dts
+               else if (heatsrc(k) < 0d0) then
+                   mbafluxheat(2,imba) = mbafluxheat(2,imba) - heatsrc(k)*dts
+               endif
+            enddo       
+         endif
+      enddo
+
+   endif
+
 
    ! NOTE: apply_tracer_bc has been moved earlier to transport() routine,
    !       but apply_sediment_bc must still be done here, since above the boundary

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 module unstruc_channel_flow
 use m_network
@@ -39,8 +39,7 @@ integer                       :: CSCalculationOption  !< Calculation option for 
 logical,                public :: useVolumeTables                    !< Indicates whether 1d volume tables are useds
 double precision,       public :: tableIncrement                     !< Increment for volume tables
 logical,                public :: useVolumeTableFile                 !< Write the volume tables to file (or not)
-character(len=IdLen),  public :: volumeTableFile                    !< Name of the table input file
-
+character(len=IdLen),   public :: volumeTableFile                    !< Name of the table input file
 contains
 
 

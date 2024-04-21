@@ -47,7 +47,13 @@
  use m_sobekdfm
  use unstruc_display
  use m_waves
- use m_subsidence
+ use m_subsidence, only: jasubsupl
+ use m_fm_bott3d, only: fm_bott3d
+ use m_fm_erosed, only: ti_sedtrans
+ use m_curvature, only: get_curvature
+ use m_fm_update, only: update_part
+ use m_xbeach_netcdf, only: xbeach_mombalance
+ use mass_balance_areas_routines, only: comp_bedload_fluxmba
 
  implicit none
 
@@ -69,8 +75,6 @@
     qsrcwaq0 = qsrcwaq ! store current cumulative qsrc for waq at the beginning of this time step
  end if
 
- 111 continue
-
 !-----------------------------------------------------------------------------------------------
 ! TODO: AvD: consider moving everything below to flow_finalize single_timestep?
  call setkbotktop(0)                                 ! bottom and top layer indices and new sigma distribution
@@ -88,76 +92,24 @@
  hs = s1-bl
  hs = max(hs,0d0)
 
-
-  if ((jawave==3 .or. jawave==6) .and. .not. flowWithoutWaves) then
-    ! Normal situation: use wave info in FLOW
-    ! 3D not implementend
-    if( kmx == 0 ) then
-       call wave_comp_stokes_velocities()
-       call wave_uorbrlabda()                                          ! hwav gets depth-limited here
-       call tauwave()
-    end if
-    call setwavfu()
-    call setwavmubnd()
- end if
-
-  if ((jawave==3 .or. jawave==6) .and. flowWithoutWaves) then
-    ! Exceptional situation: use wave info not in FLOW, only in WAQ
-    ! Only compute uorb
-    ! Works both for 2D and 3D
-    call wave_uorbrlabda()                       ! hwav gets depth-limited here
-  end if
-
-  if (jawave.eq.4 .and. jajre.eq.1 .and. .not. flowWithoutWaves) then
-    if (swave.eq.1 ) then
-       call xbeach_waves(ierror)
-    endif
-    call tauwave()
-    if ( jaGUI.eq.1 ) then                                          ! this part is for online visualisation
-       if (ntek > 0) then
-          if (mod(int(dnt_user),ntek) .eq. 0) then
-             call wave_makeplotvars()                                ! Potentially only at ntek interval
-          end if
-       endif
-    endif
-    if (jamombal==1) then
-       call xbeach_mombalance()
-    endif
-  end if
-
-  if (jawave==5 .and. .not. flowWithoutWaves) then
-    if (kmx==0) then
-       do k=1,ndx
-          hwav(k) = min(hwavuni, gammax*(s1(k)-bl(k)))
-       enddo
-       do L=1,lnx
-          k1=ln(1,L); k2=ln(2,L)
-          hh = hu(L); hw=0.5d0*(hwav(k1)+hwav(k2));tw=.5d0*(twav(k1)+twav(k2))
-          cs = 0.5*(cos(phiwav(k1)*dg2rd)+cos(phiwav(k2)*dg2rd))
-          sn = 0.5*(sin(phiwav(k1)*dg2rd)+sin(phiwav(k2)*dg2rd))
-          call tauwavehk(hw, tw, hh, uorbi, rkw, ustt)
-          ustokes(L) = ustt*(csu(L)*cs + snu(L)*sn)
-          vstokes(L) = ustt*(-snu(L)*cs + csu(L)*sn)
-       enddo
-       do k=1,ndx
-          call tauwavehk(hwav(k), twav(k), hs(k), uorbi, rkw, ustt)
-          rlabda(k) = rkw; uorb(k) = uorbi
-       enddo
-       call tauwave()
-    endif
- endif
-
- if (jased > 0 .and. stm_included) then
-    if ( jatimer.eq.1 ) call starttimer(IEROSED)
-    if (jawave==0) then
-       call settaubxu_nowave()         ! set taubxu for no wave conditions BEFORE erosed
-    endif
-    !
-!    call setucxucyucxuucyu()
-    call setucxucy_mor (u1)
-    call fm_fallve()                   ! update fall velocities
-    call fm_erosed()                   ! source/sink, bedload/total load
-    if ( jatimer.eq.1 ) call stoptimer(IEROSED)
+ if (jased > 0 .and. stm_included) then 
+    if (time1 >= tstart_user + ti_sedtrans * tfac) then
+       if ( jatimer.eq.1 ) call starttimer(IEROSED)
+       !
+       call setucxucy_mor (u1)
+       call fm_flocculate()               ! fraction transitions due to flocculation
+       
+       call timstrt('Settling velocity   ', handle_extra(87))
+       call fm_fallve()                   ! update fall velocities
+       call timstop(handle_extra(87))
+       
+       call timstrt('Erosed_call         ', handle_extra(88))
+       call fm_erosed()                   ! source/sink, bedload/total load
+       call timstop(handle_extra(88))
+       
+       call comp_bedload_fluxmba()
+       if ( jatimer.eq.1 ) call stoptimer(IEROSED)
+    endif 
  end if
 
  ! secondary flow
@@ -173,9 +125,6 @@
  if ( jatimer.eq.1 ) call starttimer(ITRANSPORT)
  call transport()
  if ( jatimer.eq.1 ) call stoptimer (ITRANSPORT)
-
- !update particles
- call update_part()
 
  if (jased > 0 .and. stm_included) then
     call fm_bott3d() ! bottom update

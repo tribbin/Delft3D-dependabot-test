@@ -1,42 +1,42 @@
 !----- AGPL --------------------------------------------------------------------
-!                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
-!                                                                               
-!  This file is part of Delft3D (D-Flow Flexible Mesh component).               
-!                                                                               
-!  Delft3D is free software: you can redistribute it and/or modify              
-!  it under the terms of the GNU Affero General Public License as               
-!  published by the Free Software Foundation version 3.                         
-!                                                                               
-!  Delft3D  is distributed in the hope that it will be useful,                  
-!  but WITHOUT ANY WARRANTY; without even the implied warranty of               
-!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                
-!  GNU Affero General Public License for more details.                          
-!                                                                               
-!  You should have received a copy of the GNU Affero General Public License     
-!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.             
-!                                                                               
-!  contact: delft3d.support@deltares.nl                                         
-!  Stichting Deltares                                                           
-!  P.O. Box 177                                                                 
-!  2600 MH Delft, The Netherlands                                               
-!                                                                               
-!  All indications and logos of, and references to, "Delft3D",                  
-!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting 
+!
+!  Copyright (C)  Stichting Deltares, 2017-2024.
+!
+!  This file is part of Delft3D (D-Flow Flexible Mesh component).
+!
+!  Delft3D is free software: you can redistribute it and/or modify
+!  it under the terms of the GNU Affero General Public License as
+!  published by the Free Software Foundation version 3.
+!
+!  Delft3D  is distributed in the hope that it will be useful,
+!  but WITHOUT ANY WARRANTY; without even the implied warranty of
+!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!  GNU Affero General Public License for more details.
+!
+!  You should have received a copy of the GNU Affero General Public License
+!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.
+!
+!  contact: delft3d.support@deltares.nl
+!  Stichting Deltares
+!  P.O. Box 177
+!  2600 MH Delft, The Netherlands
+!
+!  All indications and logos of, and references to, "Delft3D",
+!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
-!                                                                               
+!
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  module m_flow   ! flow arrays-999
  use    m_flowparameters
  use    m_flowexternalforcings
+ use    m_flowoutput
  use    m_physcoef
  use    m_turbulence
  use    m_grw
-! use    m_fixedweirs
  use    m_heatfluxes
  use    m_alloc
  use    m_vegetation
@@ -59,7 +59,7 @@
  integer                           :: mxlays            !< max nr of sigma layers in flow domain
  integer                           :: kplot             !< layer nr to be plotted
  integer                           :: nplot             !< vertical profile to be plotted at node nr
- integer                           :: kplotfrombedorsurface = 1 !< up or down k
+ integer                           :: kplotfrombedorsurface = 2 !< up or down k
  integer                           :: kplotordepthaveraged  = 1 !< 1 = kplot, 2 = averaged
  integer                           :: layertype         !< 1= all sigma, 2 = all z, 3 = left sigma, 4 = left z
  integer                           :: numtopsig = 0     !< number of top layers in sigma
@@ -77,6 +77,9 @@
 
  integer                           :: iturbulencemodel  !< 0=no, 1 = constant, 2 = algebraic, 3 = k-eps
  integer                           :: ieps              !< bottom boundary type eps. eqation, 1=dpmorg, 2 = dpmsandpit, 3=D3D, 4=Dirichlethdzb
+ integer                           :: jadrhodz = 1
+ double precision                  :: facLaxturb = 0    !< Turkineps0 from : 0.0=links ; 1.0=nodes 
+ integer                           :: jafaclaxturbtyp   !< (Vertical distr of facLaxturb, 1=: (sigm<0.5=0.0 sigm>0.75=1.0 linear in between), 2:=1.0 for whole column)
  double precision                  :: sigmagrowthfactor !<layer thickness growth factor from bed up
  double precision                  :: dztopuniabovez  = -999d0     !< bottom level of lowest uniform layer == blmin if not specified
  double precision                  :: Floorlevtoplay  = -999d0     !< floor  level of top zlayer, == sini if not specified
@@ -137,6 +140,8 @@
  integer, allocatable              :: laydefnr(:)       !< dim = (ndx), pointer to laydef, if positive to unique laydef, otherwise interpolate in 1,2, and 3
  integer, allocatable              :: laytyp(:)         !< dim = (mxlaydefs), 1 = sigma, 2 = z
  integer, allocatable              :: laymx(:)          !< dim = (mxlaydefs), max nr of layers
+ integer, allocatable              :: nrlayn(:)         !< dim = (ndx), max nr of layers
+ integer, allocatable              :: nlaybn(:)         !< dim = (ndx), bed lay nr
  double precision, allocatable     :: zslay(:,:)        !< dim = (: , maxlaydefs) z or s coordinate,
  double precision, allocatable     :: wflaynod(:,:)     !< dim = (3 , ndx) weight factors to flownodes indlaynod
  integer,          allocatable     :: indlaynod(:,:)    !< dim = (3 , ndx)
@@ -162,7 +167,7 @@
  double precision, allocatable, target :: vol1(:)     !< [m3] total volume at end of timestep {"location": "face", "shape": ["ndx"]}
  double precision, allocatable, target :: vol0(:)     !< [m3] total volume at start of timestep {"location": "face", "shape": ["ndx"]}
  double precision, allocatable, target :: vol1_f(:)     !< [m3] flow volume volume at end of timestep {"location": "face", "shape": ["ndx"]}
- double precision, allocatable         :: sq(:)       !< total  influx (m3/s) at s point
+ double precision, allocatable         :: sq(:)       !< total  influx (m3/s) at water level point
  double precision, allocatable         :: sqa(:)      !< total  out! flux (m3/s) at s point, u1 based, non-conservative for iadvec == 38
  double precision, allocatable, target :: hs(:)       !< [m] waterdepth at cell centre = s1 - bl  (m) {"location": "face", "shape": ["ndx"]}
  double precision, allocatable         :: cfs(:)      !< dimensionless friction coefficient sag/C in cell centre
@@ -171,7 +176,6 @@
  double precision, allocatable         :: voldhu(:)   !< node volume based on downwind hu
 
  double precision, allocatable         :: s1m(:)      !< waterlevel   pressurized nonlin minus part
- double precision, allocatable         :: s1mini(:)   !< initial of s1m
  double precision, allocatable         :: a1m(:)      !< surface area pressurized nonlin minus part
 
  double precision, allocatable         :: negativeDepths(:)                 !< Number of negative depths during output interval at nodes.
@@ -181,10 +185,10 @@
  double precision, allocatable         :: limitingTimestepEstimation(:)     !< Number of times during the output interval the conditions in a node is limiting the time step
  double precision, allocatable         :: limitingTimestepEstimation_cum(:) !< Cumulative number of times the conditions in a node is limiting the time step.
                                                                             !< Note: this doubles with variable numlimdt(:), which contains the same cumulative count, under a different MDU option.
-                                                                            !< Note: these variables are double precision (in stead of integers) because post processing is 
-                                                                            !<       based on double precision variables.     
+                                                                            !< Note: these variables are double precision (in stead of integers) because post processing is
+                                                                            !<       based on double precision variables.
  double precision, allocatable         :: flowCourantNumber(:)              !< Courant number
- 
+
 ! node related, dim = ndkx
 
  double precision, allocatable         :: volau   (:)   !< trial, au based cell volume (m3)
@@ -196,7 +200,9 @@
  double precision, allocatable         :: uqcx  (:)   !< cell center incoming momentum, global x-dir (m4/s2), only for iadvec = 1
  double precision, allocatable         :: uqcy  (:)   !< cell center incoming momentum, global y-dir (m4/s2), only for iadvec = 1
  double precision, allocatable, target :: ucmag (:)   !< [m/s] cell center velocity magnitude {"location": "face", "shape": ["ndkx"]}
- double precision, allocatable         :: uc1D  (:)   !< m/s 1D cell center velocities
+ double precision, allocatable         :: uc1D  (:)   !< [m/s] 1D cell center velocities
+ double precision, allocatable         :: alpha_mom_1D (:)   !< [-] ratio of incoming momentum versus initial estimate of outgoing momentum
+ double precision, allocatable         :: alpha_ene_1D (:)   !< [-] ratio of incoming energy versus initial estimate of outgoing energy
  double precision, allocatable         :: cfli  (:)   !< sum of incoming courants (    ) = sum( Dt*Qj/Vi)
  double precision, allocatable         :: dvxc  (:)   !< cell center stress term, global x-dir (m3/s2)
  double precision, allocatable         :: dvyc  (:)   !< cell center stress term, global y-dir (m3/s2)
@@ -272,7 +278,6 @@
  double precision, allocatable     :: qsho  (:)   !< higher order part of upwind salinity    fluxes (ppt*m3/s) (dim=lnkx)
  double precision, allocatable, target     :: tem0  (:)   !< [degC] water temperature at end of timestep {"location": "face", "shape": ["ndkx"]}
  double precision, allocatable, target     :: tem1  (:)   !< [degC] water temperature at end of timestep {"location": "face", "shape": ["ndkx"]}
- double precision, allocatable     :: Tupq  (:)   !< upwind temperature flux (deg*m3/s)
  double precision, allocatable     :: qtho  (:)   !< higher order part of upwind temperature fluxes (ppt*m3/s) (dim=lnkx)
 
  double precision, allocatable     :: sam0  (:)   !< salinity mass       (pptm3) at start of timestep  ! remove later
@@ -285,10 +290,6 @@
  double precision, allocatable     :: tidef (:)   !< tidal force (m/s2)
  double precision, allocatable     :: s1init (:)   !< initial water level, for correction in SAL
 
- double precision, allocatable     :: steric(:,:) !< sal and temp for steric correction in 1,* and 2,*
- double precision                  :: rhosteric   !< later maybe in spatial refdensity
- integer                           :: jasteric=0  !< use steric correction on open waterlevel bnds yes/no
-
  double precision, allocatable     :: vih   (:)   !< horizontal eddy viscosity in cell center (m2/s)
  double precision, allocatable     :: qin   (:)   !< rain, evap, qlat and src netto inloop (m3/s)
 
@@ -296,25 +297,31 @@
 
 
 ! link related, dim = lnkx
- double precision, allocatable     :: u0    (:)   !< flow velocity (m/s)  at start of timestep
+ double precision, allocatable, target     :: u0    (:)   !< flow velocity (m/s)  at start of timestep
  double precision, allocatable, target     :: u1(:)   !< [m/s]  flow velocity (m/s)  at   end of timestep {"location": "edge", "shape": ["lnkx"]}
  double precision, allocatable, target     :: u_to_umain(:)   !< [-]  Factor for translating general velocity to the flow velocity in the main channel at end of timestep (1d) {"location": "edge", "shape": ["lnkx"]}
  double precision, allocatable, target     :: q1(:)   !< [m3/s] discharge     (m3/s) at   end of timestep n, used as q0 in timestep n+1, statement q0 = q1 is out of code, saves 1 array {"location": "edge", "shape": ["lnkx"]}
  double precision, allocatable, target     :: q1_main(:)   !< [m3/s] discharge     (m3/s) in main channel at {"location": "edge", "shape": ["lnkx"]}
  double precision, allocatable     :: qa    (:)   !< discharge (m3/s) used in advection, qa=au(n)*u1(n+1) instead of
+ double precision, allocatable     :: map_fixed_weir_energy_loss(:)   !< fixed weir energy loss at end of timestep {"location": "edge", "shape": ["lnkx"]}
  double precision, allocatable     :: cflj  (:)   !< courant nr link j to downwind volume i (    ) = Dt*Qj/Vi
  double precision, allocatable     :: tetaj (:)   !< 1-1/sum(upwind incoming courants)      (    )
  double precision, allocatable, target     :: au    (:)   !< [m2] flow area     (m2)   at u point {"location": "edge", "shape": ["lnkx"]}
  double precision, allocatable, target     :: au_nostrucs    (:)   !< [m2] flow area     (m2)   at u point {"location": "edge", "shape": ["lnkx"]}
  double precision, allocatable     :: ucxu  (:)   !< upwind link ucx (m/s)
  double precision, allocatable     :: ucyu  (:)   !< upwind link ucy (m/s)
- double precision, allocatable     :: u1Du  (:)   !< upwind 1D link velocity (m/s) (only relevant for Pure1D)
+ double precision, allocatable     :: au1D  (:,:) !< [m2] cross-sectional area at begin and end of 1D link (only relevant for Pure1D)
+ double precision, allocatable     :: wu1D  (:,:) !< [m] surface width at begin and end of 1D link (only relevant for Pure1D)
+ double precision, allocatable     :: sar1D (:,:) !< [m2] surface area of first and second half of 1D link (only relevant for Pure1D)
+ double precision, allocatable     :: volu1D  (:) !< [m3] volume of 1D link (only relevant for Pure1D)
+ double precision, allocatable     :: u1Du  (:)   !< [m/s] upwind 1D link velocity (only relevant for Pure1D)
+ double precision, allocatable     :: q1D   (:,:) !< [m3/s] discharge at begin and end of 1D link (only relevant for Pure1D)
  integer         , allocatable     :: isnbnod (:,:) !< sign of left/right node follows your dir in jaPure1D assumptions, -1 or 1 for Ja1D nodes
  integer         , allocatable     :: isnblin (:,:) !< sign of left/right link follows your dir in jaPure1D assumptions, -1 or 1 for Ja1D nodes
  double precision, allocatable     :: advi  (:)   !< advection implicit part (1/s)
  double precision, allocatable     :: adve  (:)   !< advection explicit part (m/s2)
  double precision, allocatable     :: adve0 (:)   !< advection explicit part (m/s2) prevstep
- double precision, allocatable, target     :: hu    (:)   !< [m] upwind waterheight at u-point (m) {"location": "edge", "shape": ["lnx"]}
+ double precision, allocatable, target     :: hu    (:)   !< [m] upwind waterheight at u-point; for 3D layers the distance from the top of layer to the bed (m) {"location": "edge", "shape": ["lnx"]}
  double precision, allocatable     :: huvli (:)   !< inverse alfa weighted waterheight at u-point (m) (volume representative)
  double precision, allocatable     :: v     (:)   !< tangential velocity in u point (m/s)
  double precision, allocatable     :: suu   (:)   !< stress u dir (m/s2)
@@ -326,12 +333,12 @@
  double precision, allocatable     :: cftrt(:,:)  !< array for friction coefficients due to trachytopes
  double precision, allocatable     :: cftrtfac(:) !< array for optional multiplication factor for trachytopes's returned roughness values
  integer                           :: jacftrtfac  !< Whether or not (1/0) a multiplication factor field was specified for trachytopes's Chezy roughness values.
- double precision, allocatable     :: czs(:)      !< array for chezy friction at cell centers {"location": "face", "shape": ["ndxi"]}
  double precision, allocatable     :: czu(:)      !< array for chezy friction at flow links {"location": "edge", "shape": ["lnx"]}
  double precision, allocatable     :: frculin(:)  !< friction coefficient set by initial fields ( todo mag later ook single real worden)
  integer,          allocatable     :: ifrcutp(:)  !< friction coefficient type   initial fields ( todo mag later ook single real worden)
  double precision, allocatable     :: Cdwusp(:)   !< Wind friction coefficient at u point set by initial fields ( todo mag later ook single real worden)
- double precision, allocatable     :: Windspeedfac(:) !< Wind friction coefficient at u point set by initial fields ( todo mag later ook single real worden)
+ double precision, allocatable     :: wind_speed_factor(:) !< wind speed multiplication factor
+ double precision, allocatable     :: solar_radiation_factor(:) !< solar radiation multiplication factor
  double precision, allocatable     :: z0ucur(:)   !< current related roughness, moved from waves, always needed
  double precision, allocatable     :: z0urou(:)   !< current and wave related roughness
 
@@ -341,19 +348,20 @@
 
  double precision, allocatable     :: wavfu (:)   !< wave force u point
  double precision, allocatable     :: wavfv (:)   !< wave force u point
- real            , allocatable     :: wdsu  (:)   !< windstress u point  (m2/s2)
- real            , allocatable     :: wdsu_x(:)   !< windstress u point  (m2/s2) x-component
- real            , allocatable     :: wdsu_y(:)   !< windstress u point  (m2/s2) y-component
- double precision, allocatable     :: wavmubnd (:)   !< wave-induced mass flux (on open boundaries)
+ double precision, allocatable     :: wdsu  (:)     !< windstress/rhow u point  (m2/s2)
+ double precision, allocatable, target :: wdsu_x(:) !< windstress u point  (N/m2) x-component
+ double precision, allocatable, target :: wdsu_y(:) !< windstress u point  (N/m2) y-component
+ double precision, allocatable     :: wavmubnd (:)  !< wave-induced mass flux (on open boundaries)
+ integer                           :: number_steps_limited_visc_flux_links = 0   !< number of steps with limited viscosity/flux on links
+ integer,          PARAMETER       :: MAX_PRINTS_LIMITED_VISC_FLUX_LINKS   = 10  !< number of messages in dia file on limited viscosity/flux links
  real            , allocatable     :: vicLu   (:) !< horizontal eddy viscosity coefficient at u point (m2/s)  (limited only if ja_timestep_auto_visc==0)
  real            , allocatable     :: viu   (:)   !< horizontal eddy viscosity coefficient at u point (m2/s), modeled part of viscosity = vicLu - viusp
  double precision, allocatable, target    :: viusp(:)   !< [m2/s] user defined spatial eddy viscosity coefficient at u point (m2/s) {"location": "edge", "shape": ["lnx"]}
  double precision, allocatable, target    :: diusp(:)   !< [m2/s] user defined spatial eddy diffusivity coefficient at u point (m2/s) {"location": "edge", "shape": ["lnx"]}
                                                         !< so in transport, total diffusivity = viu*sigdifi + diusp
  real            , allocatable     :: fcori (:)   !< spatially variable fcorio coeff at u point (1/s)
-double precision, allocatable     :: fvcoro (:)  !< 3D adamsbashford u point (m/s2)
+ double precision, allocatable     :: fvcoro (:)  !< 3D adamsbashford u point (m/s2)
 
- real            , allocatable     :: tidgs (:)   !< spatially variable earth tide potential at s point (m2/s2)
  double precision, allocatable     :: plotlin(:)  !< for plotting on u points
  integer         , allocatable     :: numlimdt(:) !< nr of times this point was the timestep limiting point
  integer                           :: numlimdt_baorg = 0  !< nr of times limiting > numlimdt_baorg, keep org ba
@@ -361,8 +369,10 @@ double precision, allocatable     :: fvcoro (:)  !< 3D adamsbashford u point (m/
 
  double precision, allocatable     :: zn2rn (:)   !< weight from zn to rn, flownode to netnode
 
- double precision, allocatable, target :: taus (:) !< [kg s-2 m] cell centre tau N/m2 {"location": "face", "shape": ["ndx"]}
- double precision, allocatable, target :: tausmax  (:)   !< cell centre taumax N/m2
+ double precision, allocatable, target :: tausx(:) ! vector components shear stress
+ double precision, allocatable, target :: tausy(:)
+ double precision, allocatable, target :: taubxu(:)!< Maximal bed shear stress
+ double precision, allocatable, target :: taubu(:) !< Mean bed shear stress
  double precision, allocatable     :: q1waq (:)   !< Cumulative q1 within current waq-timestep
  double precision, allocatable     :: qwwaq (:)   !< Cumulative qw within current waq-timestep
 
@@ -477,11 +487,14 @@ double precision, allocatable     :: fvcoro (:)  !< 3D adamsbashford u point (m/
  logical                           :: validateon    !< should we validate flow state yes or no (switched off at water drop)
  integer                           :: noddifmaxlev  !< node number of max lev diff ()
  integer                           :: nodneg        !< node nr with negative hs
+ integer                           :: numnodneg     !< nr of posh checks
+ integer                           :: jaLinkdried   !< there was at least 1 setback in this step
+ integer                           :: Linkdriedmx=0 !< max nr of au growth steps after having dried
+ integer                           :: nodnegtek     !< node nr with negative hs to draw
  integer                           :: kkcflmx       !< 2D Node nr with max courant
  integer                           :: kcflmx        !< 3D Node nr with max courant
  integer                           :: itsol         !< act nr. of iterations in solve
  integer                           :: nochkadv      !< nr of chkadvd checks
- integer                           :: numnodneg     !< nr of posh checks
  integer                           :: nrimptran     !< nr of implicit transport points
  integer                           :: ndmin         !< node nr where min znod is found in viewing area
  integer                           :: ndmax         !< node nr where max znod is found in viewing area
@@ -534,6 +547,8 @@ double precision, allocatable     :: fvcoro (:)  !< 3D adamsbashford u point (m/
  integer, parameter :: IDX_EVAP_ICEPT = 39
  integer, parameter :: IDX_PRECIP_GROUND = 40
 
+ logical :: ucxyq_read_rst       !< determines if variables `ucxq` and `ucxy` have been read from restart.
+ 
 contains
 !> Sets ALL (scalar) variables in this module to their default values.
 !! For a reinit prior to flow computation, only call reset_flow() instead.

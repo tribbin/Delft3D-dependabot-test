@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Returns the index of a structure in the controllable value arrays.
 !! Structure is identified by strtypename, e.g. 'pumps', and structure name, e.g., 'Pump01'.
@@ -93,7 +93,7 @@ subroutine getStructureIndex(strtypename, strname, index, is_in_network)
          end if
       end do
    else if (trim(strtypename) == 'longculverts') then
-      do i=1,nlongculvertsg
+      do i=1,nlongculverts
          if (trim(longculverts(i)%id) == trim(strname)) then
             index = i
             exit

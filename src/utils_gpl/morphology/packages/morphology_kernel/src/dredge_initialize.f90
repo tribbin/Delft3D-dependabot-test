@@ -1,7 +1,6 @@
-module m_dredge_initialize
 !----- GPL ---------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2022.                                
+!  Copyright (C)  Stichting Deltares, 2011-2024.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify         
 !  it under the terms of the GNU General Public License as published by         
@@ -25,9 +24,10 @@ module m_dredge_initialize
 !  Stichting Deltares. All rights reserved.                                     
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !-------------------------------------------------------------------------------
+module m_dredge_initialize
     private
     
     public dredge_initialize
@@ -54,10 +54,10 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
     interface
        subroutine comm(a, n, error, msgstr)
            use precision
-           integer               , intent(in)    :: n      ! length of real array
-           real(fp), dimension(n), intent(inout) :: a      ! real array to be accumulated
-           logical               , intent(out)   :: error  ! error flag
-           character(*)          , intent(out)   :: msgstr ! string to pass message
+           integer               , intent(in)    :: n      !< length of real array
+           real(fp), dimension(n), intent(inout) :: a      !< real array to be accumulated
+           logical               , intent(out)   :: error  !< error flag
+           character(*)          , intent(out)   :: msgstr !< string to pass message
        end subroutine comm
     end interface
 !
@@ -112,7 +112,9 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
     !
     if (.not.firstdredge) return
     !
-    globalareadump = localareadump
+    if (nadump > 0) then
+       globalareadump = localareadump
+    endif
     if (ndomains > 1) then
        !
        ! Start communication with other domains
@@ -140,7 +142,10 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
           numpoints(dredge_ndomains+dredge_domainnr) = real(size(pdredge%nm,1),fp)
           !
           call comm(numpoints, 2*dredge_ndomains, error, msgstr)
-          if (error) goto 999
+          if (error) then
+              call write_error(msgstr, unit=lundia)
+              return
+          end if
           !
           in_ndomains = 0
           npnt_global = 0
@@ -157,6 +162,7 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
              pdredge%in1domain = .true.
           else
              npnt         = pdredge%npnt
+             npnt_halo    = pdredge%npnt_halo
              pdredge%npnt = npnt_global
              !
              ! Reallocate and shift
@@ -164,9 +170,11 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
              istat = 0
              call reallocP(pdredge%area         ,npnt_global,fill=0.0_fp,shift=localoffset,stat=istat)
              call comm(pdredge%area, npnt_global, error, msgstr)
-             if (error) goto 999
+             if (error) then
+                 call write_error(msgstr, unit=lundia)
+                 return
+             end if
              !
-             npnt_halo = size(pdredge%nmglob,1) - npnt
              allocate(tmp_nmglob(npnt+npnt_halo), tmp_nm(npnt+npnt_halo), stat=istat)
              if (istat==0) then
                 tmp_nmglob = pdredge%nmglob
@@ -178,7 +186,8 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
              if (istat/=0) then
                 error  = .true.
                 msgstr = 'Dredge: memory realloc error'
-                goto 999
+                call write_error(msgstr, unit=lundia)
+                return
              endif
              !
              nmglobf = 0.0_fp
@@ -187,7 +196,10 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
                  pdredge%nm(localoffset+i) = tmp_nm(i)
              enddo
              call comm(nmglobf, npnt_global, error, msgstr)
-             if (error) goto 999
+             if (error) then
+                 call write_error(msgstr, unit=lundia)
+                 return
+             end if
              !
              pdredge%nmglob = nint(nmglobf)
              do i = npnt+1, npnt+npnt_halo
@@ -215,7 +227,8 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
              if (istat/=0) then
                 error  = .true.
                 msgstr = 'Dredge: memory realloc error'
-                goto 999
+                call write_error(msgstr, unit=lundia)
+                return
              endif
              !
              globalareadred(ia) = 0.0_fp
@@ -237,7 +250,10 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
              numpoints(dredge_ndomains+dredge_domainnr) = real(size(pdump%nm,1),fp)
              !
              call comm(numpoints, 2*dredge_ndomains, error, msgstr)
-             if (error) goto 999
+             if (error) then
+                 call write_error(msgstr, unit=lundia)
+                 return
+             endif
              !
              in_ndomains = 0 !how many partitions does the area cover
              npnt_global = 0 !total number of internal points that the area cover
@@ -254,6 +270,7 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
                 pdump%in1domain = .true.
              else
                 npnt         = pdump%npnt
+                npnt_halo    = pdump%npnt_halo
                 pdump%npnt   = npnt_global
                 !pdump%npnt = npnt_global
                 !npnt       = pdump%npnt
@@ -264,9 +281,11 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
                 istat = 0
                 call reallocP(pdump%area    ,npnt_global,fill=0.0_fp,shift=localoffset,stat=istat)
                 call comm(pdump%area, npnt_global, error, msgstr)
-                if (error) goto 999
+                if (error) then
+                    call write_error(msgstr, unit=lundia)
+                    return
+                end if
                 !
-                npnt_halo = size(pdump%nmglob,1) - npnt
                 allocate(tmp_nmglob(npnt+npnt_halo), tmp_nm(npnt+npnt_halo), stat=istat)
                 if (istat==0) then
                    tmp_nmglob = pdump%nmglob
@@ -278,7 +297,8 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
                 if (istat/=0) then
                    error  = .true.
                    msgstr = 'Dredge: memory realloc error'
-                   goto 999
+                   call write_error(msgstr, unit=lundia)
+                   return
                 endif
                 !
                 nmglobf = 0.0_fp
@@ -287,7 +307,10 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
                     pdump%nm(localoffset+i) = tmp_nm(i)
                 enddo
                 call comm(nmglobf, npnt_global, error, msgstr)
-                if (error) goto 999
+                if (error) then
+                    call write_error(msgstr, unit=lundia)
+                    return
+                end if
                 !
                 pdump%nmglob = nint(nmglobf)
                 do i = npnt+1, npnt+npnt_halo
@@ -311,7 +334,8 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
                 if (istat/=0) then
                    error  = .true.
                    msgstr = 'Dredge: memory realloc error'
-                   goto 999
+                   call write_error(msgstr, unit=lundia)
+                   return
                 endif
                 !
                 do i = 1,npnt_global
@@ -339,7 +363,7 @@ subroutine dredge_initialize(dadpar, idomain, ndomains, lundia, error, comm)
        enddo
     endif
     !
-999 if (error) then
+    if (error) then
        call write_error(msgstr, unit=lundia)
     else
        firstdredge = .false.

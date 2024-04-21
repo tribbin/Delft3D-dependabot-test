@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,29 +27,37 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
-
- subroutine flow_initimestep(jazws0, iresult)                     ! intialise flow timestep, also called once after flowinit
+! 
+! 
+!< Intialise flow timestep, also called once after flowinit.
+ subroutine flow_initimestep(jazws0, set_hu, use_u1, iresult)                     
  use timers
  use m_flowtimes
  use m_flow
  use m_flowgeom
- use unstruc_model, only: md_ident, md_restartfile
- use m_xbeach_data, only: swave, Lwave, uin, vin, cgwav, instat
+ use unstruc_model, only: md_restartfile
  use unstruc_channel_flow
  use m_1d_structures, only: initialize_structures_actual_params, set_u0isu1_structures
+ use m_nearfield, only : nearfield_mode, NEARFIELD_DISABLED, setNFEntrainmentMomentum
  use dfm_error
  use MessageHandling
  use m_partitioninfo
+ use m_sediment, only: stm_included
+ use m_sethu
+ use m_external_forcings, only: calculate_wind_stresses
+ use m_wind, only: update_wind_stress_each_time_step
+ use m_fm_icecover, only: update_icecover
  implicit none
 
- integer              :: jazws0
+ integer, intent(in)  :: jazws0
+ logical, intent(in)  :: set_hu !< Flag for updating `hu` (.true.) or not (.false.) in subroutine `calculate_hu_au_and_advection_for_dams_weirs` (`sethu`).
+ logical, intent(in)  :: use_u1 !< Flag for using `u1` (.true.) or `u0` (.false.) in computing `taubxu` in subroutine `settaubxu_nowave` 
  integer, intent(out) :: iresult !< Error status, DFM_NOERR==0 if succesful.
- integer              :: k, n, LL
  integer              :: ierror
+ double precision, parameter :: MMPHR_TO_MPS = 1d-3/3600d0
 
  iresult = DFM_GENERICERROR
+
 
  call timstrt('Initialise timestep', handle_inistep)
 
@@ -91,25 +99,8 @@
  end if
 
  if (tlfsmo > 0d0 ) then
-    alfsmo  = (tim1bnd - tstart_user) / tlfsmo
+    alfsmo  = (tim1bnd - tstart_tlfsmo_user) / tlfsmo
  endif
-
-! apply XBeach wave boundary conditions
- if (jawave .eq. 4) then
-    if ( swave.eq.1 ) then
-       call xbeach_wave_bc()
-       call xbeach_apply_wave_bc()
-       if (.not.(trim(instat)=='stat') .and. .not.(trim(instat)=='stat_table')) then
-          call xbeach_wave_compute_celerities()        ! for setdt
-       else
-          call xbeach_wave_compute_statcelerities(iresult)
-       endif
-    else
-       uin = 0d0
-       vin = 0d0
-    endif
-    call xbeach_flow_bc()
- end if
 
  call timstrt('u0u1        ', handle_extra(42)) ! Start u0u1
  if (jazws0.eq.0) then
@@ -123,25 +114,40 @@
  adve = 0d0
 
  call timstrt('Sethuau     ', handle_extra(39)) ! Start huau
- call sethu(jazws0)
+ call calculate_hu_au_and_advection_for_dams_weirs(jazws0,set_hu)
 
  call setau()                                        ! set au and cfuhi for conveyance after limited h upwind at u points
  call timstop(handle_extra(39)) ! End huau
 
  call timstrt('Setumod     ', handle_extra(43)) ! Start setumod
- !if (newcorio == 1) then
- !   call setumodnew(jazws0)
- !else
     call setumod(jazws0)                             ! set cell center velocities, should be here as prior to 2012 orso
- !endif
  call timstop(handle_extra(43)) ! End setumod
 
+ if (update_wind_stress_each_time_step > 0) then ! Update wind in each computational timestep
+    call calculate_wind_stresses(time0, iresult)
+    if (iresult /= DFM_NOERR) then
+       return
+    end if
+ end if
+
+
  call timstrt('Set conveyance       ', handle_extra(44)) ! Start cfuhi
- call setcfuhi()                                     ! set frictioncoefficient
+ call setcfuhi()                                     ! set current related frictioncoefficient
  call timstop(handle_extra(44)) ! End cfuhi
 
- if (kmx == 0 .and. javeg > 0) then                  ! overwrite cfuhi in 2D with veg in plant area's
+ if (kmx == 0 .and. javeg > 0) then                  ! overwrite cfuhi in 2D with veg in plant areas
     call setbaptist()
+ endif
+
+ ! Calculate max bed shear stress amplitude and z0rou without waves
+ if (jawave==0) then
+    call settaubxu_nowave(use_u1)
+ endif
+
+ ! Set wave parameters, adapted for present water depth/velocity fields
+ if (jawave>0) then
+    taubxu = 0d0
+    call compute_wave_parameters()
  endif
 
  call timstrt('Set structures actual parameters', handle_extra(45)) ! Start structactual
@@ -160,12 +166,24 @@
  end if
  call timstop(handle_extra(40)) ! End setdt
 
+ ! Add wave model dependent wave force in RHS
+ ! After setdt because surfbeat needs updated dts
+if (jawave>0 .and. .not. flowwithoutwaves) then
+   call compute_wave_forcing_RHS()
+endif
+
  if (nshiptxy > 0) then
-     call setship()                                  ! in initimestep
+     call setship()                                        ! in initimestep
+ endif
+
+ if (nearfield_mode /= NEARFIELD_DISABLED .and. NFEntrainmentMomentum > 0) then
+     !
+     ! Update momentum exchange, based on current flow field
+     call setNFEntrainmentMomentum()
  endif
 
  call timstrt('Compute advection term', handle_extra(41)) ! Start advec
- call advecdriver()                                  ! advec limiting for depths below chkadvdp, so should be called after all source terms such as spiralforce
+ call advecdriver()                                       ! advec limiting for depths below chkadvdp, so should be called after all source terms such as spiralforce
  call timstop(handle_extra(41)) ! End advec
 
  if (jazws0.eq.1)  then
@@ -181,7 +199,12 @@
  if (jatem > 1 .and. jaheat_eachstep == 1) then
     call heatu(tim1bnd/3600d0)                                  ! from externalforcings
  endif
+ call update_icecover()
 
+  if (infiltrationmodel == DFM_HYD_INFILT_HORTON) then
+    infiltcap0 = infiltcap/mmphr_to_mps
+ endif
+ 
  call timstop(handle_inistep)
 
  iresult = DFM_NOERR

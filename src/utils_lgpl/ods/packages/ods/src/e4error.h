@@ -1,5 +1,5 @@
-/* e4error.h  (c)Copyright Sequiter Software Inc., 1990-1993.  All rights reserved. */
-/*            (c)Copyright Sequiter Software Inc.,1990-1991. Alle Rechte vorbehalten.  */
+/* e4error.h  (c)Copyright Sequiter Software Inc., 1990-2024.  All rights reserved. */
+/*            (c)Copyright Sequiter Software Inc.,1990-2024. Alle Rechte vorbehalten.  */
 /*                German translation: Mgr. Gertruda TKACIKOVA, Jan. 1992.  */
 
 /*   error messages  */

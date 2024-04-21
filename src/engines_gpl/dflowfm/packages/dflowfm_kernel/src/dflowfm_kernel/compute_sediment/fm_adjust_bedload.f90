@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,19 +27,19 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
-   subroutine fm_adjust_bedload(sbn, sbt, avalan)
+   subroutine fm_adjust_bedload(sbn, sbt, avalan, slopecor)
    use m_physcoef, only: ag
    use m_sferic, only: pi
-   use m_flowparameters, only: epshs, epshu
-   use m_flowgeom, only: lnxi, lnx, ln, kcs, ba, bl, Dx, wu, wu_mor
-   use m_flow, only: hu, hs
+   use m_flowgeom, only: lnxi, lnx, ln, kcs, ba, bl, Dx, wu_mor
+   use m_flow, only: hu
    use m_flowtimes
    use m_turbulence, only: rhou
    use precision
    use m_fm_erosed
+   use m_sediment, only: bermslopeindexbed, bermslopeindexsus
    use m_alloc
 
    implicit none
@@ -47,10 +47,11 @@
    !!
    !! Global variables
    !!
-   logical                               ,          intent(in)           :: avalan
-   real(fp)  , dimension(1:lnx_mor,1:lsedtot),          intent(inout)        :: sbn     !  sbcuu, sbwuu, or sswuu
-   real(fp)  , dimension(1:lnx_mor,1:lsedtot),          intent(inout)        :: sbt     !  sbcvv, sbwvv, or sswvv
-   real(fp)  , dimension(:)  ,          allocatable                      :: sbncor    ! corrected values
+   logical                               ,          intent(in)           :: avalan    !<  do only once for avalanching fluxes
+   logical                               ,          intent(in)           :: slopecor  !<  do only on bedload, cf UNST-7286
+   real(fp)  , dimension(1:lnx_mor,1:lsedtot),      intent(inout)        :: sbn       !<  sbcuu, sbwuu, or sswuu
+   real(fp)  , dimension(1:lnx_mor,1:lsedtot),      intent(inout)        :: sbt       !<  sbcvv, sbwvv, or sswvv
+   real(fp)  , dimension(:)  ,          allocatable                      :: sbncor    !<  corrected values
    real(fp)  , dimension(:)  ,          allocatable                      :: sbtcor
    !!
    !! Local variables
@@ -60,7 +61,7 @@
 
    double precision       :: di50, phi, tphi, sbedm, depth, dzdp, dzds, bagnol, alfas
    double precision       :: delta, dmloc, ftheta, hidexploc, shield, sina, cosa, tnorm, frc, fixf
-   double precision       :: sbedn, sbedt, tratio, sbedcorr, fnorm, ust2avg, slp, avflux, fac
+   double precision       :: sbedn, sbedt, tratio, sbedcorr, fnorm, ust2avg, slp, avflux
    double precision       :: eps = 1.0d-6
    !
    !! executable statements -------------------------------------------------------
@@ -79,13 +80,19 @@
       ! for cutcell
       if (wu_mor(Lf)==0d0) cycle
       !
+      ! no bed slope effects on links with bermslope adjustments
+      ! fixfac and frac applied in bermslopenudging()
+      if (stmpar%morpar%bermslopetransport) then
+         if (bermslopeindexbed(Lf) .or. bermslopeindexsus(Lf)) cycle
+      endif
+      !
       if (hu(Lf) > 0d0) then
          k1 = ln_mor(1, Lf)
          k2 = ln_mor(2, Lf)
          call getLbotLtop(Lf, Lb, Lt)
          if (Lt<Lb) cycle
          do l = 1, lsedtot
-            if (sedtyp(l) /= SEDTYP_COHESIVE) then
+            if (has_bedload(tratyp(l))) then
                di50 = sedd50(l)
                di50spatial = .false.
                if (di50<0.0_fp .and. lsedtot==1) di50spatial = .true.
@@ -93,8 +100,6 @@
                ! Initialize variables
                !
                sbedcorr   = 0d0
-               sbtcor(Lf) = 0.0_fp
-               sbncor(Lf) = 0.0_fp
                !
                ! calculate bed gradient parallel and perpendicular to BED LOAD
                ! TRANSPORT vector. This exists in the links: e_dzdn, e_dzdt.
@@ -104,8 +109,10 @@
                sbedt    = sbt(Lf, l)      ! e_sxxt
                depth    = hu(Lf)
                sbedm    = sqrt(sbn(Lf, l)**2 + sbt(Lf, l)**2)
+               sbncor(Lf) = sbedn
+               sbtcor(Lf) = sbedt
 
-               if (sbedm>eps) then
+               if (sbedm>eps .and. slopecor) then
                   dzds =  e_dzdn(Lf)*sbedn/sbedm + e_dzdt(Lf)*sbedt/sbedm ! in direction of transport (not n)
                   dzdp = -e_dzdn(Lf)*sbedt/sbedm + e_dzdt(Lf)*sbedn/sbedm ! perpendicular to transport direction (not t)
                   !
@@ -124,8 +131,6 @@
                      !
                      ! no correction: default values
                      !
-                     sbncor(Lf) = sbedn
-                     sbtcor(Lf) = sbedt
                   case(2)
                      !
                      ! adjust bed load for longitudinal bed slope (following Bagnold (1956))
@@ -207,52 +212,47 @@
                      sbncor(Lf) = sbedm * (sina/tnorm)
                      sbtcor(Lf) = sbedm * (cosa/tnorm)
                   end select ! islope
+               end if      ! sbedm
+               !               !
+               if (avalan .and. (.not. duneavalan) .and. wetslope<9.99d0) then
+                  ! Uses a maximum wet slope (keyword WetSlope in the mor file).
+                  ! The default for Wetslope is 10.0 (i.e. 10:1, extremely steep, so no avalanching).
+                  !
+                  ! Sediment flux (avflux) equals volume exchange between two adjacent cells that is required
+                  ! to reach maximum allowed slope, divided by avalanching time (if not set by avaltime, equal to 1 day). This avalanching time has
+                  ! no real physical meaning! The sediment flux due to avalanching is added to the bed load transport.
+                  !
+                  ! The wet slope should really be a function of sediment characteristics. This has not yet been implemented.
+                  !
+                  slp = sqrt(e_dzdn(Lf)*e_dzdn(Lf) + e_dzdt(Lf)*e_dzdt(Lf))
 
-                  !               !
-                  if (avalan .and. (.not. duneavalan) .and. wetslope<9.99d0) then
-                     !
-                     ! Avalanching (MvO, 2011-04-06)
-                     !
-                     ! To be used instead of avalanching routine that is called at the end of BOTT3D.
-                     ! Uses a maximum wet slope (keyword WetSlope in the mor file).
-                     ! The default for Wetslope is 10.0 (i.e. 10:1, extremely steep, so no avalanching).
-                     !
-                     ! Sediment flux (avflux) equals volume exchange between two adjacent cells that is required
-                     ! to reach maximum allowed slope, divided by avalanching time (1 day). This avalanching time has
-                     ! no real physical meaning! The sediment flux due to avalanching is added to the bed load transport.
-                     !
-                     ! The wet slope should really be a function of sediment characteristics. This has not yet been implemented.
-                     !
-                     slp = sqrt(e_dzdn(Lf)*e_dzdn(Lf) + e_dzdt(Lf)*e_dzdt(Lf))
-
-                     if (slp>wetslope) then
-                        avflux = ba(k1)*ba(k2)/(ba(k1)+ba(k2)) * (bl(k2)-bl(k1) + wetslope*(-e_dzdn(Lf))/slp*Dx(Lf)) / avaltime /morfac
-                        sbncor(Lf) = sbncor(Lf) - avflux*rhosol(l)/wu_mor(Lf)
-                     end if
-                  endif       ! avalan
-                  !
-                  ! Apply upwind frac and fixfac.
-                  !
-                  ! At inflow (open, dd, and partition) boundaries the fixfac should not be taken upwind.
-                  !
-                  if (Lf > lnxi .and. hu(Lf) > epshu) then          ! wet boundary link
+                  if (slp>wetslope) then
+                     avflux = ba(k1)*ba(k2)/(ba(k1)+ba(k2)) * (bl(k2)-bl(k1) + wetslope*(e_dzdn(Lf)/slp)*Dx(Lf)) / avaltime /max(morfac,1d0)
+                     sbncor(Lf) = sbncor(Lf) - avflux*rhosol(l)/wu_mor(Lf)
+                  end if
+               endif       ! avalan
+               !
+               ! Apply upwind frac and fixfac.
+               !
+               ! At inflow (open, dd, and partition) boundaries the fixfac should not be taken upwind.
+               !
+               if (Lf > lnxi) then                               ! boundary link, hu condition removed as 0.0<hu<epshu possible
+                  fixf = fixfac(k2, l)
+                  frc  = frac(k2, l)
+               else                                              ! interior link
+                  if (sbncor(Lf) >= 0) then
+                     fixf = fixfac(k1, l)                        ! outward positive
+                     frc  = frac(k1, l)
+                  else
                      fixf = fixfac(k2, l)
                      frc  = frac(k2, l)
-                  else                                              ! interior link
-                     if (sbncor(Lf) >= 0) then
-                        fixf = fixfac(k1, l)                        ! outward positive
-                        frc  = frac(k1, l)
-                     else
-                        fixf = fixfac(k2, l)
-                        frc  = frac(k2, l)
-                     end if
                   end if
-
-                  sbncor(Lf) = sbncor(Lf) * frc * fixf
-                  sbtcor(Lf) = sbtcor(Lf) * frc * fixf
-                  !
-               end if      ! sbedm
-            end if         ! SEDTYP
+               end if
+               !
+               sbncor(Lf) = sbncor(Lf) * frc * fixf
+               sbtcor(Lf) = sbtcor(Lf) * frc * fixf
+               !
+            end if         ! tratyp
             sbn(Lf, l) = sbncor(Lf)
             sbt(Lf, l) = sbtcor(Lf)
          end do            ! lsedtot

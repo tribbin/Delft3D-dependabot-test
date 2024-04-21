@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 module m_waves
 
@@ -37,7 +37,6 @@ module m_waves
  integer, parameter                         :: TPWAVSMOOTH   = 1    !< Indicator for TPS
  integer, parameter                         :: TPWAVRELATIVE = 2    !< Indicator for RTP
  integer                                    :: nwf                  !< nr of fetch wind dirs + 1
- integer                                    :: ndx2Dr               !< (reduced) total nr 2D cells
  double precision, allocatable              :: fetch(:,:)           !< wind dir dep. fetch lenght (m) of each cell, dimension 5,*, or 13, * nr of wind dirs + 1
  double precision, allocatable              :: fetdp(:,:)           !< wind dir dep. waterdepth (m)   of each cell, dimension 5,*, or 13, * nr of wind dirs + 1
  double precision, allocatable              :: fett(:,:)            !< reduce array, (2,ndx)
@@ -46,23 +45,24 @@ module m_waves
  double precision, allocatable, target      :: hwavcom(:)           !< [m] root mean square wave height (m) from external source
  double precision, allocatable, target      :: twav(:)              !< [s] wave period {"location": "face", "shape": ["ndx"]}
  double precision, allocatable, target      :: phiwav(:)            !< [degree] mean wave direction (degrees) from external source
- double precision, allocatable, target      :: Uorb(:)              !< [m/s] orbital velocity {"location": "face", "shape": ["ndx"]}
+ double precision, allocatable, target      :: uorb(:)              !< [m/s] orbital velocity {"location": "face", "shape": ["ndx"]}
  double precision, allocatable, target      :: ustokes(:)           !< [m/s] wave induced velocity, link-based and link-oriented
  double precision, allocatable, target      :: vstokes(:)           !< [m/s] wave induced velocity, link-based and link-oriented
  double precision, allocatable              :: rlabda(:)            !< [m] wave length
- double precision, allocatable              :: ustk(:)              !< [m/s] Ustokes depth averaged cell centres
+ double precision, allocatable              :: ustx_cc(:),usty_cc(:)!< [m/s] ustokes components cell centres
 
  double precision, allocatable, target      :: dsurf(:)             !< [w/m2] wave energy dissipation rate due to breaking at the free surface, "DISSURF" in WAVE
  double precision, allocatable, target      :: dwcap(:)             !< [w/m2] wave energy dissipation rate due to white capping
- integer         , allocatable, target      :: kdismx(:)            !< help array to determine the layer of hrms effect
+ double precision, allocatable, target      :: distot(:)            !< [w/m2] total wave energy dissipation rate, "DISTOT" in WAVE
 
  double precision                           :: hwavuni   = 0d0      !< uniform (*.mdu) value of ...
  double precision                           :: twavuni   = 0d0      !< uniform (*.mdu) value of ...
  double precision                           :: phiwavuni = 0d0      !< uniform (*.mdu) value of ...
 
- double precision                           :: wavenikuradse        !< nikuradse roughness for waves (m)
- double precision                           :: z0wav                !< plus z0waves (m)
- double precision                           :: ftauw = 1d0          !< Swartfactor
+ double precision                           :: ftauw                !< Swartfactor, tune bed shear stress
+ double precision                           :: fwfac                !< Soulsby factor, tune streaming
+ double precision                           :: fbreak               !< tune breaking in tke model
+ double precision                           :: fwavpendep           !< Layer thickness as proportion of Hrms over which wave breaking adds to TKE source. Default 0.5
 
  character(len=4)                           :: rouwav               !< Friction model for wave induced shear stress
 
@@ -77,13 +77,9 @@ module m_waves
  double precision, allocatable, target      :: mxwav(:)             !< wave induced volume flux, in x-direction at flow-nodes
  double precision, allocatable, target      :: mywav(:)             !< wave induced volume flux, in y-direction at flow-nodes
 
- double precision, allocatable              :: taubxu(:)            !< Maximal bed shear stress
- double precision, allocatable              :: taubu(:)             !< Maximal bed shear stress
- double precision, allocatable              :: ypar(:)
  double precision, allocatable              :: cfwavhi(:)
  double precision, allocatable              :: cfhi_vanrijn(:)
  double precision, allocatable              :: wblt(:)
- double precision, allocatable              :: taux_cc(:), tauy_cc(:)
 
  double precision                           :: facmax               !< maximum wave force
 
@@ -120,7 +116,10 @@ subroutine default_waves()
    jahissigwav             = 1
    jamapsigwav             = 0            ! Present behaviour
    jauorbfromswan          = 0
-   facmax                  = 0.25d0*sag*rhomean*gammax**2
+   ftauw                   = 1d0
+   fwfac                   = 1d0
+   fbreak                  = 1d0
+   fwavpendep              = 1.5d0        ! best setting based on sensitivity
 
    call reset_waves()
 end subroutine default_waves

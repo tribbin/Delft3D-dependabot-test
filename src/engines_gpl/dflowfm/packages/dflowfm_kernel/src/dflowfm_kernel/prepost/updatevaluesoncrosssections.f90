@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Sums all monitored data on all cross sections, including time-integrated values.
 !! for sequential/non-MPI models: stored in crs()%sumvalcur/sumvalcum
@@ -60,7 +60,7 @@ implicit none
         if( jased == 4 .and. stmpar%lsedtot > 0 ) then
            nval = nval + stmpar%lsedtot + 1      
            if( stmpar%lsedsus > 0 ) then
-              nval = nval + 1
+              nval = nval + stmpar%lsedsus + 1
            endif
         endif
     endif

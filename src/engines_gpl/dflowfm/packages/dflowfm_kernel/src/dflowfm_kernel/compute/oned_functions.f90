@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 module m_oned_functions
    use m_missing, only: dmiss
@@ -183,32 +183,48 @@ module m_oned_functions
          pbr => network%brs%branch(ibr)
 
          ! Set flow node numbers via all flow link numbers on current branch.
-         ! When uPointsCount == 0, any "orphan" flow node numbers will be set via another branch on which they *do* lie.
+         ! Grid points sequences with singleton grid points find the flow node using original input grid point index.
+         if (pbr%gridPointsCount > 0) then
+            call realloc(pbr%grd, pbr%gridPointsCount)
+         else 
+            cycle
+         end if
          if (pbr%uPointsCount > 0) then
             call realloc(pbr%lin, pbr%uPointsCount)
-            call realloc(pbr%grd, pbr%gridPointsCount)
-            lin => pbr%lin
-            grd => pbr%grd
-            L = lin(1)
-            k1  =  abs(ln(1,L))
-            if (pbr%FromNode%gridNumber == -1 .and. comparereal(pbr%gridPointsChainages(1), 0d0, flow1d_eps10) == 0) then
-               pbr%FromNode%gridNumber = k1 ! Only when exactly at the branch start (need not be so in parallel models).
-            end if
-            do is=1,pbr%gridpointsseqcount
-               ip1 = pbr%k1gridpointsseq(is)
-               ip2 = pbr%k2gridpointsseq(is)
-               do i=ip1,ip2-1 ! upoints loop
-                  L = lin(i-(is-1)) ! is-1 corrects for any "holes" in between the previous is-1 gridpointssequences.
-                  k1 = abs(ln(1,L))
-                  grd(i) = k1
-               enddo
+         end if
+         lin => pbr%lin
+         grd => pbr%grd
+         do is=1,pbr%gridpointsseqcount
+            ip1 = pbr%k1gridpointsseq(is)
+            ip2 = pbr%k2gridpointsseq(is)
+            do i=ip1,ip2-1 ! upoints loop
+               L = lin(i-(is-1)) ! is-1 corrects for any "holes" in between the previous is-1 gridpointssequences.
+               k1 = abs(ln(1,L))
+               grd(i) = k1
+            enddo
+            if (ip2 > ip1) then
+               ! For gridpointsequence with 2 or more gridpoints, make sure to add the last one.
                L = ip2-1-(is-1)
                k2 = ln(2,iabs(lin(L)))
                grd(ip2) = k2
-            end do
-            if (pbr%toNode%gridnumber == -1 .and. comparereal(pbr%gridPointsChainages(pbr%gridPointsCount), pbr%length, flow1d_eps10) == 0)  then
-               pbr%toNode%gridnumber = k2 ! Only when exactly at the branch end (need not be so in parallel models).
+            else ! ip1 == ip2: singleton/orphan grid point
+               k2 = ndx2d + pbr%grd_input(ip2)
+               if (nd(k2)%nod(1) /= pbr%grd_input(ip2)) then
+                  write(msgbuf, '(a,i0,a,i0,a,i0,a)') 'set_link_numbers_in_branches(): 1D grd_input(',ip2,')=', pbr%grd_input(ip2), &
+                     ' does not match flow nd(',k2, ')%nod(1)=', nd(k2)%nod(1)
+                  call err_flush()
+               else
+                  grd(ip2) = k2
+               end if
             end if
+         end do
+         k1  =  grd(1)
+         if (pbr%FromNode%gridNumber == -1 .and. comparereal(pbr%gridPointsChainages(1), 0d0, flow1d_eps10) == 0) then
+            pbr%FromNode%gridNumber = k1 ! Only when exactly at the branch start (need not be so in parallel models).
+         end if
+         k2  =  grd(pbr%gridPointsCount)
+         if (pbr%toNode%gridnumber == -1 .and. comparereal(pbr%gridPointsChainages(pbr%gridPointsCount), pbr%length, flow1d_eps10) == 0)  then
+            pbr%toNode%gridnumber = k2 ! Only when exactly at the branch end (need not be so in parallel models).
          end if
       enddo
    end subroutine set_linknumbers_in_branches
@@ -222,6 +238,7 @@ module m_oned_functions
       use messageHandling
       use m_GlobalParameters, only: INDTP_ALL
       use m_partitioninfo, only: jampi
+      use m_inquire_flowgeom
 
       implicit none
 
@@ -230,7 +247,7 @@ module m_oned_functions
       integer, allocatable                    :: ixy2stor(:), k_tmp(:)
       double precision, allocatable           :: x_tmp(:), y_tmp(:)
       character(len=IdLen), allocatable       :: name_tmp(:)
-      integer                                 :: nxy, countxy, jakdtree
+      integer                                 :: nxy, countxy, jakdtree, ierr
 
       
       countxy = network%storS%Count_xy
@@ -245,14 +262,16 @@ module m_oned_functions
       nxy = 0
       do i = 1, network%storS%count
          pstor => network%storS%stor(i)
-         if (pstor%node_index < 0) then
+         if (pstor%node_index > 0) then
+            pStor%grid_point = network%nds%node(pstor%node_index)%gridNumber
+         else if (pstor%branch_index > 0) then
+            ierr = findnode(pStor%branch_index, pstor%chainage, pstor%grid_point)
+         else
             nxy = nxy + 1
             ixy2stor(nxy) = i
             x_tmp(nxy)    = pstor%x
             y_tmp(nxy)    = pstor%y
             name_tmp(nxy) = pstor%id
-         else
-            pStor%gridPoint = network%nds%node(pstor%node_index)%gridNumber
          end if
       end do
       
@@ -262,7 +281,7 @@ module m_oned_functions
          do i = 1, nxy
             if (k_tmp(i) > 0) then
                pstor => network%storS%stor(ixy2stor(i))
-               pstor%gridPoint = k_tmp(i)
+               pstor%grid_point = k_tmp(i)
             else if (jampi == 0) then
                call SetMessage(LEVEL_ERROR, 'Error when snapping storage node '''//trim(name_tmp(i))//''' to a flow node. Are coordinates correct?')
             end if
@@ -300,7 +319,7 @@ module m_oned_functions
    !> For sediment transport on each node a cross section is required
    !! Fills gridpoint2cross with for each gridpoint a cross section index. \n
    !! Note: On connection nodes we have multiple cross sections (one for each 
-   !!       incoming or outgoing branch (link). \n
+   !!       incoming or outgoing branch (link).) \n
    !!       A connection node is located at the beginning or end of the branch.
    subroutine set_cross_sections_to_gridpoints()
    
@@ -323,14 +342,14 @@ module m_oned_functions
       integer, dimension(:), pointer          :: lin
       integer, dimension(:), pointer          :: grd
       double precision, dimension(:), pointer :: chainage
-      type(t_chainage2cross), pointer           :: gpnt2cross(:)                   !< list containing cross section indices per u-location
+      type(t_chainage2cross), dimension(:,:), pointer :: line2cross
 
       ! cross sections (in case of sediment transport every gridpoint requires a unique
       ! cross section)
+      line2cross => network%adm%line2cross
       if ((jased > 0 .and. stm_included).or.(flowsolver.eq.2)) then
          if (allocated(gridpoint2cross)) deallocate(gridpoint2cross)
          allocate(gridpoint2cross(ndxi))
-         gpnt2cross => network%adm%gpnt2cross
          do i = 1, ndxi
             gridpoint2cross(i)%num_cross_sections = 0
          enddo
@@ -368,7 +387,7 @@ module m_oned_functions
                      L = lin(1)
                      dh = (chainage(i+1)-chainage(i))/2d0
                   else
-                     L = lin(pointscount-1)
+                     L = lin(i-1)
                      dh = (chainage(i)-chainage(i-1))/2d0
                   endif
                   do j = 1,nd(k1)%lnx
@@ -378,14 +397,23 @@ module m_oned_functions
                   enddo
                else
                   ! Internal gridpoint on branch, only 1 cross section attached
+                  L = lin(i-1)
                   if (allocated(gridpoint2cross(k1)%cross)) deallocate(gridpoint2cross(k1)%cross)
                   allocate(gridpoint2cross(k1)%cross(1))
                   gridpoint2cross(k1)%num_cross_sections = 1
                   jpos = 1
                   dh = min(chainage(i)-chainage(i-1),chainage(i+1)-chainage(i))/2d0
+                  
                endif
-               c1 = gpnt2cross(igrid)%c1
-               c2 = gpnt2cross(igrid)%c2
+               if (i == 1) then
+                  ! See assignment of L in previous part. First point L points to the outgoing flow link
+                  c1 = line2cross(L,1)%c1
+                  c2 = line2cross(L,1)%c2
+               else
+                  ! See assignment of L in previous part. All points but the first L points to the incoming flow link
+                  c1 = line2cross(L,3)%c1
+                  c2 = line2cross(L,3)%c2
+               endif
                d1 = abs(network%crs%cross(c1)%chainage - chainage(i))
                d2 = abs(network%crs%cross(c2)%chainage - chainage(i))
                ! cross1%branchid and cross2%branchid should correspond to ibr
@@ -490,9 +518,9 @@ module m_oned_functions
    nstor = network%storS%count
    do i = 1, nstor
       pstor => network%storS%stor(i)
-      n1 = pstor%gridPoint
+      n1 = pstor%grid_point
       if (n1 > 0) then
-      bl(n1) = min(bl(n1), pstor%storageArea%x(1))
+      bl(n1) = min(bl(n1), pstor%storage_area%x(1))
       end if
    enddo
       
@@ -541,12 +569,12 @@ module m_oned_functions
       nstor = network%storS%count
       do i = 1, nstor
          pstor => network%storS%stor(i)
-         n1 = pstor%gridPoint
+         n1 = pstor%grid_point
          if (n1 <= 0) cycle
-         if (bl(n1) < pstor%storageArea%x(1)) then
+         if (bl(n1) < pstor%storage_area%x(1)) then
             call setmessage(LEVEL_WARN, 'At node '//trim(network%nds%node(i)%id)//' the bedlevel is below the bedlevel of the assigned storage area.')
             write(msgbuf, '(''The bedlevel (due to invert levels of incoming channels/pipes) = '', g14.2, '' and the bottom level of the storage area is '', g14.2)') &
-                        bl(n1), pstor%storageArea%x(1)
+                        bl(n1), pstor%storage_area%x(1)
             call setmessage(-LEVEL_WARN, msgbuf)
          
          endif
@@ -597,9 +625,10 @@ module m_oned_functions
       use m_flowtimes
       use m_flowgeom 
       use m_flow
-      
+      use messageHandling
+
       type(t_structure), intent(inout) :: struct !< The parent structure of the pump (which also contains the flow link information).
-                
+
       double precision     :: s1k1
       double precision     :: s1k2
       double precision     :: qp
@@ -611,6 +640,11 @@ module m_oned_functions
       integer              :: k2
       integer              :: dir
       
+      if (struct%numlinks == 0) then
+         ! Possibly outside of this partition
+         return
+      end if
+
       ! First compute average waterlevels on suction side and delivery side of the pump
       s1k1 = 0d0
       s1k2 = 0d0
@@ -637,6 +671,7 @@ module m_oned_functions
          if (hs(k1) > 1d-2) then
             ! NOTE: pump area-weighting across links is uniform for all links (au=1).
             au(L) = 1d0
+            hu(L) = 1d0 ! UNST-5835: restored original hu(L) = 1d0, originally set in furu(). Currently furu() resets it to 0d0 already while treating "old" structures.
             ap    = ap + au(L)
             vp1    = vp1 + vol1(k1)
             vp2    = vp2 + vol1(k2)
@@ -674,8 +709,11 @@ module m_oned_functions
          ! Limit the pump discharge in case the volume in the cells at the suction side is limited.
           if (abs(qp) > 0.9d0*vp/dts) then
             qp = sign(0.9d0*vp/dts, qp)
+            call setmessage(LEVEL_WARN, 'Discharge through pump ' &
+                & //trim(struct%id)//' is limited below capacity '//&
+                & 'by water volume on suction side.')
          endif
-         
+
          do L0  = 1, struct%numlinks
             L = struct%linknumbers(L0)
             dir = int(sign(1d0, L*qp)) ! Includes both pumping direction and flow link w.r.t. structure spatial orientation.
@@ -803,7 +841,7 @@ module m_oned_functions
    !! * the highest nearby cross section level ("embankment") for other nodes,
    !! * dmiss, i.e. not applicable, if no cross section is defined at the node.
    subroutine set_ground_level_for_1d_nodes(network)
-   use m_flowgeom, only: groundLevel, groundStorage, ndxi, ndx2d
+   use m_flowgeom, only: groundLevel, groundStorage, ndxi, ndx2d, nd, lnxi, kcu
    use m_Storage
    use m_CrossSections
    use m_network
@@ -811,38 +849,52 @@ module m_oned_functions
    type(t_network), intent(inout), target :: network
    type(t_storage), pointer               :: pSto
    type(t_administration_1d), pointer     :: adm
-   integer                                :: i, istor, cc1, cc2, length
+   integer                                :: i, istor, cc1, cc2, length, L, Lindex
+   double precision                       :: f
+   double precision, parameter            :: help = -huge(1d0)
 
-   groundlevel(:) = dmiss
+   groundlevel(:) = help
    groundStorage(:) = 0
    adm => network%adm
 
    ! set for all 1D nodes, the ground level equals to the highest cross section "embankment" value
    do i = 1, ndxi-ndx2d
-      cc1 = adm%gpnt2cross(i)%c1
-      cc2 = adm%gpnt2cross(i)%c2
-      if (cc1 > 0 .and. cc2 > 0) then ! if there are defined cross sections
-         groundLevel(i) = getHighest1dLevel(network%crs%cross(cc1), network%crs%cross(cc2), adm%gpnt2cross(i)%f)
-         ! Note that for closed cross sections, the 'ground level' contains now the pipe roof level. This is intentional: for computing freeboard inside pipes.
-         if (network%crs%cross(cc1)%closed .and. network%crs%cross(cc2)%closed) then
-            groundStorage(i) = 0
+      do Lindex = 1, nd(i+ndx2d)%lnx
+         L = nd(i+ndx2d)%ln(Lindex)
+         if (kcu(abs(L)) /= 1) then
+            cycle
+         else if (L > 0) then
+            cc1 = adm%line2cross(L,3)%c1
+            cc2 = adm%line2cross(L,3)%c2
+            f = adm%line2cross(L,3)%f
          else
-            groundStorage(i) = 1
+            L = -L
+            cc1 = adm%line2cross(L,1)%c1
+            cc2 = adm%line2cross(L,1)%c2
+            f = adm%line2cross(L,1)%f
          end if
-      else
-         continue ! dmiss + 0 defaults.
-      end if
+            
+         if (cc1 > 0 .and. cc2 > 0) then ! if there are defined cross sections
+            groundLevel(i) = max(groundlevel(i),getHighest1dLevel(network%crs%cross(cc1), network%crs%cross(cc2), f))
+            ! Note that for closed cross sections, the 'ground level' contains now the pipe roof level. This is intentional: for computing freeboard inside pipes.
+            if (.not. network%crs%cross(cc1)%closed) then
+               groundStorage(i) = 1
+            end if
+         else
+            continue ! dmiss + 0 defaults.
+         end if
+      end do
    end do
 
    ! set for storage nodes (either from a table, or a prescribed street level (storageType is reservoir or closed))
     do istor = 1, network%storS%Count
       pSto => network%storS%stor(istor)
-      if (pSto%gridPoint < 1) cycle
-      i = pSto%gridPoint-ndx2d
-      if (.not. pSto%useTable) then ! Manhole
-         if (pSto%useStreetStorage) then
-            groundLevel(i) = pSto%streetArea%x(1)
-            if (pSto%storageType == nt_Closed) then
+      if (pSto%grid_point < 1) cycle
+      i = pSto%grid_point-ndx2d
+      if (.not. pSto%use_table) then ! Manhole
+         if (pSto%use_street_storage) then
+            groundLevel(i) = pSto%street_area%x(1)
+            if (pSto%storage_type == nt_closed) then
                groundStorage(i) = 0
             else
                groundStorage(i) = 1
@@ -851,12 +903,19 @@ module m_oned_functions
             groundStorage(i) = 0
          end if
       else ! storage node on open storage table, the ground level is set to the top level of the definition table.
-         length = pSto%storageArea%length
-         groundLevel(i) = maxval(pSto%storageArea%x(1:length))
+         length = pSto%storage_area%length
+         groundLevel(i) = maxval(pSto%storage_area%x(1:length))
          groundStorage(i) = 1
       end if
-   end do
+    end do
 
+   ! Set the groundlevel entries that are not set to DMISS
+   do i = 1, ndxi-ndx2d
+      if (groundlevel(i) == help) then
+         groundlevel(i) = dmiss
+      endif
+   enddo
+    
    end subroutine set_ground_level_for_1d_nodes
    
    !> Set maximal volume for 1d nodes, later used for computation of volOnGround(:).
@@ -864,16 +923,18 @@ module m_oned_functions
    use m_flowgeom, only: groundLevel, volMaxUnderground, ndx, ndxi, ndx2d
    use m_flow,     only: s1, vol1, a1, vol1_f, a1m, s1m, nonlin
    use m_alloc
+   use unstruc_channel_flow, only: network
    implicit none
    double precision, allocatable :: s1_tmp(:), vol1_tmp(:), a1_tmp(:), vol1_ftmp(:), a1m_tmp(:), s1m_tmp(:)
    integer                       :: ndx1d
+   logical, allocatable :: hysteresis_tmp(:,:)
 
    ndx1d = ndxi-ndx2d
    if (ndx1d == 0) then
       return
    end if
 
-   ! 1. copy current s1, vol1, vol1_f, a1 and a1m to a temporary array
+   ! 1. copy current s1, vol1, vol1_f, a1, a1m and hysteresis to a temporary array
    allocate(s1_tmp(ndx))
    s1_tmp = s1
    
@@ -894,6 +955,12 @@ module m_oned_functions
    allocate(a1_tmp(ndx))
    a1_tmp = a1
    
+   if (network%loaded) then
+      if (network%numl > 0) then
+         allocate(hysteresis_tmp(2, network%numl))
+         hysteresis_tmp(:,:) = network%adm%hysteresis_for_summerdike
+      end if
+   end if
 
    ! 2. set s1 to be the ground level
    s1(ndx2d+1:ndxi)  = groundLevel(1:ndx1d)
@@ -910,7 +977,7 @@ module m_oned_functions
    call vol12d(0)
    volMaxUnderground(1:ndx1d) = vol1(ndx2d+1:ndxi)
 
-   ! 4. set s1, vol1, vol1_f, a1, a1m back
+   ! 4. set s1, vol1, vol1_f, a1, a1m and hysteresis back
    s1     = s1_tmp
    vol1   = vol1_tmp
    vol1_f = vol1_ftmp
@@ -920,6 +987,11 @@ module m_oned_functions
       a1m    = a1m_tmp
    end if
 
+   if (network%loaded) then
+      if (network%numl > 0) then
+         network%adm%hysteresis_for_summerdike = hysteresis_tmp
+      end if
+   end if
    end subroutine set_max_volume_for_1d_nodes
 
 
@@ -1054,7 +1126,7 @@ module m_oned_functions
    subroutine updateTotalInflowLat(dts)
    use m_flow, only: vTotLat, qCurLat
    use m_flowgeom, only: ndx2d, ndxi
-   use m_wind, only: qqlat
+   use m_lateral, only: qqlat
    implicit none
    double precision, intent(in) :: dts ! current computational time step
    integer                      :: n

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 module m_sediment
  use precision, only: fp
@@ -56,7 +56,7 @@ module m_sediment
  !$BMIEXPORT double precision      :: dpsed(:)      !< [m] Sediment thickness in the bed in flow cell center.                 {"location": "face", "shape": ["ndx"], "internal": "stmpar%morlyr%state%dpsed"}
  ! NOTE: msed and thlyr only non-NULL for stmpar%morlyr%settings%iunderlyr==2
  !$BMIEXPORT double precision      :: msed(:,:,:)   !< [kg m-2] Available sediment in a layer of the bed in flow cell center. {"location": "face", "shape": ["stmpar%morlyr%settings%nfrac", "stmpar%morlyr%settings%nlyr", "ndx"], "internal": "stmpar%morlyr%state%msed"}
- !$BMIEXPORT double precision      :: thlyr(:)      !< [m] Thickness of a layer of the bed in flow cell center.               {"location": "face", "shape": ["stmpar%morlyr%settings%nlyr","ndx"], "internal": "stmpar%morlyr%state%thlyr"}
+ !$BMIEXPORT double precision      :: thlyr(:,:)    !< [m] Thickness of a layer of the bed in flow cell center.               {"location": "face", "shape": ["stmpar%morlyr%settings%nlyr","ndx"], "internal": "stmpar%morlyr%state%thlyr"}
 
  type(sedtra_type), target         :: sedtra        !< All sediment-transport-morphology fields.
  !$BMIEXPORT double precision      :: rsedeq(:,:)   !< [kg m-3] Equilibrium sediment concentration. {"location": "face", "shape": ["ndx","stmpar%lsedsus"], "internal": "sedtra%rsedeq"}
@@ -70,7 +70,7 @@ module m_sediment
  !$BMIEXPORT double precision      :: sswx(:,:)     !< [kg s-1 m-1] suspended load transport due to waves, x-component.    {"location": "face", "shape": ["ndx","stmpar%lsedsus"], "internal": "sedtra%sswx"}
  !$BMIEXPORT double precision      :: sswy(:,:)     !< [kg s-1 m-1] suspended load transport due to waves, y-component.    {"location": "face", "shape": ["ndx","stmpar%lsedsus"], "internal": "sedtra%sswy"}
 
- !$BMIEXPORT double precision      :: taucr(:)      !< [kg s-2 m] dimensional critical shear stress taucr.                 {"location": "face", "shape": ["stmpar%lsedtot"], "internal": "stmpar%sedpar%taucr"}
+ !$BMIEXPORT double precision      :: taucr(:)      !< [kg s-2 m-1] dimensional critical shear stress taucr.               {"location": "face", "shape": ["stmpar%lsedtot"], "internal": "stmpar%sedpar%taucr"}
  !$BMIEXPORT double precision      :: tetacr(:)     !< [-] dimensionless critical shear stress tetacr.                     {"location": "face", "shape": ["stmpar%lsedtot"], "internal": "stmpar%sedpar%tetacr"}
 
 
@@ -87,20 +87,26 @@ module m_sediment
 
  integer,          allocatable     :: kcsmor(:)
  double precision, allocatable     :: mergebodsed(:,:)
+ logical         , allocatable     :: bermslopeindex(:)      !< index where nudging needs to be applied
+ logical         , allocatable     :: bermslopeindexbed(:)   !< index where nudging needs to be applied for bedload
+ logical         , allocatable     :: bermslopeindexsus(:)   !< index where nudging needs to be applied for suspended load
+ double precision, allocatable     :: bermslopecontrib(:,:)  !< bermslope nudging sediment transport
+ double precision, allocatable     :: ssccum(:,:)            !< water column integrated sediment transport in dry points (kg/s)
 
- integer                           :: jased         !< Include sediment, 1=Krone, 2=Soulsby van Rijn 2007, 3=Bert's morphology module
+ integer                           :: jased                  !< Include sediment, 1=Krone, 2=Soulsby van Rijn 2007, 4=Delft3D morphology module
  integer                           :: jaseddenscoupling=0    !< Include sediment in rho 1 = yes , 0 = no
- double precision                  :: vismol        !< molecular viscosity (m2/s)
- integer                           :: mxgr          !< nr of grainsizes
- integer                           :: jatranspvel   !< transport velocities: 0=all lagr, 1=eul bed+lagr sus, 2=all eul; default=1
- integer, allocatable              :: sedtot2sedsus(:) !< mapping of suspended fractions to total fraction index; name is somewhat misleading, but hey, who said this stuff should make sense..
- integer                           :: sedparopt=1   !< for interactor plotting
+ integer                           :: jasubstancedensitycoupling = 0 !< Include Delwaq substances in rho 1 = yes , 0 = no
+ integer                           :: mxgr                   !< nr of grainsizes
+ integer                           :: jatranspvel            !< transport velocities: 0=all lagr, 1=eul bed+lagr sus, 2=all eul; default=1
+ integer, allocatable              :: sedtot2sedsus(:)       !< mapping of suspended fractions to total fraction index; name is somewhat misleading, but hey, who said this stuff should make sense..
+ integer                           :: sedparopt=1            !< for interactor plotting
  integer                           :: numoptsed
  integer                           :: jaBndTreatment
  integer                           :: jamorcfl
  double precision                  :: dzbdtmax
  double precision                  :: botcrit       !< mass balance: minimum depth after bottom update to adapt concentrations
  integer                           :: jamormergedtuser
+ double precision                  :: upperlimitssc
  integer                           :: inmorphopol   !< value of the update inside morphopol (only 0 or 1 make sense)
  !
  !-------------------------------------------------- old sediment transport and morphology
@@ -145,7 +151,7 @@ module m_sediment
  integer                           :: jgrtek = 1        !< grainsize fraction nr to plot
  integer                           :: numintverticaleinstein = 10 !< number of vertical intervals in einstein integrals
 
-contains
+ contains
 
  subroutine default_sediment()
  use m_physcoef
@@ -153,9 +159,6 @@ contains
 
  mxgr          = 0
  mxgrKrone     = 0
-
- wavenikuradse = 0.01d0
- z0wav         = wavenikuradse / 30d0
 
  sedmax              = 30d0
  dmorfac             = 1d0
@@ -166,8 +169,8 @@ contains
  jaBndTreatment      = 0
  jamorcfl            = 1
  dzbdtmax            = 0.1d0
- botcrit             = 1d-4
  jamormergedtuser    = 0
+ upperlimitssc       = 1d6
  inmorphopol         = 1
  
  end subroutine default_sediment

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine u1q1()
  use m_flow                                          ! substitute u1 and q1
@@ -58,7 +58,7 @@
        !$OMP PARALLEL DO           &
        !$OMP PRIVATE(L,k1,k2)
        do L = 1,lnx
-          if (hu(L) > 0) then
+          if (hu(L) > 0d0) then 
              k1 = ln(1,L) ; k2 = ln(2,L)
              if (FlowSolver.eq.2) then !SRE solver
                  !FM1DIMP2DO remove this and simply cicle this entire function in case we use this solver?
@@ -71,7 +71,6 @@
                 qa(L) = au(L)*u1(L)
              endif
           else
-!            call reset_fu_ru_for_structure_link(L, network%adm%lin2str, network%sts%struct) ! see furusobekstructures
              u1(L) = 0d0
              q1(L) = 0d0
              qa(L) = 0d0
@@ -85,7 +84,7 @@
        !$OMP PARALLEL DO           &
        !$OMP PRIVATE(L,k1,k2)
        do L=1,Lnx
-          if ( hu(L).gt.0 ) then
+          if ( hu(L).gt.0d0 ) then
              k1 = ln(1,L)
              k2 = ln(2,L)
              u1(L) = ru(L) - fu(L)*( s1(k2) - s1(k1) )

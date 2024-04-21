@@ -1,7 +1,7 @@
 module m_readObservationPoints
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify              
 !  it under the terms of the GNU Affero General Public License as               
@@ -25,8 +25,8 @@ module m_readObservationPoints
 !  Stichting Deltares. All rights reserved.
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !-------------------------------------------------------------------------------
 
    use MessageHandling
@@ -89,10 +89,7 @@ module m_readObservationPoints
       integer                               :: loctype
       integer                               :: branchIdx
       type(t_ObservationPoint), pointer     :: pOPnt
-      integer                               :: pos
-      integer                               :: ibin = 0
      ! character(len=IdLen)                 :: binfile
-      logical                               :: file_exist
       integer                               :: formatbr       ! =1: use branchid and chainage, =0: use xy coordinate and LocationType
       integer                               :: major, minor, ierr
       
@@ -181,8 +178,9 @@ module m_readObservationPoints
             pOPnt%name      = obsPointName
             if (formatbr == 1) then
                branchIdx = hashsearch(network%brs%hashlist, branchID)
-               if (branchIdx==-1) then
-                  msgbuf = 'The BranchId '''//trim(branchId)//''' does not exist, please check observation point '''//trim(obsPointName)//'''.'
+               if (branchIdx == -1) then
+                  msgbuf = 'Error Reading Observation Point '''//trim(obsPointName)//''' from file ''' // &
+                           trim(observationPointsFile)//''', the branchId '''//trim(branchId)//''' does not exist.'
                   call err_flush()
                else
                   pOPnt%branch    => network%brs%branch(branchIdx)

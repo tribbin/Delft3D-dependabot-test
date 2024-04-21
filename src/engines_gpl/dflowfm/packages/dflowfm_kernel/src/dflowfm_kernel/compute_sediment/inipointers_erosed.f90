@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    !
    ! ========================================================================================
@@ -50,12 +50,14 @@
    ws                  => mtd%ws
    uau                 => mtd%uau
 
-
    ! stmpar
    lsed                => stmpar%lsedsus
    lsedtot             => stmpar%lsedtot
+   
    ! sedpar
    nmudfrac            => stmpar%sedpar%nmudfrac
+   max_mud_sedtyp      => stmpar%sedpar%max_mud_sedtyp
+   cmpupdfrac          => stmpar%sedpar%cmpupdfrac
    rhosol              => stmpar%sedpar%rhosol
    cdryb               => stmpar%sedpar%cdryb
    logseddia           => stmpar%sedpar%logseddia
@@ -71,15 +73,27 @@
    pmcrit              => stmpar%sedpar%pmcrit
    nseddia             => stmpar%sedpar%nseddia
    sedtyp              => stmpar%sedpar%sedtyp
+   tratyp              => stmpar%sedpar%tratyp
    anymud              => stmpar%sedpar%anymud
    sedtrcfac           => stmpar%sedpar%sedtrcfac
    bsskin              => stmpar%sedpar%bsskin
    thcmud              => stmpar%sedpar%thcmud
    tpsnumber           => stmpar%sedpar%tpsnumber
    dss                 => stmpar%sedpar%dss
+   !
+   max_mud_sedtyp      => stmpar%sedpar%max_mud_sedtyp
+   min_dxx_sedtyp      => stmpar%sedpar%min_dxx_sedtyp
+   flocmod             => stmpar%sedpar%flocmod
+   nflocpop            => stmpar%sedpar%nflocpop
+   nflocsizes          => stmpar%sedpar%nflocsizes
+   floclist            => stmpar%sedpar%floclist
+   tbreakup            => stmpar%sedpar%tbreakup
+   tfloc               => stmpar%sedpar%tfloc
+
    ! morpar
    thresh              => stmpar%morpar%thresh
    sus                 => stmpar%morpar%sus
+   suscorfac           => stmpar%morpar%suscorfac
    bed                 => stmpar%morpar%bed
    susw                => stmpar%morpar%susw
    sedthr              => stmpar%morpar%sedthr
@@ -130,6 +144,7 @@
    alfpa               => stmpar%morpar%alfpa
    thcrpa              => stmpar%morpar%thcrpa
    islope              => stmpar%morpar%islope
+   ti_sedtrans         => stmpar%morpar%ti_sedtrans
    tmor                => stmpar%morpar%tmor
    tcmp                => stmpar%morpar%tcmp
    itmor               => stmpar%morpar%itmor
@@ -139,6 +154,14 @@
    hmaxth              => stmpar%morpar%hmaxth
    thetsd              => stmpar%morpar%thetsd
    eulerisoglm         => stmpar%morpar%eulerisoglm
+   l_suscor            => stmpar%morpar%l_suscor
+   bermslopetransport  => stmpar%morpar%bermslopetransport
+   bermslopebed        => stmpar%morpar%bermslopebed
+   bermslopesus        => stmpar%morpar%bermslopesus
+   bermslope           => stmpar%morpar%bermslope
+   bermslopefac        => stmpar%morpar%bermslopefac
+   bermslopegamma      => stmpar%morpar%bermslopegamma
+   bermslopedepth      => stmpar%morpar%bermslopedepth
 
    ! trapar
    iform               => stmpar%trapar%iform
@@ -221,10 +244,6 @@
    rca                 => sedtra%rca
    statqnt             => sedtra%statqnt
 
-   allocate(ucxq_mor(1:ndkx_mor), ucyq_mor(1:ndkx_mor), hs_mor(1:ndkx_mor), stat=ierr)   ! JRE TODO
-   ucxq_mor = 0d0; ucyq_mor = 0d0; hs_mor = 0d0
-   allocate(ucx_mor(1:ndkx_mor), ucy_mor(1:ndkx_mor), stat=ierr)
-   ucx_mor = 0d0; ucy_mor = 0d0
    allocate(q_zeta(2,lnx), stat=ierr)
    q_zeta = 0d0
 

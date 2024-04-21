@@ -3,7 +3,7 @@ function Fcn=qp_file2function(Info)
 
 %----- LGPL --------------------------------------------------------------------
 %                                                                               
-%   Copyright (C) 2011-2022 Stichting Deltares.                                     
+%   Copyright (C) 2011-2024 Stichting Deltares.                                     
 %                                                                               
 %   This library is free software; you can redistribute it and/or                
 %   modify it under the terms of the GNU Lesser General Public                   
@@ -122,9 +122,11 @@ F={'Delft3D-com'                'd3d_comfil'
     'GeoSystems mesh'            'flexmeshfil'
     'Gmsh'                       'flexmeshfil'
     'SMS mesh'                   'flexmeshfil'
+    'SMS mesh2d'                 'flexmeshfil'
     'diff'                       'difffil'
     'shipma'                     'shipmafil'
     'geodata'                    'geodatafil'
+    'analytical'                 'analytical_solution'
     '<user defined variables>'   'usrdeffil'   };
 
 %
@@ -179,6 +181,7 @@ F={'Delft3D-com'                'd3d_comfil'
 %#function shipmafil
 %#function flexmeshfil
 %#function geodatafil
+%#function analytical_solution
 
 tp=qp_gettype(Info);
 %
@@ -187,7 +190,6 @@ tp=qp_gettype(Info);
 % message and return with empty function name.
 %
 id = strcmpi(tp,F(:,1));
-Fcn = '';
 if ~any(id)
     previousMessage = 0;
     if isempty(MissingFileTypes)
@@ -202,6 +204,8 @@ if ~any(id)
     if ~previousMessage
         ui_message('warning','No function associated with a file of type "%s".',tp)
     end
+    Fcn = [];
     return
 end
-Fcn=F{id,2};
+FunName = F{id,2};
+Fcn = str2func(FunName);

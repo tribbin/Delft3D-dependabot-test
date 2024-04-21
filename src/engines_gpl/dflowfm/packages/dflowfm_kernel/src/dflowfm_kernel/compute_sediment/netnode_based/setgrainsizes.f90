@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,12 +27,12 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine setgrainsizes() ! for all fractions:
  USE M_SEDIMENT
- use m_physcoef,       only : ag, rhomean, vonkar, backgroundwatertemperature
+ use m_physcoef,       only : ag, rhomean, vonkar, backgroundwatertemperature, vismol
  use MessageHandling
  implicit none
  integer          :: m, j
@@ -40,9 +40,10 @@
 
  double precision :: a = 2.414d-5, b = 247.8d0, c= 140d0, TempK, s
 
- TempK         = 273d0 + backgroundwatertemperature
- vismol        = A*10**( B / (TempK-C) ) / rhomean
- vismol        = 4.d0/(20.d0 + backgroundwatertemperature)*1d-5 ! Van rijn, 1993
+! where was this moved to or why was it removed?
+! TempK         = 273d0 + backgroundwatertemperature
+! vismol        = A*10**( B / (TempK-C) ) / rhomean
+! vismol        = 4.d0/(20.d0 + backgroundwatertemperature)*1d-5 ! Van rijn, 1993
 
  if (allocated (D90) ) then
      deallocate(D90, rhodelta, sqsgd50, dstar, dstar03, Accr, Awcr)

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  !> Resets the current flow- and time-state, as well as all related (phys) parameters.
  !! To be called prior to loading a new MDU and upon program startup.
@@ -41,6 +41,7 @@
  use m_flowexternalforcings
  use m_flowparameters
  use m_flowgeom
+ use m_modelbounds
  use m_flowtimes
  use m_samples
  use unstruc_netcdf
@@ -62,13 +63,15 @@
  use m_sobekdfm
  use m_waves, only: default_waves
  use m_save_ugrid_state
- use  m_xbeach_avgoutput, only: default_xbeach_avgoutput
+ use m_xbeach_avgoutput, only: default_xbeach_avgoutput
+ use m_nearfield, only: default_nearfieldData
  use m_ship
  use unstruc_caching
  use m_subsidence
  use m_sferic, only : default_sferic
+ use m_1d2d_fixedweirs, only : default_1d2d_fixedweirs
+ use m_lateral, only : default_lateral
  use m_f1dimp
- 
  implicit none
 
     ! Only reset counters and other scalars, allocatables should be
@@ -92,9 +95,13 @@
 
     call default_wind()
 
+    call default_lateral()
+
     call default_waves()
 
     call default_sobekdfm()
+
+    call default_1d2d_fixedweirs()
 
     call dealloc(network) ! flow1d
 
@@ -113,6 +120,8 @@
     call default_turbulence()
 
     call default_flowgeom()
+
+    call default_modelbounds()
 
     call default_flowexternalforcings()
 
@@ -135,6 +144,8 @@
     call default_save_ugrid_state()
     
     call default_fm1dimp()
+
+    call default_nearfieldData()
 
     !Reset samples:
     ns = 0

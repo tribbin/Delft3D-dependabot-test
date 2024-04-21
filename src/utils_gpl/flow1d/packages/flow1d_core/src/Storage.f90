@@ -1,7 +1,7 @@
 module m_Storage
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify              
 !  it under the terms of the GNU Affero General Public License as               
@@ -25,8 +25,8 @@ module m_Storage
 !  Stichting Deltares. All rights reserved.
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !-------------------------------------------------------------------------------
 
    use MessageHandling
@@ -35,199 +35,152 @@ module m_Storage
    use m_hash_search
 
    implicit none
-   
-   private 
-     
+
+   private
+
    ! storage types
    integer, public, parameter :: nt_None        = 0
    integer, public, parameter :: nt_Reservoir   = 2
    integer, public, parameter :: nt_Closed      = 3
-   integer, public, parameter :: nt_Loss        = 4
    double precision, public, parameter:: slot_area = 1d-2 ! value to be used for storageStreetArea when storageType is "closed"
-   
+
    public realloc
    public dealloc
 
-   public addStorage
-   public getVolume
-   public getSurface
-   public printData
+   public get_volume
+   public get_surface
    public fill_hashtable
-   public getTopLevel
+   public get_top_level
 
-   interface printData
-      module procedure printStorageSet
-      module procedure printStorage
-   end interface
-   
-   interface GetVolume
-      module procedure GetVolumeByStorNode
-   end interface GetVolume
-   
-   interface GetSurface
-      module procedure GetSurfaceByStorNode
-   end interface GetSurface
+   interface get_volume
+      module procedure get_volume_by_stor_node
+   end interface get_volume
+
+   interface get_surface
+      module procedure get_surface_by_stor_node
+   end interface get_surface
 
    interface fill_hashtable
-      module procedure fill_hashtable_sto
-   end interface 
+      module procedure fill_hashtable_stor
+   end interface
 
    interface realloc
-      module procedure reallocStorage
+      module procedure realloc_storage
    end interface
 
    interface dealloc
-      module procedure deallocStorage
+      module procedure dealloc_storage
    end interface dealloc
 
     !---------------------------------------------------------
   
    type, public :: t_storage
       character(len=idlen)    :: id                      !< unique id of storage area
-      character(len=idlen)    :: nodeId                  !< Node Id
+      character(len=idlen)    :: node_id                 !< (optional) Node Id
       character(len=idlen)    :: name                    !< Long name in the user interface
-      integer                 :: gridPoint               !< gridpoint index
+      integer                 :: grid_point              !< gridpoint index
       integer                 :: node_index              !< connection node index
-      integer                 :: storageType             !< type of storage on street\n
+      integer                 :: branch_index            !< branch index
+      double precision        :: chainage                !< location of the storage node w.r.t the start of the branch
+      integer                 :: storage_type            !< type of storage on street\n
                                                          !! 0: no storage\n
                                                          !! 2: reservoir storage\n
                                                          !! 3: closed manhole
-      type(t_table), pointer  :: storageArea             !< table containing storage area and levels
-      type(t_table), pointer  :: streetArea              !< table containing storage area and levels on street level
-      logical                 :: useStreetStorage        !< flag indicating whether streetstorage is to be used
+      type(t_table), pointer  :: storage_area            !< table containing storage area and levels
+      type(t_table), pointer  :: street_area             !< table containing storage area and levels on street level
+      logical                 :: use_street_storage      !< flag indicating whether streetstorage is to be used
       double precision        :: x                       !< (optional) x-coordinate
-      double precision        :: y                       !< (optional) y-cooridnate
-      logical                 :: useTable                !< flag indicating whether table is to be used
+      double precision        :: y                       !< (optional) y-coordinate
+      logical                 :: use_table               !< flag indicating whether table is to be used
+      type(t_table), pointer  :: angle_loss     => null()!< lookup table that connects an angle to an energy loss coefficient
+      double precision        :: entrance_loss  = 0d0    !< entrance loss coefficient
+      double precision        :: exit_loss      = 0d0    !< exit loss coefficient
+      double precision        :: expansion_loss = 0d0    !< loss coefficient for expansion or contraction
    end type
    
-   type, public :: t_storageSet
+   type, public :: t_storage_set
       integer                                               :: Size = 0
-      integer                                               :: growsBy = 2000
+      integer                                               :: grows_by = 2000
       integer                                               :: Count= 0
       integer                                               :: Count_xy = 0 ! Number of storage nodes that are defined by x-, y-coordinates
       integer                                               :: Count_closed = 0 ! Number of storage nodes with storageType "closed"
       type(t_storage), pointer, dimension(:)                :: stor
-      type(t_hashlist)                                      :: hashlist
-   end type t_storageSet
+      type(t_hashlist)                                      :: hash_list
+   end type t_storage_set
    
 contains
     
-   integer function addStorage(storS, id, gridPoint, storageType, levels, storageArea, interpolTypeStorage, lengthStorageArea,       &
-                               levelsOnStreet, storageAreaOnStreet, interpolTypeStreet, lengthStreetArea)
-      use m_node
-      use m_branch
-      
-      ! Modules               
-                              
-      implicit none
-      
-      ! Input/output parameters
-      type(t_storageSet)               :: storS
-      character(len=idlen), intent(in) :: id
-      integer, intent(in)              :: gridPoint
-      integer, intent(in)              :: storageType
-      integer, intent(in)              :: interpolTypeStorage
-      integer, intent(in)              :: interpolTypeStreet
-      integer, intent(in)              :: lengthStorageArea
-      integer, intent(in)              :: lengthStreetArea
-      
-      double precision, dimension(lengthStorageArea)  :: levels
-      double precision, dimension(lengthStorageArea)  :: storageArea
-      double precision, dimension(:)                  :: levelsOnStreet
-      double precision, dimension(:)                  :: storageAreaOnStreet
-      
-      ! Local variables
-      integer istor
-      character(len=IdLen) :: line
-
-      ! Program code
-      
-      storS%Count = storS%Count+1
-      istor = storS%Count
-      if (storS%Count > storS%Size) then
-         call realloc(storS)
-      endif
-      nullify(storS%stor(istor)%storageArea)
-      nullify(storS%stor(istor)%streetArea)
-      
-      storS%stor(istor)%storageType = storageType
-      storS%stor(istor)%id = id 
-      ! Look for gridpoint index in network
-      if (storageType /= nt_None) then
-         storS%stor(istor)%gridPoint = gridPoint
-         call setTable(storS%stor(istor)%storageArea, interpolTypeStorage, levels, storageArea, lengthStorageArea)
-         if (lengthStreetArea/=0) then
-            call setTable(storS%stor(istor)%streetArea,  interpolTypeStreet,  levelsOnStreet, storageAreaOnStreet, lengthStreetArea)
-         endif
-      endif
-      addstorage = stors%count
-   end function addStorage
-   
-   subroutine deallocStorage(storS)
+   !> deallocate storage array
+   subroutine dealloc_storage(stor_set)
       ! Modules
       
       implicit none
       
       ! Input/output parameters
-      type(t_storageSet)            :: storS
+      type(t_storage_set)           :: stor_set
       
       ! Local variables
       integer                       :: i
    
       ! Program code
-      if (storS%count > 0) then
-         if (associated(storS%stor)) then 
-            do i = 1, storS%Count
-               if (associated(storS%stor(i)%storageArea)) then
-                  call dealloc(storS%stor(i)%storageArea)
-                  storS%stor(i)%storageArea => null()
+      if (stor_set%count > 0) then
+         if (associated(stor_set%stor)) then
+            do i = 1, stor_set%Count
+               if (associated(stor_set%stor(i)%storage_area)) then
+                  call dealloc(stor_set%stor(i)%storage_area)
+                  stor_set%stor(i)%storage_area => null()
                endif
-               if (associated(storS%stor(i)%streetArea)) then
-                  call dealloc(storS%stor(i)%streetArea)
-                  storS%stor(i)%streetArea => null()
+               if (associated(stor_set%stor(i)%street_area)) then
+                  call dealloc(stor_set%stor(i)%street_area)
+                  stor_set%stor(i)%street_area => null()
+               endif
+               if (associated(stor_set%stor(i)%angle_loss)) then
+                  call dealloc(stor_set%stor(i)%angle_loss)
+                  stor_set%stor(i)%angle_loss => null()
                endif
             enddo
-            deallocate(storS%stor)
+            deallocate(stor_set%stor)
          endif
       endif
-      storS%stor => null()
-      storS%Size  = 0
-      storS%Count = 0
-      call dealloc(storS%hashlist)
+      stor_set%stor => null()
+      stor_set%Size  = 0
+      stor_set%Count = 0
+      call dealloc(stor_set%hash_list)
 
    end subroutine
 !
-!
-   subroutine reallocStorage(storS)
+   !> Resize storage array.  
+   subroutine realloc_storage(stor_set)
       ! Modules
       
       implicit none
       
       ! Input/output parameters
-      type(t_storageSet), intent(inout)          :: storS
+      type(t_storage_set), intent(inout)         :: stor_set
       
       ! Local variables
-      type(t_storage), pointer, dimension(:)     :: oldStorS
+      type(t_storage), pointer, dimension(:)     :: old_stor_set
       
       ! Program code
       
-      if (storS%Size > 0) then
-         oldStorS=>storS%stor
+      if (stor_set%Size > 0) then
+         old_stor_set=>stor_set%stor
       endif
       
-      if (storS%growsBy <=0) then
-         storS%growsBy = 200
+      if (stor_set%grows_by <=0) then
+         stor_set%grows_by = 200
       endif
-      allocate(storS%stor(storS%Size+storS%growsBy))
+      allocate(stor_set%stor(stor_set%Size+stor_set%grows_by))
       
-      if (storS%Size > 0) then
-         storS%stor(1:storS%Size) = oldstorS(1:storS%Size)
-         deallocate(oldstorS)
+      if (stor_set%Size > 0) then
+         stor_set%stor(1:stor_set%Size) = old_stor_set(1:stor_set%Size)
+         deallocate(old_stor_set)
       endif
-      storS%Size = storS%Size+storS%growsBy
+      stor_set%Size = stor_set%Size+stor_set%grows_by
    end subroutine
    
-   double precision function getSurfaceByStorNode(storage, level)
+   !> Retrieve the surface area, using the storage node.
+   double precision function get_surface_by_stor_node(storage, level) result(res)
       ! Modules
    
       implicit none
@@ -235,24 +188,25 @@ contains
       type(t_storage), intent(in)            :: storage
       double precision, intent(in)           :: level
 
-      if (storage%useStreetStorage .and. (.not. storage%useTable)) then
+      if (storage%use_street_storage .and. (.not. storage%use_table)) then
          ! check if water level is above street level
-         if (level >= storage%streetArea%x(1) ) then
-            getSurfaceByStorNode = interpolate(storage%streetArea, level)
+         if (level >= storage%street_area%x(1) ) then
+            res = interpolate(storage%street_area, level)
             ! finished
             return
          endif
       endif
       ! else : calculate well storage:
-      if (storage%storageType /= nt_None .and. level >= storage%storageArea%x(1)-1d-4 ) then
-         getSurfaceByStorNode = interpolate(storage%storageArea, level)
+      if (storage%storage_type /= nt_None .and. level >= storage%storage_area%x(1)-1d-4 ) then
+         res = interpolate(storage%storage_area, level)
       else
-         getSurfaceByStorNode = 0d0
+         res = 0d0
       endif
       
-   end function getSurfaceByStorNode
+   end function get_surface_by_stor_node
 
-   double precision function getVolumeByStorNode(storage, level)
+   !> Retrieve the volume, using the storage node.
+   double precision function get_volume_by_stor_node(storage, level) result(res)
       ! Modules
 
       implicit none
@@ -266,85 +220,53 @@ contains
       ! Program code
       !         Check if storage on street is to be calculated:
    
-      if (storage%storagetype/=nt_none) then
+      if (storage%storage_type /= nt_none) then
          level2 = level
-         getVolumeByStorNode = 0d0
-         if (storage%useStreetStorage .and. (.not. storage%useTable)) then
+         res = 0d0
+         if (storage%use_street_storage .and. (.not. storage%use_table)) then
             ! check if water level is above street level
-            if (level > storage%streetArea%x(1)) then
-               getVolumeByStorNode= integrate(storage%streetArea, level)
-               level2 = storage%streetArea%x(1)
+            if (level > storage%street_area%x(1)) then
+               res= integrate(storage%street_area, level)
+               level2 = storage%street_area%x(1)
                ! finished
             endif
          endif
          
          ! else : calculate well storage:
-         getVolumeByStorNode = getVolumeByStorNode+ integrate(storage%storageArea, level2)
+         res = res + integrate(storage%storage_area, level2)
       else 
-         getVolumeByStorNode = 0d0
+         res = 0d0
       endif
-   end function getVolumeByStorNode
+   end function get_volume_by_stor_node
 
-   double precision function getTopLevel(storage)
+   !> Get the top level of the storage node
+   double precision function get_top_level(storage) result(res)
       type(t_storage), intent(in)            :: storage
-      if (storage%useStreetStorage .and. (.not. storage%useTable)) then
-         getTopLevel = storage%streetArea%x(storage%streetArea%length)
+      if (storage%use_street_storage .and. (.not. storage%use_table)) then
+         res = storage%street_area%x(storage%street_area%length)
       else
-         getTopLevel = storage%storageArea%x(storage%storageArea%length)
+         res = storage%storage_area%x(storage%storage_area%length)
       endif
-   end function getTopLevel
+   end function get_top_level
    
-   subroutine fill_hashtable_sto(storS)
+   !> Fill the hash table
+   subroutine fill_hashtable_stor(stor_set)
    
-      type (t_storageSet), intent(inout), target   :: storS
+      type (t_storage_set), intent(inout), target  :: stor_set
       
       integer                                      :: ist
       character(len=idlen), dimension(:), pointer  :: ids
       
-      allocate(storS%hashlist%id_list(storS%Count))
-      storS%hashlist%id_count = storS%Count
-      ids => storS%hashlist%id_list
+      allocate(stor_set%hash_list%id_list(stor_set%Count))
+      stor_set%hash_list%id_count = stor_set%Count
+      ids => stor_set%hash_list%id_list
       
-      do ist = 1, storS%count
-         ids(ist) = storS%stor(ist)%id
+      do ist = 1, stor_set%count
+         ids(ist) = stor_set%stor(ist)%id
       enddo
       
-      call hashfill(storS%hashlist)
+      call hashfill(stor_set%hash_list)
       
-   end subroutine fill_hashtable_sto
-   
-   subroutine printStorageSet(storS, unit)
-      type(t_storageSet)         :: storS
-      integer                    :: unit
-   
-      integer                    :: i
-   
-      write(unit, '(a)') ''
-      write(unit, '(a)') 'Storage in nodes'
-      write(unit, '(a)') '================'
-   
-      write(unit, '(''Number of storage nodes in network = '', i7)') stors%Count
-      do i = 1, stors%Count
-         write(unit, '(a)') ''
-         write(unit, '(''Storage node: '', i7)') i
-         call printData(storS%stor(i), unit)
-      enddo
-   end subroutine printStorageSet
-
-   subroutine printStorage(storage, unit)
-      type(t_storage)         :: storage
-      integer                    :: unit
-   
-      write(unit, '(''Gridpoint location: '', i7, '' storageType = '', i3)') storage%gridPoint, storage%storageType
-      if (associated(storage%storageArea)) then
-         write(unit, '(''Storage area data:'')')
-         call printData(storage%storageArea, unit)
-      endif
-      if (associated(storage%streetArea)) then
-         write(unit, '(''Street storage data:'')')
-         call printData(storage%streetArea, unit)
-      endif
-   end subroutine printStorage
-
+   end subroutine fill_hashtable_stor
    
 end module m_Storage

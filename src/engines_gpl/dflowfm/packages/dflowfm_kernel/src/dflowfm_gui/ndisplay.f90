@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    SUBROUTINE NDISPLAY(NWHAT,KEY)
    USE M_FLOW
@@ -41,7 +41,7 @@
    use m_plotdots
    use m_transport
    use m_waves, only: waveparopt, numoptwav
-   use m_xbeach_data,   only: windmodel
+   !use m_xbeach_data,   only: windmodel
    use gridoperations
 
    implicit none
@@ -73,8 +73,10 @@
       OPTION(3) = 'Flow display                            '
       OPTION(4) = 'Load display settings                   '
       OPTION(5) = 'Save current display settings           '
+      OPTION(6) = 'Load unstruc.cfg                        '   
+      OPTION(7) = 'Save unstruc.cfg                        '
 
-      MAXOPT    = 5
+      MAXOPT    = 7
       NWHAT2    = 0
       CALL MENUV3(NWHAT2,OPTION,MAXOPT,EXP,MAXEXP)
       IF (NWHAT2 == 1) THEN ! Network topology
@@ -136,6 +138,10 @@
              CALL save_displaysettings(filnam)
              CALL MESSAGE('YOU SAVED ' , filnam, ' ')
          ENDIF
+      ELSE IF (NWHAT2 .EQ. 6) THEN
+         CALL load_displaysettings('unstruc.cfg'); key=3
+      ELSE IF (NWHAT2 .EQ. 7) THEN
+         CALL save_displaysettings('unstruc.cfg')
       ENDIF
    ELSEIF (NWHAT .EQ. 2) THEN
       EXP(1)    = 'MENU 9                                  '
@@ -414,12 +420,12 @@
       endif
 
       if (nshiptxy > 0) then
-         OPTION(49)= 'zspc                                 (m)'
+         OPTION(49)= 'zsp                                  (m)'
       endif
       if (janudge > 0) then
          OPTION(50)= 'Nudge time                           (s)'
       else if (nshiptxy > 0) then
-         OPTION(50)= 'v1ship                              (m3)'
+         OPTION(50)= 's1+zsp                               (m)'
       endif
       numopt=50
       numoptwav=-999
@@ -448,6 +454,10 @@
       NWHAT2    = NDRAW(28)
       CALL MENUV3(NWHAT2,OPTION,MAXOPT,EXP,MAXEXP)
       ! Set default display mode to numbers for nodenums/codes, etc.
+      if (nwhat2 == 11 .and. isalt > 0) iconst_cur = isalt
+      if (nwhat2 == 12 .and. itemp > 0) iconst_cur = itemp
+      if (nwhat2 == 13 .and. ised1 > 0) iconst_cur = ised1
+ 
       if (ndraw(19) == 1) then
          if (nwhat2 == 15 .or. nwhat2 == 16) then
             ndraw(19) = 2
@@ -537,15 +547,15 @@
       if (javeg == 0) then
       OPTION(22)= 'aifu ()                                 '
       OPTION(23)= 'Local waterlevel slope               ( )'
-      OPTION(24)= 'cfu=g/(HC2)                        (   )'
+      OPTION(24)= 'cfuhi=g/(HC2)                      (   )'
       else
       OPTION(22)= 'Plant diameter                       (m)'
       OPTION(23)= 'Plant density                     (1/m2)'
       OPTION(24)= 'Stem  height                       ( m )'
       endif
-      OPTION(25)= 'wind x                             (m/s)'
-      OPTION(26)= 'wind y                             (m/s)'
-      OPTION(27)= 'windstress                        (N/m2)'
+      OPTION(25)= 'wx      windspeed                  (m/s)'
+      OPTION(26)= 'wy      windspeed                  (m/s)'
+      OPTION(27)= 'wdsu_x  windstress                (N/m2)'
       OPTION(28)= 'cosphiu , link orthogonality          ()'
       OPTION(29)= 'link nr                                 '
       OPTION(30)= 'tangential velocity                (m/s)'
@@ -564,9 +574,9 @@
       OPTION(43)= 'vicwwu                           (m2/s )'
       OPTION(44)= 'ustb                             (     )'
       if (jawind > 0) then
-      OPTION(45)= 'ustw                             (m/s  )'
+         OPTION(45)= 'ustw                             (m/s  )'
       else
-      OPTION(45)= 'womegu                           (m/s  )'
+         OPTION(45)= 'womegu                           (m/s  )'
       endif
       OPTION(46)= 'Layer Thickness at u             (m    )'
       if (jafrculin > 0) then
@@ -574,7 +584,11 @@
       else
       OPTION(47)= 'Coriolis parameter fcorio        (1/s  )'
       endif
-      OPTION(48)= '                                        '
+      if (jawave>2 .and. jawave<5) then
+         OPTION(48)= 'Wave forcing term at u            (m/s2)'
+      else
+         OPTION(48)= '                                        '
+      endif
       OPTION(49)= 'Number of active layers          (     )'
       OPTION(50)= 'Maximum nr of layers             (     )'
       OPTION(51)= 'Lbot                             (     )'
@@ -696,18 +710,18 @@
       ENDIF
       key = 3
    ELSE IF (NWHAT .EQ. 16) THEN
-      EXP(1)     = 'MENU                                    '
-      EXP(2)     = 'SHOW observation stations               '
-      OPTION(1)  = 'NO observation stations                 '
-      OPTION(2)  = 'Cross                                   '
-      OPTION(3)  = 'Cross + name                            '
-      OPTION(4)  = 'Polyfil                                 '
-      OPTION(5)  = 'Polyfil + name                          '
-      OPTION(6)  = 'Cross   + waterlevel (m)                '
-      OPTION(7)  = 'Cross   + waterdepth (m)                '
-      OPTION(8)  = 'Cross   + velocity magnitudes (m/s)     '
-      OPTION(9)  = 'Cross   + znod                          '
-      OPTION(10) = 'Cross   + temperatures surface + bed    '
+      EXP(1)    = 'MENU                                    '
+      EXP(2)    = 'SHOW observation stations               '
+      OPTION(1) = 'NO observation stations                 '
+      OPTION(2) = 'Cross                                   '
+      OPTION(3) = 'Cross + name                            '
+      OPTION(4) = 'Polyfil                                 '
+      OPTION(5) = 'Polyfil + name                          '
+      OPTION(6) = 'Cross   + waterlevel (m)                '
+      OPTION(7) = 'Cross   + waterdepth (m)                '
+      OPTION(8) = 'Cross   + velocity magnitudes (m/s)     '
+      OPTION(9) = 'Cross   + znod                          '
+      OPTION(10) = 'Cross   + temperatures surface + bed   '
       OPTION(11) = 'Cross   + kobs index number             '
 
       MAXOPT    = 10
@@ -1013,10 +1027,10 @@
       OPTION(3)  = 'Total shear stress (c+w)          (N/m2)'
       OPTION(4)  = 'Wave force, magnitude             (N/m2)'
       OPTION(5)  = 'Ustokes, magnitude                 (m/s)'
-      OPTION(6)  = 'Wave force, X component              (N)'
-      OPTION(7)  = 'Wave force, Y component              (N)'
-      OPTION(8)  = 'Bottom stress, X component        (N/m2)'
-      OPTION(9)  = 'Bottom stress, Y component        (N/m2)'
+      OPTION(6)  = 'Wave number                      (rad/m)'
+      OPTION(7)  = 'sinh(kh)                             (-)'
+      OPTION(8)  = 'Surface force term                (N/m2)'
+      OPTION(9)  = 'Body force term                   (N/m2)'
       OPTION(10) = 'Stokes drift, X component          (m/s)'
       OPTION(11) = 'Stokes drift, Y component          (m/s)'
       OPTION(12) = 'Wave energy                          (J)'
@@ -1082,8 +1096,10 @@
       OPTION(3) = 'Wave  rel. bedload transport    (kg/s/m)'
       OPTION(4) = 'Wave  rel. susp. transport      (kg/s/m)'
       OPTION(5) = 'Total transport                 (kg/s/m)'
+      OPTION(6) = 'Bermslope correction            (kg/s/m)'
+      OPTION(7) = 'Bermslope index                      (-)'
 
-      MAXOPT    = 5
+      MAXOPT    = 7
       NWHAT2    = NDRAW(29)
       CALL MENUV3(NWHAT2,OPTION,MAXOPT,EXP,MAXEXP)
       NDRAW(29) = NWHAT2
@@ -1101,10 +1117,9 @@
       OPTION(1) = 'Bottom level change in last timestep (m)'
       OPTION(2) = 'Sediment source adv. eq.       (kg/m3/s)'
       OPTION(3) = 'Sediment sink   adv. eq.           (1/s)'
-      !OPTION(4) = 'Wave  rel. susp. transport      (kg/s/m)'
-      !OPTION(5) = 'Total transport                 (kg/s/m)'
+      OPTION(4) = 'Total transport magnitude       (kg/s/m)'
 
-      MAXOPT    = 3
+      MAXOPT    = 4
       NWHAT2    = NDRAW(28)
       CALL MENUV3(NWHAT2,OPTION,MAXOPT,EXP,MAXEXP)
       NDRAW(28) = NWHAT2

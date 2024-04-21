@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Finalizes the current user-timestep (monitoring and I/O).
 !!
@@ -39,7 +39,6 @@ subroutine flow_finalize_usertimestep(iresult)
    use m_timer
    use m_flow
    use m_flowgeom
-   use m_fourier_analysis
    use m_trachy
    use dfm_error
    use precision_basics, only : comparereal
@@ -47,6 +46,8 @@ subroutine flow_finalize_usertimestep(iresult)
    use m_partitioninfo, only: jampi
    use unstruc_channel_flow, only : network
    use m_oned_functions, only: updateFreeboard, updateDepthOnGround, updateVolOnGround
+   use m_update_fourier, only : update_fourier
+   use mass_balance_areas_routines, only : mba_update
    implicit none
 
    integer, intent(out) :: iresult !< Error status, DFM_NOERR==0 if successful.
@@ -99,7 +100,6 @@ subroutine flow_finalize_usertimestep(iresult)
             if (jampi == 1) then
                call updateValuesOnCrossSections_mpi(time1)
                call updateValuesOnRunupGauges_mpi()
-               call reduce_particles()
             endif
             if (jahisbal > 0) then ! Update WaterBalances etc.
                call updateBalance()
@@ -136,26 +136,11 @@ subroutine flow_finalize_usertimestep(iresult)
 
    endif
 
-   if (fourierIsActive() .and. do_fourier) then
-      if (fourierWithUc()) then
-         call getucxucyeulmag(ndkx, workx, worky, ucmag, jaeulervel, 1)
-      endif
-      if (network%loaded) then
-         if (fourierWithFb()) then
-            call updateFreeboard(network)
-         end if
-         if (fourierWithWdog()) then
-            call updateDepthOnGround(network)
-         end if
-         if (fourierWithVog()) then
-            call updateVolOnGround(network)
-         end if
-      end if
-      ti_fou = merge(dt_user, ti_his, md_fou_step == 0)
-      call postpr_fourier(time0, ti_fou)
+   if (do_fourier) then
+      call update_fourier(merge(dt_user, ti_his, md_fou_step == 0))
    endif
 
- iresult = DFM_NOERR
- return ! Return with success.
+   iresult = DFM_NOERR
+   return ! Return with success.
 
- end subroutine flow_finalize_usertimestep
+end subroutine flow_finalize_usertimestep

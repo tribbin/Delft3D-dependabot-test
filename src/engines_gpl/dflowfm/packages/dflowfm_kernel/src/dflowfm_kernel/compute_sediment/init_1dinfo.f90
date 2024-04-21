@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    subroutine init_1dinfo()
    use m_flowgeom, only: lnx1D, ln, ndx, lnx1Db
@@ -59,7 +59,7 @@
        if (link1(k2) == 0) then
            link1(k2) = L
            link1sign(k2) = 1
-       endif    
+       endif
    enddo
    
    link1_initialized = .true.

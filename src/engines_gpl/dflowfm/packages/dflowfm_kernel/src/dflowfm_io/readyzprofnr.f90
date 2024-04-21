@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  !> Reads xyz profiles (and stores them as yz profiles).
  !! When the model is in spherical coordinates, the x,y pairs (lon,lat) are translated
@@ -97,10 +97,12 @@
        if (nyz > 2) then ! throw away points that can be represented by linear interpolation
           ikp(1)   = 1
           ikp(nyz) = 1
+          n0 = 1
           do n1  = 2, nyz-1
-             n0  = n1-1 ; n2 = n1+1
+             n2 = n1+1
              if ( (zz(n1)-zz(n0))*(zz(n2)-zz(n1)) < 0) then ! do not touch local maxima or minima
                 ikp(n1) = 1
+                n0 = n1
              else
                 y02 = yy(n2) - yy(n0)
                 y01 = yy(n1) - yy(n0)
@@ -109,6 +111,7 @@
                 dif = abs(zz(n1) - zn1)
                 if (dif > tolzprof) then
                    ikp(n1) = 1
+                   n0 = n1
                 else
                    ikp(n1) = 0
                 endif

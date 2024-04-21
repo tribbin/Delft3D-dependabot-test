@@ -32,6 +32,7 @@
 
 module m_f1dimp
    use m_f1dimp_data
+   public f1dimppar
    !
    ! flow 1d implicit
    !

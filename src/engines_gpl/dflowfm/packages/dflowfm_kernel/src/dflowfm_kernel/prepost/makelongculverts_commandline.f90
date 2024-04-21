@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !>  perform partitioning from command line
 subroutine makelongculverts_commandline()
@@ -38,14 +38,18 @@ subroutine makelongculverts_commandline()
    use m_longculverts
    use unstruc_netcdf, only :  unc_write_net, UNC_CONV_UGRID
    use unstruc_channel_flow, only: network
+   use system_utils
    
    character(len=1024) :: fnamesstring
    character(len=:), allocatable :: converted_fnamesstring
    character(len=:), allocatable :: converted_crsdefsstring
    character(len=:), allocatable :: tempstring_crsdef
    character(len=:), allocatable :: tempstring_fnames
+   character(len=:), allocatable :: tempstring_netfile
    character(len=200), dimension(:), allocatable       :: fnames
-  
+   character(len=IdLen)          :: temppath, tempname, tempext 
+   integer                       :: dirindex
+   
    
     if (len_trim(md_1dfiles%structures) > 0) then
     
@@ -59,10 +63,14 @@ subroutine makelongculverts_commandline()
       end do
       deallocate(fnames)
       call finalizeLongCulvertsInNetwork()
-     
-      call unc_write_net(trim(md_culvertprefix)//md_netfile, janetcell = 1, janetbnd = 0, jaidomain = 0, iconventions = UNC_CONV_UGRID)
 
-      md_netfile = trim(md_culvertprefix)//md_netfile
+      call split_filename(md_netfile, temppath, tempname, tempext)
+      tempname = trim(md_culvertprefix)//tempname
+      tempstring_netfile = cat_filename(temppath, tempname, tempext)
+
+      call unc_write_net(tempstring_netfile, janetcell = 1, janetbnd = 0, jaidomain = 0, iconventions = UNC_CONV_UGRID)
+
+      md_netfile = tempstring_netfile
       md_1dfiles%structures = converted_fnamesstring
       md_1dfiles%cross_section_definitions = converted_crsdefsstring   
       converted_fnamesstring = trim( trim(md_culvertprefix)//md_ident )//'.mdu'

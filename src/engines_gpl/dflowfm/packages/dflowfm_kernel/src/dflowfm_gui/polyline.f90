@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
     SUBROUTINE POLYLINE(XR,YR,N)
     use unstruc_opengl
@@ -42,7 +42,7 @@
          call LNABSNOP(dble(XR(I)),dble(YR(I)))
       10 CONTINUE
     ELSE
-         CALL IGRPOLYLINE(XR,YR,N)
+        CALL IGRPOLYLINE(XR,YR,N)
     ENDIF
 
     END SUBROUTINE

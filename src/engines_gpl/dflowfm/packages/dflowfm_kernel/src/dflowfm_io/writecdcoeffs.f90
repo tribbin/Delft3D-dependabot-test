@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine writeCdcoeffs()
  use unstruc_model
@@ -59,6 +59,10 @@
     write (msgbu, '(a)') '* Wuest 2003 & Smith en Banke (fixed parameters)'
  else if (icdtyp == 7) then
     write (msgbu, '(a)') '* Hans Hersbach, July 2010, ECMWF fit (CHarnock plus viscous term), (e.g. Charnock=0.018 and alfvisc=0.11)'
+ else if (icdtyp == 8) then
+    write (msgbu, '(a)') '* Charnock 1955 (2 parameters, Charnock plus viscous, e.g. 0.025     0.11)'
+ else if (icdtyp == 9) then
+    write (msgbu, '(a)') '* Garratt, 1977 (fixed parameters)'
  endif
 
  write (msgbu, '(a)')     '* column 1 : Wind speed               (m/s) '
@@ -130,7 +134,7 @@
     endif
  enddo
 
- do k = 1, 7
+ do k = 1, 8
     uwi = uwi + 10d0
     if (jawave > 0 .and. .not. flowWithoutWaves) then
        call hurdlestive (Uwi, fetchL, fetchD, Hsig, Tsig)

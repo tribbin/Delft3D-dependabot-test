@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !---------------------------------------------------------------
 module m_snappol  ! intentionally a module (for assumed size)
@@ -43,7 +43,7 @@ implicit none
      use m_alloc
      use m_flowgeom
      use network_data, only: xk, yk, kn
-     use sorting_algorithms, only: indexxi
+     use stdlib_sorting, only: sort_index
      implicit none
 
      integer,                                     intent(in)  :: Nin          !< thin-dyke polyline size
@@ -63,7 +63,7 @@ implicit none
      integer,          dimension(:), allocatable              :: iLink, ipol
      integer,          dimension(:), allocatable              :: ipolnr, indx
 
-     integer                                                  :: i, ii, iL, ipL, ipolsec, k1, k2, L, numpols
+     integer                                                  :: i, ii, ipL, ipolsec, k1, k2, L, numpols
 
      ierror = 1
 
@@ -135,7 +135,7 @@ implicit none
 
 !    sort crossed flowlinks in increasing polyline order
      allocate (indx(numLinks))
-     call indexxi(numLinks,iPol,indx)
+     call sort_index(iPol(1:numLinks), indx)
 
 !    increase polygon array
      call increasepol(3*NumLinks,0)
@@ -147,7 +147,7 @@ implicit none
         i = 0
 
 !       advance pointer
-        do while ( ipolnr(iPol(indx(ii))).lt.ipL )
+        do while ( ipolnr(iPol(ii)).lt.ipL )
            ii=ii+1
         end do
 
@@ -155,13 +155,10 @@ implicit none
            exit
         end if
 
-        do while ( ipolnr(iPol(indx(ii))).eq.ipL )
-        !do iL=1,NumLinks
-           iL = indx(ii)
-
-           L = iLink(iL)
+        do while ( ipolnr(iPol(ii)).eq.ipL )
+           L = iLink(indx(ii))
 !          check for matching polygon section
-           ipolsec = iPol(iL)
+           ipolsec = iPol(ii)
            if ( ipolsec.lt.1 .or. ipolsec.ge.Nin ) then  ! should not happen
               continue
               exit
@@ -238,7 +235,7 @@ implicit none
 
 
 !> snap point to flow node
-  subroutine snappnt(Nin, xin, yin, dsep, Nout, xout, yout, ipoLout, ierror)
+  subroutine snappnt(Nin, xin, yin, dsep, Nout, xout, yout, ipoLout, ierror, kout)
      use m_alloc
      use m_flowgeom, only: xz, yz
      use m_GlobalParameters, only: INDTP_ALL
@@ -254,6 +251,7 @@ implicit none
      double precision, dimension(:), allocatable, intent(out) :: Xout, Yout   !< output polygon coordinates, dim(Nout)
      integer,          dimension(:), allocatable, intent(out) :: ipoLout      !< reference to input points (>0), no flownode found (0), dim(Nout)
      integer,                                     intent(out) :: ierror       !< error (1) or not (0)
+     integer, optional,dimension(:), allocatable, intent(out) :: kout         !< flownode numbers found by snapping (0=not flownode found)
 
      character(len=IdLen), dimension(:), allocatable          :: namobs
 
@@ -282,6 +280,9 @@ implicit none
      Nout = Nin
      call realloc(xout, Nout, keepExisting=.false., fill=dsep)
      call realloc(yout, Nout, keepExisting=.false., fill=dsep)
+     if (present(kout)) then
+        call realloc(kout, Nout, keepExisting=.false., fill=0)
+     end if
      call realloc(ipoLout, Nout, keepExisting=.false., fill=0)
 
      do i=1,Nout
@@ -290,6 +291,9 @@ implicit none
            xout(i) = xz(k)
            yout(i) = yz(k)
            ipoLout(i) = i
+           if (present(kout)) then
+              kout(i) = k
+           end if
         else
            xout(i) = dsep
            yout(i) = dsep

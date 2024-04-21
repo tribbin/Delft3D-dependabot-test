@@ -33,7 +33,6 @@
  subroutine step_reduce_hydro(key)                   ! do a flow timestep dts guus, reduce once, then elimin conjugate grad substi
  use m_flow                                          ! when entering this subroutine, s1=s0, u1=u0, etc
  use m_flowgeom
- use m_sediment, only: stm_included, stmpar, mtd
  use Timers
  use m_flowtimes
  use m_sferic
@@ -47,7 +46,7 @@
  use m_sobekdfm
  use unstruc_display
  use m_waves
- use m_subsidence
+ use m_1d2d_fixedweirs, only : compute_1d2d_fixedweirs, set_discharge_on_1d2d_fixedweirs, compfuru_1d2d_fixedweirs, check_convergence_1d2d_fixedweirs
 
  implicit none
 
@@ -57,7 +56,7 @@
  integer            :: key, jposhchk_sav, LL, L, k1,k2, itype
  integer            :: ja, k, ierror, n, kt, num, js1, noddifmaxlevm, nsiz
  character (len=40) :: tex
- logical            :: firstnniteration
+ logical            :: firstnniteration, last_iteration
  double precision   :: wave_tnow, wave_tstop, t0, t1, dif, difmaxlevm
  double precision   :: hw,tw, uorbi,rkw,ustt,hh,cs,sn,thresh
 
@@ -106,6 +105,14 @@
  !-----------------------------------------------------------------------------------------------
 
 444 call s1nod()                                        ! entry point for non-linear continuity
+    if (ifixedWeirScheme1d2d == 1) then
+       if (last_iteration) then 
+          ! Impose previously computed 1d2d discharge on 1d2d fixed weirs to keep mass conservation
+          call set_discharge_on_1d2d_fixedweirs()
+       else
+          call compute_1d2d_fixedweirs()
+       endif
+    endif
 
     call solve_matrix(s1, ndx,itsol)                    ! solve s1
 
@@ -234,6 +241,13 @@
     if ( difmaxlev > epsmaxlev) then
        ccr = ccrsav                                   ! avoid redo s1ini, ccr is altered by solve
        goto 444                                       ! standard non-lin iteration s1 => 444
+    else if (ifixedweirscheme1d2d==1 .and. .not. last_iteration) then
+       if (check_convergence_1d2d_fixedweirs()) then
+          last_iteration = .true. 
+       end if
+       ccr = ccrsav                                ! avoid redo s1ini, ccr is altered by solve
+       goto 444                                    ! when s1 .ne. s1m again do outer loop
+       
     endif
 
     ! beyond or past this point s1 is converged

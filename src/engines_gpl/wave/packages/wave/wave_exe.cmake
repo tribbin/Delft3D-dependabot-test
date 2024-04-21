@@ -7,6 +7,7 @@ set(icon_file resource/wl.ico)
 # Define executable
 set(executable_name wave_exe)
 add_executable(${executable_name}   ${executable_files}
+                                    ${rc_version_file}
                                     ${icon_file})
 
 # Set additional compilation properties
@@ -34,8 +35,6 @@ if (WIN32)
 
     oss_include_libraries(${executable_name} exe_dependencies)
     target_link_libraries(${executable_name} ${exe_dependencies})
-    
-    include_directories(${mpi_include_path})
 
 endif(WIN32)
 
@@ -45,8 +44,7 @@ if(UNIX)
     find_package(PkgConfig REQUIRED)
 
     # these calls create special `PkgConfig::<MODULE>` variables
-    pkg_check_modules(NETCDF     REQUIRED IMPORTED_TARGET netcdf)
-    pkg_check_modules(NETCDF_FTN REQUIRED IMPORTED_TARGET netcdf-fortran)
+    pkg_check_modules(NETCDF REQUIRED IMPORTED_TARGET netcdf)
 
     set(exe_dependencies    wave_data
                             delftio
@@ -63,6 +61,7 @@ if(UNIX)
                             triangle_c
                             swan
                             esmfsm
+                            netcdff
                             )
     
     oss_include_libraries(${executable_name} exe_dependencies)
@@ -70,12 +69,10 @@ if(UNIX)
     target_link_libraries(${executable_name}
          ${exe_dependencies}
          PkgConfig::NETCDF
-         PkgConfig::NETCDF_FTN)
-
-    include_directories(${mpi_include_path})
-    
+         )
 endif(UNIX)
 
+include_directories(${mpi_include_path} ${version_include_dir})
 
 if (WIN32)
     # Set linker properties
@@ -111,27 +108,35 @@ source_group(Resources FILES    ${rc_version_file}
                                 ${icon_file})
 set_target_properties (${executable_name} PROPERTIES FOLDER engines_gpl/wave)
 
-# Set additional compilation properties, specific for Debug mode
-target_compile_options(${executable_name} PRIVATE "$<$<CONFIG:Debug>:${check_bounds_flag}>")
-target_compile_options(${executable_name} PRIVATE "$<$<CONFIG:Debug>:${check_pointer}>")
 
 # Change the name of the target library to wave.exe
 set_target_properties (${executable_name} PROPERTIES OUTPUT_NAME wave_exe)
 if (WIN32)
     set_target_properties(${executable_name} PROPERTIES LINK_FLAGS "/LARGEADDRESSAWARE /STACK:20000000")
+	set (userfilename "${CMAKE_BINARY_DIR}/template.vfproj.user")
+	configure_file(
+    ${userfilename}
+    "${CMAKE_CURRENT_BINARY_DIR}/${executable_name}.vfproj.$ENV{USERNAME}.user"
+    @ONLY
+	)
 endif(WIN32)
 
-# Set post-build step
-set(install_dir ${CMAKE_BINARY_DIR})
-set(build_dir ${CMAKE_BINARY_DIR})
-
-post_build_target (${executable_name}
-                   ${install_dir} 
-                   ${build_dir} 
-                   ${checkout_src_root} 
-                   ${executable_name})
-
-install(TARGETS ${executable_name} RUNTIME  DESTINATION bin)
 if (UNIX)
-    install(PROGRAMS ${CMAKE_SOURCE_DIR}/../engines_gpl/wave/scripts/run_dwaves.sh  DESTINATION bin)
+    install(PROGRAMS $<TARGET_FILE:${executable_name}> RENAME wave DESTINATION bin)
+elseif (WIN32)
+    install(PROGRAMS $<TARGET_FILE:${executable_name}> RENAME wave.exe DESTINATION bin)
+endif()
+
+install(PROGRAMS ${CMAKE_SOURCE_DIR}/../engines_gpl/wave/scripts/run_dwaves.${platform_extension}  DESTINATION bin)
+if (UNIX)
+    install(PROGRAMS ${CMAKE_SOURCE_DIR}/../third_party_open/esmf/lnx64/scripts/ESMF_RegridWeightGen_in_Delft3D-WAVE.sh DESTINATION bin)
 endif(UNIX)
+if(WIN32)
+    install(PROGRAMS ${CMAKE_SOURCE_DIR}/../third_party_open/esmf/win64/scripts/ESMF_RegridWeightGen_in_Delft3D-WAVE.bat DESTINATION bin)
+    install (DIRECTORY ${CMAKE_SOURCE_DIR}/../third_party_open/esmf/win64/bin/ DESTINATION lib
+FILES_MATCHING
+PATTERN "*.dll"
+PATTERN "*.dll.a"
+)
+    install (PROGRAMS ${CMAKE_SOURCE_DIR}/../third_party_open/esmf/win64/bin/ESMF_RegridWeightGen.exe DESTINATION bin)
+endif(WIN32)

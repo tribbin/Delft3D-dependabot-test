@@ -795,10 +795,9 @@ subroutine inifm1dimp_faap(iresult)
 
 use m_f1dimp
 use m_flowgeom, only: ndx, bai_mor, ba, bl, dx, lnx, dxi, acl, wu, snu, csu, wu_mor, wcx1, wcx2, wcy1, wcy2, kcu, wcl, lnxi, griddim
-use m_flow, only: s0, s1, u1, au, hu, qa, frcu_mor, frcu, z0urou, ifrcutp
+use m_flow, only: s0, s1, u1, au, hu, qa, frcu_mor, frcu, z0urou, ifrcutp, taubxu
 use m_sediment, only: stmpar, jased, stm_included, kcsmor
 use m_fm_erosed, only: ndx_mor, lsedtot, lnx_mor, pmcrit, ucyq_mor, link1, ln_mor
-use m_waves, only: taubxu
 use m_turbulence, only: rhowat
 use m_xbeach_data, only: ktb
 use m_bedform, only: bfmpar

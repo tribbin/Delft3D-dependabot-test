@@ -9,7 +9,7 @@
     # Usage example:
     # Execute in the working directory:
     # /path/to/delft3d/installation/lnx64/bin/run_dimr.sh
-    # More examples: check run scripts in https://svn.oss.deltares.nl/repos/delft3d/trunk/examples/*
+    # More examples: check run scripts in https://git.deltares.nl/oss/delft3d/-/tree/main/examples/*
 
 function print_usage_info {
     echo "Usage: ${0##*/} [OPTION]..."
@@ -18,14 +18,14 @@ function print_usage_info {
     echo "Options:"
     echo "-c, --corespernode <M>"
     echo "       number of cores per node, default $corespernodedefault"
+    echo "--cleanup <scriptname.sh>"
+    echo "       option to execute a user provided script directly after dimr has finished"
     echo "-d, --debug <D>"
-    echo "       0:ALL, 6:SILENT"
+    echo "       0:ALL, 6:SILENT; ALL includes overall time output"
     echo "-h, --help"
     echo "       print this help message and exit"
     echo "-m, --masterfile <filename>"
     echo "       dimr configuration filename, default dimr_config.xml"
-    echo "--dockerparallel"
-    echo "       A parallel run inside docker"
     echo "The following arguments are used when called by submit_dimr.sh:"
     echo "    --D3D_HOME <path>"
     echo "       path to binaries and scripts"
@@ -45,7 +45,8 @@ corespernodedefault=1
 corespernode=$corespernodedefault
 debuglevel=-1
 configfile=dimr_config.xml
-dockerprl=0
+cleanup=0
+cleanupfile=
 D3D_HOME=
 runscript_extraopts=
 NNODES=1
@@ -76,8 +77,10 @@ case $key in
     configfile="$1"
     shift
     ;;
-    --dockerparallel)
-    dockerprl=1
+    --cleanup)
+    cleanup=1
+    cleanupfile="$1"
+    shift
     ;;
     --D3D_HOME)
     D3D_HOME="$1"
@@ -100,7 +103,7 @@ case $key in
 esac
 done
 
-# Check configfile    
+# Check configfile
 if [ ! -f $configfile ]; then
     echo "ERROR: configfile $configfile does not exist"
     print_usage_info
@@ -113,20 +116,21 @@ else
     debugarg="-d $debuglevel"
 fi
 
-# set the number of OpenMP threads equal to max(2,NumberOfPhysicalCores-2)
-if [ -z ${OMP_NUM_THREADS+x} ]; then 
+if [ -z ${OMP_NUM_THREADS+x} ]; then
     # If OMP_NUM_THREADS is not already defined:
     # Since OMP_NUM_THREADS is advised to be 1, don't do any smart setting, just set it to 1
-    # export NumberOfPhysicalCores=`cat /proc/cpuinfo | grep "cpu cores" | uniq | awk -F: '{print $2}'` 
-    # export OMP_NUM_THREADS=`expr $NumberOfPhysicalCores - 2`
-    # if [ $OMP_NUM_THREADS -lt 2 ]; then
-    #     export OMP_NUM_THREADS=2
-    # fi
+      # Optionally: set the number of OpenMP threads equal to max(2,NumberOfPhysicalCores-2)
+      # export NumberOfPhysicalCores=`cat /proc/cpuinfo | grep "cpu cores" | uniq | awk -F: '{print $2}'`
+      # export OMP_NUM_THREADS=`expr $NumberOfPhysicalCores - 2`
+      # if [ $OMP_NUM_THREADS -lt 2 ]; then
+      #     export OMP_NUM_THREADS=2
+      # fi
     export OMP_NUM_THREADS=1
-else echo "OMP_NUM_THREADS is already defined"
+else
+    echo "OMP_NUM_THREADS is already defined"
 fi
 
-export NSLOTS=`expr $NNODES \* $corespernode` 
+export NSLOTS=`expr $NNODES \* $corespernode`
 
 workdir=`pwd`
 
@@ -148,11 +152,20 @@ export D3D_HOME
 PROC_DEF_DIR=$D3D_HOME/share/delft3d
 export PROC_DEF_DIR
 
-# Always try the following module load
-module load intelmpi/21.2.0 &>/dev/null
 
-export FI_PROVIDER=tcp
- 
+
+# On Deltares systems only:
+if [ -f "/opt/apps/deltares/.nl" ]; then
+    # Try the following module load
+    module load intelmpi/21.2.0 &>/dev/null
+
+    # If not defined yet: Define I_MPI_FABRICS and FI_PROVIDER with proper values for Deltares systems
+    [ ! -z "$I_MPI_FABRICS" ] && echo "I_MPI_FABRICS is already defined" || export I_MPI_FABRICS=shm
+    [ ! -z "$FI_PROVIDER" ] && echo "FI_PROVIDER is already defined" || export FI_PROVIDER=tcp
+fi
+
+
+
 echo "    Configfile       : $configfile"
 echo "    D3D_HOME         : $D3D_HOME"
 echo "    PROC_DEF_DIR     : $PROC_DEF_DIR"
@@ -160,7 +173,6 @@ echo "    Working directory: $workdir"
 echo "    Number of nodes  : $NNODES"
 echo "    Number of slots  : $NSLOTS"
 echo "    OMP_NUM_THREADS  : $OMP_NUM_THREADS"
-echo "    Docker parallel  : $dockerprl"
 echo "    `type mpiexec`"
 echo "    FI_PROVIDER      : $FI_PROVIDER"
 echo "    I_MPI_FABRICS    : $I_MPI_FABRICS"
@@ -204,60 +216,68 @@ if [ $debuglevel -eq 0 ]; then
     echo =========================================================
 fi
 
-
-if [ $NSLOTS -eq 1 ]; then
-    echo "executing:"
-    echo "$bindir/dimr $configfile $debugarg"
-          $bindir/dimr $configfile $debugarg
-else
-    if [ $dockerprl -eq 1 ]; then
-        #
-        # Parallel in Docker
-        # Assumption: 1 node
-
-        node_number=$NSLOTS
-        while [ $node_number -ge 1 ]; do
-           node_number=`expr $node_number - 1`
-           ln -s /dev/null log$node_number.irlog
-        done
-
-        echo "executing:"
-        echo "mpirun -np $NSLOTS $bindir/dimr $configfile $debugarg"
-              mpirun -np $NSLOTS $bindir/dimr $configfile $debugarg
-    else
-        #
-        # Create machinefile using $PE_HOSTFILE
-        if [ $NNODES -eq 1 ]; then
-            echo " ">$(pwd)/machinefile
-        else
-            if [ -n $corespernode ]; then
-                if [ -e $(pwd)/machinefile ]; then
-                    rm -f machinefile
-                fi
-                for (( i = 1 ; i <= $corespernode; i++ )); do
-                    awk '{print $1":"1}' $PE_HOSTFILE >> $(pwd)/machinefile
-                done
-            else
-               awk '{print $1":"2}' $PE_HOSTFILE > $(pwd)/machinefile
-            fi
-        fi
-        echo Contents of machinefile:
-        cat $(pwd)/machinefile
-        echo ----------------------------------------------------------------------
-
-
-        echo "executing:"
-        echo "mpiexec -np $NSLOTS $bindir/dimr $configfile $debugarg"
-              mpiexec -np $NSLOTS $bindir/dimr $configfile $debugarg
-    fi
+timecmd=""
+if [ $debuglevel -eq 0 ]; then
+   if [ -z "${TIME}" ]; then
+       export TIME="\n\n %PCPU (%Xtext+%Ddata %Mmax)k \nreal %e \nuser %U \nsys %s"
+   fi
+   timecmd="/usr/bin/time -o resource_dimr.out"
 fi
 
 
-    # Wait until all child processes are finished
+if [ $NSLOTS -eq 1 ]; then
+    echo "executing:"
+    echo "$timecmd $bindir/dimr $configfile $debugarg"
+          $timecmd $bindir/dimr $configfile $debugarg
+else
+    #
+    # Create machinefile using $PE_HOSTFILE
+    if [ $NNODES -eq 1 ]; then
+        echo " ">$(pwd)/machinefile
+    else
+        if [ -n $corespernode ]; then
+            if [ -e $(pwd)/machinefile ]; then
+                rm -f machinefile
+            fi
+            for (( i = 1 ; i <= $corespernode; i++ )); do
+                awk '{print $1":"1}' $PE_HOSTFILE >> $(pwd)/machinefile
+            done
+        else
+           awk '{print $1":"2}' $PE_HOSTFILE > $(pwd)/machinefile
+        fi
+    fi
+    echo Contents of machinefile:
+    cat $(pwd)/machinefile
+    echo ----------------------------------------------------------------------
+
+
+    echo "executing:"
+    echo "$timecmd mpiexec -np $NSLOTS $bindir/dimr $configfile $debugarg"
+          $timecmd mpiexec -np $NSLOTS $bindir/dimr $configfile $debugarg
+fi
+
+
+# Wait until all child processes are finished
 wait
 
-    # Nefis files don't get write permission for the group bit
-    # Add it explicitly, only when stderr = 0
+# Execute only when stderr = 0
 if [ $? -eq 0 ]; then
+    # Nefis files don't get write permission for the group bit
+    # Add it explicitly
     chmod -R g+rw *.dat *.def &>/dev/null || true
+
+    # Check cleanup option
+    if [ $cleanup -eq 1 ]; then
+        echo ""
+        if [ "$cleanupfile" = "" ]; then
+            echo "ERROR: option --cleanup is active, but no filename is found"
+        else
+            if [ ! -f $cleanupfile ]; then
+                echo "ERROR: option --cleanup is active, but file $cleanupfile is not found in local directory"
+            else
+                echo "option --cleanup is active, script $cleanupfile is executed now"
+                . $cleanupfile
+            fi
+        fi
+    fi
 fi

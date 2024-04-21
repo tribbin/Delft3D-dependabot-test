@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Performs a single computational timestep, but not the init and finalize of the timestep.
 subroutine flow_run_single_timestep(key, iresult)                ! do only 1 flow timestep
@@ -56,14 +56,13 @@ integer :: N, L
     select case (FlowSolver)
         case (1)
             call step_reduce_hydro(key)                            ! set a computational timestep implicit, reduce, elim conj grad substi
-            call step_reduce_transport_morpho(key)
         case (2)
             !time1=time0+dts !time step advanced in <flow_single_timestep>.
             call flow_initialize_fm1dimp_timestep(iresult,time1) !in kernel, can access everything
             call SOFLOW_wrap(time1) !in module, only accesses SRE variables
             call flow_finalize_fm1dimp_timestep() !in kernel, can access everything
-            call step_reduce_transport_morpho(key)
     end select
+    call step_reduce_transport_morpho(key)
     
     call timstop(handle_extra(51)) ! step_reduce
 
@@ -73,7 +72,6 @@ integer :: N, L
  else
     call velocities_explicit()                       ! progress without pressure coupling
     call transport()                                 ! progress without pressure coupling
-    call update_part()
     time1  = time0 + dts                             ! progress without pressure coupling
  endif
 

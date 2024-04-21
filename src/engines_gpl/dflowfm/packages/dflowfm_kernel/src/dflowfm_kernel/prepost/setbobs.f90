@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine setbobs()                    ! and set blu, weigthed depth at u point
  use m_netw
@@ -41,13 +41,13 @@
  use unstruc_channel_flow
  use m_structures
  use m_longculverts
- use unstruc_caching, only: cacheRetrieved, copyCachedLongCulverts
+ use unstruc_caching, only: cacheRetrieved
  !\ DEBUG
  use m_missing
 
  implicit none
 
- integer L, k1, k2, n1, n2, LK, n, k, k3, LL, kk, Ls, mis, i, j, numcoords
+ integer L, k1, k2, n1, n2, LK, n, k, k3, LL, kk, Ls, mis, i, j, numcoords, sign
  double precision           :: bl1, bl2, blv, bln, zn1, zn2, zn3, wn, alf, banow, xnow, ynow, skewn, xt, yt, xn, yn
  ! double precision, external :: skewav
 
@@ -99,7 +99,12 @@
     if (ibedlevtyp == 1 .or. ibedlevtyp == 6) then     ! tegeldieptes celcentra
        bl1      = bl(n1)
        bl2      = bl(n2)
-       bob(1,L) = max( bl1, bl2 )
+       if (jadpuopt==1) then !original
+            bob(1,L) = max( bl1, bl2 )
+       elseif (jadpuopt==2) then
+            bob(1,L) = (bl1+bl2)/2
+       endif
+              
        bob(2,L) = bob(1,L)
     else if (ibedlevtyp == 2) then                     ! rechtstreeks op u punten interpoleren,
        k1  = ln(1,L) ; k2 = ln(2,L)                    ! haal waarde uit blu, gedefinieerd op xu,yu
@@ -215,57 +220,56 @@
     if (zn1 == dmiss) zn1 = zkuni
     if (zn2 == dmiss) zn2 = zkuni
 
- if (kcu(L) == 3) then                             ! 1D2D internal link, bobs at minimum
-    if (kcs(n1) == 21) then
-       blv   = bl(n1)
-       call get2Dnormal(n1,xn,yn)                  ! xn, yn = 2D land normal vector pointing upward, both zero = flat
-       call get1Ddir(n2,xt,yt)                     ! xt, yt = 1D river tangential normal vector
+    if (kcu(L) == 3) then                             ! 1D2D internal link, bobs at minimum
+       if (kcs(n1) == 21) then
+          blv   = bl(n1)
+          call get2Dnormal(n1,xn,yn)                  ! xn, yn = 2D land normal vector pointing upward, both zero = flat
+          call get1Ddir(n2,xt,yt)                     ! xt, yt = 1D river tangential normal vector
+       endif
+       if (kcs(n2) == 21) then
+          blv   = bl(n2)
+          call get2Dnormal(n2,xn,yn)
+          call get1Ddir(n1,xt,yt)
+       endif
+       skewn     = abs(xn*xt + yn*yt)
+       bob(1,L)  = blv
+       bob(2,L)  = blv    ! revisit later+ wu(L)*skewn ! TODO: HK: why wu here? Why not dx(L) or something similar?
+       bob0(1,L)  = blv
+       bob0(2,L)  = blv    ! revisit later+ wu(L)*skewn ! TODO: HK: why wu here? Why not dx(L) or something similar?
+       bl(n1)    = min(bl(n1) , blv)
+       bl(n2)    = min(bl(n2) , blv)
+    else if (kcu(L) == 4) then                           ! left right
+       blv       = min(zn1,zn2)
+       bob(1,L)  = zn1
+       bob(2,L)  = zn2
+       bob0(1,L)  = zn1
+       bob0(2,L)  = zn2
+       bl(n1)    = min(bl(n1) , blv)
+       bl(n2)    = min(bl(n2) , blv)
+    else if (kcu(L) == 5 .or. kcu(L) == 7) then         ! keep 1D and 2D levels
+       if (bl(n1) .ne. 1d30 ) then
+          bob(1,L) = bl(n1)
+       else
+          bob(1,L) = zn1
+       endif
+       if (bl(n2) .ne. 1d30 ) then
+          bob(2,L) = bl(n2)
+       else
+          bob(2,L) = zn2
+       endif
+       if (zk(k1) .ne. dmiss .and. nmk(k1) == 1) then   ! if zk specified at endpoint
+           bob(1,L) = zk(k1)
+       endif
+       if (zk(k2) .ne. dmiss .and. nmk(k2) == 1) then   ! if zk specified at endpoint
+           bob(2,L) = zk(k2)
+       endif
+       if (setHorizontalBobsFor1d2d) then
+          bob(:,L) = max(bob(1,L), bob(2,L))
+       endif
+       bob0(:,L) = bob(:,L)
+       bl(n1) = min( bl(n1) , bob(1,L) )
+       bl(n2) = min( bl(n2) , bob(2,L) )
     endif
-    if (kcs(n2) == 21) then
-       blv   = bl(n2)
-       call get2Dnormal(n2,xn,yn)
-       call get1Ddir(n1,xt,yt)
-    endif
-    skewn     = abs(xn*xt + yn*yt)
-    bob(1,L)  = blv
-    bob(2,L)  = blv    ! revisit later+ wu(L)*skewn ! TODO: HK: why wu here? Why not dx(L) or something similar?
-    bob0(1,L)  = blv
-    bob0(2,L)  = blv    ! revisit later+ wu(L)*skewn ! TODO: HK: why wu here? Why not dx(L) or something similar?
-    bl(n1)    = min(bl(n1) , blv)
-    bl(n2)    = min(bl(n2) , blv)
- else if (kcu(L) == 4) then                           ! left right
-    blv       = min(zn1,zn2)
-    bob(1,L)  = zn1
-    bob(2,L)  = zn2
-    bob0(1,L)  = zn1
-    bob0(2,L)  = zn2
-    bl(n1)    = min(bl(n1) , blv)
-    bl(n2)    = min(bl(n2) , blv)
- else if (kcu(L) == 5 .or. kcu(L) == 7) then         ! keep 1D and 2D levels
-    if (bl(n1) .ne. 1d30 ) then
-       bob(1,L) = bl(n1)
-    else
-       bob(1,L) = zn1
-    endif
-    if (bl(n2) .ne. 1d30 ) then
-       bob(2,L) = bl(n2)
-    else
-       bob(2,L) = zn2
-    endif
-    if (zk(k1) .ne. dmiss .and. nmk(k1) == 1) then   ! if zk specified at endpoint
-        bob(1,L) = zk(k1)
-    endif
-    if (zk(k2) .ne. dmiss .and. nmk(k2) == 1) then   ! if zk specified at endpoint
-        bob(2,L) = zk(k2)
-    endif
-    if (setHorizontalBobsFor1d2d) then
-       bob(:,L) = max(bob(1,L), bob(2,L))
-    endif
-    bob0(:,L) = bob(:,L)
-    bl(n1) = min( bl(n1) , bob(1,L) )
-    bl(n2) = min( bl(n2) , bob(2,L) )
- endif
-
  enddo
 
  do k = 1,ndx  !losse punten die geen waarde kregen
@@ -280,12 +284,11 @@
 
      n1       = ln(1,L) ; n2  = ln(2,L)
      if (jaupdbndbl == 1) then
-        bl(n1)   = bl(n2)
+         !if `jadpuopt==1`, the bed level at the boundaries has been extrapolated in `setbedlevelfromextfile` and we do not want to overwrite it.
+         if (jadpuopt==1) then
+            bl(n1)   = bl(n2) !original
+         endif
      endif
-
-     !if (stm_included .and. jawave>0) then
-     !   bl(n1) = bl(n2)
-     !end if
 
      if (kcu(L) == -1) then                       ! 1D randjes extrapoleren voor 1D straight channel convecyance testcase
         k1  = lncn(1,L) ; k2 = lncn(2,L)
@@ -327,7 +330,11 @@
            bob(1,L) = bl(n1)                           ! uniform bobs only for tiledepths
            bob(2,L) = bl(n1)
            if (stm_included) then
-              bob(1,L) = max( bl(n1), bl(n2) )
+              if (jadpuopt==1) then
+                   bob(1,L) = max( bl(n1), bl(n2) )
+              elseif (jadpuopt==2) then
+                   bob(1,L) = (bl(n1)+bl(n2))/2
+              endif
               bob(2,L) = bob(1,L)
               bob0(:,L) = bob(1,L)
            endif
@@ -340,25 +347,14 @@
  
  if ( newculverts) then
   ! find the 1d2d flowlinks required for longculvertsToProfs
-  do i  = 1, nlongculvertsg
+  do i  = 1, nlongculverts
     numcoords = size(longculverts(i)%xcoords)
-    !if (numcoords > 2) then
     call find1d2dculvertlinks(network,longculverts(i), numcoords)
-    !longculverts(i)%flowlinks(1)           = find1d2dculvertlink(network, longculverts(i)%xcoords(1        ),longculverts(i)%ycoords(1        ),longculverts(i)%xcoords(2          ),longculverts(i)%ycoords(2          ) )
-    !longculverts(i)%flowlinks(numcoords-1) = find1d2dculvertlink(network, longculverts(i)%xcoords(numcoords),longculverts(i)%ycoords(numcoords),longculverts(i)%xcoords(numcoords-1),longculverts(i)%ycoords(numcoords-1) )
-    !endif 
+    !this routine is called here because the culvert links need to be filled, cannot be done during Geominit.
+    call setLongCulvert1D2DLinkAngles(i) 
   enddo
   call longculvertsToProfs( .true. )
- else
-  !if ( cacheRetrieved() ) then
-  !  if (allocated(longculverts)) then
-  !     call copyCachedLongCulverts( longculverts, success )
-  !  else
-  !     success = .true.
-  !  end if
-  !else
-  !  success = .false.
-  !endif
+    else
   call longculvertsToProfs( .false. )
  endif
  if (blmeanbelow .ne. -999d0) then
@@ -380,5 +376,4 @@
  endif
 
  jaupdbndbl = 0    ! after first run of setbobs set to 0 = no update
-
  end subroutine setbobs

@@ -1,6 +1,6 @@
 !----- GPL ---------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2022.                                
+!  Copyright (C)  Stichting Deltares, 2011-2024.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify         
 !  it under the terms of the GNU General Public License as published by         
@@ -24,8 +24,8 @@
 !  Stichting Deltares. All rights reserved.                                     
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 
       subroutine write_lga ( file_lga, mmax  , nmax  , nolay , nosegl, &
                              noq1    , noq2  , noq3  , lgrid )
@@ -52,12 +52,12 @@
 !
       ! global declarations
 
-      use filmod                   ! module contains everything for the files
+      use m_waq_file                   ! module contains everything for the files
       implicit none
 
 !     declaration of arguments
 
-      type(t_dlwqfile)                       :: file_lga               ! aggregation-file
+      type(t_file)                       :: file_lga               ! aggregation-file
       integer       mmax  , nmax  , nolay , nosegl, noq1  , noq2  , noq3
       integer       lgrid(nmax,mmax)
 !
@@ -77,8 +77,8 @@
 !
 !     initialise file
 !
-      call dlwqfile_open(file_lga)
-      lun    = file_lga%unit_nr
+      call file_lga%open()
+      lun    = file_lga%unit
       filtyp = file_lga%type
 !
 !     write table

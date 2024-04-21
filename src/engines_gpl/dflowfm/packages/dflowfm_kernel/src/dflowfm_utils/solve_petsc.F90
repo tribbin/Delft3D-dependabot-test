@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -85,12 +85,14 @@ end module m_petsc
       use m_petsc
       use mpi, only: mpi_comm_dup
       use m_flowparameters, only: Icgsolver
-      use m_partitioninfo, only: DFM_COMM_DFMWORLD
+      use m_partitioninfo, only: DFM_COMM_DFMWORLD, jampi
       implicit none
       PetscErrorCode :: ierr = PETSC_OK
      
       if ( icgsolver.eq.6 ) then
-         call mpi_comm_dup(DFM_COMM_DFMWORLD, PETSC_COMM_WORLD, ierr)
+         if (jampi>0) then
+            call mpi_comm_dup(DFM_COMM_DFMWORLD, PETSC_COMM_WORLD, ierr)
+         endif
          call PetscInitialize(PETSC_NULL_CHARACTER,ierr)
          call PetscPopSignalHandler(ierr) ! Switch off signal catching in PETSC.
          call PetscLogDefaultBegin(ierr)
@@ -109,13 +111,16 @@ end module m_petsc
       use mpi, only: mpi_comm_free
       use m_petsc
       use m_flowparameters, only: Icgsolver
+      use m_partitioninfo, only: jampi
       implicit none
       PetscErrorCode :: ierr = PETSC_OK
      
       if (Icgsolver.eq.6) then
          call killSolverPETSC()
          call PetscFinalize(ierr)
-         call mpi_comm_free(PETSC_COMM_WORLD, ierr)
+         if (jampi>0) then
+            call mpi_comm_free(PETSC_COMM_WORLD, ierr)
+         endif
       end if
 #endif
       return
@@ -130,7 +135,7 @@ end module m_petsc
       use m_petsc
       use MessageHandling
       use m_flowgeom, only: xz, yz, wu, nd
-      use sorting_algorithms, only: indexxi
+      use stdlib_sorting, only: sort_index
 
       implicit none
 
@@ -372,9 +377,7 @@ end module m_petsc
          iend   = idia(n+1)-1
          num    = iend-istart+1
          if ( num.gt.0 ) then
-            idum(1:num) = jdia(istart:iend)
-            call indexxi(num,idum,idx)
-            jdia(istart:iend) = idum(idx(1:num))
+            call sort_index(jdia(istart:iend), idx(1:num))
 
             idum(1:num)  = guusidxdia(istart:iend)
             guusidxdia(istart:iend) = idum(idx(1:num))
@@ -386,9 +389,7 @@ end module m_petsc
          iend   = ioff(n+1)-1
          num    = iend-istart+1
          if ( num.gt.0 ) then
-            idum(1:num) = joff(istart:iend)
-            call indexxi(num,idum,idx)
-            joff(istart:iend) = idum(idx(1:num))
+            call sort_index(joff(istart:iend), idx(1:num))
 
             idum(1:num)  = guusidxoff(istart:iend)
             guusidxoff(istart:iend) = idum(idx(1:num))

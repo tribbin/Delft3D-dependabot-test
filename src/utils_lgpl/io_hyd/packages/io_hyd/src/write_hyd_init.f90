@@ -1,6 +1,6 @@
 !----- GPL ---------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2022.                                
+!  Copyright (C)  Stichting Deltares, 2011-2024.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify         
 !  it under the terms of the GNU General Public License as published by         
@@ -24,8 +24,8 @@
 !  Stichting Deltares. All rights reserved.                                     
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 
       subroutine write_hyd_init(hyd)
 
@@ -33,14 +33,15 @@
 
       ! global declarations
 
-      use hydmod
+      use m_monsys
+      use m_hydmod
       use m_write_waqgeom
 
       implicit none
 
       ! declaration of the arguments
 
-      type(t_hyd)         :: hyd     ! description of the hydrodynamics
+      type(t_hydrodynamics)         :: hyd     ! description of the hydrodynamics
 
       ! local declarations
 

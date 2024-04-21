@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,12 +27,12 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2022.
+!  Copyright (C)  Stichting Deltares, 2017-2024.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -58,8 +58,8 @@
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
 !
 !-------------------------------------------------------------------------------
-! $Id$
-! $HeadURL$
+! 
+! 
 !> @file monitoring.f90
 !! Monitoring modules (data+routines).
 !! m_observations and m_monitoring_crosssections
@@ -116,14 +116,14 @@ implicit none
     integer                           :: IVAL_RAIN
     integer                           :: IVAL_INFILTCAP
     integer                           :: IVAL_INFILTACT
-    integer                           :: IVAL_TAU
     integer                           :: IVAL_WAVEH
     integer                           :: IVAL_WAVET
     integer                           :: IVAL_WAVED
     integer                           :: IVAL_WAVEL
     integer                           :: IVAL_WAVER
     integer                           :: IVAL_WAVEU
-    integer                           :: IVAL_WAVETAU
+    integer                           :: IVAL_TAUX
+    integer                           :: IVAL_TAUY
     integer                           :: IVAL_UCX         ! 3D, layer centered after 2D
     integer                           :: IVAL_UCY
     integer                           :: IVAL_UCZ
@@ -149,6 +149,7 @@ implicit none
     integer                           :: IVAL_ZCS
     integer                           :: IVAL_ZWS         ! 3D, layer interfaces after layer centered
     integer                           :: IVAL_ZWU
+    integer                           :: IVAL_BRUV
     integer                           :: IVAL_TKIN
     integer                           :: IVAL_TEPS
     integer                           :: IVAL_VICWW
@@ -161,6 +162,7 @@ implicit none
     integer                           :: IVAL_WIND
     integer                           :: IVAL_RHUM
     integer                           :: IVAL_CLOU
+    integer                           :: IVAL_AIRDENSITY
     integer                           :: IVAL_QSUN
     integer                           :: IVAL_QEVA
     integer                           :: IVAL_QCON
@@ -168,6 +170,7 @@ implicit none
     integer                           :: IVAL_QFRE
     integer                           :: IVAL_QFRC
     integer                           :: IVAL_QTOT
+    integer                           :: IVAL_RHOP
     integer                           :: IVAL_RHO
     integer                           :: IVAL_SBCX1
     integer                           :: IVAL_SBCXN
@@ -221,14 +224,14 @@ implicit none
     integer                           :: IPNT_INFILTCAP
     integer                           :: IPNT_INFILTACT
     integer                           :: IPNT_PATM
-    integer                           :: IPNT_TAU
     integer                           :: IPNT_WAVEH
     integer                           :: IPNT_WAVET
     integer                           :: IPNT_WAVEL
     integer                           :: IPNT_WAVED
     integer                           :: IPNT_WAVER
     integer                           :: IPNT_WAVEU
-    integer                           :: IPNT_WAVETAU
+    integer                           :: IPNT_TAUX
+    integer                           :: IPNT_TAUY
     integer                           :: IPNT_UCX
     integer                           :: IPNT_UCY
     integer                           :: IPNT_UCZ
@@ -241,32 +244,26 @@ implicit none
     integer                           :: IPNT_QMAG
     integer                           :: IPNT_TEM1
     integer                           :: IPNT_TRA1
-    integer                           :: IPNT_TRAN
     integer                           :: IPNT_HWQ1
-    integer                           :: IPNT_HWQN
     integer                           :: IPNT_WQB1
-    integer                           :: IPNT_WQBN
     integer                           :: IPNT_WQB3D1
-    integer                           :: IPNT_WQB3DN
-!    integer                           :: IPNT_SPIR1
     integer                           :: IPNT_SF1
-    integer                           :: IPNT_SFN
     integer                           :: IPNT_SED
     integer                           :: IPNT_ZCS
     integer                           :: IPNT_ZWS
     integer                           :: IPNT_ZWU
+    integer                           :: IPNT_BRUV
     integer                           :: IPNT_TKIN
     integer                           :: IPNT_TEPS
     integer                           :: IPNT_VICWW
     integer                           :: IPNT_WS1
-    integer                           :: IPNT_WSN
     integer                           :: IPNT_SEDDIF1
-    integer                           :: IPNT_SEDDIFN
     integer                           :: IPNT_RICH
     integer                           :: IPNT_TAIR
     integer                           :: IPNT_WIND
     integer                           :: IPNT_RHUM
     integer                           :: IPNT_CLOU
+    integer                           :: IPNT_AIRDENSITY
     integer                           :: IPNT_QSUN
     integer                           :: IPNT_QEVA
     integer                           :: IPNT_QCON
@@ -275,47 +272,31 @@ implicit none
     integer                           :: IPNT_QFRC
     integer                           :: IPNT_QTOT
     integer                           :: IPNT_NUM
+    integer                           :: IPNT_RHOP
     integer                           :: IPNT_RHO
     integer                           :: IPNT_SBCX1           ! should be done per fraction
-    integer                           :: IPNT_SBCXN
     integer                           :: IPNT_SBCY1
-    integer                           :: IPNT_SBCYN
     integer                           :: IPNT_SBWX1
-    integer                           :: IPNT_SBWXN
     integer                           :: IPNT_SBWY1
-    integer                           :: IPNT_SBWYN
     integer                           :: IPNT_SSCX1
-    integer                           :: IPNT_SSCXN
     integer                           :: IPNT_SSCY1
-    integer                           :: IPNT_SSCYN
     integer                           :: IPNT_SSWX1
-    integer                           :: IPNT_SSWXN
     integer                           :: IPNT_SSWY1
-    integer                           :: IPNT_SSWYN
     integer                           :: IPNT_SOUR1
-    integer                           :: IPNT_SOURN
     integer                           :: IPNT_SINK1
-    integer                           :: IPNT_SINKN
     integer                           :: IPNT_BODSED1
-    integer                           :: IPNT_BODSEDN
     integer                           :: IPNT_TAUB
     integer                           :: IPNT_DPSED
     integer                           :: IPNT_MSED1
-    integer                           :: IPNT_MSEDN
     integer                           :: IPNT_THLYR
     integer                           :: IPNT_POROS
     integer                           :: IPNT_LYRFRAC1
-    integer                           :: IPNT_LYRFRACN
     integer                           :: IPNT_FRAC1
-    integer                           :: IPNT_FRACN
     integer                           :: IPNT_MUDFRAC
     integer                           :: IPNT_SANDFRAC
     integer                           :: IPNT_FIXFAC1
-    integer                           :: IPNT_FIXFACN
     integer                           :: IPNT_HIDEXP1
-    integer                           :: IPNT_HIDEXPN
     integer                           :: IPNT_MFLUFF1
-    integer                           :: IPNT_MFLUFFN
 contains
 
 !> (re)initialize valobs and set pointers for observation stations
@@ -361,7 +342,7 @@ end subroutine alloc_valobs
 !! which is being reduced in parallel runs
 subroutine init_valobs_pointers()
    use m_flowparameters
-   use m_flow, only: iturbulencemodel, idensform, kmx
+   use m_flow, only: iturbulencemodel, idensform, kmx, density_is_pressure_dependent
    use m_transport, only: ITRA1, ITRAN, ISED1, ISEDN
    use m_fm_wq_processes, only: noout, numwqbots, wqbot3D_output
    use m_sediment, only: stm_included, stmpar
@@ -389,7 +370,8 @@ subroutine init_valobs_pointers()
    IVAL_WAVEL      = 0
    IVAL_WAVER      = 0
    IVAL_WAVEU      = 0
-   IVAL_WAVETAU    = 0
+   IVAL_TAUX       = 0
+   IVAL_TAUY       = 0
    IVAL_UCX        = 0
    IVAL_UCY        = 0
    IVAL_UCZ        = 0
@@ -413,6 +395,7 @@ subroutine init_valobs_pointers()
    IVAL_ZCS        = 0
    IVAL_ZWS        = 0
    IVAL_ZWU        = 0
+   IVAL_BRUV       = 0
    IVAL_TKIN       = 0
    IVAL_TEPS       = 0
    IVAL_VICWW      = 0
@@ -425,6 +408,7 @@ subroutine init_valobs_pointers()
    IVAL_WIND       = 0
    IVAL_RHUM       = 0
    IVAL_CLOU       = 0
+   IVAL_AIRDENSITY = 0
    IVAL_QSUN       = 0
    IVAL_QEVA       = 0
    IVAL_QCON       = 0
@@ -435,7 +419,7 @@ subroutine init_valobs_pointers()
    IVAL_RAIN       = 0
    IVAL_INFILTCAP  = 0
    IVAL_INFILTACT  = 0
-   IVAL_TAU        = 0
+   IVAL_RHOP       = 0
    IVAL_RHO        = 0
    IVAL_SBCX1      = 0          ! should be done per fraction
    IVAL_SBCXN      = 0
@@ -505,7 +489,10 @@ subroutine init_valobs_pointers()
       i=i+1;            IVAL_WAVER      = i
       i=i+1;            IVAL_WAVEU      = i
    end if
-   i=i+1;            IVAL_WAVETAU    = i
+   if (jahistaucurrent>0) then
+      i=i+1;            IVAL_TAUX   = i
+      i=i+1;            IVAL_TAUY   = i
+   endif
    if ( jatem.gt.1 ) then
       i=i+1;            IVAL_TAIR       = i
    end if
@@ -528,12 +515,12 @@ subroutine init_valobs_pointers()
    if ( jahisrain.gt.0 ) then
       i=i+1;            IVAL_RAIN       = i
    end if
+   if ( jahis_airdensity > 0 ) then
+      i=i+1;            IVAL_AIRDENSITY = i
+   end if
    if ( jahisinfilt.gt.0 ) then
       i=i+1;            IVAL_INFILTCAP  = i
       i=i+1;            IVAL_INFILTACT  = i
-   end if
-   if ( jahistaucurrent.gt.0 ) then
-      i=i+1;            IVAL_TAU       = i
    end if
    if ( numwqbots.gt.0 ) then
       i=i+1;            IVAL_WQB1       = i
@@ -631,7 +618,10 @@ subroutine init_valobs_pointers()
       i=i+1;            IVAL_ZCS        = i
    end if
    if( jasal > 0 .or. jatem > 0 .or. jased > 0 ) then
-      i=i+1;            IVAL_RHO        = i
+      i=i+1;            IVAL_RHOP       = i
+      if ( density_is_pressure_dependent() ) then
+         i=i+1;         IVAL_RHO        = i
+      endif
    endif
    MAXNUMVALOBS3D                       = i-i0
 
@@ -640,6 +630,7 @@ subroutine init_valobs_pointers()
    if ( kmx.gt.0 ) then
       i=i+1;            IVAL_ZWS        = i
       i=i+1;            IVAL_ZWU        = i
+      i=i+1;            IVAL_BRUV       = i
       if ( iturbulencemodel.gt.0 ) then
          i=i+1;         IVAL_TKIN       = i
          i=i+1;         IVAL_TEPS       = i
@@ -693,14 +684,9 @@ subroutine init_valobs_pointers()
    IPNT_UMAG  = ivalpoint(IVAL_UMAG,  kmx, nlyrs)
    IPNT_QMAG  = ivalpoint(IVAL_QMAG,  kmx, nlyrs)
    IPNT_TRA1  = ivalpoint(IVAL_TRA1,  kmx, nlyrs)
-   IPNT_TRAN  = ivalpoint(IVAL_TRAN,  kmx, nlyrs)
    IPNT_HWQ1  = ivalpoint(IVAL_HWQ1,  kmx, nlyrs)
-   IPNT_HWQN  = ivalpoint(IVAL_HWQN,  kmx, nlyrs)
    IPNT_WQB3D1= ivalpoint(IVAL_WQB3D1,kmx, nlyrs)
-   IPNT_WQB3DN= ivalpoint(IVAL_WQB3DN,kmx, nlyrs)
    IPNT_SF1   = ivalpoint(IVAL_SF1,   kmx, nlyrs)
-   IPNT_SFN   = ivalpoint(IVAL_SFN,   kmx, nlyrs)
-!   IPNT_SPIR1 = ivalpoint(IVAL_SPIR1, kmx)
    IPNT_SED   = ivalpoint(IVAL_SED,   kmx, nlyrs)
    IPNT_WX    = ivalpoint(IVAL_WX ,   kmx, nlyrs)
    IPNT_WY    = ivalpoint(IVAL_WY ,   kmx, nlyrs)
@@ -708,48 +694,40 @@ subroutine init_valobs_pointers()
    IPNT_WAVEH = ivalpoint(IVAL_WAVEH, kmx, nlyrs)
    IPNT_WAVET = ivalpoint(IVAL_WAVET, kmx, nlyrs)
    IPNT_WAVED = ivalpoint(IVAL_WAVED, kmx, nlyrs)
-   IPNT_WAVETAU = ivalpoint(IVAL_WAVETAU, kmx, nlyrs)
+   IPNT_TAUX = ivalpoint(IVAL_TAUX, kmx, nlyrs)
+   IPNT_TAUY = ivalpoint(IVAL_TAUY, kmx, nlyrs)
    IPNT_WAVEL = ivalpoint(IVAL_WAVEL, kmx, nlyrs)
    IPNT_WAVER = ivalpoint(IVAL_WAVER, kmx, nlyrs)
    IPNT_WAVEU = ivalpoint(IVAL_WAVEU, kmx, nlyrs)
    IPNT_ZCS   = ivalpoint(IVAL_ZCS,   kmx, nlyrs)
    IPNT_ZWS   = ivalpoint(IVAL_ZWS,   kmx, nlyrs)
    IPNT_ZWU   = ivalpoint(IVAL_ZWU,   kmx, nlyrs)
+   IPNT_BRUV  = ivalpoint(IVAL_BRUV,  kmx, nlyrs)
    IPNT_TKIN  = ivalpoint(IVAL_TKIN,  kmx, nlyrs)
    IPNT_TEPS  = ivalpoint(IVAL_TEPS,  kmx, nlyrs)
    IPNT_VICWW = ivalpoint(IVAL_VICWW, kmx, nlyrs)
    IPNT_RICH  = ivalpoint(IVAL_RICH,  kmx, nlyrs)
+   IPNT_RHOP  = ivalpoint(IVAL_RHOP,  kmx, nlyrs)
    IPNT_RHO   = ivalpoint(IVAL_RHO,   kmx, nlyrs)
    IPNT_WS1   = ivalpoint(IVAL_WS1,   kmx, nlyrs)
-   IPNT_WSN   = ivalpoint(IVAL_WSN,   kmx, nlyrs)
    IPNT_SEDDIF1 = ivalpoint(IVAL_SEDDIF1,   kmx, nlyrs)
-   IPNT_SEDDIFN = ivalpoint(IVAL_SEDDIFN,   kmx, nlyrs)
    IPNT_SBCX1 = ivalpoint(IVAL_SBCX1,   kmx, nlyrs)
-   IPNT_SBCXN = ivalpoint(IVAL_SBCXN,   kmx, nlyrs)
    IPNT_SBCY1 = ivalpoint(IVAL_SBCY1,   kmx, nlyrs)
-   IPNT_SBCYN = ivalpoint(IVAL_SBCYN,   kmx, nlyrs)
    IPNT_SSCX1 = ivalpoint(IVAL_SSCX1,   kmx, nlyrs)
-   IPNT_SSCXN = ivalpoint(IVAL_SSCXN,   kmx, nlyrs)
    IPNT_SSCY1 = ivalpoint(IVAL_SSCY1,   kmx, nlyrs)
-   IPNT_SSCYN = ivalpoint(IVAL_SSCYN,   kmx, nlyrs)
    IPNT_SOUR1 = ivalpoint(IVAL_SOUR1,   kmx, nlyrs)
-   IPNT_SOURN = ivalpoint(IVAL_SOURN,   kmx, nlyrs)
    IPNT_SINK1 = ivalpoint(IVAL_SINK1,   kmx, nlyrs)
-   IPNT_SINKN = ivalpoint(IVAL_SINKN,   kmx, nlyrs)
    IPNT_SBWX1 = ivalpoint(IVAL_SBWX1,   kmx, nlyrs)
-   IPNT_SBWXN = ivalpoint(IVAL_SBWXN,   kmx, nlyrs)
    IPNT_SBWY1 = ivalpoint(IVAL_SBWY1,   kmx, nlyrs)
-   IPNT_SBWYN = ivalpoint(IVAL_SBWYN,   kmx, nlyrs)
    IPNT_SSWX1 = ivalpoint(IVAL_SSWX1,   kmx, nlyrs)
-   IPNT_SSWXN = ivalpoint(IVAL_SSWXN,   kmx, nlyrs)
    IPNT_SSWY1 = ivalpoint(IVAL_SSWY1,   kmx, nlyrs)
-   IPNT_SSWYN = ivalpoint(IVAL_SSWYN,   kmx, nlyrs)
    IPNT_UCXST = ivalpoint(IVAL_UCXST,   kmx, nlyrs)
    IPNT_UCYST = ivalpoint(IVAL_UCYST,   kmx, nlyrs)
    IPNT_TAIR  = ivalpoint(IVAL_TAIR,  kmx, nlyrs)
    IPNT_WIND  = ivalpoint(IVAL_WIND,  kmx, nlyrs)
    IPNT_RHUM  = ivalpoint(IVAL_RHUM,  kmx, nlyrs)
    IPNT_CLOU  = ivalpoint(IVAL_CLOU,  kmx, nlyrs)
+   IPNT_AIRDENSITY = ivalpoint(IVAL_AIRDENSITY,  kmx, nlyrs)
    IPNT_QSUN  = ivalpoint(IVAL_QSUN,  kmx, nlyrs)
    IPNT_QEVA  = ivalpoint(IVAL_QEVA,  kmx, nlyrs)
    IPNT_QCON  = ivalpoint(IVAL_QCON,  kmx, nlyrs)
@@ -761,30 +739,20 @@ subroutine init_valobs_pointers()
    IPNT_INFILTCAP = ivalpoint(IVAL_INFILTCAP,  kmx, nlyrs)
    IPNT_INFILTACT = ivalpoint(IVAL_INFILTACT,  kmx, nlyrs)
    IPNT_WQB1  = ivalpoint(IVAL_WQB1,  kmx, nlyrs)
-   IPNT_WQBN  = ivalpoint(IVAL_WQBN,  kmx, nlyrs)
    IPNT_SINK1    = ivalpoint(IVAL_SINK1   ,kmx, nlyrs)
-   IPNT_SINKN    = ivalpoint(IVAL_SINKN   ,kmx, nlyrs)
    IPNT_BODSED1  = ivalpoint(IVAL_BODSED1 ,kmx, nlyrs)
-   IPNT_BODSEDN  = ivalpoint(IVAL_BODSEDN ,kmx, nlyrs)
    IPNT_TAUB     = ivalpoint(IVAL_TAUB    ,kmx, nlyrs)
    IPNT_DPSED    = ivalpoint(IVAL_DPSED   ,kmx, nlyrs)
    IPNT_MSED1    = ivalpoint(IVAL_MSED1   ,kmx, nlyrs)
-   IPNT_MSEDN    = ivalpoint(IVAL_MSEDN   ,kmx, nlyrs)
    IPNT_THLYR    = ivalpoint(IVAL_THLYR   ,kmx, nlyrs)
    IPNT_POROS    = ivalpoint(IVAL_POROS   ,kmx, nlyrs)
    IPNT_LYRFRAC1 = ivalpoint(IVAL_LYRFRAC1,kmx, nlyrs)
-   IPNT_LYRFRACN = ivalpoint(IVAL_LYRFRACN,kmx, nlyrs)
    IPNT_FRAC1    = ivalpoint(IVAL_FRAC1   ,kmx, nlyrs)
-   IPNT_FRACN    = ivalpoint(IVAL_FRACN   ,kmx, nlyrs)
    IPNT_MUDFRAC  = ivalpoint(IVAL_MUDFRAC ,kmx, nlyrs)
    IPNT_SANDFRAC = ivalpoint(IVAL_SANDFRAC,kmx, nlyrs)
    IPNT_FIXFAC1  = ivalpoint(IVAL_FIXFAC1 ,kmx, nlyrs)
-   IPNT_FIXFACN  = ivalpoint(IVAL_FIXFACN ,kmx, nlyrs)
    IPNT_HIDEXP1  = ivalpoint(IVAL_HIDEXP1 ,kmx, nlyrs)
-   IPNT_HIDEXPN  = ivalpoint(IVAL_HIDEXPN ,kmx, nlyrs)
    IPNT_MFLUFF1  = ivalpoint(IVAL_MFLUFF1 ,kmx, nlyrs)
-   IPNT_MFLUFFN  = ivalpoint(IVAL_MFLUFFN ,kmx, nlyrs)
-   IPNT_TAU      = ivalpoint(IVAL_TAU     ,kmx, nlyrs)
 
    IPNT_NUM      = ivalpoint(0,          kmx, nlyrs)-1
 
@@ -988,8 +956,6 @@ subroutine addObservation_from_ini(network, filename)
    type(t_ObservationPoint), pointer     :: pOPnt
    integer,              allocatable     :: branchIdx_tmp(:), ibrch2obs(:)
    double precision    , allocatable     :: Chainage_tmp(:), xx_tmp(:), yy_tmp(:)
-   integer                               :: loctype_
-
 
    ierr    = DFM_NOERR
    nByBrch = 0

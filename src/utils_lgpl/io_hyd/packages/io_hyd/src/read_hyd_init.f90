@@ -1,31 +1,31 @@
 !----- GPL ---------------------------------------------------------------------
-!                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2022.                                
-!                                                                               
-!  This program is free software: you can redistribute it and/or modify         
-!  it under the terms of the GNU General Public License as published by         
-!  the Free Software Foundation version 3.                                      
-!                                                                               
-!  This program is distributed in the hope that it will be useful,              
-!  but WITHOUT ANY WARRANTY; without even the implied warranty of               
-!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                
-!  GNU General Public License for more details.                                 
-!                                                                               
-!  You should have received a copy of the GNU General Public License            
-!  along with this program.  If not, see <http://www.gnu.org/licenses/>.        
-!                                                                               
-!  contact: delft3d.support@deltares.nl                                         
-!  Stichting Deltares                                                           
-!  P.O. Box 177                                                                 
-!  2600 MH Delft, The Netherlands                                               
-!                                                                               
-!  All indications and logos of, and references to, "Delft3D" and "Deltares"    
-!  are registered trademarks of Stichting Deltares, and remain the property of  
-!  Stichting Deltares. All rights reserved.                                     
-!                                                                               
+!
+!  Copyright (C)  Stichting Deltares, 2011-2024.
+!
+!  This program is free software: you can redistribute it and/or modify
+!  it under the terms of the GNU General Public License as published by
+!  the Free Software Foundation version 3.
+!
+!  This program is distributed in the hope that it will be useful,
+!  but WITHOUT ANY WARRANTY; without even the implied warranty of
+!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!  GNU General Public License for more details.
+!
+!  You should have received a copy of the GNU General Public License
+!  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+!
+!  contact: delft3d.support@deltares.nl
+!  Stichting Deltares
+!  P.O. Box 177
+!  2600 MH Delft, The Netherlands
+!
+!  All indications and logos of, and references to, "Delft3D" and "Deltares"
+!  are registered trademarks of Stichting Deltares, and remain the property of
+!  Stichting Deltares. All rights reserved.
+!
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!
+!
 
       subroutine read_hyd_init(hyd)
 
@@ -33,7 +33,9 @@
 
       ! global declarations
 
-      use hydmod
+      use m_srstop
+      use m_monsys
+      use m_hydmod
       use io_netcdf
       use m_read_waqgeom
       use hyd_waqgeom_old
@@ -41,7 +43,7 @@
 
       ! declaration of the arguments
 
-      type(t_hyd)         :: hyd     ! description of the hydrodynamics
+      type(t_hydrodynamics)         :: hyd     ! description of the hydrodynamics
 
       ! local declarations
 
@@ -73,7 +75,7 @@
          do i = 1,hyd%nosegl
             hyd%lgrid(1,i) = i
          enddo
-      endif        
+      endif
 
       hyd%noseg = hyd%nosegl*hyd%nolay
       hyd%noq   = hyd%noq1 + hyd%noq2 + hyd%noq3
@@ -84,7 +86,7 @@
 
       if(hyd%geometry .eq. HYD_GEOM_CURVI) then
          ! allocate and read cco file
-   
+
          allocate(hyd%xdepth(hyd%nmax,hyd%mmax),stat=ierr_alloc)
          if ( ierr_alloc .ne. 0 ) goto 980
          allocate(hyd%ydepth(hyd%nmax,hyd%mmax),stat=ierr_alloc)
@@ -102,13 +104,15 @@
                call read_waqgeom(hyd)
             else
                ! not UGRID
-               write(lunrep,*) 'error reading waqgeom file (not a UGRID-file):',hyd%file_geo%name
-               call srstop(1)
+               call mess(LEVEL_ERROR, 'error reading waqgeom file (not a UGRID-file): '//trim(hyd%file_geo%name))
+               stop 1
+!               write(*,*) 'error reading waqgeom file (not a UGRID-file): '//trim(hyd%file_geo%name)
+!               write(lunrep,*) 'error reading waqgeom file (not a UGRID-file): '//trim(hyd%file_geo%name)
             endif
          endif
-            
+
          hyd%openbndsect_coll%maxsize = 0
-         hyd%openbndsect_coll%cursize = 0
+         hyd%openbndsect_coll%current_size = 0
          call read_bnd(hyd%file_bnd, hyd%openbndsect_coll)
 
       endif
@@ -156,8 +160,8 @@
 
       ! read dispersion length, assume time independent
 
-      call dlwqfile_open(hyd%file_len)
-      read(hyd%file_len%unit_nr,iostat=ierr) itime,((hyd%displen(i,j),i=1,2),j=1,hyd%noq)
+      call hyd%file_len%open()
+      read(hyd%file_len%unit,iostat=ierr) itime,((hyd%displen(i,j),i=1,2),j=1,hyd%noq)
       if ( ierr .ne. 0 ) then
          write(*,*) 'ERROR: reading dispersion length file'
          write(lunrep,*) 'ERROR: reading dispersion length file'

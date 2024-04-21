@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,22 +27,22 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine getczz0(h1, frcn, ifrctyp, cz, z0)       ! basic get z0 (m),  this routine is not safe for frcn == 0
  use m_physcoef, only : sag, vonkar, ee, ee9, c9of1
  use m_flowparameters, only: epshu
  implicit none
 
- double precision, intent(inout) :: h1
- integer, intent(in) :: ifrctyp
+ double precision, intent(in) :: h1
+ integer, intent(in)          :: ifrctyp
  double precision, intent(in) :: frcn
  double precision, intent(out) :: cz
  double precision, intent(out) :: z0
 
  double precision    :: h0, sqcf, hurou  ! hydraulic radius, friction coeff, friction typ, chezy coeff
- double precision    :: sixth = 1d0/6d0
+ double precision :: sixth = 1d0/6d0
 
  h0    = max(h1,epshu)
  if (ifrctyp == 0) then                              ! Chezy type

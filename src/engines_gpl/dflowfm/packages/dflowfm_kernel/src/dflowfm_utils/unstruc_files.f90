@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,14 +27,15 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 module unstruc_files
 !! Centralizes unstruc file management (formerly in REST.F90)
 
 use unstruc_messages
-use unstruc_version_module
+use dflowfm_version_module
+use time_module, only : seconds_to_datetimestring
 
 implicit none
 
@@ -140,7 +141,8 @@ end subroutine close_all_files
 function defaultFilename(filecat, timestamp, prefixWithDirectory, allowWildcard)
     use unstruc_model
     use m_flowtimes
-    use string_module, only: get_dirsep
+    use time_module,   only : seconds_to_datetimestring
+    use system_utils,  only : makedir, FILESEP
     implicit none
     
     character(len=*), intent(in)  :: filecat             !< File category for which the filename is requested, e.g. 'obs', 'map', 'hyd'.
@@ -195,6 +197,9 @@ function defaultFilename(filecat, timestamp, prefixWithDirectory, allowWildcard)
     case ('avgsedquant')                         
         activeFile = md_avgsedquantfile
         suffix     = '_sed.nc'
+    case ('sedtrails')                         
+        activeFile = md_avgsedtrailsfile
+        suffix     = '_sedtrails.nc'    
     case ('tec')
         activeFile = ''
         suffix     = '.dat'
@@ -296,6 +301,9 @@ function defaultFilename(filecat, timestamp, prefixWithDirectory, allowWildcard)
     case ('mbacsvmb')
         activeFile = ''
         suffix = '_mass_balances.csv'
+    case ('mbanetcdf')
+        activeFile = ''
+        suffix = '_mass_balances.nc'
         
     !---------------------------------------------------------!
     ! DELWAQ files
@@ -335,7 +343,7 @@ function defaultFilename(filecat, timestamp, prefixWithDirectory, allowWildcard)
 
     if (present(timestamp)) then
         dateandtime = '_'
-        call maketime(dateandtime(2:), timestamp)
+        call seconds_to_datetimestring(dateandtime(2:), refdat, timestamp)
     else
         dateandtime = ' '
     end if
@@ -347,8 +355,8 @@ function defaultFilename(filecat, timestamp, prefixWithDirectory, allowWildcard)
         defaultFileName = trim(basename)//trim(dateandtime)//suffix
     elseif (len_trim(md_ident) > 0) then                ! No active, no basename, use md_ident as basename
         defaultFilename = trim(md_ident)//trim(dateandtime)//suffix
-    elseif (len_trim(defaultFilename) == 0) then        ! Not even a md_ident and no hardcoded default filaname, then use unstruc_basename as basename
-        defaultFilename = trim(unstruc_basename)//trim(dateandtime)//suffix
+    elseif (len_trim(defaultFilename) == 0) then        ! Not even a md_ident and no hardcoded default filaname, then use base_name as basename
+        defaultFilename = trim(base_name)//trim(dateandtime)//suffix
     else if(present(allowWildcard)) then                ! Final resort: just a wildcard with proper file extention.
         if (allowWildcard) then
             defaultFilename = '*'//suffix
@@ -358,7 +366,7 @@ function defaultFilename(filecat, timestamp, prefixWithDirectory, allowWildcard)
     ! Output files are generally stored in a subfolder, so prefix them here with that.
     select case (trim(filecat))
     case ('his', 'map', 'clm', 'rstold', 'rst', 'bal', 'histek', 'inc_s1', 'tec', 'map.plt', 'net.plt', 'avgwavquant', &
-          'com','avgsedquant', 'mba', 'mbacsvm', 'mbacsvmb', 'wq_lsp', 'bloom', 'timers', 'timers_init') !! JRE
+          'com','avgsedquant', 'mba', 'mbacsvm', 'mbacsvmb', 'mbanetcdf', 'wq_lsp', 'bloom', 'timers', 'timers_init','sedtrails')
         if (prefix_dir) then
             defaultFilename = trim(getoutputdir())//trim(defaultFilename)
         end if
@@ -366,7 +374,7 @@ function defaultFilename(filecat, timestamp, prefixWithDirectory, allowWildcard)
         if (prefix_dir) then        
             shapeOutputDir = trim(getoutputdir())//'snapped'
             call makedir(shapeOutputDir)
-            defaultFilename = trim(shapeOutputDir)//get_dirsep()//trim(defaultFilename)
+            defaultFilename = trim(shapeOutputDir) // FILESEP // trim(defaultFilename)
         end if
     end select
     
@@ -463,7 +471,7 @@ end function getfilename
 !! Optionally, a file category may be specified, such that e.g., '_net.nc'
 !! is stripped off (instead of .nc only)
 subroutine basename(filename, filebase, filecat)
-    use string_module, only: get_dirsep
+    use system_utils, only: FILESEP
     implicit none
     character(len=*),           intent(in)  :: filename
     character(len=*),           intent(out) :: filebase
@@ -486,7 +494,7 @@ subroutine basename(filename, filebase, filecat)
     end if
 
     ! Also strip off any preceding dir names.
-    L1 = index(filename, get_DIRSEP(), .true.)+1
+    L1 = index(filename, FILESEP, .true.) + 1
 
     filebase = ' '
     filebase = filename(L1:L2)
@@ -497,23 +505,18 @@ end subroutine basename
 !! actual location. This routine selects whether the path
 !! needs to be resolved relative to a given basedir, or
 !! relative to the MDU current working dir.
-!! If inpath is absolute, then that path is returned unchanged.
-subroutine resolvePath(inpath, basedir, outpath)
+!! If path is absolute, then that path is returned unchanged.
+subroutine resolvePath(path, basedir)
 use system_utils, only: is_abs, cat_filename
 use unstruc_model, only: md_paths_relto_parent
-character(len=*), intent(in   ) :: inpath  !< Input path
+character(len=*), intent(inout) :: path    !< Path to be updated
 character(len=*), intent(in   ) :: basedir !< Basedir w.r.t. which the input path *might* be resolved, depending on PathsRelativeToParent setting.
-character(len=*), intent(  out) :: outpath !< Resolved path
 
-character(len=len_trim(inpath)+len_trim(basedir)+1) :: tmppath
+character(len=len_trim(path)+len_trim(basedir)+1) :: tmppath
 
-if (is_abs(inpath) .or. md_paths_relto_parent == 0) then
-   outpath = inpath
-else
-   if (md_paths_relto_parent > 0) then
-      tmppath = cat_filename(basedir, inpath)
-      outpath = tmppath
-   end if
+if (.not. is_abs(path) .and. md_paths_relto_parent > 0) then
+   tmppath = cat_filename(basedir, path)
+   path = tmppath
 end if
 end subroutine resolvePath
 

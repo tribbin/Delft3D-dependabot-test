@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine s1ini()                           ! links in continuity eq.
  use m_flow
@@ -40,14 +40,13 @@
  use m_hydrology_data, only : jadhyd, ActEvap, interceptionmodel, InterceptThickness, InterceptHs, DFM_HYD_INTERCEPT_LAYER
  use m_mass_balance_areas
  use m_partitioninfo
+ use m_lateral, only : numlatsg, qqlat, n1latsg, n2latsg, nnlat, balat, qplat
  implicit none
 
- integer          :: L, k1, k2, k, kb, n, LL, kk, kt, idim, imba
+ integer          :: L, k1, k2, k, n, LL, kt, idim, imba
  double precision :: aufu, auru, tetau
- double precision :: zb, dir, ds, qhs, hsk, buitje, Qeva_ow, Qeva_icept, Qrain, Qicept, Qextk, aloc
+ double precision :: ds, hsk, Qeva_ow, Qeva_icept, Qrain, Qicept, Qextk, aloc
  logical :: isGhost
-
- buitje = 0.013d0/300d0                                      ! 13 mm in 5 minutes
 
  bb = 0d0 ; ccr = 0d0 ; dd = 0d0
 
@@ -227,6 +226,15 @@
     if (numsrc > 0) then
        call setsorsin()                                      ! add sources and sinks
     endif
+
+    if (wrwaqon) then ! Update waq output
+       if (numsrc > 0) then
+          call update_waq_sink_source_fluxes()
+       endif
+       if (numlatsg > 0) then
+          call update_waq_lateral_fluxes()
+       endif
+    end if
 
     if (nshiptxy > 0) then
        ! qin = qin - qinship

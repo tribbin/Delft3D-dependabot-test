@@ -1,7 +1,7 @@
 module m_Bridge
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify              
 !  it under the terms of the GNU Affero General Public License as               
@@ -25,8 +25,8 @@ module m_Bridge
 !  Stichting Deltares. All rights reserved.
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !-------------------------------------------------------------------------------
    
    ! Modules
@@ -104,7 +104,6 @@ contains
       double precision                          :: chezyBridge
       double precision                          :: wPerimeter
       double precision                          :: hydrRadius
-      double precision                          :: dummy
       double precision                          :: frictloss
       double precision                          :: exitLoss
       double precision                          :: totalLoss
@@ -120,7 +119,6 @@ contains
       chezyBridge  = 0.0d0
       wPerimeter   = 0.0d0
       hydrRadius   = 0.0d0
-      dummy        = 0.0d0
       frictloss    = 0.0d0
       exitLoss     = 0.0d0
       pillarLoss   = 0.0d0
@@ -177,17 +175,6 @@ contains
          endif
          bridge%bedLevel_actual = crestLevel
 
-         if ((smax - crestLevel - gl_thickness) < thresholdDry) then
-            kfum = 0
-         elseif ((smax - crestLevel - gl_thickness) > thresholdFlood) then
-            kfum = 1
-         endif
-         if (kfum == 0) then
-            fum = 0.0
-            rum = 0.0
-            return
-         endif
-
          depth = smax - crestLevel
          call GetCSParsFlow(bridge%pcross, depth, aum, wPerimeter, dadsm)   
          if (bridge%pcross%closed .and. smax > getHighest1dLevel(bridge%pcross)) then
@@ -213,7 +200,7 @@ contains
          frictLoss = 2.0d0 * gravity * bridge%length / (chezyBridge * chezyBridge * hydrRadius)
 
          ! Exit Loss
-         exitLoss = bridge% outletlosscoeff * ((max((1.0d0 - aum / wetdown), 0.0d0))**2)
+         exitLoss = bridge%outletlosscoeff * ((max((1.0d0 - aum / wetdown), 0.0d0))**2)
          exitLoss = max(exitLoss, 0.0d0)
       endif
 

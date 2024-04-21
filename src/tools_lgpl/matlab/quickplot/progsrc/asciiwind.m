@@ -23,13 +23,16 @@ function varargout = asciiwind(cmd,varargin)
 %
 %   See also ARCGRID.
 
+%   ASCIIWIND('to_netcdf', INFO, FILENAME) writes the data read from the
+%   ascii wind file specified by INFO to a new netCDF file FILENAME.
+
 %   MERGED = ASCIIWIND('merge',INFO1,INFO2) verifies whether INFO1 and
 %   INFO2 are compatible data structures and if so, it returns INFO1 as
 %   MERGED with an extra field called 'Vector' containing the INFO2.
 
 %----- LGPL --------------------------------------------------------------------
 %                                                                               
-%   Copyright (C) 2011-2022 Stichting Deltares.                                     
+%   Copyright (C) 2011-2024 Stichting Deltares.                                     
 %                                                                               
 %   This library is free software; you can redistribute it and/or                
 %   modify it under the terms of the GNU Lesser General Public                   
@@ -63,7 +66,7 @@ if nargin==0
     end
     return
 end
-switch cmd
+switch lower(cmd)
     case 'open'
         varargout{1} = Local_open_file(varargin{:});
     case 'read'
@@ -72,6 +75,8 @@ switch cmd
         varargout{1} = merge_files(varargin{:});
     case 'grid'
         [varargout{1:3}] = Local_get_grid(varargin{:});
+    case 'to_netcdf'
+        Local_write_netcdf(varargin{:});
     otherwise
         error('Unknown command: "%s"',cmd)
 end
@@ -85,21 +90,27 @@ if nargin<2
         Quant=1;
     end
 elseif ischar(Quant)
-    iQuant = ustrcmpi(Quant,Structure.Header.quantity);
-    if iQuant<0
-        error('Unknown quantity: %s',Quant)
+    if isequal(Quant,':')
+        Quant = 1:Structure.Header.n_quantity;
+    else
+        iQuant = ustrcmpi(Quant,Structure.Header.quantity);
+        if iQuant<0
+            error('Unknown quantity: %s',Quant)
+        end
+        Quant = iQuant;
     end
-    Quant = iQuant;
 elseif any(Quant<0)
     error('Quantity index %i out of range',min(Quant))
 elseif any(Quant>Structure.Header.n_quantity)
     error('Quantity index %i out of range',max(Quant))
 end
+is_direction = strcmp(Structure.Header.quantity(Quant), 'wind_from_direction');
+is_pressure = strcmp(Structure.Header.quantity(Quant), 'p_drop');
+nQuant = length(Quant);
 %
-if length(Quant)>1
-    error('Requesting multiple quantities not yet supported.')
-end
-QuantName = [Structure.Header.quantity{Quant} '_spw_eye'];
+% if nQuant>1
+%     error('Requesting multiple quantities not yet supported.')
+% end
 %
 if nargin<3
     if length(Structure.Data)==1
@@ -123,13 +134,9 @@ else
 end
 fid = fopen(Structure.FileName,'r');
 for i = 1:length(t)
-    fseek(fid,Structure.Data(t(i)).offset,-1);
-    fscanf(fid,'%f',[Quant-1 Structure.NVal]);
-    OneTime = fscanf(fid,'%f',[Structure.NVal 1]);
     switch lower(Structure.Header.filetype)
         case {'meteo_on_equidistant_grid','field_on_equidistant_grid'}
-            OneTime = reshape(OneTime,[Structure.Header.n_cols Structure.Header.n_rows])';
-            OneTime = flipud(OneTime);
+            sz = [Structure.Header.n_cols Structure.Header.n_rows];
         case {'meteo_on_curvilinear_grid','field_on_curvilinear_grid'}
             if ~isfield(Structure.Header,'data_row')
                 Structure.Header.data_row = 'grid_row';
@@ -141,10 +148,43 @@ for i = 1:length(t)
             switch Structure.Header.data_row
                 case 'grid_row' % which corresponds to column here
                     sz = size(Structure.Header.grid_file.X);
-                    OneTime = reshape(OneTime,sz);
                 case {'grid_col','grid_column'} % which corresponds to row here
                     sz = size(Structure.Header.grid_file.X);
                     sz = fliplr(sz);
+            end
+        case {'meteo_on_spiderweb_grid','field_on_spiderweb_grid'}
+            sz = [Structure.Header.n_cols Structure.Header.n_rows];
+        case {'meteo_on_computational_grid','field_on_computational_grid'}
+            if isfield(Structure.Header,'grid_file')
+                sz = size(Structure.Header.grid_file.X)+1;
+            end
+    end
+    sz(3) = max(Quant);
+    
+    fseek(fid,Structure.Data(t(i)).offset,-1);
+    if isfield(Structure.Data,'use_fortran_read') && ...
+            Structure.Data(t(i)).use_fortran_read
+        OneTime = zeros(sz);
+        for iqnt = 1:sz(3)
+            for iline = 1:sz(2)
+                OneTime(:,iline) = fscanf(fid,'%f',sz(1));
+                fgetl(fid);
+            end
+        end
+    else
+        OneTime = fscanf(fid,'%f',[Structure.NVal sz(3)]);
+        OneTime = reshape(OneTime,sz);
+    end
+    OneTime = OneTime(:,:,Quant);
+    
+    switch lower(Structure.Header.filetype)
+        case {'meteo_on_equidistant_grid','field_on_equidistant_grid'}
+            OneTime = flipud(OneTime');
+        case {'meteo_on_curvilinear_grid','field_on_curvilinear_grid'}
+            switch Structure.Header.data_row
+                case 'grid_row' % which corresponds to column here
+                    % data already ok
+                case {'grid_col','grid_column'} % which corresponds to row here
                     OneTime = reshape(OneTime,sz)';
             end
             switch Structure.Header.first_data_value
@@ -158,20 +198,19 @@ for i = 1:length(t)
                     OneTime = rot90(OneTime,2);
             end
         case {'meteo_on_spiderweb_grid','field_on_spiderweb_grid'}
-            OneTime = reshape(OneTime,[Structure.Header.n_cols Structure.Header.n_rows])';
-            OneTime = OneTime([1 1:end],[1:end 1]);
-            if isfield(Structure.Data(t(i)),QuantName)
-                OneTime(1,:) = Structure.Data(t(i)).(QuantName);
-            else
-                OneTime(1,:) = 0;
-            end
+            OneTime = permute(OneTime,[2 1 3]);
+            OneTime = OneTime([1 1:end],[1:end 1],:);
+            % fill the eye -- Delft3D approach (FM? also for 4?)
+            OneTime(1,:,:) = 0; % set to zero by default
+            OneTime(1,:,is_direction) = OneTime(2,:,is_direction); % keep direction constant to the eye
+            OneTime(1,:,is_pressure) = Structure.Data(t(i)).p_drop_spw_eye; % use eye pressure for the eye
+            % fill the eye -- SFINCS approach
+            % OneTime(1,:,:) = 2*OneTime(2,:,:) - OneTime(3,:,:); % linearly extrapolate trend of innermost pair of data points
         case {'meteo_on_computational_grid','field_on_computational_grid'}
-            if isfield(Structure.Header,'grid_file')
-                OneTime = reshape(OneTime,size(Structure.Header.grid_file.X)+1);
-            end
+            % data ok
     end
     if ~isempty(varargin)
-        OneTime = OneTime(rows,cols);
+        OneTime = OneTime(rows,cols,:);
     end
     if isfield(Structure.Header,'nodata_value')
        OneTime(OneTime==Structure.Header.nodata_value)=NaN;
@@ -335,10 +374,13 @@ while ~feof(fid)
     %
     switch keyw
         case {'nodata_value','n_cols','n_rows','x_llcorner','y_llcorner', ...
-                'x_llcenter','y_llcenter','dx','dy','n_quantity','spw_radius','fileversion'}
+                'x_llcenter','y_llcenter','dx','dy','n_quantity','spw_radius', ...
+                'spw_merge_frac', 'fileversion'}
             value = sscanf(value,'%f');
         case 'time'
-            [Structure.Data(itime).time,Structure.Data(itime).timezone] = value2time_since(value);
+            [Structure.Data(itime).dtime,Structure.Data(itime).timezone,RefDate] = value2time_since(value);
+            Structure.Data(itime).time = RefDate + Structure.Data(itime).dtime;
+            Structure.Header.RefDate = RefDate;
             break
         case ''
             % might still be a time specification in FM format
@@ -346,7 +388,7 @@ while ~feof(fid)
             [key1,rem1] = strtok(value);
             key2 = strtok(rem1);
             if strcmp(key1,'/*') && strcmpi(key2,'time')
-                [Structure.Data(itime).time,Structure.Data(itime).timezone] = value2time_old(value);
+                [Structure.Data(itime).dtime,Structure.Data(itime).timezone,RefDate] = value2time_old(value);
                 fgetl_noncomment(fid); % skip the line, fgetl_keyval reset the reading point to before this line since it didn't contain an equal sign
                 timeformat = 2;
                 break
@@ -504,7 +546,8 @@ if Structure.Header.fileversion<1.03 ...
     ui_message('error',{Structure.FileName,'This curvilinear grid meteo file is interpreted incorrectly by Delft3D versions 3.28.00 until 3.28.09!'})
 end
 if Structure.Header.fileversion>1.0 ...
-        && strcmp(Structure.Header.filetype,'meteo_on_curvilinear_grid') ...
+        && (strcmp(Structure.Header.filetype,'meteo_on_curvilinear_grid') ...
+            || strcmp(Structure.Header.filetype,'field_on_curvilinear_grid')) ...
         && (~strcmp(Structure.Header.first_data_value,'grid_ulcorner') ...
             || ~strcmp(Structure.Header.data_row,'grid_row'))
     msg = {Structure.FileName,'This curvilinear grid meteo file is interpreted incorrectly by D-Flow FM.'};
@@ -528,6 +571,12 @@ while 1
         switch keyw
             case {'x_spw_eye','y_spw_eye','p_drop_spw_eye'}
                 Structure.Data(itime).(keyw) = sscanf(value,'%f');
+            case {'pdrop_spw_eye'}
+                if Structure.Header.fileversion>=1.03
+                    error('Keyword "pdrop_spw_eye" found instead of "p_drop_spw_eye"!')
+                else
+                    Structure.Data(itime).p_drop_spw_eye = sscanf(value,'%f');
+                end
             case ''
                 break
             otherwise
@@ -539,16 +588,23 @@ while 1
     % skip data
     %
     Structure.Data(itime).offset = offset;
+    Structure.Data(itime).use_fortran_read = false;
+    Structure.Data(itime).nval = 0;
     dummy = fscanf(fid,'%f',nval);
     if ~isfinite(nval)
         nval = length(dummy);
     elseif nval > length(dummy)
         fclose(fid);
-        error('Not enough data available for data block %i (%s) - expecting %i values, read %i..',itime,datestr(Structure.Data(itime).time,0),nval,length(dummy))
+        error('Not enough values available in data block %i (%s).\nExpected %i values, but found only %i.',itime,datestr(Structure.Data(itime).time,0),nval,length(dummy))
     end
     %
     % read next time
     %
+    dummy2 = fscanf(fid,'%f',inf);
+    if ~isempty(dummy2)
+        Structure.Data(itime).nval = nval+length(dummy2);
+        Structure.Data(itime).use_fortran_read = true;
+    end
     [keyw,value] = fgetl_keyval(fid);
     if timeformat == 2 && strcmp(strtok(value),'/*')
         fgetl_noncomment(fid); % skip the line, fgetl_keyval reset the reading point to before this line since it didn't contain an equal sign
@@ -567,13 +623,38 @@ while 1
     end
     %
     if timeformat == 1
-        [Structure.Data(itime).time,Structure.Data(itime).timezone] = value2time_since(value);
+        [Structure.Data(itime).dtime,Structure.Data(itime).timezone] = value2time_since(value,RefDate);
     elseif timeformat == 2
-        [Structure.Data(itime).time,Structure.Data(itime).timezone] = value2time_old(value);
+        [Structure.Data(itime).dtime,Structure.Data(itime).timezone] = value2time_old(value,RefDate);
     end
+    Structure.Data(itime).time = RefDate + Structure.Data(itime).dtime;
 end
 %
 Structure.Data(itime+1:end) = [];
+if none([Structure.Data(:).use_fortran_read])
+    Structure.Data = rmfield(Structure.Data,'use_fortran_read');
+else
+    nval_vec = [Structure.Data.nval];
+    nval_too_large = sum(nval_vec>0);
+    itime = find(nval_vec>0,1,'first');
+    if nval_too_large == length(Structure.Data)
+        base_str = 'Too many values available in all data blocks.';
+        if all(nval_vec(nval_vec>0) == nval_vec(itime))
+            ui_message('warning','%s\nExpected %i values, but all blocks contain %i values.',base_str,nval,nval_vec(itime))
+            itime = [];
+        end
+    elseif nval_too_large == 1
+        base_str = sprintf('Too many values available in data block %i (%s).', itime,datestr(Structure.Data(itime).time,0));
+        ui_message('warning','%s\nExpected %i values, but found %i.',base_str,nval,nval_vec(itime))
+        itime = [];
+    else
+        base_str = sprintf('Too many values available in %i data blocks.', nval_too_large);
+    end
+    if ~isempty(itime)
+        ui_message('warning','%s\nFor example, block %i (%s): expected %i values, but found %i.',base_str,itime,datestr(Structure.Data(itime).time,0),nval,nval_vec(itime))
+    end
+end
+Structure.Data = rmfield(Structure.Data,'nval');
 Structure.NVal = nval/Structure.Header.n_quantity;
 Structure.Check = 'OK';
 fclose(fid);
@@ -650,6 +731,251 @@ if isequal(S2.Check,'OK')
 end
 
 
+function Local_write_netcdf(Structure,filename,varargin)
+if ischar(Structure)
+    Structure = Local_open_file(Structure);
+end
+
+Header = Structure.Header;
+switch lower(Header.filetype)
+    case {'meteo_on_equidistant_grid','field_on_equidistant_grid','meteo_on_curvilinear_grid','field_on_curvilinear_grid','meteo_on_computational_grid','field_on_computational_grid'}
+       error('Converting %s to netCDF not yet implemented.')
+    case {'meteo_on_spiderweb_grid','field_on_spiderweb_grid'}
+       nc_writer = @Local_write_netcdf_spw;
+end
+mode = netcdf.getConstant('NETCDF4');
+%mode = bitor(mode,netcdf.getConstant('CLASSIC_MODEL'));
+ncid = netcdf.create(filename,mode);
+try
+    nc_writer(Structure,ncid,varargin{:})
+    netcdf.close(ncid);
+catch e
+    netcdf.close(ncid);
+    rethrow(e)
+end
+
+
+function Local_write_netcdf_spw(Structure,ncid,wind_opt)
+if nargin<3
+    wind_opt = 'x+y';
+end
+
+Header = Structure.Header;
+UNLIMITED = netcdf.getConstant('UNLIMITED');
+times = [Structure.Data.dtime]; % time
+ref_time = Header.RefDate; %min(times);
+%times = times - ref_time;
+n_times = length(times);
+n_range = Header.n_rows;
+ranges = (1:n_range) * Header.spw_radius / n_range;
+n_azimuth = Header.n_cols;
+azimuths = (0:n_azimuth-1) * 360 / n_azimuth;
+
+time_dim = netcdf.defDim(ncid,'time',UNLIMITED);
+range_dim = netcdf.defDim(ncid,'range',n_range);
+azimuth_dim = netcdf.defDim(ncid,'azimuth',n_azimuth);
+
+time_var = netcdf.defVar(ncid,'time','double',time_dim);
+netcdf.putAtt(ncid,time_var,'standard_name','time');
+netcdf.putAtt(ncid,time_var,'calendar','gregorian');
+tunits = sprintf('days since %sZ',datestr(ref_time,31));
+netcdf.putAtt(ncid,time_var,'units',tunits);
+
+if strcmp(Header.grid_unit,'degree')
+    x_var = 'longitude_eye';
+    x_sname = 'longitude';
+    x_descr = 'longitude of eye';
+    x_units = 'degrees_east';
+    %
+    y_var = 'latitude_eye';
+    y_sname = 'latitude';
+    y_descr = 'latitude of eye';
+    y_units = 'degrees_north';
+else
+    x_var = 'x_eye';
+    x_sname = 'projection_x_coordinate';
+    x_descr = 'x-coordinate of eye';
+    x_units = 'm';
+    %
+    y_var = 'y_eye';
+    y_sname = 'projection_y_coordinate';
+    y_descr = 'y-coordinate of eye';
+    y_units = 'm';
+end
+xy_vars = [y_var ' ' x_var];
+
+range_id = netcdf.defVar(ncid,'range','double',range_dim);
+netcdf.putAtt(ncid,range_id,'standard_name','projection_range_coordinate');
+netcdf.putAtt(ncid,range_id,'long_name','distance from eye');
+netcdf.putAtt(ncid,range_id,'eye_coordinates',xy_vars);
+netcdf.putAtt(ncid,range_id,'units','m');
+netcdf.putAtt(ncid,range_id,'axis','radial_range_coordinate');
+
+azimuth_id = netcdf.defVar(ncid,'azimuth','double',azimuth_dim);
+netcdf.putAtt(ncid,azimuth_id,'standard_name','ray_azimuth_angle');
+netcdf.putAtt(ncid,azimuth_id,'long_name','azimuth angle clockwise from North');
+netcdf.putAtt(ncid,azimuth_id,'units','degrees');
+netcdf.putAtt(ncid,azimuth_id,'eye_coordinates',xy_vars);
+netcdf.putAtt(ncid,azimuth_id,'axis','radial_azimuth_coordinate');
+
+x_eye_id = netcdf.defVar(ncid,x_var,'double',time_dim);
+netcdf.putAtt(ncid,x_eye_id,'standard_name',x_sname);
+netcdf.putAtt(ncid,x_eye_id,'long_name',x_descr);
+netcdf.putAtt(ncid,x_eye_id,'units',x_units);
+
+y_eye_id = netcdf.defVar(ncid,y_var,'double',time_dim);
+netcdf.putAtt(ncid,y_eye_id,'standard_name',y_sname);
+netcdf.putAtt(ncid,y_eye_id,'long_name',y_descr);
+netcdf.putAtt(ncid,y_eye_id,'units',y_units);
+
+dim_order = [range_dim,azimuth_dim,time_dim];
+reorder = [2 1 3];
+dim_order = dim_order(reorder);
+switch wind_opt
+    case 'mag+from' % mag + from_dir
+        wind1_id = netcdf.defVar(ncid,'wind_mag','double',dim_order);
+        netcdf.putAtt(ncid,wind1_id,'standard_name','wind_speed');
+        netcdf.putAtt(ncid,wind1_id,'units','m/s');
+        
+        wind2_id = netcdf.defVar(ncid,'wind_dir','double',dim_order);
+        netcdf.putAtt(ncid,wind2_id,'standard_name','wind_from_direction');
+        netcdf.putAtt(ncid,wind2_id,'units','degrees');
+        
+    case 'mag+to' % mag + to_dir
+        wind1_id = netcdf.defVar(ncid,'wind_mag','double',dim_order);
+        netcdf.putAtt(ncid,wind1_id,'standard_name','wind_speed');
+        netcdf.putAtt(ncid,wind1_id,'units','m/s');
+        
+        wind2_id = netcdf.defVar(ncid,'wind_dir','double',dim_order);
+        netcdf.putAtt(ncid,wind2_id,'standard_name','wind_to_direction');
+        netcdf.putAtt(ncid,wind2_id,'units','degrees');
+        
+    case 'x+y' % x + y
+        wind1_id = netcdf.defVar(ncid,'wind_x','double',dim_order);
+        netcdf.putAtt(ncid,wind1_id,'standard_name','eastward_wind');
+        netcdf.putAtt(ncid,wind1_id,'units','m/s');
+        
+        wind2_id = netcdf.defVar(ncid,'wind_y','double',dim_order);
+        netcdf.putAtt(ncid,wind2_id,'standard_name','northward_wind');
+        netcdf.putAtt(ncid,wind2_id,'units','m/s');
+        
+    otherwise
+        error('Invalid option for storing wind "%s", expecting "mag+from", "mag+to" or "x+y".', var2str(wind_opt))
+end
+
+var_id = zeros(1,Header.n_quantity);
+iq_wsp = 1;
+iq_wfd = 2;
+iq_prs = 3;
+for iq = 1:Header.n_quantity
+    switch Header.quantity{iq}
+        case 'wind_speed'
+            iq_wsp = iq;
+            continue
+        case 'wind_from_direction'
+            iq_wfd = iq;
+            continue
+        case 'p_drop'
+            iq_prs = iq;
+            varname = 'pressure';
+            stdname = 'surface_air_pressure';
+            longname = 'pressure at the bottom of the atmosphere';
+            units = Header.unit{iq};
+            p_units = units;
+        otherwise
+            varname = Header.quantity{iq};
+            stdname = '';
+            longname = '';
+            units = Header.unit{iq};
+    end
+
+    var_id(iq) = netcdf.defVar(ncid,varname,'double',dim_order);
+    if ~isempty(stdname)
+        netcdf.putAtt(ncid,var_id(iq),'standard_name',stdname);
+    end
+    if ~isempty(longname)
+        netcdf.putAtt(ncid,var_id(iq),'long_name',longname);
+    end
+    netcdf.putAtt(ncid,var_id(iq),'units',units);
+end
+pressure_id = var_id(iq_prs);
+
+if pressure_id > 0
+    netcdf.putAtt(ncid,pressure_id,'eye_value','eye_pressure');
+    
+    eye_pressure_id = netcdf.defVar(ncid,'eye_pressure','double',time_dim);
+    %netcdf.putAtt(ncid,eye_pressure_id,'standard_name','surface_air_pressure');
+    netcdf.putAtt(ncid,eye_pressure_id,'long_name','surface air pressure in the eye');
+    netcdf.putAtt(ncid,eye_pressure_id,'units',p_units);
+end
+
+% check for precipitation?
+
+NC_GLOBAL = netcdf.getConstant('GLOBAL');
+netcdf.putAtt(ncid,NC_GLOBAL,'date_modified',datestr(now,31));
+if isfield(Structure.Header,'spw_merge_frac')
+    spw_merge_frac = Structure.Header.spw_merge_frac;
+else
+    spw_merge_frac = 0.5;
+end
+netcdf.putAtt(ncid,NC_GLOBAL,'spw_merge_frac',spw_merge_frac);
+netcdf.putAtt(ncid,NC_GLOBAL,'Conventions','CF-1.10 Deltares/Radial-0.1');
+
+
+netcdf.putVar(ncid,time_var,0,n_times,times);
+netcdf.putVar(ncid,range_id,0,n_range,ranges);
+netcdf.putVar(ncid,azimuth_id,0,n_azimuth,azimuths);
+
+x_eye = [Structure.Data.x_spw_eye];
+y_eye = [Structure.Data.y_spw_eye];
+netcdf.putVar(ncid,x_eye_id,x_eye);
+netcdf.putVar(ncid,y_eye_id,y_eye);
+
+if pressure_id > 0
+    p_eye = [Structure.Data.p_drop_spw_eye];
+    netcdf.putVar(ncid,eye_pressure_id,p_eye);
+end
+
+store_range = 2:n_range+1;
+store_azim = 1:n_azimuth;
+for t = 1:n_times
+    % use Local_read_file to read the data
+    % Note that this adds an index 1 for the eye (range dimension)
+    % Note that this adds an index n_azimuth+1 to complete the circle (azimuth dimension)
+    DATA = Local_read_file(Structure,':',t);
+    % remove the extra data lines mentioned above
+    % make sure that the dimension order matches: range, azimuth, time
+    DATA = permute(DATA(1,store_range,store_azim,:),[2 3 1 4]);
+    switch wind_opt
+        case 'mag+from' % mag + from_dir
+            u = DATA(:,:,1,iq_wsp);
+            v = DATA(:,:,1,iq_wfd);
+            
+        case 'mag+to' % mag + to_dir
+            u = DATA(:,:,1,iq_wsp);
+            v = mod(DATA(:,:,1,iq_wfd)+180,360);
+            
+        case 'x+y' % x + y
+            um = DATA(:,:,1,iq_wsp);
+            to_dir_cart = 270 - DATA(:,:,1,iq_wfd);
+            u = um .* cosd(to_dir_cart);
+            v = um .* sind(to_dir_cart);
+    end
+    start = [0 0 t-1];
+    count = [n_range n_azimuth 1];
+    start = start(reorder);
+    count = count(reorder);
+    netcdf.putVar(ncid,wind1_id,start,count,permute(u,reorder))
+    netcdf.putVar(ncid,wind2_id,start,count,permute(v,reorder))
+    
+    for iq = 1:Header.n_quantity
+        if var_id(iq) > 0
+            netcdf.putVar(ncid,var_id(iq),start,count,permute(DATA(:,:,1,iq),reorder))
+        end
+    end
+end
+
+
 function [Line,floc] = fgetl_noncomment(fid)
 % Skip comment lines starting with #
 % first argument the line, second argument the offset of that line in case
@@ -680,14 +1006,18 @@ else
 end
 
 
-function [Time,TimeZone] = value2time_since(value)
+function [Time,TimeZone,RefDate] = value2time_since(value,RefDate)
 X = sscanf(value,'%f %*s since %4d-%2d-%2d %2d:%2d:%2d %c%2d:%2d');
 [Time,Remainder] = strtok(value);
 tunit = strtok(Remainder);
-[Time,TimeZone] = value2time_core(X,tunit);
+if nargin > 1
+    [Time,TimeZone] = value2time_core(X,tunit,RefDate);
+else
+    [Time,TimeZone,RefDate] = value2time_core(X,tunit);
+end
 
 
-function [Time,TimeZone] = value2time_old(value)
+function [Time,TimeZone,RefDate] = value2time_old(value,RefDate)
 [tunit,~,~,i] = sscanf(lower(value),'/* time (%[^)])');
 X = sscanf(value(i:end),' %f %4d%2d%2d %f');
 if length(X)>4
@@ -698,17 +1028,27 @@ if length(X)>4
     X(1) = 0;
 end
 X(10) = 0;
-[Time,TimeZone] = value2time_core(X,tunit);
+if nargin > 1
+    [Time,TimeZone] = value2time_core(X,tunit,RefDate);
+else
+    [Time,TimeZone,RefDate] = value2time_core(X,tunit);
+end
 
 
-function [Time,TimeZone] = value2time_core(X,tunit)
-RefDate = datenum(X(2:7)');
+function [Time,TimeZone,RefDate] = value2time_core(X,tunit,RefDate)
+RefDateNew = datenum(X(2:7)');
+if nargin<3
+    RefDate = RefDateNew;
+end
+dRefDate = RefDateNew - RefDate;
 TimeZone = (X(9)+X(10)/60)*(44-abs(X(8)));
 switch lower(tunit)
+    case {'seconds','s'}
+        Time = dRefDate + X(1)/24/60/60;
     case {'minutes','min','m'}
-        Time = RefDate + X(1)/24/60;
+        Time = dRefDate + X(1)/24/60;
     case {'hours','hrs','h'}
-        Time = RefDate + X(1)/24;
+        Time = dRefDate + X(1)/24;
     otherwise
         warning('Unknown time unit.')
         Time = 0;

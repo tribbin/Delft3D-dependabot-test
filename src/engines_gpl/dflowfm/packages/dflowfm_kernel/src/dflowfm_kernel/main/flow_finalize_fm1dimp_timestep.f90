@@ -47,7 +47,7 @@ use m_flowgeom, only: lnx1d, ndxi, ln, lnx1Db, lnxi, ndx
 !use m_CrossSections, only: CalcConveyance
 !use m_flowgeom
 use m_fm_erosed, only: ndx_mor, lnx_mor, ln_mor
-use m_f1dimp 
+use m_f1dimp, only: f1dimppar
 
 implicit none
 

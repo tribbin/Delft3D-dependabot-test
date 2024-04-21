@@ -1,6 +1,7 @@
-project(tests)
-
 # Specify the modules to be included
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/configurations/include/windows_postbuild_configuration.cmake)
+
 if(NOT TARGET deltares_common)
     add_subdirectory(${checkout_src_root}/${deltares_common_module} deltares_common)
 endif()
@@ -15,6 +16,15 @@ endif()
 
 if(NOT TARGET ftnunit)
     add_subdirectory(${checkout_src_root}/${ftnunit_module} ftnunit)
+endif()
+
+# Ice
+if(NOT TARGET ice_data)
+    add_subdirectory(${checkout_src_root}/${ice_data_module} ice_data)
+endif()
+
+if(NOT TARGET ice_io)
+    add_subdirectory(${checkout_src_root}/${ice_io_module} ice_io)
 endif()
 
 # Trachytopes
@@ -39,26 +49,11 @@ if(NOT TARGET flow1d)
     add_subdirectory(${checkout_src_root}/${flow1d_module} flow1d)
 endif()
 
-if(NOT TARGET flow1d_implicit)
-    add_subdirectory(${checkout_src_root}/${flow1d_implicit_module} flow1d_implicit)
-endif()
-
 # Waq
-if(NOT TARGET waq_utils_c)
-    add_subdirectory(${checkout_src_root}/${waq_utils_c_module} waq_utils_c)
-endif()
+include(${CMAKE_CURRENT_SOURCE_DIR}/configurations/include/dwaq/dwaq_base.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/configurations/include/dwaq/dwaq_dflowfm_online_coupling.cmake)
 
-if(NOT TARGET waq_utils_f)
-    add_subdirectory(${checkout_src_root}/${waq_utils_f_module} waq_utils_f)
-endif()
 
-if(NOT TARGET waq_process)
-    add_subdirectory(${checkout_src_root}/${waq_process_module} waq_process)
-endif()
-
-if(NOT TARGET wq_processes)
-    add_subdirectory(${checkout_src_root}/${wq_processes_module} wq_processes)
-endif()
 
 # Morphology
 if(NOT TARGET morphology_plugins_c)
@@ -82,7 +77,7 @@ if(NOT TARGET dhydrology_kernel)
     add_subdirectory(${checkout_src_root}/${hydrology_kernel_module} dhydrology_kernel)
 endif()
 
-# Dflowfm modules 
+# Dflowfm modules
 if(NOT TARGET dflowfm_kernel)
     add_subdirectory(${checkout_src_root}/${dflowfm_kernel_module} dflowfm_kernel)
 endif()
@@ -103,11 +98,9 @@ if(NOT TARGET md5)
 endif()
 
 # metis
-if(WIN32)
-    if(NOT TARGET metis)
-        add_subdirectory(${checkout_src_root}/${metis_module} metis)
-    endif()
-endif(WIN32)
+if(NOT TARGET metis)
+    add_subdirectory(${checkout_src_root}/${metis_module} metis)
+endif()
 
 if(NOT TARGET metisoptions)
     add_subdirectory(${checkout_src_root}/${metisoptions_module} metisoptions) # Note that the metisoptions should be loaded AFTER metis is loaded, as it depends on settings set by the CMakeLists.txt of the metis library
@@ -144,22 +137,25 @@ if(NOT TARGET shp)
     add_subdirectory(${checkout_src_root}/${shp_module} shp)
 endif()
 
+# proj
 if(WIN32)
     if(NOT TARGET proj)
-        add_subdirectory(${checkout_src_root}/${proj_module} proj)
+        include(${CMAKE_CURRENT_SOURCE_DIR}/configurations/include/proj_configuration.cmake)
     endif()
 endif(WIN32)
 
 # netcdf
-if(WIN32)
-    if(NOT TARGET netcdff)
-        add_subdirectory(${checkout_src_root}/${netcdf_module} netcdff)
-    endif()
-endif(WIN32)
+if(NOT TARGET netcdff)
+    add_subdirectory(${checkout_src_root}/${netcdf_module} netcdff)
+endif()
 
 # io_netcdf
 if(NOT TARGET io_netcdf)
     add_subdirectory(${checkout_src_root}/${io_netcdf_module} io_netcdf)
+endif()
+
+if(NOT TARGET io_netcdf_data)
+    add_subdirectory(${checkout_src_root}/${io_netcdf_data_module} io_netcdf_data)
 endif()
 
 # ec_module
@@ -187,19 +183,19 @@ if(NOT TARGET nefis)
     add_subdirectory(${checkout_src_root}/${nefis_module} nefis)
 endif()
 
-# Solvesaphe
-if(NOT TARGET solvesaphe)
-    add_subdirectory(${checkout_src_root}/${solvesaphe_module} solvesaphe)
-endif()
 
 # Test binaries
 add_subdirectory(${checkout_src_root}/${test_deltares_common_module} test_deltares_common)
-add_subdirectory(${checkout_src_root}/${test_ec_module}              test_ec_module)
-add_subdirectory(${checkout_src_root}/${test_waq_utils_f}            test_waq_utils_f)
-add_subdirectory(${checkout_src_root}/${test_dflowfm_kernel}         test_dflowfm_kernel)
+add_subdirectory(${checkout_src_root}/${test_ec_module} test_ec_module)
+add_subdirectory(${checkout_src_root}/${test_dflowfm_kernel} test_dflowfm_kernel)
+add_subdirectory(${delwaq_tests_module} tests_delwaq)
+add_subdirectory(${checkout_src_root}/${test_io_netcdf} test_io_netcdf)
+add_subdirectory(${utils_lgpl_tests_module} tests_utils_lgpl)
 
 if(UNIX)
     # install
     add_subdirectory(${checkout_src_root}/${install_tests_module} install_tests)
 endif(UNIX)
 
+# Project name must be at the end of the configuration: it might get a name when including other configurations and needs to overwrite that
+project(tests)

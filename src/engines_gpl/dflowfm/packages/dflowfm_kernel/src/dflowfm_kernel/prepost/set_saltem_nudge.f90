@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,19 +27,21 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
    !> fill initial salinity and temperature with nudge variables
    subroutine set_saltem_nudge()
       use m_flowgeom
-      use m_flow, only: sa1, tem1, kmxn
+      use m_flow ! , only: sa1, tem1, kmxn, layertype, keepzlayeringatbed, jabaroczlaybed, zws, zslay, numtopsig
       use m_transport
       use m_nudge
       use m_missing
       implicit none
 
       integer :: k, kk, KB, KT
+
+
 
       do kk=1,Ndx
          call getkbotktop(kk,kb,kt)
@@ -60,4 +62,5 @@
 
       end do
 
+ 
    end subroutine set_saltem_nudge

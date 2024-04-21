@@ -1,7 +1,7 @@
 function qpplot(data,varargin)
 %QPPLOT Plot data like QUICKPLOT does (beta functionality).
-%   QPCPLOT(DATA,...,PARAM,VALUE,...) plots a data set DATA as obtained
-%   from QPREAD in the same way as QUICKPLOT can plot that data.
+%   QPPLOT(DATA, ..., KEY, VALUE, ...) with DATA the data to be plotted as
+%   obtained from QPREAD in the same way as QUICKPLOT can plot that data.
 %
 %   Example
 %      WD = qpread(qpfile,'water depth');
@@ -15,7 +15,7 @@ function qpplot(data,varargin)
 
 %----- LGPL --------------------------------------------------------------------
 %                                                                               
-%   Copyright (C) 2011-2022 Stichting Deltares.                                     
+%   Copyright (C) 2011-2024 Stichting Deltares.                                     
 %                                                                               
 %   This library is free software; you can redistribute it and/or                
 %   modify it under the terms of the GNU Lesser General Public                   

@@ -1,36 +1,36 @@
 !----- AGPL --------------------------------------------------------------------
-!
-!  Copyright (C)  Stichting Deltares, 2017-2022.
-!
-!  This file is part of Delft3D (D-Flow Flexible Mesh component).
-!
-!  Delft3D is free software: you can redistribute it and/or modify
-!  it under the terms of the GNU Affero General Public License as
-!  published by the Free Software Foundation version 3.
-!
-!  Delft3D  is distributed in the hope that it will be useful,
-!  but WITHOUT ANY WARRANTY; without even the implied warranty of
-!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-!  GNU Affero General Public License for more details.
-!
-!  You should have received a copy of the GNU Affero General Public License
-!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.
-!
-!  contact: delft3d.support@deltares.nl
-!  Stichting Deltares
-!  P.O. Box 177
-!  2600 MH Delft, The Netherlands
-!
-!  All indications and logos of, and references to, "Delft3D",
-!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting
+!                                                                               
+!  Copyright (C)  Stichting Deltares, 2017-2024.
+!                                                                               
+!  This file is part of Delft3D (D-Flow Flexible Mesh component).               
+!                                                                               
+!  Delft3D is free software: you can redistribute it and/or modify              
+!  it under the terms of the GNU Affero General Public License as               
+!  published by the Free Software Foundation version 3.                         
+!                                                                               
+!  Delft3D  is distributed in the hope that it will be useful,                  
+!  but WITHOUT ANY WARRANTY; without even the implied warranty of               
+!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                
+!  GNU Affero General Public License for more details.                          
+!                                                                               
+!  You should have received a copy of the GNU Affero General Public License     
+!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.             
+!                                                                               
+!  contact: delft3d.support@deltares.nl                                         
+!  Stichting Deltares                                                           
+!  P.O. Box 177                                                                 
+!  2600 MH Delft, The Netherlands                                               
+!                                                                               
+!  All indications and logos of, and references to, "Delft3D",                  
+!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting 
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
-!
+!                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
-subroutine furu()                                   ! set fu, ru and kfs
+ subroutine furu()                                   ! set fu, ru and kfs
  use m_flow                                          ! substitue u1 and q1
  use m_flowgeom
  use timers
@@ -38,15 +38,18 @@ subroutine furu()                                   ! set fu, ru and kfs
  use m_alloc
  use m_partitioninfo
  use m_xbeach_data, only: swave
- use m_waves, only: ypar, cfwavhi, hminlw, cfhi_vanrijn, uorb
+ use m_waves, only: cfwavhi, cfhi_vanrijn, uorb
  use m_sediment
  use unstruc_channel_flow
  use m_sferic
  use m_trachy, only: trachy_resistance
+ use m_1d2d_fixedweirs, only: compfuru_1d2d_fixedweirs
+ use m_flowparameters, only: ifixedWeirScheme1d2d
+ use fm_manhole_losses, only: calculate_manhole_losses
 
  implicit none
 
- integer          :: L, n, k1, k2, kb, LL, k, itu1, Lb, Lt, itpbn, i
+ integer          :: L, n, k1, k2, kb, LL, itu1, Lb, Lt, itpbn, i
  integer          :: kup, kdo, iup
 
  double precision :: bui, cu, du, du0, gdxi, ds
@@ -54,7 +57,7 @@ subroutine furu()                                   ! set fu, ru and kfs
  double precision :: qk0, qk1, dzb, hdzb, z00  !
  double precision :: st2
  double precision :: twot = 2d0/3d0, hb, h23, ustbLL, agp, vLL
- double precision :: hminlwi,fsqrtt,uorbL
+ double precision :: fsqrtt,uorbL
 
  integer          :: np, L1     ! pumpstuff
  double precision :: ap, qp, vp ! pumpstuff
@@ -63,16 +66,17 @@ subroutine furu()                                   ! set fu, ru and kfs
 
  integer          :: jaustarintsave
  double precision :: sqcfi
- integer :: ispumpon
+ integer          :: ispumpon
 
- hminlwi=1d0/hminlw
  fsqrtt = sqrt(0.5d0)
  call timstrt('Furu', handle_furu)
 
  if (kmx == 0 .or. ifixedweirscheme > 0)  then  ! original 2D coding
+    
+    call calculate_manhole_losses(network%storS,advi)
 
     !$OMP PARALLEL DO                       &
-    !$OMP PRIVATE(L,k1,k2,slopec,hup,gdxi,cu,du,du0,ds,u1L,v2,itu1,frL,bui,u1L0,st2,agp)
+    !$OMP PRIVATE(L,k1,k2,slopec,hup,gdxi,cu,du,du0,ds,u1L,v2,itu1,frL,bui,u1L0,st2,agp,uorbL)
     do L  = 1,lnx
 
        if (hu(L) > 0) then
@@ -127,8 +131,12 @@ subroutine furu()                                   ! set fu, ru and kfs
              st2  = sin(dg2rd*yu(L))**2
              agp  = 9.7803253359*(1d0+0.00193185265241*st2)/sqrt(1d0-0.00669437999013*st2)
           endif
-          gdxi  = agp*dxi(L)
-          cu    = gdxi*teta(L)
+          gdxi  = agp*dxi(L) 
+          if (jarhoxu >= 2) then
+             gdxi = gdxi*rhomean/rhou(L)
+          endif
+
+          cu    = gdxi*teta(L) 
           du    = dti*u0(L) - adve(L) + gdxi*slopec
           ds    = s0(k2) - s0(k1)
           if (teta(L) /= 1d0) then
@@ -153,25 +161,24 @@ subroutine furu()                                   ! set fu, ru and kfs
 
 10        continue
 
-          if (jawave==3 .or. (jawave==4 .and. swave==1) .or. jawave==6 .and. .not. flowWithoutWaves) then                ! Delft3D-Wave Stokes-drift correction
-              ! D3D: Compare with taubsu computation (taubot.f90) and usage (cucnp.f90/uzd.f90)
-              ! A3M:ok for c01-validation_3.1.6: frL = ypar(L)*(cfuhi(L)+cfwavhi(L))*wavmu(L)/hu(L)
+          !if (jawave==3 .or. (jawave==4 .and. swave==1) .or. jawave==6 .and. .not. flowWithoutWaves) then                ! Delft3D-Wave Stokes-drift correction
+          if (jawave>0 .and. .not. flowWithoutWaves) then                ! Delft3D-Wave Stokes-drift correction
+
               if (modind < 9) then
-                 frL = ypar(L)*(cfuhi(L)+cfwavhi(L)) * sqrt((u1L-ustokes(L))**2 + (v(L)-vstokes(L))**2)
+                 frL = cfwavhi(L)        
               elseif (modind==9) then
-                 frL = cfhi_vanrijn(L) * sqrt((u1L-ustokes(L))**2 + (v(L)-vstokes(L))**2)
+                 frL = cfhi_vanrijn(L)   ! g/ca**2*umod/h/rho
               elseif (modind==10) then   ! Ruessink 2003
                  uorbL = .5d0*(uorb(k1)+uorb(k2))
                  frL = cfuhi(L)*sqrt((u1L-ustokes(L))**2 + (v(L)-vstokes(L))**2 + (1.16d0*uorbL*fsqrtt)**2)
-              end if
-
-              !bdmwrs = frL * wavmu(L)
-              !bdmwrp = frL * hu(L)
-
-              ! Bed shear due to flow and waves:
-              ! A3M:ok for c01-validation_3.1.6: du = du + frL * sqrt((u1L-ustokes(L))**2 + (v(L)-vstokes(L))**2)
-              !du = du0 + frL*wavmu(L)*huvli(L)
+              end if   
+              !
               du = du0 + frL*ustokes(L)
+              !
+              ! and add vegetation stem drag with eulerian velocities, assumes fixed stem
+              if ((jaBaptist >= 2) .or. trachy_resistance) then
+                  frL = frL + alfav(L)*hypot(u1L-ustokes(L),v(L)-vstokes(L))      
+              endif
 
           else if ( ifxedweirfrictscheme > 0) then
               if (iadv(L) == 21 .or. kcu(L) == 3) then
@@ -185,8 +192,8 @@ subroutine furu()                                   ! set fu, ru and kfs
               frL = cfuhi(L)*sqrt(u1L*u1L + v2)      ! g / (H.C.C) = (g.K.K) / (A.A) travels in cfu
           endif
 
-          bui   = 1d0 / ( dti + advi(L) + frL )
-          fu(L) = cu*bui
+          bui   = 1d0 / ( dti + advi(L) + frL ) 
+          fu(L) = cu*bui 
           ru(L) = du*bui
           u1L0  = u1L
           u1L   = ru(L) - fu(L)*ds
@@ -198,8 +205,9 @@ subroutine furu()                                   ! set fu, ru and kfs
        endif
 
     enddo
-    !$OMP END PARALLEL DO   ! todo check difference
+    !$OMP END PARALLEL DO
 
+    
     if (npump > 0) then ! model has at least one pump link
     do np = 1,npumpsg  ! loop over pump signals, sethu
        qp    = qpump(np)
@@ -212,7 +220,7 @@ subroutine furu()                                   ! set fu, ru and kfs
           L  = iabs(L1)
           hu(L) = 0d0; au(L) = 0d0
           fu(L) = 0d0; ru(L) = 0d0
-          if (qp*L1 > 0) then
+          if (qp*L1 >= 0) then
              kup = k1
              kdo = k2
              iup = 1
@@ -237,8 +245,8 @@ subroutine furu()                                   ! set fu, ru and kfs
 
        if (ap > 0d0) then
           do n  = L1pumpsg(np), L2pumpsg(np)
-             L1 = kpump(3,n)
-             L  = iabs(L1)
+                L1 = kpump(3,n)
+                L  = iabs(L1)
              if (au(L) > 0d0) then
                 if (L1 > 0) then
                     ru(L) =  qp/ap
@@ -260,18 +268,13 @@ subroutine furu()                                   ! set fu, ru and kfs
     if ( jafilter.ne.0 ) then
       call comp_filter_predictor()
     end if
-    if (jawave > 0 .and. .not. flowWithoutWaves ) then ! now every timestep, not only at getfetch updates
-       do k = 1,ndx
-          call tauwavehk(Hwav(k), Twav(k), hs(k), Uorb(k), rlabda(k), ustk(k))
-       enddo
-    endif
 
     call update_verticalprofiles()
 
  endif
 
 
-do n  = 1, nbndu                                    ! boundaries at u points
+ do n  = 1, nbndu                                    ! boundaries at u points
 
     k2    = kbndu(2,n)
     LL    = kbndu(3,n)
@@ -282,9 +285,9 @@ do n  = 1, nbndu                                    ! boundaries at u points
     if (itpbn == 4) then       ! dischargebnd
        zbndun = zbndq(n)
     else if (itpbn == 5) then  ! absgenbc
-       zbndun = u1(LL)         ! set in xbeach_absgen_bc
-    else                       ! other types that use alfsmo
-       zbndun = zbndu( (n-1)*kmxd + 1 )
+       zbndun  = u1(LL)     ! set in xbeach_absgen_bc
+    else                       ! other types that use alfsmo 
+       zbndun = zbndu( (n-1)*kmxd + 1 ) 
     end if
 
     if (alfsmo < 1d0) then
@@ -311,6 +314,10 @@ do n  = 1, nbndu                                    ! boundaries at u points
        if( jaustarint == 0 .or. jaustarint == 3 ) jaustarint = 1
        vLL = v(LL) ; v(LL) = 0d0
        call getustbcfuhi( LL,LL,ustbLL,cfuhi(LL),hdzb, z00, cfuhi3D)    ! call with Lb = LL => layer integral profile
+       ! JRE with HK, used to be in getustb
+       if (jawave>0 .and. jawaveStokes >= 1) then                       ! Ustokes correction at bed
+          adve(Lb)  = adve(Lb) - cfuhi3D*ustokes(Lb)
+       endif
        v(LL) = vLL
        jaustarint = jaustarintsave
        qk0 = 0d0
@@ -391,6 +398,9 @@ do n  = 1, nbndu                                    ! boundaries at u points
  endif
 ! END DEBUG
 
+ if (ifixedWeirScheme1d2d ==1) then
+    call compfuru_1d2d_fixedweirs()
+ endif
  call timstop(handle_furu)
 
  end subroutine furu

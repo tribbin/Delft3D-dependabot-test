@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine addlink1D2Dinternal(L,japerim)                         ! and add area's and volumes of 1D2D links
  use m_flowgeom
@@ -84,29 +84,29 @@
 
        !DIR$ INLINE
        hpr1 = get_hpr_nostruc(L)
-       frcn    = frcu(L)
-       ifrctyp = ifrcutp(L)
-       if (jaconveyance2D > 0) then
+    frcn    = frcu(L)
+    ifrctyp = ifrcutp(L)
+    if (jaconveyance2D > 0) then
 
-          jaconv = min(2,jaconveyance2D)
-          CALL getprof2d(hpr1,wu2,b21,ai,frcn,ifrctyp, widu,aru,aconvu,jaconv, beta, deltaa,hyr)
+       jaconv = min(2,jaconveyance2D)
+       CALL getprof2d(hpr1,wu2,b21,ai,frcn,ifrctyp, widu,aru,aconvu,jaconv, beta, deltaa,hyr)
 
-          if (frcn >  0) then
-              cfuhi(L) = aifu(L)*ag*aconvu
-          else
-              cfuhi(L) = 0d0
-          endif
-          au(L) = aru
+       if (frcn >  0) then
+           cfuhi(L) = aifu(L)*ag*aconvu
        else
-          au(L) = hpr1*wu(L)
-          if (frcn >  0) then
-             call getcz(hu(L), frcn, ifrctyp, Cz, L)
-             cfuhi(L) = ag / (hu(L)*Cz*Cz)
-          else
-             cfuhi(L) = 0d0
-          end if
+           cfuhi(L) = 0d0
        endif
+       au(L) = aru
+    else
+       au(L) = hpr1*wu(L)
+       if (frcn >  0) then
+          call getcz(hu(L), frcn, ifrctyp, Cz, L)
+          cfuhi(L) = ag / (hu(L)*Cz*Cz)
+       else
+          cfuhi(L) = 0d0
+       end if
     endif
+ endif
 
     if(network%loaded) then
        hpr1   = s1(k1)-BL1

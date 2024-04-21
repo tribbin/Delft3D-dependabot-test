@@ -1,7 +1,7 @@
 module update_waves
 !----- GPL ---------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2022.                                
+!  Copyright (C)  Stichting Deltares, 2011-2024.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify         
 !  it under the terms of the GNU General Public License as published by         
@@ -25,14 +25,14 @@ module update_waves
 !  Stichting Deltares. All rights reserved.                                     
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !!--description-----------------------------------------------------------------
 ! NONE
 !!--pseudo code and references--------------------------------------------------
 ! NONE
 !!--declarations----------------------------------------------------------------
-!
+use precision_basics
 ! Module parameters
 !
     integer :: luniwp = -1  ! Unibest wave conditions input file unit
@@ -383,7 +383,7 @@ subroutine varcon(fname     ,timmin    ,result    ,isdir     ,nres )
 !
     integer                 , intent(in)  :: nres    ! number of values on record
     integer, dimension(nres), intent(in)  :: isdir   ! mask array, 0 if scalar, 1 if direction (deg)
-    real                    , intent(in)  :: timmin  ! time in minutes
+    real(hp)                , intent(in)  :: timmin  ! time in minutes
     real   , dimension(nres)              :: result  ! array containing interpolated values
     character(*)            , intent(in)  :: fname   ! filename time series file
 !

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine checkvolnan(i)
  use MessageHandling
@@ -44,5 +44,5 @@
     if (isnan(vol1(n))) then
        write(msgbuf,*)  ' volnan ', i, n ; call msg_flush()
     endif
-   enddo
-end subroutine checkvolnan
+ enddo
+ end subroutine checkvolnan

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,11 +27,12 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine s1nod()                                  ! nodes in continuity eq
  use precision_basics
+ use time_module, only : seconds_to_datetimestring
  use m_plotdots
  use MessageHandling
  use m_flow
@@ -43,15 +44,15 @@
  use m_alloc
  use m_sobekdfm
  use unstruc_channel_flow
- use unstruc_display, only : ntek, jaGUI
  use iso_c_utils, only : MAXSTRINGLEN
+ use m_fm_icecover, only : ice_apply_pressure, ice_p
 
  implicit none
 
  integer          :: n
- integer          :: kb , k2 , L, k, LL, LS, itpbn
- integer          :: kbk, k2k, Lk, ibr
- double precision :: dtiba, hh, zb, dir, dtgh, alf
+ integer          :: kb , k2 , L, k, LL, itpbn
+ integer          :: ibr
+ double precision :: dtiba, hh, zb, dtgh
  double precision :: sqrtgfh, cffu, rowsum, fuL, ruL, huL, hep
  integer          :: i, ierr
  character(len=2) :: dim_text
@@ -114,7 +115,7 @@
        call setMessage(LEVEL_WARN, msgbufpar)
        call SetMessage(-1, 'This might lead to a SAAD error in the solve process' )
        write(msgbufpar, '(a)') 'Current time is: '
-       call maketime(msgbufpar(18:), time1)
+       call seconds_to_datetimestring(msgbufpar(18:), refdat, time1)
        call setMessage(-1, msgbufpar)
        write(msgbufpar,'(a,f10.2,a,f10.2,a)') 'The location of the node is at (',xz(n),',',yz(n),')'
        call setMessage(-1, msgbufpar)
@@ -163,9 +164,6 @@
     endif                                            ! then also setback s1 !
  enddo
  !$OMP END PARALLEL DO
-
- ! compute riemann bnd mean state
- ! call  riemann_setmean()
 
  ! compute right-hand sides
  do n  = 1, nbndz                                    ! overrides for waterlevel boundaries
@@ -243,6 +241,11 @@
        if (japatm > 0 .and. PavBnd > 0) then
           zb = zb - ( patm(kb) - PavBnd )/(ag*rhomean)
        endif
+
+       if (ice_apply_pressure) then
+          zb = zb - ice_p(kb) /(ag*rhomean)
+       endif
+
        zb = max( zb, bl(kb) + HBMIN )
 
        ddr(kb)     = bbr(kb)*zb

@@ -35,7 +35,7 @@
 subroutine fm1dimp_update_network(iresult)
 
 !use m_flowparameters
-use m_f1dimp
+use m_f1dimp, only: f1dimppar, reallocate_fill
 use unstruc_channel_flow, only: network
 use m_CrossSections, only: createTablesForTabulatedProfile
 use m_fm_erosed, only: ndx_mor, lnx_mor

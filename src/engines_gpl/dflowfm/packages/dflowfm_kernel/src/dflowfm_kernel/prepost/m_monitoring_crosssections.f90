@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> Cross sections (crs) are used to monitor summed flow data across a line
 !! over time. The definition of crs is by a crspath, which is a polyline
@@ -125,6 +125,7 @@ implicit none
           maxnval = maxnval + 1
        endif
        maxnval = maxnval + stmpar%lsedtot
+       maxnval = maxnval + stmpar%lsedsus
     endif
 
 
@@ -357,11 +358,12 @@ subroutine addObservCrsFromIni(network, filename)
    end do
 
    ! 1b. get the corresponding x- and y-coordinates
-   if (nByBrch > 0) then
       allocate(xx_tmp(nByBrch))
       allocate(yy_tmp(nByBrch))
-      ierr = odu_get_xy_coordinates(branchIdx_tmp(1:nByBrch), Chainage_tmp(1: nByBrch), meshgeom1d%ngeopointx, meshgeom1d%ngeopointy, &
-                                    meshgeom1d%nbranchgeometrynodes, meshgeom1d%nbranchlengths, jsferic, xx_tmp, yy_tmp)
+   do i = 1, nByBrch
+      ierr = odu_get_xy_coordinates(branchIdx_tmp(i:i), Chainage_tmp(i:i), meshgeom1d%ngeopointx, meshgeom1d%ngeopointy, &
+                                       meshgeom1d%nbranchgeometrynodes, meshgeom1d%nbranchlengths, jsferic, xx_tmp(i:i), yy_tmp(i:i))
+   enddo
 
       if (ierr /= DFM_NOERR) then
          call mess(LEVEL_ERROR, "Error occurs when getting xy coordinates for observation cross sections from file '"//trim(filename)//".")
@@ -372,7 +374,6 @@ subroutine addObservCrsFromIni(network, filename)
          pCrs%x(1) = xx_tmp(i)
          pCrs%y(1) = yy_tmp(i)
       end do
-   endif
 
    ! Step 2. add all observation crs from *.ini file
    do i =1, ncrsini
@@ -400,8 +401,8 @@ end subroutine addObservCrsFromIni
 subroutine pol_to_crosssections(xpl, ypl, npl, names)
     use m_missing
 
-    double precision, intent(in) :: xpl(:), ypl(:) !< Long array with one or more polylines, separated by dmiss
-    integer,          intent(in) :: npl            !< Total number of polyline points
+    double precision, intent(in) :: xpl(:), ypl(:)     !< Long array with one or more polylines, separated by dmiss
+    integer,          intent(in) :: npl                !< Total number of polyline points
     character(len=*), optional, intent(in) :: names(:) !< Optional names for cross sections
 
     integer :: i, i1, i2, ic, numnam
@@ -534,7 +535,7 @@ subroutine fill_geometry_arrays_crs()
                      maskBnd(k) = 1
                   end if
 
-                  k = k + 1
+               k = k+1
                   nNodesAdd = nNodesAdd + 1
                end if
 
@@ -563,8 +564,8 @@ subroutine fill_geometry_arrays_crs()
             geomYCrs(is:ie) = geomY(1:nNodes)
             if (jampi > 0) then
                maskBndAll(is:ie) = maskBnd(1:nNodes)
-            end if
          end if
+      end if
       end if
    end do
 
@@ -589,6 +590,9 @@ subroutine fill_geometry_arrays_crs()
          call realloc(displs,          ndomains,      keepExisting = .false., fill = 0  )
          call realloc(nNodesCrsGat,    ndomains,      keepExisting = .false., fill = 0  )
          call realloc(maskBndGat,      nNodesCrsMPI,  keepExisting = .false., fill = 0  )
+      else
+         ! NOTE: dummy allocate to prevent crash in Debug-model on Intel MPI, even though receive buffers are officially not needed on non-root.
+         allocate(nodeCountCrsGat(0), xGat(0), yGat(0), displs(0), nNodesCrsGat(0), maskBndGat(0))
       end if
 
       ! Gather integer data, where the same number of data, i.e. ncrs, are gathered from each subdomain to process 0000
@@ -666,18 +670,18 @@ subroutine fill_geometry_arrays_crs()
                               nb = nb + 1         ! add one boundary node
                               indBndMPI(nb) = j   ! store its index in geomXCrsMPI (and geomYCrsMPI)
                            else
-                              nodeCountCrsMPI(i) = nodeCountCrsMPI(i) - 1 ! adjust the node counter
-                              nNodesCrsMPI = nNodesCrsMPI - 1
-                           end if
+                        nodeCountCrsMPI(i) = nodeCountCrsMPI(i) - 1 ! adjust the node counter
+                        nNodesCrsMPI = nNodesCrsMPI - 1
+                     end if
                         else ! If it is not a boundary node, then add it directly
                            j = j + 1
                            geomXCrsMPI(j) = xGat(kk)
                            geomYCrsMPI(j) = yGat(kk)
-                        end if
+                  end if
                      end do
                   else
                      do k1 = ks, ke
-                        j = j + 1
+                     j = j + 1
                         kk = is + k1
                         geomXCrsMPI(j) = xGat(kk)
                         geomYCrsMPI(j) = yGat(kk)
@@ -685,8 +689,8 @@ subroutine fill_geometry_arrays_crs()
                            nb = nb + 1
                            indBndMPI(nb) = j ! store the index in geomXCrsMPI for the boundary nodes
                         end if
-                     end do
-                  end if
+                  end do
+               end if
                   nbLast = nb ! update nbLast when the current subdomain is finished.
                end if
             end do

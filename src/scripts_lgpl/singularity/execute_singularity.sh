@@ -5,13 +5,13 @@
 # This script is an interface between the scripts "run_singularity.sh" and 
 # "submit_singularity" in the working folder and the Singularity container itself.
 
-# This script "execute_singularity.sh" script must be located in the same folder
+# This script "execute_singularity.sh" must be located in the same folder
 # as the Singularity sif-file.
 
 
 # This script assumes that the command "singularity" can be found.
-# Needed by users at Deltares:
-module load singularity
+# For example, at Deltares:
+# module load singularity
 
 
 
@@ -23,13 +23,12 @@ MPI_DIR=/opt/intel/oneapi/mpi/2021.4.0
 container_PATH=$MPI_DIR/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin 
 container_LD_LIBRARY_PATH=$MPI_DIR/lib:$MPI_DIR/lib/release
 
-# These parameters should be modified according to your requirements.
-# set the MPI OFI provider library
-export I_MPI_FABRICS=shm
 
-# set the MPI communication fabric
-export FI_PROVIDER=tcp
-
+# Warning! For the SYSADMIN, it might be necessary to modify MPI parameters.
+# Such parameters are very system specific and potentially fragile.
+# For example, at Deltares:
+# export I_MPI_FABRICS=shm
+# export FI_PROVIDER=tcp
 
 #
 #
@@ -139,6 +138,8 @@ echo "Executable                                : $executable"
 echo "Executable options                        : $executable_opts"
 echo "env PATH                 inside container : $container_PATH"
 echo "env LD_LIBRARY_PATH      inside container : $container_LD_LIBRARY_PATH"
+echo "env FI_PROVIDER                           : $FI_PROVIDER"
+echo "env I_MPI_FABRICS                         : $I_MPI_FABRICS"
 echo
 echo "Executing singularity exec $container_bindir/$executable $executable_opts"
 
@@ -151,6 +152,14 @@ echo "Executing singularity exec $container_bindir/$executable $executable_opts"
 # --cleanenv will probably not work for multiple node computations.
 # See also https://sylabs.io/guides/3.8/user-guide/environment_and_metadata.html
 #
+# Warning! For the SYSADMIN, it might be necessary to extend the bindings.
+# When using D-Waves/SWAN inside the container and SWAN aborts with a message like:
+#     OMP: Error #179: Function Can't open SHM2 failed:
+#     OMP: System error #20: Not a directory
+#     forrtl: error (76): Abort trap signal
+# Then try to add the binding /run/shm:/run/shm below. Example line:
+#     --bind /run/shm:/run/shm,$working_dir:$mountdir,$MPI_DIR:$MPI_DIR,/usr/:/host \
+
 
 singularity exec \
                  --bind $working_dir:$mountdir,$MPI_DIR:$MPI_DIR,/usr/:/host \

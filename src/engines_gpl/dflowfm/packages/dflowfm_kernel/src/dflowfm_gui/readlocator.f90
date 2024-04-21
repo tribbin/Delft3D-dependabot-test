@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
       SUBROUTINE READLOCATOR(X,Y,KEY)
       use m_wearelt
@@ -98,10 +98,10 @@
       ENDIF
 
 !     muisbeweging
-      Xloc = InfoGraphics(5)
-      Yloc = InfoGraphics(6)
-      X    = dble(xloc)
-      y    = dble(yloc)
+      Xloc   = InfoGraphics(5)
+      Yloc   = InfoGraphics(6)
+      X=dble(xloc)
+      y=dble(yloc)
 
       CALL IGRUNITSTOPIXELS(Xloc,Yloc,IXP,IYP)
       CALL dPROJECT(X,Y,XLC,YLC,2)

@@ -1,34 +1,34 @@
 !----- AGPL --------------------------------------------------------------------
-!                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
-!                                                                               
-!  This file is part of Delft3D (D-Flow Flexible Mesh component).               
-!                                                                               
-!  Delft3D is free software: you can redistribute it and/or modify              
-!  it under the terms of the GNU Affero General Public License as               
-!  published by the Free Software Foundation version 3.                         
-!                                                                               
-!  Delft3D  is distributed in the hope that it will be useful,                  
-!  but WITHOUT ANY WARRANTY; without even the implied warranty of               
-!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                
-!  GNU Affero General Public License for more details.                          
-!                                                                               
-!  You should have received a copy of the GNU Affero General Public License     
-!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.             
-!                                                                               
-!  contact: delft3d.support@deltares.nl                                         
-!  Stichting Deltares                                                           
-!  P.O. Box 177                                                                 
-!  2600 MH Delft, The Netherlands                                               
-!                                                                               
-!  All indications and logos of, and references to, "Delft3D",                  
-!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting 
+!
+!  Copyright (C)  Stichting Deltares, 2017-2024.
+!
+!  This file is part of Delft3D (D-Flow Flexible Mesh component).
+!
+!  Delft3D is free software: you can redistribute it and/or modify
+!  it under the terms of the GNU Affero General Public License as
+!  published by the Free Software Foundation version 3.
+!
+!  Delft3D  is distributed in the hope that it will be useful,
+!  but WITHOUT ANY WARRANTY; without even the implied warranty of
+!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!  GNU Affero General Public License for more details.
+!
+!  You should have received a copy of the GNU Affero General Public License
+!  along with Delft3D.  If not, see <http://www.gnu.org/licenses/>.
+!
+!  contact: delft3d.support@deltares.nl
+!  Stichting Deltares
+!  P.O. Box 177
+!  2600 MH Delft, The Netherlands
+!
+!  All indications and logos of, and references to, "Delft3D",
+!  "D-Flow Flexible Mesh" and "Deltares" are registered trademarks of Stichting
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
-!                                                                               
+!
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine setumod(jazws0)                          ! set cell center Perot velocities at nodes
                                                      ! set Perot based friction velocities umod at u point
@@ -43,32 +43,29 @@ subroutine setumod(jazws0)                          ! set cell center Perot velo
  use m_wind
  use m_ship
  use m_missing
- use m_xbeach_data, only : DR, roller, swave
+ use m_xbeach_data, only : DR, roller, swave, nuhfac
  use unstruc_model, only : md_restartfile
  use m_setucxcuy_leastsquare, only: reconst2nd
+ use MessageHandling
+
  implicit none
 
  integer,intent(in):: jazws0
  ! locals
- integer           :: L, LL, k, k1, k2, k12, k3, k4, kb, n, n1, n2, nn, ks, ierr
- double precision  :: ux, uy                         ! centre or node velocity x- and y components
- double precision  :: hsi, humx                      ! inverse centre depth, max depth u points
- double precision  :: qwd,qwd1,qwd2                  !
- double precision  :: qucx, qucy
+ integer           :: L, LL, k, k1, k2, k3, k4, kb, n, n1, n2                 !
  double precision  :: duxdn, duydn, duxdt, duydt     ! normal and tangential global ux,uy gradients
- double precision  :: vicl, c11, c12, c22, wudx, bai2, sxx, syy, snn
+ double precision  :: vicl, c11, c12, c22
 
- double precision  :: sxw, syw, sf, ac1, ac2, csl, snl, wuw, ustar, suxw, suyw, uin, suxL, suyL
- double precision  :: cs, sn, dxi2, dyi2, sucheck
- double precision  :: chezy2, hhu, rt, hmin, hs1, hs2
- double precision  :: uu,vv,uucx,uucy, ff, ds, hup, fcor, vcor, fcor1, fcor2, fvcor, fvcorab
+ double precision  :: sf, ac1, ac2, csl, snl, wuw, ustar, suxw, suyw,suxL, suyL
+ double precision  :: cs, sn
+ double precision  :: hmin, hs1, hs2
+ double precision  :: fcor, vcor, fcor1, fcor2, fvcor
  double precision  :: dundn, dutdn, dundt, dutdt, shearvar, delty, vksag6, Cz
- double precision  :: umodLL, volu, hul, dzz, adx, hdx, huv, qL, wcxu, wcyu
+ double precision  :: huv
  double precision, allocatable:: u1_tmp(:), vluban(:)
 
- integer           :: nw, L1, L2, kbk, k2k, Ld, Lu, kt, Lb, Lt, Lb1, Lt1, Lb2, Lt2, kb1, kb2, ntmp, m
+ integer           :: nw, L1, L2, kt, Lb, Lt, Lb1, Lt1, Lb2, Lt2, kb1, kb2, ntmp, m
 
- double precision  :: depumin  ! external
  double precision  :: horvic   ! external
  double precision  :: horvic3  ! external
 
@@ -76,13 +73,14 @@ subroutine setumod(jazws0)                          ! set cell center Perot velo
 
  double precision  :: dxiAu, vicc, vlban, fcLL
 
- integer :: ini = 0
-
  integer :: ndraw
  COMMON /DRAWTHIS/ ndraw(50)
 
  double precision, external :: nod2linx, nod2liny, lin2nodx, lin2nody, cor2linx, cor2liny
  double precision, external :: nod2wallx, nod2wally, wall2linx, wall2liny
+ 
+ integer                    :: number_limited_links
+ double precision           :: viscocity_max_limit
 
  call timstrt('Umod', handle_umod)
  if(jazws0==1 .and. len_trim(md_restartfile)>0) then
@@ -99,7 +97,7 @@ subroutine setumod(jazws0)                          ! set cell center Perot velo
     if (newcorio == 1) then
        call setucxucyucxuucyunew() !reconstruct cell-center velocities
     else
-       call setucxucyucxuucyu() !reconstruct cell-center velocities
+    call setucxucyucxuucyu() !reconstruct cell-center velocities
     endif
     u1     = u1_tmp
     deallocate(u1_tmp)
@@ -110,15 +108,15 @@ subroutine setumod(jazws0)                          ! set cell center Perot velo
     if (newcorio == 1) then
        call setucxucyucxuucyunew()
     else
-       call setucxucyucxuucyu()
-    endif
+    call setucxucyucxuucyu()
+ endif
  endif
 
  !$OMP PARALLEL DO                           &
  !$OMP PRIVATE(L,LL,Lb,Lt,k1,k2,cs,sn,hmin,fcor,vcor)
  do LL   = lnx1D+1,lnx
     if (newcorio == 0) then
-       hmin = min( hs(ln(1,LL)),hs(ln(2,LL)) )
+    hmin = min( hs(ln(1,LL)),hs(ln(2,LL)) )
     elseif (newcorio == 1) then
        if (hu(LL) == 0) cycle
     endif
@@ -129,13 +127,13 @@ subroutine setumod(jazws0)                          ! set cell center Perot velo
        k1 = ln(1,L) ; k2 = ln(2,L)
 
        if (iperot /= -1) then
-          if ( jasfer3D == 1 ) then
-             v(L) =      acL(LL) *(-sn*nod2linx(LL,1,ucx(k1),ucy(k1)) + cs*nod2liny(LL,1,ucx(k1),ucy(k1))) +  &
-                    (1d0-acL(LL))*(-sn*nod2linx(LL,2,ucx(k2),ucy(k2)) + cs*nod2liny(LL,2,ucx(k2),ucy(k2)))
-          else
-             v(L) =      acl(LL) *(-sn*ucx(k1) + cs*ucy(k1) ) + &
-                    (1d0-acl(LL))*(-sn*ucx(k2) + cs*ucy(k2) )
-          endif
+       if ( jasfer3D == 1 ) then
+          v(L) =      acL(LL) *(-sn*nod2linx(LL,1,ucx(k1),ucy(k1)) + cs*nod2liny(LL,1,ucx(k1),ucy(k1))) +  &
+                 (1d0-acL(LL))*(-sn*nod2linx(LL,2,ucx(k2),ucy(k2)) + cs*nod2liny(LL,2,ucx(k2),ucy(k2)))
+       else
+          v(L) =      acl(LL) *(-sn*ucx(k1) + cs*ucy(k1) ) + &
+                 (1d0-acl(LL))*(-sn*ucx(k2) + cs*ucy(k2) )
+       endif
        endif
        if (kmx > 0) then
           v(LL) = v(LL) + v(L)*Au(L) ! hk: activate when needed
@@ -177,7 +175,7 @@ subroutine setumod(jazws0)                          ! set cell center Perot velo
     endif
  enddo
  !$OMP END PARALLEL DO
- 
+
  if (newcorio == 1 .and. icorio > 0 .and. icorio < 40) then
     fcor1 = fcorio ; fcor2 = fcorio
     !x$OMP PARALLEL DO                           &
@@ -332,6 +330,7 @@ if (vicouv < 0d0) then
 endif
 
 if (ihorvic > 0 .or. NDRAW(29) == 37) then
+  number_limited_links = 0
   dvxc = 0 ; dvyc = 0; suu = 0
   if (kmx == 0) then
 
@@ -374,8 +373,9 @@ if (ihorvic > 0 .or. NDRAW(29) == 37) then
                 endif
                 if (Smagorinsky > 0) then
                    shearvar = 2d0*(dundn*dundn + dutdt*dutdt + dundt*dutdn) + dundt*dundt + dutdn*dutdn
-
-                   vicL     = vicL + Smagorinsky*Smagorinsky*sqrt(shearvar)/( dxi(L)*wui(L) )
+                   if (shearvar>1d-15) then     ! avoid underflow
+                      vicL     = vicL + Smagorinsky*Smagorinsky*sqrt(shearvar)/( dxi(L)*wui(L) )
+                   endif
                 endif
 
              endif
@@ -389,7 +389,7 @@ if (ihorvic > 0 .or. NDRAW(29) == 37) then
              ! JRE: add roller induced viscosity
              if ((jawave .eq. 4) .and. (swave .eq. 1) .and. (roller .eq. 1)) then
                 DRL = acL(L) * DR(k1) + (1-acL(L)) * DR(k2)
-                nuhroller = hu(L) * (DRL / rhomean) ** (1d0/3d0)
+                nuhroller = nuhfac*hu(L) * (DRL / rhomean) ** (1d0/3d0)
                 vicL = max(nuhroller, vicL)
              end if
 
@@ -409,10 +409,14 @@ if (ihorvic > 0 .or. NDRAW(29) == 37) then
 
              if (ja_timestep_auto_visc == 0) then
                 dxiAu = dxi(L)*hu(L)*wu(L)
-                if ( dxiAu.gt.0d0 ) then
-                   vicL = min(vicL, 0.2d0*dti*min( vol1(k1) , vol1(k2) )  / dxiAu )  ! see Tech Ref.: Limitation of Viscosity Coefficient
-                endif
-             endif
+                if ( dxiAu > 0d0 ) then
+                   viscocity_max_limit = 0.2d0*dti*min( vol1(k1) , vol1(k2) )  / dxiAu
+                   if ( vicL > viscocity_max_limit ) then
+                      vicL = viscocity_max_limit ! see Tech Ref.: Limitation of Viscosity Coefficient
+                      number_limited_links = number_limited_links + 1
+                   end if
+                end if
+             end if
 
              vicLu(L) = vicL                       ! horizontal eddy viscosity applied in mom eq.
              viu(L) = max(0d0, vicL - vicc)        ! modeled turbulent part
@@ -526,10 +530,14 @@ if (ihorvic > 0 .or. NDRAW(29) == 37) then
 
              if (ja_timestep_auto_visc == 0) then
                 dxiAu = dxi(LL)*Au(L)
-                if ( dxiAu.gt.0d0 ) then
-                   vicL = min(vicL, 0.2d0*dti*min( vol1(k1) , vol1(k2) )  / dxiAu )
-                endif
-             endif
+                if ( dxiAu > 0d0 ) then
+                   viscocity_max_limit = 0.2d0*dti*min( vol1(k1) , vol1(k2) )  / dxiAu
+                   if ( vicL > viscocity_max_limit ) then
+                      vicL = viscocity_max_limit ! see Tech Ref.: Limitation of Viscosity Coefficient
+                      number_limited_links = number_limited_links + 1
+                   end if
+                end if
+             end if
 
              vicLu(L) = vicL                       ! horizontal eddy viscosity applied in mom eq.
              viu(L) = max(0d0, vicL - vicc)        ! modeled turbulent part
@@ -562,10 +570,16 @@ if (ihorvic > 0 .or. NDRAW(29) == 37) then
 
        enddo
 
-     endif
-   endif
-
- endif
+     end if
+   end if
+   
+   if ( number_limited_links > 0 .and. number_steps_limited_visc_flux_links <= MAX_PRINTS_LIMITED_VISC_FLUX_LINKS) then
+      number_steps_limited_visc_flux_links = number_steps_limited_visc_flux_links + 1
+      write(msgbuf,'(a,i0,a)') 'Viscosity coefficient was limited for ', number_limited_links,' links.'
+      call mess(LEVEL_WARN, msgbuf)
+   end if 
+   
+ end if
 
  if (ihorvic > 0) then
 
@@ -755,6 +769,5 @@ if (ihorvic > 0 .or. NDRAW(29) == 37) then
  endif
 
  call timstop(handle_umod)
-
-
+ 
  end subroutine setumod

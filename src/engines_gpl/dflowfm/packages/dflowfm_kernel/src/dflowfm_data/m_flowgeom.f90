@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  !> in m_flowgeom: nd and ln apply to waterlevel nodes and links
  !! in m_netw    : nod and lin apply to 'grid' or 'net' nodes and links
@@ -73,6 +73,7 @@
  integer                           :: ja1D2Dinternallinktype = 1
 
  type (griddimtype)                :: griddim
+ type (griddimtype)                :: trachy_griddim
 
  ! Flow node numbering:
  ! 1:ndx2D, ndx2D+1:ndxi, ndxi+1:ndx1Db, ndx1Db+1:ndx
@@ -95,14 +96,15 @@
  integer,          allocatable     :: kcs(:)         !< node code permanent
  integer,          allocatable     :: kcsini(:)      !< node code during initialization, e.g., for initialwaterlevel1d/2d
  integer,          allocatable, target :: kfs(:)     !< [-] node code flooding {"shape": ["ndx"]}
-
+ 
  double precision, allocatable, target :: bare(:)         !< [m2] bottom area, for rain and evaporaton {"location": "face", "shape": ["ndx"]}
  double precision, allocatable     :: bai(:)         !< inv bottom area (m2), if < 0 use table in node type
  double precision, allocatable, target :: ba_mor (:) !< [m2] morphologically active bottom area, if < 0 use table in node type {"location": "face", "shape": ["ndx"]}
  double precision, allocatable, target :: bai_mor(:) !< [m-2] inv morphologically active bottom area (m2)
  double precision, allocatable, target :: bl(:)      !< [m] bottom level (m) (positive upward) {"location": "face", "shape": ["ndx"]}
  double precision, allocatable, target :: bl_min(:)  !< [m] Minimal/deepest bottom level (m) (positive upward) {"location": "face", "shape": ["ndx"]}
- double precision, allocatable, target :: bl_ave(:)  !< [m] optional average bottom level in main channel required for dredging in 1D (m) (positive upward) (ndxi-ndx2d)
+ double precision, allocatable, target :: bl_ave(:)  !< [m] optional average bottom level in main channel required for dredging (m) (positive upward) (ndxi-ndx2d)
+ double precision, allocatable, target :: bl_ave0(:)  !< [m] optional average bottom level in main channel required for dredging (m) (positive upward) (ndxi-ndx2d)
  double precision, allocatable     :: aif(:)         !< cell based skewness ai factor sqrt(1+(dz/dy)**2) = abed/asurface
                                                      !< so that cfu=g(Au/conveyance)**2 = g*aif*(Au/convflat)**2
                                                      !< convflat is flat-bottom conveyance
@@ -122,7 +124,9 @@
  integer,          allocatable, target   :: ln    (:,:)    !< [-] 1D link (2,*) node   administration, 1=nd1,  2=nd2   linker en rechter celnr {"shape": [2, "lnkx"]}
  integer,          allocatable, target   :: LLkkk (:,:)    !< [-]    Link Link admin (5,*) , 1=lowL 2=hihL, 3=leftk, 4= midk, 5=rightk {"shape": [5, "lnx"]}
  integer,          allocatable, target   :: lncn  (:,:)    !< [-] 2D link (2,*) corner administration, 1=nod1, 2=nod2  linker en rechter netnr {"shape": [2, "lnkx"]}
- integer,          allocatable     :: kcu   (:)      !< link code, 1=1D link, 2=2D link, -1= bc 1D, -2=bc 2D, 3=lateral_1d2d_link, 4=longitudinal_1d2d_link, 5=street_inlet_1d2d_link, 7=roof_gutter_1d2d_link
+ integer,          allocatable, target   :: kcu   (:)      !< [-] link code, 1=1D link, 2=2D link, -1= bc 1D, -2=bc 2D, 3=lateral_1d2d_link, 4=longitudinal_1d2d_link, 5=street_inlet_1d2d_link, 7=roof_gutter_1d2d_link {"shape": ["lnx"]}
+ integer,          allocatable           :: Linkdried(:)   !< [-] latest dried links
+
  integer,          allocatable, target :: iadv(:)    !< [-] type of advection for this link {"location": "edge", "shape": ["lnx"]}
  double precision, allocatable     :: teta  (:)      !< link teta (m)
  integer,          allocatable     :: klnup (:,:)    !< link upwind cell pointer if q> 0 use (1:3,L), else (4:6,L)
@@ -137,7 +141,7 @@
  integer,          allocatable     :: jaduiktmp(:)  !< temparr
  double precision, allocatable, target     :: bob   (:,:)    !< [m] left and right inside lowerside tube (binnenkant onderkant buis) HEIGHT values (m) (positive upward), adjusted for structures {"location": "edge", "shape": [2, "lnx"]}
  double precision, allocatable, target     :: bob0  (:,:)    !< [m] left and right inside lowerside tube (binnenkant onderkant buis) HEIGHT values (m) (positive upward), NOT adjusted for structures {"location": "edge", "shape": [2, "lnx"]}
- double precision, allocatable     :: blup  (:)      !< [m] "upwind" bed level at u point, as determined by sethu() {"location": "edge", "shape": ["lnx"]}
+ double precision, allocatable, target     :: blup  (:)      !< [m] "upwind" bed level at u point, as determined by sethu() {"location": "edge", "shape": ["lnx"]}
  integer,          allocatable     :: ibot  (:)      !< local ibedlevtype for setting min or max network depths (temporary, result goes to bobs)
 
  double precision, allocatable     :: acl   (  :)    !< left dx fraction, alfacl
@@ -149,10 +153,10 @@
  double precision, allocatable     :: snu   (:)      !< sine   comp of u0, u1
  double precision, allocatable     :: wcl   (:,:)    !< link weights (2,lnx) for center scalar , 1,L for k1, 2,L for k2 Ln
  double precision, allocatable     :: wcLn  (:,:)    !< link weights (2,lnx) for corner scalar , 1,L for k3, 2,L for k4 Lncn
- double precision, allocatable     :: wcx1(:)        !< link weights (lnx) for cartesian comps center vectors k3
- double precision, allocatable     :: wcy1(:)        !< link weights (lnx) for cartesian comps center vectors k3
- double precision, allocatable     :: wcx2(:)        !< link weights (lnx) for cartesian comps center vectors k4
- double precision, allocatable     :: wcy2(:)        !< link weights (lnx) for cartesian comps center vectors k4
+ double precision, allocatable     :: wcx1(:)        !< link weights (lnx) for cartesian comps center vectors k1
+ double precision, allocatable     :: wcy1(:)        !< link weights (lnx) for cartesian comps center vectors k1
+ double precision, allocatable     :: wcx2(:)        !< link weights (lnx) for cartesian comps center vectors k2
+ double precision, allocatable     :: wcy2(:)        !< link weights (lnx) for cartesian comps center vectors k2
  double precision, allocatable     :: wcnx3(:)       !< link weights (lnx) for corner velocities k3
  double precision, allocatable     :: wcny3(:)       !< link weights (lnx) for corner velocities k3
  double precision, allocatable     :: wcnx4(:)       !< link weights (lnx) for corner velocities k4
@@ -184,6 +188,10 @@
 
  double precision                  :: grounlayuni    = -999d0   !< used if >= 0, default = dmiss
  integer                           :: jagrounlay     = 0        !< use groundlayer 0/1
+ integer, target                   :: wetLinkCount              !< [-] nr of flow links that are wet
+ integer, target                   :: wetLink2D                 !< Startposition of 2d links in onlywetLinks
+ integer, target                   :: wetLinkBnd                !< Startposition of boundary links in onlywetLinks
+ integer,          allocatable     :: onlyWetLinks(:)           !< indices of flowlinks that are wet
 
  ! cell corner related, the links attached to a cell corner
  type tcorn                                          !< corner administration
@@ -241,8 +249,8 @@ double precision, allocatable      :: thindam(:,:)
 
 
 ! netnode/flownode  related, dim = mxban
- double precision, allocatable     :: banf  (:)     !< horizontal netnode/flownode area (m2)
- double precision, allocatable     :: ban  (:)      !< horizontal netnode          area (m2)
+ double precision, allocatable     :: banf  (:)     !< horizontal netnode-flownode area (m2) (partial netnode area)
+ double precision, allocatable     :: ban  (:)      !< horizontal netnode          area (m2) (complete netnode area)
  integer         , allocatable     :: nban  (:,:)   !< base area pointers to banf, 1,* = netnode number, 2,* = flow node number, 3,* = link number, 4,* = 2nd link number
  integer                           :: mxban         !< max dim of ban
 
@@ -256,21 +264,25 @@ double precision, allocatable      :: thindam(:,:)
  
 ! JRE Stuff related to setting up wave directional grid
  integer                                     :: ntheta          !< Number of wave direction bins
+ integer                                     :: ntheta_s        !< Number of wave direction bins, singledir
  double precision                            :: thetamax        !< upper limit wave directional sector
  double precision                            :: thetamin        !< lower limit wave directional sector
  integer                                     :: thetanaut       !< nautical convention or not
  double precision                            :: dtheta          !< directional resolution
+ double precision                            :: dtheta_s        !< directional resolution single direction stationary part
  double precision                            :: theta0          !< mean theta-grid direction
  double precision, allocatable               :: thetabin(:)     !< bin-means of theta-grid
+ double precision, allocatable               :: thetabin_s(:)   !< bin-means of theta-grid singledir
 
  ! Villemonte calibration coefficients :
  double precision                            :: VillemonteCD1 = 1.0d0      !< default for VillemonteCD1 = 1
  double precision                            :: VillemonteCD2 = 10.0d0     !< default for VillemonteCD2 = 10
 
 ! Debug parameter
- integer                                     :: jabatch  = 0       !< dobatch
  integer                                     :: cmd_icgsolver = 4  !< save commandline icgsolver
 
+ integer, allocatable, target      :: structuresAndWeirsList(:)    !< List containing flow links on which a structure or fixed weir is located.
+ integer                           :: numberOfStructuresAndWeirs   !< Length of structuresAndWeirsList
 
 contains
 !> Sets ALL (scalar) variables in this module to their default values.
@@ -283,7 +295,7 @@ subroutine default_flowgeom()
     dxwuimin2D = 0.0d0  ! smallest fraction dx/wu , may increase dx if > 0
 
     wu1DUNI  =  2d0   ! Uniform 1D profile width
-    hh1DUNI  =  3d0   ! Uniform 1D profile height
+    hh1DUNI  =  3d3   ! Uniform 1D profile height
 
     wu1DUNI5 = 0.2d0  !< uniform 1D profile width in drain or street inlet
     hh1DUNI5 = 0.1d0  !< uniform 1D profile height in drain or street inlet
@@ -324,6 +336,7 @@ subroutine reset_flowgeom()
 
     if (jawave .eq. 4) then  ! reinitialize wave directional grid
        ntheta = 0
+       ntheta_s = 0
     end if
 end subroutine reset_flowgeom
  end module m_flowgeom

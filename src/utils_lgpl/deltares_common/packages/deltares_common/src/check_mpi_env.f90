@@ -1,7 +1,7 @@
 module check_mpi_env
 !----- LGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2022.                                
+!  Copyright (C)  Stichting Deltares, 2011-2024.                                
 !                                                                               
 !  This library is free software; you can redistribute it and/or                
 !  modify it under the terms of the GNU Lesser General Public                   
@@ -25,8 +25,8 @@ module check_mpi_env
 !  Stichting Deltares. All rights reserved.                                     
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !!--description-----------------------------------------------------------------
 !
 !   Contains a check on running in mpi based on an environment variable
@@ -56,7 +56,7 @@ function running_in_mpi_environment() result(usempi)
 !! executable statements -------------------------------------------------------
 !
     ! use an environment variable to check whether MPI should be activated.
-    ! unfornately only the MPI calls are standardized, not the environment variables.
+    ! unfortunately only the MPI calls are standardized, not the environment variables.
     ! so, we have to check a couple of different environment variables ...
     !
     ! verify whether MPICH2 (or derived) environment is used

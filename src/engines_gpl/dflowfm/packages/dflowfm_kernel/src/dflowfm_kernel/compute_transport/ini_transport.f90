@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> initialize transport, set the enumerators
 subroutine ini_transport()
@@ -44,6 +44,7 @@ subroutine ini_transport()
    use m_fm_wq_processes
    use m_alloc
    use unstruc_model, only: md_thetav_waq
+   use m_bedform,  only: bfmpar
 
    implicit none
 
@@ -116,7 +117,7 @@ subroutine ini_transport()
       jalimitdtdiff = 0
    end select
 
-   if (numconst > 0) call alloc_transport(.false.)
+   if (numconst > 0 .or. bfmpar%lfbedfrm) call alloc_transport(.false.)
 
    if ( ISALT.gt.0 ) then
       if ( javasal == 6) then
@@ -149,6 +150,8 @@ subroutine ini_transport()
             const_names(i) = 'sediment_'//trim(str)
          end do
       else
+         !
+         maserrsed = 0d0  ! initialise mass error counter
          !
          ! Map fraction names from sed to constituents (moved from ini_transport)
          !

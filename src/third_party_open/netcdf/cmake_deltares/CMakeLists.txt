@@ -47,7 +47,8 @@ add_library(${netcdf_library_name} ${fortran_sources})
 target_compile_options(${netcdf_library_name} PRIVATE ${file_preprocessor_flag})
 
 # Set additional compilation properties, specific for Debug mode
-target_compile_options(${netcdf_library_name} PRIVATE "$<$<CONFIG:Debug>:${check_bounds_flag}>")
+target_compile_options(${netcdf_library_name} PRIVATE "$<$<CONFIG:Debug>:${check_pointers_flag}>")
+target_compile_options(${netcdf_library_name} PRIVATE "$<$<CONFIG:Debug>:${floating_point_exception_flag}>")
 
 # Set dependencies
 set(oss_dependencies netcdf4)
@@ -60,8 +61,17 @@ endif(WIN32)
 if(UNIX)
     target_compile_options(${netcdf_library_name} PRIVATE ${c_compiler_flags})
     target_link_libraries(${netcdf_library_name} ${oss_dependencies})
+    set(Fortran_MODULE_DIRECTORY ${LIBRARY_OUTPUT_DIRECTORY}) 
 endif()
 
 # Create the folder structure in vfproj
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/.." FILES ${fortran_sources} )
 set_target_properties (${netcdf_library_name} PROPERTIES FOLDER third_party_open)
+
+if (WIN32)
+	message(STATUS ${netcdf_version} " binary dir is ${library_path}/netCDF 4.6.1/bin/")
+	install (DIRECTORY ${library_path}netCDF\ 4.6.1/bin/ DESTINATION lib
+	FILES_MATCHING
+	PATTERN "*.dll"
+	)
+endif()

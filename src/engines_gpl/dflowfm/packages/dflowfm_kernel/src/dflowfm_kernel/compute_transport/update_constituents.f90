@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,12 +27,12 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2022.
+!  Copyright (C)  Stichting Deltares, 2017-2024.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -58,8 +58,8 @@
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
 !
 !-------------------------------------------------------------------------------
-! $Id$
-! $HeadURL$
+! 
+! 
 !> This subroutine transports an array of scalars.
 !> In light of future vectorization, the aim is to:
 !>   -use as few module variables as possible,
@@ -69,33 +69,33 @@
 !>   solves for each column {k | 1<=k<k=top} an equation of the form
 !>     aaj(k) sedj(k-1) + bbj(k) sedj(k) + ccj(k) sedj(k+1) = ddj(k)
 subroutine update_constituents(jarhoonly)
-   use m_flowgeom,   only: Ndx, Ndxi, Lnxi, Lnx, ln, nd  ! static mesh information
-   use m_flow,       only: Ndkx, Lnkx, u1, q1, au, qw, zws, sq, sqi, vol1, kbot, ktop, Lbot, Ltop,  kmxn, kmxL, kmx, viu, vicwws, plotlin, wsf, jadecaytracers
-   use m_flowtimes,  only: dts, ja_timestep_auto
+   use m_flowgeom,   only: Ndx, Ndxi, Lnx  ! static mesh information
+   use m_flow,       only: Ndkx, Lnkx, u1, q1, au, qw, zws, sqi, vol1, kbot, ktop, Lbot, Ltop,  kmxn, kmxL, kmx, viu, vicwws, wsf, jadecaytracers
+   use m_flowtimes,  only: dts
    use m_turbulence, only: sigdifi
-   use m_physcoef,   only: dicoww, vicouv, difmolsal
+   use m_physcoef,   only: vicouv
    use m_transport
    use m_mass_balance_areas
-   use m_flowparameters, only: limtypsa, limtyptm, limtypsed
+   use m_flowparameters, only: limtypsa, limtyptm, limtypsed, flowwithoutwaves
    use m_alloc
    use m_partitioninfo
    use m_timer
    use unstruc_messages
-   use m_sediment,   only: jatranspvel, jased, stmpar, stm_included, mtd
+   use m_sediment,   only: jatranspvel, jased, stmpar, stm_included
    use m_waves
    use timers
+   use mass_balance_areas_routines, only : comp_horfluxmba
 
    implicit none
 
-   integer :: jarhoonly
+   integer, intent(in) :: jarhoonly
 
    integer :: ierror
 
    integer                                               :: limtyp  !< limiter type (>0), or first-order upwind (0)
-   double precision                                      :: dvoli
-   double precision                                      :: dt, dts_store
+   double precision                                      :: dts_store
 
-   integer                                               :: k, LL, L, j, numconst_store,kk,lll,Lb,Lt
+   integer                                               :: LL, L, j, numconst_store,Lb,Lt
    integer                                               :: istep
    integer                                               :: numstepssync
 
@@ -122,13 +122,7 @@ subroutine update_constituents(jarhoonly)
 !  get maximum transport time step
    call get_dtmax()
 
-   !if ( jalts.eq.1 ) then  ! local time-stepping
-      call get_ndeltasteps()
-   !else
-   !   nsubsteps = 1  ! maybe remove later  
-   !   ndeltasteps = 1
-   !   numnonglobal = 0
-   !end if
+   call get_ndeltasteps()
 
 !  store dts
    dts_store = dts
@@ -149,23 +143,17 @@ subroutine update_constituents(jarhoonly)
 
    fluxhor    = 0d0  ! not necessary
    sumhorflux = 0d0
-   fluxhortot = 0d0
-   sinksetot  = 0d0
-   sinkftot   = 0d0
+  
+   if (stm_included) then
+      fluxhortot = 0d0
+      sinksetot  = 0d0
+      sinkftot   = 0d0
+   endif
 
    do istep=0,nsubsteps-1
       if ( kmx.gt.0 ) then
          fluxver = 0d0
       end if
-
-!     BEGIN DEBUG
-!      difsedu = 0d0
-!      difsedw = 0d0
-!     END DEBUG
-
-!     BEGIN DEBUG
-!      call comp_sq(Ndkx, Lnkx, kbot, ktop, Lbot, Ltop, q1, qw, sq)
-!     END DEBUG
 
 !     determine which fluxes need to be updated
       if ( nsubsteps.gt.1 ) then
@@ -173,7 +161,7 @@ subroutine update_constituents(jarhoonly)
       end if
 
 !     compute horizontal fluxes, explicit part
-      if (.not. stm_included) then     ! just do the normal stuff
+      if ((.not. stm_included) .or. flowwithoutwaves ) then     ! just do the normal stuff
          call comp_fluxhor3D(NUMCONST, limtyp, Ndkx, Lnkx, u1, q1, au, sqi, vol1, kbot, Lbot, Ltop,  kmxn, kmxL, constituents, difsedu, sigdifi, viu, vicouv, nsubsteps, jaupdate, jaupdatehorflux, ndeltasteps, jaupdateconst,fluxhor, dsedx, dsedy, jalimitdiff, dxiAu)
       else
          if ( jatranspvel.eq.0 .or. jatranspvel.eq.1 ) then       ! Lagrangian approach
@@ -181,8 +169,8 @@ subroutine update_constituents(jarhoonly)
             do LL=1,Lnx
                call getLbotLtop(LL,Lb,Lt)                         ! prefer this, as Ltop gets messed around with in hk specials
                do L=Lb,Lt
-                  u1sed(L) = u1(L)!+mtd%uau(L)                    ! JRE to do, discuss with Dano
-                  q1sed(L) = q1(L)!+mtd%uau(L)*Au(L)
+                  u1sed(L) = u1(L)!+mtd%uau(LL)                    ! JRE to do, discuss with Dano
+                  q1sed(L) = q1(L)!+mtd%uau(LL)*Au(L)
                end do
             end do
          else if (jatranspvel .eq. 2) then                        ! Eulerian approach
@@ -190,8 +178,8 @@ subroutine update_constituents(jarhoonly)
             do LL=1,Lnx
                call getLbotLtop(LL,Lb,Lt)
                do L=Lb,Lt
-                  u1sed(L) = u1(L)-ustokes(L)
-                  q1sed(L) = q1(L)-ustokes(L)*Au(L)
+                  u1sed(L) = u1(L)-ustokes(L)       !+mtd%uau(LL)
+                  q1sed(L) = q1(L)-ustokes(L)*Au(L) !+mtd%uau(LL)*Au(L)
                end do
             end do
          end if
@@ -219,9 +207,6 @@ subroutine update_constituents(jarhoonly)
 
       if ( kmx.lt.1 ) then   ! 2D, call to 3D as well for now
          call solve_2D(NUMCONST, Ndkx, Lnkx, vol1, kbot, ktop, Lbot, Ltop, sumhorflux, fluxver, const_sour, const_sink, nsubsteps, jaupdate, ndeltasteps, constituents, rhs)
-         if (jalimitdiff == 3) then
-            call diffusionimplicit2D()
-         endif
       else
          call comp_fluxver( NUMCONST, limtyp, thetavert, Ndkx, kmx, zws, qw, kbot, ktop, constituents, nsubsteps, jaupdate, ndeltasteps, fluxver, wsf)
 
@@ -248,6 +233,9 @@ subroutine update_constituents(jarhoonly)
       call comp_sinktot()
 
    end do
+   if (jalimitdiff == 3 .and. kmx == 0) then
+      call diffusionimplicit2D()
+   endif
 
    if( jased == 4 .and. stmpar%lsedsus > 0 ) then
       do j = ISED1,ISEDN
@@ -257,16 +245,9 @@ subroutine update_constituents(jarhoonly)
       enddo
    endif
 
-!!  communicate
-!   if ( jampi.gt.0 ) then
-!      if ( jatimer.eq.1 ) call starttimer(IUPDSALL)
-!      if ( kmx.lt.1 ) then ! 2D
-!         call update_ghosts(ITYPE_Sall, NUMCONST, Ndx, constituents, ierror)
-!      else                 ! 3D
-!         call update_ghosts(ITYPE_Sall3D, NUMCONST, Ndkx, constituents, ierror)
-!      end if
-!      if ( jatimer.eq.1 ) call stoptimer(IUPDSALL)
-!   end if
+!  Move here, needed in two following subroutines
+!  restore dts
+   dts = dts_store
 
    if (jarhoonly == 1) then
       call extract_rho() ; numconst = numconst_store
@@ -279,9 +260,6 @@ subroutine update_constituents(jarhoonly)
 
    ierror = 0
 1234 continue
-
-!  restore dts
-   dts = dts_store
 
    if (timon) call timstop( ithndl )
    return

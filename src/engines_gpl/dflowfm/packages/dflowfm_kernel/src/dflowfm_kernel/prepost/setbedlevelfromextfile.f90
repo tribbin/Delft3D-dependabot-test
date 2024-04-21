@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine setbedlevelfromextfile()    ! setbedlevels()  ! check presence of old cell centre bottom level file
  use timespace_data
@@ -43,8 +43,9 @@ subroutine setbedlevelfromextfile()    ! setbedlevels()  ! check presence of old
  use string_module, only: strcmpi
  use unstruc_inifields, only: readIniFieldProvider, checkIniFieldFileVersion
  use dfm_error
-
  use unstruc_netcdf
+ use m_lateral, only : ILATTP_1D, ILATTP_2D, ILATTP_ALL
+ 
  implicit none
 
  logical, external :: timespaceinitialfield_mpi
@@ -179,7 +180,7 @@ bft:do ibathyfiletype=1,2
 
        ! Initialize bedlevel based on the read provider info
        if (ja == 1) then
-          call resolvePath(filename, basedir, filename)
+          call resolvePath(filename, basedir)
           if (index(qid,'bedlevel') > 0 .and. ibathyfiletype == 1 .and. len_trim(md_inifieldfile) > 0) then
              ! Don't support bedlevel in *.ext file when there is ALSO a *.ini file.
              call mess(LEVEL_WARN, 'Bed level info should be defined in file '''//trim(md_inifieldfile)//'''. Quantity '//trim(qid)//' ignored in external forcing file '''//trim(md_extfile)//'''.')
@@ -216,13 +217,15 @@ bft:do ibathyfiletype=1,2
     end do bft ! ibathyfiletype=1,2
 
     ! Clean up *.ext file
-    rewind (mext)
+    if (mext /= 0) then
+       rewind (mext)
+    endif   
 
     ! Clean up *.ini file.
     call tree_destroy(inifield_ptr)
 
     ! Interpreted values for debugging.
-    if ( md_jasavenet == 1 ) then
+    if ( md_exportnet_bedlevel == 1 ) then
 !      save network
        select case (ibedlevtyp)
           case (3,4,5,6) ! primitime position = netnode, cell corner

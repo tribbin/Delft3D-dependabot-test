@@ -1,7 +1,7 @@
 module string_module
 !----- LGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2022.                                
+!  Copyright (C)  Stichting Deltares, 2011-2024.                                
 !                                                                               
 !  This library is free software; you can redistribute it and/or                
 !  modify it under the terms of the GNU Lesser General Public                   
@@ -25,8 +25,8 @@ module string_module
 !  Stichting Deltares. All rights reserved.                                     
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 !!--description-----------------------------------------------------------------
 !
 !    Function: - Various string processing routines
@@ -60,13 +60,14 @@ module string_module
    public :: remove_substr
    public :: remove_chars
    public :: replace_char
+   public :: replace_string
    public :: splitstr
    public :: strsplit
    public :: char_array_to_string_by_len
    public :: strip_quotes
    public :: real2string, real2stringLeft
    public :: GetLine
-   public :: get_dirsep
+   public :: int2str
 
    interface strip_quotes
       module procedure strip_quotes1
@@ -91,7 +92,7 @@ module string_module
           !
           !! executable statements ---------------------------------------------------
           !
-          call addmessage(messages,'$Id$')
+          call addmessage(messages,'')
           call addmessage(messages,'$URL$')
       end subroutine string_module_info
 
@@ -547,7 +548,6 @@ module string_module
       !> Determine the index of the first non-whitespace character in a string.
       !! Failure is indicated by: idx = 0
       function find_first_char(string) result(idx)
-          implicit none
           integer                      :: idx    !< index of the first non-whitespace character in string.
           character(len=*), intent(in) :: string !< string to inspect
 
@@ -669,6 +669,55 @@ module string_module
          enddo
       end subroutine replace_char      
 
+
+      !> Replace substring in a total string by a replacement string.
+      !! If the search string occurs multiple times, all will be replaced.
+      function replace_string(totalstring, searchstring, replstring) result(resultstring)
+         use m_alloc
+
+         character(len=*), intent(in   ) :: totalstring  !< Input string in which searching is done.
+         character(len=*), intent(in   ) :: searchstring !< Search string, will be used completely, without trimming.
+         character(len=*), intent(in   ) :: replstring   !< Replacement string, will be used completely, without trimming.
+         character(len=:), allocatable   :: resultstring !< Resulting string containing all of totalstring, and all occurrences of searchstring replaced by replstring.
+         !
+         integer :: istart, ifound, iresult, ntotal, nsearch, nrepl, nresult
+         !
+         istart  = 1
+         iresult = 1
+         ntotal  = len(totalstring)
+         nsearch = len(searchstring)
+         nrepl   = len(replstring)
+
+         allocate(character(len=ntotal) :: resultstring)
+         nresult = len(resultstring)
+
+         do while (istart <= ntotal)
+            ifound = index(totalstring(istart:), searchstring)
+            if (ifound > 0) then
+               ! Copy substring preceding the newly found match
+               resultstring(iresult:iresult+ifound-2) = totalstring(istart:istart+ifound-2)
+               iresult = iresult+ifound-1
+               ! Next, put the replacement string
+               if (iresult+nrepl-1 > nresult) then
+                  call realloc(resultstring, iresult+nrepl-1, keepExisting=.true.)
+                  nresult = iresult+nrepl-1
+               end if
+               resultstring(iresult:iresult+nrepl-1) = replstring
+               iresult = iresult+nrepl
+               istart = istart+ifound-1+nsearch
+            else
+               exit
+            end if
+         end do
+         ! End with appending the last remaining part of the input string.
+         if (iresult+ntotal-istart > nresult) then
+            call realloc(resultstring, iresult+ntotal-istart, keepExisting=.true.)
+            nresult = iresult+ntotal-istart
+         end if
+         resultstring(iresult:iresult+ntotal-istart) = totalstring(istart:ntotal)
+      end function replace_string
+
+      
       !> For each character in the given set, remove any occurrence in the subject
       subroutine remove_chars(r,charset) 
          character(len=*), intent(inout) :: r               !< subject on which to perform removal
@@ -735,7 +784,6 @@ module string_module
 
 
       subroutine get_substr_ndx(tgt,ndx0,ndx,sep)
-         implicit none
          character(len=*), intent(in)           ::  tgt
          integer, intent(inout)                 ::  ndx0
          integer, intent(inout)                 ::  ndx
@@ -770,7 +818,6 @@ module string_module
       !> Fill allocatable string array with elements of a space-delimited string
       !> The incoming string array must be unallocated
       recursive subroutine strsplit(tgt, ndx0, pcs, npc, sep)
-         implicit none
          integer,          intent(in)                                 ::  npc   !< element index
          character(len=*), intent(in)                                 ::  tgt   !< input string
          integer, intent(in)                                          ::  ndx0  !< start position in string tgt
@@ -942,26 +989,16 @@ module string_module
         endif
       enddo
       end subroutine GetLine
-      
-      !>
-      !> Find out if system is PC (directory seperator character \ (92)
-      !>   or UNIX (directory seperator character / (47))
-      function get_dirsep()
-         implicit none
+
+      !> convert an integer into a string
+      function int2str(i) result(string)
+         integer          , intent(in) :: i        !< integer to be represented by a string
          
-         character(len=1)     :: get_dirsep
+         character(len=11)             :: string11 !< temporary fixed-length string: 11 is long enough for any 64bit integer
+         character(len=:), allocatable :: string   !< flexible length string
          
-         integer :: lslash
-         character  hlpstr*999,slash*1
-         
-         CALL GET_ENVIRONMENT_VARIABLE('PATH',hlpstr)
-         
-         slash  = CHAR  (47)
-         lslash = INDEX (hlpstr,slash)
-         if (lslash .eq. 0) then
-            slash  = CHAR  (92)
-         endif
-         get_dirsep = slash
-      end function get_dirsep
+         write(string11,'(i0)') i
+         string = trim(string11)
+      end function int2str
 
 end module string_module

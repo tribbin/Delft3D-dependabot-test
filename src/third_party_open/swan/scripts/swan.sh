@@ -129,33 +129,16 @@ if [ "${D3D_HOME:-0}" = "0" ]; then
   # ready=1
 fi
 #
-# Check swan.sh argument(s)
-#
-if [ "${1:-0}" = "0" ]; then
-  echo " " >>swan_sh.log
-  echo "***ERROR: No argument added to call" >>swan_sh.log
-  echo "          Should be \"swan.bat Run_Id\" " >>swan_sh.log
-  # read dummy
-  # ready=1
-fi
 if [ ${ready} -eq 0 ]; then
-  echo "Performing computation for: ${1}.swn" >>swan_sh.log
+  echo "Performing computation for: INPUT" >>swan_sh.log
   #
   # Check whether SWAN executable exist
   #
   if [ -x ${SWANEXEC} ]; then
     #
-    # Check whether inputfile $1.swn exists
+    # Check whether inputfile INPUT exists
     #
-    if [ -f "${1}.swn" ]; then
-      #
-      # Delete scratch files first
-      #
-      rm -rf PRINT INPUT swaninit Errfile errpts ${1}.erf ${1}.erp >/dev/null
-      #
-      # Copy input to INPUT file and run SWAN executable
-      #
-      cp $1.swn INPUT >/dev/null
+	if [ -f "INPUT" ]; then
       #
       #echo press enter to continue
       #read dummy
@@ -190,10 +173,6 @@ if [ ${ready} -eq 0 ]; then
                echo Warning: for all slot numbers larger than 999, print files will be moved to PRINT-1000. >>swan_sh.log
                print_filename=PRINT-1000
             fi
-            if [ -e $print_filename ]
-            then
-               mv $print_filename ${1}.prt-$slot_number
-            fi
             slot_number=`expr $slot_number - 1`
          done 
          echo "End of parallel computation using $NSLOTS slots." >>swan_sh.log
@@ -204,16 +183,10 @@ if [ ${ready} -eq 0 ]; then
          #
          ${SWANEXEC} >>swan_sh.log
          #
-         # Move PRINT file to output file
-         #
-         cp PRINT ${1}.prt
-      fi
-      if [ -f "${1}.src" ]; then
-        cp source ${1}.src >/dev/null
       fi
     else
       echo " " >>swan_sh.log
-      echo "*** Error: SWAN input file ${1}.swn does not exist" >>swan_sh.log
+	  echo "*** Error: SWAN input file INPUT does not exist" >>swan_sh.log
       echo " " >>swan_sh.log
       # read dummy
     fi

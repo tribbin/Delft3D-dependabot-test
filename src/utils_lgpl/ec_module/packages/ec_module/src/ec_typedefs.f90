@@ -1,6 +1,6 @@
 !----- LGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2022.                                
+!  Copyright (C)  Stichting Deltares, 2011-2024.                                
 !                                                                               
 !  This library is free software; you can redistribute it and/or                
 !  modify it under the terms of the GNU Lesser General Public                   
@@ -23,8 +23,8 @@
 !  are registered trademarks of Stichting Deltares, and remain the property of  
 !  Stichting Deltares. All rights reserved.                                     
 
-!  $Id$
-!  $HeadURL$
+!  
+!  
 
 !> This module contains all the user defined datatypes.
 !! @author edwin.spee@deltares.nl
@@ -67,6 +67,10 @@ module m_ec_typedefs
    end type tEcInstance
    
    !===========================================================================
+
+    type :: str
+        character(len=:), allocatable :: s
+    end type str 
 
     ! TODO : fill in default invalid values for some of the fields to detect reading failure or missing header fields  
     ! A bc-object has a SINGLE quantity-object, which corresponds to a SINGLE vertical level, possibly associated with MULTIPLE columns in the data  
@@ -119,12 +123,13 @@ module m_ec_typedefs
         type (tEcBCQuantity), allocatable          ::  quantities(:)       !< Array of quantity objects for each quantity with the same name  
         type (tEcNetCDF), pointer                  ::  ncptr => null()     !< pointer to a NetCDF instance, responsible for a connected NetCDF file 
         type (tEcBCFile), pointer                  ::  bcFilePtr => null() !< pointer to a BCFile instance, responsible for a connected BC file 
-        integer                                    ::  ncvarndx = -1       !< varid in the associated netcdf for the requested quantity 
+        integer, dimension(:), allocatable         ::  ncvarndx            !< varid(s) in the associated netcdf for the requested quantity 
         integer                                    ::  nclocndx = -1       !< index in the timeseries_id dimension for the requested location 
         integer                                    ::  nctimndx =  1       !< record number to be read 
         integer, dimension(:), allocatable         ::  ncdimvector         !< List of dimensions in NetCDF describing the chosen variable
         integer, allocatable, dimension(:)         ::  dimvector           !< dimension ID's indexing the variable of interest
         logical                                    ::  feof = .False.      !< End-Of-File signal
+        real(hp), dimension (:), allocatable       ::  buffer              !< buffer for temporary storage in readers
         !
         integer                 ::  astro_component_column = -1  !< number of the column, containing astronomic components
         integer                 ::  astro_amplitude_column = -1  !< number of the column, containing astronomic amplitudes
@@ -145,7 +150,7 @@ module m_ec_typedefs
    ! the keyvaluestr, nfld and nq can be passed to processhdr to initialize a filereader for a particular block in the BC-file
    type tEcBlocklist
       character(len=:), allocatable :: keyvaluestr      !< contains information key-value pairs from the header
-      integer                       :: position         !< position of data in the file
+      integer(kind=8)               :: position         !< position of data in the file
       integer                       :: blocktype        !< type of the block (BT_GENERAL, BT_FORCING, ....) 
       integer                       :: nfld             !< number of fields (i.e. key-value pairs)
       integer                       :: nq               !< number of quantities detected among these fields
@@ -159,7 +164,7 @@ module m_ec_typedefs
       type (tEcBlocklist), pointer  :: blocklist => null() !< list of blocks (table of contents for this BC-file)
       integer(kind=8)               :: fhandle = -1        !< file handle
       integer                       :: last_blocktype      !< type of the block (BT_GENERAL, BT_FORCING, ....) 
-      integer                       :: last_position = 0   !< last position in the scan-process                   
+      integer(kind=8)               :: last_position = 0   !< last position in the scan-process
       character(len=15)             :: FileVersion         !< File version stamp read from [General]::FileVersion in the bc-file
       character(len=15)             :: FileType            !< File type read from [General]::FileType in the bc-file
    end type tEcBCFile
@@ -175,6 +180,7 @@ module m_ec_typedefs
         integer                                      ::  ncid            !< unique NetCDF ncid 
         character(len=maxFileNameLen)                ::  ncfilename      !< netCDF filename
         integer, allocatable, dimension(:)           ::  dimlen          !< lengths of dimensions 
+        type(str), allocatable, dimension(:)         ::  vector_definitions            !< list of vector names
         character(len=maxFileNameLen), allocatable, dimension(:)  ::  standard_names   !< list of standard names
         character(len=maxFileNameLen), allocatable, dimension(:)  ::  long_names       !< list of long names
         character(len=maxFileNameLen), allocatable, dimension(:)  ::  variable_names   !< list of variable names
@@ -343,6 +349,7 @@ module m_ec_typedefs
       type(tEcItemPtr),             dimension(:), pointer :: items => null()         !< items to be updated by this fileReader, stored in tEcInstance%ecItemsPtr
       integer                                             :: nItems                  !< Number of items <= size(items)
       type(tEcTimeFrame),                         pointer :: tframe => null()        !< TimeFrame at which data is available
+      type(tEcHarmonicsFrame),                    pointer :: hframe => null()        !< Harmonics frame
       real(hp)                                            :: lastReadTime
       type(tEcBCBlock),                           pointer :: bc => null()            !< BC-fileheader information
       integer                                             :: vectormax = 1           !< number of vector elements (from the demand side) 
@@ -380,6 +387,7 @@ module m_ec_typedefs
       type(tEcTimeseries),              allocatable :: timeseries                   !< Information supporting rewinding of a read timeseries 
       type(tEcConnectionPtr), dimension(:), pointer :: connectionsPtr     => null() !< Connections in which this Item is a target Item
       type(tEcTimeFrame),                   pointer :: tframe => null()             !< TimeFrame at which data is available
+      type(tEcHarmonicsFrame),              pointer :: hframe => null()             !< Harmonics frame
       integer                                       :: nConnections                 !< Number of Connections <= size(connectionsPtr)
       
       
@@ -446,6 +454,13 @@ module m_ec_typedefs
       real(hp), dimension(:), allocatable :: times            !< The timesteps [ec_timestep_unit] at which data is available.
       real(hp)                            :: dtnodal          !< Nodal factors update interval
    end type tEcTimeFrame
+
+   !>
+   type tEcHarmonicsFrame
+      integer                               :: ec_period        !< Period in seconds.
+      real(hp), dimension(:,:), allocatable :: phases           !< Phase data in degrees.
+      integer, dimension(2)                 :: phase_dims       !< Number of phase points in each dimension.
+   end type 
 
    !> needed to make an array of allocatable strings
    type VLSType

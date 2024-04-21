@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
       SUBROUTINE ZOOMIN(KEY,NPUT)
       use unstruc_colors
@@ -59,9 +59,9 @@
       ENDIF
 !     geen entry ALS NET BEZIG PUNT TE ZETTEN
 !     BIJ VERLATEN MET KEY = 3, TEKEN OPNIEUW
-      WRDKEY = 'Z   = ZOOMIN ;'
-      NLEVEL = 3
-      JADRAW = 1
+      WRDKEY   = 'Z   = ZOOMIN ;'
+      NLEVEL   = 3
+      JADRAW   = 1
 !
       IF (NPUT .EQ. 1) RETURN
 
@@ -97,7 +97,7 @@
 
       IF (X2B .GT. X2 .OR. X1B .LT. X1 .OR. Y2B .GT. Y2 .OR. Y1B .LT. Y1    ) THEN
          dy  = dyh
-         JA  = 1
+         JA = 1
       ELSE IF (KEY .EQ. 21) THEN
          JA  = 1
       ELSE IF (KEY .EQ. 22) THEN

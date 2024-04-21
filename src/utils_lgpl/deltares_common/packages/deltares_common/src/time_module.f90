@@ -1,7 +1,7 @@
 module time_module
    !----- LGPL --------------------------------------------------------------------
    !                                                                               
-   !  Copyright (C)  Stichting Deltares, 2011-2022.                                
+   !  Copyright (C)  Stichting Deltares, 2011-2024.                                
    !                                                                               
    !  This library is free software; you can redistribute it and/or                
    !  modify it under the terms of the GNU Lesser General Public                   
@@ -25,8 +25,8 @@ module time_module
    !  Stichting Deltares. All rights reserved.                                     
    !                                                                               
    !-------------------------------------------------------------------------------
-   !  $Id$
-   !  $HeadURL$
+   !  
+   !  
    !!--description-----------------------------------------------------------------
    !
    !    Function: - Various time processing routines
@@ -35,6 +35,8 @@ module time_module
    ! NONE
    !!--declarations----------------------------------------------------------------
    use precision_basics, only : hp
+   ! import m_monsys for the julian_with_leapyears function 
+   use m_monsys
    implicit none
 
    private
@@ -42,36 +44,40 @@ module time_module
    public :: time_module_info
    public :: datetime2sec
    public :: sec2ddhhmmss
-   public :: ymd2jul, ymd2reduced_jul
-   public :: mjd2jul
-   public :: jul2mjd
-   public :: date2mjd   ! obsolete, use ymd2reduced_jul
+   public :: ymd2jul, ymd2modified_jul
+   public :: jul2mjd 
+   public :: date2mjd   ! obsolete, use ymd2modified_jul
    public :: mjd2date
+   public :: duration_to_string
    public :: datetime_to_string
    public :: parse_ud_timeunit
    public :: parse_time
    public :: split_date_time
    public :: CalendarYearMonthDayToJulianDateNumber
-   public :: julian, gregor, offset_reduced_jd
+   public :: offset_modified_jd
+   public :: julian, gregor, julian_with_leapyears  ! public only for testing in test_time_module.f90
+   public :: datetimestring_to_seconds
+   public :: seconds_to_datetimestring
+
 
    interface ymd2jul
-      ! obsolete, use ymd2reduced_jul
+      ! obsolete, use ymd2modified_jul
       module procedure CalendarDateToJulianDateNumber
       module procedure CalendarYearMonthDayToJulianDateNumber
    end interface ymd2jul
 
    interface date2mjd
-      ! obsolete, use ymd2reduced_jul
+      ! obsolete, use ymd2modfified_jul
       module procedure ymd2mjd
       module procedure datetime2mjd
       module procedure ymdhms2mjd
    end interface date2mjd
 
-   interface ymd2reduced_jul
-      module procedure ymd2reduced_jul_string
-      module procedure ymd2reduced_jul_int
-      module procedure ymd2reduced_jul_int3
-   end interface ymd2reduced_jul
+   interface ymd2modified_jul
+      module procedure ymd2modified_jul_string
+      module procedure ymd2modified_jul_int
+      module procedure ymd2modified_jul_int3
+   end interface ymd2modified_jul
 
    interface mjd2date
       module procedure mjd2datetime
@@ -85,7 +91,7 @@ module time_module
       module procedure mjd2string
    end interface datetime_to_string
 
-   real(kind=hp), parameter :: offset_reduced_jd   = 2400000.5_hp
+   real(kind=hp), parameter :: offset_modified_jd  = 2400000.5_hp
    integer      , parameter :: firstGregorianDayNr = 2299161
    integer      , parameter :: justBeforeFirstGregorian(3) = [1582, 10, 14]
    integer      , parameter :: justAfterLastJulian(3)      = [1582, 10,  5]
@@ -108,7 +114,7 @@ module time_module
           !
           !! executable statements ---------------------------------------------------
           !
-          call addmessage(messages,'$Id$')
+          call addmessage(messages,'')
           call addmessage(messages,'$URL$')
       end subroutine time_module_info
 
@@ -197,13 +203,13 @@ module time_module
       end function sec2ddhhmmss
 
 !---------------------------------------------------------------------------------------------
-! implements interface ymd2reduced_jul
+! implements interface ymd2modified_jul
 !---------------------------------------------------------------------------------------------
-      !> calculates reduced Julian Date base on a string 'yyyyddmm' with or without separators
-      function ymd2reduced_jul_string(date, reduced_jul_date) result (success)
+      !> calculates modified Julian Date base on a string 'yyyyddmm' with or without separators
+      function ymd2modified_jul_string(date, modified_jul_date) result (success)
          use string_module, only: strsplit
          character(len=*), intent(in) :: date             !< date as string 'yyyyddmm' or 'yyyy dd mm' or 'yyyy d m'
-         real(kind=hp), intent(out)   :: reduced_jul_date !< returned date as reduced modified julian
+         real(kind=hp), intent(out)   :: modified_jul_date !< returned date as modified julian
          logical                      :: success          !< function result
 
          integer :: year, month, day, ierr, npc, intdate
@@ -241,49 +247,58 @@ module time_module
          endif
 
          if (month>=1 .and. month <= 12 .and. day>=1 .and. year>=1) then
-            reduced_jul_date = julian(year*10000 + month * 100 + day, 0)
-            if (reduced_jul_date == -1) return 
+            modified_jul_date = julian(year*10000 + month * 100 + day, 0)
+            if (modified_jul_date == -1) return 
+            modified_jul_date = modified_jul_date - offset_modified_jd 
          else
             return
          endif
          success = .true. 
-      end function ymd2reduced_jul_string
+      end function ymd2modified_jul_string
 
-      !> calculates reduced Julian Date base on a integer yyyyddmm
-      function ymd2reduced_jul_int(yyyymmdd, reduced_jul_date) result(success)
+      !> calculates modified Julian Date base on a integer yyyyddmm
+      function ymd2modified_jul_int(yyyymmdd, modified_jul_date) result(success)
          integer,       intent(in)  :: yyyymmdd          !< date as integer yyyymmdd
-         real(kind=hp), intent(out) :: reduced_jul_date  !< output reduced Julian Date number
+         real(kind=hp), intent(out) :: modified_jul_date  !< output modified Julian Date number
          logical                    :: success           !< function result
 
          integer :: year, month, day
 
          call splitDate(yyyymmdd, year, month, day)
 
-         success = ymd2reduced_jul_int3(year, month, day, reduced_jul_date)
+         success = ymd2modified_jul_int3(year, month, day, modified_jul_date)
 
-      end function ymd2reduced_jul_int
+      end function ymd2modified_jul_int
 
-      !> calculates reduced Julian Date base on integers year, month and day
-      function ymd2reduced_jul_int3(year, month, day, reduced_jul_date) result(success)
+      !> calculates modified Julian Date base on integers year, month and day
+      function ymd2modified_jul_int3(year, month, day, modified_jul_date) result(success)
          integer      , intent(in)  :: year              !< year
          integer      , intent(in)  :: month             !< month
          integer      , intent(in)  :: day               !< day
-         real(kind=hp), intent(out) :: reduced_jul_date  !< output reduced Julian Date number
+         real(kind=hp), intent(out) :: modified_jul_date !< output modified Julian Date number
          logical                    :: success           !< function result
 
-         integer :: jdn
-
+         integer :: jdn       
+         real(kind=hp) :: jd 
+         
          jdn = CalendarYearMonthDayToJulianDateNumber(year, month, day)
-
+         ! jdn is an integer value (and the result of an integer computation). 
+         ! To compute the Julian date at YYYYMMDDhhmmss as a real number for a moment 
+         ! after 12:00 noon one must add (hh - 12)/24 + mm/1440 + sec/86400 (real divisions). 
+         ! 
+         ! In this function, only calendar days starting at midnight, are assumed. 
+         ! For midnight, exactly 12 hours before noon, one must add (0-12)/24 + 0 + 0 = -0.5
+         jd = real(jdn, hp) - real(0.5, hp)
+         
          if (jdn == 0) then
-            reduced_jul_date = 0.0_hp
+            modified_jul_date = 0.0_hp
             success = .false.
          else
-            reduced_jul_date = real(jdn, hp) - offset_reduced_jd
+            modified_jul_date = jd - offset_modified_jd
             success = .true.
          endif
 
-      end function ymd2reduced_jul_int3
+      end function ymd2modified_jul_int3
 
 !---------------------------------------------------------------------------------------------
 ! implements interface ymd2jul
@@ -429,7 +444,8 @@ module time_module
          integer :: m      !< helper variable
          integer :: d      !< helper variable
          !
-         ! Calculate Julian day assuming the given month is correct
+         ! Calculate Julian day assuming the given month is correct.
+         ! This is an integer computation, divisions are integer divisions towards zero.
          !
          month1 = (month - 14)/12
          jdn = day - 32075 + 1461*(year + 4800 + month1)/4 &
@@ -613,6 +629,35 @@ module time_module
          end if
       end function parse_ud_timeunit
 
+
+      !> Creates a string representation of a duration, in the ISO 8601 format.
+      !!
+      !! NOTE: for durations less than a month, the extended format
+      !! P[YYYY]-[MM]-[DD]T[hh]:[mm]:[ss] is returned. For longer durations,
+      !! the basic format P[n]Y[n]M[n]DT[n]H[n]M[n]S is returned.
+      function duration_to_string(seconds_total) result(duration_string)
+         double precision,  intent(in   ) :: seconds_total   !< Seconds numeric value for the duration period.
+         character(len=20)                :: duration_string !< Resulting duration string, consider trimming at call site.
+
+         integer :: days, hours, mins, secs
+         double precision :: seconds_remaining
+
+         days  = int(seconds_total / 86400d0)
+         seconds_remaining = seconds_total - days*86400d0
+         hours = int(seconds_remaining / 3600d0)
+         seconds_remaining = seconds_remaining - hours*3600d0
+         mins  = int(seconds_remaining / 60d0)
+         secs = seconds_remaining - mins*60d0
+         if (days > 31) then
+            ! No support > 1 month yet, so fall back to basic format, which allows unlimited days: P[n]Y[n]M[n]DT[n]H[n]M[n]S
+            write (duration_string, '("P", i0,"DT", i0, "H", i0, "M", i0, "S")') days, hours, mins, secs
+         else
+            ! Preferred extended format: P[YYYY]-[MM]-[DD]T[hh]:[mm]:[ss]
+            write (duration_string, '("P", i4.4,"-",i2.2,"-",i2.2,"T", i2.2, ":", i2.2, ":", i2.2)') 0, 0, days, hours, mins, secs
+         end if
+      end function duration_to_string
+
+
 !---------------------------------------------------------------------------------------------
 ! implements interface datetime_to_string
 !---------------------------------------------------------------------------------------------
@@ -620,14 +665,18 @@ module time_module
       !! Example: 2015-08-07T18:30:27Z
       !! 2015-08-07T18:30:27+00:00
       !! Performs no check on validity of input numbers!
-      function datetime2string(iyear, imonth, iday, ihour, imin, isec, ierr) result(datetimestr)
-         integer,           intent(in)  :: iyear, imonth, iday
-         integer, optional, intent(in)  :: ihour, imin, isec !< Time is optional, will be printed as 00:00:00 if omitted.
-         integer, optional, intent(out) :: ierr !< Error status, 0 if success, nonzero in case of format error.
+      function datetime2string(iyear, imonth, iday, ihour, imin, isec, ioffsethour, ioffsetmin, ierr) result(datetimestr)
+         integer,           intent(in   )  :: iyear, imonth, iday
+         integer, optional, intent(in   )  :: ihour, imin, isec !< Time is optional, will be printed as 00:00:00 if omitted.
+         integer, optional, intent(in   )  :: ioffsethour       !< UTC offset hours, optional, will only be printed as [+-]HH:** when given.
+         integer, optional, intent(in   )  :: ioffsetmin        !< UTC offset minutes, optional, will be printed as [+-]HH:00 if omitted. Requires also ioffsethour when given.
+         integer, optional, intent(  out)  :: ierr              !< Error status, 0 if success, nonzero in case of format error.
 
-         character(len=20) :: datetimestr !< The resulting date time string. Considering using trim() on it.
+         character(len=25) :: datetimestr !< The resulting date time string. Considering using trim() on it.
 
-         integer :: ihour_, imin_, isec_, ierr_
+         integer :: ihour_, imin_, isec_, ioffsethour_, ioffsetmin_, ierr_
+         character(len=20) :: offsetformat
+
          if (.not. present(ihour)) then
             ihour_ = 0
          else
@@ -644,20 +693,37 @@ module time_module
             isec_ = isec
          end if
 
-         write (datetimestr, '(i4,"-",i2.2,"-",i2.2,"T",i2.2,":",i2.2,":",i2.2,"Z")', iostat=ierr_) &
-                               iyear, imonth, iday, ihour_, imin_, isec_
+         ! Only print UTC offset "[+-]HH:MM" when at least ioffsethour is given (and optionally also ioffsetmin)
+         ! Otherwise end string with the zero offset "Z".
+         if (.not. present(ioffsethour)) then
+            ioffsethour_ = 0
+            offsetformat = ',"Z"'
+         else
+            ioffsethour_ = ioffsethour
+            offsetformat = ',SP,i3.2,":",SS,i2.2'
+         end if
+         if (.not. present(ioffsetmin)) then
+            ioffsetmin_ = 0
+         else
+            ioffsetmin_ = ioffsetmin
+         end if
+
+         write (datetimestr, '(i4,"-",i2.2,"-",i2.2,"T",i2.2,":",i2.2,":",i2.2'//trim(offsetformat)//')', iostat=ierr_) &
+                               iyear, imonth, iday, ihour_, imin_, isec_, ioffsethour_, ioffsetmin_
 
          if (present(ierr)) then
             ierr = ierr_
          end if
       end function datetime2string
 
-      function jul_frac2string(jul, dayfrac, ierr) result(datetimestr)
+      function jul_frac2string(jul, dayfrac, ioffsethour, ioffsetmin, ierr) result(datetimestr)
          implicit none
-         integer                , intent(in)  :: jul
-         real(kind=hp), optional, intent(in)  :: dayfrac
-         integer      , optional, intent(out) :: ierr        !< Error status, 0 if success, nonzero in case of format error.
-         character(len=20)                    :: datetimestr !< The resulting date time string. Considering using trim() on it.
+         integer                , intent(in   )  :: jul
+         real(kind=hp), optional, intent(in   )  :: dayfrac
+         integer,       optional, intent(in   )  :: ioffsethour !< UTC offset hours, optional, will only be printed as [+-]HH:** when given.
+         integer,       optional, intent(in   )  :: ioffsetmin  !< UTC offset minutes, optional, will be printed as [+-]HH:00 if omitted. Requires also ioffsethour when given.
+         integer      , optional, intent(  out)  :: ierr        !< Error status, 0 if success, nonzero in case of format error.
+         character(len=25)                       :: datetimestr !< The resulting date time string. Considering using trim() on it.
 
          real(kind=hp) :: days
          real(kind=hp) :: dayfrac_
@@ -668,17 +734,19 @@ module time_module
          else
              dayfrac_ = 0.0_hp
          end if
-         datetimestr = mjd2string(jul2mjd(jul,dayfrac_), ierr_)
+         datetimestr = mjd2string(jul2mjd(jul,dayfrac_), ioffsethour=ioffsethour, ioffsetmin=ioffsetmin, ierr=ierr_)
          if (present(ierr)) then
             ierr = ierr_
          end if
       end function jul_frac2string
 
-      function mjd2string(days, ierr) result(datetimestr)
+      function mjd2string(days, ioffsethour, ioffsetmin, ierr) result(datetimestr)
          implicit none
-         real(kind=hp)     , intent(in)  :: days
-         integer , optional, intent(out) :: ierr        !< Error status, 0 if success, nonzero in case of format error.
-         character(len=20)               :: datetimestr !< The resulting date time string. Considering using trim() on it.
+         real(kind=hp)    , intent(in   )  :: days        !< Modified Julian date, including fractional time part.
+         integer, optional, intent(in   )  :: ioffsethour !< UTC offset hours, optional, will only be printed as [+-]HH:** when given.
+         integer, optional, intent(in   )  :: ioffsetmin  !< UTC offset minutes, optional, will be printed as [+-]HH:00 if omitted. Requires also ioffsethour when given.
+         integer, optional, intent(  out)  :: ierr        !< Error status, 0 if success, nonzero in case of format error.
+         character(len=25)                 :: datetimestr !< The resulting date time string. Considering using trim() on it.
 
          integer       :: iyear, imonth, iday, ihour, imin, isec
          real(kind=hp) :: second
@@ -729,7 +797,8 @@ module time_module
                    endif
                 endif
             end select
-            datetimestr = datetime2string(iyear, imonth, iday, ihour, imin, isec, ierr_)
+            datetimestr = datetime2string(iyear, imonth, iday, ihour, imin, isec, &
+                        ioffsethour=ioffsethour, ioffsetmin=ioffsetmin, ierr=ierr_)
          else
             ierr_ = -1
             datetimestr = ' '
@@ -796,25 +865,15 @@ module time_module
       end function datetime2mjd
 
 !---------------------------------------------------------------------------------------------
-      function mjd2jul(days,frac) result(jul)
-         implicit none
-         real(kind=hp)          , intent(in)  :: days
-         real(kind=hp), optional, intent(out) :: frac
-         integer                              :: jul
-
-         jul = int(days+offset_reduced_jd)
-         if (present(frac)) then
-             frac = mod(days,0.5_hp)
-         endif
-      end function mjd2jul
-
+! private: convert Julian day to Modified Julian 
+!---------------------------------------------------------------------------------------------
       function jul2mjd(jul,frac) result(days)
          implicit none
          integer                , intent(in)  :: jul
          real(kind=hp), optional, intent(in)  :: frac
          real(kind=hp)                        :: days
 
-         days = real(jul,hp)-offset_reduced_jd
+         days = real(jul,hp)-offset_modified_jd
          if (present(frac)) then
              days = days + frac
          endif
@@ -841,7 +900,7 @@ module time_module
          implicit none
          real(kind=hp), intent(in)       :: days
          integer, intent(out)            :: ymd
-         real(kind=hp), intent(out)      :: hms
+         integer, intent(out)            :: hms
          integer       :: year, month, day, hour, minute
          real(kind=hp) :: second
          integer       :: success
@@ -849,7 +908,7 @@ module time_module
          success = 0
          if (mjd2datetime(days,year,month,day,hour,minute,second)==0) return
          ymd = year*10000 + month*100 + day
-         hms = hour*10000 + minute*100 + second
+         hms = nint(hour*10000 + minute*100 + second)
          success = 1
       end function mjd2ymdhms
 
@@ -859,16 +918,28 @@ module time_module
          integer,  intent(out)      :: year, month, day
          integer,  intent(out)      :: hour, minute
          real(kind=hp), intent(out) :: second
-         real(kind=hp) :: dayfrac
-         integer       :: jul
-         integer       :: success
+         real(kind=hp) :: mjd, dayfrac
+         real(kind=hp) :: jul
+         integer       :: success, ntry
 
          success = 0
-         jul = mjd2jul(days,dayfrac)
-         call JulianDateNumberToCalendarYearMonthDay(jul,year,month,day)
-         hour = int(dayfrac*24)
-         minute = int(mod(dayfrac*24*60,60.d0))
-         second = mod(dayfrac*24*60*60,60.d0)
+         ntry = 1
+         mjd = days
+         do while (ntry <= 2)
+            jul = mjd + offset_modified_jd
+            dayfrac = mjd - floor(mjd)         
+            hour = int(dayfrac*24)
+            minute = int(mod(dayfrac*1440,60._hp))
+            second = mod(dayfrac*86400,60._hp)            
+            if (nint(second) >= 60) then
+               ! add less than 0.5 second to mjd (1/86400 = 1.157E-5) and retry
+               mjd = mjd + 0.000005_hp
+               ntry = ntry + 1
+            else 
+               exit
+            endif
+         enddo
+         call JulianDateNumberToCalendarYearMonthDay(nint(jul),year,month,day)
          success = 1
       end function mjd2datetime
 
@@ -943,71 +1014,115 @@ module time_module
       end function split_date_time
 
       !> parse a time string of the form "23:59:59.123" or "23:59:59" and return it as fraction of a day
+      !! also no splitter : is allowed ("235959.123" or "235959")
+      !! ms and seconds are optional
       function parse_time(time, ok) result (fraction)
+         use string_module, only : strsplit
          character(len=*), intent(in)  :: time      !< input time string
          logical         , intent(out) :: ok        !< success flag
          real(kind=hp)                 :: fraction  !< function result
 
-         integer                       :: i, ierr
-         real(kind=hp)                 :: temp
-         integer                       :: ipos1, ipos2, ipos
-         integer, parameter            :: nParts = 3
+         integer, parameter            :: maxParts = 3
+         integer                       :: iPart, ierr
+         real(kind=hp)                 :: scalefactor, temp
+         integer                       :: nParts
 
-         character(len=16)             :: times(nParts)
-         real(kind=hp), parameter      :: invalidValues(nParts) = (/ 24.01_hp, 60.01_hp, 61.1_hp /) ! accept leap second
-         real(kind=hp), parameter      :: scaleValues(nParts) = (/ 1.0_hp / 24.0_hp , &
-                                                                   1.0_hp / 24.0_hp / 60.0_hp  , &
-                                                                   1.0_hp / 24.0_hp / 3600.0_hp /)
+         character(len=16), allocatable :: times(:)
+         real(kind=hp), parameter      :: invalidValues(maxParts) = (/ 24.01_hp, 60.01_hp, 61.1_hp /) ! accept leap second
 
          ok = .false.
+         scalefactor = 24.0_hp
+         fraction = 0.0_hp
 
-         ! just simple assume "HH:MM:SS" / "HH:MM:SS.XX"
-         ipos = index(time, '.')
-         if ((len_trim(time) == 8 .and. ipos < 1) .or. ipos == 9) then
-            fraction = 0.0_hp
-            do i = 1, nParts
-               ipos1 = 3*i-2
-               ipos2 = 3*i-1
-               if (i == nParts) ipos2 = len(time)
-               read(time(ipos1 : ipos2), *, iostat=ierr) temp
-               if (ierr /= 0 .or. temp >= invalidValues(i)) then
-                  exit ! goto more general reading
-               end if
-               fraction = fraction + temp * scaleValues(i)
-               ok = (i == nParts)
+         if (index(time, ':') > 0) then
+            call strsplit(time, 1, times, 1, ':')
+            nParts = min(maxParts, size(times))
+         else if (len_trim(time) == 4 .or. len_trim(time) >= 6) then
+            nParts = min(maxParts, len_trim(time) / 2)
+            allocate(times(nParts))
+            do iPart = 1, nParts-1
+               times(iPart) = time(2*iPart-1:2*iPart)
             end do
+            times(nParts) = time(2*nParts-1:)
+         else
+            nParts = 0 ! results in an error
          end if
 
-         if (.not. ok) then
-            ! more general: accept leading spaces and hour in 1 or 2 digits
-            fraction = 0.0_hp
-            ipos1 = index(time, ':')
-            ipos2 = index(time, ':', back=.true.)
-            if (ipos2 == ipos1 .and. ipos2 > 0) then
-               continue ! found one ':' splitter
-            else
-               if (ipos2 == ipos1 .and. ipos2 < 1) then
-                  ! found no splitters
-                  times(1) = time(1:2)
-                  times(2) = time(3:4)
-                  times(3) = time(5:)
-               else
-                  times(1) = adjustl(time(:ipos1-1))
-                  times(2) = time(ipos1+1:ipos2-1)
-                  times(3) = time(ipos2+1:)
-               end if
-               do i = 1, nParts
-                  read(times(i), *, iostat=ierr) temp
-                  if (ierr /= 0 .or. temp >= invalidValues(i)) then
-                     exit
-                  end if
-                  fraction = fraction + temp * scaleValues(i)
-                  ok = (i == nParts)
-               end do
-            end if
-         end if
+         do iPart = 1, nParts
+              read(times(iPart), *, iostat=ierr) temp
+              if (ierr /= 0 .or. temp >= invalidValues(iPart) .or. temp<0) exit
+              fraction = fraction + temp/scalefactor
+              scalefactor = scalefactor * 60.0_hp
+              ok = (iPart == nParts)
+         enddo
       end function parse_time
+      
+      !> Given datetime string, compute time in seconds from refdat
+     subroutine datetimestring_to_seconds(dateandtime,refdat,timsec,stat)
+         implicit none
 
+         character,         intent(in)  :: dateandtime*(*) !< Input datetime string, format '201201010000', note that seconds are ignored.
+         character (len=8), intent(in)  :: refdat          !< reference date
+         integer,           intent(out) :: stat
+ 
+
+         double precision              :: timmin
+         double precision, intent(out) :: timsec
+
+         integer          :: iday ,imonth ,iyear ,ihour , imin, isec
+         integer          :: ierr
+
+         stat = 0
+         read(dateandtime( 1:4 ),'(i4)'  ,iostat=ierr) iyear
+         if (ierr /= 0) goto 999
+         read(dateandtime( 5:6 ),'(i2.2)',iostat=ierr) imonth
+         if (ierr /= 0) goto 999
+         read(dateandtime( 7:8 ),'(i2.2)',iostat=ierr) iday
+         if (ierr /= 0) goto 999
+         read(dateandtime( 9:10),'(i2.2)',iostat=ierr) ihour
+         if (ierr /= 0) goto 999
+         read(dateandtime(11:12),'(i2.2)',iostat=ierr) imin
+         if (ierr /= 0) goto 999
+         read(dateandtime(13:14),'(i2.2)',iostat=ierr) isec
+         if (ierr /= 0) goto 999
+         
+         call seconds_since_refdat(iyear, imonth, iday, ihour, imin, isec, refdat, timsec)
+
+         timmin  = timsec/60d0
+         !timmin = (jul - jul0)*24d0*60d0      + ihour*60d0      + imin
+
+         return
+999      continue
+         stat = ierr
+         return
+     end subroutine datetimestring_to_seconds
+      
+     !> Given time in seconds from refdat, fill dateandtime string
+     !! NOTE: seconds_to_datetimestring and datetimestring_to_seconds are not compatible, because of minutes versus seconds, and different format string.
+     subroutine seconds_to_datetimestring(dateandtime,refdat,tim)
+         implicit none
+
+         character,        intent(out) :: dateandtime*(*) !< Output datetime string, format '20000101_000000', note: includes seconds.
+         double precision, intent(in)  :: tim             !< Input time in seconds since refdat.
+        character (len=8), intent(in)  :: refdat          !< reference date
+
+         integer          :: iday, imonth, iyear, ihour, imin, isec
+
+         dateandtime = '20000101_000000'
+         ! TODO: AvD: seconds_to_datetimestring and datetimestring_to_seconds are now inconsistent since the addition of this '_'
+
+         call datetime_from_refdat(tim, refdat, iyear, imonth, iday, ihour, imin, isec)
+
+         write(dateandtime( 1:4 ),'(i4)')   iyear
+         write(dateandtime( 5:6 ),'(i2.2)') imonth
+         write(dateandtime( 7:8 ),'(i2.2)') iday
+         write(dateandtime(10:11),'(i2.2)') ihour
+         write(dateandtime(12:13),'(i2.2)') imin
+         write(dateandtime(14:15),'(i2.2)') isec
+
+         return
+     end subroutine seconds_to_datetimestring
+ 
       DOUBLE PRECISION FUNCTION JULIAN ( IDATE , ITIME )
 !***********************************************************************
 !
@@ -1090,7 +1205,7 @@ module time_module
          TEMP1  = FLOAT ( IHOUR ) * 3600.0 + &
                   FLOAT ( IMIN  ) *   60.0 + &
                   FLOAT ( ISEC  ) - 43200.0
-         JULIAN = TEMP2 + ( TEMP1 / 86400.0 ) - offset_reduced_jd
+         JULIAN = TEMP2 + ( TEMP1 / 86400.0 )
       ELSE
          TEMP1  = INT (( IMONTH-14.0) / 12.0 )
          TEMP2  = IDAY - 32075.0 + &
@@ -1101,12 +1216,134 @@ module time_module
          TEMP1  = FLOAT ( IHOUR ) * 3600.0 + &
                   FLOAT ( IMIN  ) *   60.0 + &
                   FLOAT ( ISEC  ) - 43200.0
-         JULIAN = TEMP2 + ( TEMP1 / 86400.0 ) - offset_reduced_jd
+         JULIAN = TEMP2 + ( TEMP1 / 86400.0 )
       ENDIF
   999 RETURN
       END FUNCTION JULIAN
 
-      SUBROUTINE GREGOR ( JULIAN, IYEAR , IMONTH, IDAY  , IHOUR , IMIN  , ISEC  , DSEC)
+      DOUBLE PRECISION FUNCTION julian_with_leapyears ( IDATE , ITIME )
+!
+!     +----------------------------------------------------------------+
+!     |    W A T E R L O O P K U N D I G   L A B O R A T O R I U M     |
+!     |               Sector Waterbeheer & Milieu                      |
+!     +----------------------------------------------------------------+
+!
+!***********************************************************************
+!
+!     Project : T0467
+!     Author  : Andre Hendriks
+!     Date    : 891215             Version : 1.00
+!
+!     Changes in this module :
+!
+!     Date    Author          Description
+!     ------  --------------  -----------------------------------
+!     ......  ..............  ..............................
+!     891215  Andre Hendriks  Version 1.00
+!
+!***********************************************************************
+!
+!     Description of module :
+!
+!        This functions returns the so called Julian day of a date, or
+!        the value -1.0 if an error occurred.
+!
+!        The Julian day of a date is the number of days that has passed
+!        since January 1, 4712 BC at 12h00 ( Gregorian). It is usefull
+!        to compute differces between dates. ( See SUBROUTINE GREGOR
+!        for the reverse proces ).
+!
+!***********************************************************************
+!
+!     Arguments :
+!
+!     Name   Type     In/Out Size            Description
+!     ------ -----    ------ -------         ---------------------------
+!     IDATE  integer  in     -               Date as YYYYMMDD
+!     ITIME  integer  in     -               Time as HHMMSS
+!
+!     Local variables :
+!
+!     Name   Type     Size   Description
+!     ------ -----    ------ ------------------------
+!     TEMP1  real*8   -      Temporary variable
+!     TEMP2  real*8   -      Temporary variable
+!     IYEAR  integer  -      Year   ( -4713-.. )
+!     IMONTH integer  -      Month  ( 1-12 )
+!     IDAY   integer  -      Day    ( 1-28,29,30 or 31 )
+!     IHOUR  integer  -      Hour   ( 0-23 )
+!     IMIN   integer  -      Minute ( 0-59 )
+!     ISEC   integer  -      Second ( 0-59 )
+!     MONLEN integer  12     Length of month in days
+!
+!     Calls to : none
+!
+!***********************************************************************
+!
+!     Variables :
+!
+      INTEGER          IYEAR , IMONTH, IDAY  , IHOUR , IMIN  , ISEC  , &
+                       IDATE , ITIME , MONLEN(12)
+      DOUBLE PRECISION TEMP1 , TEMP2
+      CHARACTER*48     LINE
+!
+!***********************************************************************
+!
+!     Initialize lenghts of months :
+!
+      DATA MONLEN / 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 /
+!
+!***********************************************************************
+!
+!
+!
+      IYEAR  = IDATE/10000
+      IMONTH = IDATE/100 - IYEAR*100
+      IDAY   = IDATE - IYEAR*10000 - IMONTH*100
+      IHOUR  = ITIME/10000
+      IMIN   = ITIME/100 - IHOUR*100
+      ISEC   = ITIME - IHOUR*10000 - IMIN*100
+
+      IF (MOD(IYEAR, 4) .NE. 0) THEN
+!        IT IS A COMMON YEAR
+         MONLEN(2) = 28
+      ELSE IF (MOD(IYEAR,100) .NE. 0) THEN
+!        IT IS A LEAP YEAR
+         MONLEN(2) = 29
+      ELSE IF (MOD(IYEAR,400) .NE. 0) THEN
+!        IT IS A COMMON YEAR
+         MONLEN(2) = 28
+      ELSE 
+!        IT IS A LEAP YEAR
+         MONLEN(2) = 29
+      END IF
+         
+      
+      IF (( IYEAR  .LT. -4713 ) .OR. ( IMONTH .LT.  1 ) .OR. &
+          ( IMONTH .GT.    12 ) .OR. ( IDAY   .LT.  1 ) .OR. &
+          ( IDAY   .GT. MONLEN(IMONTH) ) .OR. &
+          ( IHOUR  .LT.     0 ) .OR. ( IHOUR  .GT. 24 ) .OR. &
+          ( IMIN   .LT.     0 ) .OR. ( IMIN   .GT. 60 ) .OR. &
+          ( ISEC   .LT.     0 ) .OR. ( ISEC   .GT. 60 )) THEN
+         julian_with_leapyears = -1.0
+         WRITE(LINE,'(A33,I8,''-'',I6)') 'ERROR in JULIAN interpreting time:',IDATE,ITIME
+         CALL MONSYS(LINE,1)
+         GOTO 999
+      ELSE
+         TEMP1  = INT (( IMONTH-14.0) / 12.0 )
+         TEMP2  = IDAY - 32075.0 + &
+                INT ( 1461.0 * ( IYEAR + 4800.0 + TEMP1 ) / 4.0 ) + &
+                INT ( 367.0 * ( IMONTH - 2.0 - TEMP1 * 12.0 ) / 12.0 ) - &
+                INT ( 3.0 * INT ( ( IYEAR + 4900.0 + TEMP1 ) / 100.0 ) / 4.0 )
+         TEMP1  = FLOAT ( IHOUR ) * 3600.0 + &
+                  FLOAT ( IMIN  ) *   60.0 + FLOAT ( ISEC  ) - 43200.0
+         julian_with_leapyears = TEMP2 + ( TEMP1 / 86400.0 )
+      ENDIF
+  999 RETURN
+      END FUNCTION julian_with_leapyears
+
+      SUBROUTINE GREGOR ( JULIAN, IYEAR , IMONTH, IDAY  , IHOUR , &
+                        IMIN  , ISEC  , DSEC)
 !***********************************************************************
 !
 !     Description of module :

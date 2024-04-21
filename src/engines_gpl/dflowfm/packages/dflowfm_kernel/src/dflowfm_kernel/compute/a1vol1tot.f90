@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine a1vol1tot()
  use m_flowgeom
@@ -81,6 +81,7 @@
     volcur(IDX_VOLTOT) = vol1tot
     volcur(IDX_STOR)   = vol1tot
     vol1ini = vol1tot
+
 !   vol1ini needs to be global
     if ( jampi.eq.1 ) then
        call reduce_double_sum(1, (/ vol1ini /), dum)

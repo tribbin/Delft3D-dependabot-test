@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  module m_turbulence
  implicit none
@@ -44,10 +44,10 @@
  double precision                  :: sigdif
  double precision                  :: sigtke, sigtkei
  double precision                  :: sigeps, sigepsi
- double precision                  :: sigsal, sigsali
- double precision                  :: sigtem, sigtemi
- double precision                  :: sigsed, sigsedi
  double precision                  :: sigrho
+ double precision                  :: sigsal
+ double precision                  :: sigtem
+ double precision                  :: sigtracer
 
  !                                    c1e    = c2e-vonkar**2/(sigeps*sqrt(cmukep))
 
@@ -117,17 +117,19 @@
  double precision, allocatable     :: vicwwu   (:)      ! vertical eddy viscosity (m2/s) at layer interface at u point
  double precision, allocatable, target :: vicwws   (:)  !< [m2/s] vertical eddy viscosity at layer interface at s point {"location": "face", "shape": ["ndkx"]}
 
- !real            , allocatable     :: tkepro   (:)      ! vertical production t
- !real            , allocatable     :: tkedis   (:)      ! vertical dissipation
- double precision, allocatable     :: rho      (:)      ! density at cell centres (kg/m3)
+ !real            , allocatable    :: tkepro   (:)      ! vertical production t
+ !real            , allocatable    :: tkedis   (:)      ! vertical dissipation
+ double precision, allocatable, target     :: rho      (:)      ! density at cell centres (kg/m3)
  double precision, allocatable     :: rho0     (:)      ! density at cell centres (kg/m3), previous step
+ double precision, allocatable     :: rhosww   (:)      ! deviatoric density at vertical interfaces, w points (kg/m3)
  double precision, allocatable     :: rhowat   (:)      ! density at cell centres (kg/m3), only salt and temp
  double precision, allocatable     :: dpbdx0   (:)      ! previous step baroclinic pressure gradient, at u points
  double precision, allocatable     :: rvdn     (:)      ! help integral of (rho-rhomean)*deltaz at pressure points (kg/m2)
- double precision, allocatable     :: grn      (:)      ! help integral of baroclinic pressure at pressure points  (kg/m)
+ double precision, allocatable     :: grn      (:)      ! help integral of vertical baroclinic pressure integral at pressure points  (kg/m)
 
  double precision, allocatable     :: rhou     (:)      ! density at flow links   (kg/m3)
 
+ double precision, allocatable     :: sigsed   (:)      ! prandtl schmidt per sediment fraction
  double precision, allocatable     :: sigdifi  (:)      ! inverse prandtl schmidt nrs
  double precision, allocatable     :: wsf      (:)      ! fall velocities of all numconst constituents
 
@@ -152,9 +154,9 @@ use m_physcoef
     sigtke    = 1.0d0  ; sigtkei = 1d0/sigtke
     sigeps    = 1.3d0  ; sigepsi = 1d0/sigeps
     sigrho    = 0.7d0  ! bouyancy
-    sigsal    = 0.7d0  ; sigsali = 1d0/sigsal
-    sigtem    = 0.7d0  ; sigtemi = 1d0/sigtem
-    sigsed    = 1.0d0  ; sigsedi = 1d0/sigsed
+    sigsal    = Schmidt_number_salinity
+    sigtem    = Prandtl_number_temperature
+    sigtracer = Schmidt_number_tracer
 
     cmukep    = 0.09d0
     sqcmukep  = sqrt(cmukep)

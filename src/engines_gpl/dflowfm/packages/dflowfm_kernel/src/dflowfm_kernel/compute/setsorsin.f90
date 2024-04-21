@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  !> Compute and set source and sink values for the 'intake-outfall' structures.
  subroutine setsorsin()                                ! links in continuity eq.
@@ -43,10 +43,6 @@
  integer          :: n, ierr, kk, k, kb, kt, k2, kk2, kb2, kkk, ku, numvals, L
  double precision :: qsrck, qsrckk, dzss
  double precision :: frac=0.5d0           ! cell volume fraction that can at most be extracted in one step
-
- if (jatransportmodule == 0) then         ! also just prior to setsorsin
-    salsrc = 0d0
- endif
 
  srsn = 0d0; vcsrc = 0d0
  do n  = 1,numsrc
@@ -217,15 +213,6 @@
              endif
              qin(k)  = qin(k)  - qsrck
           endif
-          if (jatransportmodule == 0) then
-              if (qsrck > 0) then              ! FROM k to k2
-                 if (jasal > 0) salsrc(k)  = salsrc (k) - qsrck*constituents(isalt, k) 
-                 if (jatem > 0) heatsrc(k) = heatsrc(k) - qsrck*constituents(itemp,k)
-              else if  (qsrck  < 0) then       ! FROM k2 to k
-                 if (jasal > 0) salsrc(k)  = salsrc (k) - qsrck*sasrc(n)
-                 if (jatem > 0) heatsrc(k) = heatsrc(k) - qsrck*tmsrc(n)
-              endif
-          endif
        enddo
     endif
 
@@ -242,23 +229,10 @@
              endif
              qin(k) = qin(k) + qsrck
           endif
-          if (jatransportmodule == 0) then
-             if (qsrck > 0) then
-                if (jasal > 0) salsrc (k) = salsrc (k) + qsrck*sasrc(n)
-                if (jatem > 0) heatsrc(k) = heatsrc(k) + qsrck*tmsrc(n)
-             else if  (qsrck  < 0) then
-                if (jasal > 0) salsrc (k) = salsrc (k) + qsrck*constituents(isalt,k)
-                if (jatem > 0) heatsrc(k) = heatsrc(k) + qsrck*constituents(itemp,k)
-             endif
-          endif
        enddo
     endif
 
  enddo
-
- if (wrwaqon) then ! Update waq output
-    call update_waq_sink_source_fluxes()
- end if
 
  do n  = 1,numsrc
     if (jamess(n) == 1) then

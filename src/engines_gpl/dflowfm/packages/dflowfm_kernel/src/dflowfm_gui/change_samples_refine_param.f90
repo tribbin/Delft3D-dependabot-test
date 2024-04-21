@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,13 +27,13 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 !> refinecellsandfaces2 parameter menu
 subroutine change_samples_refine_param(jacancelled)
    use unstruc_display
-   use unstruc_version_module, only : unstruc_company, unstruc_program
+   use dflowfm_version_module, only : company, product_name
    use m_samples_refine
    use m_ec_interpolationsettings
    use m_arcinfo
@@ -69,7 +69,7 @@ subroutine change_samples_refine_param(jacancelled)
    external :: highlight_form_line
 
    jacancelled = 0
-   NLEVEL      = 4
+   NLEVEL    = 4
    
    text = ''
    WRITE(text, "('TYPE: RIDGES (', I1, '), WAVE COURANT NUMBER (', I1,  ')')") ITYPE_RIDGE, ITYPE_WAVECOURANT
@@ -139,7 +139,7 @@ subroutine change_samples_refine_param(jacancelled)
    CALL IWinAction('FPC')
    CALL IWinOpen(IXP,IYP,IW,1)
    CALL ITEXTCOLOURN(LBLFOR,LBLBCK)
-   CALL IWinOutCentre(1,trim(unstruc_company)//'-'//trim(unstruc_program)// ' PARAMETER FORM')
+   CALL IWinOutCentre(1,trim(company)//'-'//trim(product_name)// ' PARAMETER FORM')
    CALL ITEXTCOLOURN(HLPFOR,HLPBCK)
 
    ! Explain keyfunctions in bottom window
@@ -169,13 +169,13 @@ subroutine change_samples_refine_param(jacancelled)
       CALL IFORMATTRIBUTEN(IR,0,0,7)
    ENDDO
 
-   CALL IFORMPUTINTEGER(2*1 , irefinetype,  '(F12.3)')
-   CALL IFORMPUTDOUBLE (2*4 , threshold,    '(F12.3)')
-   CALL IFORMPUTDOUBLE (2*5 , thresholdmin, '(F12.3)')
-   CALL IFORMPUTDOUBLE (2*6 , hmin,         '(F12.3)')
-   CALL IFORMPUTINTEGER(2*7 , Nsamplesmooth)
+   CALL IFORMPUTINTEGER(2*1, irefinetype,  '(F12.3)')
+   CALL IFORMPUTDOUBLE(2*4,  threshold,    '(F12.3)')
+   CALL IFORMPUTDOUBLE(2*5,  thresholdmin, '(F12.3)')
+   CALL IFORMPUTDOUBLE(2*6,  hmin,         '(F12.3)')
+   CALL IFORMPUTINTEGER(2*7, Nsamplesmooth)
 
-   CALL IFORMPUTDOUBLE (2*10, Dt_maxcour,   '(F12.3)')
+   CALL IFORMPUTDOUBLE(2*10, Dt_maxcour,         '(F12.3)')
    CALL IFORMPUTDOUBLE (2*11, Dx_mincour,   '(F12.3)')
    CALL IFORMPUTINTEGER(2*12, jadirectional)
    CALL IFORMPUTINTEGER(2*13, jaoutsidecell)
@@ -218,13 +218,13 @@ subroutine change_samples_refine_param(jacancelled)
        CALL HELP(WRDKEY,NLEVEL)
    ELSE IF (KEY .EQ. 22 .OR. KEY .EQ. 23) THEN
        IF (KEY .EQ. 22) THEN
-           CALL IFORMGETINTEGER(2*1  , irefinetype)
-           CALL IFORMGETDOUBLE (2*4  , threshold)
-           CALL IFORMGETDOUBLE (2*5  , thresholdmin)
-           CALL IFORMGETDOUBLE (2*6  , hmin)
-           CALL IFORMGETINTEGER(2*7  , Nsamplesmooth)
+           CALL IFORMGETINTEGER(2*1, irefinetype)
+           CALL IFORMGETDOUBLE(2*4 , threshold)
+           CALL IFORMGETDOUBLE(2*5 , thresholdmin)
+           CALL IFORMGETDOUBLE(2*6 , hmin)
+           CALL IFORMGETINTEGER(2*7 , Nsamplesmooth)
 
-           CALL IFORMGETDOUBLE (2*10 , Dt_maxcour)
+           CALL IFORMGETDOUBLE(2*10 , Dt_maxcour)
            CALL IFORMGETDOUBLE (2*11 , Dx_mincour)
            CALL IFORMGETINTEGER(2*12 , jadirectional)
            CALL IFORMGETINTEGER(2*13 , jaoutsidecell)

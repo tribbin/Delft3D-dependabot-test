@@ -1,6 +1,6 @@
 !----- GPL ---------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2011-2022.                                
+!  Copyright (C)  Stichting Deltares, 2011-2024.                                
 !                                                                               
 !  This program is free software: you can redistribute it and/or modify         
 !  it under the terms of the GNU General Public License as published by         
@@ -24,8 +24,8 @@
 !  Stichting Deltares. All rights reserved.                                     
 !                                                                               
 !-------------------------------------------------------------------------------
-!  $Id$
-!  $HeadURL$
+!  
+!  
 
       subroutine copy_hyd_step(input_hyd, output_hyd)
 
@@ -33,13 +33,13 @@
 
       ! global declarations
 
-      use hydmod
+      use m_hydmod
       implicit none
 
       ! declaration of the arguments
 
-      type(t_hyd)         :: input_hyd     ! the input hydrodynamics
-      type(t_hyd)         :: output_hyd    ! the output hydrodynamics
+      type(t_hydrodynamics)         :: input_hyd     ! the input hydrodynamics
+      type(t_hydrodynamics)         :: output_hyd    ! the output hydrodynamics
 
       ! local declarations
 

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 subroutine gettau2(n,taucurc,czc,ustw2,jawaveswartdelwaq_par)
    use m_flowgeom
@@ -45,55 +45,58 @@ subroutine gettau2(n,taucurc,czc,ustw2,jawaveswartdelwaq_par)
    integer                         :: jawaveswartdelwaq_par !< Overwrite the global jawaveswartdelwaq
    !
    ! Local variables
-   integer :: LL, nn                                                 !< Local link counters
-   double precision ::  cf, cfn, cz, frcn, ar,  wa, ust, ust2, fw    !< Local intermediate variables
+   integer :: LL, nn                                                      !< Local link counters
+   double precision ::  cf, cfn, cz, frcn, ar,  wa, ust, ust2, fw, z00    !< Local intermediate variables
    !
    ! Body
-   taucurc = 0d0 ; ustw2 = 0d0
-   czc = 0d0
-   cfn = 0d0
-   wa  = 0d0
-   ust = 0d0
+   ustw2 = 0d0
+   czc   = 0d0
+   cfn   = 0d0
+   wa    = 0d0
+   ust   = 0d0
+   z00   = 0d0
 
    do nn = 1,nd(n)%lnx
       LL = abs( nd(n)%ln(nn) )
       frcn = frcu(LL)
-      if (frcn > 0 .and. hu(LL) > 0) then
+      if (frcn > 0d0 .and. hu(LL) > 0d0) then
          call getcz(hu(LL), frcn, ifrcutp(LL), cz,LL)
          cf  = ag/(cz*cz)
          ar  = au(LL)*dx(LL)
          wa  = wa + ar       ! area  weigthed
          cfn = cfn + cf*ar
-         if (kmx > 0) then
-            if (jawaveswartdelwaq <= 1) then
-               ust = ust + ustb(LL)*ar
-            else
-               ust = ust + taubxu(LL)*ar
-            endif
+         if (jawaveswartdelwaq_par <= 1) then
+            ust = ust + ustb(LL)*ar           ! ustb only exists for 3D, filled with 0 for kmx==0
+         else
+            ust = ust + taubxu(LL)*ar
          endif
+         z00 = z00 + ar*hu(LL)*exp(-1d0 - vonkar*cz/sag)   ! z0ucur, to avoid double counting
       endif
    enddo
-   if (wa > 0) then
+   if (wa > 0d0) then
       cfn = cfn / wa
       ust = ust / wa
+      z00 = z00 / wa
    endif
+   z00 = max(z00,epsz0)
+   !
    if (cfn > 0) then
       czc = sqrt(ag/cfn)
    endif
-
+   !
    ust2 = 0d0
    if (kmx == 0) then
        ust2 = cfn*(ucx(n)*ucx(n) + ucy(n)*ucy(n))
    else
        ust2 = ust*ust
    endif
-
+   !
    if (jawaveswartdelwaq_par == 0) then
       taucurc = rhomean*ust2
    else if (jawaveSwartDelwaq_par == 1) then
       if (twav(n) > 1d-2) then
-         call Swart(Twav(n), uorb(n), z0wav, fw, ustw2)
-         ust2  = ust2 + ustw2                    ! Swart
+         call Swart(twav(n), uorb(n), z00, fw, ustw2)
+         ust2  = ust2 + ftauw*ustw2
       endif
       taucurc = rhomean*ust2
    else if (jawaveSwartDelwaq_par == 2) then

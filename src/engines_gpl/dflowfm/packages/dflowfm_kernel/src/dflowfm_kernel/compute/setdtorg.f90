@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
  subroutine setdtorg(jareduced)                            ! set computational timestep dts
  use m_flowgeom
@@ -76,11 +76,6 @@
 
     if (ja_timestep_auto == 1 ) then   ! depth averaged timestep
        if ( itstep.ne.4 ) then   ! non-explicit time-step
-          !if ( jatransportmodule.eq.1 .and. time_dtmax.eq.time1 ) then
-          !   dts = dtmin_transp
-          !   kkcflmx  = kk_dtmin
-          !   jareduced = 1
-          !else
           if (ja_timestep_nostruct > 0) then  !< Exclude (structure) links without advection from the time step limitation
              squcor(1:ndx) = squ(1:ndx) ! Start with already computed squ.
              do L = 1,lnx1d
@@ -209,11 +204,6 @@
 
     else if (  ja_timestep_auto.eq.5 ) then   ! full 3D
 
-!       if ( jatransportmodule.eq.1 .and. time_dtmax.eq.time1 ) then
-!          dts = dtmin_transp
-!          kkcflmx = kk_dtmin
-!          jareduced = 1
-!       else
        do kk=1,Ndxi
           if ( jampi.eq.1 ) then
 !            do not include ghost cells
@@ -334,7 +324,7 @@
           if ( jampi.eq.1 ) then
 !            do not include ghost cells
              if ( idomain(kk).ne.my_rank ) cycle
-    endif
+          endif
           if ( hs(kk).gt.epshu ) then
              dtsc = 9d9
              if ( squ(kk).gt.eps10) then

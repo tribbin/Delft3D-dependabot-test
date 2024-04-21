@@ -1,6 +1,6 @@
 !----- LGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2011-2022.
+!  Copyright (C)  Stichting Deltares, 2011-2024.
 !
 !  This library is free software; you can redistribute it and/or
 !  modify it under the terms of the GNU Lesser General Public
@@ -25,17 +25,21 @@
 !
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+!
+!
 
 !> Utility module for additional manipulation/inquiry of NetCDF files, on top of the basic nf90* primitives.
 module netcdf_utils
 use netcdf
+use ionc_constants
 implicit none
 
 private
 
 public :: ncu_format_to_cmode
+public :: ncu_ensure_define_mode
+public :: ncu_ensure_data_mode
+public :: ncu_restore_mode
 public :: ncu_inq_var_fill, ncu_copy_atts, ncu_copy_chunking_deflate
 public :: ncu_clone_vardef
 public :: ncu_append_atts
@@ -44,6 +48,7 @@ public :: ncu_get_var_attset
 public :: ncu_put_var_attset
 public :: ncu_att_to_varid
 public :: ncu_att_to_dimid
+public :: ncu_apply_to_att
 
 integer, parameter :: maxMessageLen = 1024  ! copy taken from io_ugrid
 character(len=maxMessageLen) :: ncu_messagestr !< Placeholder string for storing diagnostic messages. /see{ug_get_message}
@@ -62,6 +67,14 @@ interface ncu_inq_var_fill
    module procedure ncu_inq_var_fill_int4
    module procedure ncu_inq_var_fill_real8
 end interface ncu_inq_var_fill
+
+abstract interface
+   function ncu_apply_to_att(attname, attvalue) result(ierr)
+      character(len=*),              intent(in   ) :: attname  !< Name of the attribute, cannot be changed.
+      character(len=:), allocatable, intent(inout) :: attvalue !< value of the attribute, can be changed. Should be an allocatable character string.
+      integer                                      :: ierr     !< Result status (recommended IONC_NOERR if successful)
+   end function ncu_apply_to_att
+end interface
 
    contains
 
@@ -86,23 +99,112 @@ pure function ncu_format_to_cmode(iformatnumber) result(cmode)
    end select
 end function ncu_format_to_cmode
 
-      
+
+!> Puts a NetCDF dataset into define mode, if it isn't so already.
+!! Returns the original mode, such that the caller can later put back this
+!! dataset into its original mode.
+!!
+!! @see ncu_restore_mode
+function ncu_ensure_define_mode(ncid, originally_in_define) result(ierr)
+   integer, intent(in   ) :: ncid                 !< ID of the NetCDF dataset
+   logical, intent(  out) :: originally_in_define !< Whether the dataset was already in define mode (for later restoral).
+   integer                :: ierr                 !< Result status (nf90_noerr if successful)
+
+   integer :: ierrloc
+
+   ierr = nf90_noerr
+
+   ! Put dataset in define mode (possibly again)
+   originally_in_define = .false.
+
+   ierrloc = nf90_redef(ncid)
+   if (ierrloc == nf90_eindefine) then
+      originally_in_define = .true.
+   else
+      ierr = ierrloc ! Some other error occurred
+   end if
+end function ncu_ensure_define_mode
+
+
+!> Puts a NetCDF dataset into data mode, if it isn't so already.
+!! Returns the original mode, such that the caller can later put back this
+!! dataset into its original mode.
+!!
+!! @see ncu_restore_mode
+function ncu_ensure_data_mode(ncid, originally_in_define) result(ierr)
+   integer, intent(in   ) :: ncid                 !< ID of the NetCDF dataset
+   logical, intent(  out) :: originally_in_define !< Whether the dataset was originally in define mode (for later restoral).
+   integer                :: ierr                 !< Result status (nf90_noerr if successful)
+
+   integer :: ierrloc
+
+   ierr = nf90_noerr
+
+   ! Put dataset in data mode (possibly again)
+   originally_in_define = .true.
+
+   ierrloc = nf90_enddef(ncid)
+   if (ierrloc == nf90_enotindefine) then
+      originally_in_define = .false.
+   else
+      ierr = ierrloc ! Some other error occurred
+   end if
+end function ncu_ensure_data_mode
+
+
+!> Restores a NetCDF dataset into its original mode (define/data), if needed.
+!!
+!! @see ncu_ensure_define_mode
+!! @see ncu_ensure_data_mode
+function ncu_restore_mode(ncid, originally_in_define) result(ierr)
+   integer, intent(in   ) :: ncid                 !< ID of the NetCDF dataset
+   logical, intent(in   ) :: originally_in_define !< Whether the dataset was originally in define mode.
+   integer                :: ierr                 !< Result status (nf90_noerr if successful)
+
+   integer :: ierrloc
+
+   ierr = nf90_noerr
+
+   ! Leave the dataset in the same mode as we got it.
+   if (originally_in_define) then
+      ! Attempt define mode
+      ierrloc = nf90_redef(ncid)
+      if (ierrloc /= nf90_eindefine) then
+         ierr = ierrloc ! Some error occurred
+      end if
+   else
+      ! Attempt data mode
+      ierrloc = nf90_enddef(ncid)
+      if (ierrloc /= nf90_enotindefine) then
+         ierr = ierrloc ! Some error occurred
+      end if
+   end if
+
+end function ncu_restore_mode
+
+
 !> Copy all attributes from a variable or dataset into another variable/dataset.
 !! Returns:
 !     nf90_noerr if all okay, otherwise an error code
 !!
 !! Note: The variable in the output file must already exist.
-function ncu_copy_atts( ncidin, ncidout, varidin, varidout ) result(ierr)
-   integer, intent(in)            :: ncidin   !< ID of the input NetCDF file
-   integer, intent(in)            :: ncidout  !< ID of the output NetCDF file
-   integer, intent(in)            :: varidin  !< ID of the variable in the input file, or NF90_GLOBAL for global attributes.
-   integer, intent(in)            :: varidout !< ID of the variable in the output file, or NF90_GLOBAL for global attributes.
+function ncu_copy_atts( ncidin, ncidout, varidin, varidout, forbidden_atts, apply_fun) result(ierr)
+   use m_alloc
+   integer,                               intent(in   ) :: ncidin   !< ID of the input NetCDF file
+   integer,                               intent(in   ) :: ncidout  !< ID of the output NetCDF file
+   integer,                               intent(in   ) :: varidin  !< ID of the variable in the input file, or NF90_GLOBAL for global attributes.
+   integer,                               intent(in   ) :: varidout !< ID of the variable in the output file, or NF90_GLOBAL for global attributes.
+   character(len=*),            optional, intent(in   ) :: forbidden_atts(:) !< (Optional) list of forbidden attribute names, will be skipped for copying.
+   procedure(ncu_apply_to_att), optional                :: apply_fun !< (Optional) function pointer to facilitate changing the attribute values.
 
    integer                        :: ierr
    integer                        :: i
 
    character(len=nf90_max_name)   :: attname
    integer                        :: natts
+   integer                        :: atttype   !< attribute data type
+   integer                        :: attlen    !< attribute length
+   character(len=:), allocatable  :: atttext   !< attribute value
 
    ierr = -1
 
@@ -120,7 +222,25 @@ function ncu_copy_atts( ncidin, ncidout, varidin, varidout ) result(ierr)
          return
       endif
 
-      ierr = nf90_copy_att( ncidin, varidin, attname, ncidout, varidout )
+      if (present(forbidden_atts)) then
+         if (any(forbidden_atts==trim(attname))) then
+            cycle
+         end if
+      end if
+
+      atttype = -1
+      ierr = nf90_inquire_attribute(ncidin, varidin, attname, xtype=atttype, len=attlen)
+      if (ierr == nf90_noerr .and. atttype == NF90_CHAR .and. present(apply_fun)) then
+         ! Special case: do not just copy, but apply a user-provided function to the attribute text first.
+         call realloc(atttext, attlen, keepExisting=.false., fill=' ')
+         ierr = nf90_get_att(ncidin, varidin, attname, atttext)
+         ierr = apply_fun(attname, atttext)
+         ierr = nf90_put_att(ncidout, varidout, attname, atttext)
+      else
+         ! Standard case: copy attribute+value as-is from input dataset to output dataset.
+         ierr = nf90_copy_att( ncidin, varidin, attname, ncidout, varidout )
+      end if
+
       if ( ierr /= nf90_noerr ) then
          return
       endif
@@ -129,29 +249,72 @@ function ncu_copy_atts( ncidin, ncidout, varidin, varidout ) result(ierr)
    ierr = nf90_noerr
 end function ncu_copy_atts
 
-!> For variable varid in netcdf file ncid append extension to attribute attname 
+!> For variable varid in netcdf file ncid append extension to attribute attname
 !! Returns:
 !     nf90_noerr if all okay, otherwise an error code
 !!
-function ncu_append_atts( ncid, varid, attname, extension) result(ierr)
-   integer                        :: ierr
-   integer, intent(in)            :: ncid      !< ID of the NetCDF file
-   integer, intent(in)            :: varid     !< ID of the NetCDF variable, or NF90_GLOBAL for global attributes.
-   character(len=*), intent(in)   :: extension !< name of the attribute
-   character(len=*), intent(in)   :: attname   !< name of the attribute
+function ncu_append_atts(ncid, varid, attname, extension, separator, check_presence) result(ierr)
+   integer                                   :: ierr
+   integer,                    intent(in   ) :: ncid           !< ID of the NetCDF file
+   integer,                    intent(in   ) :: varid          !< ID of the NetCDF variable, or NF90_GLOBAL for global attributes.
+   character(len=*),           intent(in   ) :: attname        !< name of the attribute
+   character(len=*),           intent(in   ) :: extension      !< text value to be added to the attribute
+   character(len=*), optional, intent(in   ) :: separator      !< (Optional) Separator string to be inserted between existing and extension string (Default: ' ').
+   logical,          optional, intent(in   ) :: check_presence !< (Optional) Check whether the extension text is already present, and if so, don't add it again (Default: .false.).
+
    integer                        :: atttype   !< attribute data type
    character(len=:), allocatable  :: atttext
    integer                        :: attlen    !< attribute length
-   
+   character(len=:), allocatable  :: separator_
+   logical :: check_presence_
+   integer :: ifound
+
    ierr = -1
+
+   if (present(separator)) then
+      separator_ = separator ! Intentionally don't trim/adjustl!
+   else
+      separator_ = ' '
+   end if
+
+   if (present(check_presence)) then
+      check_presence_ = check_presence
+   else
+      check_presence_ = .false.
+   end if
+
+
    atttype = 0
    ierr = nf90_inquire_attribute(ncid, varid, attname, xtype=atttype, len=attlen)
-   if (atttype == NF90_CHAR) then
-      allocate(character(len=attlen) :: atttext)
-      ierr = nf90_get_att(ncid, varid, attname, atttext)
-      ierr = nf90_put_att(ncid, varid, attname, atttext//trim(extension))
-      ierr = nf90_noerr
-   endif
+   if (ierr == nf90_noerr) then
+      if (atttype == NF90_CHAR) then
+         allocate(character(len=attlen) :: atttext)
+         ierr = nf90_get_att(ncid, varid, attname, atttext)
+
+         if (check_presence_) then
+            ifound = index(atttext, trim(extension), back=.true.)
+            if (ifound > 0) then
+               ! Extension text already present in current attribute, do nothing.
+               return
+            end if
+         end if
+
+         if (attlen > 0) then
+            ! Prepare for later appending
+            atttext = atttext // separator_
+         end if
+      else
+         ! Attribute already exists, but is not of type char, so cannot add more text to it.
+         ierr = IONC_ENOTATT
+         return
+      end if
+   else
+      allocate(character(len=0) :: atttext)
+   end if
+
+   ! Put the new attribute value (either appended, or afresh)
+   ierr = nf90_put_att(ncid, varid, attname, atttext//trim(extension))
+
 end function ncu_append_atts
 
 !> Clones a NetCDF variable definition.
@@ -228,11 +391,12 @@ end function ncu_clone_vardef
 
 
 !> Compatibility function: returns the fill settings for a variable in a netCDF-3 file.
-function ncu_inq_var_fill_int4( ncid, varid, no_fill, fill_value) result(ierr)
-   integer,                   intent(in)  :: ncid        !< ID of the NetCDF dataset
-   integer,                   intent(in)  :: varid       !< ID of the variable in the data set
-   integer,                   intent(out) :: no_fill     !< An integer that will always get 1 (for forward compatibility).
-   integer(kind=FourByteInt), intent(out) :: fill_value  !< This will get the fill value for this variable.
+function ncu_inq_var_fill_int4( ncid, varid, no_fill, fill_value, fill_value_customed) result(ierr)
+   integer,                   intent(in   ) :: ncid                !< ID of the NetCDF dataset
+   integer,                   intent(in   ) :: varid               !< ID of the variable in the data set
+   integer, optional,         intent(in   ) :: fill_value_customed !< User customed fill value
+   integer,                   intent(  out) :: no_fill             !< An integer that will always get 1 (for forward compatibility).
+   integer(kind=FourByteInt), intent(  out) :: fill_value          !< This will get the fill value for this variable.
 
    integer :: ierr ! Error status, nf90_noerr = if successful.
 
@@ -240,26 +404,35 @@ function ncu_inq_var_fill_int4( ncid, varid, no_fill, fill_value) result(ierr)
 
    ierr = nf90_get_att(ncid, varid, '_FillValue', fill_value)
    if (ierr /= nf90_noerr) then
-      fill_value = nf90_fill_int
+      if (present(fill_value_customed)) then
+         fill_value = fill_value_customed
+      else
+         fill_value = nf90_fill_int
+      end if
       ierr = nf90_noerr
    end if
 end function ncu_inq_var_fill_int4
 
 
 !> Compatibility function: returns the fill settings for a variable in a netCDF-3 file.
-function ncu_inq_var_fill_real8( ncid, varid, no_fill, fill_value) result(ierr)
-   integer,                   intent(in)  :: ncid        !< ID of the NetCDF dataset
-   integer,                   intent(in)  :: varid       !< ID of the variable in the data set
-   integer,                   intent(out) :: no_fill     !< An integer that will always get 1 (for forward compatibility).
-   real(kind=EightByteReal),  intent(out) :: fill_value  !< This will get the fill value for this variable.
+function ncu_inq_var_fill_real8( ncid, varid, no_fill, fill_value, fill_value_customed) result(ierr)
+   integer,                            intent(in   ) :: ncid                !< ID of the NetCDF dataset
+   integer,                            intent(in   ) :: varid               !< ID of the variable in the data set
+   real(kind=EightByteReal), optional, intent(in   ) :: fill_value_customed !< User customed fill value
+   integer,                            intent(  out) :: no_fill             !< An integer that will always get 1 (for forward compatibility).
+   real(kind=EightByteReal),           intent(  out) :: fill_value          !< This will get the fill value for this variable.
 
    integer :: ierr ! Error status, nf90_noerr = if successful.
-   
+
    no_fill = 1
 
    ierr = nf90_get_att(ncid, varid, '_FillValue', fill_value)
    if (ierr /= nf90_noerr) then
-      fill_value =  nf90_fill_double
+      if (present(fill_value_customed)) then
+         fill_value = fill_value_customed
+      else
+         fill_value =  nf90_fill_double
+      end if
       ierr = nf90_noerr
    end if
 end function ncu_inq_var_fill_real8
@@ -339,7 +512,7 @@ function ncu_get_att(ncid, varid, att_name, att_value) result(status)
             status = istat
             return
          end if
-      end if 
+      end if
 
       allocate( character(len=att_value_len) :: att_value, stat = istat )
       if (istat /= 0) then
@@ -361,7 +534,7 @@ function ncu_get_var_attset(ncid, varid, attset) result(ierr)
 
    integer,                         intent(in)  :: ncid      !< NetCDF dataset id
    integer,                         intent(in)  :: varid     !< NetCDF variable id (1-based).
-   type(nc_attribute), allocatable, intent(out) :: attset(:) !< Resulting attribute set.
+   type(ug_nc_attribute), allocatable, intent(out) :: attset(:) !< Resulting attribute set.
    integer                                      :: ierr      !< Result status (UG_NOERR==NF90_NOERR) if successful.
 
    character(len=64) :: attname
@@ -386,8 +559,8 @@ function ncu_get_var_attset(ncid, varid, attset) result(ierr)
       select case(atttype)
       case(NF90_CHAR)
          tmpstr = ''
-         ierr = ncu_get_att(ncid, varid, attname, tmpstr)   
-         
+         ierr = ncu_get_att(ncid, varid, attname, tmpstr)
+
          allocate(attset(i)%strvalue(attlen))
          nlen = min(len(tmpstr), attlen)
          do j=1,nlen
@@ -431,7 +604,7 @@ function ncu_put_var_attset(ncid, varid, attset) result(ierr)
 
    integer,             intent(in)  :: ncid      !< NetCDF dataset id
    integer,             intent(in)  :: varid     !< NetCDF variable id (1-based).
-   type(nc_attribute),  intent(in)  :: attset(:) !< Attribute set to be put into the variable.
+   type(ug_nc_attribute),  intent(in)  :: attset(:) !< Attribute set to be put into the variable.
    integer                          :: ierr      !< Result status (UG_NOERR==NF90_NOERR) if successful.
 
    character(len=1024) :: tmpstr
@@ -472,7 +645,7 @@ end function ncu_put_var_attset
 !! For example: mesh2d:face_node_connectivity
 function ncu_att_to_varid(ncid, varid, attname, id) result(ierr)
    use ionc_constants
-   
+
    integer         , intent(in   ) :: ncid    !< NetCDF dataset ID
    integer         , intent(in   ) :: varid   !< NetCDF variable ID from which the attribute will be gotten (1-based).
    character(len=*), intent(in   ) :: attname !< Name of attribute in varid that contains the variable name.

@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,8 +27,8 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
 ! m_WEARELT movet to gridgeom
 
@@ -129,7 +129,7 @@ module unstruc_display
 !! Handles all display settings and screen plotting for Unstruc
 !! (Not yet, a lot is still in REST.F90 [AvD])
 
-! $Id$
+! 
 
 use unstruc_colors
 implicit none
@@ -192,7 +192,7 @@ contains
 subroutine load_displaysettings(filename)
     use properties
     use unstruc_messages
-    use unstruc_version_module
+    use dflowfm_version_module
     use m_missing
     use M_RAAITEK
     use M_isoscaleunit
@@ -430,7 +430,7 @@ end subroutine load_displaysettings
 subroutine save_displaysettings(filename)
     use properties
     use unstruc_messages
-    use unstruc_version_module
+    use dflowfm_version_module
     use m_missing
     use M_RAAITEK
     use m_sferzoom
@@ -643,7 +643,7 @@ subroutine save_displaysettings(filename)
     
     call datum(rundat)
     write(mfil, '(a,a)') '# Generated on ', trim(rundat)
-    write(mfil, '(a,a)') '# ', trim(unstruc_version_full)
+    write(mfil, '(a,a)') '# ', trim(version_full)
     call prop_write_inifile(mfil, dis_ptr, istat)
 
 
@@ -1283,7 +1283,12 @@ if (network%loaded) then
    do is = 1,network%sts%Count
    
       ! Get structure x,y coordinates.
-      link = abs(network%sts%struct(is)%linknumbers(1))
+      if (network%sts%struct(is)%numlinks > 0) then
+         link = abs(network%sts%struct(is)%linknumbers(1))
+      else
+         link = 0
+      end if
+
       if (link > 0 .and. link <= lnx) then ! for safety
          x = xu(link)
          y = yu(link)
@@ -1408,8 +1413,6 @@ use m_flow
 use unstruc_channel_flow
 use m_1d_structures
 use m_Pump
-use m_Weir
-use m_Orifice
 use m_Culvert
 implicit none
 
@@ -1423,9 +1426,7 @@ integer :: L     ! net link number
 integer :: line_max ! maximal line number
 integer :: branchindex, ilocallin, nstruc, istrtype, i
 double precision, external :: zlin , znod
-type(t_weir), pointer      :: pweir
 type(t_pump), pointer      :: ppump
-type(t_orifice), pointer   :: porifice
 type(t_culvert), pointer   :: pculvert
 
 
@@ -1540,13 +1541,6 @@ if (nstruc > 0) then
    call Write2Scr(linec, 'Structure type', str_type)   
    
    select case (istrtype)
-   case (ST_WEIR)
-      pweir=>network%sts%struct(nstruc)%weir
-      call write2scr(linec, 'Crest level', pweir%crestlevel, 'm')
-      call write2scr(linec, 'Crest width', pweir%crestwidth, 'm')
-      call write2scr(linec, 'Discharge coef.', pweir%dischargecoeff, '-')
-      call write2scr(linec, 'Lat. dis. coef.', pweir%latdiscoeff, '-')
-      call write2scr(linec, 'Allowed flow dir.', pweir%allowedflowdir, '-')
    case (ST_PUMP)
       ppump=>network%sts%struct(nstruc)%PUMP
       call Write2Scr(linec, 'Direction', ppump%direction, 'm')
@@ -1559,25 +1553,6 @@ if (nstruc > 0) then
       end if
       call Write2Scr(linec, 'Current capacity', ppump%current_capacity, 'm3/s')
       call Write2Scr(linec, 'Reduction factor', ppump%reduction_factor, '-')
-   case (ST_ORIFICE)
-      porifice=>network%sts%struct(nstruc)%orifice
-      call write2scr(linec, 'Crest level', porifice%crestlevel, 'm')
-      call write2scr(linec, 'Crest width', porifice%crestwidth, 'm')
-      call write2scr(linec, 'Contraction coef.', porifice%contrcoeff, '-')
-      call write2scr(linec, 'Lat. contract coef.', porifice%latcontrcoeff, '-')
-      call write2scr(linec, 'Allowed flow dir.', porifice%allowedflowdir, '-')
-      if (porifice%uselimitflowpos) then
-         call write2scr(linec, 'Use limit flow pos.', 1, '-')
-         call write2scr(linec, 'Limit flow pos.', porifice%limitflowpos, 'm3/s')
-      else 
-         call write2scr(linec, 'Use limit flow pos.', 0, '-')
-      end if
-      if (porifice%uselimitflowneg) then
-         call write2scr(linec, 'Use limit flow neg.', 1, '-')
-         call write2scr(linec, 'Limit flow neg.', porifice%limitflowneg, 'm3/s')
-      else
-         call write2scr(linec, 'Use limit flow neg.', 0, '-')
-      end if
    case (ST_CULVERT)
       pculvert=>network%sts%struct(nstruc)%culvert
       call write2scr(linec, 'Left level', pculvert%leftlevel, 'm')
@@ -1752,7 +1727,8 @@ subroutine tekwindvector()
  use m_wearelt
  use unstruc_display
  use m_heatfluxes
- use m_flow ! , only : qinrain, jatem, a1tot, vol1tot, volgrw, vinraincum, jagrw, vinbndcum, voutbndcum, a1ini, vol1ini, volgrwini, qouteva, voutraincum
+ use m_flow 
+ use m_transport
  use m_flowgeom
  use m_wind
  use m_xbeach_data, only: csx, snx, itheta_view
@@ -1766,7 +1742,7 @@ subroutine tekwindvector()
  integer :: ndraw 
  double precision :: xp, yp, vfw, ws, dyp, upot,ukin,ueaa
  character tex*60 
- integer :: ncol, k, vlatin, vlatout, i, mout
+ integer :: ncol, k, kk, vlatin, vlatout, i, mout
  
  
  if (ndraw(40) == 0 .and. npdf == 0) return
@@ -1946,29 +1922,30 @@ subroutine tekwindvector()
     
     call upotukinueaa(upot,ukin,ueaa)     
 
-    yp  = yp - dyp
-    tex = 'Upot0+Ukin0:         (kg/(m.s2))'
-    if (upot0+ukin0 > 1000) then 
-       write(tex(8:20), '(F11.2)') ukin0
-    else
-       write(tex(8:20), '(F11.7)') ukin0
-    endif 
     ncol = ncoltx
+
+
+    yp  = yp - 2.5*dyp
+    tex = 'Ut0:                 (kg/(m.s2))'
+    if (upot0+ukin0 > 1000) then 
+       write(tex(8:20), '(F11.2)') ukin0+upot0
+    else
+       write(tex(8:20), '(F11.7)') ukin0+upot0
+    endif 
     call GTEXT(tex, xp, yp, ncol)
 
     yp  = yp - dyp
     tex = 'Upot :               (kg/(m.s2))'
-    if (upot + ukin > 1000) then 
+    if (upot > 1000) then 
        write(tex(8:20), '(F11.2)') upot   
     else
        write(tex(8:20), '(F11.7)') upot 
     endif 
-    ncol = ncoltx
     call GTEXT(tex, xp, yp, ncol)
   
     yp  = yp - dyp
     tex = 'Ukin :               (kg/(m.s2))'
-    if (upot + ukin > 1000) then 
+    if (ukin > 1000) then 
        write(tex(8:20), '(F11.2)') ukin   
     else
        write(tex(8:20), '(F11.7)') ukin 
@@ -1985,21 +1962,18 @@ subroutine tekwindvector()
     call GTEXT(tex, xp, yp, ncol)
 
     yp  = yp - dyp
-    tex = 'Ukin/Ukin0:                 ( )'
-    if (upot + ukin > 1000) then 
-       write(tex(8:20), '(F11.2)') ukin/ukin0   
-    else
-       write(tex(8:20), '(F11.7)') ukin/ukin0
-    endif 
+    tex = 'Upot/Ut0:                   ( )'
+    write(tex(8:20), '(F11.7)') upot/max(ukin0 + upot0,eps4)
     call GTEXT(tex, xp, yp, ncol)
 
     yp  = yp - dyp
-    tex = 'Utot/Utot0:                 ( )'
-    if (upot + ukin > 1000) then 
-       write(tex(8:20), '(F11.2)') (ukin+upot)/(ukin0)   
-    else
-       write(tex(8:20), '(F11.7)') (ukin+upot)/(ukin0)
-    endif 
+    tex = 'Ukin/Ut0:                   ( )'
+    write(tex(8:20), '(F11.7)') ukin/max(ukin0 + upot0,eps4)
+    call GTEXT(tex, xp, yp, ncol)
+
+    yp  = yp - dyp
+    tex = 'Utot/Ut0:                   ( )'
+    write(tex(8:20), '(F11.7)') (ukin+upot)/(ukin0 + upot0)
     call GTEXT(tex, xp, yp, ncol)
 
     if (jasal > 0 .or. jatem > 0) then
@@ -2008,7 +1982,29 @@ subroutine tekwindvector()
     write(tex(8:20), '(F11.2)') ueaa    
     call GTEXT(tex, xp, yp, ncol)
     endif
-           
+
+ else if (ndraw(40) == 3) then 
+
+    ncol = ncoltx
+    do i = 1,numconst
+       ueaa = 0d0
+       do kk = 1,ndxi
+          do k = kbot(kk), ktop(kk)
+             ueaa = ueaa + vol1(k)*constituents(i,k)
+          enddo   
+       enddo  
+     
+       yp  = yp - 2.5*dyp
+       tex = 'Mass :                 (c*m3)'
+       if (ueaa > 1000) then 
+          write(tex(8:20), '(F11.2)') ueaa
+       else
+          write(tex(8:20), '(F11.7)') ueaa
+       endif 
+       call GTEXT(tex, xp, yp, ncol)
+
+    enddo      
+     
  endif   
  
  if ( jawave.eq.4 ) then
@@ -2030,12 +2026,13 @@ use m_flowgeom
 use m_missing
 implicit none
 double precision :: upot, ukin, ueaa
-double precision :: vtot, roav, hh, zz, dzz, rhok
+double precision :: vtot, roav, hh, zz, dzz, rhok, bmin
 integer k, kk
        
-upot = 0d0 ; ukin = 0d0 ; ueaa = 0d0 ; vtot = 0d0 ; roav = 0d0
+upot = 0d0 ; ukin = 0d0 ; ueaa = 0d0 ; vtot = 0d0 ; roav = 0d0; bmin = 1d9
 
 do kk = 1,ndx
+   bmin = min(bmin, bl(kk))
    if ( hs(kk) == 0 ) cycle
    do k = kbot(kk), ktop(kk) 
       vtot = vtot + vol1(k)                                                 ! m3
@@ -2046,15 +2043,19 @@ do kk = 1,ndx
       endif
    enddo  
 enddo 
+if (vtot == 0d0) then
+   return
+end if
+
 roav = roav / vtot                                                          ! kg/m3
 
 do kk = 1,ndx
    if ( hs(kk) == 0 ) cycle
    do k = kbot(kk), ktop(kk) 
       if (kmx > 0) then 
-         zz   = (zws(k) + zws(k-1))*0.5d0                                   ! m
+         zz   = (zws(k) + zws(k-1))*0.5d0  - bmin                                 ! m
       else 
-         zz   = s1(k) - bl(k)
+         zz   = s1(k) - bmin
       endif
       if (jasal > 0) then 
          rhok = rho(k)
@@ -2074,7 +2075,7 @@ ukin  = ukin*0.5/vtot
 if (upot0 == dmiss) upot0 = upot
 if (ukin0 == dmiss) ukin0 = ukin
 
-upot = upot - upot0 
+! upot = upot - upot0 
                                                                   ! 
 end subroutine upotukinueaa
 

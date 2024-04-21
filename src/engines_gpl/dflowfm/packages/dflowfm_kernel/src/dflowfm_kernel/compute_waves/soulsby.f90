@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !                                                                               
-!  Copyright (C)  Stichting Deltares, 2017-2022.                                
+!  Copyright (C)  Stichting Deltares, 2017-2024.                                
 !                                                                               
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).               
 !                                                                               
@@ -27,22 +27,22 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+! 
 
-   subroutine soulsby( tsig, uorbu, z00, fw, ustw2 )
-      use m_sferic, only: pi
+subroutine soulsby( tsig, uorbu, z00, fw)
+   use m_sferic, only: pi
 
-      implicit none
-      double precision, intent(in ) :: tsig, uorbu, z00
-      double precision, intent(out) :: fw, ustw2
-      double precision              :: a
-      a = uorbu * tsig /2d0/pi
-      if( a > 0d0 ) then
-         fw = min( 1.39d0 * (a/z00)**(-0.52d0), 0.3d0 )
-      else
-         fw = 0.3d0
-      endif
+   implicit none
+   double precision, intent(in ) :: tsig, uorbu, z00
+   double precision, intent(out) :: fw
+   double precision              :: a
 
-      ustw2 = 0.5*fw*uorbu**2
-   end subroutine soulsby
+   a = uorbu * tsig /2d0/pi
+   if( a > 0d0 ) then
+      fw = min( 1.39d0 * (a/z00)**(-0.52d0), 0.3d0 )
+   else
+      fw = 0.3d0
+   endif
+
+end subroutine soulsby
