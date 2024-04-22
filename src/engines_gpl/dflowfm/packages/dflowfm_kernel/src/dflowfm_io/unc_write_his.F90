@@ -296,9 +296,6 @@ subroutine unc_write_his(tim)            ! wrihis
             ierr = unc_def_his_structure_static_vars(ihisfile, 'station', 'observation station', 1, numobs+nummovobs, 'point', nNodeTot, id_strlendim, &
                                                      id_statdim, id_stat_id, id_statgeom_node_count, id_statgeom_node_coordx, id_statgeom_node_coordy, &
                                                      add_latlon, id_statgeom_node_lon, id_statgeom_node_lat)
-            ierr = nf90_def_var(ihisfile, 'station_name',         nf90_char,   (/ id_strlendim, id_statdim /), id_statname)
-            ! ierr = nf90_put_att(ihisfile, id_statname,  'cf_role', 'timeseries_id') ! UNST-6901: only one cf_role var allowed, is now "station_id". Backwards incompatible for some postprocessors?
-            ierr = nf90_put_att(ihisfile, id_statname,  'long_name'    , 'observation station name') ! REF
 
             ! Define the x/y, lat/lon, and z coordinate variables for the station type.
             ierr = unc_def_his_station_coord_vars(ihisfile, id_laydim, id_laydimw, id_statdim, id_timedim, &
@@ -311,10 +308,6 @@ subroutine unc_write_his(tim)            ! wrihis
         if (ncrs > 0) then
             ierr = unc_def_his_structure_static_vars(ihisfile, 'cross_section', 'observation cross section', 1, ncrs, 'line', nNodesCrs, id_strlendim, &
                                                      id_crsdim, id_crs_id, id_crsgeom_node_count, id_crsgeom_node_coordx, id_crsgeom_node_coordy)
-
-            ierr = nf90_def_var(ihisfile, 'cross_section_name',         nf90_char,   (/ id_strlendim, id_crsdim /), id_crsname)
-            ierr = nf90_put_att(ihisfile, id_crsname,  'cf_role', 'timeseries_id')
-            ierr = nf90_put_att(ihisfile, id_crsname,  'long_name', 'cross section name'    )
         endif
 
 
@@ -362,7 +355,7 @@ subroutine unc_write_his(tim)            ! wrihis
         ierr = unc_def_his_structure_static_vars(ihisfile, 'source_sink', 'source and sink', jahissourcesink, numsrc, 'line', nNodeTot, id_strlendim, &
                                                  id_srcdim, id_srcname, id_srcgeom_node_count, id_srcgeom_node_coordx, id_srcgeom_node_coordy)
         if (jahissourcesink > 0 .and. numsrc > 0) then
-           ierr = nf90_def_dim(ihisfile, 'source_sink_pts', msrc, id_srcptsdim)
+           ierr = nf90_def_dim(ihisfile, 'source_sink_points', msrc, id_srcptsdim)
            ierr = nf90_def_var(ihisfile, 'source_sink_x_coordinate', nf90_double, (/ id_srcdim, id_srcptsdim  /), id_srcx)
            ierr = nf90_def_var(ihisfile, 'source_sink_y_coordinate', nf90_double, (/ id_srcdim, id_srcptsdim /), id_srcy)
            ierr = unc_addcoordatts(ihisfile, id_srcx, id_srcy, jsferic)
@@ -700,17 +693,8 @@ subroutine unc_write_his(tim)            ! wrihis
 
         if (timon) call timstrt ('unc_write_his timeindep data', handle_extra(63))
 
-        ! Observation stations
-        do i=1,numobs+nummovobs
-           ierr = nf90_put_var(ihisfile, id_stat_id, trimexact(namobs(i), strlen_netcdf), (/ 1, i /)) ! Extra for OpenDA-wrapper
-           ierr = nf90_put_var(ihisfile, id_statname, trimexact(namobs(i), strlen_netcdf), (/ 1, i /))
-        end do
-
         ! Observation cross sections
         if (ncrs > 0) then
-            do i=1,ncrs
-               ierr = nf90_put_var(ihisfile, id_crsname,  trimexact(crs(i)%name, strlen_netcdf),      (/ 1, i /))
-            end do
             if (it_his == 0) then
                ierr = nf90_put_var(ihisfile, id_crsgeom_node_coordx, geomXCrs,     start = (/ 1 /), count = (/ nNodesCrs /))
                ierr = nf90_put_var(ihisfile, id_crsgeom_node_coordy, geomYCrs,     start = (/ 1 /), count = (/ nNodesCrs /))
@@ -1043,9 +1027,9 @@ contains
 
       if (output_enabled > 0 .and. count > 0) then
          ierr = nf90_def_dim(ihisfile, prefix, count, id_strdim)
-         ierr = nf90_def_var(ihisfile, prefix//'_id',  nf90_char,   (/ id_strlendim, id_strdim /), id_strid)
+         ierr = nf90_def_var(ihisfile, prefix//'_name',  nf90_char,   (/ id_strlendim, id_strdim /), id_strid)
          ierr = nf90_put_att(ihisfile, id_strid,  'cf_role',   'timeseries_id')
-         ierr = nf90_put_att(ihisfile, id_strid,  'long_name', 'Id of '//trim(name))
+         ierr = nf90_put_att(ihisfile, id_strid,  'long_name', 'name of '//trim(name))
 
          if (.not. strcmpi(geom_type, 'none') .and. len_trim(geom_type) > 0) then
             ! Define geometry related variables
