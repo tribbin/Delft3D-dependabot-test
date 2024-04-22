@@ -1,7 +1,7 @@
 @ echo off
 
 setlocal enabledelayedexpansion
-set prepareonly=1
+set prepareonly=0
 set config=all
 set generator=
 set vs=
