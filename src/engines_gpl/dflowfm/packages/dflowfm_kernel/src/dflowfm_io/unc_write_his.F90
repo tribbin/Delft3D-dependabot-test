@@ -261,16 +261,22 @@ subroutine unc_write_his(tim)            ! wrihis
            ierr = nf90_def_dim(ihisfile, 'laydimw', kmx+1, id_laydimw)
         end if
 
-        if (stm_included .and. ISED1 > 0 .and. jahissed > 0) then
-           ! New implementation, sedsus fraction is additional dimension
-           ierr = nf90_def_dim(ihisfile, 'nSedTot', stmpar%lsedtot, id_sedtotdim)
-           ierr = nf90_def_dim(ihisfile, 'nSedSus', stmpar%lsedsus, id_sedsusdim)
-           ! Names of different sediment fractions are saved in a separate character variable
-           ierr = nf90_def_var(ihisfile, 'sedfrac_name', nf90_char, (/ id_strlendim, id_sedtotdim /), id_frac_name)
-           ierr = nf90_put_att(ihisfile, id_frac_name,'long_name', 'sediment fraction identifier')
+        if (stm_included .and. jahissed > 0) then
+           if ( ISED1 > 0 ) then
+              ! New implementation, sedsus fraction is additional dimension
+              ierr = nf90_def_dim(ihisfile, 'nSedTot', stmpar%lsedtot, id_sedtotdim)
+              ierr = nf90_def_dim(ihisfile, 'nSedSus', stmpar%lsedsus, id_sedsusdim)
+              ! Names of different sediment fractions are saved in a separate character variable
+              ierr = nf90_def_var(ihisfile, 'sedfrac_name', nf90_char, (/ id_strlendim, id_sedtotdim /), id_frac_name)
+              ierr = nf90_put_att(ihisfile, id_frac_name,'long_name', 'sediment fraction identifier')
+           endif
+           if (jased > 0 .and. stmpar%morlyr%settings%iunderlyr==2) then
+              ierr = nf90_def_dim(ihisfile, 'nBedLayers', stmpar%morlyr%settings%nlyr, id_nlyrdim)
+           endif
         endif
 
-        !
+
+        !if (jased > 0 .and. stm_included .and. jahissed > 0) then
         ! Time
         !
         ierr = nf90_def_var(ihisfile, 'time', nf90_double, id_timedim, id_time)
