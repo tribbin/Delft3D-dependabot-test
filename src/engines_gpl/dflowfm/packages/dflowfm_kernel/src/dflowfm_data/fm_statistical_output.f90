@@ -1504,7 +1504,7 @@ private
                      nc_dim_ids = nc_dims_3D_center)
 
       call addoutval(out_quan_conf_his, IDX_HIS_TRACERS_ABSTRACT, &
-                     'Wrihis_tracers', 'station_tracer_abstract', '', &
+                     'wrihis_constituents', 'station_tracer_abstract', '', &
                      '', '-', UNC_LOC_STATION, description = 'Write tracers to his-file')
 
       call addoutval(out_quan_conf_his, IDX_HIS_WQBOT_ABSTRACT, &
