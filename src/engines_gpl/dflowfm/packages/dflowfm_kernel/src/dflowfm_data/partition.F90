@@ -5348,7 +5348,11 @@ function any_structures_lie_across_multiple_partitions(node_count_per_structure)
    integer :: number_of_structures, i_struc, n_partitions_with_nodes, ierr
    logical :: has_nodes_in_current_partition, structure_lies_across_partitions, any_structures_lie_across_partitions
    
-   res  = .false.
+   res = .false. !Default return value
+   
+   if (jampi == 0) then
+      return
+   end if
    
 #ifdef HAVE_MPI
    number_of_structures = size(node_count_per_structure)
