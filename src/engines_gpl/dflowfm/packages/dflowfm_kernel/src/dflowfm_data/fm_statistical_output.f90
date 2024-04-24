@@ -2633,9 +2633,11 @@ private
 
             temp_pointer(1:ntot*nlyrs) => valobs(:,IPNT_THLYR:IPNT_THLYR+(nlyrs-1))
             call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_THLYR),temp_pointer)
-
-            temp_pointer(1:ntot*nlyrs) => valobs(:,IPNT_POROS:IPNT_POROS+(nlyrs-1))
-            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_POROS),temp_pointer)
+            
+            if (stmpar%morlyr%settings%iporosity > 0) then
+               temp_pointer(1:ntot*nlyrs) => valobs(:,IPNT_POROS:IPNT_POROS+(nlyrs-1))
+               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_POROS),temp_pointer)
+            endif
          end select
          !
          if (stmpar%morpar%moroutput%frac) then
