@@ -16,7 +16,6 @@ from src.config.test_case_config import TestCaseConfig
 from src.config.types.mode_type import ModeType
 from src.suite.test_bench_settings import TestBenchSettings
 from src.utils.common import get_log_level
-from src.utils.xml_config_parser import XmlConfigParser
 
 
 class TestBenchParameterParser:
@@ -39,31 +38,16 @@ class TestBenchParameterParser:
         new_settings = TestBenchSettings()
 
         # Store path of Testbench.py into os environment
-
         script_path, script_name = os.path.split(os.path.abspath(__file__))
 
         new_settings.test_bench_root = script_path
         new_settings.test_bench_script_name = script_name
         new_settings.test_bench_startup_dir = os.getcwd()
 
-        credentials = cls.__get_credentials(args)
-
-        # Additionally, extra TeamCity messages will be produced.
-        server_base_url = cls.__get_argument_value("server_base_url", args) or ""
-
-        # Parse the xml file.
-        xml_config_parser = XmlConfigParser()
-
-        config_file = cls.__get_argument_value("config", args) or "config.xml"
-        (
-            new_settings.local_paths,
-            new_settings.programs,
-            new_settings.configs,
-        ) = xml_config_parser.load(
-            config_file, args.__dict__["or_paths"], credentials, server_base_url
+        new_settings.server_base_url = (
+            cls.__get_argument_value("server_base_url", args) or ""
         )
-
-        new_settings.config_file = config_file
+        new_settings.rstr = args.__dict__["or_paths"]
 
         # Filter the testcases to be run
         if args.filter != "":
@@ -89,13 +73,14 @@ class TestBenchParameterParser:
         new_settings.teamcity = cls.__get_argument_value("teamcity", args) or False
 
         new_settings.filter = args.filter
-        new_settings.config_file = config_file
-        new_settings.user_name = credentials.username
-
         # Determine type of run
         new_settings.run_mode = (
             cls.__get_argument_value("run_mode", args) or ModeType.LIST
         )
+        new_settings.config_file = (
+            cls.__get_argument_value("config", args) or "config.xml"
+        )
+        new_settings.credentials = cls.__get_credentials(args)
 
         return new_settings
 

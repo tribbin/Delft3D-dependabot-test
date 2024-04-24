@@ -3,6 +3,9 @@ import textwrap
 from datetime import datetime, timezone
 from typing import Optional
 
+from src.suite.test_bench_settings import TestBenchSettings
+from src.utils.logging.console_logger import ConsoleLogger
+from src.utils.logging.log_level import LogLevel
 from src.config.credentials import Credentials
 from src.config.dependency import Dependency
 from src.config.test_case_path import TestCasePath
@@ -14,11 +17,15 @@ def test_load__config_with_testcase__path_not_versioned() -> None:
     # Arrange
     content = make_test_case_config(test_case_path=TestCasePath("test/case/path"))
     parser = XmlConfigParser()
-    credentials = Credentials()
-    credentials.name = "commandline"
+    settings = TestBenchSettings()
+    settings.config_file = content
+    settings.server_base_url = "s3://dsc-testbench"
+    settings.credentials = Credentials()
+    settings.credentials.name = "commandline"
+    logger = ConsoleLogger(LogLevel.DEBUG)
 
     # Act
-    _, _, (config, *other_configs) = parser.load(content, "", credentials, "s3://dsc-testbench")  # type: ignore
+    _, _, (config, *other_configs) = parser.load(settings, logger)  # type: ignore
 
     # Assert
     assert not other_configs
@@ -36,11 +43,15 @@ def test_load__config_with_testcase__path_versioned() -> None:
         test_case_path=TestCasePath("test/case/path", version),
     )
     parser = XmlConfigParser()
-    credentials = Credentials()
-    credentials.name = "commandline"
+    settings = TestBenchSettings()
+    settings.config_file = content
+    settings.server_base_url = "s3://dsc-testbench"
+    settings.credentials = Credentials()
+    settings.credentials.name = "commandline"
+    logger = ConsoleLogger(LogLevel.DEBUG)
 
     # Act
-    _, _, (config, *other_configs) = parser.load(content, "", credentials, "s3://dsc-testbench")  # type: ignore
+    _, _, (config, *other_configs) = parser.load(settings, logger)  # type: ignore
 
     # Assert
     assert not other_configs
@@ -57,11 +68,15 @@ def test_load__config_with_testcase_depencency__dependency_not_versioned() -> No
         dependency=Dependency(local_dir="local/dir", case_path="case/dir"),
     )
     parser = XmlConfigParser()
-    credentials = Credentials()
-    credentials.name = "commandline"
+    settings = TestBenchSettings()
+    settings.config_file = content
+    settings.server_base_url = "s3://dsc-testbench"
+    settings.credentials = Credentials()
+    settings.credentials.name = "commandline"
+    logger = ConsoleLogger(LogLevel.DEBUG)
 
     # Act
-    _, _, (config, *other_configs) = parser.load(content, "", credentials, "s3://dsc-testbench")  # type: ignore
+    _, _, (config, *other_configs) = parser.load(settings, logger)  # type: ignore
 
     # Assert
     assert not other_configs
@@ -80,11 +95,15 @@ def test_load__config_with_testcase_dependency__dependency_versioned() -> None:
         dependency=Dependency(local_dir="local/dir", case_path="case/dir", version=version),
     )
     parser = XmlConfigParser()
-    credentials = Credentials()
-    credentials.name = "commandline"
+    settings = TestBenchSettings()
+    settings.config_file = content
+    settings.server_base_url = "s3://dsc-testbench"
+    settings.credentials = Credentials()
+    settings.credentials.name = "commandline"
+    logger = ConsoleLogger(LogLevel.DEBUG)
 
     # Act
-    _, _, (config, *other_configs) = parser.load(content, "", credentials, "s3://dsc-testbench")  # type: ignore
+    _, _, (config, *other_configs) = parser.load(settings, logger)  # type: ignore
 
     # Assert
     assert not other_configs

@@ -23,6 +23,9 @@ from src.config.test_case_path import TestCasePath
 from src.config.types.file_type import FileType
 from src.config.types.path_type import PathType
 from src.config.types.presence_type import PresenceType
+from src.suite.test_bench_settings import TestBenchSettings
+from src.utils.logging.i_main_logger import IMainLogger
+from src.utils.logging.test_loggers.test_result_type import TestResultType
 
 def loop(dictionary: Dict[str, Any], key: str) -> List:
     if key in dictionary:
@@ -57,27 +60,23 @@ def branch(xml_tree: etree._ElementTree, prefix: str) -> Dict[str, Any]:
 # Parse the xml configuration file
 class XmlConfigParser(object):
     def load(
-        self, path: str, rstr: str, cred: Credentials, server_base_url: str
+        self, settings: TestBenchSettings, logger: IMainLogger
     ) -> Tuple[LocalPaths, List[ProgramConfig], List[TestCaseConfig]]:
         """load the config file
 
         Args:
-            path (str): (relative or absolute), overwritten roots (if any)
-            rstr (str): ??
-            cred (Credentials): credential from the command line
-            server_base_url (sr): the base URL of the server (SVN, Git, MinIO etc.)
+            settings (TestBenchSettings): the test_bench settings
+            logger (IMainLogger): the logger class
 
         Returns:
             tuple[LocalPaths, List[ProgramConfig], list]: local paths, program configs and test case configs
         """
-        self.__path: str = path
-        self.__rstr: str = rstr
+        self.__testbench_settings = settings
         self.__validate__()
         self.__initialize__()
-        self.__credentials.append(cred)
-        self.__server_base_url: str = server_base_url
+        self.__credentials.append(settings.credentials)
 
-        return self.__parse__()
+        return self.__parse__(logger)
 
     def __maketree__(self, path):
         global schema
@@ -110,15 +109,19 @@ class XmlConfigParser(object):
 
     # parse the xml file
     # output: loglevel, local paths, program configs and test case configs
-    def __parse__(self):
-        xml_doc, schema, root_name = self.__maketree__(self.__path)
+    def __parse__(self, logger: IMainLogger):
+        xml_doc, schema, root_name = self.__maketree__(
+            self.__testbench_settings.config_file
+        )
 
         config_tags = xml_doc["config"]
 
         for config_tag in config_tags:
             #
             # The following for-loop should be deleted (when preparations are finished)
-            self.__credentials = self.__credentials + list(self.__parse_credentials(config_tag))
+            self.__credentials = self.__credentials + list(
+                self.__parse_credentials(config_tag)
+            )
             local_paths = self.__parse_local_paths(config_tag)
             self.__locations = list(self.__parse_locations(config_tag))
 
@@ -187,29 +190,54 @@ class XmlConfigParser(object):
             if "credential" in element:
                 c = self.__getCredentials__(str(element["credential"][0]["ref"][0]))
                 if not c:
-                    raise XmlError("invalid credential reference value in " + new_location.name)
+                    raise XmlError(
+                        "invalid credential reference value in " + new_location.name
+                    )
                 new_location.credentials = c
             # overwrite roots if specified
-            newroot = self.__getOverwritePaths__(self.__rstr, new_location.name, "root")
+            newroot = self.__getOverwritePaths__(
+                self.__testbench_settings.rstr, new_location.name, "root"
+            )
             if newroot:
                 new_location.root = newroot
             elif str(element["root"][0]["txt"].strip()).startswith("{server_base_url}"):
                 directory_with_handlebar = str(element["root"][0]["txt"].strip())
-                if self.__server_base_url.endswith("/") and directory_with_handlebar.replace("{server_base_url}", "").startswith("/"):
-                    new_location.root = directory_with_handlebar.replace("{server_base_url}/", self.__server_base_url)
-                    new_location.root = new_location.root.replace("{server_base_url}", self.__server_base_url)
-                elif self.__server_base_url.endswith("/"):
-                    new_location.root = directory_with_handlebar.replace("{server_base_url}", self.__server_base_url)
-                elif directory_with_handlebar.replace("{server_base_url}", "").startswith("/"):
-                    new_location.root = directory_with_handlebar.replace("{server_base_url}", self.__server_base_url)
+                if self.__testbench_settings.server_base_url.endswith(
+                    "/"
+                ) and directory_with_handlebar.replace(
+                    "{server_base_url}", ""
+                ).startswith(
+                    "/"
+                ):
+                    new_location.root = directory_with_handlebar.replace(
+                        "{server_base_url}/", self.__testbench_settings.server_base_url
+                    )
+                    new_location.root = new_location.root.replace(
+                        "{server_base_url}", self.__testbench_settings.server_base_url
+                    )
+                elif self.__testbench_settings.server_base_url.endswith("/"):
+                    new_location.root = directory_with_handlebar.replace(
+                        "{server_base_url}", self.__testbench_settings.server_base_url
+                    )
+                elif directory_with_handlebar.replace(
+                    "{server_base_url}", ""
+                ).startswith("/"):
+                    new_location.root = directory_with_handlebar.replace(
+                        "{server_base_url}", self.__testbench_settings.server_base_url
+                    )
                 else:
-                    new_location.root = directory_with_handlebar.replace("{server_base_url}", self.__server_base_url + "/")
+                    new_location.root = directory_with_handlebar.replace(
+                        "{server_base_url}",
+                        self.__testbench_settings.server_base_url + "/",
+                    )
             else:
                 new_location.root = str(element["root"][0]["txt"].strip())
         else:
             new_location = copy.deepcopy(self.__getLocations__(element["ref"][0]))
             if not new_location:
-                raise XmlError("invalid network path reference value in " + element["ref"][0])
+                raise XmlError(
+                    "invalid network path reference value in " + element["ref"][0]
+                )
         if "type" in element:
             if str(element["type"][0]).lower() == "input":
                 new_location.type = PathType.INPUT
@@ -219,7 +247,9 @@ class XmlConfigParser(object):
                 new_location.type = PathType.REFERENCE
         if "path" in element:
             #  overwrite paths if specified
-            newpath = self.__getOverwritePaths__(self.__rstr, new_location.name, "path")
+            newpath = self.__getOverwritePaths__(
+                self.__testbench_settings.rstr, new_location.name, "path"
+            )
             if newpath:
                 new_location.from_path = newpath
             else:
@@ -228,7 +258,9 @@ class XmlConfigParser(object):
             new_location.version = str(element["version"][0]["txt"])
         if "from" in element:
             # overwrite from if specified
-            newfrom = self.__getOverwritePaths__(self.__rstr, new_location.name, "from")
+            newfrom = self.__getOverwritePaths__(
+                self.__testbench_settings.rstr, new_location.name, "from"
+            )
             if newfrom:
                 new_location.from_path = newfrom
             else:
@@ -236,7 +268,9 @@ class XmlConfigParser(object):
                 new_location.from_path = str(element["from"][0]["txt"]).strip("/\\")
         if "to" in element:
             # overwrite to if specified
-            newto = self.__getOverwritePaths__(self.__rstr, new_location.name, "to")
+            newto = self.__getOverwritePaths__(
+                self.__testbench_settings.rstr, new_location.name, "to"
+            )
             if newto:
                 new_location.to_path = newto
             else:
@@ -253,20 +287,40 @@ class XmlConfigParser(object):
                 return None
         if "name" in element:
             p.name = str(element["name"][0])
-        if "programStringRemoveQuotes" in element and str(element["programStringRemoveQuotes"][0]).lower() == "true":
+        if (
+            "programStringRemoveQuotes" in element
+            and str(element["programStringRemoveQuotes"][0]).lower() == "true"
+        ):
             p.program_remove_quotes = True
-        if "shellStringRemoveQuotes" in element and str(element["shellStringRemoveQuotes"][0]).lower() == "true":
+        if (
+            "shellStringRemoveQuotes" in element
+            and str(element["shellStringRemoveQuotes"][0]).lower() == "true"
+        ):
             p.shell_remove_quotes = True
-        if "ignoreStandardError" in element and str(element["ignoreStandardError"][0]).lower() == "true":
+        if (
+            "ignoreStandardError" in element
+            and str(element["ignoreStandardError"][0]).lower() == "true"
+        ):
             p.ignore_standard_error = True
-        if "ignoreReturnValue" in element and str(element["ignoreReturnValue"][0]).lower() == "true":
+        if (
+            "ignoreReturnValue" in element
+            and str(element["ignoreReturnValue"][0]).lower() == "true"
+        ):
             p.ignore_return_value = True
-        if "logOutputToFile" in element and str(element["logOutputToFile"][0]).lower() == "true":
+        if (
+            "logOutputToFile" in element
+            and str(element["logOutputToFile"][0]).lower() == "true"
+        ):
             p.log_output_to_file = True
-        if "addSearchPaths" in element and str(element["addSearchPaths"][0]).lower() == "true":
+        if (
+            "addSearchPaths" in element
+            and str(element["addSearchPaths"][0]).lower() == "true"
+        ):
             p.add_search_paths = True
         if "excludeSearchPathsContaining" in element:
-            p.exclude_search_paths_containing = str(element["excludeSearchPathsContaining"][0])
+            p.exclude_search_paths_containing = str(
+                element["excludeSearchPathsContaining"][0]
+            )
 
         if "ref" in element:
             p.name = str(element["ref"][0])
@@ -278,7 +332,9 @@ class XmlConfigParser(object):
             p.max_run_time = float(element["maxRunTime"][0]["txt"])
         if "path" in element:
             # overwrite path if specified
-            newpath = self.__getOverwritePaths__(self.__rstr, p.name, "path")
+            newpath = self.__getOverwritePaths__(
+                self.__testbench_settings.rstr, p.name, "path"
+            )
             if newpath:
                 p.path = newpath
             else:
@@ -441,7 +497,9 @@ class XmlConfigParser(object):
         # add case path
         if "path" in element:
             # overwrite path if specified
-            newpath = self.__getOverwritePaths__(self.__rstr, test_case.name, "path")
+            newpath = self.__getOverwritePaths__(
+                self.__testbench_settings.rstr, test_case.name, "path"
+            )
             if newpath:
                 test_case.path = TestCasePath(newpath, None)
             else:
@@ -463,7 +521,10 @@ class XmlConfigParser(object):
         if "maxRunTime" in element:
             test_case.max_run_time = float(element["maxRunTime"][0]["txt"])
             for el in element["maxRunTime"]:
-                if "OverruleRefMaxRunTime" in el and str(el["OverruleRefMaxRunTime"][0]).lower() == "true":
+                if (
+                    "OverruleRefMaxRunTime" in el
+                    and str(el["OverruleRefMaxRunTime"][0]).lower() == "true"
+                ):
                     test_case.overrule_ref_max_run_time = True
         for el in loop(element, "programs"):
             for program in loop(el, "program"):
@@ -545,7 +606,6 @@ class PathParts:
         self.__root = None
         self.__from = None
         self.__to = None
-        self.__path = None
 
     def getName(self):
         return self.__name
@@ -570,12 +630,6 @@ class PathParts:
 
     def setTo(self, to):
         self.__to = to
-
-    def getPath(self):
-        return self.__path
-
-    def setPath(self, path):
-        self.__path = path
 
 
 # custom error for Xml handler
