@@ -20,112 +20,80 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-      module m_dlwqtr
-      use m_waq_precision
-      use m_string_utils
+module m_dlwqtr
+    use m_waq_precision
+    use m_string_utils
 
-      implicit none
+    implicit none
 
-      contains
+    contains
 
 
-      SUBROUTINE DLWQTR ( NOTOT  , NOSYS  , NOSEG  , NOQ    , NOQ1   , & 
-                         NOQ2   , NOQ3   , NOPA   , NOSFUN , NODISP , & 
-                         NOVELO , IPOINT , VOLUME , AREA   , FLOW   , & 
-                         ALENG  , CONC   , DISP   , CONS   , PARAM  , & 
-                         FUNC   , SEGFUN , DISPER , VELO   , ITIME  , & 
-                         IDT    , SYNAME , NOCONS , NOFUN  , CONAME , & 
-                         PANAME , FUNAME , SFNAME , UPDATR , ILFLAG )
-      use m_srstop
-      use m_monsys
+    !> reads SURFACE from coupling
+    !! Sets dispersion length in vertical
+    subroutine dlwqtr(   notot  , nosys  , noseg  , noq    , noq1   , & 
+                         noq2   , noq3   , nopa   , nosfun , nodisp , & 
+                         novelo , ipoint , volume , area   , flow   , & 
+                         aleng  , conc   , disp   , cons   , param  , & 
+                         func   , segfun , disper , velo   , itime  , & 
+                         idt    , syname , nocons , nofun  , coname , & 
+                         paname , funame , sfname , updatr , ilflag )
+        use m_srstop
+        use m_monsys
 
-!
-!     Deltares     SECTOR WATERRESOURCES AND ENVIRONMENT
-!
-!     CREATED:                 by L.Postma
-!     REVISED:    august  1997 by Jan van Beek, Delft3D-WAQ functonality
-!
-!     FUNCTION            : reads SURFACE from coupling
-!                           Sets dispersion length in vertical
-!
-!
-!     PARAMETERS          :
-!
-!     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
-!     ----    -----    ------     ------- -----------
-!     NOTOT   INTEGER       1     INPUT   Total number of substances
-!     NOSYS   INTEGER       1     INPUT   number of active substances
-!     NOSEG   INTEGER       1     INPUT   Nr. of computational elements
-!     NOQ     INTEGER       1     INPUT   Total number of exchanges
-!     NOQ1    INTEGER       1     INPUT   Nr. of exchanges direction 1
-!     NOQ2    INTEGER       1     INPUT   Nr. of exchanges direction 2
-!     NOQ3    INTEGER       1     INPUT   Nr. of exchanges direction 3
-!     NOPA    INTEGER       1     INPUT   Number of parameters
-!     NOSFUN  INTEGER       1     INPUT   Number of segment functions
-!     NODISP  INTEGER       1     INPUT   Number of user-dispersions
-!     NOVELO  INTEGER       1     INPUT   Number of user-flows
-!     IPOINT  INTEGER   4*NOQ     INPUT   1= "From"   segment pointers
-!                                 INPUT   2= "To"     segment pointers
-!                                 INPUT   3= "From-1" segment pointers
-!                                 INPUT   4= "To+1"   segment pointers
-!     VOLUME  REAL      NOSEG     INPUT   Segment volumes
-!     AREA    REAL        NOQ     INPUT   Exchange surfaces
-!     FLOW    REAL        NOQ     INPUT   Flows
-!     ALENG a)REAL      2*NOQ     INPUT   1= Length to "From" surface
-!                                         2= Length to "To"   surface
-!           b)REAL        3       INPUT   3 lengthes in the grid
-!     CONC    REAL   NOTOT*NOSEG  INPUT   Model concentrations
-!     DISP    REAL        3       IN/OUT  Dispersion in 3 directions
-!     CONS    REAL          *     IN/OUT  Model constants
-!     PARAM   REAL    NOPA*NOSEG  IN/OUT  Model parameters
-!     FUNC    REAL          *     IN/OUT  Model functions at ITIME
-!     SEGFUN  REAL   NOSEG*NOSFUN IN/OUT  Segment functions at ITIME
-!     DISPER  REAL   NODISP*NOQ   OUTPUT  User defined dispersion
-!     VELO    REAL   NOVELO*NOQ   OUTPUT  User defined flows
-!     ITIME   INTEGER       1     INPUT   Time in system clock units
-!     IDT     INTEGER       1     INPUT   Time step system clock units
-!     SYNAME  CHAR*20    NOTOT    INPUT   names of systems
-!     NOCONS  INTEGER       1     INPUT   Number of constants used
-!     NOFUN   INTEGER       1     INPUT   Number of functions ( user )
-!     CONAME  CHAR*20   NOCONS    INPUT   Constant names
-!     PANAME  CHAR*20   NOPA      INPUT   Parameter names
-!     FUNAME  CHAR*20   NOFUN     INPUT   Function names
-!     SFNAME  CHAR*20   NOSFUN    INPUT   Segment function names
-!     UPDATR  LOGICAL       1     IN/OUT  Flag indicating if the transport
-!                                         matrix is changed. The user should
-!                                         set this flag to .T. if he alters
-!                                         part of the matrix and uses integratio
-!                                         option 10.xx .
-!     ILFLAG  INTEGER     1       INPUT   if 0 then 3 length values
-!
-!     ==================================================================
-!
-!     Save for all the local index pointers and switches
-!
-      SAVE
-!
-      integer(kind=int_wp) ::IPOINT(4,NOQ)
-      real(kind=real_wp) ::VOLUME(NOSEG)     , AREA(NOQ)         , & 
-                  FLOW(NOQ)         , ALENG (2,NOQ)     , & 
-                  CONC(NOTOT,NOSEG) , DISP(3)           , & 
-                  CONS(*)           , PARAM (NOPA,NOSEG), & 
-                  FUNC(*)           , SEGFUN(NOSEG,*)   , & 
-                  VELO(*)           , DISPER(*)
-      character(len=20) SYNAME (NOTOT)    , CONAME (*)        , & 
-                  PANAME (*)        , FUNAME (*)        , & 
-                  SFNAME (*)
-      LOGICAL      UPDATR
-      integer(kind=int_wp) ::NOTOT, ILFLAG, NOSYS, NOSEG, NOQ, NOQ1, IDT, ITIME, & 
-                  NOQ2, NOQ3, NOPA, NOSFUN, NODISP, NOVELO, NOCONS, NOFUN
-!
-!     Local
-!
-      INTEGER(kind=int_wp) ::LCCCO, ier, ierr, ier2, lunrep, isurf, & 
+        SAVE
+        integer(kind=int_wp), intent(in) :: notot           !< Total number of substances
+        integer(kind=int_wp), intent(in) :: nosys           !< number of active substances
+        integer(kind=int_wp), intent(in) :: noseg           !< Nr. of computational elements
+        integer(kind=int_wp), intent(in) :: noq             !< Total number of exchanges
+        integer(kind=int_wp), intent(in) :: noq1            !< Nr. of exchanges direction 1
+        integer(kind=int_wp), intent(in) :: noq2            !< Nr. of exchanges direction 2
+        integer(kind=int_wp), intent(in) :: noq3            !< Nr. of exchanges direction 3
+        integer(kind=int_wp), intent(in) :: nopa            !< Number of parameters
+        integer(kind=int_wp), intent(in) :: nosfun          !< Number of segment functions
+        integer(kind=int_wp), intent(in) :: nodisp          !< Number of user-dispersions
+        integer(kind=int_wp), intent(in) :: novelo          !< Number of user-flows
+        integer(kind=int_wp), intent(in) :: ipoint(4, noq)   !< 1= "From"   segment pointers
+                                                            !< 2= "To"     segment pointers
+                                                            !< 3= "From-1" segment pointers
+                                                            !< 4= "To+1"   segment pointers
+        real(kind=real_wp), intent(in) :: VOLUME(NOSEG) !< Segment volumes
+        real(kind=real_wp), intent(in) :: AREA(NOQ) !< Exchange surfaces
+        real(kind=real_wp), intent(in) :: FLOW(NOQ) !< Flows
+        real(kind=real_wp), intent(inout) :: ALENG(2, NOQ) !< 1= Length to "From" surface
+                                                        !< 2= Length to "To"   surface
+                                                        !< 3 lengths in the grid
+        real(kind=real_wp), intent(in) :: CONC(NOTOT, NOSEG) !< Model concentrations
+        real(kind=real_wp), intent(inout) :: DISP(3) !< Dispersion in 3 directions
+        real(kind=real_wp), intent(inout) :: CONS(*) !< Model constants
+        real(kind=real_wp), intent(inout) :: PARAM(nopa, noseg) !< Model parameters
+        real(kind=real_wp), intent(inout) :: FUNC(*) !< Model functions at ITIME
+        real(kind=real_wp), intent(inout) :: SEGFUN(noseg, *) !< Segment functions at ITIME
+        real(kind=real_wp), intent(out)   :: DISPER(*) !< User defined dispersion
+        real(kind=real_wp), intent(out)   :: VELO(*) !< User defined flows
+        integer(kind=int_wp), intent(in) :: ITIME !< Time in system clock units
+        integer(kind=int_wp), intent(in) :: IDT   !< Time step system clock units
+        character(len=20), intent(in) :: SYNAME(NOTOT) !< names of systems
+        integer(kind=int_wp), intent(in) :: NOCONS !< Number of constants used
+        integer(kind=int_wp), intent(in) :: NOFUN !< Number of functions ( user )
+        character(len=20), intent(in) :: CONAME(*) !< Constant names
+        character(len=20), intent(in) :: PANAME(*) !< Parameter names
+        character(len=20), intent(in) :: FUNAME(*) !< Function names
+        character(len=20), intent(in) :: SFNAME(*) !< Segment function names
+        logical, intent(inout) :: UPDATR   !< Flag indicating if the transport
+                                           !< matrix is changed. The user should
+                                           !< set this flag to .T. if he alters
+                                           !< part of the matrix and uses integratio
+                                           !< option 10.xx .
+        integer(kind=int_wp), intent(in) :: ILFLAG !< if 0 then 3 length values
+
+        ! Local variables
+        INTEGER(kind=int_wp) ::LCCCO, ier, ierr, ier2, lunrep, isurf, & 
                 nmaxa, mmaxa, nma, idummy, nmt, k, iseg, & 
                 ilay, iq, ipos, ifrom, ito, layt
-      LOGICAL    FIRST ,  LINIT , LEXI
-      DATA       FIRST / .TRUE. /
-      DATA       LINIT / .FALSE. /
+        LOGICAL    FIRST ,  LINIT , LEXI
+        DATA       FIRST / .TRUE. /
+        DATA       LINIT / .FALSE. /
 !
 !          check usage w.r.t. parallel computing
 !

@@ -35,9 +35,9 @@ contains
         use m_open_waq_files
         use timers
 
-        integer(kind = int_wp), intent(in) :: lun(*)             !< logical unit numbers of output files
+        integer(kind = int_wp), intent(inout) :: lun(*)             !< logical unit numbers of output files
         character(len=*), intent(in)       :: lchar (*)          !< names of output files
-        real(kind = real_wp),intent(in)    :: conc(notot, noseg) !< concentration values
+        real(kind = real_wp),intent(inout)    :: conc(notot, noseg) !< concentration values
         integer(kind=int_wp), intent(in)   :: itime              !< present time in clock units
         character(len=40), intent(in)      :: mname (*)          !< model identification
         character(len=20), intent(in)      :: sname (*)          !< names of substances
