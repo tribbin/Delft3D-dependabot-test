@@ -18320,7 +18320,7 @@ else
 endif
 
 if (kmx > 0) then !3D
-   call get_3d_data(rho,1,ndxi) !output in `work1`
+   call get_3d_data(rho,1,ndxi,work1) !output in `work1`
    ierr = nf90_put_var(irstfile, id_rho, work1(1:kmx,1:ndxi), (/ 1, 1, itim /), (/ kmx, ndxi, 1 /))
 else !2D
    ierr = nf90_put_var(irstfile, id_rho, rho(1:ndxi), (/ 1, itim /), (/ ndxi, 1 /))
@@ -18328,7 +18328,7 @@ endif !(kmx > 0)
 !rho at boundaries
 if (jarstbnd > 0 .and. ndxbnd > 0) then
    if (kmx > 0) then !3D
-      call get_3d_data(rho,ndxi+1,ndx) !output in `work1`
+      call get_3d_data(rho,ndxi+1,ndx,work1) !output in `work1`
       ierr = nf90_put_var(irstfile, id_rho_bnd, work1(1:kmx,1:ndxbnd), (/ 1, 1, itim /), (/ kmx, ndxbnd, 1 /))
    else !2D
       ierr = nf90_put_var(irstfile, id_rho_bnd, rho(ndxi+1:ndx), (/ 1, itim /), (/ ndxbnd, 1 /))
@@ -18337,13 +18337,13 @@ endif
 
 end subroutine write_rho
 
-subroutine get_3d_data(rho,idx1,idx2)
+subroutine get_3d_data(rho,idx1,idx2,work1)
 
-use m_flow, only: work1
 use m_missing, only: dmiss
 
 double precision, allocatable, intent(in) :: rho(:)
 integer, intent(in) :: idx1, idx2
+double precision, intent(out) :: work1(:,:)
 
 integer :: k, kk, kb, kt, nlayb, nrlay
 
