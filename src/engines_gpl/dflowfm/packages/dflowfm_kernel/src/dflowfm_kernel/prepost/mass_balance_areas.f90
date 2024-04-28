@@ -2209,7 +2209,7 @@ contains
          ierr = nf90_def_var(ncid_bal_file, mba_str//mbs_str//'_flux_values', nc_precision, [ncid_bal_flux_dir_dim, ncid_bal_const_flux_dim(imbs,imba), ncid_bal_time], ncid_bal_const_flux_values(imbs,imba))
          ierr = nf90_put_att(ncid_bal_file, ncid_bal_const_flux_values(imbs,imba), 'long_name', trim(mba_name)//': '//trim(mbsname(imbs))//' balance fluxes')
          ierr = nf90_put_att(ncid_bal_file, ncid_bal_const_flux_values(imbs,imba), 'balance_area', trim(mba_name))
-         ierr = nf90_put_att(ncid_bal_file, ncid_bal_const_flux_values(imbs,imba), 'balance_quantity', 'water')
+         ierr = nf90_put_att(ncid_bal_file, ncid_bal_const_flux_values(imbs,imba), 'balance_quantity', mbs_str)
          ierr = nf90_put_att(ncid_bal_file, ncid_bal_const_flux_values(imbs,imba), 'units', mass_units)
       end do
    end do
