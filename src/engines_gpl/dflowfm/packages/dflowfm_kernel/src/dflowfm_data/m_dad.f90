@@ -32,6 +32,8 @@
 
 module m_dad
    use dredge_data_module, only: dredge_type
+   
+   implicit none
 
    logical                           :: dad_included                             !< Whether the model has dredges and dumps
    type(dredge_type), target         :: dadpar                                   !< Dredging related parameters
