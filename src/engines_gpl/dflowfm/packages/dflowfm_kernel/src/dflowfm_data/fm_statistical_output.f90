@@ -2116,7 +2116,7 @@ private
       use m_sediment, only: stm_included, stmpar
       use m_longculverts, only: nlongculverts
       use m_monitoring_crosssections, only: ncrs
-      use m_monitoring_runupgauges, only: nrug, rug
+      use m_monitoring_runupgauges, only: num_rugs, rug
       use m_fm_wq_processes, only: jawaqproc, numwqbots
       use processes_input, only: num_wq_user_outputs => noout_user
       use m_dad, only: dad_included, dadpar
@@ -2211,10 +2211,10 @@ private
       !
       ! Run-up gauge variables
       !
-      if (nrug > 0) then
-         call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_RUG_RUHEIGHT), rug(:)%maxruh)
-         call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_RUG_RUX), rug(:)%maxx)
-         call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_RUG_RUY), rug(:)%maxy)
+      if (num_rugs > 0) then
+         call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_RUG_RUHEIGHT), rug(:)%max_rug_height)
+         call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_RUG_RUX), rug(:)%max_x)
+         call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_RUG_RUY), rug(:)%max_y)
       endif
 
       !

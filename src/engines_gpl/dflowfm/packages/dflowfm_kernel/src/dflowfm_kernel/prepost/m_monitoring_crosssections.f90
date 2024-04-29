@@ -181,7 +181,7 @@ end subroutine copyCrossSections
 subroutine increaseCrossSections(n)
     integer, intent(in) :: n !< Desired number of cross sections.
 
-    type(tcrs), allocatable :: crst(:) ! Temp storage
+    type(tcrs), allocatable :: temp_rug_array(:) ! Temp storage
     integer                 :: jacopy
 
     jacopy = 0
@@ -190,19 +190,19 @@ subroutine increaseCrossSections(n)
         return
     end if
 
-    call allocCrossSections(crst, maxcrs)
+    call allocCrossSections(temp_rug_array, maxcrs)
 
     if (n > maxcrs) then
         maxcrs    = max(maxcrs, int(1.2*n))
     end if
 
     if (allocated(crs)) then
-       call copyCrossSections(crs, crst)
+       call copyCrossSections(crs, temp_rug_array)
     end if
     call allocCrossSections(crs, maxcrs)
-    call copyCrossSections(crst, crs)
+    call copyCrossSections(temp_rug_array, crs)
 
-    call deallocCrossSections(crst)
+    call deallocCrossSections(temp_rug_array)
 
 end subroutine increaseCrossSections
 

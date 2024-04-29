@@ -84,9 +84,9 @@
          if (out_variable_set_his%count > 0) then
             call reset_statistical_output(out_variable_set_his%statout)
          endif
-         if (nrug>0) then
+         if (num_rugs>0) then
             ! needs to be done at exactly ti_his, but over all domains, so cannot go in wrihis
-            call clearRunupGauges()
+            call clear_runup_gauges()
          end if
          if (comparereal(time_his, ti_hise, eps10) == 0) then
             time_his = tstop_user + 1

@@ -198,7 +198,7 @@ subroutine unc_write_his(tim)            ! wrihis
     end if
 
     ! When no crs/obs present, return immediately.
-    if (model_has_obs_stations() == .false. .and. ncrs <= 0 .and. jahisbal <= 0 .and. jahiscgen <= 0 .and. nrug <= 0) then
+    if (model_has_obs_stations() == .false. .and. ncrs <= 0 .and. jahisbal <= 0 .and. jahiscgen <= 0 .and. num_rugs <= 0) then
         if (ihisfile == 0) then
             call mess(LEVEL_WARN, 'No observations nor cross sections defined. Will not produce a history file.')
         end if
@@ -322,7 +322,7 @@ subroutine unc_write_his(tim)            ! wrihis
 
 
         ! Runup gauges
-        ierr = unc_def_his_structure_static_vars(ihisfile, 'runup_gauge', 'runup gauge', 1, maxrug, 'none', 0, id_strlendim, &
+        ierr = unc_def_his_structure_static_vars(ihisfile, 'runup_gauge', 'runup gauge', 1, rug_allocated_size, 'none', 0, id_strlendim, &
                                                  id_rugdim, id_rugid) ! No geometry
 
         ! Source-sinks
@@ -704,8 +704,8 @@ subroutine unc_write_his(tim)            ! wrihis
            end if
 
            ! Run-up gauges
-           if (nrug>0) then
-              do i=1,nrug
+           if (num_rugs>0) then
+              do i=1,num_rugs
                  ierr = nf90_put_var(ihisfile, id_rugname,  trimexact(rug(i)%name, strlen_netcdf), (/ 1, i /))
                  ierr = nf90_put_var(ihisfile, id_rugid,    trimexact(rug(i)%name, strlen_netcdf), (/ 1, i /))
               end do
