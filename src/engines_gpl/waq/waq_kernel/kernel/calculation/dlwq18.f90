@@ -36,7 +36,7 @@ contains
     !! - the concentrations of bed susbtances are mass / surface
 subroutine update_concs_explicit_time_step(nosys, notot, nototp, noseg, volume, &
             surface, amass, conc, deriv, idt, &
-            ivflag, lun)
+            ivflag, file_unit_list)
 
         use timers
 
@@ -53,7 +53,7 @@ subroutine update_concs_explicit_time_step(nosys, notot, nototp, noseg, volume, 
         real(kind = real_wp), intent(inout) :: deriv  (notot, noseg)  !< derivatives per substance per volume
         integer(kind = int_wp), intent(in) :: idt                     !< integration time step size
         integer(kind = int_wp), intent(in) :: ivflag                  !< if 1 computational volumes
-        integer(kind = int_wp), intent(in) :: lun                     !< unit number of the monitoring file
+        integer(kind = int_wp), intent(in) :: file_unit_list                     !< unit number of the monitoring file
 
         !     local variables
 

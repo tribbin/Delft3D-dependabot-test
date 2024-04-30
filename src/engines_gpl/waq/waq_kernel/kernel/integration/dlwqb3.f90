@@ -37,9 +37,6 @@ module m_dlwqb3
         !
         !     FUNCTION            : Makes new volumes for computed volumes
         !
-        !     SUBROUTINES CALLED  : none
-        !
-        !     PARAMETERS          :
         !
         !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
         !     ----    -----    ------     ------- -----------
@@ -52,11 +49,11 @@ module m_dlwqb3
         !     NOVELO  INTEGER     1       INPUT   number  of additional velos.
         !     IVPNT   INTEGER   NOSYS     INPUT   pointer systems to velocities
         !     VOLUME  REAL      NOSEG     IN/OUT  volumes to update
-        !     IOPT    INTEGER     1       INPUT   = 0 or 2 DISP at zero flow
+        !     integration_id    INTEGER     1       INPUT   = 0 or 2 DISP at zero flow
         !                                         = 1 or 3 no DISP at zero flow
         !     AMASS2  REAL     NOTOT*5    IN/OUT  mass balance array
         !     IDT     INTEGER     1       INPUT   integration time step size
-        !     LUN     INTEGER     1       INPUT   unitnumber of monitoring file
+        !     file_unit_list     INTEGER     1       INPUT   unitnumber of monitoring file
         !     IAFLAG  INTEGER     1       INPUT   if 1 then accumulate mass
         !     NOSYS   INTEGER     1       INPUT   number  of active substances
         !     DMPQ    REAL  NOSYS*NDMPQ*? IN/OUT  mass balance dumped exchange
@@ -67,7 +64,7 @@ module m_dlwqb3
         use timers
 
         INTEGER(kind = int_wp) :: NDMPQ, NOTOT, NOQ, NOVELO, NOSYS
-        INTEGER(kind = int_wp) :: IOPT, IDT, IAFLAG
+        INTEGER(kind = int_wp) :: integration_id, IDT, IAFLAG
         INTEGER(kind = int_wp) :: IQDMP   (*)
         real(kind = real_wp) :: AREA (*), FLOW  (*), VELO  (*), VOLUME(*), &
                 AMASS2(*), DMPQ(*)
@@ -87,7 +84,7 @@ module m_dlwqb3
         B = 0.0
         IF (IAFLAG == 1) B = 1.0 / IDT
         MASBAL = .FALSE.
-        IF (MOD(IOPT, 16) >= 8) MASBAL = .TRUE.
+        IF (MOD(integration_id, 16) >= 8) MASBAL = .TRUE.
         DO IQ = 1, NOQ
 
             ! initialisations, check for transport anyhow

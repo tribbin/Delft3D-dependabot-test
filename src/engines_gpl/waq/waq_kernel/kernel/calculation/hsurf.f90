@@ -36,7 +36,7 @@ contains
 
     !> Sets values of horizontal surface array.
     subroutine hsurf    (noseg, nopa, paname, param, nosfun, &
-            sfname, segfun, surface, lun)
+            sfname, segfun, surface, file_unit_list)
 
         use timers
         implicit none
@@ -74,7 +74,7 @@ contains
                     mode = -1
                 else
                     surface = 1.0
-                    write(lun, 2000)
+                    write(file_unit_list, 2000)
                 endif
             endif
         endif

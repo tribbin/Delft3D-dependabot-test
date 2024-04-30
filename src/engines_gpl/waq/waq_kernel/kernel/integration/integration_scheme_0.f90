@@ -96,45 +96,44 @@ contains
                 !          some initialisation
 
                 ithandl = 0
-                ITIME = ITSTRT
-                NSTEP = (ITSTOP - ITSTRT)/IDT
-                IFFLAG = 0
-                IAFLAG = 0
-                IBFLAG = 0
+                itime = itstrt
+                nstep = (itstop - itstrt) / idt
+                ifflag = 0
+                iaflag = 0
+                ibflag = 0
 
-                !     Dummy variables - used in DLWQD
-                ITIMEL = ITIME
+                ! Dummy variables - used in DLWQD
+                itimel = itime
                 lleng = 0
                 ioptzb = 0
                 nopred = 6
-                NOWARN = 0
+                nowarn = 0
                 tol = 0.0d0
                 forester = .false.
                 updatr = .false.
 
                 nosss = noseg + nseg2
                 noqtt = noq + noq4
-                NOQT = NOQ + NOQ4
+                noqt = noq + noq4
                 inwtyp = intyp + nobnd
 
-                if (mod(INTOPT, 16) >= 8) IBFLAG = 1
-                LDUMMY = .false.
-                if (NDSPN == 0) then
-                    NDDIM = NODISP
+                if (mod(intopt, 16) >= 8) ibflag = 1
+                ldummy = .false.
+                if (ndspn == 0) then
+                    nddim = nodisp
                 else
-                    NDDIM = NDSPN
-                end if
-                if (NVELN == 0) then
-                    NVDIM = NOVELO
+                    nddim = ndspn
+                endif
+                if (nveln == 0) then
+                    nvdim = novelo
                 else
-                    NVDIM = NVELN
-                end if
-                LSTREC = ICFLAG == 1
-                NOWARN = 0
-                if (ILFLAG == 0) LLENG = ILENG + 2
+                    nvdim = nveln
+                endif
+                lstrec = icflag == 1
+                nowarn = 0
+                if (ilflag == 0) lleng = ileng + 2
 
-                !          Initialize second volume array with the first one
-
+                ! Initialize second volume array with the first one
                 nosss = noseg + nseg2
                 call copy_real_array_elements(A(IVOL:), A(IVOL2:), NOSSS)
 
@@ -180,11 +179,11 @@ contains
                         idt, c(isnam), nocons, nofun, c(icnam), &
                         c(ipnam), c(ifnam), c(isfna), ldummy, ilflag)
 
-            ! Temporary ? set the variables grid-setting for the DELWAQ variables
-            call setset(lun(19), nocons, nopa, nofun, nosfun, &
-                        nosys, notot, nodisp, novelo, nodef, &
-                        noloc, ndspx, nvelx, nlocx, nflux, &
-                        nopred, novar, nogrid, j(ivset:))
+            !jvb     Temporary ? set the variables grid-setting for the DELWAQ variables
+            call setset (file_unit_list(19), nocons, nopa, nofun, nosfun, &
+                    nosys, notot, nodisp, novelo, nodef, &
+                    noloc, ndspx, nvelx, nlocx, nflux, &
+                    nopred, novar, nogrid, j(ivset:))
 
             ! return conc and take-over from previous step or initial condition,
             ! and do particle tracking of this step (will be back-coupled next call)
@@ -196,24 +195,24 @@ contains
 
             ! call PROCES subsystem
             call proces(notot, nosss, a(iconc:), a(ivol:), itime, &
-                        idt, a(iderv:), ndmpar, nproc, nflux, &
-                        j(iipms:), j(insva:), j(iimod:), j(iiflu:), j(iipss:), &
-                        a(iflux:), a(iflxd:), a(istoc:), ibflag, ipbloo, &
-                        ioffbl, a(imass:), nosys, &
-                        itfact, a(imas2:), iaflag, intopt, a(iflxi:), &
-                        j(ixpnt:), p_iknmkv, noq1, noq2, noq3, &
-                        noq4, ndspn, j(idpnw:), a(idnew:), nodisp, &
-                        j(idpnt:), a(idiff:), ndspx, a(idspx:), a(idsto:), &
-                        nveln, j(ivpnw:), a(ivnew:), novelo, j(ivpnt:), &
-                        a(ivelo:), nvelx, a(ivelx:), a(ivsto:), a(idmps:), &
-                        j(isdmp:), j(ipdmp:), ntdmpq, a(idefa:), j(ipndt:), &
-                        j(ipgrd:), j(ipvar:), j(iptyp:), j(ivarr:), j(ividx:), &
-                        j(ivtda:), j(ivdag:), j(ivtag:), j(ivagg:), j(iapoi:), &
-                        j(iaknd:), j(iadm1:), j(iadm2:), j(ivset:), j(ignos:), &
-                        j(igseg:), novar, a, nogrid, ndmps, &
-                        c(iprna:), intsrt, &
-                        j(iprvpt:), j(iprdon:), nrref, j(ipror:), nodef, &
-                        surface, lun(19))
+                    idt, a(iderv:), ndmpar, nproc, nflux, &
+                    j(iipms:), j(insva:), j(iimod:), j(iiflu:), j(iipss:), &
+                    a(iflux:), a(iflxd:), a(istoc:), ibflag, ipbloo, &
+                    ioffbl, a(imass:), nosys, &
+                    itfact, a(imas2:), iaflag, intopt, a(iflxi:), &
+                    j(ixpnt:), p_iknmkv, noq1, noq2, noq3, &
+                    noq4, ndspn, j(idpnw:), a(idnew:), nodisp, &
+                    j(idpnt:), a(idiff:), ndspx, a(idspx:), a(idsto:), &
+                    nveln, j(ivpnw:), a(ivnew:), novelo, j(ivpnt:), &
+                    a(ivelo:), nvelx, a(ivelx:), a(ivsto:), a(idmps:), &
+                    j(isdmp:), j(ipdmp:), ntdmpq, a(idefa:), j(ipndt:), &
+                    j(ipgrd:), j(ipvar:), j(iptyp:), j(ivarr:), j(ividx:), &
+                    j(ivtda:), j(ivdag:), j(ivtag:), j(ivagg:), j(iapoi:), &
+                    j(iaknd:), j(iadm1:), j(iadm2:), j(ivset:), j(ignos:), &
+                    j(igseg:), novar, a, nogrid, ndmps, &
+                    c(iprna:), intsrt, &
+                    j(iprvpt:), j(iprdon:), nrref, j(ipror:), nodef, &
+                    surface, file_unit_list(19))
 
             ! Call OUTPUT system
             call dlwqo2(notot, nosss, nopa, nosfun, itime, &
@@ -292,7 +291,6 @@ contains
         dlwqd%iaflag = iaflag
         dlwqd%itime = itime
 
-        return
     end subroutine
 
 end module m_integration_scheme_0
