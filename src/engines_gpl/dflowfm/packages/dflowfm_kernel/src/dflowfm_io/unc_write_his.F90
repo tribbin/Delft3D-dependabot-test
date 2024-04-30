@@ -210,7 +210,7 @@ subroutine unc_write_his(tim)            ! wrihis
     add_latlon = jsferic == 0 .and. iand(unc_writeopts, UG_WRITE_LATLON) == UG_WRITE_LATLON
 #else
     add_latlon = .false.
-#end if
+#endif
 
     if (ihisfile == 0) then
         if (timon) call timstrt ( "unc_write_his INIT/DEF", handle_extra(61))
@@ -1241,7 +1241,7 @@ contains
       if (add_latlon) then
          ierr = unc_put_his_station_coord_vars_latlon(ihisfile, numobs, nummovobs, id_statlat, id_statlon, it_his)
       end if
-#end if
+#endif
 
       ierr = unc_put_his_station_coord_vars_z(ihisfile, numobs, nummovobs, jawrizc, jawrizw, id_zcs, id_zws, id_zwu, it_his)
       
@@ -1486,7 +1486,7 @@ contains
          call transform_and_put_latlon_coordinates(ihisfile, id_geom_node_coordlon, id_geom_node_coordlat, &
                                                    nccrs%proj_string, xobs, yobs)
       end if
-#end if
+#endif
 
    end function unc_put_his_station_geom_coord_vars_xy
 
