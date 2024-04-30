@@ -1345,7 +1345,7 @@ contains
    end if
    
    water_flow%bal_error(imba) = sum(flows(DIR_TO,:)) - sum(flows(DIR_FROM,:))
-   water_flow%bal_cumerror(imba) = water_flow%bal_cumerror(imba) + water_flow%bal_cumerror(imba)
+   water_flow%bal_cumerror(imba) = water_flow%bal_cumerror(imba) + water_flow%bal_error(imba)
    end subroutine mba_prepare_values_flows
 
    subroutine mba_prepare_names_flows_whole_model()
@@ -1476,7 +1476,7 @@ contains
    end if
    
    water_flow%bal_error(nomba+1) = sum(flows(DIR_TO,:)) - sum(flows(DIR_FROM,:))
-   water_flow%bal_cumerror(nomba+1) = water_flow%bal_cumerror(nomba+1) + water_flow%bal_cumerror(nomba+1)
+   water_flow%bal_cumerror(nomba+1) = water_flow%bal_cumerror(nomba+1) + water_flow%bal_error(nomba+1)
    end subroutine mba_prepare_values_flows_whole_model
 
    subroutine mba_prepare_names_fluxes(imbs, imba)
@@ -2146,7 +2146,7 @@ contains
    ierr = nf90_put_att(ncid_bal_file, ncid_bal_water_balance_error, 'units', 'm^3')
       
    ierr = nf90_def_var(ncid_bal_file, 'water_balance_cumerror', nc_precision, [ncid_nbalarea_dim, ncid_bal_time], ncid_bal_water_balance_cumerror)
-   ierr = nf90_put_att(ncid_bal_file, ncid_bal_water_balance_cumerror, 'long_name', 'water balance cumerror')
+   ierr = nf90_put_att(ncid_bal_file, ncid_bal_water_balance_cumerror, 'long_name', 'water balance cumulative error')
    ierr = nf90_put_att(ncid_bal_file, ncid_bal_water_balance_cumerror, 'units', 'm^3')
    
    allocate(ncid_bal_water_flow_dim(nomba+1))
@@ -2268,9 +2268,9 @@ contains
    ierr = nf90_put_var(ncid_bal_file, ncid_bal_area_names, mba_name, [1, nomba + 1], [NAMMBALEN, 1])
    
    do imba = 1,nomba+1
-      ierr = mba_write_netcdf_flux_names(ncid_bal_file, ncid_bal_const_flux_names(imbs,imba), water_flow%bal_area(imba))
+      ierr = mba_write_netcdf_flux_names(ncid_bal_file, ncid_bal_water_flow_names(imba), water_flow%bal_area(imba))
       do imbs = 1, nombs
-          ierr = mba_write_netcdf_flux_names(ncid_bal_file, ncid_bal_water_flow_names(imba), const_flux(imbs)%bal_area(imba))
+          ierr = mba_write_netcdf_flux_names(ncid_bal_file, ncid_bal_const_flux_names(imbs,imba), const_flux(imbs)%bal_area(imba))
       end do
    end do
    
