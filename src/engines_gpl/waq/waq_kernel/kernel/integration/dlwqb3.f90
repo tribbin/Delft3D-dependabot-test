@@ -24,14 +24,12 @@ module m_dlwqb3
     use m_waq_precision
 
     implicit none
+    contains
 
-contains
-
-
-    SUBROUTINE DLWQB3 (AREA, FLOW, VELO, IPOINT, NOTOT, &
-            NOQ, NOVELO, IVPNT, VOLUME, IOPT, &
-            AMASS2, IDT, IAFLAG, NOSYS, DMPQ, &
-            NDMPQ, IQDMP)
+    subroutine dlwqb3(area, flow, velo, ipoint, notot, &
+            noq, novelo, ivpnt, volume, iopt, &
+            amass2, idt, iaflag, nosys, dmpq, &
+            ndmpq, iqdmp)
         !
         !     Deltares     SECTOR WATERRESOURCES AND ENVIRONMENT
         !
@@ -81,9 +79,8 @@ contains
 
         integer(kind = int_wp) :: ithandl = 0
         if (timon) call timstrt ("dlwqb3", ithandl)
-        !
-        !         loop accross the number of exchanges
-        !
+
+        ! loop accross the number of exchanges
         I4 = 3 * NOTOT + 1
         I5 = 4 * NOTOT + 1
         I6 = NOSYS * NDMPQ
@@ -92,18 +89,16 @@ contains
         MASBAL = .FALSE.
         IF (MOD(IOPT, 16) >= 8) MASBAL = .TRUE.
         DO IQ = 1, NOQ
-            !
-            !         initialisations, check for transport anyhow
-            !
+
+            ! initialisations, check for transport anyhow
             I = IPOINT(1, IQ)
             J = IPOINT(2, IQ)
             IF (I == 0 .OR. J == 0) GOTO 60
             Q = FLOW(IQ) * IDT
             IF (IVPNT(1) > 0) &
                     Q = Q + VELO((IQ - 1) * NOVELO + IVPNT(1)) * AREA(IQ) * IDT
-            !
-            !     accumulate balance for dumped exchanges
-            !
+
+            ! accumulate balance for dumped exchanges
             IF (MASBAL) THEN
                 IF (IQDMP(IQ) > 0) THEN
                     IPQ = (IQDMP(IQ) - 1) * NOSYS + 1
@@ -117,15 +112,13 @@ contains
             !
             IF (I < 0) GOTO 20
             IF (J < 0) GOTO 40
-            !
-            !         The regular case
-            !
+
+            ! The regular case
             VOLUME(I) = VOLUME(I) - Q
             VOLUME(J) = VOLUME(J) + Q
             GOTO 60
-            !
-            !        The 'from' element was a boundary. Note the 2 options.
-            !
+
+            ! The 'from' element was a boundary. Note the 2 options.
             20 IF (J < 0) GOTO 60
             VOLUME(J) = VOLUME(J) + Q
             IF (Q > 0.0) THEN
@@ -134,23 +127,18 @@ contains
                 AMASS2(I5) = AMASS2(I5) - Q * B
             ENDIF
             GOTO 60
-            !
-            !        The 'to' element was a boundary.
-            !
+
+            ! The 'to' element was a boundary.
             40 VOLUME(I) = VOLUME(I) - Q
             IF (Q > 0.0) THEN
                 AMASS2(I5) = AMASS2(I5) + Q * B
             ELSE
                 AMASS2(I4) = AMASS2(I4) - Q * B
             ENDIF
-            !
-            !        end of the loop over exchanges
-            !
+
+            ! end of the loop over exchanges
             60 CONTINUE
         end do
-        !
         if (timon) call timstop (ithandl)
-        RETURN
-    END
-
+    end subroutine dlwqb3
 end module m_dlwqb3

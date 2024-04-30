@@ -310,7 +310,7 @@ contains
                         enddo
                     enddo
                 endif
-                call dlwq17 (a(ibset:), a(ibsav:), j(ibpnt:), nobnd, nosys, &
+                call thatcher_harleman_bc(a(ibset:), a(ibsav:), j(ibpnt:), nobnd, nosys, &
                         notot, idt, a(iconc:), a(iflow:), a(iboun:))
             endif
             !
@@ -351,13 +351,11 @@ contains
             endif
 
             !          simulation done ?
-
             if (itime < 0) goto 9999
             if (itime >= itstop) goto 20
 
-            !        add processes
-
-            call dlwq14 (a(iderv:), notot, nosss, itfact, a(imas2:), &
+            ! add processes
+            call apply_approx_derivatives_processes (a(iderv:), notot, nosss, itfact, a(imas2:), &
                     idt, iaflag, a(idmps:), intopt, j(isdmp:))
 
             !        get new volumes

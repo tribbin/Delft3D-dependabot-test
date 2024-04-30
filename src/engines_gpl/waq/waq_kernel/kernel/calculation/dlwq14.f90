@@ -28,51 +28,35 @@ module m_dlwq14
 contains
 
 
-    subroutine dlwq14 (deriv, notot, noseg, itfact, amass2, &
+    !> Scales derivatives and accumulates processes in the balances arrays
+    !! In other words, uses calculated nunerical approximations of derivatives
+    !! to derive numerically approximated deltas, and applies these changes.
+    subroutine apply_approx_derivatives_processes(deriv, notot, noseg, itfact, amass2, &
             idt, iaflag, dmps, intopt, isdmp)
 
-        !     Deltares Software Centre
-
-        !>\File
-        !>          Scales deriv and accumulates processes in the balances arrays
-
-        !     Created             : april 1988 by L.Postma
-
-        !     Logical units       : none
-
-        !     Subroutines called  : none
-
         use timers
-
         implicit none
-
-        !     Parameters          :
-
-        !     kind           function         name                   description
-
-        real(kind = real_wp), intent(inout) :: deriv (notot, noseg)  !< Derivatives to be scaled
-        integer(kind = int_wp), intent(in) :: notot                !< Total number of substances
-        integer(kind = int_wp), intent(in) :: noseg                !< Number of computational volumes
-        integer(kind = int_wp), intent(in) :: itfact               !< Factor between process and transport clock
-        real(kind = real_wp), intent(inout) :: amass2(notot, 5)      !< Mass balance array
-        integer(kind = int_wp), intent(in) :: idt                  !< Integration time step size
-        integer(kind = int_wp), intent(in) :: iaflag               !< if 1 then accumulation
-        real(kind = real_wp), intent(inout) :: dmps  (notot, *)      !< Integrated fluxes if intopt > 7
-        integer(kind = int_wp), intent(in) :: intopt               !< Integration suboptions
-        integer(kind = int_wp), intent(in) :: isdmp (noseg)        !< Pointer dumped segments
+        real(kind = real_wp),   intent(inout) :: deriv (notot, noseg)  !< Derivatives to be scaled
+        integer(kind = int_wp), intent(in   ) :: notot                 !< Total number of substances
+        integer(kind = int_wp), intent(in   ) :: noseg                 !< Number of computational volumes
+        integer(kind = int_wp), intent(in   ) :: itfact                !< Factor between process and transport clock
+        real(kind = real_wp),   intent(inout) :: amass2(notot, 5)      !< Mass balance array
+        integer(kind = int_wp), intent(in   ) :: idt                   !< Integration time step size
+        integer(kind = int_wp), intent(in   ) :: iaflag                !< if 1 then accumulation
+        real(kind = real_wp),   intent(inout) :: dmps  (notot, *)      !< Integrated fluxes if intopt > 7
+        integer(kind = int_wp), intent(in   ) :: intopt                !< Integration suboptions
+        integer(kind = int_wp), intent(in   ) :: isdmp (noseg)         !< Pointer dumped segments
 
         !     Local variables
-
-        real(kind = real_wp) :: atfac           ! helpvariable 1.0/itfact
-        real(kind = real_wp) :: dtfac           ! helpvariable idt
-        integer(kind = int_wp) :: iseg            ! loop variable
-        integer(kind = int_wp) :: ip              ! help variable
+        real(kind = real_wp)   :: atfac     ! auxiliary variable 1.0/itfact
+        real(kind = real_wp)   :: dtfac     ! auxiliary variable idt
+        integer(kind = int_wp) :: iseg      ! loop variable
+        integer(kind = int_wp) :: ip        ! auxiliary variable
 
         integer(kind = int_wp) :: ithandl = 0
         if (timon) call timstrt ("dlwq14", ithandl)
 
-        !         loop accross deriv
-
+        ! loop along derivatives
         atfac = 1.0 / itfact
         dtfac = idt
         if (iaflag == 1) then
@@ -86,8 +70,7 @@ contains
             enddo
         endif
 
-        !         accumulate processes for dump segments
-
+        ! accumulate processes for dump segments
         if (mod(intopt, 16) >= 8) then
             do iseg = 1, noseg
                 ip = isdmp(iseg)
@@ -98,8 +81,5 @@ contains
         endif
 
         if (timon) call timstop (ithandl)
-
-        return
-    end
-
+    end subroutine apply_approx_derivatives_processes
 end module m_dlwq14

@@ -57,11 +57,11 @@ subroutine update_concs_explicit_time_step(nosys, notot, nototp, noseg, volume, 
 
         !     local variables
 
-        integer(kind = int_wp) :: isys          ! loop counter substances
-        integer(kind = int_wp) :: iseg          ! loop counter computational volumes
-        real(kind = real_wp) :: surf            ! the horizontal surface area of the cell
-        real(kind = real_wp) :: vol             ! help variable for this volume
-        integer(kind = int_wp), save :: volume_messages_count  ! Number of messages logged about resetting zero volumes
+        integer(kind = int_wp) :: isys          !< loop counter substances
+        integer(kind = int_wp) :: iseg          !< loop counter computational volumes
+        real(kind = real_wp) :: surf            !< the horizontal surface area of the cell
+        real(kind = real_wp) :: vol             !< help variable for this volume
+        integer(kind = int_wp), save :: volume_messages_count  !< Number of messages logged about resetting zero volumes
         data       volume_messages_count  /0/
         integer(kind = int_wp), save :: ithandl ! timer handle
         data       ithandl  /0/

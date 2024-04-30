@@ -159,20 +159,18 @@ contains
 
             if (timon) call timstrt("integration_scheme_0", ithandl)
 
-            !======================= simulation loop ============================
-
+            !=== simulation loop ====
 10          continue
 
-            !        Determine the volumes and areas that ran dry,
-            !        They cannot have explicit processes during this time step
-
+            ! Determine the volumes and areas that ran dry,
+            ! They cannot have explicit processes during this time step
             call hsurf(noseg, nopa, c(ipnam), a(iparm:), nosfun, &
                        c(isfna), a(isfun:), surface, lun(19))
             call dryfld(noseg, nosss, nolay, a(ivol:), noq1 + noq2, &
                         a(iarea:), nocons, c(icnam), a(icons:), surface, &
                         j(iknmr:), iknmkv)
 
-            !        user transport processes
+            ! user transport processes
             ! set dispersion length
             call dlwqtr(notot, nosys, nosss, noq, noq1, &
                         noq2, noq3, nopa, nosfun, nodisp, &
@@ -182,22 +180,21 @@ contains
                         idt, c(isnam), nocons, nofun, c(icnam), &
                         c(ipnam), c(ifnam), c(isfna), ldummy, ilflag)
 
-            !  Temporary ? set the variables grid-setting for the DELWAQ variables
+            ! Temporary ? set the variables grid-setting for the DELWAQ variables
             call setset(lun(19), nocons, nopa, nofun, nosfun, &
                         nosys, notot, nodisp, novelo, nodef, &
                         noloc, ndspx, nvelx, nlocx, nflux, &
                         nopred, novar, nogrid, j(ivset:))
 
-            !        return conc and take-over from previous step or initial condition,
-            !        and do particle tracking of this step (will be back-coupled next call)
+            ! return conc and take-over from previous step or initial condition,
+            ! and do particle tracking of this step (will be back-coupled next call)
             call delpar01(itime, noseg, nolay, noq, nosys, &
                           notot, a(ivol:), surface, a(iflow:), c(isnam:), &
                           nosfun, c(isfna:), a(isfun:), a(imass:), a(iconc:), &
                           iaflag, intopt, ndmps, j(isdmp:), a(idmps:), &
                           a(imas2:))
 
-            !        call PROCES subsystem
-
+            ! call PROCES subsystem
             call proces(notot, nosss, a(iconc:), a(ivol:), itime, &
                         idt, a(iderv:), ndmpar, nproc, nflux, &
                         j(iipms:), j(insva:), j(iimod:), j(iiflu:), j(iipss:), &
@@ -218,8 +215,7 @@ contains
                         j(iprvpt:), j(iprdon:), nrref, j(ipror:), nodef, &
                         surface, lun(19))
 
-            !     Call OUTPUT system
-
+            ! Call OUTPUT system
             call dlwqo2(notot, nosss, nopa, nosfun, itime, &
                         c(imnam:), c(isnam:), c(idnam:), j(idump:), nodump, &
                         a(iconc:), a(icons:), a(iparm:), a(ifunc:), a(isfun:), &
@@ -258,7 +254,7 @@ contains
             if (itime >= itstop) goto 20
 
             ! add processes
-            call dlwq14(a(iderv:), notot, nosss, itfact, a(imas2:), &
+            call apply_approx_derivatives_processes(a(iderv:), notot, nosss, itfact, a(imas2:), &
                         idt, iaflag, a(idmps:), intopt, j(isdmp:))
             itimel = itime       ! For case 2 a(ivoll) contains the incorrect
             itime = itime + idt  ! new volume from file and mass correction

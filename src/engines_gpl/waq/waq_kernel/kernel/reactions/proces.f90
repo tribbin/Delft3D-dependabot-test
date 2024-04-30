@@ -432,7 +432,7 @@ contains
 
                 !           Scale fluxes and update "processes" accumulation arrays
 
-                call dlwq14 (deriv, notot, noseg, itfact, amass2, &
+                call apply_approx_derivatives_processes (deriv, notot, noseg, itfact, amass2, &
                         idt, iaflag, dmps, intopt, isdmp)
 
                 !           Integration (derivs are zeroed)
@@ -611,7 +611,7 @@ contains
 
                 !           Scale fluxes and update "processes" accumulation arrays
 
-                call dlwq14 (deriv, notot, noseg, itfact, amass2, &
+                call apply_approx_derivatives_processes (deriv, notot, noseg, itfact, amass2, &
                         idt, iaflag, dmps, intopt, isdmp)
 
                 !           Integration (derivs are zeroed)

@@ -70,8 +70,7 @@ contains
             write (lun(19), *) ' This may indicate that the computation was unstable'
         endif
 
-        !
-        !     write restart file in .map format
+        ! write restart file in .map format
         lcharmap = ' '
         lcharmap(1:248) = lchar(23)(1:248)
         do i = 248, 1, -1
