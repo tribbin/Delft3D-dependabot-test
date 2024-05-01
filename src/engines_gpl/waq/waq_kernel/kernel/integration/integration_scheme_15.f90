@@ -497,8 +497,8 @@ contains
 
             !$OMP PARALLEL
             !$OMP DO PRIVATE(ith) SCHEDULE(DYNAMIC)
-            ! start of loop over substances
 
+            ! loop over substances
             do isys = 1, nosys
 
                 ith = OMP_GET_THREAD_NUM() + 1
@@ -532,9 +532,6 @@ contains
                         gm_sol (1, ith), nobnd, a(iboun:), noq, j(ixpnt:), &
                         flowtot(1, ith), disptot(1, ith), a(imas2:), ndmpq, j(iqdmp:), &
                         a(idmpq:), iknmkv, idt)
-
-                !        end loop over the substances
-
             end do
 
             !$OMP ENDDO
