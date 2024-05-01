@@ -1648,7 +1648,7 @@ subroutine readMDUFile(filename, istat)
     case default
         tfac = 1d0
     end select
-    tstart_tlfsmo_user = tstart_tlfsmo_user*tfac 
+    tstart_tlfsmo_user = tstart_tlfsmo_user*tfac
     tstart_user = tstart_user*tfac
     tstop_user  = tstop_user*tfac
     
@@ -2719,11 +2719,10 @@ subroutine writeMDUFilepointer(mout, writeall, istat)
     integer, intent(out) :: istat !< Return status (0=success)
 
     type(tree_data),  pointer      :: prop_ptr
-    ! TODO: [TRUNKMERGE] WO: I prefer having tfac not in m_flowtimes, but back here again.
     character(len=20)              :: rundat
     character(len=128)             :: helptxt
     character(len=256)             :: tmpstr
-    integer                        :: i, ibuf
+    integer                        :: i, ibuf, fww
     real(kind=hp)                  :: ti_map_array(3), ti_rst_array(3), ti_his_array(3), ti_waq_array(3), ti_classmap_array(3), ti_st_array(3)
 
     istat = 0 ! Success
@@ -3654,8 +3653,6 @@ endif
        call prop_set(prop_ptr, 'hydrology', 'InterceptionModel', interceptionmodel, 'Interception model (0: none, 1: on, via layer thickness)')
     end if
 
-
-   ! JRE -> aanvullen, kijken wat aangeleverd wordt
     if (writeall .or. jawave > 0) then
        call prop_set(prop_ptr, 'waves', 'Wavemodelnr',         jawave,         'Wave model nr. (0: none, 1: fetch/depth limited hurdlestive, 2: Young-Verhagen, 3: SWAN, 5: uniform, 6: SWAN-NetCDF, 7: Offline Wave Coupling')
        call prop_set(prop_ptr, 'waves', 'Rouwav',              rouwav,         'Friction model for wave induced shear stress: FR84 (default) or: MS90, HT91, GM79, DS88, BK67, CJ85, OY88, VR04')
@@ -3664,7 +3661,12 @@ endif
        call prop_set(prop_ptr, 'waves', 'jahissigwav',         jahissigwav,    '1: sign wave height on his output; 0: hrms wave height on his output. Default=1.')
        call prop_set(prop_ptr, 'waves', 'jamapsigwav',         jamapsigwav,    '1: sign wave height on map output; 0: hrms wave height on map output. Default=0 (legacy behaviour).')
        call prop_set(prop_ptr, 'waves', 'hminlw',              hminlw,         'Cut-off depth for application of wave forces in momentum balance')
-       ! prop_set_logical is not yet implemented call prop_set(prop_ptr, 'waves', 'FlowWithoutWaves',    flowWithoutWaves, 'True: Do not use Wave data in the flow computations, it will only be passed through to D-WAQ')
+       if (flowWithoutWaves) then
+          fww = 1
+       else
+          fww=0
+       endif
+       call prop_set(prop_ptr, 'waves', 'FlowWithoutWaves',    fww, '1: Do not use wave data in the flow computations, it will only be passed through to D-WAQ; 0: use wave information. Default 0.')
        if (writeall .or. hwavuni .ne. 0d0) then
           call prop_set(prop_ptr, 'waves', 'Hwavuni'  ,        hwavuni,        'root mean square wave height (m)')
           call prop_set(prop_ptr, 'waves', 'Twavuni'  ,        twavuni,        'root mean square wave period (s)')

@@ -764,8 +764,6 @@ module m_ec_module
          convtype = convType_polytim
       case (provFile_netcdf)
          convtype = convType_netcdf
-      case (provFile_netcdf_weight)
-         convtype = convType_netcdf_weight   
       case (provFile_qhtable)
          convtype = convType_qhtable
       case default

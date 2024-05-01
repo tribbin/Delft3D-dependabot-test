@@ -96,7 +96,7 @@
       !
       if (jawave==7 .and. .not. flowWithoutWaves) then
          ! 
-         call transform_wave_physics_hp(  hwavcom      ,phiwav    ,twav      ,hs     , &
+         call transform_wave_physics_hp(  hwavcom      ,phiwav    ,twavcom   ,hs     , &
                                         & sxwav        ,sywav     ,mxwav     ,mywav  , &
                                         & distot       ,dsurf     ,dwcap             , &
                                         & ndx          ,1         ,hwav      ,twav   , &
@@ -109,7 +109,6 @@
          !
          call setwavfu()
          call setwavmubnd()
-         
       end if
       !
       ! this part is for online interacter visualisation

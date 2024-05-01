@@ -78,8 +78,8 @@
       endif
 
       ! SWAN
-      if ((jawave==3 .or. jawave==6) .and. .not. flowWithoutWaves) then
-         if (jawave == 6) then
+      if ((jawave==3 .or. jawave>=6) .and. .not. flowWithoutWaves) then
+         if (jawave == 6 .or. jawave==7) then
            ! HSIG is read from SWAN NetCDF file. Convert to HRMS
            hwav = hwavcom / sqrt2_hp
          else
@@ -92,11 +92,11 @@
          end if
       end if
       !
-      if ((jawave==3 .or. jawave==6) .and. flowWithoutWaves) then
+      if ((jawave==3 .or. jawave>=6) .and. flowWithoutWaves) then
         ! Exceptional situation: use wave info not in FLOW, only in WAQ
         ! Only compute uorb
         ! Works both for 2D and 3D
-        if (jawave == 6) then
+        if (jawave == 6 .or. jawave==7) then
           ! HSIG is read from SWAN NetCDF file. Convert to HRMS
           hwav = hwavcom / sqrt2_hp
         else
@@ -124,8 +124,8 @@
                   ustokes(L) = 0d0; vstokes(L) = 0d0
                else
                   hw=0.5d0*(hwav(k1)+hwav(k2));tw=.5d0*(twav(k1)+twav(k2))
-                  cs = 0.5*(cos(phiwav(k1)*dg2rd)+cos(phiwav(k2)*dg2rd))
-                  sn = 0.5*(sin(phiwav(k1)*dg2rd)+sin(phiwav(k2)*dg2rd))
+                  cs = 0.5*(cosd(phiwav(k1))+cosd(phiwav(k2)))
+                  sn = 0.5*(sind(phiwav(k1))+sind(phiwav(k2)))
                   call tauwavehk(hw, tw, hh, uorbi, rkw, ustt)
                   ustokes(L) = ustt*(csu(L)*cs + snu(L)*sn)
                   vstokes(L) = ustt*(-snu(L)*cs + csu(L)*sn)

@@ -119,6 +119,8 @@
    if  (jawave > 0) then
       call realloc( hwavcom,   ndx, stat=ierr, keepExisting = .false., fill = hwavuni)
       call aerr   ('hwavcom   (ndx)', ierr, ndx)
+      call realloc( twavcom,   ndx, stat=ierr, keepExisting = .false., fill = twavuni)
+      call aerr   ('twavcom   (ndx)', ierr, ndx)
    endif
    !
    ! Ugly, fix with allocate9basic andsoon

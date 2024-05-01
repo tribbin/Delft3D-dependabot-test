@@ -366,7 +366,7 @@ subroutine set_wave_parameters()
       !
       if (.not. success) then
          write (msgbuf, '(a,i0,a)') 'set_external_forcings:: Offline wave coupling with waveforcing=', waveforcing, '. &
-                              & Variable missing in external forcing file.' 
+                              & Error reading data from nc file.' 
          call warn_flush() ! ECMessage stack is not very informative
          message = dumpECMessageStack(LEVEL_ERROR,callback_msg)
       endif
@@ -461,7 +461,7 @@ subroutine set_all_wave_parameters()
     if ( allocated (hwavcom) ) then
         success = success .and. ecGetValues(ecInstancePtr, item_hrms, ecTime)
     end if
-    if ( allocated (twav)    ) then
+    if ( allocated (twavcom)    ) then
         success = success .and. ecGetValues(ecInstancePtr, item_tp, ecTime)
     end if
     if ( allocated (phiwav)  ) then
@@ -513,8 +513,7 @@ subroutine set_parameters_for_radiation_stress_driven_forces()
 end subroutine set_parameters_for_radiation_stress_driven_forces
 !> set wave parameters for jawave == 7 (offline wave coupling) and waveforcing == 2 (wave forces via total dissipation) 
 subroutine set_parameters_for_dissipation_driven_forces()
-
-    ! don't change this order, ec module depends on it. To be refactored
+    twav(:) = 0d0
     success = success .and. ecGetValues(ecInstancePtr, item_dir   , ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_hrms  , ecTime)
     success = success .and. ecGetValues(ecInstancePtr, item_tp    , ecTime)

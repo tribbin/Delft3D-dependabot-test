@@ -275,7 +275,7 @@ module m_ec_provider
 
             if (.not. ecSupportOpenExistingFile(fileReaderPtr%fileHandle, fileReaderPtr%fileName)) return
             select case (fileReaderPtr%ofType)                 ! Inventory of the opened netcdf-file
-               case (provFile_netcdf, provFile_netcdf_weight)
+               case (provFile_netcdf)
                   if (.not. ecProviderNetcdfReadvars(fileReaderPtr)) then
                      ! todo: error handling with message
                      return
@@ -412,17 +412,6 @@ module m_ec_provider
                else
                   call setECMessage("ERROR: ec_provider::ecProviderCreateItems: NetCDF requires a quantity name.")
                end if
-            case (provFile_netcdf_weight)
-               if (present(quantityname)) then
-                  select case(quantityname)
-                     case ("wavedirection")
-                        success = ecProviderCreateNetcdfItems(instancePtr, fileReaderPtr, quantityname, varname)
-                  end select
-               else
-                  call setECMessage("ERROR: ec_provider::ecProviderCreateItems: weighted NetCDF requires a quantity name.")
-               end if
-               case (provFile_t3D)
-               success = ecProviderCreatet3DItems(instancePtr, fileReaderPtr)
             case default
                call setECMessage("ERROR: ec_provider::ecProviderCreateItems: Unknown file type.")
          end select
@@ -2762,7 +2751,7 @@ module m_ec_provider
             allocate(dimids(ndims))
             ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, idvar, dimids=dimids)! get dimension ID's
 
-            do idims = 1,ndims
+            do idims = 1,ndims    ! JRE to check
                coordids(idims) = fileReaderPtr%dim_varids(dimids(idims))
             enddo
 
@@ -2921,7 +2910,7 @@ module m_ec_provider
                end if
 
                ! Check if the dimension(sizes) of the 1st and 2nd coordinate variable agree
-               if (any(crd_dimlen(1:ndims,2)/=crd_dimlen(1:ndims,1))) then
+               if (any(crd_dimlen(1:ndims,2)/=crd_dimlen(1:ndims,2))) then
                   return
                   ! TODO: error message
                end if
@@ -2991,17 +2980,15 @@ module m_ec_provider
 
                ! this goes wrong when time is defined before space in nc file
                if (grid_type == elmSetType_samples) then
-                  !ncol = fileReaderPtr%dim_length(dimids(1))
-                  ncol = crd_dimlen(1,1)
+                  ncol = fileReaderPtr%dim_length(dimids(1))
                   nrow = 1
                   nlay = crd_dimlen(1,3)
                else
-                  !ncol = fileReaderPtr%dim_length(dimids(1))
-                  ncol = size(fgd_data,2)
+                  ncol = fileReaderPtr%dim_length(fileReaderPtr%lonx_id)
                   nrow = 1
                   nlay = 0
                   if (size(dimids) >= 2) then
-                     nrow = size(fgd_data,1) !fileReaderPtr%dim_length(dimids(2))
+                     nrow = fileReaderPtr%dim_length(fileReaderPtr%laty_id)
                      if (size(dimids) > 3+dim_offset) then
                         nlay = fileReaderPtr%dim_length(dimids(3+dim_offset))
                      endif
@@ -3425,7 +3412,7 @@ module m_ec_provider
                success = .true.
             case (provFile_grib)
                call setECMessage("ERROR: ec_provider::ecProviderInitializeTimeFrame: Unsupported file type.")
-            case (provFile_netcdf, provFile_netcdf_weight)
+            case (provFile_netcdf)
                success = ecNetcdfInitializeTimeFrame(fileReaderPtr)
                if (.not. success) then
                   success = ecNetcdfInitializeHarmonicsFrame(fileReaderPtr)
@@ -3931,12 +3918,25 @@ module m_ec_provider
 
    ierror = nf90_inquire(fileReaderPtr%fileHandle,nDimensions=ndim)
    if (ndim>0) then
+      dim_name=''
       allocate(fileReaderPtr%dim_length(ndim))
       allocate(fileReaderPtr%dim_varids(ndim))
       fileReaderPtr%dim_varids = -1
       fileReaderPtr%dim_length = -1
+      fileReaderPtr%time_id = -1
+      fileReaderPtr%lonx_id = -1
+      fileReaderPtr%laty_id = -1
+      
       do idim = 1,ndim
          ierror = nf90_inquire_dimension(fileReaderPtr%fileHandle,idim,len=fileReaderPtr%dim_length(idim))
+         ierror = nf90_inquire_dimension(fileReaderPtr%fileHandle,idim,name=dim_name)
+         ! Find dimension matching columns and rows
+         select case (trim(dim_name))
+            case ('x','longitude','projected_x','xc','grid_longitude','projection_x_coordinate')
+               fileReaderPtr%lonx_id = idim
+            case ('y','latitude','projected_y','yc','grid_latitude','projection_y_coordinate')
+               fileReaderPtr%laty_id = idim
+         end select
       end do   ! idim
    else
       ! no dimensions in the file or netcdf inquiry error .... handle exception
@@ -3959,7 +3959,7 @@ module m_ec_provider
          ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, ivar, nDims=ndim)
          dim_name=''
          name_len=0
-         if (ndim==1) then                     ! Is this variable a coordinate variable
+         if (ndim==1) then                     ! Is this variable a 1D coordinate variable
              ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, ivar, dimids=dimid)
              ierror = nf90_inquire_dimension(fileReaderPtr%fileHandle,dimid(1),name=dim_name,len=dim_size)
              call str_lower(dim_name)

@@ -411,9 +411,6 @@ module m_ec_filereader
                      end if
                   end if
                end if
-            case (provFile_netcdf_weight)   
-            ! JRE to do offline waves   
-                return
             case (provFile_svwp, provFile_svwp_weight, provFile_curvi_weight, provFile_samples, &
                   provFile_triangulationmagdir, provFile_poly_tim, provFile_grib)
                ! NOTE for provFile_samples: don't support readNextRecord, because sample data is read once by ecSampleReadAll upon init.

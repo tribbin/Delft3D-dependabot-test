@@ -95,10 +95,10 @@ kcw = 1
  else
     qid_l = 'tp'
  endif
- if (.not. allocated(twav) ) then
-    allocate ( twav(ndx), stat=ierr)
-    call aerr('twav(ndx)', ierr, ndx)
-    twav = 0.0
+ if (.not. allocated(twavcom) ) then
+    allocate ( twavcom(ndx), stat=ierr)
+    call aerr('twavcom(ndx)', ierr, ndx)
+    twavcom = 0d0
  endif
  success = ec_addtimespacerelation(qid_l, xz(1:ndx), yz(1:ndx), kcw, kx, md_wavefile, filetype_l, method_l, operand_l, quiet=.true.)
  !

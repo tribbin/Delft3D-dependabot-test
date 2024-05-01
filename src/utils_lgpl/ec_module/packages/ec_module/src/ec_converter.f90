@@ -367,8 +367,7 @@ module m_ec_converter
          ! Safety check while interpolate_spacetimeSaveWeightFactors is still liberally used.
          if (.not. (connection%converterPtr%ofType == convType_curvi .or. &
                     connection%converterPtr%ofType == convType_polytim .or. &
-                    connection%converterPtr%ofType == convType_netcdf .or. &
-                    connection%converterPtr%ofType == convType_netcdf_weight)) then
+                    connection%converterPtr%ofType == convType_netcdf)) then
             success = .true.
             return
          end if
@@ -1051,9 +1050,6 @@ module m_ec_converter
                success = ecConverterQhtable(connection)
             case(convType_samples)
                success = ecConverterSamples(connection, timesteps%mjd())
-            ! jre to do offline waves   
-            case(convType_netcdf_weight)
-               success = ecConverterNetcdf_weighted(connection, timesteps%mjd())
             case default
                call setECMessage("ERROR: ec_converter::ecConverterPerformConversions: Unknown Converter type requested.")
          end select
@@ -2316,7 +2312,7 @@ module m_ec_converter
 
       !> Cyclic interpolation of two scalars, based on periodicity of 360 (degrees)
       !! Sort data in monotonically increasing order and rotate over smallest angle
-      function cyclic_interpolation(var1, var2, weight1, weight2)
+      elemental function cyclic_interpolation(var1, var2, weight1, weight2)
          real(hp), intent(in) :: var1                !< First input argument for in interpolation functions using a scalar weight value
          real(hp), intent(in) :: var2                !< Second input argument for in interpolation functions using a scalar weight value
          real(hp), intent(in) :: weight1             !< Value for weighing two variables: 'weight1' holds for var1
@@ -2672,6 +2668,9 @@ module m_ec_converter
          logical, dimension(:), allocatable  :: missing
          real(hp), dimension(2,2,2,2) :: sourcevals
          real(hp), dimension(2,2)   :: val
+         real(hp), dimension(2,2)   :: sinwd
+         real(hp), dimension(2,2)   :: coswd
+         real(hp), dimension(2,2)   :: waveheight
          real(hp)                   :: lastvalue
          integer                    :: ii, jj, kk, LL
          integer                    :: jamissing
@@ -2679,8 +2678,10 @@ module m_ec_converter
          integer                    :: jsferic
          type(kdtree_instance)      :: treeinst
          real(hp), dimension(:), allocatable :: x_extrapolate    ! temporary array holding targetelementset x for setting up kdtree for interpolation
-         real(hp), dimension(:), allocatable :: waveheight       ! temporary array holding source dataset for wave direction interpolation
-         real(hp), dimension(:), allocatable :: ytemp            ! temporary array holding source dataset for wave direction interpolation
+         real(hp), dimension(:,:), pointer :: waveheightT0     ! temporary array holding source dataset for wave direction interpolation
+         real(hp), dimension(:,:), pointer :: waveheightT1     ! temporary array holding source dataset for wave direction interpolation
+         real(hp), dimension(:), allocatable :: wdtemp           ! temporary array holding source dataset for wave direction interpolation
+         real(hp), dimension(:,:), allocatable :: wd2d           ! temporary array holding source dataset for wave direction interpolation
          integer                    :: col0, row0, col1, row1    ! bounding box in meteo-space spanned by the target elementset
 
          real(hp) :: amplitude       ! harmonics: amplitude
@@ -2690,6 +2691,8 @@ module m_ec_converter
          integer  :: n_phase_rows    ! harmonics: number of phase rows
          integer  :: n_phase_cols    ! harmonics: number of phase columns
          integer  :: index1d         ! harmonics: 1d array index.
+         real(hp) :: targetvalcos    ! help variables for wave direction interpolation
+         real(hp) :: targetvalsin
 
          integer                        :: issparse
          integer, dimension(:), pointer :: ia                    ! sparsity pattern in CRS format, startpointers
@@ -2716,6 +2719,8 @@ module m_ec_converter
          has_y_wind = .False.
          wavedirPtr => null()
          wavehgtPtr => null()
+         waveheightT0 => null()
+         waveheightT1 => null()
          has_wave_direction = .false.
          !
          do i=1, connection%nSourceItems
@@ -2746,8 +2751,15 @@ module m_ec_converter
                  return
               endif
               has_wave_direction = .true.
-              allocate(waveheight(wavehgtPtr%elementsetPtr%ncoordinates))
-              waveheight = wavehgtPtr%SourceT0fieldptr%arr1d
+              waveheightT0(1:wavehgtPtr%elementsetPtr%n_cols,1:wavehgtPtr%elementsetPtr%n_rows) => wavehgtPtr%SourceT0fieldptr%arr1d
+              waveheightT1(1:wavehgtPtr%elementsetPtr%n_cols,1:wavehgtPtr%elementsetPtr%n_rows) => wavehgtPtr%SourceT1fieldptr%arr1d
+              allocate(wdtemp(wavedirPtr%elementsetPtr%ncoordinates))
+              allocate(wd2d(1:wavehgtPtr%elementsetPtr%n_cols,1:wavehgtPtr%elementsetPtr%n_rows))
+              wdtemp = 0d0
+              wd2d = 0d0
+              coswd = 0d0
+              sinwd = 0d0
+              waveheight = 0d0
            end if
          end do
          !         !
@@ -2818,6 +2830,7 @@ module m_ec_converter
                         return
                      end if
                   else
+                     ! JRE interpolate NC
                      col0 = sourceItem%sourceT0FieldPtr%bbox(1)
                      row0 = sourceItem%sourceT0FieldPtr%bbox(2)
                      col1 = sourceItem%sourceT0FieldPtr%bbox(3)
@@ -2890,6 +2903,12 @@ module m_ec_converter
                         end if
                      else
                         call time_weight_factors(a0, a1, timesteps, t0, t1, timeint=time_interpolation)
+                        !
+                        ! if we have wave direction, do the time interpolation here on the weighted fields
+                        if (trim(connection%SourceItemsPtr(i)%ptr%quantityPtr%name)=='sea_surface_wave_from_direction') then
+                           wdtemp = cyclic_interpolation(sourceT0Field%arr1d,sourceT1Field%arr1d,a0,a1)
+                           wd2d = reshape(wdtemp,(/n_cols,n_rows/))
+                        endif
                      end if
 
                      if (n_layers>0 .and. associated(targetElementSet%z) .and. associated(sourceElementSet%z)) then
@@ -3088,12 +3107,22 @@ module m_ec_converter
                                     end do
                                  end do
                               else
-                                 do jj=0,1
-                                    do ii=0,1
-                                       sourcevals(1+ii,1+jj,1+kk,1) = s2D_T0(mp+ii, np+jj)
-                                       sourcevals(1+ii,1+jj,1+kk,2) = s2D_T1(mp+ii, np+jj)
+                                 if (trim(connection%SourceItemsPtr(i)%ptr%quantityPtr%name)=='sea_surface_wave_from_direction') then
+                                    do jj=0,1
+                                       do ii=0,1
+                                          sourcevals(1+ii,1+jj,1,1) = wd2d(mp+ii, np+jj)
+                                          sourcevals(1+ii,1+jj,1,2) = wd2d(mp+ii, np+jj)  ! needed for finding extrapolations
+                                          waveheight(1+ii,1+jj) = a0*waveheightT0(mp+ii, np+jj)+a1*waveheightT1(mp+ii, np+jj)
+                                       end do
                                     end do
-                                 end do
+                                 else
+                                    do jj=0,1
+                                       do ii=0,1
+                                          sourcevals(1+ii,1+jj,1+kk,1) = s2D_T0(mp+ii, np+jj)
+                                          sourcevals(1+ii,1+jj,1+kk,2) = s2D_T1(mp+ii, np+jj)
+                                       end do
+                                    end do
+                                 end if
                               end if
 
                               if (connection%converterPtr%operandType == operand_replace) then
@@ -3116,12 +3145,26 @@ module m_ec_converter
                                  if (connection%converterPtr%operandType==operand_replace_if_value) then
                                     targetValues(j) = 0.0_hp
                                  end if
-                                 if (has_wave_direction) then
-                                    !sv0 = 
-                                    !sv1 = 
-                                    !targetValues(j) = cyclic_interpolation(sv0, sv1, a0, a1)
+                                 if (trim(connection%SourceItemsPtr(i)%ptr%quantityPtr%name)=='sea_surface_wave_from_direction') then
+                                    ! Now interpolate the waveheight-weighted directional field in space
+                                    coswd = cosd(sourcevals(:,:,1,1))*waveheight
+                                    sinwd = sind(sourcevals(:,:,1,1))*waveheight
+                                    targetvalcos = 0d0
+                                    targetvalsin = 0d0
+                                    targetvalcos = targetvalcos + coswd(1, 1) * indexWeight%weightFactors(1,j)
+                                    targetvalcos = targetvalcos + coswd(2, 1) * indexWeight%weightFactors(2,j)
+                                    targetvalcos = targetvalcos + coswd(2, 2) * indexWeight%weightFactors(3,j)
+                                    targetvalcos = targetvalcos + coswd(1, 2) * indexWeight%weightFactors(4,j)
+                                    targetvalsin = targetvalsin + sinwd(1, 1) * indexWeight%weightFactors(1,j)
+                                    targetvalsin = targetvalsin + sinwd(2, 1) * indexWeight%weightFactors(2,j)
+                                    targetvalsin = targetvalsin + sinwd(2, 2) * indexWeight%weightFactors(3,j)
+                                    targetvalsin = targetvalsin + sinwd(1, 2) * indexWeight%weightFactors(4,j)
+                                    targetValues(j) = atan2d(targetvalsin, targetvalcos)
+                                    if (targetValues(j)<0d0) then
+                                       targetValues(j) = targetValues(j) + 360d0
+                                    end if
                                  else
-                                    targetValues(j) = targetValues(j) + a0 * sourcevals(1, 1, 1, 1) * indexWeight%weightFactors(1,j)        !  4                 3
+                                    targetValues(j) = targetValues(j) + a0 * sourcevals(1, 1, 1, 1) * indexWeight%weightFactors(1,j)
                                     targetValues(j) = targetValues(j) + a1 * sourcevals(1, 1, 1, 2) * indexWeight%weightFactors(1,j)
                                     targetValues(j) = targetValues(j) + a0 * sourcevals(2, 1, 1, 1) * indexWeight%weightFactors(2,j)
                                     targetValues(j) = targetValues(j) + a1 * sourcevals(2, 1, 1, 2) * indexWeight%weightFactors(2,j)

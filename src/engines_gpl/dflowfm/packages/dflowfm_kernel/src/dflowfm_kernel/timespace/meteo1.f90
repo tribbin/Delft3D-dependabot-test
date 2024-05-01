@@ -6872,8 +6872,6 @@ module m_meteo
             ec_filetype = provFile_poly_tim
          case (ncgrid, ncwave)      ! 11, 14
             ec_filetype = provFile_netcdf
-         case (ncwave_weight)       ! 20
-            ec_filetype = provFile_netcdf_weight
          case (ncflow)              ! 12
             ec_filetype = provFile_undefined ! only used for timespaceinitialfield, no EC yet.
          case (bcascii)             ! 17
@@ -7229,7 +7227,7 @@ module m_meteo
             jamapwav_hwav = 1
          case ('tp', 'tps', 'rtp', 'waveperiod')
             itemPtr1 => item_tp
-            dataPtr1 => twav
+            dataPtr1 => twavcom
             jamapwav_twav = 1
          case ('dir', 'wavedirection')
             itemPtr1 => item_dir
@@ -8059,7 +8057,7 @@ module m_meteo
             ! the name of the source item created by the file reader will be the same as the ext.force. var name
             sourceItemName = varname
          case ('wavedirection')
-            if  (ec_filetype == provFile_netcdf .or. ec_filetype == provFile_netcdf_weight) then
+            if  (ec_filetype == provFile_netcdf) then
                sourceItemId   = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'sea_surface_wave_from_direction')     ! standard names from nctablemd.f90
                sourceItemId_2 = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'sea_surface_wave_significant_height')
                success = (sourceItemId /= ec_undef_int .and. sourceItemId_2 /= ec_undef_int)
