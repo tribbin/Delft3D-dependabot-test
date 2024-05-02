@@ -6,6 +6,7 @@ Copyright (C)  Stichting Deltares, 2013
 
 import copy
 import re
+import sys
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from lxml import etree
@@ -24,8 +25,8 @@ from src.config.types.file_type import FileType
 from src.config.types.path_type import PathType
 from src.config.types.presence_type import PresenceType
 from src.suite.test_bench_settings import TestBenchSettings
+from src.utils.logging.i_logger import ILogger
 from src.utils.logging.i_main_logger import IMainLogger
-from src.utils.logging.test_loggers.test_result_type import TestResultType
 
 
 def loop(dictionary: Dict[str, Any], key: str) -> List:
@@ -93,6 +94,92 @@ class XmlConfigParser(object):
 
         parsed_tree = branch(root_node, prefix)
         return (parsed_tree, schema, root_name)
+    
+    @classmethod
+    def filter_configs(cls, configs: List[TestCaseConfig], args: str, logger: ILogger):
+        """check which filters to apply to configuration"""
+        filtered: List[TestCaseConfig] = []
+        filters = args.split(":")
+        program_filter = None
+        test_case_filter = None
+        max_runtime = None
+        operator = None
+        start_at_filter = None
+
+        for filter in filters:
+            con, arg = filter.split("=")
+            con = con.lower()
+            if con == "program":
+                program_filter = arg.lower()
+            elif con == "testcase":
+                test_case_filter = arg.lower()
+            elif con == "maxruntime":
+                max_runtime = float(arg[1:])
+                operator = arg[:1]
+            elif con == "startat":
+                start_at_filter = arg.lower()
+            else:
+                error_message = "ERROR: Filter keyword " " + con + " " not recognised"
+                logger.error(f"{error_message} '{con}'\n")
+                sys.stderr.write(error_message + "\n")
+                raise SyntaxError(error_message + "\n")
+
+        # For each testcase (p, t, mrt filters):
+        for config in configs:
+            c = cls.__find_characteristics__(
+                config, program_filter, test_case_filter, max_runtime, operator
+            )
+            if c:
+                filtered.append(c)
+            else:
+                logger.info(f"Skip {config.name} due to filter.")
+
+        # StartAt filter:
+        if start_at_filter:
+            starti = len(filtered)
+            for i, config in enumerate(filtered):
+                if start_at_filter in config.name:
+                    starti = i
+                    break
+            filtered[:] = filtered[starti:]
+        return filtered
+
+    @classmethod
+    def __find_characteristics__(
+        cls, config: TestCaseConfig, program: Optional[str], testcase, mrt, op
+    ) -> Optional[TestCaseConfig]:
+        """check if a test case matches given characteristics"""
+        found_program = None
+        found_testcase = None
+        found_max_runtime = None
+
+        if program:
+            # Program is a string, containing names of programs, comma separated
+            programs = program.split(",")
+            for aprog in programs:
+                found_program = any(
+                    aprog in e.name.lower() for e in config.program_configs
+                )
+                if found_program:
+                    break
+        if testcase:
+            # testcase is a string, containing (parts of) testcase names, comma separated
+            testcases = testcase.split(",")
+            for atestcase in testcases:
+                found_testcase = atestcase in config.name.lower()
+                if found_testcase:
+                    break
+        if mrt:
+            mappings = {">": operator.gt, "<": operator.lt, "=": operator.eq}
+            found_max_runtime = mappings[op](config.max_run_time, mrt)
+
+        if (
+            ((not program and not found_program) or (program and found_program))
+            and ((not testcase and not found_testcase) or (testcase and found_testcase))
+            and ((not mrt and not found_max_runtime) or (mrt and found_max_runtime))
+        ):
+            return config
+        return None
 
     def __validate__(self):
         """validate Xml file format"""

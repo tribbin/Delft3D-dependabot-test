@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     # Filter the testcases to be run
     if settings.filter != "":
-        settings.configs = TestBenchParameterParser.filter_configs(
+        settings.configs = XmlConfigParser.filter_configs(
             settings.configs, settings.filter, logger
         )
 

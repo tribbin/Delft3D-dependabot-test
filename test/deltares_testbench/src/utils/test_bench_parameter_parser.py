@@ -7,16 +7,14 @@ Copyright (C)  Stichting Deltares, 2023
 import getpass
 import operator
 import os
-import sys
 from argparse import ArgumentParser, Namespace
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from src.config.credentials import Credentials
 from src.config.test_case_config import TestCaseConfig
 from src.config.types.mode_type import ModeType
 from src.suite.test_bench_settings import TestBenchSettings
 from src.utils.common import get_log_level
-from src.utils.logging.i_logger import ILogger
 
 
 class TestBenchParameterParser:
@@ -123,92 +121,6 @@ class TestBenchParameterParser:
             )
 
         return credentials
-
-    @classmethod
-    def filter_configs(cls, configs: List[TestCaseConfig], args: str, logger: ILogger):
-        """check which filters to apply to configuration"""
-        filtered: List[TestCaseConfig] = []
-        filters = args.split(":")
-        program_filter = None
-        test_case_filter = None
-        max_runtime = None
-        operator = None
-        start_at_filter = None
-
-        for filter in filters:
-            con, arg = filter.split("=")
-            con = con.lower()
-            if con == "program":
-                program_filter = arg.lower()
-            elif con == "testcase":
-                test_case_filter = arg.lower()
-            elif con == "maxruntime":
-                max_runtime = float(arg[1:])
-                operator = arg[:1]
-            elif con == "startat":
-                start_at_filter = arg.lower()
-            else:
-                error_message = "ERROR: Filter keyword " " + con + " " not recognised"
-                logger.error(f"{error_message} '{con}'\n")
-                sys.stderr.write(error_message + "\n")
-                raise SyntaxError(error_message + "\n")
-
-        # For each testcase (p, t, mrt filters):
-        for config in configs:
-            c = cls.__find_characteristics__(
-                config, program_filter, test_case_filter, max_runtime, operator
-            )
-            if c:
-                filtered.append(c)
-            else:
-                logger.info(f"Skip {config.name} due to filter.")
-
-        # StartAt filter:
-        if start_at_filter:
-            starti = len(filtered)
-            for i, config in enumerate(filtered):
-                if start_at_filter in config.name:
-                    starti = i
-                    break
-            filtered[:] = filtered[starti:]
-        return filtered
-
-    @classmethod
-    def __find_characteristics__(
-        cls, config: TestCaseConfig, program: Optional[str], testcase, mrt, op
-    ) -> Optional[TestCaseConfig]:
-        """check if a test case matches given characteristics"""
-        found_program = None
-        found_testcase = None
-        found_max_runtime = None
-
-        if program:
-            # Program is a string, containing names of programs, comma separated
-            programs = program.split(",")
-            for aprog in programs:
-                found_program = any(
-                    aprog in e.name.lower() for e in config.program_configs
-                )
-                if found_program:
-                    break
-        if testcase:
-            # testcase is a string, containing (parts of) testcase names, comma separated
-            testcases = testcase.split(",")
-            for atestcase in testcases:
-                found_testcase = atestcase in config.name.lower()
-                if found_testcase:
-                    break
-        if mrt:
-            mappings = {">": operator.gt, "<": operator.lt, "=": operator.eq}
-            found_max_runtime = mappings[op](config.max_run_time, mrt)
-
-        if (
-            ((not program and not found_program) or (program and found_program))
-            and ((not testcase and not found_testcase) or (testcase and found_testcase))
-            and ((not mrt and not found_max_runtime) or (mrt and found_max_runtime))
-        ):
-            return config
-        return None
 
     @classmethod
     def __create_argument_parser(cls) -> ArgumentParser:
