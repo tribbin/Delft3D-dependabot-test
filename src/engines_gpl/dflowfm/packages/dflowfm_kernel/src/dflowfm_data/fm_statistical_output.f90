@@ -720,6 +720,12 @@ private
       call addoutval(out_quan_conf_his, IDX_HIS_RUG_RUHEIGHT,                   &
                      'Wrihis_runupgauge', 'runup_height', 'runup height', '',                     &
                      'm', UNC_LOC_RUG, description='Write run-up gauge statistics to his-file')
+      call addoutval(out_quan_conf_his, IDX_HIS_RUG_RUX,                   &
+                     'Wrihis_runupgauge', 'rug_x_coordinate', 'time-varying x-coordinate of shoreline position', '',                     &
+                     'm', UNC_LOC_RUG, description='Write run-up gauge statistics to his-file')
+      call addoutval(out_quan_conf_his, IDX_HIS_RUG_RUY,                   &
+                     'Wrihis_runupgauge', 'rug_y_coordinate', 'time-varying y-coordinate of shoreline position', '',                     &
+                     'm', UNC_LOC_RUG, description='Write run-up gauge statistics to his-file')
 
       !
       ! HIS: hydraulic structures
@@ -2110,7 +2116,7 @@ private
       use m_sediment, only: stm_included, stmpar
       use m_longculverts, only: nlongculverts
       use m_monitoring_crosssections, only: ncrs
-      use m_monitoring_runupgauges, only: nrug, rug
+      use m_monitoring_runupgauges, only: num_rugs, rug
       use m_fm_wq_processes, only: jawaqproc, numwqbots
       use processes_input, only: num_wq_user_outputs => noout_user
       use m_dad, only: dad_included, dadpar
@@ -2205,9 +2211,10 @@ private
       !
       ! Run-up gauge variables
       !
-      if (nrug > 0) then
-         temp_pointer => rug%maxruh
-         call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_RUG_RUHEIGHT), temp_pointer)
+      if (num_rugs > 0) then
+         call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_RUG_RUHEIGHT), rug(:)%max_rug_height)
+         call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_RUG_RUX), rug(:)%max_x)
+         call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_RUG_RUY), rug(:)%max_y)
       endif
 
       !
@@ -2735,8 +2742,6 @@ private
          call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_DRED_TIME_FRAC),     null(), calculate_dredge_time_fraction)
          call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_PLOUGH_TIME_FRAC),  time_ploughed)
       endif
-      
-      ! TODO: UNST-7239: runup gauges
 
 
       !call add_stat_output_items(output_set, output_config_set%configs(IDX_MAP_S0                                                        )
@@ -2891,7 +2896,8 @@ private
       !call add_stat_output_items(output_set, output_config_set%configs(IDX_CLS_UCDIR_EULER                                               )
       !
       call process_output_quantity_configs(output_config_set)
-      call initialize_statistical_output(output_set)
+      call realloc(output_set, output_set%count) ! set size to count
+      call initialize_statistical_output(output_set%statout)
 
    end subroutine flow_init_statistical_output_his
 
