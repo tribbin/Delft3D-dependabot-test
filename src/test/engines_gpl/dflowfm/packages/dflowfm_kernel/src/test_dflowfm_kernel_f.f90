@@ -34,7 +34,7 @@ program test_dflowfm_kernel
     use test_read_property
     use test_airdensity
     use test_temporal_statistics
-    use test_statistical_output
+    use test_statistical_output_parameters
     
     implicit none
     
@@ -52,7 +52,7 @@ program test_dflowfm_kernel
     call tests_read_property()
     call tests_compute_airdensity()
     call tests_temporal_statistics()
-    call tests_statistical_output()
+    call tests_statistical_output_parameters()
     !
     ! Done - properly finalize
     !

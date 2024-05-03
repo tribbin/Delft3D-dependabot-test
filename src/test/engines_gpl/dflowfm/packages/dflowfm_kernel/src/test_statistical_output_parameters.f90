@@ -21,20 +21,20 @@
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
 
-module test_statistical_output
+module test_statistical_output_parameters
    use ftnunit
    use stdlib_kinds, only: dp
-   use m_statistical_output
+   use m_statistical_output_parameters
    implicit none
    private
 
    real(dp), parameter :: test_tolerance = 1e-3_dp
 
-   public :: tests_statistical_output
+   public :: tests_statistical_output_parameters
 
 contains
 
-subroutine tests_statistical_output
+subroutine tests_statistical_output_parameters
     call test(test_parse_current, 'Tests parsing of mdu current string setting for statistical output')
     call test(test_parse_one, 'Tests parsing of mdu one string setting as current for statistical output')
     call test(test_parse_none, 'Tests parsing of mdu none string setting for statistical output')
@@ -42,7 +42,7 @@ subroutine tests_statistical_output
     call test(test_parse_max, 'Tests parsing of mdu max string setting for statistical output')
     call test(test_parse_min, 'Tests parsing of mdu min string setting for statistical output')
     call test(test_parse_max_window, 'Tests parsing of mdu max(5) + current string setting for statistical output')
-end subroutine tests_statistical_output
+end subroutine tests_statistical_output_parameters
 
 subroutine test_parse_current()
    character(:), allocatable :: input
@@ -136,4 +136,4 @@ subroutine test_parse_max_window()
    call assert_equal(operation_type, SO_CURRENT, '')
    call assert_equal(moving_average_window, 1, '')
 end subroutine test_parse_max_window
-end module test_statistical_output
+end module test_statistical_output_parameters
