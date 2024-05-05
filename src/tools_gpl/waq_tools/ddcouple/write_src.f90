@@ -22,19 +22,15 @@
 !!  rights reserved.
 
       subroutine write_src(hyd)
+      ! write a src file
 
-      ! function : write a src file
-
-      ! global declarations
-
-      use m_srstop
-      use m_monsys
-      use hydmod                   ! module contains everything for the hydrodynamics
+      use m_logger, only : terminate_execution, get_log_unit_number
+      use m_hydmod                   ! module contains everything for the hydrodynamics
       implicit none
 
       ! declaration of the arguments
 
-      type(t_hyd)                            :: hyd                   ! description of the hydrodynamics
+      type(t_hydrodynamics)                            :: hyd                   ! description of the hydrodynamics
 
       ! local declarations
 
@@ -54,17 +50,17 @@
       integer                                :: iwaste                ! wasteload index
       integer                                :: ibrk                  ! breakpoint index
 
-      call getmlu(lunrep)
+      call get_log_unit_number(lunrep)
 
-      nowast = hyd%wasteload_coll%cursize
+      nowast = hyd%wasteload_coll%current_size
       nolay  = hyd%nolay
-      nobrk  = hyd%wasteload_data%no_brk
+      nobrk  = hyd%wasteload_data%num_breakpoints
 
-      if ( nowast .ne. hyd%wasteload_data%no_loc ) then
+      if ( nowast .ne. hyd%wasteload_data%num_locations ) then
          write(lunrep,*) 'error, number of wasteloads in hyd file does not equal the data files'
          write(lunrep,*) 'number from hyd file: ',nowast
-         write(lunrep,*) 'number from data    :',hyd%wasteload_data%no_loc
-         call srstop(1)
+         write(lunrep,*) 'number from data    :',hyd%wasteload_data%num_locations
+         call terminate_execution(1)
       endif
 
       if ( nolay .gt. 1 ) then
@@ -92,8 +88,8 @@
          waq_layers_frac = 1.0
       endif
 
-      call dlwqfile_open(hyd%file_src)
-      lunsrc = hyd%file_src%unit_nr
+      call hyd%file_src%open()
+      lunsrc = hyd%file_src%unit
 
       if ( hyd%time_in_seconds ) then
           write(lunsrc,*) '  SECONDS   ; time given in seconds'
@@ -129,7 +125,7 @@
       enddo
       deallocate(waq_layers_frac)
 
-      close(hyd%file_src%unit_nr)
+      close(hyd%file_src%unit)
       hyd%file_src%status = FILE_STAT_UNOPENED
 
       return

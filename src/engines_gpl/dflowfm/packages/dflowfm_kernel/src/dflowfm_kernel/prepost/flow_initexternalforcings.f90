@@ -73,7 +73,7 @@ integer function flow_initexternalforcings() result(iresult)              ! This
  use m_fm_icecover, only: ja_ice_area_fraction_read, ja_ice_thickness_read, fm_ice_activate_by_ext_forces
    use mass_balance_areas_routines, only : get_mbainputname
    use m_lateral, only : numlatsg, ILATTP_1D, ILATTP_2D, ILATTP_ALL, kclat, nlatnd, nnlat, n1latsg, n2latsg, balat, qplat, lat_ids
-   use m_lateral, only : alloc_lateraldata, apply_transport
+   use m_lateral, only : initialize_lateraldata, apply_transport
 
    implicit none
    character(len=256)            :: filename, sourcemask
@@ -125,6 +125,7 @@ integer function flow_initexternalforcings() result(iresult)              ! This
    integer                       :: tmp_nbndu
    integer                       :: tmp_nbndn
    integer                       :: tmp_nbndt
+   integer                       :: num_layers
 
 
    iresult = DFM_NOERR
@@ -2208,7 +2209,8 @@ integer function flow_initexternalforcings() result(iresult)              ! This
       ! Allow laterals from old ext, even when new structures file is present (but only when *no* [Lateral]s were in new extforce file).
       if (num_lat_ini_blocks == 0 .and. numlatsg > 0) then 
          call realloc(balat, numlatsg, keepExisting = .false., fill = 0d0)
-         call realloc(qplat, numlatsg, keepExisting = .false., fill = 0d0)
+         num_layers = max(1, kmx)
+         call realloc(qplat, (/num_layers, numlatsg/), keepExisting = .false., fill = 0d0)
          call realloc(lat_ids, numlatsg, keepExisting = .false., fill = '')
 
          do n = 1,numlatsg
@@ -2235,7 +2237,7 @@ integer function flow_initexternalforcings() result(iresult)              ! This
                numlatsg = numlatsg + 1
 
                L = index(filename,'.', back=.true.) - 1
-               success = adduniformtimerelation_objects('lateral_discharge', filename, 'lateral', filename(1:L), 'discharge', '', numlatsg, kx, qplat)
+               success = adduniformtimerelation_objects('lateral_discharge', filename, 'lateral', filename(1:L), 'discharge', '', numlatsg, kx, qplat(1,:))
                if (success) then
                   ! assign id derived from pol file
                   lat_ids(numlatsg) = filename(1:L)
@@ -2810,7 +2812,7 @@ integer function flow_initexternalforcings() result(iresult)              ! This
    ! Copy NUMCONST to NUMCONST_MDU, before the user (optionally) adds tracers interactively
    NUMCONST_MDU = NUMCONST
    
-   call alloc_lateraldata(numconst)
+   call initialize_lateraldata(numconst)
 
 end function flow_initexternalforcings
 

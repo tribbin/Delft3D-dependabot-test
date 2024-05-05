@@ -27,8 +27,8 @@ module m_dlwqdata_save_restore
 
     use m_waq_precision
     use delwaq2_data
-    use dlwq_hyd_data
-    use memory_mangement
+    use m_waq_data_structure
+    use variable_declaration
     use m_sysi
     use m_sysn
 
