@@ -118,13 +118,10 @@ subroutine flow_finalize_usertimestep(iresult)
             if (trachy_fl%gen%ntrtobs > 0) then
                call updateValuesOnObservationStations()
             end if
-            if (trachy_fl%gen%ntrtcrs > 0) then
-               call update_values_on_cross_sections(.true.)
-            end if
          end if
       end if
       
-      ! update values on cross-sections, including reset and reduce
+      ! update values on cross-sections and reduce them across the partitions
       call update_values_on_cross_sections(.true.)
 
       ! valobs was updated, also call the function pointers to make sure that the data has been processed properly for writing in flow_externaloutput

@@ -43,15 +43,12 @@ module m_update_values_on_cross_sections
 contains
 
 !> Updates all monitored data on all cross sections, including time-integrated values
-subroutine update_values_on_cross_sections( reduce_and_reset)
+subroutine update_values_on_cross_sections(do_reduce)
    use m_monitoring_crosssections, only: nval, ncrs, crs_values, crs_timescales, crs
    use precision, only: comparereal
-   use m_transport, only: NUMCONST_MDU
-   use m_sediment, only: jased, stmpar
    use m_flowtimes, only: time1
-   use m_partitioninfo, only: jampi
    
-   logical, intent(in) :: reduce_and_reset
+   logical, intent(in) :: do_reduce
 
    real(dp)       :: time_since_last_reset, time_since_last_call
    integer        :: iv, icrs
@@ -60,42 +57,20 @@ subroutine update_values_on_cross_sections( reduce_and_reset)
       return
    end if
 
-   ! Ugly way to initialise; global variable nval is declared zero in m_monitoring_crosssections,
-   ! so this statement is only .true. the first time this routine is called.
-   if (nval == 0) then
-      nval  = 5 + NUMCONST_MDU 
-      if (jased == 4 .and. stmpar%lsedtot > 0) then
-         nval = nval + stmpar%lsedtot + 1      
-         if (stmpar%lsedsus > 0) then
-            nval = nval + stmpar%lsedsus + 1
-         end if
-      end if
-   end if
-
-   if (.not. allocated(crs_timescales)) then
-      allocate(crs_timescales(nval))
-      crs_timescales = 1.0_dp
-   end if
-
-   if (.not. allocated(crs_values)) then
-      allocate(crs_values(nval,ncrs))
-      crs_values = 0.0_dp
-   end if
-
-   call integrate_over_cross_section_flowlinks(reduce_and_reset)
-   
    if (comparereal(time_of_last_reset, -1.0_dp) == 0) then
-      time_of_last_reset = time1
-      time_of_last_call  = time1
+      call initialise_cross_section_integrals
    end if
+
+   call integrate_over_cross_section_flowlinks(do_reduce)
    
    time_since_last_call  = time1 - time_of_last_call
-   time_since_last_reset = time1 - time_of_last_reset
    
    if (comparereal(time_since_last_reset, 0.0_dp) == 0) then
       time_since_last_reset = 1.0_dp ! So that the first time after resetting, we don't divide by zero in calculating the average
+   else
+      time_since_last_reset = time1 - time_of_last_reset
    end if
-   
+
    ! Update values of crs object
    do icrs = 1, ncrs
       do iv = 1, nval
@@ -107,14 +82,41 @@ subroutine update_values_on_cross_sections( reduce_and_reset)
 
    time_of_last_call = time1
    
-   if (reduce_and_reset) then
-      do icrs = 1, ncrs
-         crs(icrs)%sumvalcum = 0.0_dp
-      end do
-      time_of_last_reset = time1
-   end if
-   
 end subroutine update_values_on_cross_sections
+
+!> Initialise memory for cross-section flowlink integrals
+subroutine initialise_cross_section_integrals
+   use m_monitoring_crosssections, only: nval, ncrs, crs_values, crs_timescales, crs
+   use m_transport, only: NUMCONST_MDU
+   use m_sediment, only: jased, stmpar
+   use m_flowtimes, only: time1
+   
+   integer :: icrs
+
+   nval  = 5 + NUMCONST_MDU 
+   if (jased == 4 .and. stmpar%lsedtot > 0) then
+      nval = nval + stmpar%lsedtot + 1      
+      if (stmpar%lsedsus > 0) then
+         nval = nval + stmpar%lsedsus + 1
+      end if
+   end if
+
+   allocate(crs_timescales(nval))
+   crs_timescales = 1.0_dp
+
+   allocate(crs_values(nval, ncrs))
+   crs_values = 0.0_dp
+   
+   do icrs = 1, ncrs
+      crs(icrs)%sumvalcur = 0.0_dp
+      crs(icrs)%sumvalcum = 0.0_dp
+      crs(icrs)%sumvalavg = 0.0_dp
+   end do
+   
+   time_of_last_reset = time1
+   time_of_last_call  = time1
+   
+end subroutine initialise_cross_section_integrals
 
 !> Integrate monitored values over the flowlinks of each cross-section
 !! Optionally includes reduction across processes in case of a parallel model
@@ -207,9 +209,6 @@ subroutine integrate_over_cross_section_flowlinks(do_reduce)
          end do    
       end if
    end if
-   
-   ! DENK DROM
-   write(0,*) 'beep - do_reduce = ', do_reduce
    
    if (jampi == 1 .and. do_reduce) then
       call reduce_cross_section_flowlink_integrals()

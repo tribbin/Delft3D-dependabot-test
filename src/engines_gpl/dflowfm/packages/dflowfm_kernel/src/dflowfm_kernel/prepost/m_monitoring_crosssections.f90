@@ -66,7 +66,7 @@ integer                              :: maxnval = 5            !< Current max nu
 
 integer, private                     :: iUniq_ = 1
 character(len=*), parameter, private :: defaultName_ = 'Crs'
-real(dp), allocatable                :: crs_values(:,:)        !< Current values of monitored crs quantities
+real(dp), allocatable                :: crs_values(:,:)        !< Current values of monitored crs quantities; size = [ number of monitored values (nval) -by- number of cross-sections (ncrs)]
 real(dp), allocatable                :: crs_timescales(:)      !< Time-scale multiplication factors (e.g. morfac in the case of sediment).
 integer                              :: nval = 0               !< number of quantities moonitored including sediment
 integer                              :: nNodesCrs              !< [-] Total number of nodes for all cross section geometries
