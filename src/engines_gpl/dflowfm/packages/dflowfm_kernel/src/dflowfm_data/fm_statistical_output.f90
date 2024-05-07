@@ -26,7 +26,7 @@ private
    type(t_nc_dim_ids), parameter :: nc_dims_3D_interface_edge = t_nc_dim_ids(laydim_interface_edge = .true., statdim = .true., timedim = .true.)
 
    double precision, dimension(:,:), allocatable, target :: obscrs_data !< observation cross section constituent data on observation cross sections to be written
-   double precision, dimension(:), allocatable, target :: time_dredged, time_ploughed
+   double precision, dimension(:),   allocatable, target :: time_dredged, time_ploughed
    double precision, dimension(:),   allocatable, target :: SBCX, SBCY, SBWX, SBWY, SSWX, SSWY, SSCX, SSCY
 
    contains
@@ -2901,16 +2901,16 @@ private
    !> Update output quantity configs with information about the simulation model (e.g., do not write layers when simulation is 2D)
    subroutine process_output_quantity_configs(output_quantity_config_set)
       type(t_output_quantity_config_set), intent(inout) :: output_quantity_config_set !< The set of configs for all possible output variables
-      type(t_output_quantity_config), pointer :: config
       integer :: i
       
-      associate(config => output_quantity_config_set%configs(i))
       do i = 1, output_quantity_config_set%count
-         if (allocated(config%nc_dim_ids)) then
-            call process_nc_dim_ids(config%nc_dim_ids)
-         end if
+         associate(config => output_quantity_config_set%configs(i))
+            if (allocated(config%nc_dim_ids)) then
+               call process_nc_dim_ids(config%nc_dim_ids)
+            end if
+         end associate
       end do
-      end associate
+
    end subroutine process_output_quantity_configs
 
    !> Deactivate 3D dimension IDs for 2D variables
