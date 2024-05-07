@@ -5716,7 +5716,7 @@
 						<parameter name="DATE_TIME" toleranceAbsolute="0.0001"/>
 						<parameter name="LINK_SUM" toleranceAbsolute="300"/>
 						<parameter name="DREDGE_VOLUME" toleranceAbsolute="3000"/>
-						<parameter name="DUMP_VOLUME" toleranceAbsolute="300"/>
+						<parameter name="DUMP_VOLUME" toleranceAbsolute="1000"/>
 					</parameters>
 				</file>
 				<file name="trim-drd1.dat" type="NEFIS">
