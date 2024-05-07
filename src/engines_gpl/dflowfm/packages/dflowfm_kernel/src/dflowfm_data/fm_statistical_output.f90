@@ -803,7 +803,7 @@ private
       call ncu_set_att(atts(4), 'valid_range', (/ 0, 4 /))
       call addoutval(out_quan_conf_his, IDX_HIS_GENERAL_STRUCTURE_STATE,                            &
                      'Wrihis_structure_gen', 'general_structure_state', 'Flow state at general structure', '',                     &
-                     '', UNC_LOC_GENSTRU, id_nc_type = id_nc_int, nc_atts = atts(1:4))
+                     '', UNC_LOC_GENSTRU, id_nc_type = id_nc_int, nc_atts = atts)
       call addoutval(out_quan_conf_his, IDX_HIS_GENERAL_STRUCTURE_S1_ON_CREST,                      &
                      'Wrihis_structure_gen', 'general_structure_s1_on_crest', 'Water level on crest of general structure',          &
                      '', 'm', UNC_LOC_GENSTRU, nc_atts = atts(1:1))
@@ -938,7 +938,7 @@ private
       call ncu_set_att(atts(4), 'valid_range', (/ 0, 2 /))
       call addoutval(out_quan_conf_his, IDX_HIS_WEIRGEN_STATE,                                      &
                      'Wrihis_structure_weir', 'weirgen_state', 'Flow state at weir',                                 &
-                     '', '', UNC_LOC_WEIRGEN, nc_atts = atts(1:4), id_nc_type = id_nc_int)
+                     '', '', UNC_LOC_WEIRGEN, nc_atts = atts, id_nc_type = id_nc_int)
 
       call addoutval(out_quan_conf_his, IDX_HIS_WEIRGEN_FORCE_DIFFERENCE,                           &
                      'Wrihis_structure_weir', 'weirgen_force_difference', 'Force difference per unit width at weir', '',                      &
@@ -983,7 +983,7 @@ private
       call ncu_set_att(atts(4), 'valid_range', (/ 0, 4 /))
       call addoutval(out_quan_conf_his, IDX_HIS_ORIFICE_STATE,                                      &
                      'Wrihis_structure_orifice', 'orifice_state', 'Flow state at orifice', '',                      &
-                     '', UNC_LOC_ORIFICE, nc_atts = atts(1:4), id_nc_type = id_nc_int)
+                     '', UNC_LOC_ORIFICE, nc_atts = atts, id_nc_type = id_nc_int)
 
       call addoutval(out_quan_conf_his, IDX_HIS_ORIFICE_S1_ON_CREST,                                &
                      'Wrihis_structure_orifice', 'orifice_s1_on_crest', 'Water level on crest of orifice', '',                     &
@@ -1062,7 +1062,7 @@ private
       call ncu_set_att(atts(4), 'valid_range', (/ 0, 2 /))
       call addoutval(out_quan_conf_his, IDX_HIS_CULVERT_STATE,                                      &
                      'Wrihis_structure_culvert', 'culvert_state', 'Flow state at culvert', '',                     &
-                     '', UNC_LOC_CULVERT, nc_atts = atts(1:4), id_nc_type = id_nc_int)
+                     '', UNC_LOC_CULVERT, nc_atts = atts, id_nc_type = id_nc_int)
 
       !! Dambreak
       call addoutval(out_quan_conf_his, IDX_HIS_DAMBREAK_S1UP,                                      &

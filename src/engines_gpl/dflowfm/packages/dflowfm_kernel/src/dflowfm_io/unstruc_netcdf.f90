@@ -17844,15 +17844,16 @@ subroutine definencvar(ncid, idq, itype, idims, name, desc, unit, namecoord, geo
       int_fill = intmiss
    endif
    ! Add a fill value of the correct type
-   if (itype == nf90_short .or. itype == nf90_int) then
+   select case (itype)
+   case (nf90_short, nf90_int)   
       ierr = nf90_put_att(ncid, idq, '_FillValue', int_fill)
-   elseif (itype == nf90_float) then
+   case (nf90_float) 
       ierr = nf90_put_att(ncid, idq, '_FillValue', real(dp_fill))
-   elseif (itype == nf90_double) then
+   case (nf90_double)
       ierr = nf90_put_att(ncid, idq, '_FillValue', dp_fill)
-   else
+   case default
       call mess(LEVEL_ERROR,'unstruc_netcdf/definencvar: invalid netcdf type for fill_value!')
-   end if
+   end select
 
    if (present(attset)) then
       if (attset%count > 0) then
