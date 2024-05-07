@@ -110,7 +110,7 @@ module m_dlwqtr
         if ( first ) then
             first = .false.
             ier   = 0
-            call getmlu(lunrep)
+            call get_log_unit_number(lunrep)
             write(lunrep,*)
             write(lunrep,2000)
             ! Set pointers in param array
@@ -154,7 +154,7 @@ module m_dlwqtr
                     end if
                 end if
                 if ( ier /= 0 ) then
-                    call srstop(1)
+                    call terminate_execution(1)
                 end if
             end if
             write(lunrep,2070)
