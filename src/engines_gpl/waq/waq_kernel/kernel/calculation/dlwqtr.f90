@@ -38,8 +38,8 @@ module m_dlwqtr
                          func   , segfun , disper , velo   , itime  , & 
                          idt    , syname , nocons , nofun  , coname , & 
                          paname , funame , sfname , updatr , ilflag )
-        use m_srstop
-        use m_monsys
+        
+        use m_logger, only : terminate_execution, get_log_unit_number
 
         SAVE
         integer(kind=int_wp), intent(in) :: notot           !< Total number of substances

@@ -53,7 +53,7 @@ module m_sgmres
 
         use m_psolve
         use m_matvec
-        use m_srstop
+        use m_logger, only : terminate_execution
 
         integer(kind = int_wp), intent(in   ) :: ntrace                       !< Dimension of the matrix
         real(kind = dp),        intent(in   ) :: rhs(ntrace)                  !< right-hand side (1 substance)
@@ -137,7 +137,7 @@ module m_sgmres
         do iloop = 1, ntrace
             if (isnan(rhs(iloop))) then
                 write (lurep, '(''ERROR: NaN in RHS of segment:'', i10)') iloop
-                call srstop(1)
+                call terminate_execution(1)
             endif
         enddo
         bnrm2 = sqrt(sum(rhs * rhs))
@@ -344,7 +344,7 @@ module m_sgmres
             write (LUrep, *) '                        decrease timestep'
             write (LUrep, *) '                        increase MAXITER'
             write (lurep, *) ' 4. other: exact cause will be difficult to identify, cell nr. may help'
-            call srstop(1)
+            call terminate_execution(1)
         elseif (iERR < 0) then
             write (*, *) 'ERROR in GMRES', IERR
             write (LUrep, *) ' ERROR in GMRES 1', IERR
