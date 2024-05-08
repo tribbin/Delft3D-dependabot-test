@@ -28,14 +28,14 @@ module m_write_map_output
 contains
 
 
-    subroutine write_map_output (iomap, namfim, itime, moname, noseg, &
+    subroutine write_map_output(map_file_unit, namfim, itime, moname, noseg, &
             notot1, conc1, synam1, notot2, conc2, synam2, iknmrk, init)
 
-        !     Files               : iomap = unit number of binary map output file
+        !     Files               : map_file_unit = unit number of binary map output file
         use timers
         implicit none
 
-        integer(kind = int_wp), intent(in) :: iomap                ! unit number output file
+        integer(kind = int_wp), intent(in) :: map_file_unit                ! unit number output file
         character(len=*), intent(in) :: namfim               ! name output file
         integer(kind = int_wp), intent(in) :: itime                ! present time in clock units
         character(40), intent(in) :: moname(4)            ! model identification
@@ -63,9 +63,9 @@ contains
 
         if (init == 1) then
             init = 0
-            write (iomap)  moname
-            write (iomap)  notot1 + notot2, noseg
-            write (iomap)  synam1, synam2
+            write (map_file_unit)  moname
+            write (map_file_unit)  notot1 + notot2, noseg
+            write (map_file_unit)  synam1, synam2
         endif
 
         !     Perform output:
@@ -84,23 +84,23 @@ contains
                 endif
             enddo
 
-            write (iomap) itime, (outconc(:, iseg), conc2(:, iseg), iseg = 1, noseg)
+            write (map_file_unit) itime, (outconc(:, iseg), conc2(:, iseg), iseg = 1, noseg)
 
             deallocate(outconc)
         else
             ! Slow alternative
-            write (iomap) itime
+            write (map_file_unit) itime
             do iseg = 1, noseg
                 if (btest(iknmrk(iseg), 0)) then
-                    write (iomap) conc1(:, iseg), conc2(:, iseg)
+                    write (map_file_unit) conc1(:, iseg), conc2(:, iseg)
                 else
-                    write (iomap) (missing_value, k = 1, notot1), conc2(:, iseg)
+                    write (map_file_unit) (missing_value, k = 1, notot1), conc2(:, iseg)
                 endif
             enddo
         endif
 
         if (timon) call timstop (ithandl)
         return
-    end
+    end subroutine write_map_output
 
 end module m_write_map_output
