@@ -38,7 +38,7 @@ module m_dlwqo2
     use m_flxbal
     use m_fioutv
     use m_fiosub
-    use m_fioraa
+
 
     implicit none
 
@@ -301,12 +301,9 @@ contains
         !
         !     Evaluate standard DELWAQ output timers
         !
-        call stepyn (itime, idt, imstrt, imstop, imstep, &
-                imflag, lmfirs)
-        call stepyn (itime, idt, idstrt, idstop, idstep, &
-                idflag, ldfirs)
-        call stepyn (itime, idt, ihstrt, ihstop, ihstep, &
-                ihflag, lhfirs)
+        call stepyn (itime, idt, imstrt, imstop, imstep, imflag, lmfirs)
+        call stepyn (itime, idt, idstrt, idstop, idstep, idflag, ldfirs)
+        call stepyn (itime, idt, ihstrt, ihstop, ihstep, ihflag, lhfirs)
         !
         !     Fill mass in AMASS2 array by summing AMASS over all segments
         !
@@ -832,5 +829,42 @@ contains
         if (timon) call timstop (ithandl)
 
     END SUBROUTINE fill_sub_areas_balances
+
+    SUBROUTINE FIORAA (OUTVAL, NRVAR, TRRAAI, NORAAI, NOSYS)
+
+        !  Fills output buffer OUTVAL for raaien
+
+        !
+        !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
+        !     ----    -----    ------     ------- -----------
+        !     OUTVAL  REAL    NRVAR,*     OUTPUT  Values for vars on output grid
+        !     NRVAR   INTEGER       1     INPUT   Number of output vars
+        !     TRRAAI  REAL    NOSYS,*     INPUT   Tranport over raai for active substanc
+        !     NORAAI  INTEGER       1     INPUT   Number of raaien
+        !     NOSYS   INTEGER       1     INPUT   Number of parameters in TRRAAI
+
+        use timers
+
+        INTEGER(kind = int_wp) :: NRVAR, NORAAI, NOSYS
+        REAL(kind = real_wp) :: OUTVAL(NRVAR, *), TRRAAI(NOSYS, *)
+
+        integer(kind = int_wp) :: iraai, isys
+        real(kind = real_wp), PARAMETER :: RMISS = -999.
+        integer(kind = int_wp) :: ithandl = 0
+        if (timon) call timstrt ("fioraa", ithandl)
+
+        ! Copy values into output buffer
+        DO IRAAI = 1, NORAAI
+            DO ISYS = 1, NOSYS
+                OUTVAL(ISYS, IRAAI) = TRRAAI(ISYS, IRAAI)
+            end do
+            DO ISYS = NOSYS + 1, NRVAR
+                OUTVAL(ISYS, IRAAI) = RMISS
+            end do
+        end do
+
+        if (timon) call timstop (ithandl)
+
+    END SUBROUTINE FIORAA
 
 end module m_dlwqo2
