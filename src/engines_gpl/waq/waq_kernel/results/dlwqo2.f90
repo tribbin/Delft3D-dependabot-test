@@ -478,7 +478,7 @@ contains
             !
             if (isrtou == imon) then
                 !
-                call outmon (lunout, idump, conc, amass2, itime, &
+                call write_monitoring_output (lunout, idump, conc, amass2, itime, &
                         duname, syname, moname, nodump, notot, &
                         ip, isflag, asmass, ibflag, nrvar, &
                         ounam(k1), riobuf, itstrt, itstop, ndmpar, &
@@ -486,7 +486,7 @@ contains
                 !
             elseif (isrtou == imo2) then
                 !
-                call outmon (lunout, idump, conc, amass2, itime, &
+                call write_monitoring_output (lunout, idump, conc, amass2, itime, &
                         duname, syname, moname, nodump, 0, &
                         ip, isflag, asmass, ibflag, nrvar, &
                         ounam(k1), riobuf, itstrt, itstop, ndmpar, &

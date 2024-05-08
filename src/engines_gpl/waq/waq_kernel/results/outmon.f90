@@ -28,18 +28,18 @@ module m_outmon
 contains
 
 
-    SUBROUTINE OUTMON (IOUT, IDUMP, CONC, AMASS2, ITIME, &
+    SUBROUTINE write_monitoring_output (monitoring_file_unit, IDUMP, CONC, AMASS2, ITIME, &
             DNAME, SNAME, MNAME, NODUMP, NOTOT, &
             IP, ISFLAG, ASMASS, IBFLAG, NOTOT2, &
             SYNAM2, CONC2, ITSTRT, ITSTOP, NDMPAR, &
             DANAM)
-        ! Writes monitoring results to IOUT in blocks of 10 systems.
+        ! Writes monitoring results to monitoring_file_unit in blocks of 10 systems.
 
         !     PARAMETERS          :
         !
         !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
         !     ----    -----    ------     ------- -----------
-        !     IOUT    INTEGER     1       INPUT   unit number output file
+        !     monitoring_file_unit    INTEGER     1       INPUT   unit number output file
         !     IDUMP   INTEGER  NODUMP     INPUT   segment numbers for dump
         !     AMASS   REAL     NOTOT*?    INPUT   mass in the whole system
         !     CONC    REAL     NOTOT*?    INPUT   concentration values
@@ -66,7 +66,7 @@ contains
         use date_time_utils, only: report_time
         use timers
 
-        INTEGER(kind = int_wp) :: IOUT, ITIME, NODUMP, NOTOT, ISFLAG, &
+        INTEGER(kind = int_wp) :: monitoring_file_unit, ITIME, NODUMP, NOTOT, ISFLAG, &
                 IBFLAG, NOTOT2, ITSTRT, ITSTOP, NDMPAR
         INTEGER(kind = int_wp) :: IDUMP(*), IP(4)
         REAL(kind = real_wp) :: CONC(NOTOT, *), AMASS2(NOTOT, 5), &
@@ -80,7 +80,7 @@ contains
         integer(kind = int_wp) :: k, id, nend
         real(kind = real_wp) :: percit
         integer(kind = int_wp) :: ithandl = 0
-        if (timon) call timstrt ("outmon", ithandl)
+        if (timon) call timstrt ("write_monitoring_output", ithandl)
 
         ! initialise the paging, accumulation arrays and acumul flag
         IF (IP(3) == 0) THEN
@@ -90,66 +90,66 @@ contains
 
         ! start printing
         IF (MOD(IP(4), IP(3)) == 0) THEN
-            WRITE (IOUT, '('' '')')
-            WRITE (IOUT, 2100) (MNAME(K), K = 1, 4)
+            WRITE (monitoring_file_unit, '('' '')')
+            WRITE (monitoring_file_unit, 2100) (MNAME(K), K = 1, 4)
         ENDIF
         IP(4) = IP(4) + 1
         !
         PERCIT = 100. * (ITIME - ITSTRT) / (ITSTOP - ITSTRT)
-        WRITE (IOUT, 2080) PERCIT
+        WRITE (monitoring_file_unit, 2080) PERCIT
         CALL report_time (6, ITIME, ISFLAG, PERCIT)
-        WRITE (IOUT, 2000)
-        CALL report_time (IOUT, ITIME, ISFLAG, -999.0)
-        WRITE (IOUT, *)
+        WRITE (monitoring_file_unit, 2000)
+        CALL report_time (monitoring_file_unit, ITIME, ISFLAG, -999.0)
+        WRITE (monitoring_file_unit, *)
         !
         DO ID = 1, NOTOT, IP(2)
             NEND = MIN (NOTOT, ID + IP(2) - 1)
-            WRITE (IOUT, 2030) (AMASS2(K, 1), K = ID, NEND)
-            WRITE (IOUT, 2040) (AMASS2(K, 2), K = ID, NEND)
-            WRITE (IOUT, 2050) (AMASS2(K, 3), K = ID, NEND)
-            WRITE (IOUT, 2060) (AMASS2(K, 4), K = ID, NEND)
-            WRITE (IOUT, 2070) (AMASS2(K, 5), K = ID, NEND)
-            WRITE (IOUT, 2020) (SNAME(K)(1:10), K = ID, NEND)
-            WRITE (IOUT, 2020) (SNAME(K)(11:20), K = ID, NEND)
+            WRITE (monitoring_file_unit, 2030) (AMASS2(K, 1), K = ID, NEND)
+            WRITE (monitoring_file_unit, 2040) (AMASS2(K, 2), K = ID, NEND)
+            WRITE (monitoring_file_unit, 2050) (AMASS2(K, 3), K = ID, NEND)
+            WRITE (monitoring_file_unit, 2060) (AMASS2(K, 4), K = ID, NEND)
+            WRITE (monitoring_file_unit, 2070) (AMASS2(K, 5), K = ID, NEND)
+            WRITE (monitoring_file_unit, 2020) (SNAME(K)(1:10), K = ID, NEND)
+            WRITE (monitoring_file_unit, 2020) (SNAME(K)(11:20), K = ID, NEND)
             !
             VNAME = 'CONCENTRATION'
-            CALL OUTMO1 (IOUT, IDUMP, CONC, VNAME, DNAME, &
+            CALL OUTMO1 (monitoring_file_unit, IDUMP, CONC, VNAME, DNAME, &
                     NODUMP, ID, NEND, NOTOT)
             IF (IBFLAG == 1) THEN
                 VNAME = 'MASS'
-                CALL OUTMO2 (IOUT, ASMASS(1, 1, 1), VNAME, DANAM, NDMPAR, &
+                CALL OUTMO2 (monitoring_file_unit, ASMASS(1, 1, 1), VNAME, DANAM, NDMPAR, &
                         ID, NEND, NOTOT)
                 VNAME = 'PROCESSES'
-                CALL OUTMO2 (IOUT, ASMASS(1, 1, 2), VNAME, DANAM, NDMPAR, &
+                CALL OUTMO2 (monitoring_file_unit, ASMASS(1, 1, 2), VNAME, DANAM, NDMPAR, &
                         ID, NEND, NOTOT)
                 VNAME = 'LOADS ( IN )'
-                CALL OUTMO2 (IOUT, ASMASS(1, 1, 3), VNAME, DANAM, NDMPAR, &
+                CALL OUTMO2 (monitoring_file_unit, ASMASS(1, 1, 3), VNAME, DANAM, NDMPAR, &
                         ID, NEND, NOTOT)
                 VNAME = 'LOADS ( OUT )'
-                CALL OUTMO2 (IOUT, ASMASS(1, 1, 4), VNAME, DANAM, NDMPAR, &
+                CALL OUTMO2 (monitoring_file_unit, ASMASS(1, 1, 4), VNAME, DANAM, NDMPAR, &
                         ID, NEND, NOTOT)
                 VNAME = 'TRANSPORT ( IN )'
-                CALL OUTMO2 (IOUT, ASMASS(1, 1, 5), VNAME, DANAM, NDMPAR, &
+                CALL OUTMO2 (monitoring_file_unit, ASMASS(1, 1, 5), VNAME, DANAM, NDMPAR, &
                         ID, NEND, NOTOT)
                 VNAME = 'TRANSPORT ( OUT )'
-                CALL OUTMO2 (IOUT, ASMASS(1, 1, 6), VNAME, DANAM, NDMPAR, &
+                CALL OUTMO2 (monitoring_file_unit, ASMASS(1, 1, 6), VNAME, DANAM, NDMPAR, &
                         ID, NEND, NOTOT)
             ENDIF
             !
-            WRITE (IOUT, '('' '')')
+            WRITE (monitoring_file_unit, '('' '')')
         end do
 
         !     extra vars
         DO ID = 1, NOTOT2, IP(2)
             NEND = MIN (NOTOT2, ID + IP(2) - 1)
-            WRITE (IOUT, 2020) (SYNAM2(K)(1:10), K = ID, NEND)
-            WRITE (IOUT, 2020) (SYNAM2(K)(11:20), K = ID, NEND)
+            WRITE (monitoring_file_unit, 2020) (SYNAM2(K)(1:10), K = ID, NEND)
+            WRITE (monitoring_file_unit, 2020) (SYNAM2(K)(11:20), K = ID, NEND)
             !
             VNAME = 'VALUE'
-            CALL OUTMO2 (IOUT, CONC2, VNAME, DNAME, NODUMP, &
+            CALL OUTMO2 (monitoring_file_unit, CONC2, VNAME, DNAME, NODUMP, &
                     ID, NEND, NOTOT2)
             !
-            WRITE (IOUT, '('' '')')
+            WRITE (monitoring_file_unit, '('' '')')
         end do
         !
         if (timon) call timstop (ithandl)
@@ -165,6 +165,6 @@ contains
         2080 FORMAT (' ', F6.2, '% Completed')
         2100 FORMAT (45X, A40)
         !
-    END SUBROUTINE OUTMON
+    END SUBROUTINE write_monitoring_output
 
 end module m_outmon
