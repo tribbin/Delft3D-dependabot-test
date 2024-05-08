@@ -26,7 +26,7 @@ module m_integration_scheme_21_22
     use m_zercum
     use m_sgmres
     use m_setset
-    use m_proint
+    use m_integrate_areas_fluxes
     use m_proces
     use m_hsurf
     use m_dlwq_output_theta

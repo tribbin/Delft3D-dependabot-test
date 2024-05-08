@@ -20,7 +20,7 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_proint
+module m_integrate_areas_fluxes
     use m_waq_precision
 
     implicit none
@@ -28,7 +28,7 @@ module m_proint
 contains
 
 
-    subroutine integrate_areas_fluxes (noflux, ndmpar, idt, iturat, flxdmp, &
+    subroutine integrate_areas_fluxes(noflux, ndmpar, idt, iturat, flxdmp, &
             flxint, isdmp, ipdmp, ntdmpq)
         !! Integrates the fluxes for dump area's
 
@@ -75,4 +75,4 @@ contains
         return
     end subroutine integrate_areas_fluxes
 
-end module m_proint
+end module m_integrate_areas_fluxes

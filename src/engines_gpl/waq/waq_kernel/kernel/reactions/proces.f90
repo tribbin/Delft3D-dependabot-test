@@ -23,7 +23,7 @@
 module m_proces
     use m_waq_precision
     use m_provel
-    use m_proint
+    use m_integrate_areas_fluxes
     use m_profld
     use m_prodr2
 
