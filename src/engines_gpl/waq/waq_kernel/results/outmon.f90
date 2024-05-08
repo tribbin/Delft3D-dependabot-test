@@ -20,7 +20,7 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_outmon
+module m_write_monitoring_output
     use m_waq_precision
 
     implicit none
@@ -28,7 +28,7 @@ module m_outmon
 contains
 
 
-    SUBROUTINE write_monitoring_output (monitoring_file_unit, IDUMP, CONC, AMASS2, ITIME, &
+    SUBROUTINE write_monitoring_output(monitoring_file_unit, IDUMP, CONC, AMASS2, ITIME, &
             DNAME, SNAME, MNAME, NODUMP, NOTOT, &
             IP, ISFLAG, ASMASS, IBFLAG, NOTOT2, &
             SYNAM2, CONC2, ITSTRT, ITSTOP, NDMPAR, &
@@ -167,4 +167,4 @@ contains
         !
     END SUBROUTINE write_monitoring_output
 
-end module m_outmon
+end module m_write_monitoring_output
