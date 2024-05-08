@@ -62,7 +62,7 @@ contains
         !                          DLWQE1, implicit step
         !                          DLWQ44, update arrays
         !                          initialize_time_dependent_variables, update other time functions
-        !                          PROINT, integration of fluxes
+        !                          integrate_areas_fluxes, integration of fluxes
         !                          open_waq_files, opens files
         !                          ZERCUM, zero's the cummulative array's
         !
@@ -440,7 +440,7 @@ contains
 
             !     integrate the fluxes at dump segments fill asmass with mass
             if (ibflag > 0) then
-                call proint (nflux, ndmpar, idt, itfact, a(iflxd:), &
+                call integrate_areas_fluxes (nflux, ndmpar, idt, itfact, a(iflxd:), &
                         a(iflxi:), j(isdmp:), j(ipdmp:), ntdmpq)
             endif
 
