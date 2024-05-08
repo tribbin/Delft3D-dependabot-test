@@ -93,87 +93,87 @@ contains
         integer(kind = int_wp) :: ithandl = 0
         if (timon) call timstrt ("fioutv", ithandl)
         !
-        !     Pointer offsets
+        !     pointer offsets
         !
-        IOCONS = NOPRED + 1
-        IOPA = IOCONS + NOCONS
-        IOFUNC = IOPA + NOPA
-        IOSFUN = IOFUNC + NOFUN
-        IOCONC = IOSFUN + NOSFUN
-        IOLOC = IOCONC + NOTOT
-        IODEF = IOLOC + NOLOC
+        iocons = nopred + 1
+        iopa = iocons + nocons
+        iofunc = iopa + nopa
+        iosfun = iofunc + nofun
+        ioconc = iosfun + nosfun
+        ioloc = ioconc + notot
+        iodef = ioloc + noloc
         !
-        !     GRID
+        !     grid
         !
-        IF (IGRID == IGSEG) THEN
-            NOCEL = NOSEG
-        ELSEIF (IGRID == IGMON) THEN
-            NOCEL = NODUMP
-        ELSEIF (IGRID == IGGRD) THEN
-            NOCEL = NX * NY
-        ENDIF
+        if (igrid == igseg) then
+            nocel = noseg
+        elseif (igrid == igmon) then
+            nocel = nodump
+        elseif (igrid == iggrd) then
+            nocel = nx * ny
+        endif
         !
-        !     FILL OUTVAL
+        !     fill outval
         !
-        DO ICEL = 1, NOCEL
+        do icel = 1, nocel
             !
-            !        What segment ?
+            !        what segment ?
             !
-            IF (IGRID == IGSEG) THEN
-                ISEG = ICEL
-            ELSEIF (IGRID == IGMON) THEN
-                ISEG = IDUMP(ICEL)
-            ELSEIF (IGRID == IGGRD) THEN
-                ISEG = LGRID(ICEL)
-            ENDIF
+            if (igrid == igseg) then
+                iseg = icel
+            elseif (igrid == igmon) then
+                iseg = idump(icel)
+            elseif (igrid == iggrd) then
+                iseg = lgrid(icel)
+            endif
 
-            DO I = 1, NRVAR
-                IICEL = (ICEL - 1) * NRVAR + I
-                IP = IOPOIN(I)
+            do i = 1, nrvar
+                iicel = (icel - 1) * nrvar + i
+                ip = iopoin(i)
                 !
-                !           What value
+                !           what value
                 !
-                IF (ISEG < 0) THEN
-                    IF (IP >= IOCONC .AND. IP < IOCONC + NOSYS) THEN
-                        IIP = (-ISEG - 1) * NOSYS + IP - IOCONC + 1
-                        OUTVAL(IICEL) = BOUND(IIP)
-                    ELSE
-                        OUTVAL(IICEL) = RMISS
-                    ENDIF
-                ELSEIF (ISEG == 0) THEN
-                    OUTVAL(IICEL) = RMISS
-                ELSE
-                    IF (IP >= IODEF) THEN
-                        OUTVAL(IICEL) = DEFAUL(IP - IODEF + 1)
-                    ELSEIF (IP >= IOLOC) THEN
-                        IIP = (ISEG - 1) * NOLOC + IP - IOLOC + 1
-                        OUTVAL(IICEL) = PROLOC(IIP)
-                    ELSEIF (IP >= IOCONC) THEN
-                        OUTVAL(IICEL) = CONC(IP - IOCONC + 1, ISEG)
-                    ELSEIF (IP >= IOSFUN) THEN
-                        OUTVAL(IICEL) = SEGFUN(ISEG, IP - IOSFUN + 1)
-                    ELSEIF (IP >= IOFUNC) THEN
-                        OUTVAL(IICEL) = FUNC(IP - IOFUNC + 1)
-                    ELSEIF (IP >= IOPA) THEN
-                        IIP = (ISEG - 1) * NOPA + IP - IOPA + 1
-                        OUTVAL(IICEL) = PARAM(IIP)
-                    ELSEIF (IP >= IOCONS) THEN
-                        OUTVAL(IICEL) = CONS(IP - IOCONS + 1)
-                    ELSEIF (IP == 3) THEN
-                        OUTVAL(IICEL) = REAL(IDT)
-                    ELSEIF (IP == 2) THEN
-                        OUTVAL(IICEL) = REAL(ITIME)
-                    ELSEIF (IP == 1) THEN
-                        OUTVAL(IICEL) = VOLUME(ISEG)
-                    ELSEIF (IP <= 0) THEN
-                        OUTVAL(IICEL) = RMISS
-                    ENDIF
-                ENDIF
+                if (iseg < 0) then
+                    if (ip >= ioconc .and. ip < ioconc + nosys) then
+                        iip = (-iseg - 1) * nosys + ip - ioconc + 1
+                        outval(iicel) = bound(iip)
+                    else
+                        outval(iicel) = rmiss
+                    endif
+                elseif (iseg == 0) then
+                    outval(iicel) = rmiss
+                else
+                    if (ip >= iodef) then
+                        outval(iicel) = defaul(ip - iodef + 1)
+                    elseif (ip >= ioloc) then
+                        iip = (iseg - 1) * noloc + ip - ioloc + 1
+                        outval(iicel) = proloc(iip)
+                    elseif (ip >= ioconc) then
+                        outval(iicel) = conc(ip - ioconc + 1, iseg)
+                    elseif (ip >= iosfun) then
+                        outval(iicel) = segfun(iseg, ip - iosfun + 1)
+                    elseif (ip >= iofunc) then
+                        outval(iicel) = func(ip - iofunc + 1)
+                    elseif (ip >= iopa) then
+                        iip = (iseg - 1) * nopa + ip - iopa + 1
+                        outval(iicel) = param(iip)
+                    elseif (ip >= iocons) then
+                        outval(iicel) = cons(ip - iocons + 1)
+                    elseif (ip == 3) then
+                        outval(iicel) = real(idt)
+                    elseif (ip == 2) then
+                        outval(iicel) = real(itime)
+                    elseif (ip == 1) then
+                        outval(iicel) = volume(iseg)
+                    elseif (ip <= 0) then
+                        outval(iicel) = rmiss
+                    endif
+                endif
             end do
         end do
-        !
+
         if (timon) call timstop (ithandl)
-        RETURN
+
     END SUBROUTINE FIOUTV
 
 end module m_fioutv

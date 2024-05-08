@@ -201,15 +201,10 @@ contains
         IF (NDMPAR==0) RETURN
 
         if (timon) call timstrt ("sobbal", ithandl)
-        !**************** INITIALIZATION **************************************
 
         IF (INIOUT == 1) THEN
             IFIRST = .TRUE.
             CALL get_log_unit_number(LUNREP)
-
-            !         Process flags
-
-            !         from input
 
             lumppr = .NOT. btest(intopt, 8)
             lumpem = .NOT. btest(intopt, 9)
@@ -247,7 +242,6 @@ contains
             123     continue
 
             ! count number of output dump areas
-
             ndmpar_out = 0
             do idump = 1, ndmpar
                 if (dmpbal(idump) == 1) then
@@ -255,22 +249,10 @@ contains
                 endif
             enddo
 
-            !         Dimension arrays
-
+            ! Dimension arrays
             if (allocated(fltran)) then
-                deallocate(&
-                        FLTRAN, &
-                        JDUMP, &
-                        SFACTO, &
-                        DANAMP, &
-                        SYNAMP, &
-                        IMASSA, &
-                        IEMISS, &
-                        ITRANS, &
-                        IPROCS, &
-                        NPROCS, &
-                        STOCHL, &
-                        FL2BAL)
+                deallocate(FLTRAN, JDUMP, SFACTO, DANAMP, SYNAMP, IMASSA, IEMISS, ITRANS, IPROCS, NPROCS, &
+                        STOCHL, FL2BAL)
             endif
 
             allocate (FLTRAN(2, NOSYS), &

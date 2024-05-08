@@ -376,27 +376,23 @@ contains
             endif
             lunout = file_unit_list(ifi)
             lchout = file_name_list(ifi)
-            !
-            !        No balance output if they are not active
-            !
+
+            ! No balance output if they are not active
             if ((isrtou == ibal .or. isrtou == iba2 .or. &
                     isrtou == iba2) .and. ibflag /= 1) goto 100
-            !
-            !        Set all local variables used active on base grid
-            !
+
+            ! Set all local variables used active on base grid
             call actloc (iopoin, nrvar, nocons, nopa, nofun, &
                     nosfun, notot, noseg, noloc, nogrid, &
                     novar, vararr, varidx, vartda, vardag, &
                     arrknd, arrpoi, arrdm1, arrdm2, vgrset, &
                     grdnos, grdseg, a)
-            !
-            !        Fill output buffer
-            !
+
+            ! Fill output buffer
             if (isrtou == iba2) then
-                !
-                call flxbal (notot, noflux, ndmpar, nrvar, stochi, &
-                        flxint, asmass, riobuf)
-                !
+
+                call flxbal (notot, noflux, ndmpar, nrvar, stochi, flxint, asmass, riobuf)
+
             elseif (isrtou == iba3) then
                 !     jos doet het zelf
             elseif (igrdou == igsub) then
@@ -409,9 +405,7 @@ contains
                     ncout = 0
                 endif
                 nrvar2 = nrvar / 2
-                !
-                !           For the dump area's
-                !
+                ! For the dump area's
                 call fiosub (riobuf, iopoin(k1), nrvar2, nocons, nopa, &
                         nofun, nosfun, notot, conc, segfun, &
                         func, param, cons, idt, itime, &
@@ -419,9 +413,8 @@ contains
                         bound, noloc, proloc, nodef, defaul, &
                         ncout, ntdmpq, paname, sfname, funame, &
                         danam)
-                !
-                !           For the raaien
-                !
+
+                ! For the raaien
                 if ((isrtou == ihi3 .or. &
                         isrtou == ihnc3 .or. &
                         isrtou == ihn3) .and. &
@@ -430,7 +423,6 @@ contains
                     ip1 = (ncout + nrvar2) * ndmpar + 1
                     call fioraa (riobuf(ip1), nrvar3, trraai, noraai, nosys)
                 endif
-                !
             else
                 nrvar2 = nrvar
                 call fioutv (riobuf, iopoin(k1), nrvar, nocons, nopa, &
@@ -440,9 +432,8 @@ contains
                         nx, ny, lgrid, igrdou, bound, &
                         noloc, proloc, nodef, defaul)
             endif
-            !
-            !        Fill character buffer with substance names and output names
-            !
+
+            ! Fill character buffer with substance names and output names
             if (isrtou == imnf .or. &
                     isrtou == ihnf .or. &
                     isrtou == ihnf .or. &
@@ -474,19 +465,18 @@ contains
                     hnc_description(notot + i) = oudsc(k1 + i - 1)
                 end do
             endif
-            !
-            !        Perform output
-            !
+
+            ! Perform output
             if (isrtou == imon) then
-                !
+
                 call write_monitoring_output (lunout, idump, conc, amass2, itime, &
                         duname, syname, moname, nodump, notot, &
                         ip, isflag, asmass, ibflag, nrvar, &
                         ounam(k1), riobuf, itstrt, itstop, ndmpar, &
                         danam)
-                !
+
             elseif (isrtou == imo2) then
-                !
+
                 call write_monitoring_output (lunout, idump, conc, amass2, itime, &
                         duname, syname, moname, nodump, 0, &
                         ip, isflag, asmass, ibflag, nrvar, &
@@ -650,7 +640,7 @@ contains
             elseif (isrtou == imnc) then
 
                 mncrec = mncrec + 1
-                call write_map_output_to_netcdf (file_unit_list(49), file_name_list(49), file_name_list(46), timeid, bndtimeid, mncrec, &
+                call write_map_output_to_netcdf(file_unit_list(49), file_name_list(49), file_name_list(46), timeid, bndtimeid, mncrec, &
                         itime, moname, noseg, notot, conc, syname, sysnm, syuni, sydsc, mncwqid1, nrvar, &
                         riobuf, ounam(k1), ousnm(k1), ouuni(k1), oudsc(k1), mncwqid2, volume, iknmrk, file_unit_list(19))
 

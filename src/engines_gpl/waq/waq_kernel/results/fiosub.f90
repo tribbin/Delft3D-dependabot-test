@@ -308,9 +308,8 @@ contains
                     hlpcum = 0.0
                     do isc = 1, nsc
                         iseg = ipdmp(itel2 + isc)
-                        !
-                        !                 The output variable
-                        !
+
+                        ! The output variable
                         if (iseg > 0) then
                             ip = iopoin(ivar)
                             if (iseg < 0) then
@@ -348,9 +347,7 @@ contains
                                     valvar = rmiss
                                 endif
                             endif
-                            !
-                            !                    The weigth variable
-                            !
+                            ! The weigth variable
                             if (iseg < 0) then
                                 hlpvar = 1.0
                             elseif (iseg == 0) then
@@ -383,7 +380,7 @@ contains
                                     hlpvar = 1.
                                 endif
                             endif
-                            !
+
                             if (ip2 == 0) then
                                 valcum = valcum + valvar
                             else
@@ -391,29 +388,29 @@ contains
                                 hlpcum = hlpcum + hlpvar
                             endif
                         endif
-                        !
+
                     enddo
-                    !
-                    !              Calculate mean , HLPCUM = 0.0 has a double meaning
-                    !              1. only accumulation, 2. no divide by zero HLPCUM
-                    !
+
+                    ! Calculate mean , HLPCUM = 0.0 has a double meaning
+                    ! 1. only accumulation, 2. no divide by zero HLPCUM
+
                     iidump = iofdmp + ncout + ivar
-                    !
+
                     if (abs(hlpcum) > 1.0e-20) then
                         outval(iidump) = valcum / hlpcum
                     else
                         outval(iidump) = valcum
                     endif
-                    !
+
                 enddo
-                !
+
                 itel2 = itel2 + nsc
             endif
-            !
+
         enddo
-        !
+
         if (timon) call timstop (ithandl)
-        return
+
     end subroutine fiosub
 
 end module m_fiosub
