@@ -23,8 +23,8 @@
 module inputs_block_3
     use m_waq_precision
     use m_read_hydfile
-    use simulation_input_options, only : process_simulation_input_options, read_constants_time_variables
-    use grid_utils, only : read_multiple_grids
+    use simulation_input_options, only: process_simulation_input_options, read_constants_time_variables
+    use grid_utils, only: read_multiple_grids
 
     implicit none
 
@@ -33,7 +33,7 @@ module inputs_block_3
 
 contains
 
-    subroutine read_block_3_grid_layout (file_unit_list, file_name_list, filtype, nrftot, nrharm, &
+    subroutine read_block_3_grid_layout(file_unit_list, file_name_list, filtype, nrftot, nrharm, &
             ivflag, is_date_format, iwidth, is_yyddhh_format, &
             output_verbose_level, gridps, syname, status, &
             has_hydfile, nexch)
@@ -49,29 +49,16 @@ contains
         !>      - time varying attribute arrays
         !>      - information on the time series of volumes
 
-        ! Subroutines called: grid    read grid structures
-        !                     read_constants_time_variables    read constant/time-variable block
-        !                     process_simulation_input_options    get & open ( include ) file
-        !                     open_waq_files  open file
-        !                     evaluate_waq_attribute  get an attribute from an attribute integer
-        !                     terminate_execution  stop with error code
-        !                     check   end of block
-
-        ! Logical units     : file_unit_list(40) = unit number to read attributes from binary file
-        !                     file_unit_list( 2) = unit intermediate file (system)
-        !                     file_unit_list( 6) = unit intermediate file (grid)
-        !                     file_unit_list( 7) = unit intermediate file (volumes)
-
-        use error_handling, only : check_error
-        use m_logger, only : terminate_execution
+        use error_handling, only: check_error
+        use m_logger, only: terminate_execution
         use m_open_waq_files
         use m_evaluate_waq_attribute
         use m_grid_utils_external !   for the storage of contraction grids
         use rd_token     !   for the reading of tokens
         use partmem      !   for PARTicle tracking
         use timers       !   performance timers
-        use waq_netcdf_utils, only: set_debug_status, find_mesh_by_attributes
-        use results, only : lncout       !   output settings
+        use waq_netcdf_utils    !, only: set_debug_status, find_mesh_by_attributes, nf90_max_name
+        use results, only: lncout       !   output settings
         use m_sysn          ! System characteristics
         use m_error_status
 
@@ -91,7 +78,7 @@ contains
         type(GridPointerColl)           GridPs            !< Collection of grid pointers
         type(error_status), intent(inout) :: status
 
-        character(len=255)           cdummy            !  workspace to read a string
+        character(len = 255)           cdummy            !  workspace to read a string
         integer(kind = int_wp) :: idummy             !  location to read an integer
         logical                 disper            !  is read_constants_time_variables called for dispersions ?
         integer(kind = int_wp) :: volume             !  is 1 if read_constants_time_variables is called for volumes ?
@@ -118,8 +105,8 @@ contains
         integer(kind = int_wp) :: ivalk              !  return value dhknmrk
 
         logical                 exist             !  whether a file exists or not
-        character(len=255)           ugridfile         !  name of the ugrid-file
-        character(len=255)           hydfile           !  name of the hyd-file
+        character(len = 255)           ugridfile         !  name of the ugrid-file
+        character(len = 255)           hydfile           !  name of the hyd-file
         integer(kind = int_wp) :: ncid, ncidout
         integer(kind = int_wp) :: varid, varidout, meshid, timeid, bndtimeid, ntimeid, wqid
         integer(kind = int_wp) :: meshid2d, type_ugrid, meshid1d, networkid, network_geometryid
