@@ -62,7 +62,6 @@ contains
         !
         !
         use m_outmo2
-        use m_outmo1
         use date_time_utils, only: report_time
         use timers
 
@@ -166,5 +165,56 @@ contains
         2100 FORMAT (45X, A40)
         !
     END SUBROUTINE write_monitoring_output
+
+    SUBROUTINE OUTMO1 (IOUT, IDUMP, ARRA, VNAME, DNAME, &
+            NODUMP, ID, NEND, NOTOT)
+        ! Writes monitoring results to IOUT in blocks of 10 systems.
+
+        !
+        !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
+        !     ----    -----    ------     ------- -----------
+        !     IOUT    INTEGER   1         INPUT   unit number output file
+        !     IDUMP   INTEGER   NODUMP    INPUT   segment numbers for dump
+        !     ARRA    REAL      *         INPUT   values to be printed
+        !     VNAME   CHAR*40   1         INPUT   name of printed value
+        !     DNAME   CHAR*20   NODUMP    INPUT   names of monitoring stations
+        !     NODUMP  INTEGER   1         INPUT   amount of dump segments
+        !     ID      INTEGER   1         INPUT   index first system in this block
+        !     NEND    INTEGER   1         INPUT   index last system in this block
+        !     NOTOT   INTEGER   1         INPUT   total number of systems
+        !
+        !     Declaration of arguments
+        !
+        use timers
+
+        INTEGER(kind = int_wp) :: IOUT, NODUMP, ID, NEND, NOTOT
+        INTEGER(kind = int_wp) :: IDUMP(*)
+        REAL(kind = real_wp) :: ARRA(NOTOT, *)
+        character(len=40) VNAME
+        character(len=20) DNAME(*)
+
+        character(len=1)  SPACE
+        DATA         SPACE / ' ' /
+        integer(kind = int_wp) :: i, k, iseg
+        integer(kind = int_wp) :: ithandl = 0
+        if (timon) call timstrt ("outmo1", ithandl)
+        !
+        WRITE (IOUT, 2060) VNAME
+        !
+        DO I = 1, NODUMP
+            ISEG = IDUMP(I)
+            IF (DNAME(I) == SPACE) THEN
+                WRITE (IOUT, 2080) ISEG, (ARRA(K, ISEG), K = ID, NEND)
+            ELSE
+                WRITE (IOUT, 2090) DNAME(I), (ARRA(K, ISEG), K = ID, NEND)
+            ENDIF
+        end do
+        !
+        if (timon) call timstop (ithandl)
+        RETURN
+        2060 FORMAT (' ', A40)
+        2080 FORMAT (' SEGMENT NR:', I6, '   ', 10(1P, E11.4))
+        2090 FORMAT (' ', A20, 10(1P, E11.4))
+    END SUBROUTINE OUTMO1
 
 end module m_write_monitoring_output
