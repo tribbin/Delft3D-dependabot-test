@@ -28,6 +28,12 @@ module m_outmnc
 
     implicit none
 
+    ! Hint:
+    ! There are a lot of variables passed from the netcdf module to this module then from this module out.
+    ! these variables also needs to be declared as public here
+    !    private
+    !    public :: write_map_output_to_netcdf, write_history_output_to_netcdf
+
 contains
 
     subroutine write_map_output_to_netcdf(ncidmap, mncnam, ugridf, timeid, bndtimeid, mncrec, itime, moname, &
@@ -36,9 +42,9 @@ contains
         !! Writes map output to NetCDF
 
         use timers
-        use waq_netcdf_utils, only: set_debug_status, read_dimensions, find_mesh_by_attributes, &
-                copy_variable_attributes, copy_mesh, create_dimension, create_layer_dimension, create_time_variable, &
-                create_variable, write_time
+        use waq_netcdf_utils    !, only: set_debug_status, read_dimensions, find_mesh_by_attributes, &
+        !copy_variable_attributes, copy_mesh, create_dimension, create_layer_dimension, create_time_variable, &
+        !create_variable, write_time
         use delwaq_version_module
         use results, only: ncopt
 
@@ -790,7 +796,8 @@ contains
 
     end subroutine write_map_output_to_netcdf
 
-        subroutine write_history_output_to_netcdf(ncidhis, hncnam, ugridf, timeid, bndtimeid, &
+
+    subroutine write_history_output_to_netcdf(ncidhis, hncnam, ugridf, timeid, bndtimeid, &
             hncrec, itime, moname, idump, duname, &
             nodump, notot1, conc1, synam1, sysnm1, &
             syuni1, sydsc1, wqid1, notot2, conc2, &
@@ -801,7 +808,7 @@ contains
         use m_universally_unique_id_generator
         use m_logger, only: terminate_execution
         use timers
-        use waq_netcdf_utils, only: set_debug_status, create_time_variable, write_time
+        use waq_netcdf_utils    !, only: set_debug_status, create_time_variable, write_time
         use results, only: ncopt
 
         integer(kind = int_wp), intent(inout) :: ncidhis              ! NetCDF id of output history file

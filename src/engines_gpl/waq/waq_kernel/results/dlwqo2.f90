@@ -31,7 +31,7 @@ module m_dlwqo2
     use m_outmnf
     use m_outmap
     use m_outhnf
-    use m_outhnc
+    use m_outmnc
     use m_outhis
     use m_outdmp
     use m_outbal
@@ -172,7 +172,6 @@ contains
         use timers
         use results
         use nan_check_module
-        use m_outmnc
 
         integer(kind = int_wp) :: notot, noseg, nopa, nosfun, itime, &
                 nodump, nocons, nofun, idt, noutp, &
@@ -545,7 +544,7 @@ contains
                 !
                 hncrec = hncrec + 1
                 iof = nrvar * nodump + 1
-                call outhnc (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
+                call write_history_output_to_netcdf (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
                         bndtimeidh, hncrec, itime, moname, &
                         idump, duname, nodump, notot, &
                         conc, syname, sysnm, syuni, &
@@ -571,7 +570,7 @@ contains
                 !
                 hncrec = hncrec + 1
                 iof = nrvar * nodump + 1
-                call outhnc (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
+                call write_history_output_to_netcdf (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
                         bndtimeidh, hncrec, itime, moname, &
                         idump, duname, nodump, 0, &
                         conc, syname, sysnm, syuni, &
@@ -588,11 +587,10 @@ contains
                 call outhis (lunout, lchout, itime, moname, nsegou, &
                         idump, danam, 0, syname, conc, &
                         nrvar3, nambuf, riobuf, iniout)
-                !
+
             elseif (isrtou == ihn3) then
-                !
-                !           Let op RANAM achter DANAM
-                !
+
+                ! Let op RANAM achter DANAM
                 nrvar3 = notot + nrvar2
                 nsegou = ndmpar + noraai
                 iof = nrvar3 * nsegou + 1
@@ -600,110 +598,97 @@ contains
                         0, conc, nambuf, nrvar3, riobuf, &
                         iostrt, iostop, iostep, nsegou, idump, &
                         danam, riobuf(iof), iniout)
-                !
-            elseif (isrtou == ihnc3) then
-                !
-                !           Let op RANAM achter DANAM
-                !
 
+            elseif (isrtou == ihnc3) then
+
+                ! Let op RANAM achter DANAM
                 hncrec = hncrec + 1
                 nrvar3 = notot + nrvar2
                 nsegou = ndmpar + noraai
                 iof = nrvar3 * nsegou + 1
-                call outhnc (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
+                call write_history_output_to_netcdf (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
                         bndtimeidh, hncrec, itime, moname, &
                         idump, danam, nsegou, 0, &
                         conc, nambuf, sysnm, syuni, &
                         sydsc, hncwqid1, nrvar3, riobuf, &
                         nambuf, hnc_standard, hnc_unit, &
                         hnc_description, hncwqid2, file_unit_list(19))
-                !
+
             elseif (isrtou == ihi4) then
-                !
+
                 call outhis (lunout, lchout, itime, moname, ndmpar, &
                         idump, danam, 0, syname, conc, &
                         nrvar2, ounam(k1), riobuf, iniout)
-                !
+
             elseif (isrtou == ihn4) then
-                !
+
                 iof = nrvar2 * ndmpar + 1
                 call outhnf (lunout, lchout, itime, moname, noseg, &
                         0, conc, ounam(k1), nrvar2, riobuf, &
                         iostrt, iostop, iostep, ndmpar, idump, &
                         danam, riobuf(iof), iniout)
-                !
+
             elseif (isrtou == ihnc4) then
-                !
+
                 hncrec = hncrec + 1
                 iof = nrvar2 * ndmpar + 1
-                call outhnc (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
+                call write_history_output_to_netcdf (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
                         bndtimeidh, hncrec, itime, moname, &
                         idump, danam, nsegou, 0, &
                         conc, syname, sysnm, syuni, &
                         sydsc, hncwqid1, nrvar2, riobuf, &
                         ounam(k1), ousnm(k1), ouuni(k1), oudsc(k1), &
                         hncwqid2, file_unit_list(19))
-                !
+
             elseif (isrtou == imap) then
-                !
+
                 call outmap (lunout, lchout, itime, moname, noseg, &
                         notot, conc, syname, nrvar, riobuf, &
                         ounam(k1), iknmrk, iniout)
-                !
+
             elseif (isrtou == imnf) then
-                !
+
                 iof = nrvar * noseg + 1
-                call outmnf (lunout, lchout, itime, moname, noseg, &
-                        notot, conc, syname, nrvar, riobuf, &
-                        ounam(k1), iostrt, iostop, iostep, riobuf(iof), &
-                        iniout)
-                !
+                call outmnf (lunout, lchout, itime, moname, noseg, notot, conc, syname, nrvar, riobuf, &
+                        ounam(k1), iostrt, iostop, iostep, riobuf(iof), iniout)
+
             elseif (isrtou == imnc) then
-                !
+
                 mncrec = mncrec + 1
-                call outmnc (file_unit_list(49), file_name_list(49), file_name_list(46), timeid, bndtimeid, mncrec, &
-                        itime, moname, noseg, notot, &
-                        conc, syname, sysnm, syuni, sydsc, mncwqid1, nrvar, &
-                        riobuf, ounam(k1), ousnm(k1), ouuni(k1), oudsc(k1), mncwqid2, &
-                        volume, iknmrk, file_unit_list(19))
-                !
+                call write_map_output_to_netcdf (file_unit_list(49), file_name_list(49), file_name_list(46), timeid, bndtimeid, mncrec, &
+                        itime, moname, noseg, notot, conc, syname, sysnm, syuni, sydsc, mncwqid1, nrvar, &
+                        riobuf, ounam(k1), ousnm(k1), ouuni(k1), oudsc(k1), mncwqid2, volume, iknmrk, file_unit_list(19))
+
             elseif (isrtou == ima2) then
-                !
-                call outmap (lunout, lchout, itime, moname, noseg, &
-                        0, conc, syname, nrvar, riobuf, &
+
+                call outmap (lunout, lchout, itime, moname, noseg, 0, conc, syname, nrvar, riobuf, &
                         ounam(k1), iknmrk, iniout)
-                !
+
             elseif (isrtou == imn2) then
-                !
+
                 iof = nrvar * noseg + 1
-                call outmnf (lunout, lchout, itime, moname, noseg, &
-                        0, conc, syname, nrvar, riobuf, &
-                        ounam(k1), iostrt, iostop, iostep, riobuf(iof), &
-                        iniout)
-                !
+                call outmnf (lunout, lchout, itime, moname, noseg, 0, conc, syname, nrvar, riobuf, &
+                        ounam(k1), iostrt, iostop, iostep, riobuf(iof), iniout)
+
             elseif (isrtou == imnc2) then
-                !
+
                 mncrec = mncrec + 1
-                call outmnc (file_unit_list(49), file_name_list(49), file_name_list(46), timeid, bndtimeid, mncrec, &
+                call write_map_output_to_netcdf (file_unit_list(49), file_name_list(49), file_name_list(46), timeid, bndtimeid, mncrec, &
                         itime, moname, noseg, 0, &
                         conc, syname, sysnm, syuni, sydsc, mncwqid1, nrvar, &
                         riobuf, ounam(k1), ousnm(k1), ouuni(k1), oudsc(k1), mncwqid2, &
                         volume, iknmrk, file_unit_list(19))
-                !
+
             elseif (isrtou == ibal) then
-                !
-                call outbal (lunout, lchout, itime, moname, notot, &
-                        noflux, syname, ndmpar, danam, asmass, &
+
+                call outbal (lunout, lchout, itime, moname, notot, noflux, syname, ndmpar, danam, asmass, &
                         flxint, nrvar2, riobuf, iniout)
-                !
+
             elseif (isrtou == iba2) then
-                !
-                call outhis (lunout, lchout, itime, moname, ndmpar, &
-                        idump, danam, 0, syname, conc, &
+
+                call outhis (lunout, lchout, itime, moname, ndmpar, idump, danam, 0, syname, conc, &
                         nrvar, ounam(k1), riobuf, iniout)
-                !
             elseif (isrtou == iba3) then
-                !
                 allocate(surf(noseg))
                 name = 'SURF'
                 lget = .true.
@@ -724,23 +709,19 @@ contains
 
                 file_unit_list(ifi) = lunout ! Ad hoc: routine open_waq_files sets the LU-number via newunit
                 deallocate (surf)
-                !
+
             endif
-            !
+
             ioutps(7, iout) = iniout
-            !
-            !
+
             100    continue
-            !
-            !        Update K1, pointer in IOPOIN and OUNAM
-            !
+
+            ! Update K1, pointer in IOPOIN and OUNAM
             k1 = k1 + nrvar
-            !
+
         end do
 
         if (timon) call timstop (ithandl)
-        return
-    end
-
+    end subroutine dlwqo2
 
 end module m_dlwqo2
