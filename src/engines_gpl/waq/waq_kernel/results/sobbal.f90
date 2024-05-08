@@ -38,19 +38,9 @@ contains
             VOLUME, SURF, NOSEG, LUNOUT, LCHOUT, &
             INIOUT, DMPBAL, NOWST, NOWTYP, WSTTYP, &
             IWASTE, INWTYP, WSTDMP, ISEGCOL, IMSTEP)
-        !
-        !     Deltares      SECTOR WATERRESOURCES AND ENVIRONMENT
-        !
-        !     CREATED             : PROTOTYPE dec. 2001 by Jos van Gils
-        !
-        !
-        !     FUNCTION            : Integrated emissions and processes balance
-        !
-        !     LOGICAL UNITS       : -
-        !
-        !     SUBROUTINES CALLED  :
-        !
-        !     PARAMETERS          :
+
+        !! Integrated emissions and processes balance
+
         !
         !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
         !     ----    -----    ------     ------- -----------
@@ -101,9 +91,9 @@ contains
         !
         use m_outhis
         use m_dmpval
-        use m_logger, only : terminate_execution, get_log_unit_number
-        use data_processing, only : extract_value_from_group
-        use m_cli_utils, only : retrieve_command_argument
+        use m_logger, only: terminate_execution, get_log_unit_number
+        use data_processing, only: extract_value_from_group
+        use m_cli_utils, only: retrieve_command_argument
         use m_open_waq_files
         use timers
         INTEGER(kind = int_wp) :: NOTOT, ITIME, NOSYS, NOSEG, LUNOUT, &
@@ -116,11 +106,11 @@ contains
                 ASMASS(NOTOT, NDMPAR, *), FLXINT(NOFLUX, *), &
                 STOCHI(NOTOT, NOFLUX), CONS(NOCONS), &
                 VOLUME(*), SURF(*)
-        character(len=20)  SYNAME(*), DANAM(*), &
+        character(len = 20)  SYNAME(*), DANAM(*), &
                 BNDTYP(NOBTYP), CONAME(NOCONS), &
                 FLXNAM(NOFLUX)
-        character(len=40)  MONAME(4)
-        character(len=255) LCHOUT
+        character(len = 40)  MONAME(4)
+        character(len = 255) LCHOUT
         integer(kind = int_wp) :: dmpbal(ndmpar)        ! indicates if dump area is included in the balance
         integer(kind = int_wp) :: nowst                 ! number of wasteloads
         integer(kind = int_wp) :: nowtyp                ! number of wasteload types
@@ -174,7 +164,7 @@ contains
                 IPROCS(:), &
                 NPROCS(:), &
                 SEGDMP(:)
-        character(len=20), allocatable :: OUNAME(:), &
+        character(len = 20), allocatable :: OUNAME(:), &
                 DANAMP(:), &
                 SYNAMP(:)
         logical, allocatable :: IWDMP(:, :)
@@ -183,11 +173,11 @@ contains
                 INCLUD, BOUNDA, LUMPTR, B_AREA, B_VOLU
         REAL(kind = real_wp) :: RDUM(1)
         REAL(kind = real_wp) :: ST, TFACTO(NOSUM)
-        character(len=20)  C20, SYNAMS(NOSUM)
-        character(len=40)  CDUM
-        character(len=255) FILNAM
-        character(len=2)   c2
-        character(len=255) inifil
+        character(len = 20)  C20, SYNAMS(NOSUM)
+        character(len = 40)  CDUM
+        character(len = 255) FILNAM
+        character(len = 2)   c2
+        character(len = 255) inifil
         logical       lfound
         integer(kind = int_wp) :: idummy, ierr2
         integer(kind = int_wp) :: lunini
@@ -204,14 +194,11 @@ contains
         DATA          B_AREA /.FALSE./
         DATA          B_VOLU /.FALSE./
         DATA          SYNAMS /'TotN', 'TotP'/
-        !     SAVE          IOBALI, BALTOT, SFACTO, SUPPFT, ONLYSM, STOCHL,
-        !    J              OUNAME, DANAMP, SYNAMP, JDUMP , LUMPEM, LUMPPR,
-        !    J              BALANS, FLTRAN, IMASSA, IEMISS, ITRANS, IPROCS,
-        !    J              NPROCS, FL2BAL, LUMPTR, B_AREA, B_VOLU, SEGDMP
+
         SAVE
         integer(kind = int_wp) :: ithandl = 0
 
-        !     Skip this routine when there are no balance area's
+        ! Skip this routine when there are no balance area's
         IF (NDMPAR==0) RETURN
 
         if (timon) call timstrt ("sobbal", ithandl)
@@ -784,7 +771,7 @@ contains
 
             ALLOCATE(DMP_VOLU(NDMPAR), STAT = IERR)
             IF (IERR > 0) GOTO 9000
-            CALL DMPVAL(NDMPAR, IPDMP(NDMPAR + NTDMPQ + 1), VOLUME, DMP_VOLU)
+            CALL sum_sub_areas_values(NDMPAR, IPDMP(NDMPAR + NTDMPQ + 1), VOLUME, DMP_VOLU)
             IDUMP_OUT = 0
             DO IDUMP = 1, NDMPAR
                 IF (DMPBAL(IDUMP) == 1) THEN
@@ -929,7 +916,7 @@ contains
             !         In mass/m3
             ALLOCATE(DMP_VOLU(NDMPAR), STAT = IERR)
             IF (IERR > 0) GOTO 9000
-            CALL DMPVAL(NDMPAR, IPDMP(NDMPAR + NTDMPQ + 1), VOLUME, DMP_VOLU)
+            CALL sum_sub_areas_values(NDMPAR, IPDMP(NDMPAR + NTDMPQ + 1), VOLUME, DMP_VOLU)
             IDUMP_OUT = 0
             DO IDUMP = 1, NDMPAR
                 IF (DMPBAL(IDUMP) == 1) THEN
@@ -972,8 +959,8 @@ contains
         INTEGER(kind = int_wp) :: IOBALI, IBSTRT, IBSTOP, NOOUT, NOTOT, NDMPAR, &
                 IMASSA(*), IEMISS(*), NEMISS, ITRANS(*), NTRANS, &
                 IPROCS(*), NPROCS(*), NOSUM, IUNIT, INIT
-        character(len=40) MONAME(4)
-        character(len=20) DANAMP(NDMPAR), OUNAME(*), SYNAME(*)
+        character(len = 40) MONAME(4)
+        character(len = 20) DANAMP(NDMPAR), OUNAME(*), SYNAME(*)
         REAL(kind = real_wp) :: BALTOT(NOOUT, NDMPAR), SFACTO(NOSUM, *)
         LOGICAL      ONLYSM
 
@@ -1131,14 +1118,14 @@ contains
 
     subroutine comsum (nosum, tfacto, notot, syname, sfacto, nocons, coname, cons)
 
-        use m_logger, only : terminate_execution, get_log_unit_number
+        use m_logger, only: terminate_execution, get_log_unit_number
         use timers
         use bloom_data_mass_balance
 
         implicit none
 
         integer(kind = int_wp) :: nosum, notot, nocons
-        character(len=20)       syname(notot), coname(nocons)
+        character(len = 20)       syname(notot), coname(nocons)
         real(kind = real_wp) :: tfacto(nosum), sfacto(nosum, notot), cons(nocons)
 
         !      INCLUDE 'cblbal.inc'
@@ -1146,8 +1133,8 @@ contains
         integer(kind = int_wp) :: isum, isys, icons, ires, nres1, nres2, ityp, lunrep
         real(kind = real_wp) :: factor
         parameter           (nres1 = 23, nres2 = 2)
-        character(len=20)         resna1(nres1), resna2(nres2)
-        character(len=10)         ratna2(2, nres2)
+        character(len = 20)         resna1(nres1), resna2(nres2)
+        character(len = 10)         ratna2(2, nres2)
         real(kind = real_wp) :: facres(2, nres1), ratdef(2, nres2)
 
         data resna1   / 'DetP                ', &

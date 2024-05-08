@@ -28,39 +28,28 @@ module m_dmpval
 contains
 
 
-    SUBROUTINE DMPVAL (NDMPAR, IPDMP, VALSEG, VALDMP)
-        !
-        !     Deltares     SECTOR WATERRESOURCES AND ENVIRONMENT
-        !
-        !     CREATED:            : dec 2003 by Jan van Beek
-        !
-        !     FUNCTION            : sums values for sub-area's
-        !
-        !     PARAMETERS          : 4
-        !
+    SUBROUTINE sum_sub_areas_values (NDMPAR, IPDMP, VALSEG, VALDMP)
+        !  sums values for sub-area's
+
         !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
         !     ----    -----    ------     ------- -----------
         !     NDMPAR  INTEGER       1     INPUT   Number of dump areas
         !     IPDMP   INTEGER       *     INPUT   pointer structure dump area's
         !     VALSEG  REAL          *     INPUT   values on segment grid
         !     VALDMP  REAL          *     INPUT   values on dump grid
-        !
-        !     Declaration of arguments
-        !
+
         use timers
 
         INTEGER(kind = int_wp) :: NDMPAR
         INTEGER(kind = int_wp) :: IPDMP(*)
         REAL(kind = real_wp) :: VALSEG(*)
         REAL(kind = real_wp) :: VALDMP(*)
-        !
-        !     Local declarations
-        !
+
         INTEGER(kind = int_wp) :: ITEL, IDUMP, NSC, ISC, ISEG
         integer(kind = int_wp) :: ithandl = 0
-        if (timon) call timstrt ("dmpval", ithandl)
+        if (timon) call timstrt ("sum_sub_areas_values", ithandl)
 
-        !     Loop over the dump area's, sum value
+        ! Loop over the dump area's, sum value
 
         VALDMP(1:NDMPAR) = 0.0
         ITEL = 0
@@ -77,6 +66,6 @@ contains
 
         if (timon) call timstop (ithandl)
         RETURN
-    END
+    END SUBROUTINE sum_sub_areas_values
 
 end module m_dmpval
