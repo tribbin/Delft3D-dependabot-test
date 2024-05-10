@@ -28,10 +28,9 @@ module m_dlwq14
 contains
 
 
-    !> Scales derivatives and accumulates processes in the balances arrays
-    !! In other words, uses calculated numerical approximations of derivatives
-    !! for processes to numerically calculate approximated deltas, and applies these changes.
-    subroutine apply_approx_derivatives_processes(deriv, notot, noseg, itfact, amass2, &
+    !> Uses numerically calculated derivatives for balance arrays
+    !! after scaling them to same dt as the transport
+    subroutine scale_processes_derivs_and_update_balances(deriv, notot, noseg, itfact, amass2, &
             idt, iaflag, dmps, intopt, isdmp)
 
         use timers
@@ -49,7 +48,7 @@ contains
 
         !     Local variables
         real(kind = real_wp)   :: atfac     ! auxiliary variable 1.0/itfact
-        real(kind = real_wp)   :: dtfac     ! auxiliary variable idt
+        real(kind = real_wp)   :: dtfac     ! idt using a real type
         integer(kind = int_wp) :: iseg      ! loop variable
         integer(kind = int_wp) :: ip        ! auxiliary variable
 
@@ -62,7 +61,7 @@ contains
         if (iaflag == 1) then
             do iseg = 1, noseg
                 deriv (:, iseg) = deriv(:, iseg) * atfac
-                amass2(:, 2) = deriv(:, iseg) * dtfac + amass2(:, 2)
+                amass2(:, 2) = amass2(:, 2) + deriv(:, iseg) * dtfac
             enddo
         else
             do iseg = 1, noseg
@@ -81,5 +80,5 @@ contains
         endif
 
         if (timon) call timstop (ithandl)
-    end subroutine apply_approx_derivatives_processes
+    end subroutine scale_processes_derivs_and_update_balances
 end module m_dlwq14

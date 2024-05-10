@@ -60,12 +60,13 @@ contains
 
         implicit none
 
-        type(waq_data_buffer), target :: buffer            !< System total array space
-        integer(kind=int_wp), intent(inout) :: file_unit_list(*)          !< array with logocal unit numbers
-        character(len=*), intent(in) :: lchar(*)          !< array with file names
-        integer(kind=int_wp), intent(in) :: action            !< type of action (run_span: initialise, time_step, finalise, whole_computation) to perform
-        type(delwaq_data), target :: dlwqd             !< delwaq data structure
-        type(GridPointerColl) :: gridps            !< collection of all grid definitions
+        type(waq_data_buffer), target :: buffer                  !< System total array space
+        integer(kind=int_wp), intent(inout) :: file_unit_list(*) !< array with logocal unit numbers
+        character(len=*), intent(in) :: lchar(*)                 !< array with file names
+        integer(kind=int_wp), intent(in) :: action               !< span of the run or type of action to perform
+                                                                 !< (run_span = {initialise, time_step, finalise, whole_computation} )
+        type(delwaq_data), target :: dlwqd                       !< delwaq data structure
+        type(GridPointerColl) :: gridps                          !< collection of all grid definitions
 
         !     Local declarations
         logical :: IMFLAG, IDFLAG, IHFLAG
@@ -253,7 +254,7 @@ contains
             if (itime >= itstop) goto 20
 
             ! add processes
-            call apply_approx_derivatives_processes(a(iderv:), notot, nosss, itfact, a(imas2:), &
+            call scale_processes_derivs_and_update_balances(a(iderv:), notot, nosss, itfact, a(imas2:), &
                         idt, iaflag, a(idmps:), intopt, j(isdmp:))
             itimel = itime       ! For case 2 a(ivoll) contains the incorrect
             itime = itime + idt  ! new volume from file and mass correction

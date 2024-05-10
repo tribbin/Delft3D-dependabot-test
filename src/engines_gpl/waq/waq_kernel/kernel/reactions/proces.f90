@@ -430,9 +430,8 @@ contains
                 endif
 
                 !           Scale fluxes and update "processes" accumulation arrays
-
                 call apply_approx_derivatives_processes (deriv, notot, noseg, itfact, amass2, &
-                        idt, iaflag, dmps, intopt, isdmp)
+                     update_mass_balance_with_processesp)
 
                 !           Integration (derivs are zeroed)
 
@@ -611,7 +610,7 @@ contains
                 !           Scale fluxes and update "processes" accumulation arrays
 
                 call apply_approx_derivatives_processes (deriv, notot, noseg, itfact, amass2, &
-                        idt, iaflag, dmps, intopt, isdmp)
+                     update_mass_balance_with_processesp)
 
                 !           Integration (derivs are zeroed)
 
