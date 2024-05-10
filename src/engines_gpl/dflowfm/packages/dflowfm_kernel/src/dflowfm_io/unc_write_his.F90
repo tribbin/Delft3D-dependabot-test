@@ -282,13 +282,13 @@ subroutine unc_write_his(tim)            ! wrihis
         call check_netcdf_error( nf90_put_att(ihisfile, id_time,  'units'        , trim(Tudunitstr)))
         call check_netcdf_error( nf90_put_att(ihisfile, id_time,  'standard_name', 'time'))
         call check_netcdf_error( nf90_put_att(ihisfile, id_time,  'bounds', 'time_bds'))
-        call check_netcdf_error( nf90_put_att(ihisfile, id_time, '_FillValue', dmiss))
+        call set_fill_value( ihisfile, id_time, nf90_double)
 
         call check_netcdf_error( nf90_def_var(ihisfile, 'time_bds', nf90_double, (/ id_twodim, id_timedim /), id_timebds))
         call check_netcdf_error( nf90_put_att(ihisfile, id_timebds,  'units'        , trim(Tudunitstr)))
         call check_netcdf_error( nf90_put_att(ihisfile, id_timebds,  'standard_name', 'time'))
         call check_netcdf_error( nf90_put_att(ihisfile, id_timebds,  'long_name', 'Time interval for each point in time.'))
-        call check_netcdf_error( nf90_put_att(ihisfile, id_timebds, '_FillValue', dmiss))
+        call set_fill_value( ihisfile, id_timebds, nf90_double)
 
 
         ! Size of latest timestep
@@ -500,11 +500,11 @@ subroutine unc_write_his(tim)            ! wrihis
            call check_netcdf_error( nf90_def_var(ihisfile, 'checkerboard_monitor', nc_precision, (/ id_laydim, id_timedim /), id_checkmon))
            call check_netcdf_error( nf90_put_att(ihisfile, id_checkmon, 'long_name', 'Checkerboard mode monitor'))
            call check_netcdf_error( nf90_put_att(ihisfile, id_checkmon, 'unit', 'm s-1'))
-           call setfillvalue(ihisfile, id_checkmon, nc_precision)
+           call set_fill_value(ihisfile, id_checkmon, nc_precision)
            call check_netcdf_error( nf90_def_var(ihisfile, 'num_timesteps', nf90_int, id_timedim, id_num_timesteps))
-           call setfillvalue(ihisfile, id_num_timesteps, nf90_int)
+           call set_fill_value(ihisfile, id_num_timesteps, nf90_int)
            call check_netcdf_error( nf90_def_var(ihisfile, 'comp_time', nc_precision, id_timedim, id_comp_time))
-           call setfillvalue(ihisfile, id_comp_time, nc_precision)
+           call set_fill_value(ihisfile, id_comp_time, nc_precision)
         end if
 
         ! set sediment transport unit after modelinit
@@ -535,7 +535,7 @@ subroutine unc_write_his(tim)            ! wrihis
            call check_netcdf_error( nf90_put_att(ihisfile, id_varb, 'long_name', 'bottom level'))
            call check_netcdf_error( nf90_put_att(ihisfile, id_varb, 'units', 'm'))
            call check_netcdf_error( nf90_put_att(ihisfile, id_varb, 'coordinates', statcoordstring))
-           call setfillvalue(ihisfile, id_varb, nc_precision)
+           call set_fill_value(ihisfile, id_varb, nc_precision)
         end if
         
          do ivar = 1,out_variable_set_his%count
@@ -1046,8 +1046,8 @@ contains
          end if
          call check_netcdf_error(nf90_def_var(ihisfile, prefix//'_xmid', nc_precision, [id_strdim], id_poly_xmid))
          call check_netcdf_error(nf90_def_var(ihisfile, prefix//'_ymid', nc_precision, [id_strdim], id_poly_ymid))
-         call setfillvalue(ihisfile, id_poly_xmid, nc_precision)
-         call setfillvalue(ihisfile, id_poly_ymid, nc_precision)
+         call set_fill_value(ihisfile, id_poly_xmid, nc_precision)
+         call set_fill_value(ihisfile, id_poly_ymid, nc_precision)
          ! jsferic: xy pair is in : 0=cart, 1=sferic coordinates
          ierr = unc_addcoordatts(ihisfile, id_poly_xmid, id_poly_ymid, jsferic)
          call check_netcdf_error(nf90_put_att(ihisfile, id_poly_xmid, 'long_name', 'x-coordinate of representative mid point of '//prefix//' location (snapped polyline)'))
@@ -1218,8 +1218,8 @@ contains
 
       call check_netcdf_error( nf90_put_att(ihisfile, id_statx, 'long_name', 'original x-coordinate of station (non-snapped)'))
       call check_netcdf_error( nf90_put_att(ihisfile, id_staty, 'long_name', 'original y-coordinate of station (non-snapped)'))
-      call setfillvalue(ihisfile, id_statx, nf90_double)
-      call setfillvalue(ihisfile, id_staty, nf90_double)
+      call set_fill_value(ihisfile, id_statx, nf90_double)
+      call set_fill_value(ihisfile, id_staty, nf90_double)
       deallocate( dim_ids) ! TODO: TB: paragraph 4.4 of the style guide recommends using deallocate even though it is no longer necessary, should this recommendation be removed?
 
    end function unc_def_his_station_coord_vars_xy
@@ -1669,7 +1669,7 @@ subroutine write_station_netcdf_variable(i_his_file, output_variable_item)
 end subroutine write_station_netcdf_variable
 
 !> set the fill value according to dmiss/intmiss of a netcdf variable and the requested precision
-subroutine setfillvalue(ncid, varid, nc_precision)
+subroutine set_fill_value(ncid, varid, nc_precision)
 
 integer, intent(in   ) :: ncid         !< file id of the open netcdf dataset that varid was defined in
 integer, intent(in   ) :: varid        !< nf90 variable id of the variable that needs a fill value
@@ -1684,9 +1684,9 @@ integer, intent(in   ) :: nc_precision !< precision of the variable that needs a
    case (nf90_double)
       call check_netcdf_error( nf90_put_att(ncid, varid, '_FillValue', dmiss))
    case default
-      call mess(LEVEL_ERROR,'unstruc_netcdf/definencvar: invalid netcdf type for fill_value!')
+      call mess(LEVEL_ERROR,'nf90_put_att: invalid netcdf type for fill_value!')
    end select
    
-end subroutine setfillvalue
+end subroutine set_fill_value
 
 end subroutine unc_write_his
