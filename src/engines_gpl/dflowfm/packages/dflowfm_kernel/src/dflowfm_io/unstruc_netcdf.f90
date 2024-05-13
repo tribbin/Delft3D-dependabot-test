@@ -17783,29 +17783,28 @@ subroutine read_structure_dimensions_from_rst(ncid, filename, istrtypein, struna
 end subroutine read_structure_dimensions_from_rst
 
 !> Defines a new variable in a NetCDF dataset, also setting some frequently used attributes.
-subroutine definencvar(ncid, idq, itype, idims, name, desc, unit, namecoord, geometry, fillVal, add_gridmapping, attset)
+subroutine definencvar(ncid, idq, itype, idims, name, long_name, unit, namecoord, geometry, fillVal, add_gridmapping, attset)
    use netcdf
    use netcdf_utils
    use m_sferic
    use m_missing, only: dmiss, intmiss
    implicit none
 
-   integer,                   intent(in   ) :: ncid  !< NetCDF dataset id.
-   integer,                   intent(inout) :: idq   !< NetCDF variable id for the newly created variable.
-   integer,                   intent(in   ) :: itype !< data type, one of the standard nf90_* data types.
-   integer,                   intent(in   ) :: idims(:) !< NetCDF dimension id(s) for this variable.
-   character(len=*),          intent(in   ) :: name  !< Variable name in the dataset
-   character(len=*),          intent(in   ) :: desc  !< Description of the variable, used in the :long_name attribute.
-   character(len=*),          intent(in   ) :: unit  !< Units of the variable (udunit-compatible), used in the :units attribute.
-   character(len=*),          intent(in   ) :: namecoord !< Text string the with coordinate variable names, used in the :coordinates attribute.
-   real(dp),         optional,intent(in   ) :: fillVal  !< Fill value that will be stored in the standard :_FillValue attribute
-   character(len=*), optional,intent(in   ) :: geometry !< (optional) Variable name of a geometry variable in the same dataset, used in the :geometry attribute.
-   logical,          optional,intent(in   ) :: add_gridmapping !< Whether or not to add a grid mapping attribute. Default: false.. Only use this if your coordinates in namecoord rely on this grid mapping.
-   type(nc_att_set), optional,intent(in   ) :: attset !< (optional) Set containing additional custom NetCDF attributes for this variable.
+   integer,                    intent(in   ) :: ncid  !< NetCDF dataset id.
+   integer,                    intent(inout) :: idq   !< NetCDF variable id for the newly created variable.
+   integer,                    intent(in   ) :: itype !< data type, one of the standard nf90_* data types.
+   integer,                    intent(in   ) :: idims(:) !< NetCDF dimension id(s) for this variable.
+   character(len=*),           intent(in   ) :: name  !< Variable name in the dataset
+   character(len=*), optional, intent(in   ) :: long_name  !< Description of the variable, used in the :long_name attribute.
+   character(len=*), optional, intent(in   ) :: unit  !< Units of the variable (udunit-compatible), used in the :units attribute.
+   character(len=*), optional, intent(in   ) :: namecoord !< Text string the with coordinate variable names, used in the :coordinates attribute.
+   real(dp),         optional, intent(in   ) :: fillVal  !< Fill value that will be stored in the standard :_FillValue attribute
+   character(len=*), optional, intent(in   ) :: geometry !< (optional) Variable name of a geometry variable in the same dataset, used in the :geometry attribute.
+   logical,          optional, intent(in   ) :: add_gridmapping !< Whether or not to add a grid mapping attribute. Default: false.. Only use this if your coordinates in namecoord rely on this grid mapping.
+   type(nc_att_set), optional, intent(in   ) :: attset !< (optional) Set containing additional custom NetCDF attributes for this variable.
    
    integer                          :: ierr, int_fill
    real(dp)                         :: dp_fill
-   
    logical :: add_gridmapping_
 
    ierr = nf90_noerr
@@ -17817,16 +17816,15 @@ subroutine definencvar(ncid, idq, itype, idims, name, desc, unit, namecoord, geo
    end if
 
    ierr = nf90_def_var(ncid, name , itype, idims , idq)
-   if (len_trim(namecoord) > 0) then
-      ierr = nf90_put_att(ncid, idq  , 'coordinates'  , namecoord)
-   end if
-
-   if (len_trim(desc) > 0) then
-      ierr = nf90_put_att(ncid, idq  , 'long_name'    , desc)
-   end if
-   if (len_trim(unit) > 0) then
+   if (present(namecoord)) then
+         ierr = nf90_put_att(ncid, idq  , 'coordinates'  , namecoord)
+   endif
+   if (present(long_name)) then
+      ierr = nf90_put_att(ncid, idq  , 'long_name'    , long_name)
+   endif
+   if (present(unit)) then
       ierr = nf90_put_att(ncid, idq  , 'units'        , unit)
-   end if
+   endif
 
    if (add_gridmapping_) then
       ierr = unc_add_gridmapping_att(ncid, (/idq/), jsferic)
