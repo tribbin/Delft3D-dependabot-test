@@ -145,24 +145,26 @@ module m_read_statistical_output
    !> Get the integer value for the toggle whether to write a certain output variable.
    !! Set it to the supplied default value in the tree if the keyword is not found and the default is 1 (on).
    !! Valid strings such as 'current','average', etc. will return a value of 1.
-   subroutine read_output_parameter_toggle(tree, chapter, key, value, success)
+   subroutine read_output_parameter_toggle(tree, chapter, key, value, success, alternative_key)
       use tree_structures, only: tree_data
       use properties, only: prop_get_string, prop_set
       implicit none
-      type(tree_data), pointer, intent(in   ) :: tree    !< The property tree
-      character(*),             intent(in   ) :: chapter !< Name of the chapter (case-insensitive) or "*" to get any key
-      character(*),             intent(in   ) :: key     !< Name of the key (case-insensitive)
-      integer,                  intent(inout) :: value   !< If key is found value will be read from tree. If not found value will be written to tree.
-      logical,                  intent(  out) :: success !< Whether successful or not
+      type(tree_data), pointer, intent(in   ) :: tree            !< The property tree
+      character(*),             intent(in   ) :: chapter         !< Name of the chapter (case-insensitive) or "*" to get any key
+      character(*),             intent(in   ) :: key             !< Name of the key (case-insensitive)
+      integer,                  intent(inout) :: value           !< If key is found value will be read from tree. If not found value will be written to tree.
+      logical,                  intent(  out) :: success         !< Whether successful or not
+      character(*), optional,   intent(in   ) :: alternative_key !< Old alternative key name that can still be used
 
       character(len=255) :: value_string
 
       call prop_get_string(tree, chapter, key, value_string, success)
+      if (.not. success .and. present(alternative_key)) then
+         call prop_get_string(tree, chapter, alternative_key, value_string, success)
+      end if
       if (success) then
          value = merge(1, 0, is_output_requested_in_value_string(value_string))
-      end if
-
-      if (.not. success .and. value /= 0) then
+      else if (value /= 0) then
          call prop_set(tree, chapter, key, value, '')
       end if
    end subroutine read_output_parameter_toggle

@@ -48,6 +48,7 @@ subroutine tests_read_statistical_output
     call test(test_read_output_parameter_toggle_default_zero, 'Tests that unset key in tree results in default zero value')
     call test(test_read_output_parameter_toggle_default_one, 'Tests that unset key in tree results in default unit value and is set in tree')
     call test(test_read_output_parameter_toggle_from_tree, 'Tests that set key in tree is read properly')
+    call test(test_read_output_parameter_toggle_from_alternative_key, 'Tests that alternative key can be read')
 end subroutine tests_read_statistical_output
 
 subroutine test_parse_current()
@@ -205,7 +206,7 @@ end subroutine test_read_output_parameter_toggle_default_one
 
 subroutine test_read_output_parameter_toggle_from_tree()
    use tree_structures, only: tree_data
-   use properties, only: prop_get_integer, prop_set_integer
+   use properties, only: prop_set_integer
 
    type(tree_data), pointer :: my_tree
    integer :: value, default_value, actual_value
@@ -225,4 +226,32 @@ subroutine test_read_output_parameter_toggle_from_tree()
    call assert_equal(success, .true., '')
    call assert_equal(value, actual_value, '')
 end subroutine test_read_output_parameter_toggle_from_tree
+
+subroutine test_read_output_parameter_toggle_from_alternative_key()
+   use tree_structures, only: tree_data
+   use properties, only: prop_get_integer, prop_set_integer
+
+   type(tree_data), pointer :: my_tree
+   integer :: value, default_value, actual_value
+   logical :: success
+   character(:), allocatable :: chapter_name, variable_name, alternative_variable_name
+
+   chapter_name = 'my_chap'
+   variable_name = 'write_my_var'
+   alternative_variable_name = 'write_your_var'
+   default_value = 0
+   actual_value = 1
+   value = default_value
+   my_tree => create_dummy_tree()
+   call prop_set_integer(my_tree, chapter_name, alternative_variable_name, actual_value, success = success)
+   call assert_equal(success, .true., '')
+
+   call read_output_parameter_toggle(my_tree, chapter_name, variable_name, value, success, alternative_key = alternative_variable_name)
+   call assert_equal(success, .true., '')
+   call assert_equal(value, actual_value, '')
+
+   ! Ensure that the variable_name is not added to the tree
+   call prop_get_integer(my_tree, chapter_name, variable_name, value, success)
+   call assert_equal(success, .false., '')
+end subroutine test_read_output_parameter_toggle_from_alternative_key
 end module test_read_statistical_output
