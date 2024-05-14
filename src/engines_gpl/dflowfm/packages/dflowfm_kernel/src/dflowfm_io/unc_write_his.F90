@@ -282,7 +282,7 @@ subroutine unc_write_his(tim)            ! wrihis
         call ncu_set_att(attributes(1), 'standard_name', 'time')
         call ncu_set_att(attributes(2), 'bounds', 'time_bds')
         attribute_set%atts => attributes(1:2)
-        call definencvar(ihisfile, id_timedim, nf90_double, (/ id_timedim /), 'time', unit=trim(Tudunitstr),attset=attribute_set)
+        call definencvar(ihisfile, id_time, nf90_double, (/ id_timedim /), 'time', unit=trim(Tudunitstr),attset=attribute_set)
         attribute_set%atts => attributes(1:1)
         call definencvar(ihisfile, id_timebds, nf90_double,(/ id_twodim, id_timedim /), 'time_bds', 'Time interval for each point in time.', unit=trim(Tudunitstr),attset=attribute_set)
 

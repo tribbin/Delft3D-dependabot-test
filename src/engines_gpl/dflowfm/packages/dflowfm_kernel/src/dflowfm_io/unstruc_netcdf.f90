@@ -17849,12 +17849,16 @@ subroutine definencvar(ncid, idq, itype, idims, name, long_name, unit, namecoord
       ierr = nf90_put_att(ncid, idq, '_FillValue', real(dp_fill))
    case (nf90_double)
       ierr = nf90_put_att(ncid, idq, '_FillValue', dp_fill)
+   case (nf90_char)
+      continue 
    case default
       call mess(LEVEL_ERROR,'unstruc_netcdf/definencvar: invalid netcdf type for fill_value!')
    end select
 
    if (present(attset)) then
-      ierr = ncu_put_var_attset(ncid, idq, attset%atts(1:size(attset%atts)))
+      if (associated(attset%atts)) then
+         ierr = ncu_put_var_attset(ncid, idq, attset%atts(1:size(attset%atts)))
+      end if
    end if
 
    end subroutine definencvar
