@@ -1888,10 +1888,6 @@ subroutine readMDUFile(filename, istat)
     call read_output_parameter_toggle(md_ptr, 'output', 'Wrihis_crs_sediment'               , jahiscrs_sediment     , success)
     call read_output_parameter_toggle(md_ptr, 'output', 'Wrihis_dred'                       , jahisdred             , success)
     call read_output_parameter_toggle(md_ptr, 'output', 'Wrihis_water_quality_output'       , jahiswaq              , success)
-    
-    if (.not. success) then
-      call read_output_parameter_toggle(md_ptr, 'output', 'Wrihis_heatflux', jahisheatflux, success)
-    endif
     call read_output_parameter_toggle(md_ptr, 'output', 'Wrihis_temperature', jahistem, success)
     if (success .and. jahistem == 1 .and. jatem < 1) then
       write (msgbuf, '(a)') 'MDU setting "Wrihis_temperature = 1" asks to write temperature to the output his file, ' &
