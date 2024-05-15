@@ -156,9 +156,7 @@ subroutine unc_write_his(tim)            ! wrihis
 
     ! NOTE: below new variables based on statistical output modules
     character(len=255)           :: var_name, var_standard_name, var_long_name
-    type(t_output_quantity_config), pointer:: config
     integer :: ivar
-    integer, pointer :: id_var
 
     integer :: id_twodim, nc_precision
     integer, save :: id_timebds
