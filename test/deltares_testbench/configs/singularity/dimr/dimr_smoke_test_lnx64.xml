@@ -49,6 +49,10 @@
 			<environments>
 				<environment name="OMP_NUM_THREADS" type="raw">1</environment>
 			</environments>
+			<arguments>
+				<argument>-p</argument>
+				<argument>2</argument>
+			</arguments>
 		</program>
 		<program name="dimr" logOutputToFile="true" programStringRemoveQuotes="true">
 			<location ref="local" type="check">
@@ -97,8 +101,6 @@
 			<programs>
 				<program ref="execute_singularity">
 					<arguments>
-						<argument>-p</argument>
-						<argument>2</argument>
 						<argument>run_dimr.sh</argument>
 						<argument>-m</argument>
 						<argument>dimr_config.xml</argument>
@@ -117,8 +119,6 @@
 			<programs>
 				<program ref="execute_singularity">
 					<arguments>
-						<argument>-p</argument>
-						<argument>2</argument>
 						<argument>run_dimr.sh</argument>
 						<argument>-m</argument>
 						<argument>dimr_config.xml</argument>

@@ -4,8 +4,6 @@
     <programs>
       <program ref="execute_singularity" seq="1">
         <arguments>
-          <argument>-p</argument>
-          <argument>2</argument>
           <argument>run_dflowfm.sh</argument>
           <argument>--partition:ndomains=4:icgsolver=6</argument>
           <argument>t01.mdu</argument>
@@ -13,8 +11,6 @@
       </program>
       <program ref="execute_singularity" seq="2">
         <arguments>
-          <argument>-p</argument>
-          <argument>2</argument>
           <argument>run_dimr.sh</argument>
           <argument>-c</argument>
           <argument>4</argument>
@@ -39,8 +35,6 @@
       <programs>
         <program ref="execute_singularity">
           <arguments>
-            <argument>-p</argument>
-            <argument>2</argument>
             <argument>run_dfmoutput.sh</argument>
             <argument>--</argument>
             <argument>-d</argument>
@@ -118,8 +112,6 @@
       </program>
       <program ref="execute_singularity" seq="3">
         <arguments>
-          <argument>-p</argument>
-          <argument>2</argument>
           <argument>run_maptonetcdf.sh</argument>
           <argument>DFM_DELWAQ_westernscheldt/westernscheldt-checkhydbal-sum.map</argument>
           <argument>DFM_DELWAQ_westernscheldt/westernscheldt_waqgeom.nc</argument>
@@ -128,8 +120,6 @@
       </program>
       <program ref="execute_singularity" seq="4">
         <arguments>
-          <argument>-p</argument>
-          <argument>2</argument>
           <argument>run_maptonetcdf.sh</argument>
           <argument>DFM_DELWAQ_westernscheldt/westernscheldt-checkhydbal-err.map</argument>
           <argument>DFM_DELWAQ_westernscheldt/westernscheldt_waqgeom.nc</argument>
