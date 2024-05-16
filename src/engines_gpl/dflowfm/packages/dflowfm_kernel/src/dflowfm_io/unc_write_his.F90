@@ -314,7 +314,7 @@ subroutine unc_write_his(tim)            ! wrihis
 
         end if
 
-         ierr = unc_def_his_structure_static_vars(ihisfile, ST_CROSSSECTION, 1, ncrs, 'line', nNodesCrs, id_strlendim, &
+         ierr = unc_def_his_structure_static_vars(ihisfile, ST_CROSS_SECTION, 1, ncrs, 'line', nNodesCrs, id_strlendim, &
                                                    id_crsdim, id_crs_id, id_crsgeom_node_count, id_crsgeom_node_coordx, id_crsgeom_node_coordy, &
                                                    id_poly_xmid = id_crs_xmid, id_poly_ymid = id_crs_ymid)
 
@@ -341,7 +341,7 @@ subroutine unc_write_his(tim)            ! wrihis
             end do
         end if
 
-        ierr = unc_def_his_structure_static_vars(ihisfile, ST_SOURCESINK, jahissourcesink, numsrc, 'line', nNodeTot, id_strlendim, &
+        ierr = unc_def_his_structure_static_vars(ihisfile, ST_SOURCE_SINK, jahissourcesink, numsrc, 'line', nNodeTot, id_strlendim, &
                                                  id_srcdim, id_srcname, id_srcgeom_node_count, id_srcgeom_node_coordx, id_srcgeom_node_coordy, &
                                                  id_poly_xmid = id_src_xmid, id_poly_ymid = id_src_ymid)
         if (jahissourcesink > 0 .and. numsrc > 0) then
@@ -1102,13 +1102,13 @@ contains
       case (ST_OBS_STATION)
          prefix = 'station'
          name = 'observation station'
-      case (ST_CROSSSECTION)
+      case (ST_CROSS_SECTION)
          prefix = 'cross_section'
          name = 'observation cross section'
       case (ST_RUNUP_GAUGE)
          prefix = 'runup_gauge'
          name = 'runup gauge'
-      case (ST_SOURCESINK)
+      case (ST_SOURCE_SINK)
          prefix = 'source_sink'
          name = 'source and sink'
       case (ST_GATEGEN)

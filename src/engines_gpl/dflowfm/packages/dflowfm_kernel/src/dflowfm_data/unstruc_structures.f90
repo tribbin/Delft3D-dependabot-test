@@ -1466,7 +1466,7 @@ end subroutine fill_geometry_arrays_structure
 
 !> Check if the model has any dams/dam breaks/gates/compound structures that lie across multiple partitions
 !! (needed to disable possibly invalid statistical output items)
-subroutine check_model_has_strucs_across_partitions
+subroutine check_model_has_structures_across_partitions
    use m_partitioninfo, only: jampi, any_structures_lie_across_multiple_partitions
    use m_GlobalParameters
    
@@ -1485,7 +1485,7 @@ subroutine check_model_has_strucs_across_partitions
    
    struc_type_ids = [ST_DAM, ST_DAMBREAK, ST_GATE, ST_COMPOUND]
    
-   do i_struc_type_id = 1, 4
+   do i_struc_type_id = 1, size(struc_type_ids)
       struc_type_id = struc_type_ids(i_struc_type_id)
       number_of_structures = get_number_of_structures(struc_type_id)
       
@@ -1516,7 +1516,7 @@ subroutine check_model_has_strucs_across_partitions
       
    end do
       
-end subroutine check_model_has_strucs_across_partitions
+end subroutine check_model_has_structures_across_partitions
 
 !> Fill in array valstruct for a givin general structure, weir or orifice.
 subroutine fill_valstruct_per_structure(valstruct, istrtypein, istru, nlinks)
@@ -1749,18 +1749,18 @@ subroutine retrieve_set_of_flowlinks_for_polyline_structure(struc_type_id, i_str
       call retrieve_set_of_flowlinks_gate(i_struc, links)
    case (ST_COMPOUND)
       call retrieve_set_of_flowlinks_compound_structure(i_struc, links)
-   case (ST_WEIR        , &
-         ST_ORIFICE     , &
-         ST_GENERAL_ST  , &
-         ST_UNI_WEIR    , &
-         ST_CULVERT     , &
-         ST_BRIDGE      , &
-         ST_LONGCULVERT , &
-         ST_OBS_STATION , &
-         ST_CROSSSECTION, &
-         ST_RUNUP_GAUGE , &
-         ST_SOURCESINK  , &
-         ST_GATEGEN     , &
+   case (ST_WEIR         , &
+         ST_ORIFICE      , &
+         ST_GENERAL_ST   , &
+         ST_UNI_WEIR     , &
+         ST_CULVERT      , &
+         ST_BRIDGE       , &
+         ST_LONGCULVERT  , &
+         ST_OBS_STATION  , &
+         ST_CROSS_SECTION, &
+         ST_RUNUP_GAUGE  , &
+         ST_SOURCE_SINK  , &
+         ST_GATEGEN      , &
          ST_LATERAL)
       ! TODO: implement these! (UNST-7919)
       allocate(links(0))

@@ -2814,7 +2814,7 @@ integer function flow_initexternalforcings() result(iresult)              ! This
    
    ! Check if the model has any dams/dam breaks/gates/compound structures that lie across multiple partitions
    ! (needed to disable possibly invalid statistical output items)
-   call check_model_has_strucs_across_partitions
+   call check_model_has_structures_across_partitions
 
 end function flow_initexternalforcings
 
