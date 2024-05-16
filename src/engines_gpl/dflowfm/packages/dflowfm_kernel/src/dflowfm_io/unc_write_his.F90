@@ -821,7 +821,7 @@ subroutine unc_write_his(tim)            ! wrihis
               end do
            end if
 
-           if (jased>0 .and. stm_included .and. jahissed>0) then
+           if (jased>0 .and. stm_included .and. jahissed>0 .and. ISED1 > 0) then
               do i = 1, stmpar%lsedtot
                  call check_netcdf_error( nf90_put_var(ihisfile, id_frac_name, trimexact(stmpar%sedpar%namsed(i), strlen_netcdf), (/ 1, i /)))
               end do
@@ -1568,6 +1568,9 @@ function build_nc_dimension_id_list(nc_dim_ids) result(res)
 
    res = pack([id_laydim, id_laydimw, id_nlyrdim, id_statdim, id_sedsusdim, id_sedtotdim, id_timedim], &
               make_mask_from_dim_ids(nc_dim_ids))
+   if (any(res==0)) then
+      call mess(LEVEL_ERROR,'A dimension ID was used without being defined!')
+end if
 end function build_nc_dimension_id_list
 
 !> Return array of NetCDF dimension start indices corresponding to NetCDF dimensions
