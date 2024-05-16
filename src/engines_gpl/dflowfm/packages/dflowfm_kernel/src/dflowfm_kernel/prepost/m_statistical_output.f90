@@ -72,7 +72,7 @@ contains
          call move_alloc(new_statout,output_set%statout)
          output_set%capacity = output_set%count
       else
-         if (allocated(output_set%statout) .and. output_set%capacity > 0) then
+         if (allocated(output_set%statout)) then
             if (output_set%count > output_set%capacity) then ! only increase size if necessary
                output_set%capacity = output_set%capacity*2
                allocate(new_statout(output_set%capacity))
