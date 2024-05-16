@@ -2628,41 +2628,42 @@ private
                   temp_pointer(1:(IVAL_MSEDN-IVAL_MSED1+1)*ntot*nlyrs) => valobs(:,IPNT_MSED1:IPNT_MSED1-1+(IVAL_MSEDN-IVAL_MSED1+1)*(nlyrs))
                   call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_MSED),temp_pointer)
 
-            temp_pointer(1:(IVAL_LYRFRACN-IVAL_LYRFRAC1+1)*ntot*nlyrs) => valobs(:,IPNT_LYRFRAC1:IPNT_LYRFRAC1-1+(IVAL_LYRFRACN-IVAL_LYRFRAC1+1)*(nlyrs))
-            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_LYRFRAC),temp_pointer)
+                  temp_pointer(1:(IVAL_LYRFRACN-IVAL_LYRFRAC1+1)*ntot*nlyrs) => valobs(:,IPNT_LYRFRAC1:IPNT_LYRFRAC1-1+(IVAL_LYRFRACN-IVAL_LYRFRAC1+1)*(nlyrs))
+                  call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_LYRFRAC),temp_pointer)
+               end if
+               temp_pointer(1:ntot*nlyrs) => valobs(:,IPNT_THLYR:IPNT_THLYR+(nlyrs-1))
+               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_THLYR),temp_pointer)
 
-            temp_pointer(1:ntot*nlyrs) => valobs(:,IPNT_THLYR:IPNT_THLYR+(nlyrs-1))
-            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_THLYR),temp_pointer)
-            
-            if (stmpar%morlyr%settings%iporosity > 0) then
-               temp_pointer(1:ntot*nlyrs) => valobs(:,IPNT_POROS:IPNT_POROS+(nlyrs-1))
-               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_POROS),temp_pointer)
+               if (stmpar%morlyr%settings%iporosity > 0) then
+                  temp_pointer(1:ntot*nlyrs) => valobs(:,IPNT_POROS:IPNT_POROS+(nlyrs-1))
+                  call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_POROS),temp_pointer)
+               endif
+            end select
+            if(ISED1 > 0) then
+               if (stmpar%morpar%moroutput%frac) then
+                  temp_pointer(1:ntot*(IPNT_FRACN-IPNT_FRAC1+1)) => valobs(:,IPNT_FRAC1:IPNT_FRACN)
+                  call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_FRAC),temp_pointer)
+               endif
+               if (stmpar%morpar%moroutput%fixfac) then
+                  temp_pointer(1:ntot*(IVAL_FIXFACN-IVAL_FIXFAC1+1)) => valobs(:,IVAL_FIXFAC1:IVAL_FIXFACN)
+                  call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_FIXFRAC),temp_pointer)
+               endif
+               if (stmpar%morpar%moroutput%hidexp) then
+                  temp_pointer(1:ntot*(IVAL_HIDEXPN-IVAL_HIDEXP1+1)) => valobs(:,IVAL_HIDEXP1:IVAL_HIDEXPN)
+                  call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_HIDEXP),temp_pointer)
+               endif
+               if (stmpar%morpar%flufflyr%iflufflyr>0 .and. stmpar%lsedsus>0) then
+                  temp_pointer(1:ntot*(IVAL_MFLUFFN-IVAL_MFLUFF1+1)) => valobs(:,IVAL_MFLUFF1:IVAL_MFLUFFN)
+                  call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_MFLUFF),temp_pointer)
+               end if
+            end if
+            if (stmpar%morpar%moroutput%mudfrac) then
+               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_MUDFRAC),valobs(:,IPNT_MUDFRAC))
             endif
-         end select
-         !
-         if (stmpar%morpar%moroutput%frac) then
-            temp_pointer(1:ntot*(IPNT_FRACN-IPNT_FRAC1+1)) => valobs(:,IPNT_FRAC1:IPNT_FRACN)
-            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_FRAC),temp_pointer)
+            if (stmpar%morpar%moroutput%sandfrac) then
+               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_SANDFRAC),valobs(:,IPNT_SANDFRAC))
+            endif
          endif
-         if (stmpar%morpar%moroutput%mudfrac) then
-            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_MUDFRAC),valobs(:,IPNT_MUDFRAC))
-         endif
-         if (stmpar%morpar%moroutput%sandfrac) then
-            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_SANDFRAC),valobs(:,IPNT_SANDFRAC))
-         endif
-         if (stmpar%morpar%moroutput%fixfac) then
-            temp_pointer(1:ntot*(IVAL_FIXFACN-IVAL_FIXFAC1+1)) => valobs(:,IVAL_FIXFAC1:IVAL_FIXFACN)
-            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_FIXFRAC),temp_pointer)
-         endif
-         if (stmpar%morpar%moroutput%hidexp) then
-            temp_pointer(1:ntot*(IVAL_HIDEXPN-IVAL_HIDEXP1+1)) => valobs(:,IVAL_HIDEXP1:IVAL_HIDEXPN)
-            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_HIDEXP),temp_pointer)
-         endif
-         if (stmpar%morpar%flufflyr%iflufflyr>0 .and. stmpar%lsedsus>0) then
-            temp_pointer(1:ntot*(IVAL_MFLUFFN-IVAL_MFLUFF1+1)) => valobs(:,IVAL_MFLUFF1:IVAL_MFLUFFN)
-            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_MFLUFF),temp_pointer)
-         end if
-      endif
       ! Water quality variables
       if(jawaqproc > 0 .and. num_wq_user_outputs > 0) then
          call add_station_water_quality_configs(config_set_his, idx_his_hwq)

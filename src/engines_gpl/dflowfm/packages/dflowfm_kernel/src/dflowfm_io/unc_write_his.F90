@@ -644,9 +644,7 @@ subroutine unc_write_his(tim)            ! wrihis
             if (len_trim(stat_cell_methods) > 0) then
                call check_netcdf_error( nf90_put_att(ihisfile, id_var, 'cell_methods', trim(stat_cell_methods) // trim(stat_cell_methods_filter_postfix)))
             end if
-            if (id_var == 0) then
-               call mess(LEVEL_ERROR, 'invalid netcdf variable definition')
-            end if
+            end associate
          end do
 
         call check_netcdf_error( nf90_enddef(ihisfile))
@@ -957,10 +955,11 @@ subroutine unc_write_his(tim)            ! wrihis
     ! Source-sinks
     if (jahissourcesink > 0 .and. numsrc > 0) then
        do i = 1, numsrc
-          id_var = out_variable_set_his%statout(IDX_HIS_SOURCE_SINK_PRESCRIBED_DISCHARGE)%id_var
+          associate(id_var => out_variable_set_his%statout(IDX_HIS_SOURCE_SINK_PRESCRIBED_DISCHARGE)%id_var)
           if(id_var > 0) then
              call check_netcdf_error( nf90_put_var(ihisfile, id_var, qstss((numconst+1)*(i-1)+1), (/ i, it_his /))) ! Intentionally here for the first output time
           end if
+          end associate
        end do
     end if
     if ( jacheckmonitor.eq.1 ) then
