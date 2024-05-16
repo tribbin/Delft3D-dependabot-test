@@ -1,15 +1,19 @@
 @ echo off
 
 setlocal enabledelayedexpansion
-set prepareonly=0
-set config=all
+set config=
+set -config=
+set -help=
+set build=
+set -build=
 set generator=
 set vs=
-set -vs=0
+set -vs=
 set ifort=
-set -ifort=0
-set coverage=0
-set build_type=Release
+set -ifort=
+set coverage=
+set -coverage=
+set build_type=
 set -build_type=
 set cmake=cmake
 
@@ -26,12 +30,11 @@ if !ERRORLEVEL! NEQ 0 exit /B %~1
 call :check_cmake_installation
 if !ERRORLEVEL! NEQ 0 exit /B %~1
 
-
 echo.
 echo     config      : !config!
 echo     generator   : !generator!
 echo     ifort       : !ifort!
-echo     prepareonly : !prepareonly!
+echo     build       : !build!
 echo     coverage    : !coverage!
 echo     vs          : !vs!
 echo     build_type  : !build_type!
@@ -74,26 +77,8 @@ rem =================================
     echo.
     echo Get command line arguments ...
 
-    if [%1] EQU [] (
-        rem No arguments: continue with defaults
-        goto :eof
-    )
-    if "%1" == "--help" (
-        goto :usage
-    )
-    rem First argument is the config
-    set "config=%1"
-    shift /1
-
-    set configs="all delft3d4 delft3dfm dflowfm dflowfm_interacter dimr drr dwaq dwaves flow2d3d swan tests tools tools_gpl"
-    set "modified=!configs:%config%=!"
-    if !modified!==%configs% (
-        echo ERROR: Configuration !config! not recognized
-        goto :argument_error
-    )
-
-    rem Read other arguments
-    set "options=-vs:0 -ifort:0 -coverage: -prepareonly: -build_type:Release"
+    rem Read arguments
+    set "options=-config:all -help: -vs:0 -ifort:0 -coverage: -build: -build_type:Release"
     rem see: https://stackoverflow.com/questions/3973824/windows-bat-file-optional-argument-parsing answer 2.
     for %%O in (%options%) do for /f "tokens=1,* delims=:" %%A in ("%%O") do set "%%A=%%~B"
     :loop
@@ -111,15 +96,39 @@ rem =================================
       shift /1
       goto :loop
     )
+
+    if !-help! == 1 (
+        goto :usage
+    )
+
+    set configs="all delft3d4 delft3dfm dflowfm dflowfm_interacter dimr drr dwaq dwaves flow2d3d swan tests tools tools_gpl"
+    set "modified=!configs:%-config%=!"
+    if !modified!==%configs% (
+        echo ERROR: Configuration !-config! not recognized
+        goto :argument_error
+    )
+
+    set config=!-config!
+
     if !-coverage! == 1 (
         set coverage=1
+    ) else (
+        set coverage=0
     )
-    if !-prepareonly! == 1 (
-        set prepareonly=1
+
+    if !-build! == 1 (
+        set build=1
+    ) else (
+        set build=0
     )
-    if not "!-build_type!" == "" (
-        set "build_type=!-build_type!"
+
+    set build_types="Debug Release RelWithDebInfo"
+    set "modified=!build_types:%-build_type%=!"
+    if !modified!==%build_types% (
+        echo ERROR: Build type !-build_type! not recognized
+        goto :argument_error
     )
+    set "build_type=!-build_type!"
     goto :eof
 
 rem =======================
@@ -162,9 +171,17 @@ rem =================================
         echo Found: Intel Fortran 2024
     )
 
+    if "!ifort!" == "" (
+        echo Warning: Could not find ifort version in environment.
+    )
+
     if NOT !-ifort! == 0 (
         echo Overriding automatically found ifort version !ifort! with argument !-ifort!
         set ifort=!-ifort!
+    ) else if "!ifort!" == "" (
+        echo Error: ifort not found.
+        set ERRORLEVEL=1
+        goto :end
     )
 
     set "vs2017_found="
@@ -203,9 +220,17 @@ rem =================================
         echo Found: VisualStudio 17 2022
     )
 
+    if "!vs!" == "" (
+        echo Warning: Could not find Visual Studio version in environment.
+    )
+
     if NOT !-vs! == 0 (
         echo Overriding automatically found VS version !vs! with argument !-vs!
         set vs=!-vs!
+    ) else if "!vs!" == "" (
+        echo Error: Visual Studio not found.
+        set ERRORLEVEL=1
+        goto :end
     )
     goto :eof
 
@@ -285,13 +310,13 @@ rem === Set VS enviroment =
 rem =======================
 :set_vs_environment
     rem # Attempt to execute vcvarsall.bat if not run from a developer command prompt
-    if %prepareonly% EQU 1 goto :eof
+    if %build% EQU 0 goto :eof
     if !ERRORLEVEL! NEQ 0 goto :eof
 
     echo.
 
     if "!VS%vs%INSTALLDIR!" == "" (
-        echo Cannot set Visual Studio enviroment variables, please run build.bat from a Visual Studio developer command prompt.
+        echo Cannot set Visual Studio enviroment variables, please run build.bat from a Visual Studio Developer Command Prompt.
         set ERRORLEVEL=1
         goto :end
     )
@@ -327,7 +352,7 @@ rem =======================
 rem === Build =============
 rem =======================
 :build
-    if %prepareonly% EQU 1 goto :eof
+    if %build% EQU 0 goto :eof
     if !ERRORLEVEL! NEQ 0 goto :eof
     echo.
     echo Building !config! ...
@@ -339,10 +364,11 @@ rem =======================
 rem === Create CMake dir ==
 rem =======================
 :create_cmake_dir
-    echo Creating directory %root%\%~1 ...
+    echo Cleaning directories %root%\build_%config% and %root%\install_%config% ...
     cd /d %root%
-    if exist "%root%\%~1\" rmdir /s/q "%root%\%~1\" > del.log 2>&1
-    mkdir    "%root%\%~1\"                          > del.log 2>&1
+    if exist "%root%\build_%config%\" rmdir /s/q "%root%\build_%config%\" > del.log 2>&1
+    if exist "%root%\install_%config%\" rmdir /s/q "%root%\install_%config%\" > del.log 2>&1
+    mkdir    "%root%\build_%config%\" > del.log 2>&1
     del /f/q del.log
     goto :eof
 
@@ -350,8 +376,8 @@ rem =======================
 rem === Install ===========
 rem =======================
 :install
-    if %prepareonly% EQU 1                goto :eof
-    if !ERRORLEVEL! NEQ 0                 goto :eof
+    if %build% EQU 0      goto :eof
+    if !ERRORLEVEL! NEQ 0 goto :eof
 
     echo.
     echo Installing !config! ...
@@ -362,19 +388,14 @@ rem =======================
 rem =======================
 rem === Usage =============
 rem =======================
-:usage
-    echo.
-    echo.
-    echo.
+:usage    echo.
     echo Usage:
-    echo "build.bat"
-    echo "build.bat <CONFIG> [OPTIONS]"
-    echo "    The following actions will be executed:"
-    echo "    - Create directory 'build_<CONFIG>'"
-    echo "      Delete it first when it already exists"
-    echo "    - Execute 'CMake <CONFIG>' to create file '<CONFIG>.sln' inside 'build_<CONFIG>'"
-    echo "    - Execute 'devenv.com <CONFIG>.sln /Build'"
-    echo "    - Only when <CONFIG>=all: Combine all binaries in 'build_<CONFIG>\x64'"
+    echo build.bat"
+    echo build.bat <CONFIG> [OPTIONS]"
+    echo     The following actions will be executed:"
+    echo     - Create directory 'build_<CONFIG>'"
+    echo       Delete it first when it already exists"
+    echo     - Execute 'CMake <CONFIG>' to create file '<CONFIG>.sln' inside 'build_<CONFIG>'"
     echo.
     echo "<CONFIG>:"
     echo "- all     (default) : D-Flow FM   , D-WAQ, D-Waves, DIMR"
@@ -393,11 +414,11 @@ rem =======================
     echo "- tools_gpl"
     echo.
     echo "[OPTIONS]: usage [OPTION], sometimes followed by a value, space separated, in any order"
-    echo "-coverage: Instrument object files for code-coverage tool (codecov) Example: -coverage"
-    echo "-prepareonly: Only prepare solution, do not build the code.         Example: -prepareonly"
-    echo "-vs: desired visual studio version.                                 Example: -vs 2019
-    echo "-ifort: desired intel fortran compiler version.                     Example: -ifort 21
-    echo "-build_type: build optimization level                               Example: -build_type Debug
+    echo "-coverage: Instrument object files for code-coverage tool (codecov). Example: -coverage"
+    echo "-build: Run build and install steps after running cmake.             Example: -build"
+    echo "-vs: desired visual studio version. Overrides default.               Example: -vs 2019"
+    echo "-ifort: desired intel fortran compiler version. Overrides default.   Example: -ifort 21"
+    echo "-build_type: build optimization level.                               Example: -build_type Debug"
     echo.
     echo "More info  : https://oss.deltares.nl/web/delft3d/source-code"
     echo "About CMake: https://git.deltares.nl/oss/delft3d/-/tree/main/src/cmake/doc/README"
