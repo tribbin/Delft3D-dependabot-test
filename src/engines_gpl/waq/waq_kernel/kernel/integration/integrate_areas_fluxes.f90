@@ -49,15 +49,13 @@ contains
         integer(kind = int_wp) :: ithandl = 0
         if (timon) call timstrt ("integrate_areas_fluxes", ithandl)
 
-        !     Loop over the dump area's
-
+        ! Loop over the dump area's
         ip1 = ndmpar + ntdmpq
         itel2 = ndmpar + ntdmpq + ndmpar
         fscale = real(idt) / real(iturat)
         do idump = 1, ndmpar
 
-            !        the segment contributes
-
+            ! the segment contributes
             nsc = ipdmp(ip1 + idump)
             do isc = 1, nsc
                 itel2 = itel2 + 1
@@ -72,7 +70,6 @@ contains
 
         if (timon) call timstop (ithandl)
 
-        return
     end subroutine integrate_areas_fluxes
 
 end module m_integrate_areas_fluxes
