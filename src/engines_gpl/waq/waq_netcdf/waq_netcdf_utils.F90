@@ -69,7 +69,7 @@ module waq_netcdf_utils
             nf90_format_classic, nf90_global, nf90_put_att, nf90_def_dim, nf90_char, nf90_sync, nf90_enddef, &
             nf90_redef, nf90_get_var, nf90_def_var, nf90_double, nf90_put_var, nf90_float, nf90_enameinuse, &
             nf90_inq_dimid
-    public :: set_debug_status, find_mesh_by_attributes, write_time, dlwqnc_write_wqvariable, &
+    public :: set_dlwqnc_debug_status, find_mesh_by_attributes, write_time, dlwqnc_write_wqvariable, &
             create_variable, create_time_variable, create_layer_dimension, create_dimension, &
             copy_mesh, copy_variable_attributes, read_dimensions
     public :: type_ugrid_face_crds, type_ugrid_node_crds, dlwqnc_type1d, dlwqnc_type2d, type_ugrid_mesh1d, &
@@ -77,15 +77,15 @@ module waq_netcdf_utils
 
 contains
 
-    integer function set_debug_status(debug_status)
+    integer function set_dlwqnc_debug_status (debug_status)
         !! Set the debug status of these routines
         !! Returns:
         !!     nf90_noerr if variable found, otherwise an error code
         logical :: debug_status         !! True or False
 
         dlwqnc_debug = debug_status
-        set_debug_status = 0
-    end function set_debug_status
+        set_dlwqnc_debug_status = 0
+    end function set_dlwqnc_debug_status
 
     function lowercase(input_string) result(lowercase_string)
         !! Convert a string to lowercase
