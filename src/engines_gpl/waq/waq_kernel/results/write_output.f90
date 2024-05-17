@@ -32,7 +32,6 @@ module m_write_output
     use m_write_netcdf_output
     use m_write_history_output
     use m_outdmp
-    use m_write_balance_output
     use m_fioutv
     use m_fiosub
 
@@ -666,7 +665,7 @@ contains
 
             elseif (isrtou == ibal) then
 
-                call write_balance_output (lunout, lchout, itime, moname, notot, noflux, syname, ndmpar, danam, asmass, &
+                call write_balance_output(lunout, itime, moname, notot, noflux, syname, ndmpar, danam, asmass, &
                         flxint, nrvar2, riobuf, iniout)
 
             elseif (isrtou == iba2) then
@@ -1193,5 +1192,54 @@ contains
         if (timon) call timstop (ithandl)
 
     END SUBROUTINE FLXBAL
+
+    subroutine write_balance_output(balance_file_unit, simulation_time, model_name, num_substances, &
+            num_fluxes, substances_names, num_dump_segments, monitoring_station_names, mass_balance_terms, &
+            integrated_fluxes, num_extra_variables, extra_variables, initialize_file)
+        ! Writes balance output
+
+        use timers
+
+        integer(kind = int_wp), intent(in) :: balance_file_unit     !! balance_file_unit
+        integer(kind = int_wp), intent(in) :: simulation_time
+        integer(kind = int_wp), intent(in) :: num_fluxes
+        integer(kind = int_wp) :: initialize_file
+        integer(kind = int_wp), intent(in) :: num_substances        !! Total number of substances
+        integer(kind = int_wp), intent(in) :: num_dump_segments
+        integer(kind = int_wp), intent(in) :: num_extra_variables
+        character(len = 40), intent(in) :: model_name(4)
+
+        real(kind = real_wp), intent(in) :: mass_balance_terms(num_substances, num_dump_segments, 6)
+        real(kind = real_wp), intent(in) :: integrated_fluxes(num_fluxes, num_dump_segments)
+        real(kind = real_wp), intent(in) :: extra_variables(num_extra_variables, num_dump_segments)
+        character(len = 20), intent(in) :: substances_names(*), monitoring_station_names(*)
+
+        integer(kind = int_wp) :: j, i, k, isys, iflx, ihlp
+        integer(kind = int_wp) :: ithandl = 0
+        integer(kind = int_wp) :: nopout
+        if (timon) call timstrt ("write_balance_output", ithandl)
+
+        ! Initialize file
+        if (initialize_file == 1) then
+            initialize_file = 0
+
+            ! write header
+            write (balance_file_unit) (model_name(i), i = 1, 4)
+            nopout = 6 * num_substances + num_fluxes + 2
+            write (balance_file_unit) nopout, num_dump_segments, num_substances
+            write (balance_file_unit) (substances_names(i), i = 1, num_substances)
+            write (balance_file_unit) (monitoring_station_names(i), i = 1, num_dump_segments)
+        endif
+
+        ! Perform output
+        write (balance_file_unit) simulation_time, (&
+                ((mass_balance_terms(isys, j, k), k = 1, 6), isys = 1, num_substances), &
+                (integrated_fluxes(iflx, j), iflx = 1, num_fluxes), &
+                (extra_variables(ihlp, j), ihlp = 1, 2), &
+                j = 1, num_dump_segments)
+
+        if (timon) call timstop (ithandl)
+
+    end subroutine write_balance_output
 
 end module m_write_output
