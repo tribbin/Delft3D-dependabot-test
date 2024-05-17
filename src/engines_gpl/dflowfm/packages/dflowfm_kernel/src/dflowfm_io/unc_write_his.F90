@@ -1396,10 +1396,6 @@ contains
 
       call transform_and_put_latlon_coordinates(ihisfile, id_statlon, id_statlat, &
                                                 nccrs%proj_string, xobs, yobs, start = start, count = count)
-
-      deallocate( start) ! TODO: TB: paragraph 4.4 of the style guide recommends using deallocate even though it is no longer necessary, should this recommendation be removed?
-      deallocate( count)
-
    end function unc_put_his_station_coord_vars_latlon
 
    !> Write (put) the z-coordinate variables for the station type.
