@@ -66,7 +66,7 @@ implicit none
 
       num_layers = max(1, kmx)
       call realloc(incoming_lat_concentration, (/num_layers, numconst, numlatsg/))
-      incoming_lat_concentration = 0d0
+      incoming_lat_concentration = 0._dp
       call realloc(outgoing_lat_concentration, (/num_layers, numconst, numlatsg/))
 
    end subroutine initialize_lateraldata
@@ -131,8 +131,8 @@ implicit none
       real(kind=dp) :: qlat
 
       if (numlatsg > 0) then
-         lateral_discharge_in = 0d0
-         lateral_discharge_out = 0d0
+         lateral_discharge_in = 0._dp
+         lateral_discharge_out = 0._dp
          do i_lateral = 1,numlatsg
             do k1=n1latsg(i_lateral),n2latsg(i_lateral)
                ! k1 loopt over de actieve elementen van bepaalde lateral, binnen een domein
@@ -143,7 +143,7 @@ implicit none
                      lateral_discharge_in(i_lateral,i_cell) = lateral_discharge_in(i_lateral,i_cell) + qlat
                   endif
                else if (hs(i_cell) > epshu) then
-                  qlat = - min(0.5d0*vol1(i_cell)/dts , -qlat) ! this is required to conserve mass
+                  qlat = - min(0.5_dp*vol1(i_cell)/dts , -qlat) ! this is required to conserve mass
                   if (.not. is_ghost_node(i_cell)) then
                      lateral_discharge_out(i_lateral,i_cell) = lateral_discharge_out(i_lateral,i_cell) - qlat
                   endif
@@ -171,7 +171,7 @@ implicit none
          do i_lateral = 1,numlatsg
             do k1=n1latsg(i_lateral),n2latsg(i_lateral)
                i_cell = nnlat(k1)
-               dvoli = 1d0/max(vol1(i_cell),dtol)
+               dvoli = 1._dp/max(vol1(i_cell),dtol)
                ! transport_load is added to RHS of transport equation, sink is added to diagonal:
                ! only multiply transport_load with concentration
                transport_load(i_const,i_cell) = transport_load(i_const,i_cell) + dvoli * discharge_in(i_lateral,i_cell) * incoming_lat_concentration(1,i_const,i_lateral)
@@ -190,7 +190,7 @@ implicit none
       
       integer :: i_node, i_lateral, i_layer, i_nnlat, i_vol1, index_vol1_bottom_layer, index_vol1_top_layer, index_active_bottom_layer
       
-      lateral_volume_per_layer = 0d0
+      lateral_volume_per_layer = 0._dp
       do i_lateral = 1, numlatsg
          do i_nnlat = n1latsg(i_lateral), n2latsg(i_lateral)
             i_node = nnlat(i_nnlat)
@@ -210,7 +210,7 @@ implicit none
    !> In  average_concentrations_for_laterals in out_going_lat_concentration the concentrations*timestep are aggregated.
    !> While in finish_outgoing_lat_concentration, the average over time is actually computed.
    module subroutine reset_outgoing_lat_concentration()
-      outgoing_lat_concentration = 0d0
+      outgoing_lat_concentration = 0._dp
    end subroutine reset_outgoing_lat_concentration
       
    !> At the start of the update, the out_going_lat_concentration must be set to 0 (reset_outgoing_lat_concentration).

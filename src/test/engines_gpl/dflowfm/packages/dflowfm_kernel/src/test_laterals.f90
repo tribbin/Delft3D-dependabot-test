@@ -39,13 +39,13 @@ subroutine tests_lateral
    ! initialization of global state variables for all tests in this module
    call setup_testcase()
 
-   call test( test_get_lateral_discharge,     'Test computation of total discharge over laterals.')
-   call test( test_add_lateral_load_and_sink, 'Test computation of constituents sinks and sources due to laterals.')
+   call test(test_get_lateral_discharge,     'Test computation of total discharge over laterals.')
+   call test(test_add_lateral_load_and_sink, 'Test computation of constituents sinks and sources due to laterals.')
 
    ! deallocation of global state variables
    call finish_testcase()
 
-   call test( test_get_lateral_volume_per_layer, 'Test computation of water volume per layer in laterals.')
+   call test(test_get_lateral_volume_per_layer, 'Test computation of water volume per layer in laterals.')
 end subroutine tests_lateral
 !
 !==============================================================================
