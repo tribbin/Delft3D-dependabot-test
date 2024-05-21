@@ -43,22 +43,22 @@ module m_lateral
       !!
       !! Laterals
       !!
-      integer, parameter, public :: ILATTP_ALL = 0 !< Type code for laterals that apply to both 2D and 1D nodes.
-      integer, parameter, public :: ILATTP_1D  = 1 !< Type code for laterals that only apply to 1D nodes.
-      integer, parameter, public :: ILATTP_2D  = 2 !< Type code for laterals that only apply to 2D nodes.
+      integer, parameter, public :: ILATTP_ALL = 0  !< Type code for laterals that apply to both 2D and 1D nodes.
+      integer, parameter, public :: ILATTP_1D  = 1  !< Type code for laterals that only apply to 1D nodes.
+      integer, parameter, public :: ILATTP_2D  = 2  !< Type code for laterals that only apply to 2D nodes.
 
-      integer,                         target, public :: numlatsg          !< [-] nr of lateral discharge providers  {"rank": 0}
-      real(kind=dp),      allocatable, target, public :: qplat(:,:)        !< [m3/s] Lateral discharge of provider {"shape": ["num_layers","numlatsg"]}
-      real(kind=dp),      allocatable, target, public :: qqlat(:,:)        !< [m3/s] Lateral discharge at xz,yz {"location": "face", "shape": ["num_layers","ndx"]}
-      real(kind=dp),      allocatable, target, public :: balat(:)          !< [m2] total area of all cells in provider numlatsg {"shape": ["numlatsg"]}
-      character(len=128), allocatable,         public :: lat_ids(:)        !< id of laterals {"shape": ["numlatsg"]}
-      real(kind=dp),      allocatable, target, public :: qplatCum(:)       !< [m3/s] Cumulative lateral discharge of provider {"shape": ["numlatsg"]}
-      real(kind=dp),      allocatable, target, public :: qplatCumPre(:)    !< [m3/s] Cumulative lateral discharge of provider at previous history output time{"shape": ["numlatsg"]}
-      real(kind=dp),      allocatable, target, public :: qplatAve(:)       !< [m3/s] Average lateral discharge of provider during the past history output interal {"shape": ["numlatsg"]}
-      real(kind=dp),      allocatable, target, public :: qLatReal(:)       !< [m3/s] Realized lateral discharge {"shape": ["numlatsg"]}
-      real(kind=dp),      allocatable, target, public :: qLatRealCum(:)    !< [m3/s] Cumulative realized lateral discharge {"shape": ["numlatsg"]}
-      real(kind=dp),      allocatable, target, public :: qLatRealCumPre(:) !< [m3/s] Cumulative realized lateral discharge at previous history output time{"shape": ["numlatsg"]}
-      real(kind=dp),      allocatable, target, public :: qLatRealAve(:)    !< [m3/s] Average realized lateral discharge during the past history output interal{"shape": ["numlatsg"]}
+      integer,                         target, public :: numlatsg           !< [-] nr of lateral discharge providers  {"rank": 0}
+      real(kind=dp),      allocatable, target, public :: qplat(:,:)         !< [m3/s] Lateral discharge of provider {"shape": ["num_layers","numlatsg"]}
+      real(kind=dp),      allocatable, target, public :: qqlat(:,:)         !< [m3/s] Lateral discharge at xz,yz {"location": "face", "shape": ["num_layers","ndx"]}
+      real(kind=dp),      allocatable, target, public :: balat(:)           !< [m2] total area of all cells in provider numlatsg {"shape": ["numlatsg"]}
+      character(len=128), allocatable,         public :: lat_ids(:)         !< id of laterals {"shape": ["numlatsg"]}
+      real(kind=dp),      allocatable, target, public :: qplatCum(:)        !< [m3/s] Cumulative lateral discharge of provider {"shape": ["numlatsg"]}
+      real(kind=dp),      allocatable, target, public :: qplatCumPre(:)     !< [m3/s] Cumulative lateral discharge of provider at previous history output time{"shape": ["numlatsg"]}
+      real(kind=dp),      allocatable, target, public :: qplatAve(:)        !< [m3/s] Average lateral discharge of provider during the past history output interal {"shape": ["numlatsg"]}
+      real(kind=dp),      allocatable, target, public :: qLatReal(:)        !< [m3/s] Realized lateral discharge {"shape": ["numlatsg"]}
+      real(kind=dp),      allocatable, target, public :: qLatRealCum(:)     !< [m3/s] Cumulative realized lateral discharge {"shape": ["numlatsg"]}
+      real(kind=dp),      allocatable, target, public :: qLatRealCumPre(:)  !< [m3/s] Cumulative realized lateral discharge at previous history output time{"shape": ["numlatsg"]}
+      real(kind=dp),      allocatable, target, public :: qLatRealAve(:)     !< [m3/s] Average realized lateral discharge during the past history output interal{"shape": ["numlatsg"]}
 
       !! Lateral lookup tables: n1/n2latsg(ilat) = n1/n2, nnlat(n1:n2) = { flow node nrs affected by lateral ilat }
       integer,                      public :: nlatnd      !< lateral nodes dimension, counter of nnlat(:)
@@ -68,15 +68,15 @@ module m_lateral
       integer, allocatable, target, public :: kclat(:)    !< [-] for each cell: 0 when not accepting lateral discharge (e.g. pipe) {"location": "face", "shape": ["ndx"]}
 
       !! Lateral geometry variables
-      integer,                            public :: nNodesLat       !< [-] Total number of geom nodes for all laterals.
-      integer,       allocatable, target, public :: nodeCountLat(:) !< [-] Count of nodes per lateral.
-      real(kind=dp), allocatable, target, public :: geomXLat(:)     !< [m] x coordinates of laterals.
-      real(kind=dp), allocatable, target, public :: geomYLat(:)     !< [m] y coordinates of laterals.
+      integer,                            public :: nNodesLat        !< [-] Total number of geom nodes for all laterals.
+      integer,       allocatable, target, public :: nodeCountLat(:)  !< [-] Count of nodes per lateral.
+      real(kind=dp), allocatable, target, public :: geomXLat(:)      !< [m] x coordinates of laterals.
+      real(kind=dp), allocatable, target, public :: geomYLat(:)      !< [m] y coordinates of laterals.
 
-      real(kind=dp), allocatable, target, dimension(:,:,:), public :: outgoing_lat_concentration !< Average concentration per lateral discharge location.
-      real(kind=dp), allocatable, target, dimension(:,:,:), public :: incoming_lat_concentration !< Concentration of the inflowing water at the lateral discharge location.
-      real(kind=dp), allocatable, target, dimension(:,:),   public :: lateral_volume_per_layer   !< Total water volume per layer, for each lateral (kmx,numlatsg).
-      integer,       allocatable, target, dimension(:),     public :: apply_transport            !< Flag to apply transport for laterals (0 means only water and no substances are transported).
+      real(kind=dp), allocatable, target, dimension(:,:,:), public :: outgoing_lat_concentration  !< Average concentration per lateral discharge location.
+      real(kind=dp), allocatable, target, dimension(:,:,:), public :: incoming_lat_concentration  !< Concentration of the inflowing water at the lateral discharge location.
+      real(kind=dp), allocatable, target, dimension(:,:),   public :: lateral_volume_per_layer    !< Total water volume per layer, for each lateral (kmx,numlatsg).
+      integer,       allocatable, target, dimension(:),     public :: apply_transport             !< Flag to apply transport for laterals (0 means only water and no substances are transported).
       logical, public :: apply_transport_is_used
       private
       
@@ -95,8 +95,8 @@ module m_lateral
       !> allocate the arrays for laterals on 3d/BMI
       interface initialize_lateraldata
          module subroutine initialize_lateraldata(numconst, ierr)
-            integer, intent(in)    :: numconst        !< number of constitiuents
-            integer, intent(inout) :: ierr            !< error flag
+            integer, intent(in)    :: numconst  !< number of constitiuents
+            integer, intent(inout) :: ierr      !< error flag
          end subroutine initialize_lateraldata
       end interface initialize_lateraldata
    
@@ -111,11 +111,11 @@ module m_lateral
       !> While in finish_outgoing_lat_concentration, the average over time is actually computed.
       interface average_concentrations_for_laterals
          module subroutine average_concentrations_for_laterals(numconst, kmx, bottom_area, constituents, dt)
-            integer,                       intent(in) :: numconst       !< Number or constituents.
-            integer,                       intent(in) :: kmx            !< Number of layers (0 means 2d computation).
-            real(kind=dp), dimension(:)  , intent(in) :: bottom_area    !< Cell area.
-            real(kind=dp), dimension(:,:), intent(in) :: constituents   !< concentrations.
-            real(kind=dp),                 intent(in) :: dt             !< timestep in seconds
+            integer,                       intent(in) :: numconst      !< Number or constituents.
+            integer,                       intent(in) :: kmx           !< Number of layers (0 means 2d computation).
+            real(kind=dp), dimension(:)  , intent(in) :: bottom_area   !< Cell area.
+            real(kind=dp), dimension(:,:), intent(in) :: constituents  !< concentrations.
+            real(kind=dp),                 intent(in) :: dt            !< timestep in seconds
          end subroutine average_concentrations_for_laterals
       end interface average_concentrations_for_laterals
    
@@ -132,7 +132,7 @@ module m_lateral
       !> While in finish_outgoing_lat_concentration, the average over time is actually computed.
       interface finish_outgoing_lat_concentration
          module subroutine finish_outgoing_lat_concentration(time_interval)
-            real(kind=dp), intent(in):: time_interval
+            real(kind=dp), intent(in) :: time_interval
          end subroutine finish_outgoing_lat_concentration
       end interface finish_outgoing_lat_concentration
 
@@ -140,20 +140,20 @@ module m_lateral
       !> Add lateral input contribution to the load being transported
       interface add_lateral_load_and_sink
          module subroutine add_lateral_load_and_sink(transport_load,transport_sink,discharge_in,discharge_out,vol1,dtol)
-            real(kind=dp), dimension(:,:), intent(inout)     :: transport_load        !< Load being transported into domain
-            real(kind=dp), dimension(:,:), intent(inout)     :: transport_sink        !< Load being transported out
-            real(kind=dp), dimension(:,:), intent(in   )     :: discharge_in          !< Lateral discharge going into domain (source)
-            real(kind=dp), dimension(:,:), intent(in   )     :: discharge_out         !< Lateral discharge going out (sink)
-            real(kind=dp), dimension(:),   intent(in)        :: vol1                  !< [m3] total volume at end of timestep {"location": "face", "shape": ["ndx"]}
-            real(kind=dp), intent(in)                        :: dtol                  !< cut off value for vol1, to prevent division by zero
+            real(kind=dp), dimension(:,:), intent(inout) :: transport_load  !< Load being transported into domain
+            real(kind=dp), dimension(:,:), intent(inout) :: transport_sink  !< Load being transported out
+            real(kind=dp), dimension(:,:), intent(in)    :: discharge_in    !< Lateral discharge going into domain (source)
+            real(kind=dp), dimension(:,:), intent(in)    :: discharge_out   !< Lateral discharge going out (sink)
+            real(kind=dp), dimension(:),   intent(in)    :: vol1            !< [m3] total volume at end of timestep {"location": "face", "shape": ["ndx"]}
+            real(kind=dp), intent(in)                    :: dtol            !< cut off value for vol1, to prevent division by zero
          end subroutine add_lateral_load_and_sink
       end interface add_lateral_load_and_sink
 
       !> Calculate lateral discharges at each of the active grid cells, both source (lateral_discharge_in) and sink (lateral_discharge_out). 
       interface get_lateral_discharge
          module subroutine get_lateral_discharge(lateral_discharge_in,lateral_discharge_out)
-            real(kind=dp), dimension(:,:), intent(inout)     :: lateral_discharge_in  !< Lateral discharge flowing into the model (source)
-            real(kind=dp), dimension(:,:), intent(inout)     :: lateral_discharge_out !< Lateral discharge extracted out of the model (sink)
+            real(kind=dp), dimension(:,:), intent(inout) :: lateral_discharge_in   !< Lateral discharge flowing into the model (source)
+            real(kind=dp), dimension(:,:), intent(inout) :: lateral_discharge_out  !< Lateral discharge extracted out of the model (sink)
          end subroutine get_lateral_discharge
       end interface get_lateral_discharge
   
@@ -161,7 +161,7 @@ module m_lateral
       !> Compute water volume per layer in each lateral
       interface get_lateral_volume_per_layer
          module subroutine get_lateral_volume_per_layer(lateral_volume_per_layer)
-             real(kind=dp), dimension(:,:), intent(out)   :: lateral_volume_per_layer                !< Water volume per layer in laterals, dimension = (number_of_layer,number_of_lateral) = (kmx,numlatsg)
+             real(kind=dp), dimension(:,:), intent(out) :: lateral_volume_per_layer  !< Water volume per layer in laterals, dimension = (number_of_layer,number_of_lateral) = (kmx,numlatsg)
          end subroutine get_lateral_volume_per_layer
       end interface get_lateral_volume_per_layer
       
