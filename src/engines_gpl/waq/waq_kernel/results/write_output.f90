@@ -514,17 +514,16 @@ contains
                 call write_history_output (lunout, lchout, itime, moname, nodump, &
                         idump, duname, notot, syname, conc, &
                         nrvar, ounam(k1), riobuf, iniout)
-                !
+
             elseif (isrtou == ihnf) then
-                !
+
                 iof = nrvar * nodump + 1
-                call write_nefis_history_ouput (lunout, lchout, itime, moname, noseg, &
+                call write_nefis_history_output(lunout, lchout, itime, moname, noseg, &
                         notot, conc, nambuf, nrvar, riobuf, &
                         iostrt, iostop, iostep, nodump, idump, &
                         duname, riobuf(iof), iniout)
-                !
+
             elseif (isrtou == ihnc) then
-                !
                 hncrec = hncrec + 1
                 iof = nrvar * nodump + 1
                 call write_history_output_to_netcdf (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
@@ -534,23 +533,23 @@ contains
                         sydsc, hncwqid1, nrvar, riobuf, &
                         ounam(k1), ousnm(k1), ouuni(k1), oudsc(k1), &
                         hncwqid2, file_unit_list(19))
-                !
+
             elseif (isrtou == ihi2) then
-                !
+
                 call write_history_output (lunout, lchout, itime, moname, nodump, &
                         idump, duname, 0, syname, conc, &
                         nrvar, ounam(k1), riobuf, iniout)
-                !
+
             elseif (isrtou == ihn2) then
-                !
+
                 iof = nrvar * nodump + 1
-                call write_nefis_history_ouput (lunout, lchout, itime, moname, noseg, &
+                call write_nefis_history_output(lunout, lchout, itime, moname, noseg, &
                         0, conc, ounam(k1), nrvar, riobuf, &
                         iostrt, iostop, iostep, nodump, idump, &
                         duname, riobuf(iof), iniout)
-                !
+
             elseif (isrtou == ihnc2) then
-                !
+
                 hncrec = hncrec + 1
                 iof = nrvar * nodump + 1
                 call write_history_output_to_netcdf (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
@@ -577,7 +576,7 @@ contains
                 nrvar3 = notot + nrvar2
                 nsegou = ndmpar + noraai
                 iof = nrvar3 * nsegou + 1
-                call write_nefis_history_ouput (lunout, lchout, itime, moname, noseg, &
+                call write_nefis_history_output(lunout, lchout, itime, moname, noseg, &
                         0, conc, nambuf, nrvar3, riobuf, &
                         iostrt, iostop, iostep, nsegou, idump, &
                         danam, riobuf(iof), iniout)
@@ -604,9 +603,8 @@ contains
                         nrvar2, ounam(k1), riobuf, iniout)
 
             elseif (isrtou == ihn4) then
-
                 iof = nrvar2 * ndmpar + 1
-                call write_nefis_history_ouput (lunout, lchout, itime, moname, noseg, &
+                call write_nefis_history_output(lunout, lchout, itime, moname, noseg, &
                         0, conc, ounam(k1), nrvar2, riobuf, &
                         iostrt, iostop, iostep, ndmpar, idump, &
                         danam, riobuf(iof), iniout)
@@ -615,7 +613,7 @@ contains
 
                 hncrec = hncrec + 1
                 iof = nrvar2 * ndmpar + 1
-                call write_history_output_to_netcdf (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
+                call write_history_output_to_netcdf(file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
                         bndtimeidh, hncrec, itime, moname, &
                         idump, danam, nsegou, 0, &
                         conc, syname, sysnm, syuni, &
@@ -632,7 +630,7 @@ contains
             elseif (isrtou == imnf) then
 
                 iof = nrvar * noseg + 1
-                call write_map_to_nefis_file (lunout, lchout, itime, moname, noseg, notot, conc, syname, nrvar, riobuf, &
+                call write_map_to_nefis_file(lunout, lchout, itime, moname, noseg, notot, conc, syname, nrvar, riobuf, &
                         ounam(k1), iostrt, iostop, iostep, riobuf(iof), iniout)
 
             elseif (isrtou == imnc) then

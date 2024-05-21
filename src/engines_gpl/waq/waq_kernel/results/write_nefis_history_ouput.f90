@@ -26,35 +26,21 @@ module m_write_nefis_history_ouput
     implicit none
 
     private
-    public :: write_nefis_history_ouput
+    public :: write_nefis_history_output
 contains
 
 
-    subroutine write_nefis_history_ouput(iout, lchout, itime, moname, noseg, &
+    subroutine write_nefis_history_output(iout, lchout, itime, moname, noseg, &
             notot1, conc1, syname, notot2, conc2, &
             iostrt, iostop, iostep, nodump, idump, &
             duname, rbuffr, init)
-
-
-        ! gives his output to nefis files
-        !                          conc1 is map of tatal area
-        !                          conc2 is already mapped on monitor points
-        !
-        !     subroutines called : delete_file, deletes a file
-        !                          fill_element_dimensions, fills elements dimension array
-        !                          manage_nefis_data_character, handles i/o to nefis file for char's
-        !                          putget, handles i/o to nefis file for int/real
-        !
+        !! gives his output to nefis files conc1 is map of tatal area conc2 is already mapped on monitor points
 
         use m_logger_helper, only: stop_with_error, get_log_unit_number
         use timers
         use nefis_data, only: manage_nefis_data_character
         use m_array_manipulation, only: fill_element_dimensions
         use data_processing, only: delete_file
-
-        implicit none
-
-        !     declaration of arguments
 
         integer(kind = int_wp), intent(in) :: iout                   ! unit number output file
         integer(kind = int_wp), intent(in) :: itime                  ! present time in clock units
@@ -116,7 +102,7 @@ contains
         integer(kind = int_wp), external :: FLSDAT, FLSDEF
 
         integer(kind = int_wp) :: ithandl = 0
-        if (timon) call timstrt ("write_nefis_history_ouput", ithandl)
+        if (timon) call timstrt ("write_nefis_history_output", ithandl)
 
         !     some init
 
@@ -359,6 +345,6 @@ contains
 
         2000 format ('ERROR writing NEFIS history file errno:', I7)
 
-    end subroutine write_nefis_history_ouput
+    end subroutine write_nefis_history_output
 
 end module m_write_nefis_history_ouput
