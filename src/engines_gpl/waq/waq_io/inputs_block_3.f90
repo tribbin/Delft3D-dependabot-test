@@ -49,8 +49,8 @@ contains
         !>      - time varying attribute arrays
         !>      - information on the time series of volumes
 
-        use error_handling, only: check_error
-        use m_logger, only: terminate_execution
+        use error_handling, only : check_error
+        use m_logger_helper, only : stop_with_error
         use m_open_waq_files
         use m_evaluate_waq_attribute
         use m_grid_utils_external !   for the storage of contraction grids
@@ -541,7 +541,7 @@ contains
         local_status%ierr = 0
         240 continue
         if (local_status%ierr > 0) call status%increase_error_count()
-        if (local_status%ierr == 3) call terminate_execution(1)
+        if (local_status%ierr == 3) call stop_with_error()
         goto 270
 
         ! error processing
