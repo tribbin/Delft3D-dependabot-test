@@ -240,9 +240,9 @@ private
    type(t_output_quantity_config_set), intent(inout) :: output_config_set !< Output configuration for the his-file.
    integer, allocatable, dimension(:), intent(  out) :: idx_const         !< Indexes for the constituent output variables. To be used for
                                                                           !< the registration of the variables in the output set.
-   integer ::  num, lenunitstr, lsed
+   integer ::  num, lsed
    character(len=idlen) :: conststr
-   character(len=idlen) :: unitstr
+   character(len=idlen) :: constituent_unit, constituent_cumul_unit
    type(ug_nc_attribute) :: atts(1)
 
    if (ncrs == 0) then
@@ -269,52 +269,46 @@ private
       call err('Internal error, please report: obscrs_data was already allocated')
    endif
 
-   do num = 1,NUMCONST_MDU
+   do num = 1, NUMCONST_MDU
       conststr = const_names(num)
       ! Forbidden chars in NetCDF names: space, /, and more.
       call replace_char(conststr,32,95) ! ' ' -> '_'
       call replace_char(conststr,47,95) ! '/' -> '_'
 
-      unitstr = ''
-      if (num >= ISED1 .and. num <= ISEDN .and. stm_included) then    ! if the constituent is sediment
+      constituent_unit = ''
+      constituent_cumul_unit = ''
+      if (num >= ISED1 .and. num <= ISEDN .and. stm_included) then ! The constituent is sediment
          select case(stmpar%morpar%moroutput%transptype)
          case (0)
-            unitstr = 'kg s-1'
+            constituent_cumul_unit = 'kg'
          case (1, 2)
-            unitstr = 'm3 s-1'
+            constituent_cumul_unit = 'm3'
          end select
-      else
-         if (const_units(num) /= ' ') then
-            unitstr = trim(const_units(num)) // ' m3 s-1'
-         else
-            unitstr = ''
-         endif
-      endif
+      else if (const_units(num) /= ' ') then
+            constituent_cumul_unit = trim(const_units(num)) // ' m3'
+      end if
+      if (len_trim(constituent_cumul_unit) > 0) then
+         constituent_unit = trim(constituent_cumul_unit) // ' s-1'
+      end if
 
       ! Just-in-time add *config* item for this constituent current transport
-      call add_output_config(output_config_set, idx_const(2*num-1),                                       &
+      call add_output_config(output_config_set, idx_const(2 * num - 1), &
             'Wrihis_crs_constituents', 'cross_section_'//trim(conststr), &
             'Flux (based on upwind flow cell) for '//trim(conststr), &
-            '', trim(unitstr), UNC_LOC_OBSCRS, nc_attributes = atts(1:1))
+            '', trim(constituent_unit), UNC_LOC_OBSCRS, nc_attributes = atts(1:1))
 
-      output_config_set%configs(idx_const(2*num-1))%input_value =     &
+      output_config_set%configs(idx_const(2*num-1))%input_value = &
             output_config_set%configs(IDX_HIS_OBSCRS_CONST_ABSTRACT)%input_value
 
 
       ! Just-in-time add *config* item for this constituent cumulative transport
-      lenunitstr = len_trim(unitstr)
-      if (lenunitstr > 4) then
-         unitstr = unitstr(1:lenunitstr-4) ! Trim off ' s-1'
-      end if
-
-      call add_output_config(output_config_set, idx_const(2*num),                                       &
+      call add_output_config(output_config_set, idx_const(2*num), &
             'Wrihis_crs_constituents', 'cross_section_cumulative_'//trim(conststr), &
             'Cumulative flux (based on upwind flow cell) for '//trim(conststr), &
-            '', trim(unitstr), UNC_LOC_OBSCRS, nc_attributes = atts(1:1))
+            '', trim(constituent_cumul_unit), UNC_LOC_OBSCRS, nc_attributes = atts(1:1))
 
-      output_config_set%configs(idx_const(2*num))%input_value =     &
+      output_config_set%configs(idx_const(2*num))%input_value = &
             output_config_set%configs(IDX_HIS_OBSCRS_CONST_ABSTRACT)%input_value
-
    enddo
    !
    ! Sediment transport
