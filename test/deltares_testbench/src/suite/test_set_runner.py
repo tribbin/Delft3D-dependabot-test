@@ -593,8 +593,12 @@ class TestSetRunner(ABC):
                     if attempts < 3:
                         logger.warning(error_message)
                     else:
-                        logger.exception(error_message)
-                        raise TestBenchError(f"Unable to download testcase {repr(e)}")
+                        if hasattr(e, "message"):
+                            error = e.message
+                        else:
+                            error = repr(e)
+                        error_message = f"Unable to download testcase: {error}"
+                        raise TestBenchError(error_message) from e
 
     def __SetupVersionForDownload(self, location: Location, version: Optional[str]) -> None:
         if location.version is None and version is not None:
