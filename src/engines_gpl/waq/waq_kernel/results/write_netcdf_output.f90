@@ -32,7 +32,7 @@ module m_write_netcdf_output
     ! There are a lot of variables passed from the netcdf module to this module then from this module out.
     ! these variables also needs to be declared as public here
     !    private
-    !    public :: write_map_output_to_netcdf, write_history_output_to_netcdf
+    !    public :: write_map_output_to_netcdf, write_netcdf_history_output
 
 contains
 
@@ -795,7 +795,7 @@ contains
     end subroutine write_map_output_to_netcdf
 
 
-    subroutine write_history_output_to_netcdf(ncidhis, hncnam, ugridf, timeid, bndtimeid, &
+    subroutine write_netcdf_history_output(ncidhis, hncnam, ugridf, timeid, bndtimeid, &
             hncrec, itime, moname, idump, duname, &
             nodump, notot1, conc1, synam1, sysnm1, &
             syuni1, sydsc1, wqid1, notot2, conc2, &
@@ -880,7 +880,7 @@ contains
                 [5, 4])
 
         integer(kind = int_wp) :: ithandl = 0
-        if (timon) call timstrt ("write_history_output_to_netcdf", ithandl)
+        if (timon) call timstrt ("write_netcdf_history_output", ithandl)
 
         ! Check if there are any monitoring points/areas
         ! (If the number is zero and we would not suppress the creation of the file,
@@ -1226,7 +1226,7 @@ contains
         2600 format (/ ' NetCDF error number: ', I6)
         2610 format (/ ' NetCDF error message: ', A)
 
-    end subroutine write_history_output_to_netcdf
+    end subroutine write_netcdf_history_output
 
     ! Replace embedded spaces by underscores (and remove leading spaces)
     function replace_space_by_underscore(input_string) result(ouput_string)

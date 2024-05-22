@@ -526,7 +526,7 @@ contains
             elseif (isrtou == ihnc) then
                 hncrec = hncrec + 1
                 iof = nrvar * nodump + 1
-                call write_history_output_to_netcdf (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
+                call write_netcdf_history_output(file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
                         bndtimeidh, hncrec, itime, moname, &
                         idump, duname, nodump, notot, &
                         conc, syname, sysnm, syuni, &
@@ -552,7 +552,7 @@ contains
 
                 hncrec = hncrec + 1
                 iof = nrvar * nodump + 1
-                call write_history_output_to_netcdf (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
+                call write_netcdf_history_output(file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
                         bndtimeidh, hncrec, itime, moname, &
                         idump, duname, nodump, 0, &
                         conc, syname, sysnm, syuni, &
@@ -588,7 +588,7 @@ contains
                 nrvar3 = notot + nrvar2
                 nsegou = ndmpar + noraai
                 iof = nrvar3 * nsegou + 1
-                call write_history_output_to_netcdf (file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
+                call write_netcdf_history_output(file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
                         bndtimeidh, hncrec, itime, moname, &
                         idump, danam, nsegou, 0, &
                         conc, nambuf, sysnm, syuni, &
@@ -613,7 +613,7 @@ contains
 
                 hncrec = hncrec + 1
                 iof = nrvar2 * ndmpar + 1
-                call write_history_output_to_netcdf(file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
+                call write_netcdf_history_output(file_unit_list(47), file_name_list(47), file_name_list(46), timeidh, &
                         bndtimeidh, hncrec, itime, moname, &
                         idump, danam, nsegou, 0, &
                         conc, syname, sysnm, syuni, &
@@ -705,7 +705,7 @@ contains
         if (timon) call timstop (ithandl)
     end subroutine write_output
 
-    SUBROUTINE fill_sub_areas_balances (NOTOT, NOSYS, NOFLUX, NDMPAR, NDMPQ, &
+    subroutine fill_sub_areas_balances(NOTOT, NOSYS, NOFLUX, NDMPAR, NDMPQ, &
             NDMPS, NTDMPQ, IQDMP, ISDMP, IPDMP, &
             DMPQ, MASS, DMPS, FLXDMP, ASMASS, &
             FLXINT)
@@ -730,9 +730,7 @@ contains
         !     FLXDMP  REAL  NOFLUX*NDMPS  INPUT   Integrated fluxes
         !     ASMASS  REAL NOTOT*NDMPAR*6 OUTPUT  Mass balance terms
         !     FLXINT  REAL  NOFLUX*NDMPAR OUTPUT  Integrated fluxes
-        !
-        !     Declaration of arguments
-        !
+
         use timers
 
         INTEGER(kind = int_wp) :: NOTOT, NOSYS, NOFLUX, NDMPAR, NDMPQ, &
@@ -742,9 +740,7 @@ contains
         REAL(kind = real_wp) :: DMPQ(NOSYS, NDMPQ, *), MASS(NOTOT, *), &
                 DMPS(NOTOT, NDMPS, *), FLXDMP(NOFLUX, *), &
                 ASMASS(NOTOT, NDMPAR, *), FLXINT(NOFLUX, *)
-        !
-        !     Local declarations
-        !
+
         INTEGER(kind = int_wp) :: ITEL1, ITEL2, IP1, IDUMP, NQC, &
                 IQC, IQ, IPQ, ISYS, NSC, &
                 ISC, ISEG, IPS
