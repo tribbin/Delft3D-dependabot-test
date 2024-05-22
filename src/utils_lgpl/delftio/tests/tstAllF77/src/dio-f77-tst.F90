@@ -28,50 +28,42 @@
 !
 
 subroutine initValues(d1, d2, rValues)
-   integer          d1,d2
-   real*4           rValues(d1,d2)
+   integer          d1, d2
+   real*4           rValues(d1, d2)
    integer          i,j
 
-   do i = 1,d1
-      do j = 1,d2
-         rValues(i,j) = .1 * j + .01 * i
-      enddo
-   enddo
-end
-
+   do i = 1, d1
+      do j = 1, d2
+         rValues(i, j) = .1 * j + .01 * i
+      end do
+   end do
+end subroutine initValues
 
 subroutine incrementValues(d1, d2, rValues)
+   integer          d1, d2
+   real*4           rValues(d1, d2)
+   integer          i, j
 
-   integer          d1,d2
-   real*4           rValues(d1,d2)
-   integer          i,j
-
-   do i = 1,d1
-      do j = 1,d2
-         rValues(i,j) = rValues(i,j) + 0.01
-      enddo
-   enddo
-
-   return
-end
-
+   do i = 1, d1
+      do j = 1, d2
+         rValues(i, j) = rValues(i, j) + 0.01
+      end do
+   end do
+end subroutine incrementValues
 
 logical function diffInValues(d1, d2, diffValues, epsilon)
-
-   integer          d1,d2
-   double precision diffValues(d1,d2)
+   integer          d1, d2
+   double precision diffValues(d1, d2)
    double precision epsilon
-   integer          i,j
+   integer          i, j
 
    diffInValues = .false.
-   do i = 1,d1
-      do j = 1,d2
-         if( diffValues(i,j) .gt.  epsilon .or.&
-         &diffValues(i,j) .lt.  (-epsilon)    ) then
+   do i = 1, d1
+      do j = 1, d2
+         if (diffValues(i,j) > epsilon .or. &
+         &diffValues(i,j) < (-epsilon)) then
             diffInValues = .true.
-         endif
-      enddo
-   enddo
-
-end
-
+         end if
+      end do
+   end do
+end function diffInValues
