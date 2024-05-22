@@ -78,7 +78,7 @@ rem =================================
     echo Get command line arguments ...
 
     rem Read arguments
-    set "options=-config:all -help: -vs:0 -ifort:0 -coverage: -build: -build_type:Release"
+    set "options=-config:all -help: -vs:0 -ifort:0 -coverage: -build: -build_type:Debug"
     rem see: https://stackoverflow.com/questions/3973824/windows-bat-file-optional-argument-parsing answer 2.
     for %%O in (%options%) do for /f "tokens=1,* delims=:" %%A in ("%%O") do set "%%A=%%~B"
     :loop
@@ -179,7 +179,7 @@ rem =================================
         echo Overriding automatically found ifort version !ifort! with argument !-ifort!
         set ifort=!-ifort!
     ) else if "!ifort!" == "" (
-        echo Error: ifort not set. Please install ifort, run it from a prompt with the right enviroment set, or provide the installed version using the -ifort option.
+        echo Error: ifort not set. Please ensure that ifort is installed and run build.bat from a prompt with the right environment set.
         set ERRORLEVEL=1
         goto :end
     )
@@ -228,7 +228,7 @@ rem =================================
         echo Overriding automatically found VS version !vs! with argument !-vs!
         set vs=!-vs!
     ) else if "!vs!" == "" (
-        echo Error: Visual Studio not found. Please install Visual Studio, run it from a prompt with the right enviroment set, or provide the installed version using the -vs option.
+        echo Error: Visual Studio not found. Please ensure that Visual Studio is installed and run build.bat from a prompt with the right environment set.
         set ERRORLEVEL=1
         goto :end
     )
