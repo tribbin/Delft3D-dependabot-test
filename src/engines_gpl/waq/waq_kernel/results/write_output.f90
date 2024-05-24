@@ -388,7 +388,7 @@ contains
             ! Fill output buffer
             if (isrtou == iba2) then
 
-                call flxbal (notot, noflux, ndmpar, nrvar, stochi, flxint, asmass, riobuf)
+                call calculate_balance_terms(notot, noflux, ndmpar, nrvar, stochi, flxint, asmass, riobuf)
 
             elseif (isrtou == iba3) then
                 !     jos doet het zelf
@@ -1146,7 +1146,7 @@ contains
         integer(kind = int_wp) :: ibalt, isys, i, idmp, iflx, lurep
         real(kind = real_wp) :: st
         integer(kind = int_wp) :: ithandl = 0
-        if (timon) call timstrt ("flxbal", ithandl)
+        if (timon) call timstrt ("calculate_balance_terms", ithandl)
         !
         !     We construeren nu de BALINT's
         !
@@ -1170,8 +1170,8 @@ contains
                     IBALT = IBALT + 1
                     IF (IBALT > NOBALT) THEN
                         CALL get_log_unit_number(LUREP)
-                        WRITE(LUREP, *) 'ERROR, INTERNAL FLXBAL'
-                        WRITE(*, *)     'ERROR, INTERNAL FLXBAL'
+                        WRITE(LUREP, *) 'ERROR, INTERNAL calculate_balance_terms'
+                        WRITE(*, *)     'ERROR, INTERNAL calculate_balance_terms'
                         CALL stop_with_error()
                     ENDIF
                     DO IDMP = 1, NDMPAR
@@ -1183,7 +1183,7 @@ contains
 
         if (timon) call timstop (ithandl)
 
-    END SUBROUTINE FLXBAL
+    end subroutine calculate_balance_terms
 
     ! TODO: move to the sobbal
     subroutine write_balance_history_output(balance_file_unit, simulation_time, model_name, num_substances, &
