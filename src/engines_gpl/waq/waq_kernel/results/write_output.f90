@@ -23,7 +23,7 @@
 module m_write_output
     use m_waq_precision
     use m_values
-    use m_sobbal
+    use m_write_balance_output
     use m_write_monitoring_output
     use m_write_map_output, only: write_binary_history_output, write_binary_map_output
     use m_write_nefis_output, only: write_nefis_history_output

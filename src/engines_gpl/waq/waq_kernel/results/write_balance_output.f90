@@ -20,23 +20,26 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_sobbal
+module m_write_balance_output
     use m_waq_precision
     use m_string_utils
 
     implicit none
 
+    private
+    public :: write_balance_text_output
+
 contains
 
-    subroutine write_balance_text_output(NOTOT, ITIME, NOSYS, NOFLUX, NDMPAR, &
-            NDMPQ, NTDMPQ, ITSTOP, IMSTRT, IMSTOP, &
-            IQDMP, IPDMP, ASMASS, FLXINT, STOCHI, &
-            SYNAME, DANAM, MONAME, DMPQ, NOBND, &
-            NOBTYP, BNDTYP, INBTYP, NOCONS, CONAME, &
-            CONS, NOQ, IPOINT, FLXNAM, INTOPT, &
-            VOLUME, SURF, NOSEG, LUNOUT, LCHOUT, &
-            INIOUT, DMPBAL, NOWST, NOWTYP, WSTTYP, &
-            IWASTE, INWTYP, WSTDMP, ISEGCOL, IMSTEP)
+    subroutine write_balance_text_output(notot, itime, nosys, noflux, ndmpar, &
+            ndmpq, ntdmpq, itstop, imstrt, imstop, &
+            iqdmp, ipdmp, asmass, flxint, stochi, &
+            syname, danam, moname, dmpq, nobnd, &
+            nobtyp, bndtyp, inbtyp, nocons, coname, &
+            cons, noq, ipoint, flxnam, intopt, &
+            volume, surf, noseg, lunout, lchout, &
+            iniout, dmpbal, nowst, nowtyp, wsttyp, &
+            iwaste, inwtyp, wstdmp, isegcol, imstep)
 
         !! Integrated emissions and processes balance
 
@@ -918,12 +921,13 @@ contains
         9000 write (lunrep, *) 'Error allocating memory'
         write (*, *) 'Error allocating memory'
         call stop_with_error()
-    end
-    SUBROUTINE OUTBAI(IOBALI, MONAME, IBSTRT, IBSTOP, NOOUT, &
-            NOTOT, NDMPAR, DANAMP, OUNAME, SYNAME, &
-            IMASSA, IEMISS, NEMISS, ITRANS, NTRANS, &
-            IPROCS, NPROCS, BALTOT, ONLYSM, NOSUM, &
-            SFACTO, IUNIT, INIT)
+    end subroutine write_balance_text_output
+
+    subroutine outbai(iobali, moname, ibstrt, ibstop, noout, &
+            notot, ndmpar, danamp, ouname, syname, &
+            imassa, iemiss, nemiss, itrans, ntrans, &
+            iprocs, nprocs, baltot, onlysm, nosum, &
+            sfacto, iunit, init)
         use timers
 
         INTEGER(kind = int_wp) :: IOBALI, IBSTRT, IBSTOP, NOOUT, NOTOT, NDMPAR, &
@@ -1385,4 +1389,4 @@ contains
 
     END SUBROUTINE sum_sub_areas_values
 
-end module m_sobbal
+end module m_write_balance_output
