@@ -36,10 +36,15 @@ use, intrinsic :: ieee_arithmetic, only : ieee_is_nan, ieee_is_finite
 
 implicit none
 !
-! parameters, used in conversions: sp=single precision, hp=high (double) precision
+! parameters, used in conversions: sp=single precision, dp=double precision
 !
 integer, parameter :: sp=kind(1.0e00)
-integer, parameter :: hp=kind(1.0d00)
+integer, parameter :: dp=kind(1.0d00)
+integer, parameter :: qp=kind(1.0q00)
+!
+! for backward compatibility: hp=high precision, equal to dp
+!
+integer, parameter :: hp=dp
 !
 ! double precision integers:
 !

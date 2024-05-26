@@ -1872,7 +1872,6 @@ end subroutine retrieve_set_of_flowlinks_compound_structure
 !> Calculate the x,y-coordinates of the midpoint of a set of flowlinks
 !! (presumably those that a polyline has been snapped to)
 subroutine calc_midpoint_coords_of_set_of_flowlinks(links, xmid, ymid)
-   use stdlib_kinds, only: dp
    use m_missing, only: dmiss
    use MessageHandling, only: mess, LEVEL_ERROR
    use m_flowgeom, only: kcu, wu, lncn, xu, yu
