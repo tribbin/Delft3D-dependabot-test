@@ -472,6 +472,8 @@ subroutine rdsed(lundia    ,error     ,lsal      ,ltem      ,lsed      , &
           sedpar%tbreakup = sedpar%tfloc
           call prop_get(sed_ptr, 'SedimentOverall', 'TBreakUp', sedpar%tbreakup)
           !
+          DiaMicro = 1.e-4_fp
+          UstarMacro = 0.067_fp
           call prop_get(sed_ptr, 'SedimentOverall', 'DiaMicro', DiaMicro)
           call prop_get(sed_ptr, 'SedimentOverall', 'UstarMacro', UstarMacro)
        endif
