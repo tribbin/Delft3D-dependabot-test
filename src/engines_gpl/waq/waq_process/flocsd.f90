@@ -41,7 +41,7 @@ contains
         !
         !     type    name         i/o description
         !
-        integer(kind = int_wp), parameter :: nopmsa = 18
+        integer(kind = int_wp), parameter :: nopmsa = 20
 
         real(kind = real_wp) :: pmsa(*)        !i/o process manager system array, window of routine to process library
         real(kind = real_wp) :: fl(*)          ! o  array of fluxes made by this process in mass/volume/time
@@ -65,7 +65,7 @@ contains
         integer(kind = int_wp) :: idflocim1
         integer(kind = int_wp) :: idflocim2
 
-        integer(kind = int_wp) :: ip15, in15, ip16, in16, ipwmac, inwmac, ipwmic, inwmic, iq, noq, ivan
+        integer(kind = int_wp) :: ip17, in17, ip18, in18, ipwmac, inwmac, ipwmic, inwmic, iq, noq, ivan
 
         real(kind = real_wp) :: cmacro      ! i  inorganic matter (im1; macro flocs)                (gdm/m3)
         real(kind = real_wp) :: cmicro      ! i  inorganic matter (im2; micro flocs)                (gdm/m3)
@@ -82,6 +82,8 @@ contains
         real(kind = real_wp) :: spmratioem  ! o  flocculation ratio macro:micro empirical model     (-)
         real(kind = real_wp) :: dflocim1    ! f  flocculation or break-up flux im1                  (g/m3/d)
         real(kind = real_wp) :: dflocim2    ! f  flocculation or break-up flux im2                  (g/m3/d)
+        real(kind = real_wp) :: dia_micro   ! i  characteristic diameter of micro flocs             (m)
+        real(kind = real_wp) :: ustar_macro ! i  characteristic shear velocity of macro flocs       (m/s)
         logical active      !    active segment
         real(kind = real_wp) :: macro       !    concentration macro flocs                            (g/m3)
         real(kind = real_wp) :: micro       !    concentration micro flocs                            (g/m3)
@@ -112,13 +114,15 @@ contains
             total_depth = pmsa(ipnt(11))
             local_depth = pmsa(ipnt(12)) - 0.5 * pmsa( ipnt( 13) )  ! The "average" depth of the segment,
                                                                     ! not the bottom level
+            dia_micro   = pmsa(ipnt(14))
+            ustar_macro = pmsa(ipnt(15))
 
             ! only for active water segments
 
             active = btest(iknmrk(iseg), 0)
             if (active) then
                 call flocculate_dwq(swfloform, cmacro, cmicro, tpm, tau, total_depth, local_depth, viscosity, rho_water, &
-                        spmratioem, ws_macro, ws_micro)
+                        spmratioem, ws_macro, ws_micro, dia_micro, ustar_macro)
 
 
                 ! calculate flocculatio/break-up flux and restrict flux to 50% in one timestep for stability
@@ -144,9 +148,9 @@ contains
 
             fl  (idflocim1) = dfloc
             fl  (idflocim2) = -dfloc
-            pmsa(ipnt(14)) = spmratioem
-            pmsa(ipnt(15)) = ws_macro
-            pmsa(ipnt(16)) = ws_micro
+            pmsa(ipnt(16)) = spmratioem
+            pmsa(ipnt(17)) = ws_macro
+            pmsa(ipnt(18)) = ws_micro
 
             idflocim1 = idflocim1 + noflux
             idflocim2 = idflocim2 + noflux
@@ -159,15 +163,15 @@ contains
         !
         noq = noq1 + noq2 + noq3
 
-        ipwmac = ipoint(17)
-        inwmac = increm(17)
-        ipwmic = ipoint(18)
-        inwmic = increm(18)
+        ipwmac = ipoint(19)
+        inwmac = increm(19)
+        ipwmic = ipoint(20)
+        inwmic = increm(20)
 
-        ip15 = ipoint(15)
-        ip16 = ipoint(16)
-        in15 = increm(15)
-        in16 = increm(16)
+        ip17 = ipoint(17)
+        ip18 = ipoint(18)
+        in17 = increm(17)
+        in18 = increm(18)
         !
         ! Horizontal exchanges - set to zero
         !
@@ -188,10 +192,10 @@ contains
 !           sedimentation velocity from segment to exchange-area
 !           
             if ( ivan > 0 ) then
-                ip15 = ipoint(15) + (ivan-1) * in15
-                ip16 = ipoint(16) + (ivan-1) * in16
-                pmsa(ipwmac) = pmsa( ip15 )
-                pmsa(ipwmic) = pmsa( ip16 )
+                ip17 = ipoint(17) + (ivan-1) * in17
+                ip18 = ipoint(18) + (ivan-1) * in18
+                pmsa(ipwmac) = pmsa( ip17 )
+                pmsa(ipwmic) = pmsa( ip18 )
             endif
             
             ipwmac = ipwmac + inwmac
