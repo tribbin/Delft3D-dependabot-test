@@ -44,6 +44,7 @@ module m_setup_structures_and_weirs_list
       logical, allocatable, dimension(:) :: does_link_contain_structures
 
       if (.not. ChangeVelocityAtStructures) then
+         allocate(links_with_structures_or_weirs(0))
          return
       end if
 
