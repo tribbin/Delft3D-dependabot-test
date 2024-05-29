@@ -20,7 +20,7 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_proint
+module m_integrate_areas_fluxes
     use m_waq_precision
 
     implicit none
@@ -28,29 +28,11 @@ module m_proint
 contains
 
 
-    subroutine proint (noflux, ndmpar, idt, iturat, flxdmp, &
+    subroutine integrate_fluxes_for_dump_areas(noflux, ndmpar, idt, iturat, flxdmp, &
             flxint, isdmp, ipdmp, ntdmpq)
-
-        !     Deltares Software Centre
-
-        !>\File
-        !>            Integrates the fluxes for dump area's
-
-        !     Created:            : march 1993 by Jan van Beek
-
-        !     Subroutines called  : -
-
-        !     Files               : -
-
-        !     Common blocks       : -
+        !! Integrates the fluxes for dump area's
 
         use timers
-
-        implicit none
-
-        !     Parameters          :
-
-        !     kind           function         name                    description
 
         integer(kind = int_wp), intent(in) :: noflux                !< Number of fluxes
         integer(kind = int_wp), intent(in) :: ndmpar                !< Number of dump areas
@@ -62,24 +44,18 @@ contains
         integer(kind = int_wp), intent(in) :: ipdmp (*)           !< Pointer structure dump area's
         integer(kind = int_wp), intent(in) :: ntdmpq                !< Total number exchanges in dump area
 
-        !     Local declaration
-
-        integer(kind = int_wp) :: itel2, idump, nsc, isc, iseg, &
-                ips, iflx, ip1
+        integer(kind = int_wp) :: itel2, idump, nsc, isc, iseg, ips, iflx, ip1
         real(kind = real_wp) :: fscale
-
         integer(kind = int_wp) :: ithandl = 0
-        if (timon) call timstrt ("proint", ithandl)
+        if (timon) call timstrt ("integrate_fluxes_for_dump_areas", ithandl)
 
-        !     Loop over the dump area's
-
+        ! Loop over the dump area's
         ip1 = ndmpar + ntdmpq
         itel2 = ndmpar + ntdmpq + ndmpar
         fscale = real(idt) / real(iturat)
         do idump = 1, ndmpar
 
-            !        the segment contributes
-
+            ! the segment contributes
             nsc = ipdmp(ip1 + idump)
             do isc = 1, nsc
                 itel2 = itel2 + 1
@@ -94,7 +70,6 @@ contains
 
         if (timon) call timstop (ithandl)
 
-        return
-    end
+    end subroutine integrate_fluxes_for_dump_areas
 
-end module m_proint
+end module m_integrate_areas_fluxes

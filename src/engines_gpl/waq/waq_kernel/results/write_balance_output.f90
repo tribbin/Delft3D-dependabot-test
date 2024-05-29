@@ -20,37 +20,29 @@
 !!  All indications and logos of, and references to registered trademarks
 !!  of Stichting Deltares remain the property of Stichting Deltares. All
 !!  rights reserved.
-module m_sobbal
+module m_write_balance_output
     use m_waq_precision
     use m_string_utils
 
     implicit none
 
+    private
+    public :: write_balance_text_output
+
 contains
 
+    subroutine write_balance_text_output(notot, itime, nosys, noflux, ndmpar, &
+            ndmpq, ntdmpq, itstop, imstrt, imstop, &
+            iqdmp, ipdmp, asmass, flxint, stochi, &
+            syname, danam, moname, dmpq, nobnd, &
+            nobtyp, bndtyp, inbtyp, nocons, coname, &
+            cons, noq, ipoint, flxnam, intopt, &
+            volume, surf, noseg, lunout, lchout, &
+            iniout, dmpbal, nowst, nowtyp, wsttyp, &
+            iwaste, inwtyp, wstdmp, isegcol, imstep)
 
-    SUBROUTINE SOBBAL (NOTOT, ITIME, NOSYS, NOFLUX, NDMPAR, &
-            NDMPQ, NTDMPQ, ITSTOP, IMSTRT, IMSTOP, &
-            IQDMP, IPDMP, ASMASS, FLXINT, STOCHI, &
-            SYNAME, DANAM, MONAME, DMPQ, NOBND, &
-            NOBTYP, BNDTYP, INBTYP, NOCONS, CONAME, &
-            CONS, NOQ, IPOINT, FLXNAM, INTOPT, &
-            VOLUME, SURF, NOSEG, LUNOUT, LCHOUT, &
-            INIOUT, DMPBAL, NOWST, NOWTYP, WSTTYP, &
-            IWASTE, INWTYP, WSTDMP, ISEGCOL, IMSTEP)
-        !
-        !     Deltares      SECTOR WATERRESOURCES AND ENVIRONMENT
-        !
-        !     CREATED             : PROTOTYPE dec. 2001 by Jos van Gils
-        !
-        !
-        !     FUNCTION            : Integrated emissions and processes balance
-        !
-        !     LOGICAL UNITS       : -
-        !
-        !     SUBROUTINES CALLED  :
-        !
-        !     PARAMETERS          :
+        !! Integrated emissions and processes balance
+
         !
         !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
         !     ----    -----    ------     ------- -----------
@@ -98,13 +90,10 @@ contains
         !     INWTYP  INTEGER  NOWST      INPUT   wasteload type number (index in WSTTYP)
         !     WSTDMP  REAL     NOTOT,NOWST,2  I   accumulated wasteloads 1/2 in and out
         !     ==================================================================
-        !
-        use m_outhis
-        use m_dmpval
-        use m_dmpsurf
-        use m_logger_helper, only : stop_with_error, get_log_unit_number
-        use data_processing, only : extract_value_from_group
-        use m_cli_utils, only : get_command_argument_by_name
+        use m_write_map_output, only: write_binary_history_output
+        use m_logger_helper, only: stop_with_error, get_log_unit_number
+        use data_processing, only: extract_value_from_group
+        use m_cli_utils, only: get_command_argument_by_name
         use m_open_waq_files
         use timers
         INTEGER(kind = int_wp) :: NOTOT, ITIME, NOSYS, NOSEG, LUNOUT, &
@@ -117,11 +106,11 @@ contains
                 ASMASS(NOTOT, NDMPAR, *), FLXINT(NOFLUX, *), &
                 STOCHI(NOTOT, NOFLUX), CONS(NOCONS), &
                 VOLUME(*), SURF(*)
-        character(len=20)  SYNAME(*), DANAM(*), &
+        character(len = 20)  SYNAME(*), DANAM(*), &
                 BNDTYP(NOBTYP), CONAME(NOCONS), &
                 FLXNAM(NOFLUX)
-        character(len=40)  MONAME(4)
-        character(len=255) LCHOUT
+        character(len = 40)  MONAME(4)
+        character(len = 255) LCHOUT
         integer(kind = int_wp) :: dmpbal(ndmpar)        ! indicates if dump area is included in the balance
         integer(kind = int_wp) :: nowst                 ! number of wasteloads
         integer(kind = int_wp) :: nowtyp                ! number of wasteload types
@@ -175,7 +164,7 @@ contains
                 IPROCS(:), &
                 NPROCS(:), &
                 SEGDMP(:)
-        character(len=20), allocatable :: OUNAME(:), &
+        character(len = 20), allocatable :: OUNAME(:), &
                 DANAMP(:), &
                 SYNAMP(:)
         logical, allocatable :: IWDMP(:, :)
@@ -184,10 +173,10 @@ contains
                 INCLUD, BOUNDA, LUMPTR, B_AREA, B_VOLU
         REAL(kind = real_wp) :: RDUM(1)
         REAL(kind = real_wp) :: ST, TFACTO(NOSUM)
-        character(len=20)  C20, SYNAMS(NOSUM)
-        character(len=40)  CDUM
-        character(len=255) FILNAM
-        character(len=2)   c2
+        character(len = 20)  C20, SYNAMS(NOSUM)
+        character(len = 40)  CDUM
+        character(len = 255) FILNAM
+        character(len = 2)   c2
         character(:), allocatable :: inifil
         integer(kind = int_wp) :: lunini
         integer(kind = int_wp) :: iseg, iw, idum, ivan, ibal_off, idump_out
@@ -202,26 +191,18 @@ contains
         DATA          B_AREA /.FALSE./
         DATA          B_VOLU /.FALSE./
         DATA          SYNAMS /'TotN', 'TotP'/
-        !     SAVE          IOBALI, BALTOT, SFACTO, SUPPFT, ONLYSM, STOCHL,
-        !    J              OUNAME, DANAMP, SYNAMP, JDUMP , LUMPEM, LUMPPR,
-        !    J              BALANS, FLTRAN, IMASSA, IEMISS, ITRANS, IPROCS,
-        !    J              NPROCS, FL2BAL, LUMPTR, B_AREA, B_VOLU, SEGDMP
+
         SAVE
         integer(kind = int_wp) :: ithandl = 0
 
-        !     Skip this routine when there are no balance area's
+        ! Skip this routine when there are no balance area's
         IF (NDMPAR==0) RETURN
 
-        if (timon) call timstrt ("sobbal", ithandl)
-        !**************** INITIALIZATION **************************************
+        if (timon) call timstrt ("write_balance_text_output", ithandl)
 
         IF (INIOUT == 1) THEN
             IFIRST = .TRUE.
             CALL get_log_unit_number(LUNREP)
-
-            !         Process flags
-
-            !         from input
 
             lumppr = .NOT. btest(intopt, 8)
             lumpem = .NOT. btest(intopt, 9)
@@ -231,8 +212,7 @@ contains
             onlysm = .NOT. btest(intopt, 13)
             suppft = .NOT. btest(intopt, 14)
 
-            !         from ini file
-
+            ! from ini file
             if (get_command_argument_by_name('-i', inifil, parsing_error)) then
                 if (parsing_error) then
                     inifil = ' '
@@ -257,7 +237,6 @@ contains
             123     continue
 
             ! count number of output dump areas
-
             ndmpar_out = 0
             do idump = 1, ndmpar
                 if (dmpbal(idump) == 1) then
@@ -265,22 +244,10 @@ contains
                 endif
             enddo
 
-            !         Dimension arrays
-
+            ! Dimension arrays
             if (allocated(fltran)) then
-                deallocate(&
-                        FLTRAN, &
-                        JDUMP, &
-                        SFACTO, &
-                        DANAMP, &
-                        SYNAMP, &
-                        IMASSA, &
-                        IEMISS, &
-                        ITRANS, &
-                        IPROCS, &
-                        NPROCS, &
-                        STOCHL, &
-                        FL2BAL)
+                deallocate(FLTRAN, JDUMP, SFACTO, DANAMP, SYNAMP, IMASSA, IEMISS, ITRANS, IPROCS, NPROCS, &
+                        STOCHL, FL2BAL)
             endif
 
             allocate (FLTRAN(2, NOSYS), &
@@ -299,7 +266,7 @@ contains
             IF (IERR > 0) GOTO 9000
             IF (.NOT. LUMPTR) THEN
 
-                !             allocate and set SEGDMP, first dump number for each segment (if any)
+                ! allocate and set SEGDMP, first dump number for each segment (if any)
                 if (allocated(segdmp)) then
                     deallocate(segdmp)
                 endif
@@ -328,51 +295,50 @@ contains
                 ENDDO
 
             ENDIF
-            IF (.NOT. LUMPEM) THEN
-
-                !             allocate and set IWDMP, set to true is wasteload is in dump area
+            if (.not. lumpem) then
+                ! allocate and set IWDMP, set to true is wasteload is in dump area
                 if (allocated(iwdmp)) then
                     deallocate(iwdmp)
                 endif
-                allocate (IWDMP(NOWST, NDMPAR), STAT = IERR)
-                IF (IERR > 0) GOTO 9000
-                IWDMP = .FALSE.
-                ITEL = 0
-                IDUMP_OUT = 0
-                DO IDUMP = 1, NDMPAR
-                    NSC = IPDMP(NDMPAR + NTDMPQ + IDUMP)
-                    IF (DMPBAL(IDUMP) == 1) THEN
-                        IDUMP_OUT = IDUMP_OUT + 1
-                        DO ISC = 1, NSC
-                            ITEL = ITEL + 1
-                            ISEG = IPDMP(NDMPAR + NTDMPQ + NDMPAR + ITEL)
-                            IF (ISEG > 0) THEN
-                                DO IW = 1, NOWST
-                                    IF (IWASTE(IW) == ISEG) THEN
-                                        IWDMP(IW, IDUMP_OUT) = .TRUE.
-                                    ENDIF
-                                ENDDO
-                            ENDIF
-                        ENDDO
-                    ELSE
-                        ITEL = ITEL + NSC
-                    ENDIF
-                ENDDO
+                allocate (iwdmp(nowst, ndmpar), stat = ierr)
+                if (ierr > 0) goto 9000
+                iwdmp = .false.
+                itel = 0
+                idump_out = 0
+                do idump = 1, ndmpar
+                    nsc = ipdmp(ndmpar + ntdmpq + idump)
+                    if (dmpbal(idump) == 1) then
+                        idump_out = idump_out + 1
+                        do isc = 1, nsc
+                            itel = itel + 1
+                            iseg = ipdmp(ndmpar + ntdmpq + ndmpar + itel)
+                            if (iseg > 0) then
+                                do iw = 1, nowst
+                                    if (iwaste(iw) == iseg) then
+                                        iwdmp(iw, idump_out) = .true.
+                                    endif
+                                enddo
+                            endif
+                        enddo
+                    else
+                        itel = itel + nsc
+                    endif
+                enddo
 
-            ENDIF
+            endif
 
             !         Balances are constructed for all system variables
             !         + total N + total P (IF RELEVANT!)
             !         Find which state variables contribute to what extent
 
-            CALL COMSUM (NOSUM, TFACTO, NOTOT, SYNAME, SFACTO, &
-                    NOCONS, CONAME, CONS)
-            DO ISYS = 1, NOTOT
-                SYNAMP(ISYS) = SYNAME(ISYS)
-            ENDDO
-            DO ISUM = 1, NOSUM
-                SYNAMP(NOTOT + ISUM) = SYNAMS(ISUM)
-            ENDDO
+            call comsum (nosum, tfacto, notot, syname, sfacto, &
+                    nocons, coname, cons)
+            do isys = 1, notot
+                synamp(isys) = syname(isys)
+            enddo
+            do isum = 1, nosum
+                synamp(notot + isum) = synams(isum)
+            enddo
 
             !         Count number of balance terms dep. on flags LUMPEM/LUMPPR
 
@@ -387,130 +353,128 @@ contains
             !                                     if LUMPPR only total
             !                                     if not    per process
             !
-            IF (LUMPEM) THEN
-                NEMISS = 2
-            ELSE
+            if (lumpem) then
+                nemiss = 2
+            else
 
                 !             boundary types and loads as seperate term (all in and out)
-                NEMISS = 2 * NOBTYP + 2 * NOWTYP
-            ENDIF
+                nemiss = 2 * nobtyp + 2 * nowtyp
+            endif
 
-            IF (LUMPTR) THEN
-                NTRANS = 2
-            ELSE
+            if (lumptr) then
+                ntrans = 2
+            else
 
                 !             internal transport from every dump area possible plus the other term
-                NTRANS = 2 * NDMPAR_OUT + 2
-            ENDIF
+                ntrans = 2 * ndmpar_out + 2
+            endif
 
-            NOOUT = 0
-            DO ISYS = 1, NOTOT + NOSUM
-                IF (ISYS > NOTOT) THEN
-                    IF (TFACTO(ISYS - NOTOT) > 0.0001) THEN
-                        INCLUD = .TRUE.
-                    ELSE
-                        INCLUD = .FALSE.
-                        IMASSA(ISYS) = -1
-                    ENDIF
-                ELSE
-                    INCLUD = .TRUE.
-                ENDIF
-                IF (INCLUD) THEN
-                    IMASSA(ISYS) = NOOUT + 1
-                    NOOUT = NOOUT + 1
-                    IEMISS(ISYS) = NOOUT + 1
-                    NOOUT = NOOUT + NEMISS
-                    ITRANS(ISYS) = NOOUT + 1
-                    NOOUT = NOOUT + NTRANS
-                    IPROCS(ISYS) = NOOUT + 1
-                    IF (LUMPPR) THEN
-                        NPROCS(ISYS) = 1
-                    ELSE
-                        !                     Find sum STOCHI coefficients for sum parameters
-                        IF (ISYS > NOTOT) THEN
-                            ISUM = ISYS - NOTOT
-                            DO IFLUX = 1, NOFLUX
-                                STOCHL(ISUM, IFLUX) = 0.0
-                                DO ISYS2 = 1, NOTOT
-                                    STOCHL(ISUM, IFLUX) = &
-                                            STOCHL(ISUM, IFLUX) &
-                                                    + STOCHI(ISYS2, IFLUX) &
-                                                    * SFACTO(ISUM, ISYS2)
-                                ENDDO
-                            ENDDO
-                        ENDIF
+            noout = 0
+            do isys = 1, notot + nosum
+                if (isys > notot) then
+                    if (tfacto(isys - notot) > 0.0001) then
+                        includ = .true.
+                    else
+                        includ = .false.
+                        imassa(isys) = -1
+                    endif
+                else
+                    includ = .true.
+                endif
+                if (includ) then
+                    imassa(isys) = noout + 1
+                    noout = noout + 1
+                    iemiss(isys) = noout + 1
+                    noout = noout + nemiss
+                    itrans(isys) = noout + 1
+                    noout = noout + ntrans
+                    iprocs(isys) = noout + 1
+                    if (lumppr) then
+                        nprocs(isys) = 1
+                    else
+                        ! find sum stochi coefficients for sum parameters
+                        if (isys > notot) then
+                            isum = isys - notot
+                            do iflux = 1, noflux
+                                stochl(isum, iflux) = 0.0
+                                do isys2 = 1, notot
+                                    stochl(isum, iflux) = &
+                                            stochl(isum, iflux) &
+                                                    + stochi(isys2, iflux) &
+                                                    * sfacto(isum, isys2)
+                                enddo
+                            enddo
+                        endif
 
-                        !                     Make sure that irrelevant fluxes are not included
-                        NPROCS(ISYS) = 0
-                        DO IFLUX = 1, NOFLUX
-                            IF (ISYS <= NOTOT) THEN
-                                ST = STOCHI(ISYS, IFLUX)
-                            ELSE
-                                ST = STOCHL(ISYS - NOTOT, IFLUX)
-                            ENDIF
-                            IF (ABS(ST) > 1.E-20) THEN
-                                NPROCS(ISYS) = NPROCS(ISYS) + 1
-                                FL2BAL(ISYS, NPROCS(ISYS)) = IFLUX
-                            ENDIF
-                        ENDDO
-                    ENDIF
-                    NOOUT = NOOUT + NPROCS(ISYS)
-                ENDIF
-            ENDDO
+                        ! Make sure that irrelevant fluxes are not included
+                        nprocs(isys) = 0
+                        do iflux = 1, noflux
+                            if (isys <= notot) then
+                                st = stochi(isys, iflux)
+                            else
+                                st = stochl(isys - notot, iflux)
+                            endif
+                            if (abs(st) > 1.e-20) then
+                                nprocs(isys) = nprocs(isys) + 1
+                                fl2bal(isys, nprocs(isys)) = iflux
+                            endif
+                        enddo
+                    endif
+                    noout = noout + nprocs(isys)
+                endif
+            enddo
 
-            !         Dimension additional arrays
-
+            ! Dimension additional arrays
             if (allocated(balans)) then
                 deallocate(balans, baltot, ouname)
             endif
 
-            allocate (BALANS(NOOUT, NDMPAR_OUT + 1), &
-                    BALTOT(NOOUT, NDMPAR_OUT + 1), &
-                    OUNAME(NOOUT), &
+            allocate (balans(noout, ndmpar_out + 1), &
+                    baltot(noout, ndmpar_out + 1), &
+                    ouname(noout), &
                     stat = ierr)
             if (ierr > 0) goto 9000
 
-            !         Set balance term names
-
-            DO ISYS = 1, NOTOT + NOSUM
-                IF (IMASSA(ISYS) > 0) THEN
-                    C20 = SYNAMP(ISYS)
-                    OUNAME(IMASSA(ISYS)) = C20(1:6) // '_Storage'
-                    IF (LUMPEM) THEN
-                        OUNAME(IEMISS(ISYS)) = C20(1:6) // '_All Bo+Lo_In'
-                        OUNAME(IEMISS(ISYS) + 1) = C20(1:6) // '_All Bo+Lo_Out'
-                    ELSE
-                        ITEL2 = IEMISS(ISYS) - 1
-                        DO IFRAC = 1, NOBTYP
-                            ITEL2 = ITEL2 + 1
-                            OUNAME(ITEL2) = &
-                                    C20(1:6) // '_' // BNDTYP(IFRAC)(1:9) // '_In'
-                            ITEL2 = ITEL2 + 1
-                            OUNAME(ITEL2) = &
-                                    C20(1:6) // '_' // BNDTYP(IFRAC)(1:9) // '_Out'
-                        ENDDO
-                        DO IFRAC = 1, NOWTYP
-                            ITEL2 = ITEL2 + 1
-                            OUNAME(ITEL2) = &
-                                    C20(1:6) // '_' // WSTTYP(IFRAC)(1:9) // '_In'
-                            ITEL2 = ITEL2 + 1
-                            OUNAME(ITEL2) = &
-                                    C20(1:6) // '_' // WSTTYP(IFRAC)(1:9) // '_Out'
-                        ENDDO
-                    ENDIF
-                    IF (LUMPTR) THEN
-                        OUNAME(ITRANS(ISYS)) = C20(1:6) // '_Transport In'
-                        OUNAME(ITRANS(ISYS) + 1) = C20(1:6) // '_Transport Out'
-                    ELSE
-                        ITEL2 = ITRANS(ISYS) - 1
-                        ITEL2 = ITEL2 + 1
-                        OUNAME(ITEL2) = C20(1:6) // '_' // 'Other    ' // '_In'
-                        ITEL2 = ITEL2 + 1
-                        OUNAME(ITEL2) = C20(1:6) // '_' // 'Other    ' // '_Out'
-                        DO IDUMP = 1, NDMPAR
-                            IF (DMPBAL(IDUMP) == 1) THEN
-                                ITEL2 = ITEL2 + 1
-                                OUNAME(ITEL2) = C20(1:6) // '_' // DANAM(IDUMP)(1:9) // '_In'
+            ! Set balance term names
+            do isys = 1, notot + nosum
+                if (imassa(isys) > 0) then
+                    c20 = synamp(isys)
+                    ouname(imassa(isys)) = c20(1:6) // '_Storage'
+                    if (lumpem) then
+                        ouname(iemiss(isys)) = c20(1:6) // '_All Bo+Lo_In'
+                        ouname(iemiss(isys) + 1) = c20(1:6) // '_All Bo+Lo_Out'
+                    else
+                        itel2 = iemiss(isys) - 1
+                        do ifrac = 1, nobtyp
+                            itel2 = itel2 + 1
+                            ouname(itel2) = &
+                                    c20(1:6) // '_' // bndtyp(ifrac)(1:9) // '_In'
+                            itel2 = itel2 + 1
+                            ouname(itel2) = &
+                                    c20(1:6) // '_' // bndtyp(ifrac)(1:9) // '_Out'
+                        enddo
+                        do ifrac = 1, nowtyp
+                            itel2 = itel2 + 1
+                            ouname(itel2) = &
+                                    c20(1:6) // '_' // wsttyp(ifrac)(1:9) // '_In'
+                            itel2 = itel2 + 1
+                            ouname(itel2) = &
+                                    c20(1:6) // '_' // wsttyp(ifrac)(1:9) // '_Out'
+                        enddo
+                    endif
+                    if (lumptr) then
+                        ouname(itrans(isys)) = c20(1:6) // '_Transport In'
+                        ouname(itrans(isys) + 1) = c20(1:6) // '_Transport Out'
+                    else
+                        itel2 = itrans(isys) - 1
+                        itel2 = itel2 + 1
+                        ouname(itel2) = c20(1:6) // '_' // 'Other    ' // '_In'
+                        itel2 = itel2 + 1
+                        ouname(itel2) = c20(1:6) // '_' // 'Other    ' // '_Out'
+                        do idump = 1, ndmpar
+                            if (dmpbal(idump) == 1) then
+                                itel2 = itel2 + 1
+                                ouname(itel2) = c20(1:6) // '_' // danam(idump)(1:9) // '_In'
                                 ITEL2 = ITEL2 + 1
                                 OUNAME(ITEL2) = C20(1:6) // '_' // DANAM(IDUMP)(1:9) // '_Out'
                             ENDIF
@@ -752,7 +716,7 @@ contains
 
             ALLOCATE(DMP_SURF(NDMPAR), STAT = IERR)
             IF (IERR > 0) GOTO 9000
-            CALL DMPSURF(NOSEG, NDMPAR, IPDMP(NDMPAR + NTDMPQ + 1), ISEGCOL, SURF, DMP_SURF)
+            CALL sum_sub_areas_surfaces(NOSEG, NDMPAR, IPDMP(NDMPAR + NTDMPQ + 1), ISEGCOL, SURF, DMP_SURF)
             IDUMP_OUT = 0
             DO IDUMP = 1, NDMPAR
                 IF (DMPBAL(IDUMP) == 1) THEN
@@ -780,7 +744,7 @@ contains
 
             ALLOCATE(DMP_VOLU(NDMPAR), STAT = IERR)
             IF (IERR > 0) GOTO 9000
-            CALL DMPVAL(NDMPAR, IPDMP(NDMPAR + NTDMPQ + 1), VOLUME, DMP_VOLU)
+            CALL sum_sub_areas_values(NDMPAR, IPDMP(NDMPAR + NTDMPQ + 1), VOLUME, DMP_VOLU)
             IDUMP_OUT = 0
             DO IDUMP = 1, NDMPAR
                 IF (DMPBAL(IDUMP) == 1) THEN
@@ -807,12 +771,12 @@ contains
         ENDIF
         IF (.NOT. SUPPFT) THEN
             IF (ONLYSM) THEN
-                CALL OUTHIS (LUNOUT, CDUM, ITIME, MONAME, 1, &
+                CALL write_binary_history_output(LUNOUT, CDUM, ITIME, MONAME, 1, &
                         JDUMP(NDMPAR_OUT + 1), DANAMP(NDMPAR_OUT + 1), &
                         NOOUT, OUNAME, BALANS, &
                         0, CDUM, RDUM, IINIT)
             ELSE
-                CALL OUTHIS (LUNOUT, CDUM, ITIME, MONAME, NDMPAR_OUT + 1, &
+                CALL write_binary_history_output(LUNOUT, CDUM, ITIME, MONAME, NDMPAR_OUT + 1, &
                         JDUMP, DANAMP, NOOUT, OUNAME, BALANS, &
                         0, CDUM, RDUM, IINIT)
             ENDIF
@@ -894,7 +858,7 @@ contains
             !         In mass/m2
             ALLOCATE(DMP_SURF(NDMPAR), STAT = IERR)
             IF (IERR > 0) GOTO 9000
-            CALL DMPSURF(NOSEG, NDMPAR, IPDMP(NDMPAR + NTDMPQ + 1), ISEGCOL, SURF, DMP_SURF)
+            CALL sum_sub_areas_surfaces(NOSEG, NDMPAR, IPDMP(NDMPAR + NTDMPQ + 1), ISEGCOL, SURF, DMP_SURF)
             IDUMP_OUT = 0
             DO IDUMP = 1, NDMPAR
                 IF (DMPBAL(IDUMP) == 1) THEN
@@ -925,7 +889,7 @@ contains
             !         In mass/m3
             ALLOCATE(DMP_VOLU(NDMPAR), STAT = IERR)
             IF (IERR > 0) GOTO 9000
-            CALL DMPVAL(NDMPAR, IPDMP(NDMPAR + NTDMPQ + 1), VOLUME, DMP_VOLU)
+            CALL sum_sub_areas_values(NDMPAR, IPDMP(NDMPAR + NTDMPQ + 1), VOLUME, DMP_VOLU)
             IDUMP_OUT = 0
             DO IDUMP = 1, NDMPAR
                 IF (DMPBAL(IDUMP) == 1) THEN
@@ -957,19 +921,20 @@ contains
         9000 write (lunrep, *) 'Error allocating memory'
         write (*, *) 'Error allocating memory'
         call stop_with_error()
-    end
-    SUBROUTINE OUTBAI (IOBALI, MONAME, IBSTRT, IBSTOP, NOOUT, &
-            NOTOT, NDMPAR, DANAMP, OUNAME, SYNAME, &
-            IMASSA, IEMISS, NEMISS, ITRANS, NTRANS, &
-            IPROCS, NPROCS, BALTOT, ONLYSM, NOSUM, &
-            SFACTO, IUNIT, INIT)
+    end subroutine write_balance_text_output
+
+    subroutine outbai(iobali, moname, ibstrt, ibstop, noout, &
+            notot, ndmpar, danamp, ouname, syname, &
+            imassa, iemiss, nemiss, itrans, ntrans, &
+            iprocs, nprocs, baltot, onlysm, nosum, &
+            sfacto, iunit, init)
         use timers
 
         INTEGER(kind = int_wp) :: IOBALI, IBSTRT, IBSTOP, NOOUT, NOTOT, NDMPAR, &
                 IMASSA(*), IEMISS(*), NEMISS, ITRANS(*), NTRANS, &
                 IPROCS(*), NPROCS(*), NOSUM, IUNIT, INIT
-        character(len=40) MONAME(4)
-        character(len=20) DANAMP(NDMPAR), OUNAME(*), SYNAME(*)
+        character(len = 40) MONAME(4)
+        character(len = 20) DANAMP(NDMPAR), OUNAME(*), SYNAME(*)
         REAL(kind = real_wp) :: BALTOT(NOOUT, NDMPAR), SFACTO(NOSUM, *)
         LOGICAL      ONLYSM
 
@@ -1125,16 +1090,16 @@ contains
         RETURN
     END
 
-    subroutine comsum (nosum, tfacto, notot, syname, sfacto, nocons, coname, cons)
+    subroutine comsum(nosum, tfacto, notot, syname, sfacto, nocons, coname, cons)
 
-        use m_logger_helper, only : stop_with_error, get_log_unit_number
+        use m_logger_helper, only: stop_with_error, get_log_unit_number
         use timers
         use bloom_data_mass_balance
 
         implicit none
 
         integer(kind = int_wp) :: nosum, notot, nocons
-        character(len=20)       syname(notot), coname(nocons)
+        character(len = 20)       syname(notot), coname(nocons)
         real(kind = real_wp) :: tfacto(nosum), sfacto(nosum, notot), cons(nocons)
 
         !      INCLUDE 'cblbal.inc'
@@ -1142,8 +1107,8 @@ contains
         integer(kind = int_wp) :: isum, isys, icons, ires, nres1, nres2, ityp, lunrep
         real(kind = real_wp) :: factor
         parameter           (nres1 = 23, nres2 = 2)
-        character(len=20)         resna1(nres1), resna2(nres2)
-        character(len=10)         ratna2(2, nres2)
+        character(len = 20)         resna1(nres1), resna2(nres2)
+        character(len = 10)         ratna2(2, nres2)
         real(kind = real_wp) :: facres(2, nres1), ratdef(2, nres2)
 
         data resna1   / 'DetP                ', &
@@ -1269,7 +1234,7 @@ contains
         return
     end
 
-    SUBROUTINE UPDBAL (IDUMP, NOTOT, IMASSA, ITERMS, IOFFSE, &
+    subroutine updbal(IDUMP, NOTOT, IMASSA, ITERMS, IOFFSE, &
             BALANS, NOSUM, DMASSA, FACTOR, NTEL, &
             SFACTO, NOOUT, NOLAST)
 
@@ -1330,8 +1295,98 @@ contains
         ENDDO
 
         if (timon) call timstop (ithandl)
-        RETURN
-    END
+
+    END SUBROUTINE UPDBAL
 
 
-end module m_sobbal
+    subroutine sum_sub_areas_surfaces(nosss, ndmpar, ipdmp, isegcol, surf, dmp_surf)
+
+        !! sums surf for sub-area's no double counting over the layers
+
+        use timers
+
+        integer(kind = int_wp), intent(in) :: nosss          ! total number of segments
+        integer(kind = int_wp), intent(in) :: ndmpar         ! Number of dump areas
+        integer(kind = int_wp), intent(in) :: ipdmp(*)       ! pointer structure dump area's
+        integer(kind = int_wp), intent(in) :: isegcol(*)     ! pointer from segment to top of column
+        real(kind = real_wp), intent(in) :: surf(*)        ! horizontal surface per segment
+        real(kind = real_wp), intent(out) :: dmp_surf(*)    ! horizontal surface per dump area
+
+        ! local declarations
+
+        integer(kind = int_wp) :: itel           ! index counter
+        integer(kind = int_wp) :: idump          ! dump area number
+        integer(kind = int_wp) :: nsc            ! number of segment contributions
+        integer(kind = int_wp) :: isc            ! index of segment contributions
+        integer(kind = int_wp) :: iseg           ! segment number
+        integer(kind = int_wp) :: icol           ! segment number top of column
+        integer(kind = int_wp), allocatable :: i_surf(:)      ! indication if column is already in area
+        integer(kind = int_wp) :: ithandl = 0
+        if (timon) call timstrt ("sum_sub_areas_surfaces", ithandl)
+
+        ! loop over the dump area's, sum value
+
+        allocate(i_surf(nosss))
+        dmp_surf(1:ndmpar) = 0.0
+        itel = 0
+        do idump = 1, ndmpar
+            i_surf = 0
+            nsc = ipdmp(idump)
+            do isc = 1, nsc
+                itel = itel + 1
+                iseg = ipdmp(ndmpar + itel)
+                if (iseg > 0) then
+                    icol = isegcol(iseg)
+                    if (i_surf(icol) == 0) then
+                        dmp_surf(idump) = dmp_surf(idump) + surf  (iseg)
+                        i_surf(icol) = 1
+                    endif
+                endif
+            enddo
+        enddo
+        deallocate(i_surf)
+
+        if (timon) call timstop (ithandl)
+    end subroutine sum_sub_areas_surfaces
+
+    SUBROUTINE sum_sub_areas_values(NDMPAR, IPDMP, VALSEG, VALDMP)
+        !  sums values for sub-area's
+
+        !     NAME    KIND     LENGTH     FUNCT.  DESCRIPTION
+        !     ----    -----    ------     ------- -----------
+        !     NDMPAR  INTEGER       1     INPUT   Number of dump areas
+        !     IPDMP   INTEGER       *     INPUT   pointer structure dump area's
+        !     VALSEG  REAL          *     INPUT   values on segment grid
+        !     VALDMP  REAL          *     INPUT   values on dump grid
+
+        use timers
+
+        INTEGER(kind = int_wp) :: NDMPAR
+        INTEGER(kind = int_wp) :: IPDMP(*)
+        REAL(kind = real_wp) :: VALSEG(*)
+        REAL(kind = real_wp) :: VALDMP(*)
+
+        INTEGER(kind = int_wp) :: ITEL, IDUMP, NSC, ISC, ISEG
+        integer(kind = int_wp) :: ithandl = 0
+        if (timon) call timstrt ("sum_sub_areas_values", ithandl)
+
+        ! Loop over the dump area's, sum value
+
+        VALDMP(1:NDMPAR) = 0.0
+        ITEL = 0
+        DO IDUMP = 1, NDMPAR
+            NSC = IPDMP(IDUMP)
+            DO ISC = 1, NSC
+                ITEL = ITEL + 1
+                ISEG = IPDMP(NDMPAR + ITEL)
+                IF (ISEG > 0) THEN
+                    VALDMP(IDUMP) = VALDMP(IDUMP) + VALSEG(ISEG)
+                ENDIF
+            ENDDO
+        ENDDO
+
+        if (timon) call timstop (ithandl)
+
+    END SUBROUTINE sum_sub_areas_values
+
+end module m_write_balance_output
