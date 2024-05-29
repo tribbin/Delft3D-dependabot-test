@@ -59,7 +59,7 @@ def make_argument_parser() -> argparse.ArgumentParser:
     push_path_type_group = push_parser.add_mutually_exclusive_group(required=True)
     push_path_type_group.add_argument("--case", dest="path_type", action="store_const", const=PathType.INPUT)
     push_path_type_group.add_argument("--reference", dest="path_type", action="store_const", const=PathType.REFERENCE)
-    push_parser.add_argument("-u", "--update-only", action="store_true", default=False, help=HELP_UPDATE_ONLY)
+    push_parser.add_argument("-u", "--update-only", action="store_true", default=True, help=HELP_UPDATE_ONLY)
     push_parser.add_argument("--issue-id", required=True, help=HELP_ISSUE_ID)
     push_parser.set_defaults(tool=push_tool)
 
