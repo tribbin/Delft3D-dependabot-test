@@ -42,6 +42,7 @@ program test_dflowfm_kernel
     call prepareTests()
     call runtests_init()
 
+    call tests_lateral()
     call tests_roughness()
     call tests_cross_sections()
     call tests_observations()
@@ -52,7 +53,6 @@ program test_dflowfm_kernel
     call tests_iniField_1dField()
     call tests_read_property()
     call tests_compute_airdensity()
-    call tests_lateral()
     call tests_temporal_statistics()
     call tests_read_statistical_output()
     !

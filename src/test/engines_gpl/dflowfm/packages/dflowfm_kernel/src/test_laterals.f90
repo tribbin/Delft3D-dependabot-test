@@ -23,7 +23,8 @@
 module test_lateral
    use ftnunit
    use stdlib_kinds, only: dp
-   use dfm_error, only: DFM_NOERR, DFM_GENERICERROR
+   use dfm_error, only: DFM_NOERR
+   use m_alloc, only: aerr
    use m_lateral
 
    implicit none
@@ -62,14 +63,17 @@ subroutine test_get_lateral_discharge()
    real(kind=dp), allocatable, dimension(:,:)   :: transport_load                      !< Load being transported into domain
    real(kind=dp), allocatable, dimension(:,:)   :: transport_sink                      !< Load being transported out 
    
-   integer :: ierr                            ! error flag
+   integer :: iostat
    integer :: i_cell, i_const, i_lateral      ! loop counters
 
-   ierr = 0
-   allocate(lateral_discharge_in(numlatsg,ndxi),stat=ierr)
-   allocate(lateral_discharge_out(numlatsg,ndxi),stat=ierr)
-   allocate(reference_lateral_discharge_in(numlatsg,ndxi),stat=ierr)
-   allocate(reference_lateral_discharge_out(numlatsg,ndxi),stat=ierr)
+   allocate(lateral_discharge_in(numlatsg,ndxi),stat=iostat)
+   call aerr('lateral_discharge_in',iostat,numlatsg*ndxi,'test_get_lateral_discharge' )
+   allocate(lateral_discharge_out(numlatsg,ndxi),stat=iostat)
+   call aerr('lateral_discharge_out',iostat,numlatsg*ndxi,'test_get_lateral_discharge' )
+   allocate(reference_lateral_discharge_in(numlatsg,ndxi),stat=iostat)
+   call aerr('reference_lateral_discharge_in',iostat,numlatsg*ndxi,'test_get_lateral_discharge' )
+   allocate(reference_lateral_discharge_out(numlatsg,ndxi),stat=iostat)
+   call aerr('reference_lateral_discharge_out',iostat,numlatsg*ndxi,'test_get_lateral_discharge' )
       
    reference_lateral_discharge_in = 0._dp
    reference_lateral_discharge_in(1,nnlat(1)) = 3._dp
@@ -110,15 +114,19 @@ subroutine test_add_lateral_load_and_sink()
    real(kind=dp), allocatable, dimension(:,:)   :: ref_load
    real(kind=dp) :: refval
    real(kind=dp) :: dvoli 
-   integer :: ierr                            ! error flag
-   integer :: i_cell, i_const, i_lateral      ! loop counters
+   integer :: iostat                      ! allocation status
+   integer :: i_cell, i_const, i_lateral  ! loop counters
 
-   ierr = 0
-   allocate(discharge_in(numlatsg,ndxi),stat=ierr)
-   allocate(discharge_out(numlatsg,ndxi),stat=ierr)
-   allocate(transport_load(numconst,ndxi),stat=ierr)
-   allocate(transport_sink(numconst,ndxi),stat=ierr)
-   allocate(ref_load(numconst,ndxi),stat=ierr)
+   allocate(discharge_in(numlatsg,ndxi),stat=iostat)
+   call aerr('discharge_in',iostat,numlatsg*ndxi,'test_add_lateral_load_and_sink')
+   allocate(discharge_out(numlatsg,ndxi),stat=iostat)
+   call aerr('discharge_out',iostat,numlatsg*ndxi,'test_add_lateral_load_and_sink')
+   allocate(transport_load(numconst,ndxi),stat=iostat)
+   call aerr('transport_load',iostat,numconst*ndxi,'test_add_lateral_load_and_sink')
+   allocate(transport_sink(numconst,ndxi),stat=iostat)
+   call aerr('transport_sink',iostat,numconst*ndxi,'test_add_lateral_load_and_sink')
+   allocate(ref_load(numconst,ndxi),stat=iostat)
+   call aerr('ref_load',iostat,numconst*ndxi,'test_add_lateral_load_and_sink')
 
    ! initialize transport to zero
    transport_load(:,:) = 0._dp
@@ -179,33 +187,37 @@ subroutine setup_testcase()
    use m_flowtimes, only: dts
    use m_partitioninfo, only: jampi
    use m_transportdata, only: numconst
-   use m_cell_geometry, only: ba
    use m_flowgeom, only: ndxi
 
-   integer :: ierr                  ! error flag
+   integer :: iostat                ! allocation status
    integer :: i_cell, i_lateral, k1 ! loop counter
    integer :: k                     ! node number            
 
    jampi = 0
    dts = 1.0e-3_dp
    ! domain of 10 points, 2 laterals (1 incoming with 3 nodes, 1 outgoing with 2 nodes)
-   ! and 3 constituents. Area (ba) and volume (vol1) of each cell are set to 1d0. 
+   ! and 3 constituents. Volume (vol1) of each cell is set to 0.1d0.
    ! consider 3 constituents to represent salt, temperature and tracer transport. 
    ndxi = 10
    nlatnd = 5
    numlatsg = 2
    numconst = 3
 
-   call initialize_lateraldata(numconst, ierr)
-   allocate(n1latsg(numlatsg),stat=ierr)
-   allocate(n2latsg(numlatsg),stat=ierr)
-   allocate(apply_transport(numlatsg),stat=ierr)
-   allocate(nnlat(nlatnd),stat=ierr)
-   allocate(qplat(1,numlatsg),stat=ierr)
-   allocate(ba(ndxi),stat=ierr)
-   allocate(balat(numlatsg),stat=ierr)
-   allocate(vol1(ndxi),stat=ierr)
-   allocate(hs(ndxi),stat=ierr)
+   call initialize_lateraldata(numconst)
+   allocate(n1latsg(numlatsg),stat=iostat)
+   call aerr('n1latsg',iostat,numlatsg,'test_lateral, setup_testcase' )
+   allocate(n2latsg(numlatsg),stat=iostat)
+   call aerr('n2latsg',iostat,numlatsg,'test_lateral, setup_testcase' )
+   allocate(apply_transport(numlatsg),stat=iostat)
+   call aerr('apply_transport',iostat,numlatsg,'test_lateral, setup_testcase' )
+   allocate(nnlat(nlatnd),stat=iostat)
+   call aerr('nnlat',iostat,nlatnd,'test_lateral, setup_testcase' )
+   allocate(qplat(1,nlatnd),stat=iostat)
+   call aerr('qplat',iostat,nlatnd,'test_lateral, setup_testcase' )
+   allocate(vol1(ndxi),stat=iostat)
+   call aerr('vol1',iostat,ndxi,'test_lateral, setup_testcase' )
+   allocate(hs(ndxi),stat=iostat)
+   call aerr('hs',iostat,ndxi,'test_lateral, setup_testcase' )
 
    n1latsg(1) = 1
    n2latsg(1) = 3
@@ -213,17 +225,9 @@ subroutine setup_testcase()
    n2latsg(2) = 5
    nnlat = (/1,2,3,5,8/)
    apply_transport(:)=1
-   ba(:) = 0.1_dp
    vol1(:) = 0.1_dp
    hs(:) = 2_dp
-   ! compute balat from ba
-   do i_lateral = 1,numlatsg
-      balat(i_lateral) = 0_dp
-      do k1=n1latsg(i_lateral),n2latsg(i_lateral)
-         k = nnlat(k1)
-         balat(i_lateral) = balat(i_lateral) + ba(k)
-      end do
-   end do
+
    ! positive qplat is considered inflow (source), negative value outflow (sink) 
    qplat(1,:) = (/9_dp,-10_dp/)
    ! top layer, per constituent, lateral 1, 
@@ -235,10 +239,9 @@ end subroutine setup_testcase
 !
 !> reset to default values and deallocate arrays from other modules
 subroutine finish_testcase()
-   use m_flow, only: vol1
+   use m_flow, only: vol1, hs
    use m_partitioninfo, only: jampi
    use m_transportdata, only: numconst
-   use m_cell_geometry, only: ba
    use m_flowgeom, only: ndxi
 
    jampi = 1
@@ -252,9 +255,8 @@ subroutine finish_testcase()
    deallocate(apply_transport)
    deallocate(nnlat)
    deallocate(qplat)
-   deallocate(ba)
-   deallocate(balat)
    deallocate(vol1)
+   deallocate(hs)
 
 end subroutine finish_testcase
 !
@@ -268,7 +270,7 @@ subroutine test_get_lateral_volume_per_layer
    
    real(kind=dp), allocatable, dimension(:,:)   :: lateral_volume_per_layer  !< Water volume per layer in laterals, dimension = (number_of_layer,number_of_lateral) = (kmx,numlatsg)
    
-   integer :: ierr                     !< error flag
+   integer :: iostat
    integer :: ndx, ndkx
    integer :: i_cell
    
@@ -276,18 +278,22 @@ subroutine test_get_lateral_volume_per_layer
    ndx = 9
    
    ! initialize number of active layers for each node
-   allocate(kmxn(ndx),stat=ierr)
+   allocate(kmxn(ndx),stat=iostat)
+   call aerr('kmxn',iostat,ndx,'test_get_lateral_volume_per_layer')
    kmxn = (/3,3,3,3,3,3,3,3,2/) ! the last cell is assumed shallow and contains only two layers
 
    ! initialize water volume per cell, vol1
    kmx = 3
    ndkx = ndx * (kmx + 1) - 1 ! one cell is shallow and contains only two layers
-   allocate(vol1(ndkx),stat=ierr)
+   allocate(vol1(ndkx),stat=iostat)
+   call aerr('vol1',iostat,ndkx,'test_get_lateral_volume_per_layer')
    vol1(ndx+1:) = 1d0 ! only volume per cell, per layer is needed; the first ndx elements contain 2D volume (i.e. total volume over all layers) and are not needed for the function tested here, hence not set.
    
    ! initialize kbot and ktop
-   allocate(kbot(ndx),stat=ierr)
-   allocate(ktop(ndx),stat=ierr)
+   allocate(kbot(ndx),stat=iostat)
+   call aerr('kbot',iostat,ndx,'test_get_lateral_volume_per_layer')
+   allocate(ktop(ndx),stat=iostat)
+   call aerr('ktop',iostat,ndx,'test_get_lateral_volume_per_layer')
    kbot(1) = ndx + 1
    ktop(1) = kbot(1) + kmxn(1) - 1
    do i_cell = 2,ndx
@@ -297,14 +303,19 @@ subroutine test_get_lateral_volume_per_layer
    
    ! initialize laterals administration
    numlatsg = 2
-   allocate(n1latsg(numlatsg),stat=ierr)
-   allocate(n2latsg(numlatsg),stat=ierr)
-   allocate(nnlat(nlatnd),stat=ierr)
+   allocate(n1latsg(numlatsg),stat=iostat)
+   call aerr('n1latsg',iostat,numlatsg,'test_get_lateral_volume_per_layer')
+   allocate(n2latsg(numlatsg),stat=iostat)
+   call aerr('n2latsg',iostat,numlatsg,'test_get_lateral_volume_per_layer')
+   allocate(nnlat(nlatnd),stat=iostat)
+   call aerr('nnlat',iostat,nlatnd,'test_get_lateral_volume_per_layer')
    nnlat = (/1,2,8,9/)
    n1latsg = (/1,3/)
    n2latsg = (/2,4/)
    
-   allocate(lateral_volume_per_layer(kmx, numlatsg),stat=ierr)
+   allocate(lateral_volume_per_layer(kmx, numlatsg),stat=iostat)
+   call aerr('lateral_volume_per_layer',iostat,kmx*numlatsg,'test_get_lateral_volume_per_layer')
+
    call get_lateral_volume_per_layer(lateral_volume_per_layer)
    call assert_comparable(lateral_volume_per_layer(1,1), 2d0, tolerance, "get_lateral_volume_per_layer(1,1) output lateral_volume_per_layer is not correct" )
    call assert_comparable(lateral_volume_per_layer(2,1), 2d0, tolerance, "get_lateral_volume_per_layer(2,1) output lateral_volume_per_layer is not correct" )
