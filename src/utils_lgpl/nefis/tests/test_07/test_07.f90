@@ -27,187 +27,187 @@
 !
 !
 program test7
-   INTEGER*4 fds
-   INTEGER clsdat,&
+   integer * 4 fds
+   integer clsdat,&
    &clsdef,&
    &getnfv,&
    &getiat,&
    &getrat
-   INTEGER getsat,&
+   integer getsat,&
    &opndat,&
    &opndef,&
    &putiat,&
    &putrat,&
    &putsat,&
    &neferr
-   INTEGER error, ival
-   CHARACTER attrib*16, attval*16, coding*1
-   REAL    rval
-   CHARACTER ERRSTR*1024
-   CHARACTER*255  version
+   integer error, ival
+   character attrib * 16, attval * 16, coding * 1
+   real rval
+   character ERRSTR * 1024
+   character * 255 version
 
    error = getnfv(version)
-   write(*,*)
-   write(*,*) trim(version(5:))
-   write(*,*)
+   write (*, *)
+   write (*, *) trim(version(5:))
+   write (*, *)
 
    coding = ' '
-   error= Opndef( fds, 'nefis_ex.def', coding)
-   IF (error .NE. 0) goto 9999
+   error = Opndef(fds, 'nefis_ex.def', coding)
+   if (error /= 0) goto 9999
 
-   error= Opndat( fds, 'nefis_ex.dat', coding)
-   IF (error .NE. 0) goto 9999
+   error = Opndat(fds, 'nefis_ex.dat', coding)
+   if (error /= 0) goto 9999
 
-   error= Putiat( fds, 'DATAGRP_TEST_3A',&
+   error = Putiat(fds, 'DATAGRP_TEST_3A',&
    &'INTEGER ATTRIB 1', 101)
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putiat( fds, 'DATAGRP_TEST_3A',&
+   error = Putiat(fds, 'DATAGRP_TEST_3A',&
    &'INTEGER ATTRIB 2', 102)
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putiat( fds, 'DATAGRP_TEST_3A',&
+   error = Putiat(fds, 'DATAGRP_TEST_3A',&
    &'INTEGER ATTRIB 3', 103)
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putiat( fds, 'DATAGRP_TEST_3A',&
+   error = Putiat(fds, 'DATAGRP_TEST_3A',&
    &'INTEGER ATTRIB 4', 104)
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putiat( fds, 'DATAGRP_TEST_3A',&
+   error = Putiat(fds, 'DATAGRP_TEST_3A',&
    &'INTEGER ATTRIB 5', 105)
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putrat( fds, 'DATAGRP_TEST_3B',&
+   error = Putrat(fds, 'DATAGRP_TEST_3B',&
    &'REAL ATTRIBUUT 1', 201.)
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putrat( fds, 'DATAGRP_TEST_3B',&
+   error = Putrat(fds, 'DATAGRP_TEST_3B',&
    &'REAL ATTRIBUUT 2', 202.)
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putrat( fds, 'DATAGRP_TEST_3B',&
+   error = Putrat(fds, 'DATAGRP_TEST_3B',&
    &'REAL ATTRIBUUT 3', 203.)
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putrat( fds, 'DATAGRP_TEST_3B',&
+   error = Putrat(fds, 'DATAGRP_TEST_3B',&
    &'REAL ATTRIBUUT 4', 204.)
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putrat( fds, 'DATAGRP_TEST_3B',&
+   error = Putrat(fds, 'DATAGRP_TEST_3B',&
    &'REAL ATTRIBUUT 5', 205.)
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putsat( fds, 'DATAGRP_TEST_3C',&
+   error = Putsat(fds, 'DATAGRP_TEST_3C',&
    &'TEXT ATTRIBUUT 1', 'ATR1')
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putsat( fds, 'DATAGRP_TEST_3C',&
+   error = Putsat(fds, 'DATAGRP_TEST_3C',&
    &'TEXT ATTRIBUUT 2', 'ATR2')
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putsat( fds, 'DATAGRP_TEST_3C',&
+   error = Putsat(fds, 'DATAGRP_TEST_3C',&
    &'TEXT ATTRIBUUT 3', 'ATR3')
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putsat( fds, 'DATAGRP_TEST_3C',&
+   error = Putsat(fds, 'DATAGRP_TEST_3C',&
    &'TEXT ATTRIBUUT 4', 'ATR4')
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putsat( fds, 'DATAGRP_TEST_3C',&
+   error = Putsat(fds, 'DATAGRP_TEST_3C',&
    &'TEXT ATTRIBUUT 5', 'ATR5')
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putsat( fds, 'DATAGRP_TEST_3A',&
+   error = Putsat(fds, 'DATAGRP_TEST_3A',&
    &'TEXT ATTRIBUUT 1', 'DATAGRP_TEST_3C')
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 !
 !     Get  text attributes
 !
-   error= Getsat( fds, 'DATAGRP_TEST_3A',&
+   error = Getsat(fds, 'DATAGRP_TEST_3A',&
    &'TEXT ATTRIBUUT 1', attrib)
-   IF (attrib .NE. 'DATAGRP_TEST_3C')&
-   &write(*,*) 'Attribute value (=DATA_GRP_TEST_3C): ', attrib
-   IF (error .NE. 0) goto 9999
+   if (attrib /= 'DATAGRP_TEST_3C')&
+   &write (*, *) 'Attribute value (=DATA_GRP_TEST_3C): ', attrib
+   if (error /= 0) goto 9999
 
-   error= Getsat( fds, attrib,&
+   error = Getsat(fds, attrib,&
    &'TEXT ATTRIBUUT 3', attval)
-   IF (attval .NE. 'ATR3')&
-   &write(*,*) 'Attribute value (=ATR3): ', attval
-   IF (error .NE. 0) goto 9999
+   if (attval /= 'ATR3')&
+   &write (*, *) 'Attribute value (=ATR3): ', attval
+   if (error /= 0) goto 9999
 !
 !     Get  integer attributes
 !
-   error= Getiat( fds, 'DATAGRP_TEST_3A',&
+   error = Getiat(fds, 'DATAGRP_TEST_3A',&
    &'INTEGER ATTRIB 1', ival)
-   IF (ival .NE. 101)&
-   &write(*,*) 'Attribute value (=101): ', ival
-   IF (error .NE. 0) goto 9999
+   if (ival /= 101)&
+   &write (*, *) 'Attribute value (=101): ', ival
+   if (error /= 0) goto 9999
 
-   error= Getiat( fds, 'DATAGRP_TEST_3A',&
+   error = Getiat(fds, 'DATAGRP_TEST_3A',&
    &'INTEGER ATTRIB 2', ival)
-   IF (ival .NE. 102)&
-   &write(*,*) 'Attribute value (=102): ', ival
-   IF (error .NE. 0) goto 9999
+   if (ival /= 102)&
+   &write (*, *) 'Attribute value (=102): ', ival
+   if (error /= 0) goto 9999
 !
 !     Put integer attributes
 !
-   error= Putiat( fds, 'DATAGRP_TEST_3B',&
+   error = Putiat(fds, 'DATAGRP_TEST_3B',&
    &'INTEGER ATTRIB 1', 1000)
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 
-   error= Putiat( fds, 'DATAGRP_TEST_3C',&
+   error = Putiat(fds, 'DATAGRP_TEST_3C',&
    &'INTEGER ATTRIB 1', 1001)
-   IF (error .NE. 0) goto 9999
+   if (error /= 0) goto 9999
 !
 !     Get integer attributes
 !
-   error= Getiat( fds, 'DATAGRP_TEST_3B',&
+   error = Getiat(fds, 'DATAGRP_TEST_3B',&
    &'INTEGER ATTRIB 1', ival)
-   IF (ival .NE. 1000)&
-   &write(*,*) 'Attribute value (=1000): ', ival
-   IF (error .NE. 0) goto 9999
+   if (ival /= 1000)&
+   &write (*, *) 'Attribute value (=1000): ', ival
+   if (error /= 0) goto 9999
 
-   error= Getiat( fds, 'DATAGRP_TEST_3C',&
+   error = Getiat(fds, 'DATAGRP_TEST_3C',&
    &'INTEGER ATTRIB 1', ival)
-   IF (ival .NE. 1001)&
-   &write(*,*) 'Attribute value (=1001): ', ival
-   IF (error .NE. 0) goto 9999
+   if (ival /= 1001)&
+   &write (*, *) 'Attribute value (=1001): ', ival
+   if (error /= 0) goto 9999
 !
 !     Get  real attributes
 !
-   error= Getrat( fds, 'DATAGRP_TEST_3B',&
+   error = Getrat(fds, 'DATAGRP_TEST_3B',&
    &'REAL ATTRIBUUT 1', rval)
-   IF (rval .NE. 201.)&
-   &write(*,*) 'Attribute value (=201.): ', rval
-   IF (error .NE. 0) goto 9999
+   if (rval /= 201.)&
+   &write (*, *) 'Attribute value (=201.): ', rval
+   if (error /= 0) goto 9999
 
-   error= Getrat( fds, 'DATAGRP_TEST_3B',&
+   error = Getrat(fds, 'DATAGRP_TEST_3B',&
    &'REAL ATTRIBUUT 2', rval)
-   IF (rval .NE. 202.)&
-   &write(*,*) 'Attribute value (=202.): ', rval
-   IF (error .NE. 0) goto 9999
+   if (rval /= 202.)&
+   &write (*, *) 'Attribute value (=202.): ', rval
+   if (error /= 0) goto 9999
 
-   error= Getrat( fds, 'DATAGRP_TEST_3B',&
+   error = Getrat(fds, 'DATAGRP_TEST_3B',&
    &'REAL ATTRIBUUT 5', rval)
-   IF (rval .NE. 205.)&
-   &write(*,*) 'Attribute value (=205.): ', rval
-   IF (error .NE. 0) goto 9999
+   if (rval /= 205.)&
+   &write (*, *) 'Attribute value (=205.): ', rval
+   if (error /= 0) goto 9999
 
-   error= Clsdat( fds)
-   IF (error .NE. 0) goto 9999
+   error = Clsdat(fds)
+   if (error /= 0) goto 9999
 
-   error= Clsdef( fds)
-   IF (error .NE. 0) goto 9999
+   error = Clsdef(fds)
+   if (error /= 0) goto 9999
 
    goto 8888
 
 9999 continue
-   write(*,*) ' Error detected in program Test7'
+   write (*, *) ' Error detected in program Test7'
 8888 continue
 
-   error = neferr( 0, errstr)
-   write(*,*)
-   write(*,'(a)') trim(errstr)
+   error = neferr(0, errstr)
+   write (*, *)
+   write (*, '(a)') trim(errstr)
 
-END
+end
