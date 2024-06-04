@@ -44,18 +44,19 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
    use m_mass_balance_areas,   only: jamba, mbadefdomain, mbafluxheat, mbafluxsorsin
    use m_partitioninfo,        only: jampi, idomain, my_rank
    use m_sferic,               only: jsferic, fcorio
-   use m_flowtimes ,           only : dts, time1, tstart_user, tfac
+   use m_flowtimes,            only: dts, time1, tstart_user, tfac
    use m_flowparameters,       only: janudge, jasecflow, jatem, jaequili, epshu, epshs, testdryflood, icorio
    use m_lateral,              only: numlatsg, balat, get_lateral_discharge, add_lateral_load_and_sink, apply_transport_is_used
    use m_missing,              only: dmiss
    use timers,                 only: timon, timstrt, timstop
+   use m_alloc,                only: aerr
 
    implicit none
 
    integer, intent(in)         :: jas
 
    double precision            :: dvoli
-   integer                     :: iconst, j, kk, kkk, k, kb, kt, n, kk2, L, imba, jamba_src, ierr
+   integer                     :: iconst, j, kk, kkk, k, kb, kt, n, kk2, L, imba, jamba_src, iostat
    integer                     :: jsed ! counter for suspended sediment fractions
    integer                     :: jtra ! counter for tracers
    double precision, parameter :: dtol=1d-8
@@ -156,14 +157,16 @@ subroutine fill_constituents(jas) ! if jas == 1 do sources
 
    ! add lateral in- and outflow of constituents as sources and sinks
    if (apply_transport_is_used) then 
-      allocate(qin_over_laterals(numlatsg,ndxi),stat=ierr)
-      allocate(qout_over_laterals(numlatsg,ndxi),stat=ierr)
+      allocate(qin_over_laterals(numlatsg,ndxi),stat=iostat)
+      call aerr('qin_over_laterals',iostat,numlatsg*ndxi,'fill_constituents')
+      allocate(qout_over_laterals(numlatsg,ndxi),stat=iostat)
+      call aerr('qout_over_laterals',iostat,numlatsg*ndxi,'fill_constituents')
 
       call get_lateral_discharge(qin_over_laterals,qout_over_laterals,vol1)
       call add_lateral_load_and_sink(const_sour, const_sink,qin_over_laterals,qout_over_laterals,vol1,dtol)
 
-      deallocate(qin_over_laterals,stat=ierr)
-      deallocate(qout_over_laterals,stat=ierr)
+      deallocate(qin_over_laterals)
+      deallocate(qout_over_laterals)
       
    endif
    
