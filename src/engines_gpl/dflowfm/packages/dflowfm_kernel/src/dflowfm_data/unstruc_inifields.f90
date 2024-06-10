@@ -169,7 +169,7 @@ function initInitialFields(inifilename) result(ierr)
    use m_wind ! |TODO: AvD: reduce amount of uses
    use m_missing
    use timespace
-   use m_init_ext_forcings, only: prepare_lateral_mask
+   use m_external_forcing, only: prepare_lateral_mask
    use fm_external_forcing_data, only: qid, operand, transformcoef, success
    use network_data
    use m_alloc

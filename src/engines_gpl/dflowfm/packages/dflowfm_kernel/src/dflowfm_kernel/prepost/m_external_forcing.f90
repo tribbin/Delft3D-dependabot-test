@@ -27,7 +27,7 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 ! 
-module m_init_ext_forcings
+module m_external_forcing
 implicit none
 
 integer, parameter :: max_registered_item_id = 128
@@ -1269,4 +1269,4 @@ subroutine init_threttimes()
 
 end subroutine init_threttimes
 
-end module m_init_ext_forcings
+end module m_external_forcing

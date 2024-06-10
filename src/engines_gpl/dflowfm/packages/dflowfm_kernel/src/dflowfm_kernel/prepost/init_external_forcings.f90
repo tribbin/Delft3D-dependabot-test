@@ -27,7 +27,7 @@
 !
 !-------------------------------------------------------------------------------
 ! 
-submodule (m_init_ext_forcings) initialisation
+submodule (m_external_forcing) initialisation
 
 implicit none
 
@@ -641,7 +641,7 @@ contains
 !> Initializes boundaries and meteo for the current model.
 !! @return Integer result status (0 if successful)
 integer function flow_initexternalforcings() result(iresult)              ! This is the general hook-up to wind and boundary conditions
-   use m_init_ext_forcings, only: init_external_forcings, addtimespacerelation_boundaries, adduniformtimerelation_objects
+   use m_external_forcing, only: init_external_forcings, addtimespacerelation_boundaries, adduniformtimerelation_objects
    use m_alloc
    use m_flowparameters
    use m_flowtimes                                     ! Two stages: 1 = collect elsets for which data is provided
