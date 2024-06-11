@@ -173,7 +173,7 @@ contains
    ! First call to setexternalforcingsonboundaries, here only for the structure timeseries (prior to adjust_bobs_for_dams_and_structs())
    call setzminmax()                                 ! our side of preparation for 3D ec module
    call setsigmabnds()
-   call flow_setexternalforcingsonboundaries(tstart_user, error)  ! set structure (and bnd) external forcings. Error handling later in 2nd call for bnds. 
+   call set_external_forcings_boundaries(tstart_user, error)  ! set structure (and bnd) external forcings. Error handling later in 2nd call for bnds. 
    call initialize_structures_actual_params(network%sts)          ! After structure time series, and prior to adjust_bobs, to use proper crest levels.
 
    call adjust_bobs_for_dams_and_structs()
@@ -230,7 +230,7 @@ contains
    end if
 
    ! Actual boundary forcing (now that initial water levels, etc. are also known):
-   call flow_setexternalforcingsonboundaries(tstart_user, error)         ! set bnd   oriented external forcings
+   call set_external_forcings_boundaries(tstart_user, error)         ! set bnd   oriented external forcings
    if( is_error_at_any_processor(error) ) then
        call qnerror('Error occurred when setting external forcings on boundaries.',' ', ' ')
        return
