@@ -27,7 +27,7 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 module m_lateral
-   use stdlib_kinds, only: dp
+   use precision, only: dp
    implicit none
 
       public reset_lateral
