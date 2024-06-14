@@ -41,10 +41,11 @@ echo.
 echo     config      : !config!
 echo     generator   : !generator!
 echo     ifort       : !ifort!
-echo     build       : !build!
-echo     coverage    : !coverage!
 echo     vs          : !vs!
 echo     build_type  : !build_type!
+echo     build       : !build!
+echo     keep_build  : !keep_build!
+echo     coverage    : !coverage!
 
 call :checks
 if !ERRORLEVEL! NEQ 0 exit /B %~1
