@@ -86,7 +86,7 @@ contains
  double precision              :: chainage
  integer                       :: ierr
  integer                       :: ilattype, nlat
- integer                       :: k, n, k1, nini
+ integer                       :: k, n, k1
  integer                       :: fmmethod
  integer, dimension(1)         :: target_index
  integer                       :: ib, ibqh, ibt
@@ -500,7 +500,9 @@ contains
  
  logical :: res
  
- integer, allocatable :: k_mask(:)
+ integer, allocatable :: mask(:)
+ integer, allocatable :: selected_nodes(:)
+ integer              :: number_of_selected_nodes, node
  logical              :: invert_mask
  
  res = .false.
@@ -535,23 +537,23 @@ contains
        invert_mask = .false.
        call prop_get_logical(node_ptr, '', 'targetMaskInvert', invert_mask , return_value)
 
-       call realloc(kcsini, ndx, keepExisting=.false., fill = 0)
+       allocate(mask(ndx), source = 0)
        if (len_trim(target_mask_file) > 0) then
           ! Mask flow nodes based on inside polygon(s), or outside.
-          ! in: kcs, all flow nodes, out: kcsini: all masked flow nodes.
-          call realloc(k_mask, ndx, keepExisting=.false., fill = 0)
-          call selectelset_internal_nodes(xz, yz, kcs, ndx, k_mask, nini, LOCTP_POLYGON_FILE, target_mask_file)
-          do n=1,nini
-             kcsini(k_mask(n)) = 1
+          ! in: kcs, all flow nodes, out: mask: all masked flow nodes.
+          allocate(selected_nodes(ndx), source = 0)
+          call selectelset_internal_nodes(xz, yz, kcs, ndx, selected_nodes, number_of_selected_nodes, LOCTP_POLYGON_FILE, target_mask_file)
+          do node = 1, number_of_selected_nodes
+             mask(selected_nodes(node)) = 1
           end do
 
           if (invert_mask) then
-             kcsini = ieor(kcsini, 1)
+             mask = ieor(mask, 1)
           end if
 
        else
           ! 100% masking: accept all flow nodes that were already active in kcs.
-          where(kcs /= 0) kcsini = 1
+          where(kcs /= 0) mask = 1
        end if
 
        select case (quantity)
@@ -591,10 +593,10 @@ contains
                 ilattype = ILATTP_ALL
              end select
 
-             call realloc(kcsini, ndx, keepExisting=.false., fill = 0)
-             call prepare_lateral_mask(kcsini, ilattype)
+             mask(:) = 0
+             call prepare_lateral_mask(mask, ilattype)
 
-             res = timespaceinitialfield(xz, yz, qext, ndx, forcing_file, filetype, fmmethod, oper, transformcoef, 2, kcsini) ! zie meteo module
+             res = timespaceinitialfield(xz, yz, qext, ndx, forcing_file, filetype, fmmethod, oper, transformcoef, 2, mask)
              return ! This was a special case, don't continue with timespace processing below.
           case default
              write(msgbuf, '(a)') 'Unknown quantity '''// trim(quantity) //' in file ''', file_name, ''': [', group_name, &
@@ -607,16 +609,16 @@ contains
           filetype = bcascii
           fmmethod = spaceandtime
           ! NOTE: Currently, we only support name=global meteo in.bc files, later maybe station time series as well.
-          success = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), kcsini, kx,  'global', filetype=filetype, forcingfile=forcing_file, &
+          success = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), mask, kx,  'global', filetype=filetype, forcingfile=forcing_file, &
               method=fmmethod, operand=oper)
        case ('netcdf')
           filetype = ncgrid
           fmmethod = weightfactors
-          success = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), kcsini, kx, forcing_file, filetype=filetype, method=fmmethod, operand=oper)
+          success = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), mask, kx, forcing_file, filetype=filetype, method=fmmethod, operand=oper)
        case ('uniform')
           filetype = provFile_uniform
           fmmethod = spaceandtime
-          success = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), kcsini, kx, forcing_file, filetype=filetype, method=fmmethod, operand=oper)
+          success = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), mask, kx, forcing_file, filetype=filetype, method=fmmethod, operand=oper)
        case default
           write(msgbuf, '(a)') 'Unknown forcingFileType '''// trim(forcing_file_type) //' in file ''', file_name, &
               ''': [', group_name, ']. Ignoring this block.'
