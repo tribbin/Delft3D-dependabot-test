@@ -108,6 +108,9 @@ contains
    res = .true.
  endif
 
+ call tree_create(file_name, bnd_ptr)
+ call prop_file('ini', file_name, bnd_ptr, istat)
+      
  ! check FileVersion
  major = 1
  minor = 0
