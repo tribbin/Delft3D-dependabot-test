@@ -100,8 +100,12 @@ contains
       integer, allocatable          :: itpenzr(:), itpenur(:)
 
       file_name = trim(external_force_file_name)
-
-      res = .true.
+      if (len_trim(file_name) > 0) then
+         res = .true.
+      else
+         res = .false.
+         return
+      end if
 
       call tree_create(file_name, bnd_ptr)
       call prop_file('ini', file_name, bnd_ptr, istat)
