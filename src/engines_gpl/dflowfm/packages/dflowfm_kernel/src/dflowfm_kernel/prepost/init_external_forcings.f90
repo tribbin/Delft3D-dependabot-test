@@ -210,6 +210,8 @@ contains
 
       call check_file_tree_for_deprecated_keywords(bnd_ptr, deprecated_ext_keywords, istat, prefix='While reading '''//trim(file_name)//'''')
 
+      num_lat_ini_blocks = numlatsg !save number of laterals to module variable
+      
       call tree_destroy(bnd_ptr)
       if (allocated(thrtt)) then
          call init_threttimes()
