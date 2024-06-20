@@ -653,10 +653,10 @@ contains
                                                     method, oper, forcingfile=forcing_file)
          case default
             if (is_variable_name_available) then
-               is_successful = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), kcsini, kx, forcing_file, filetype, &
+               is_successful = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), mask, kx, forcing_file, filetype, &
                    method, oper, varname=variable_name)
             else
-               is_successful = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), kcsini, kx, forcing_file, filetype, &
+               is_successful = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), mask, kx, forcing_file, filetype, &
                    method, oper)
             end if
          end select
