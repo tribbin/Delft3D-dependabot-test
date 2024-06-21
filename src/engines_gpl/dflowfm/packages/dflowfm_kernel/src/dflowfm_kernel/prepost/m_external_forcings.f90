@@ -1592,7 +1592,7 @@ subroutine allocatewindarrays()
  
 end subroutine allocatewindarrays
 
-   !> Initializes boundaries and meteo for the current model.
+!> Initializes boundaries and meteo for the current model.
 !! @return Integer result status (0 if successful)
 function flow_initexternalforcings() result(iresult)              ! This is the general hook-up to wind and boundary conditions
    use unstruc_model, only: md_extfile_new
@@ -1611,6 +1611,7 @@ function flow_initexternalforcings() result(iresult)              ! This is the 
    
 end function flow_initexternalforcings
    
+!> prepare all arrays that are necessary for both old and new external forcing.
 subroutine initialize_ext_setup(iresult)
 use dfm_error, only: DFM_NOERR
 use m_transport, only: const_names
@@ -2296,7 +2297,8 @@ use unstruc_inifields, only: initinitialfields
    endif
    
    end subroutine
-   
+
+   !> Initialization of all extra quantities not covered bi initialize_ext_old, such as structures and laterals
    subroutine initialize_ext_misc(iresult)
       use m_flowgeom, only: ln, xz, yz, iadv, ba, wu, ndx, lnx, csu, ndx, lnx
       use unstruc_model, only: md_extfile_dir
@@ -2709,6 +2711,7 @@ use unstruc_inifields, only: initinitialfields
    
    end subroutine initialize_ext_misc
    
+   !> Clean up after initialization, deallocate temporary arrays and check for any deprecated or not accessed keywords.
    subroutine initialize_ext_finalize()
    use m_flowgeom, only: ndx, lnx, csu, snu, jagrounlay, wigr, argr, pergr, lnx1d, grounlay, grounlayuni, prof1d, ndxi, lnxi, ln, ba, bare, ndx2d, kcu, dx, bl, kcs, xz, yz, kcsini
    use m_flowtimes, only: ti_mba

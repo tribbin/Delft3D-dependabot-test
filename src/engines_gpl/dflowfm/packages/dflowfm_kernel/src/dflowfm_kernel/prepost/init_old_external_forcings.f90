@@ -5,6 +5,7 @@ implicit none
 
    contains
    
+   !> Initialize external forcings from an 'old' format ext file.
    module subroutine init_external_forcings_old(iresult)
    
    use m_flowtimes, only: handle_extra, irefdate, tunit, tstart_user, tim1fld, ti_mba
