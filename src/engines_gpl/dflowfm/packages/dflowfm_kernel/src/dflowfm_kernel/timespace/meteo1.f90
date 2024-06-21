@@ -5056,7 +5056,7 @@ contains
    !
    ! ==========================================================================
    !> 
-   subroutine get_extend2D(n, m, x, y, kcs, x_ext, y_ext)
+   subroutine get_extend2D(n, m, x, y, kcs, xdum, ydum)
    
    
        double precision, dimension(:,:)  :: x
@@ -5064,25 +5064,25 @@ contains
        integer , dimension(:,:)  :: kcs
        integer                 :: n
        integer                 :: m
-       double precision, dimension(:)  :: x_ext
-       double precision, dimension(:)  :: y_ext
+       double precision, dimension(:)  :: xdum
+       double precision, dimension(:)  :: ydum
    
-       call get_extend1D(n*m, x, y, kcs, x_ext, y_ext)
+       call get_extend1D(n*m, x, y, kcs, xdum, ydum)
    
    end subroutine get_extend2D
    !
    !
    ! ==========================================================================
    !> 
-   subroutine get_extend1D(n, x, y, kcs, x_ext, y_ext)
+   subroutine get_extend1D(n, x, y, kcs, xdum, ydum)
    
    
        integer                 :: n
        double precision, dimension(n)  :: x
        double precision, dimension(n)  :: y
        integer , dimension(n)  :: kcs
-       double precision, dimension(4)  :: x_ext
-       double precision, dimension(4)  :: y_ext
+       double precision, dimension(4)  :: xdum
+       double precision, dimension(4)  :: ydum
        double precision                :: x_min
        double precision                :: x_max
        double precision                :: x_dist
@@ -5120,14 +5120,14 @@ contains
        y_min = y_min - 0.01d0*y_dist
        y_max = y_max + 0.01d0*y_dist
    
-       x_ext(1) = x_min
-       y_ext(1) = y_min
-       x_ext(2) = x_min
-       y_ext(2) = y_max
-       x_ext(3) = x_max
-       y_ext(3) = y_max
-       x_ext(4) = x_max
-       y_ext(4) = y_min
+       xdum(1) = x_min
+       ydum(1) = y_min
+       xdum(2) = x_min
+       ydum(2) = y_max
+       xdum(3) = x_max
+       ydum(3) = y_max
+       xdum(4) = x_max
+       ydum(4) = y_min
    
    end subroutine get_extend1D
    !
