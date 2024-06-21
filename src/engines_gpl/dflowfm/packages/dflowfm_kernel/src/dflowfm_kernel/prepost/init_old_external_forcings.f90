@@ -283,7 +283,7 @@ implicit none
                   end if
                end if
 
-            else if (qid == 'initialunsaturedzonethickness' .or. qid == 'interceptionlayerthickness') then ! HK-style, in module grw. See initInitialFields() for the new hydrology module.
+            else if (qid == 'initialunsaturedzonethickness' .or. qid == 'interceptionlayerthickness') then ! HK-style, in module grw. See initialize_initial_fields() for the new hydrology module.
 
                if (.not. allocated (h_unsat) ) then
                   allocate (h_unsat(ndx), stat=ierr)

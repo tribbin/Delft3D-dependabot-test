@@ -1629,7 +1629,7 @@ use dfm_error, only: dfm_extforcerror, dfm_wronginput, dfm_noerr
 use m_sobekdfm, only: init_1d2d
 use timespace_data, only: settimespacerefdat
 use timers, only: timstop, timstrt
-use unstruc_inifields, only: initinitialfields
+use unstruc_inifields, only: initialize_initial_fields
 
    integer, intent(out) :: iresult
 
@@ -1697,12 +1697,12 @@ use unstruc_inifields, only: initinitialfields
 
    ! First initialize new-style IniFieldFile quantities.
    if (len_trim(md_inifieldfile) > 0) then
-      call timstrt('Init iniFieldFile', handle_extra(49)) ! initInitialFields
+      call timstrt('Init iniFieldFile', handle_extra(49)) ! initialize_initial_fields
       inquire (file = trim(md_inifieldfile), exist = exist)
       if (exist) then
-         iresult = initInitialFields(md_inifieldfile)
+         iresult = initialize_initial_fields(md_inifieldfile)
          if (iresult /= DFM_NOERR) then
-            call timstop(handle_extra(49)) ! initInitialFields
+            call timstop(handle_extra(49)) ! initialize_initial_fields
             return
          end if
       else
@@ -1710,10 +1710,10 @@ use unstruc_inifields, only: initinitialfields
          write(msgbuf, '(a,a,a)') 'Initial fields and parameters file ''', trim(md_inifieldfile), ''' not found.'
          call warn_flush()
          iresult = DFM_EXTFORCERROR
-         call timstop(handle_extra(49)) ! initInitialFields
+         call timstop(handle_extra(49)) ! initialize_initial_fields
          return
       endif
-      call timstop(handle_extra(49)) ! initInitialFields
+      call timstop(handle_extra(49)) ! initialize_initial_fields
    end if
 
    if (jatimespace == 0) return                      ! Just cleanup and close ext file.

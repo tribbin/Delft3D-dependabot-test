@@ -43,7 +43,7 @@ use string_module, only: str_lower, strcmpi
 implicit none
 private ! Prevent used modules from being exported
 
-public :: init1dField, initInitialFields, spaceInit1dField, readIniFieldProvider, checkIniFieldFileVersion, set_friction_type_values
+public :: init1dField, initialize_initial_fields, spaceInit1dField, readIniFieldProvider, checkIniFieldFileVersion, set_friction_type_values
 
 !> The file version number of the IniFieldFile format: d.dd, [config_major].[config_minor], e.g., 1.03
 !!
@@ -156,7 +156,7 @@ end subroutine set_global_water_values
 !! The IniFieldFile can contain multiple [Initial] and [Parameter] blocks
 !! that specify the data provider details for initial conditions and
 !! model parameters/coefficients.
-function initInitialFields(inifilename) result(ierr)
+function initialize_initial_fields(inifilename) result(ierr)
    use stdlib_kinds, only: c_bool
    use tree_data_types
    use tree_structures
@@ -385,7 +385,7 @@ function initInitialFields(inifilename) result(ierr)
 888 continue
     ! Return with whichever ierr status was set before.
 
-end function initInitialFields
+end function initialize_initial_fields
 
 
 !> Reads all key values for a data provider from an IniFieldFile block.
