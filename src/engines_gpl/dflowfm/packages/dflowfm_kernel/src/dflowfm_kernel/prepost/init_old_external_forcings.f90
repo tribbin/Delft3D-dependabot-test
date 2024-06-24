@@ -90,7 +90,7 @@ implicit none
                   cycle
                end if
 
-               success = timespaceinitialfield(xu, yu, frcu, lnx, filename, filetype, method,  operand, transformcoef, 1) ! zie meteo module
+               success = timespaceinitialfield(xu, yu, frcu, lnx, filename, filetype, method,  operand, transformcoef, 1) 
                if (success) then
                   call set_friction_type_values()
                end if
@@ -106,7 +106,7 @@ implicit none
                      cftrtfac = 1d0
                   endif
 
-                  success = timespaceinitialfield(xu, yu, cftrtfac, lnx, filename, filetype, method,  operand, transformcoef, 1) ! zie meteo module
+                  success = timespaceinitialfield(xu, yu, cftrtfac, lnx, filename, filetype, method,  operand, transformcoef, 1) 
                   if (success) then
                      jacftrtfac = 1
                   endif
@@ -115,7 +115,7 @@ implicit none
             else if (qid == 'linearfrictioncoefficient') then
 
                jafrculin = 1
-               success = timespaceinitialfield(xu, yu, frculin, lnx, filename, filetype, method, operand, transformcoef, 1) ! zie meteo module
+               success = timespaceinitialfield(xu, yu, frculin, lnx, filename, filetype, method, operand, transformcoef, 1) 
 
             else if (qid == 'internaltidesfrictioncoefficient') then
                if ( jaFrcInternalTides2D.ne.1 ) then   ! not added yet
@@ -131,7 +131,7 @@ implicit none
 
                   jaFrcInternalTides2D = 1
                end if
-               success = timespaceinitialfield(xz,yz, frcInternalTides2D, Ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+               success = timespaceinitialfield(xz,yz, frcInternalTides2D, Ndx, filename, filetype, method, operand, transformcoef, 2) 
 
             else if (qid == 'horizontaleddyviscositycoefficient') then
 
@@ -143,7 +143,7 @@ implicit none
                   javiusp = 1
                endif
 
-               success = timespaceinitialfield(xu, yu, viusp, lnx, filename, filetype, method,  operand, transformcoef, 1) ! zie meteo module
+               success = timespaceinitialfield(xu, yu, viusp, lnx, filename, filetype, method,  operand, transformcoef, 1) 
 
             else if (qid == 'horizontaleddydiffusivitycoefficient') then
 
@@ -155,7 +155,7 @@ implicit none
                   jadiusp = 1
                endif
 
-               success = timespaceinitialfield(xu, yu, diusp, lnx, filename, filetype, method,  operand, transformcoef, 1) ! zie meteo module
+               success = timespaceinitialfield(xu, yu, diusp, lnx, filename, filetype, method,  operand, transformcoef, 1) 
 
             else if (qid == 'windstresscoefficient') then
 
@@ -168,7 +168,7 @@ implicit none
                endif
 
                iCdtyp  = 1 ! only 1 coeff
-               success = timespaceinitialfield(xu, yu, Cdwusp, lnx, filename, filetype, method,  operand, transformcoef, 1) ! zie meteo module
+               success = timespaceinitialfield(xu, yu, Cdwusp, lnx, filename, filetype, method,  operand, transformcoef, 1) 
 
             else if (qid == 'windspeedfactor') then
 
@@ -180,7 +180,7 @@ implicit none
                endif
 
                ja_wind_speed_factor = 1
-               success = timespaceinitialfield(xu, yu, wind_speed_factor, lnx, filename, filetype, method,  operand, transformcoef, 1) ! zie meteo module
+               success = timespaceinitialfield(xu, yu, wind_speed_factor, lnx, filename, filetype, method,  operand, transformcoef, 1) 
 
             else if (qid == 'solarradiationfactor') then
 
@@ -204,15 +204,15 @@ implicit none
                   jaSecchisp = 1
                endif
 
-               success = timespaceinitialfield(xz, yz, Secchisp, ndx, filename, filetype, method,  operand, transformcoef, 1) ! zie meteo module
+               success = timespaceinitialfield(xz, yz, Secchisp, ndx, filename, filetype, method,  operand, transformcoef, 1) 
 
             else if (qid == 'advectiontype') then
 
-               success = timespaceinitialfield_int(xu, yu, iadv, lnx, filename, filetype, method, operand, transformcoef) ! zie meteo module
+               success = timespaceinitialfield_int(xu, yu, iadv, lnx, filename, filetype, method, operand, transformcoef) 
 
             else if (qid == 'ibedlevtype') then ! Local override of bottomleveltype
 
-               success = timespaceinitialfield_int(xu, yu, ibot, lnx, filename, filetype, method, operand, transformcoef) ! zie meteo module
+               success = timespaceinitialfield_int(xu, yu, ibot, lnx, filename, filetype, method, operand, transformcoef) 
 
             else if (qid(1:17) == 'initialwaterlevel') then
                if (len_trim(md_inifieldfile) > 0) then
@@ -235,7 +235,7 @@ implicit none
                   mask(:) = 1
                end select
 
-               success = timespaceinitialfield(xz, yz, s1, ndx, filename, filetype, method, operand, transformcoef, 2, mask) ! zie meteo module
+               success = timespaceinitialfield(xz, yz, s1, ndx, filename, filetype, method, operand, transformcoef, 2, mask) 
 
             else if (qid == 'initialvelocity') then ! both ucx and ucy component from map file in one QUANTITY
 
@@ -244,11 +244,11 @@ implicit none
                else
                   call realloc(uxini, lnx, fill=dmiss)
                   qid = 'initialvelocityx'
-                  success = timespaceinitialfield(xu, yu, uxini, lnx, filename, filetype, method, operand, transformcoef, 1) ! zie meteo module
+                  success = timespaceinitialfield(xu, yu, uxini, lnx, filename, filetype, method, operand, transformcoef, 1) 
                   if (success) then
                      call realloc(uyini, lnx, fill=dmiss)
                      qid = 'initialvelocityy'
-                     success = timespaceinitialfield(xu, yu, uyini, lnx, filename, filetype, method, operand, transformcoef, 1) ! zie meteo module
+                     success = timespaceinitialfield(xu, yu, uyini, lnx, filename, filetype, method, operand, transformcoef, 1) 
                      if (success) then
                         inivel = 1
                      end if
@@ -258,7 +258,7 @@ implicit none
             else if (qid == 'initialvelocityx') then
 
                call realloc(uxini, lnx, fill=dmiss)
-               success = timespaceinitialfield(xu, yu, uxini, lnx, filename, filetype, method, operand, transformcoef, 1) ! zie meteo module
+               success = timespaceinitialfield(xu, yu, uxini, lnx, filename, filetype, method, operand, transformcoef, 1) 
                if (success) then
                   inivelx = 1
                   if (inively == 1) then
@@ -269,7 +269,7 @@ implicit none
             else if (qid == 'initialvelocityy') then
 
                call realloc(uyini, lnx, fill=dmiss)
-               success = timespaceinitialfield(xu, yu, uyini, lnx, filename, filetype, method, operand, transformcoef, 1) ! zie meteo module
+               success = timespaceinitialfield(xu, yu, uyini, lnx, filename, filetype, method, operand, transformcoef, 1) 
                if (success) then
                   inively = 1
                   if (inivelx == 1) then
@@ -284,7 +284,7 @@ implicit none
                   call aerr('h_unsat(ndx)', ierr, ndx)
                   h_unsat = -999d0
                endif
-               success = timespaceinitialfield(xz, yz, h_unsat, ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+               success = timespaceinitialfield(xz, yz, h_unsat, ndx, filename, filetype, method, operand, transformcoef, 2) 
                where (h_unsat == -999d0) h_unsat = 0d0
                if ( qid == 'interceptionlayerthickness' ) then
                   jaintercept2D = 1
@@ -292,7 +292,7 @@ implicit none
 
             else if (qid == 'infiltrationcapacity') then
                if (infiltrationmodel == DFM_HYD_INFILT_CONST) then ! NOTE: old ext file: mm/day (iniFieldFile assumes mm/hr)
-                  success = timespaceinitialfield(xz, yz, infiltcap, ndx, filename, filetype, method,  operand, transformcoef, 1) ! zie meteo module
+                  success = timespaceinitialfield(xz, yz, infiltcap, ndx, filename, filetype, method,  operand, transformcoef, 1) 
                   infiltcap = infiltcap*1d-3/(24d0*3600d0)            ! mm/day => m/s
                else
                   write (msgbuf, '(a,i0,a)') 'flow_initexternalforcings: quantity ' // trim(qid) // ' requires ''InfiltrationModel = ', DFM_HYD_INFILT_CONST, ''' in MDU. Skipping file '''//trim(filename)//'''.'
@@ -301,7 +301,7 @@ implicit none
 
             else if (qid == '__bathymetry__') then ! this is for the D-Flow FM User interface!!!
 
-               success = timespaceinitialfield(xk, yk, zk, numk, filename, filetype, method, operand, transformcoef, 3) ! zie meteo module
+               success = timespaceinitialfield(xk, yk, zk, numk, filename, filetype, method, operand, transformcoef, 3) 
 
             else if (index(qid,'bedlevel') > 0) then  ! to suppress error message while actually doing this in geominit
 
@@ -324,7 +324,7 @@ implicit none
                      if (qid(16:16) == '9') isednum = 9
 
                      sedh(1:ndx) = sed(isednum,1:ndx)
-                     success = timespaceinitialfield(xz, yz, sedh, ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+                     success = timespaceinitialfield(xz, yz, sedh, ndx, filename, filetype, method, operand, transformcoef, 2) 
                      if (success) then
                         do kk = 1,ndx
                            if (sedh(kk) .ne. dmiss) then
@@ -342,7 +342,7 @@ implicit none
 
                if (jasal > 0) then
                   sah     = dmiss
-                  success = timespaceinitialfield(xz, yz, sah, ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+                  success = timespaceinitialfield(xz, yz, sah, ndx, filename, filetype, method, operand, transformcoef, 2) 
                   if (success) then
                         call initialfield2Dto3D( sah, sa1, transformcoef(13), transformcoef(14) )
                   endif
@@ -357,7 +357,7 @@ implicit none
                      call aerr('satop(ndx)', ierr, ndx)
                      satop = dmiss
                   endif
-                  success = timespaceinitialfield(xz, yz, satop, ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+                  success = timespaceinitialfield(xz, yz, satop, ndx, filename, filetype, method, operand, transformcoef, 2) 
                   if (success) then
                         inisal2D = 2 ; uniformsalinityabovez = transformcoef(3)
                   endif
@@ -373,7 +373,7 @@ implicit none
                      call aerr('sabot(ndx)', ierr, ndx)
                      sabot = dmiss
                   endif
-                  success = timespaceinitialfield(xz, yz, sabot, ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+                  success = timespaceinitialfield(xz, yz, sabot, ndx, filename, filetype, method, operand, transformcoef, 2) 
                   if (success .and. transformcoef(3) .ne. dmiss) then
                         inisal2D = 3 ; uniformsalinitybelowz = transformcoef(4)
                   endif
@@ -383,7 +383,7 @@ implicit none
 
             else if (jatem > 0 .and. qid == 'initialtemperature') then
 
-               success = timespaceinitialfield(xz, yz, tem1, ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+               success = timespaceinitialfield(xz, yz, tem1, ndx, filename, filetype, method, operand, transformcoef, 2) 
                if (success) then
                   initem2D = 1
                endif
@@ -398,11 +398,11 @@ implicit none
 
             else if (janudge > 0 .and. qid == 'nudgetime' ) then
 
-               success = timespaceinitialfield(xz, yz, nudge_time, ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+               success = timespaceinitialfield(xz, yz, nudge_time, ndx, filename, filetype, method, operand, transformcoef, 2) 
 
             else if (janudge > 0 .and. qid == 'nudgerate' ) then
 
-               success = timespaceinitialfield(xz, yz, nudge_rate, ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+               success = timespaceinitialfield(xz, yz, nudge_rate, ndx, filename, filetype, method, operand, transformcoef, 2) 
 
             else if (stm_included .and. qid(1:14) == 'initialsedfrac') then
                call get_sedfracname(qid, sfnam, qidnam)
@@ -604,7 +604,7 @@ implicit none
                   call aerr('stemdiam(ndx)', ierr, ndx )
                   stemdiam = dmiss
                endif
-               success = timespaceinitialfield(xz, yz, stemdiam, ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+               success = timespaceinitialfield(xz, yz, stemdiam, ndx, filename, filetype, method, operand, transformcoef, 2) 
 
             else if (qid == 'stemdensity') then
 
@@ -613,7 +613,7 @@ implicit none
                   call aerr('stemdens(ndx)', ierr, ndx )
                   stemdens = dmiss
                endif
-               success = timespaceinitialfield(xz, yz, stemdens, ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+               success = timespaceinitialfield(xz, yz, stemdens, ndx, filename, filetype, method, operand, transformcoef, 2) 
 
             else if (qid == 'stemheight') then
 
@@ -622,7 +622,7 @@ implicit none
                   call aerr('stemheight(ndx)', ierr, ndx )
                   stemheight = dmiss
                endif
-               success = timespaceinitialfield(xz, yz, stemheight, ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+               success = timespaceinitialfield(xz, yz, stemheight, ndx, filename, filetype, method, operand, transformcoef, 2) 
 
                if (stemheightstd > 0d0) then
                   do k = 1,ndx
@@ -633,36 +633,36 @@ implicit none
                endif
             else if (qid == 'groundlayerthickness') then
 
-               success = timespaceinitialfield(xu, yu, grounlay, Lnx1D, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+               success = timespaceinitialfield(xu, yu, grounlay, Lnx1D, filename, filetype, method, operand, transformcoef, 2) 
                if (success ) jagrounlay = 1
 
             else if (.not. stm_included .and. qid == 'erodablelayerthicknessgrainsize1' .and. mxgr >= 1) then
 
                if (jaceneqtr == 1) then
-                  success = timespaceinitialfield(xz, yz, grainlayerthickness(1,1), ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+                  success = timespaceinitialfield(xz, yz, grainlayerthickness(1,1), ndx, filename, filetype, method, operand, transformcoef, 2) 
                else
                   mx = size(grainlay,2)
-                  success = timespaceinitialfield(xk, yk, grainlayerthickness(1,1), mx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+                  success = timespaceinitialfield(xk, yk, grainlayerthickness(1,1), mx, filename, filetype, method, operand, transformcoef, 2) 
                endif
                jagrainlayerthicknessspecified = 1
 
             else if (.not. stm_included .and. qid == 'erodablelayerthicknessgrainsize2' .and. mxgr >= 2) then
 
                if (jaceneqtr == 1) then
-                  success = timespaceinitialfield(xz, yz, grainlayerthickness(1,2), ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+                  success = timespaceinitialfield(xz, yz, grainlayerthickness(1,2), ndx, filename, filetype, method, operand, transformcoef, 2) 
                else
                   mx = size(grainlay,2)
-                  success = timespaceinitialfield(xk, yk, grainlayerthickness(1,2), mx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+                  success = timespaceinitialfield(xk, yk, grainlayerthickness(1,2), mx, filename, filetype, method, operand, transformcoef, 2) 
                endif
                jagrainlayerthicknessspecified = 1
 
             else if (.not. stm_included .and. qid == 'erodablelayerthicknessgrainsize3' .and. mxgr >= 3) then
 
                if (jaceneqtr == 1) then
-                  success = timespaceinitialfield(xz, yz, grainlayerthickness(1,3), ndx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+                  success = timespaceinitialfield(xz, yz, grainlayerthickness(1,3), ndx, filename, filetype, method, operand, transformcoef, 2) 
                else
                   mx = size(grainlay,2)
-                  success = timespaceinitialfield(xk, yk, grainlayerthickness(1,3), mx, filename, filetype, method, operand, transformcoef, 2) ! zie meteo module
+                  success = timespaceinitialfield(xk, yk, grainlayerthickness(1,3), mx, filename, filetype, method, operand, transformcoef, 2) 
                endif
                jagrainlayerthicknessspecified = 1
 
