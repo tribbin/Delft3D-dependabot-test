@@ -56,10 +56,10 @@ interface
 end interface
 
 interface
-   module function init_new(external_force_file_name) result(res)
+   module subroutine init_new(external_force_file_name, iresult)
    character(len=*), intent(in) :: external_force_file_name  !< file name for new external forcing boundary blocks
-   logical                      :: res
-   end function init_new
+   integer, intent(inout)       :: iresult
+   end subroutine init_new
 end interface
 
 interface
@@ -1601,17 +1601,15 @@ end subroutine allocatewindarrays
 !! @return Integer result status (0 if successful)
 function flow_initexternalforcings() result(iresult)              ! This is the general hook-up to wind and boundary conditions
    use unstruc_model, only: md_extfile_new
+   use dfm_error, only: DFM_NOERR
    integer :: iresult
-   logical :: success
 
    call setup(iresult)
-   
-   success = init_new(md_extfile_new)
-   
-   call init_old(iresult)
-   
-   call init_misc(iresult)
-   
+   if (iresult == DFM_NOERR) then
+      call init_new(md_extfile_new, iresult)
+      call init_old(iresult)
+      call init_misc(iresult)
+   end if
    call finalize()
    
 end function flow_initexternalforcings
@@ -1641,7 +1639,7 @@ use unstruc_inifields, only: initialize_initial_fields
    integer :: ierr
    logical                       :: exist
    integer :: k, L, LF, KB, KBI, N, K2, iad, numnos, isf, mx, itrac
-   integer :: n4 = 6
+   integer, parameter :: N4 = 6
    character (len=256)           :: fnam, rec
    logical, external             :: flow_init_structurecontrol
    integer                       :: tmp_nbndu, tmp_nbndt, tmp_nbndn
@@ -1730,7 +1728,6 @@ use unstruc_inifields, only: initialize_initial_fields
 
    call realloc(lnxbnd, lnx-lnxi, keepExisting = .false., fill = 0)
 
-   n4 = 6
    if (nbndz > 0) then                                 ! now you know the elementsets for the waterlevel bnds
       allocate ( xbndz(nbndz), ybndz(nbndz), xy2bndz(2,nbndz), zbndz(nbndz), kbndz(n4,nbndz), zbndz0(nbndz), kdz(nbndz) , stat=ierr     )
       call aerr('xbndz(nbndz), ybndz(nbndz), xy2bndz(2,nbndz), zbndz(nbndz), kbndz(n4,nbndz), zbndz0(nbndz), kdz(nbndz)', ierr, nbndz*10 )

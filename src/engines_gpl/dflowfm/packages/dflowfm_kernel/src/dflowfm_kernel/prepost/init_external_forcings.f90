@@ -34,7 +34,7 @@ submodule(m_external_forcings) initialisation
 contains
 
 !> reads new external forcings file and makes required initialisations. Only to be called once as part of fm_initexternalforcings.
-   module function init_new(external_force_file_name) result(res)
+   module subroutine init_new(external_force_file_name, iresult) 
       use properties
       use tree_data_types
       use tree_structures
@@ -57,8 +57,10 @@ contains
       use m_deprecation, only: check_file_tree_for_deprecated_keywords
       use fm_deprecated_keywords, only: deprecated_ext_keywords
       use m_lateral_helper_fuctions, only: prepare_lateral_mask
+      use dfm_error, only: dfm_noerr
 
       character(len=*), intent(in)  :: external_force_file_name   !< file name for new external forcing boundary blocks
+      integer, intent(inout)        :: iresult !< integer error code. Intent(inout) to preserve earlier errors.
       logical                       :: res
 
       logical                       :: is_successful
@@ -214,6 +216,10 @@ contains
       call tree_destroy(bnd_ptr)
       if (allocated(thrtt)) then
          call init_threttimes()
+      end if
+      
+      if (res) then
+         iresult = DFM_NOERR
       end if
 
    contains
@@ -687,6 +693,6 @@ contains
 
       end function init_meteo_forcings
 
-   end function init_new
+   end subroutine init_new
 
 end submodule initialisation
