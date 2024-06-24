@@ -1599,20 +1599,20 @@ function flow_initexternalforcings() result(iresult)              ! This is the 
    integer :: iresult
    logical :: success
 
-   call initialize_ext_setup(iresult)
+   call setup_external_forcings(iresult)
    
    success = init_external_forcings(md_extfile_new)
    
    call init_external_forcings_old(iresult)
    
-   call initialize_ext_misc(iresult)
+   call init_external_forcings_misc(iresult)
    
-   call initialize_ext_finalize()
+   call finalize_external_forcings()
    
 end function flow_initexternalforcings
    
 !> prepare all arrays that are necessary for both old and new external forcing.
-subroutine initialize_ext_setup(iresult)
+subroutine setup_external_forcings(iresult)
 use dfm_error, only: DFM_NOERR
 use m_transport, only: const_names
 use m_fm_wq_processes, only: wqbotnames
@@ -2298,10 +2298,10 @@ use unstruc_inifields, only: initialize_initial_fields
        call warn_flush()
     end if
    
-   end subroutine initialize_ext_setup
+   end subroutine setup_external_forcings
 
    !> Initialization of all extra quantities not covered bi initialize_ext_old, such as structures and laterals
-   subroutine initialize_ext_misc(iresult)
+   subroutine init_external_forcings_misc(iresult)
       use m_flowgeom, only: ln, xz, yz, iadv, ba, wu, ndx, lnx, csu, ndx, lnx
       use unstruc_model, only: md_extfile_dir
       use timespace, only: uniform, spaceandtime, readprovider
@@ -2723,10 +2723,10 @@ use unstruc_inifields, only: initialize_initial_fields
       call warn_flush()
    end if
    
-   end subroutine initialize_ext_misc
+   end subroutine init_external_forcings_misc
    
    !> Clean up after initialization, deallocate temporary arrays and check for any deprecated or not accessed keywords.
-   subroutine initialize_ext_finalize()
+   subroutine finalize_external_forcings()
    use m_flowgeom, only: ndx, lnx, csu, snu, jagrounlay, wigr, argr, pergr, lnx1d, grounlay, grounlayuni, prof1d, ndxi, lnxi, ln, ba, bare, ndx2d, kcu, dx, bl, kcs, xz, yz
    use m_flowtimes, only: ti_mba
    use m_storage, only: t_storage, get_surface
@@ -3103,7 +3103,7 @@ use unstruc_inifields, only: initialize_initial_fields
    ! (needed to disable possibly invalid statistical output items)
    call check_model_has_structures_across_partitions
    
-   end subroutine initialize_ext_finalize
+   end subroutine finalize_external_forcings
    
    !> Allocate and initialized atmosperic pressure variable(s)
    function allocate_patm() result(status)
