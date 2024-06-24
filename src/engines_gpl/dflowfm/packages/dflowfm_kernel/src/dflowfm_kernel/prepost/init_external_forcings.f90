@@ -57,7 +57,7 @@ contains
       use m_deprecation, only: check_file_tree_for_deprecated_keywords
       use fm_deprecated_keywords, only: deprecated_ext_keywords
       use m_lateral_helper_fuctions, only: prepare_lateral_mask
-      use dfm_error, only: dfm_noerr
+      use dfm_error, only: DFM_NOERR, DFM_WRONGINPUT
 
       character(len=*), intent(in)  :: external_force_file_name   !< file name for new external forcing boundary blocks
       integer, intent(inout)        :: iresult !< integer error code. Intent(inout) to preserve earlier errors.
@@ -220,6 +220,8 @@ contains
       
       if (res) then
          iresult = DFM_NOERR
+      else
+         iresult = DFM_WRONGINPUT
       end if
 
    contains
