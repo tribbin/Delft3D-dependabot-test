@@ -100,18 +100,59 @@ end subroutine main
 !> \defgroup modelinformation Model Information Functions
 !! \{
 
-!> Returns a string array of the model's input variable names as "long variable names" from the CSDMS Standard Names.
-!! TODO: not implemented yet.
-subroutine get_input_var_names(names) bind(C, name="get_input_var_names")
-   character(kind=c_char), dimension(MAXNAMES), intent(out) :: names(*)
-   !type(c_ptr), dimension(:) :: names
-end subroutine get_input_var_names
+!> Fills a string array with the model's input variable names as "long variable names" from the CSDMS Standard Names.
+!! NOTE: not implemented yet, will return a DFM_NOTIMPLEMENTED error.
+function get_input_var_names(names) bind(C, name="get_input_var_names") result(c_istat)
+   type(c_ptr), dimension(:), intent(out) :: names   !< Array of C-pointers, will contain pointers to C-compatible strings upon return.
+   integer(c_int)                         :: c_istat !< Integer status code indicating success (zero) or failure (nonzero)
+
+   integer :: i_var, var_count
+   character(kind=c_char, len=1), dimension(:,:), pointer :: cnames
+   character(len=MAXSTRLEN) :: fname
+
+   c_istat = DFM_NOTIMPLEMENTED
+   return
+
+   ! NOTE: code below is working example code for returning a BMI 2.0
+   ! compliant array of names.
+
+   var_count = 1
+
+   allocate(cnames(MAXSTRLEN, var_count))
+   do i_var = 1,var_count
+      fname = 'test_get_input_var_names' ! TODO: UNST-7403: implement this.
+      cnames(:,i_var) = string_to_char_array(trim(fname), len(trim(fname)))
+      names(i_var) = c_loc(cnames(:,i_var))
+   end do
+
+end function get_input_var_names
 
 
 !> Returns a string array of the model's output variable names as "long variable names" from the CSDMS Standard Names.
-!! TODO: not implemented yet.
+!! NOTE: not implemented yet, will return a DFM_NOTIMPLEMENTED error.
 subroutine get_output_var_names(names) bind(C, name="get_output_var_names")
-   character(kind=c_char), dimension(MAXNAMES), intent(out) :: names(*)
+   type(c_ptr), dimension(:), intent(out) :: names   !< Array of C-pointers, will contain pointers to C-compatible strings upon return.
+   integer(c_int)                         :: c_istat !< Integer status code indicating success (zero) or failure (nonzero)
+
+   integer :: i_var, var_count
+   character(kind=c_char, len=1), dimension(:,:), pointer :: cnames
+   character(len=MAXSTRLEN) :: fname
+
+   c_istat = DFM_NOTIMPLEMENTED
+   return
+
+   ! NOTE: code below is working example code for returning a BMI 2.0
+   ! compliant array of names.
+
+   var_count = 1
+
+   allocate(cnames(MAXSTRLEN, var_count))
+   do i_var = 1,var_count
+      fname = 'test_get_input_var_names' ! TODO: UNST-7403: implement this.
+      cnames(:,i_var) = string_to_char_array(trim(fname), len(trim(fname)))
+      names(i_var) = c_loc(cnames(:,i_var))
+   end do
+
 end subroutine get_output_var_names
 
 
@@ -180,7 +221,7 @@ integer(c_int) function initialize(c_config_file) result(c_iresult) bind(C, name
 
    character(kind=c_char),intent(in)    :: c_config_file(MAXSTRLEN)
    character(len=strlen(c_config_file)) :: config_file
-
+type(c_ptr), dimension(:), pointer :: names
    ! Extra local variables
    integer :: inerr  ! number of the initialisation error
    logical :: mpi_initd
@@ -195,7 +236,8 @@ integer(c_int) function initialize(c_config_file) result(c_iresult) bind(C, name
    my_rank           = 0
    ja_mpi_init_by_fm = 0
 #ifdef HAVE_MPI
-
+allocate(names(13))
+c_iresult = get_input_var_names(names)
    ! Check if MPI is already initialized
    call mpi_initialized(mpi_initd, inerr)
    if (mpi_initd) then
@@ -720,35 +762,6 @@ subroutine get_var_name(var_index, c_var_name) bind(C, name="get_var_name")
 
 end subroutine get_var_name
 
-subroutine get_var_names(names) bind(C, name="get_var_names")
-   use iso_c_binding, only: c_char, c_ptr
-   character(kind=c_char), dimension(MAXNAMES), intent(out) :: names(*)
-
-   ! I can't get this to work.....
-
-   ! http://stackoverflow.com/questions/9686532/arrays-of-strings-in-fortran-c-bridges-using-iso-c-binding
-   ! The way we do it is to use a C_PTR array to point to strings. For example:
-
-   ! CHARACTER(LEN=100), DIMENSION(numStrings), TARGET :: stringArray
-   ! TYPE(C_PTR), DIMENSION(numStrings) :: stringPtrs
-   ! then we set our strings in stringArray, remembering to null-terminate them such as:
-
-   ! DO ns = 1, numStrings
-   !    stringArray(ns) = "My String"//C_NULL_CHAR
-   !    stringPtrs(ns) = C_LOC(stringArray(ns))
-   ! END DO
-   ! and pass stringPtrs to the C function.
-
-   ! The C function has the interface:
-
-   ! void stringFunc(int *numStrings, char **stringArray) {
-   !     int i;
-   !     for(i=0;i<*numStrings;++i) {
-   !        printf("%s\n",stringArray[i]);
-   !     }
-   !  }
-end subroutine get_var_names
-
 subroutine get_var_type(c_var_name, c_type)  bind(C, name="get_var_type")
    !DEC$ ATTRIBUTES DLLEXPORT :: get_var_type
 
@@ -821,7 +834,7 @@ end subroutine get_var_location
 
 subroutine get_var_role(c_var_name, role) bind(C, name="get_var_role")
    character(kind=c_char), intent(in) :: c_var_name(*)
-   character(kind=c_char), intent(out) :: role(*)
+   character(kind=c_char)             :: role(*) ! TODO: UNST-7403: implement 2.0 version of this function.
    ! Roles:
    ! BMI_INPUT
    ! BMI_OUTPUT
@@ -830,7 +843,7 @@ end subroutine get_var_role
 
 subroutine get_var_units( c_var_name, unit )  bind(C, name="get_var_units")
    character(kind=c_char), intent(in) :: c_var_name(*)
-   character(kind=c_char), intent(out) :: unit(*)
+   character(kind=c_char)             :: unit(*) ! TODO: UNST-7403: implement 2.0 version of this function.
 end subroutine get_var_units
 
 !> Returns the rank of a variable, i.e., its dimensionality.

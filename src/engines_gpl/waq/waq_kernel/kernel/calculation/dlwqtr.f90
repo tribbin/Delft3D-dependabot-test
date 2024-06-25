@@ -69,8 +69,8 @@ module m_dlwqtr
         real(kind=real_wp), intent(inout) :: PARAM(num_spatial_parameters, num_cells) !< Model parameters
         real(kind=real_wp), intent(inout) :: FUNC(*)            !< Model functions at ITIME
         real(kind=real_wp), intent(inout) :: SEGFUN(num_cells, *)   !< Segment functions at ITIME
-        real(kind=real_wp), intent(out)   :: DISPER(*)          !< User defined dispersion
-        real(kind=real_wp), intent(out)   :: VELO(*)            !< User defined flows
+        real(kind=real_wp), intent(inout) :: DISPER(*)          !< User defined dispersion (TODO: DELWAQ-837: argument not in use)
+        real(kind=real_wp), intent(inout) :: VELO(*)            !< User defined flows  (TODO: DELWAQ-837: argument not in use)
         integer(kind=int_wp), intent(in) :: ITIME               !< Time in system clock units
         integer(kind=int_wp), intent(in) :: IDT                 !< Time step system clock units
         character(len=20), intent(in) :: SYNAME(num_substances_total)          !< names of systems
