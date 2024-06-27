@@ -34,7 +34,7 @@ submodule(fm_external_forcings) fm_external_forcings_init
 contains
 
 !> reads new external forcings file and makes required initialisations. Only to be called once as part of fm_initexternalforcings.
-   module subroutine init_new(external_force_file_name, iresult) 
+   module subroutine init_new(external_force_file_name, iresult)
       use properties
       use tree_data_types
       use tree_structures
@@ -59,49 +59,49 @@ contains
       use m_lateral_helper_fuctions, only: prepare_lateral_mask
       use dfm_error, only: DFM_NOERR, DFM_WRONGINPUT
 
-      character(len=*), intent(in)  :: external_force_file_name   !< file name for new external forcing boundary blocks
-      integer, intent(inout)        :: iresult !< integer error code. Intent(inout) to preserve earlier errors.
-      logical                       :: res
+      character(len=*), intent(in) :: external_force_file_name   !< file name for new external forcing boundary blocks
+      integer, intent(inout) :: iresult !< integer error code. Intent(inout) to preserve earlier errors.
+      logical :: res
 
-      logical                       :: is_successful
-      type(tree_data), pointer      :: bnd_ptr             !< tree of extForceBnd-file's [boundary] blocks
-      type(tree_data), pointer      :: node_ptr            !
-      integer                       :: istat               !
-      integer, parameter            :: INI_KEY_LEN   =  32 !
-      integer, parameter            :: INI_VALUE_LEN = 256 !
+      logical :: is_successful
+      type(tree_data), pointer :: bnd_ptr             !< tree of extForceBnd-file's [boundary] blocks
+      type(tree_data), pointer :: node_ptr            !
+      integer :: istat               !
+      integer, parameter :: INI_KEY_LEN = 32 !
+      integer, parameter :: INI_VALUE_LEN = 256 !
       character(len=:), allocatable :: group_name          !
-      character(len=INI_VALUE_LEN)  :: property_name
-      character(len=INI_VALUE_LEN)  :: property_value
-      character(len=INI_VALUE_LEN)  :: quantity
-      character(len=INI_VALUE_LEN)  :: location_file       !
-      character(len=INI_VALUE_LEN)  :: forcing_file        !
-      character(len=INI_VALUE_LEN)  :: forcing_file_type   !
-      character(len=INI_VALUE_LEN)  :: target_mask_file    !
-      integer                       :: i, j                !
-      integer                       :: method
-      integer                       :: num_items_in_file   !
-      integer                       :: num_items_in_block
-      character(len=1)              :: oper                !
-      character(len=300)            :: rec
-      character(len=INI_VALUE_LEN)  :: nodeid
-      character(len=INI_VALUE_LEN)  :: branchid
-      character(len=INI_VALUE_LEN)  :: loc_id
-      character(len=INI_VALUE_LEN)  :: item_type
-      character(len=INI_VALUE_LEN)  :: fnam
-      character(len=INI_VALUE_LEN)  :: base_dir
-      double precision              :: chainage
-      integer                       :: ierr               ! error number from allocate function
-      integer                       :: ilattype, nlat
-      integer                       :: k, n, k1, nini
-      integer, dimension(1)         :: target_index
-      integer                       :: ib, ibqh, ibt
-      integer                       :: maxlatsg
-      integer                       :: major, minor
-      integer                       :: loc_spec_type
-      integer                       :: numcoordinates
+      character(len=INI_VALUE_LEN) :: property_name
+      character(len=INI_VALUE_LEN) :: property_value
+      character(len=INI_VALUE_LEN) :: quantity
+      character(len=INI_VALUE_LEN) :: location_file       !
+      character(len=INI_VALUE_LEN) :: forcing_file        !
+      character(len=INI_VALUE_LEN) :: forcing_file_type   !
+      character(len=INI_VALUE_LEN) :: target_mask_file    !
+      integer :: i, j                !
+      integer :: method
+      integer :: num_items_in_file   !
+      integer :: num_items_in_block
+      character(len=1) :: oper                !
+      character(len=300) :: rec
+      character(len=INI_VALUE_LEN) :: nodeid
+      character(len=INI_VALUE_LEN) :: branchid
+      character(len=INI_VALUE_LEN) :: loc_id
+      character(len=INI_VALUE_LEN) :: item_type
+      character(len=INI_VALUE_LEN) :: fnam
+      character(len=INI_VALUE_LEN) :: base_dir
+      double precision :: chainage
+      integer :: ierr               ! error number from allocate function
+      integer :: ilattype, nlat
+      integer :: k, n, k1, nini
+      integer, dimension(1) :: target_index
+      integer :: ib, ibqh, ibt
+      integer :: maxlatsg
+      integer :: major, minor
+      integer :: loc_spec_type
+      integer :: numcoordinates
       double precision, allocatable :: xcoordinates(:), ycoordinates(:)
       character(len=:), allocatable :: file_name
-      integer, allocatable          :: itpenzr(:), itpenur(:)
+      integer, allocatable :: itpenzr(:), itpenur(:)
 
       file_name = trim(external_force_file_name)
       if (len_trim(file_name) > 0) then
@@ -138,13 +138,13 @@ contains
       itpenzr(:) = 0
       itpenur(:) = 0
       do ibt = 1, nbndz
-         ib  = itpenz(ibt)
+         ib = itpenz(ibt)
          if (ib > 0) then
             itpenzr(ib) = ibt
          end if
       end do
       do ibt = 1, nbndu
-         ib  = itpenu(ibt)
+         ib = itpenu(ibt)
          if (ib > 0) then
             itpenur(ib) = ibt
          end if
@@ -193,7 +193,7 @@ contains
          do n = 1, numlatsg
             balat(n) = 0d0
             do k1 = n1latsg(n), n2latsg(n)
-               k  = nnlat(k1)
+               k = nnlat(k1)
                if (k > 0) then
                   if (.not. is_ghost_node(k)) then
                      balat(n) = balat(n) + ba(k)
@@ -212,12 +212,12 @@ contains
       call check_file_tree_for_deprecated_keywords(bnd_ptr, deprecated_ext_keywords, istat, prefix='While reading '''//trim(file_name)//'''')
 
       num_lat_ini_blocks = numlatsg !save number of laterals to module variable
-      
+
       call tree_destroy(bnd_ptr)
       if (allocated(thrtt)) then
          call init_threttimes()
       end if
-      
+
       if (res) then
          iresult = DFM_NOERR
       else
@@ -231,7 +231,7 @@ contains
 
          logical :: res
 
-         type(tree_data), pointer     :: block_ptr           !
+         type(tree_data), pointer :: block_ptr           !
 
          res = .false.
          ! First check for required input:
@@ -328,7 +328,7 @@ contains
                                                                         operand=oper, targetindex=target_index(1))
                      else
                         is_successful = addtimespacerelation_boundaries(quantity, location_file, filetype=node_id, method=method, &
-                                                                operand=oper, forcingfile=forcing_file, targetindex=target_index(1))
+                                                                        operand=oper, forcingfile=forcing_file, targetindex=target_index(1))
                      end if
                   else
                      if (forcing_file == '-') then
@@ -378,7 +378,7 @@ contains
       !> reads lateral blocks from new external forcings file and makes required initialisations
       function init_lateral_forcings() result(res)
 
-         logical  :: res
+         logical :: res
 
          res = .false.
 
@@ -476,9 +476,9 @@ contains
          call prepare_lateral_mask(kclat, ilattype)
 
          numlatsg = numlatsg + 1
-         call realloc(nnlat, max(2*ndxi, nlatnd + ndxi), keepExisting=.true., fill=0)
+         call realloc(nnlat, max(2 * ndxi, nlatnd + ndxi), keepExisting=.true., fill=0)
          call selectelset_internal_nodes(xz, yz, kclat, ndxi, nnLat(nlatnd + 1:), nlat, &
-                               loc_spec_type, location_file, numcoordinates, xcoordinates, ycoordinates, branchid, chainage, nodeId)
+                                         loc_spec_type, location_file, numcoordinates, xcoordinates, ycoordinates, branchid, chainage, nodeId)
 
          n1latsg(numlatsg) = nlatnd + 1
          n2latsg(numlatsg) = nlatnd + nlat
@@ -506,7 +506,7 @@ contains
 
          qid = 'lateral_discharge' ! New quantity name in .bc files
          is_successful = adduniformtimerelation_objects(qid, '', 'lateral', trim(loc_id), 'discharge', trim(rec), numlatsg, &
-             kx, qplat(1, :))
+                                                        kx, qplat(1, :))
          if (is_successful) then
             jaqin = 1
             lat_ids(numlatsg) = loc_id
@@ -522,15 +522,15 @@ contains
 
          logical :: res
 
-         integer, allocatable           :: mask(:)
-         integer, allocatable           :: selected_nodes(:)
-         integer                        :: number_of_selected_nodes, node
-         logical                        :: invert_mask
-         logical                        :: is_variable_name_available
-         logical                        :: is_target_mask_available
-         character(len=INI_KEY_LEN)     :: variable_name
-         character(len=INI_VALUE_LEN)   :: interpolation_method
-         real(kind=hp)                  :: max_search_radius
+         integer, allocatable :: mask(:)
+         integer, allocatable :: selected_nodes(:)
+         integer :: number_of_selected_nodes, node
+         logical :: invert_mask
+         logical :: is_variable_name_available
+         logical :: is_target_mask_available
+         character(len=INI_KEY_LEN) :: variable_name
+         character(len=INI_VALUE_LEN) :: interpolation_method
+         real(kind=hp) :: max_search_radius
 
          res = .false.
 
@@ -571,7 +571,7 @@ contains
             ! in: kcs, all flow nodes, out: mask: all masked flow nodes.
             allocate (selected_nodes(ndx), source=0)
             call selectelset_internal_nodes(xz, yz, kcs, ndx, selected_nodes, number_of_selected_nodes, LOCTP_POLYGON_FILE, &
-                target_mask_file)
+                                            target_mask_file)
             do node = 1, number_of_selected_nodes
                mask(selected_nodes(node)) = 1
             end do
@@ -673,10 +673,10 @@ contains
          case default
             if (is_variable_name_available) then
                is_successful = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), mask, kx, forcing_file, filetype, &
-                   method, oper, varname=variable_name)
+                                                       method, oper, varname=variable_name)
             else
                is_successful = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), mask, kx, forcing_file, filetype, &
-                   method, oper)
+                                                       method, oper)
             end if
          end select
 
