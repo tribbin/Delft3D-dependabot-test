@@ -1,4 +1,4 @@
-submodule (fm_external_forcings) old_initialisation
+submodule (fm_external_forcings) fm_external_forcings_init_old
    use fm_external_forcings_data
    
 implicit none
@@ -1748,4 +1748,4 @@ implicit none
    
    end subroutine init_misc
    
-end submodule old_initialisation
+end submodule fm_external_forcings_init_old

@@ -27,7 +27,7 @@
 !
 !-------------------------------------------------------------------------------
 !
-submodule(fm_external_forcings) initialisation
+submodule(fm_external_forcings) fm_external_forcings_init
 
    implicit none
 
@@ -697,4 +697,4 @@ contains
 
    end subroutine init_new
 
-end submodule initialisation
+end submodule fm_external_forcings_init

@@ -27,7 +27,7 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-submodule (fm_external_forcings) set_external_forcings_boundaries
+submodule (fm_external_forcings) fm_external_forcings_update_boundaries
 
 implicit none
 
@@ -301,4 +301,4 @@ module subroutine set_external_forcings_boundaries(time, iresult)
 
  end subroutine set_external_forcings_boundaries
 
-end submodule set_external_forcings_boundaries
+end submodule fm_external_forcings_update_boundaries

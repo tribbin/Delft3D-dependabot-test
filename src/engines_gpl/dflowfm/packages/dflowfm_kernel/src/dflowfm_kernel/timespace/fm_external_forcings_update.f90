@@ -1,4 +1,4 @@
-submodule (fm_external_forcings) set_external_forcings
+submodule (fm_external_forcings) fm_external_forcings_update
    use timers,                 only : timstrt, timstop
    use m_flowtimes
    use m_flowgeom
@@ -612,4 +612,4 @@ subroutine update_subsidence_and_uplift_data(time_in_seconds)
 
 end subroutine update_subsidence_and_uplift_data
 
-end submodule set_external_forcings
+end submodule fm_external_forcings_update
