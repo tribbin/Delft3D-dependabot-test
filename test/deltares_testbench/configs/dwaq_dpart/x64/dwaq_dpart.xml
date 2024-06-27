@@ -10,5 +10,5 @@
     <xi:include href="../include/default_testcases.xml"/>
 
     <!-- testCases -->
-    <xi:include href="../include/test_configs/dwaq.xml"/>
+    <xi:include href="../include/test_configs/dwaq_dpart_combination.xml"/>
 </deltaresTestbench_v3>
