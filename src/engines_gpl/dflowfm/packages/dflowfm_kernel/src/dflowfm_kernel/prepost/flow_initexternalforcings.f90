@@ -925,17 +925,17 @@ integer function flow_initexternalforcings() result(iresult)              ! This
                ja_wind_speed_factor = 1
                success = timespaceinitialfield(xu, yu, wind_speed_factor, lnx, filename, filetype, method,  operand, transformcoef, 1) ! zie meteo module
 
-            else if (qid == 'solarradiationfactor') then
+            ! else if (qid == 'solarradiationfactor') then
 
-               if (ja_solar_radiation_factor == 0) then
-                  if (allocated (solar_radiation_factor) ) deallocate(solar_radiation_factor)
-                  allocate ( solar_radiation_factor(ndx) , stat=ierr )
-                  call aerr('solar_radiation_factor(ndx)', ierr, lnx )
-                  solar_radiation_factor(:) = dmiss
-               endif
+            !    if (ja_solar_radiation_factor == 0) then
+            !       if (allocated (solar_radiation_factor) ) deallocate(solar_radiation_factor)
+            !       allocate ( solar_radiation_factor(ndx) , stat=ierr )
+            !       call aerr('solar_radiation_factor(ndx)', ierr, lnx )
+            !       solar_radiation_factor(:) = dmiss
+            !    endif
 
-               ja_solar_radiation_factor = 1
-               success = timespaceinitialfield(xz, yz, solar_radiation_factor, ndx, filename, filetype, method, operand, transformcoef, 1)
+            !    ja_solar_radiation_factor = 1
+            !    success = timespaceinitialfield(xz, yz, solar_radiation_factor, ndx, filename, filetype, method, operand, transformcoef, 1)
 
             else if (qid == 'secchidepth') then
 
@@ -1503,51 +1503,51 @@ integer function flow_initexternalforcings() result(iresult)              ! This
                   jaspacevarcharn = 1
                endif
 
-            else if (qid == 'humidity_airtemperature_cloudiness') then
+            ! else if (qid == 'humidity_airtemperature_cloudiness') then
 
-               ! Meteo1
-               kx = 3 ; heat_forcing_type%typ = 1
-               if (allocated (mask) ) deallocate(mask)
-               allocate( mask(ndx), source =1 )
+            !    ! Meteo1
+            !    kx = 3 ; heat_forcing_type%typ = 1
+            !    if (allocated (mask) ) deallocate(mask)
+            !    allocate( mask(ndx), source =1 )
 
-               success = ec_addtimespacerelation(qid, xz(1:ndx), yz(1:ndx), mask, kx, filename, filetype, method, operand, varname=varname) ! vectormax=3
+            !    success = ec_addtimespacerelation(qid, xz(1:ndx), yz(1:ndx), mask, kx, filename, filetype, method, operand, varname=varname) ! vectormax=3
 
-            else if (qid == 'dewpoint_airtemperature_cloudiness') then
+            ! else if (qid == 'dewpoint_airtemperature_cloudiness') then
 
-               ! Meteo1
-               kx = 3 ; heat_forcing_type%typ = 3
-               if (allocated (mask) ) deallocate(mask)
-               allocate( mask(ndx), source =1 )
+            !    ! Meteo1
+            !    kx = 3 ; heat_forcing_type%typ = 3
+            !    if (allocated (mask) ) deallocate(mask)
+            !    allocate( mask(ndx), source =1 )
 
-               success = ec_addtimespacerelation(qid, xz(1:ndx), yz(1:ndx), mask, kx, filename, filetype, method, operand, varname=varname) ! vectormax = 3
-               if (success) then
-                  heat_forcing_type%dewpoint = .true.
-               endif
+            !    success = ec_addtimespacerelation(qid, xz(1:ndx), yz(1:ndx), mask, kx, filename, filetype, method, operand, varname=varname) ! vectormax = 3
+            !    if (success) then
+            !       heat_forcing_type%dewpoint = .true.
+            !    endif
 
-            else if (qid == 'humidity_airtemperature_cloudiness_solarradiation') then
+            ! else if (qid == 'humidity_airtemperature_cloudiness_solarradiation') then
 
-               ! Meteo1
-               kx = 4 ; heat_forcing_type%typ = 2
-               if (allocated (mask) ) deallocate(mask)
-               allocate( mask(ndx), source =1 )
+            !    ! Meteo1
+            !    kx = 4 ; heat_forcing_type%typ = 2
+            !    if (allocated (mask) ) deallocate(mask)
+            !    allocate( mask(ndx), source =1 )
 
-               success = ec_addtimespacerelation(qid, xz(1:ndx), yz(1:ndx), mask, kx, filename, filetype, method, operand, varname=varname) ! vectormax = 4
-               if (success) then
-                  heat_forcing_type%solar_radiation = .true.
-               endif
+            !    success = ec_addtimespacerelation(qid, xz(1:ndx), yz(1:ndx), mask, kx, filename, filetype, method, operand, varname=varname) ! vectormax = 4
+            !    if (success) then
+            !       heat_forcing_type%solar_radiation = .true.
+            !    endif
 
-            else if (qid == 'dewpoint_airtemperature_cloudiness_solarradiation') then
+            ! else if (qid == 'dewpoint_airtemperature_cloudiness_solarradiation') then
 
-               ! Meteo1
-               kx = 4 ; heat_forcing_type%typ = 4
-               if (allocated (mask) ) deallocate(mask)
-               allocate( mask(ndx), source =1 )
+            !    ! Meteo1
+            !    kx = 4 ; heat_forcing_type%typ = 4
+            !    if (allocated (mask) ) deallocate(mask)
+            !    allocate( mask(ndx), source =1 )
 
-               success = ec_addtimespacerelation(qid, xz(1:ndx), yz(1:ndx), mask, kx, filename, filetype, method, operand, varname=varname) ! vectormax = 4
-               if (success) then
-                  heat_forcing_type%dewpoint = .true.
-                  heat_forcing_type%solar_radiation = .true.
-               endif
+            !    success = ec_addtimespacerelation(qid, xz(1:ndx), yz(1:ndx), mask, kx, filename, filetype, method, operand, varname=varname) ! vectormax = 4
+            !    if (success) then
+            !       heat_forcing_type%dewpoint = .true.
+            !       heat_forcing_type%solar_radiation = .true.
+            !    endif
 
             else if (qid == 'nudge_salinity_temperature') then
                kx = 2
@@ -1584,21 +1584,21 @@ integer function flow_initexternalforcings() result(iresult)              ! This
                   japatm = 1
                endif
 
-            else if (qid == 'air_temperature') then
-               call mess(LEVEL_WARN, 'Reading *.ext forcings file '''//trim(md_extfile)//''', please replace air_temperature by airtemperature' )
-               success = .false.
+            ! else if (qid == 'air_temperature') then
+            !    call mess(LEVEL_WARN, 'Reading *.ext forcings file '''//trim(md_extfile)//''', please replace air_temperature by airtemperature' )
+            !    success = .false.
 
-            else if (qid == 'airtemperature') then
+            ! else if (qid == 'airtemperature') then
 
-               if (.not. allocated(tair) ) then
-                  allocate ( tair(ndx) , stat=ierr)
-                  call aerr('tair(ndx)', ierr, ndx)
-                  tair = 0d0
-               endif
-               success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
-               if (success) then
-                  heat_forcing_type%air_temperature = .true.
-               endif
+            !    if (.not. allocated(tair) ) then
+            !       allocate ( tair(ndx) , stat=ierr)
+            !       call aerr('tair(ndx)', ierr, ndx)
+            !       tair = 0d0
+            !    endif
+            !    success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
+            !    if (success) then
+            !       heat_forcing_type%air_temperature = .true.
+            !    endif
 
             else if (qid == 'airdensity') then
 
@@ -1613,31 +1613,31 @@ integer function flow_initexternalforcings() result(iresult)              ! This
                   ja_airdensity = 1
                endif
 
-            else if (qid == 'humidity') then
+            ! else if (qid == 'humidity') then
 
-               if (.not. allocated(rhum) ) then
-                  allocate ( rhum(ndx) , stat=ierr)
-                  call aerr('rhum(ndx)', ierr, ndx)
-                  rhum = 0d0
-               endif
-               success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
-               if (success) then
-                  heat_forcing_type%humidity = .true.
-               endif
+            !    if (.not. allocated(rhum) ) then
+            !       allocate ( rhum(ndx) , stat=ierr)
+            !       call aerr('rhum(ndx)', ierr, ndx)
+            !       rhum = 0d0
+            !    endif
+            !    success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
+            !    if (success) then
+            !       heat_forcing_type%humidity = .true.
+            !    endif
 
-            else if (qid == 'dewpoint') then ! Relative humidity array used to store dewpoints
+            ! else if (qid == 'dewpoint') then ! Relative humidity array used to store dewpoints
 
-               if (.not. allocated(rhum) ) then
-                  allocate ( rhum(ndx) , stat=ierr)
-                  call aerr('rhum(ndx)', ierr, ndx)
-                  rhum = 0d0
-               endif
+            !    if (.not. allocated(rhum) ) then
+            !       allocate ( rhum(ndx) , stat=ierr)
+            !       call aerr('rhum(ndx)', ierr, ndx)
+            !       rhum = 0d0
+            !    endif
 
-               heat_forcing_type%typ = 5
-               success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
-               if (success) then
-                  heat_forcing_type%dewpoint = .true.
-               endif
+            !    heat_forcing_type%typ = 5
+            !    success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
+            !    if (success) then
+            !       heat_forcing_type%dewpoint = .true.
+            !    endif
 
         else if (qid == 'sea_ice_area_fraction' .or. qid == 'sea_ice_thickness') then
 
@@ -1657,42 +1657,42 @@ integer function flow_initexternalforcings() result(iresult)              ! This
                if (qid == 'sea_ice_thickness') ja_ice_thickness_read = 1
            endif
 
-            else if (qid == 'cloudiness') then
+            ! else if (qid == 'cloudiness') then
 
-               if (.not. allocated(clou) ) then
-                  allocate ( clou(ndx) , stat=ierr)
-                  call aerr('clou(ndx)', ierr, ndx)
-                  clou = 0d0
-               endif
-               success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
-               if (success) then
-                  heat_forcing_type%cloudiness = .true.
-               endif
+            !    if (.not. allocated(clou) ) then
+            !       allocate ( clou(ndx) , stat=ierr)
+            !       call aerr('clou(ndx)', ierr, ndx)
+            !       clou = 0d0
+            !    endif
+            !    success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
+            !    if (success) then
+            !       heat_forcing_type%cloudiness = .true.
+            !    endif
 
-            else if (qid == 'solarradiation') then
+            ! else if (qid == 'solarradiation') then
 
-               if (.not. allocated(qrad) ) then
-                  allocate ( qrad(ndx) , stat=ierr)
-                  call aerr('qrad(ndx)', ierr, ndx)
-                  qrad = 0d0
-               endif
-               success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
-               if (success) then
-                  heat_forcing_type%solar_radiation = .true.
-                  heat_forcing_type%solar_radiation = .true.
-               endif
+            !    if (.not. allocated(qrad) ) then
+            !       allocate ( qrad(ndx) , stat=ierr)
+            !       call aerr('qrad(ndx)', ierr, ndx)
+            !       qrad = 0d0
+            !    endif
+            !    success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
+            !    if (success) then
+            !       heat_forcing_type%solar_radiation = .true.
+            !       heat_forcing_type%solar_radiation = .true.
+            !    endif
 
-            else if (qid == 'longwaveradiation') then
-               if (.not. allocated(longwave) ) then
-                  allocate ( longwave(ndx) , stat=ierr)
-                  call aerr('longwave(ndx)', ierr, ndx)
-                  longwave = 0d0
-               endif
-               success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
-               if (success) then
-                  heat_forcing_type%long_wave_radiation = .true.
-                  heat_forcing_type%long_wave_radiation = .true.
-               endif
+            ! else if (qid == 'longwaveradiation') then
+            !    if (.not. allocated(longwave) ) then
+            !       allocate ( longwave(ndx) , stat=ierr)
+            !       call aerr('longwave(ndx)', ierr, ndx)
+            !       longwave = 0d0
+            !    endif
+            !    success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
+            !    if (success) then
+            !       heat_forcing_type%long_wave_radiation = .true.
+            !       heat_forcing_type%long_wave_radiation = .true.
+            !    endif
 
             else if (qid(1:8) == 'rainfall' ) then
 
