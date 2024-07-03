@@ -207,6 +207,11 @@ subroutine hispar&
    &28,'constituent         ','user defined        ',    TMLCDP,&
    &29,'constituent         ','user defined        ',    TMLCDP,&
    &30,'                    ','                    ',    TMLCDP/
+!  (bedstress) u and v are not correctly defined in u-points -> removed
+!    *  38,'current u at u-point','m/s                 ',    TMLCDP,
+!    *  39,'current v at v-point','m/s                 ',    TMLCDP,
+!    *  40,'bed stress at u-pnt.','N/m**2              ',    TMLCDP,
+!    *  41,'bed stress at v-pnt.','N/m**2              ',    TMLCDP,
    data (hisind(i),hislst(i),hisuni(i),histyp(i),i=31,45,1)/&
    &31,'density             ','kg/m**3             ',    TMLCDP,&
    &32,'eddy diffusivity    ','m**2/s              ',    TMLCDP,&
@@ -215,14 +220,8 @@ subroutine hispar&
    &35,'                    ','                    ',    TMLCDP,&
    &36,'                    ','                    ',    TMLCDP,&
    &37,'                    ','                    ',    TMLCDP,&
-!  u and v are not correctly defined in u-points -> removed
-!    *  38,'current u at u-point','m/s                 ',    TMLCDP,
-!    *  39,'current v at v-point','m/s                 ',    TMLCDP,
    &38,'                    ','                    ',    TMLCDP,&
    &39,'                    ','                    ',    TMLCDP,&
-!  bedstress u and v are not correctly defined in u-points -> removed
-!    *  40,'bed stress at u-pnt.','N/m**2              ',    TMLCDP,
-!    *  41,'bed stress at v-pnt.','N/m**2              ',    TMLCDP,
    &40,'                    ','                    ',    TMLCDP,&
    &41,'                    ','                    ',    TMLCDP,&
    &42,'accumulated flow u  ','m**3                ',    TMLCDP,&

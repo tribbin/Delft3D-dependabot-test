@@ -1571,7 +1571,6 @@ subroutine comtme( datfds , deffds , okee   , npar    ,&
 end
 ! =====================================================================
 subroutine mapcom&
-! ---------------------------------------------------------------------
 &( datfds , deffds , okee   , num_rows   , num_columns   , num_layers_grid   ,&
 &igrp   , grpnam , grpdef , cel    , elmnam , elmtyp ,&
 &elmqty , elmunt , elmdes , jcodb  , icodb  , iku    ,&
