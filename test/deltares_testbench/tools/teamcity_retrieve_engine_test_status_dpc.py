@@ -32,8 +32,10 @@ global log_file
 global engine_statistics
 
 
-class summarydata(object):
-    def __init__(self, name):
+class SummaryData(object):
+    """A class to store summary data for test results."""
+
+    def __init__(self, name) -> None:
         self.name = name
         self.sum_passed = 0
         self.sum_failed = 0
@@ -43,7 +45,9 @@ class summarydata(object):
 
 
 class Data(object):
-    def __init__(self, name, passed, failed):
+    """A class to store data for test results."""
+
+    def __init__(self, name, passed, failed) -> None:
         self.name = name
         self.passed = passed
         self.failed = failed
@@ -54,7 +58,13 @@ class Data(object):
         self.percentage = a
 
 
-def lprint(*args):
+def lprint(*args: str) -> None:
+    """
+    Write to a log file.
+
+    Args:
+        *args: Variable number of arguments to be written to the log file.
+    """
     global log_file
     log_file.write(" ".join(map(str, args)) + "\n")
 
@@ -308,10 +318,10 @@ def main(tbroot, given_build_config, username, password, engines):
     global engine_statistics
     global summarydata_array
 
-    summarydata_array.append(summarydata("All"))
+    summarydata_array.append(SummaryData("All"))
     if engines is not None:
         for engine in engines.split(","):
-            summarydata_array.append(summarydata(engine))
+            summarydata_array.append(SummaryData(engine))
 
     urltb = "https://dpcbuild.deltares.nl/httpAuth/app/rest/projects/id:%s" % tbroot
 
