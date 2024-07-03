@@ -82,9 +82,7 @@ def report_cases(url, given_build_config, username, password, buildname):
 
     case_id = []
     case_name = []
-    engine_req = requests.get(
-        url=url, auth=HTTPBasicAuth(username, password), stream=True, verify=True
-    )
+    engine_req = get_request(url, username, password)
     try:
         xml_engine_root = ET.fromstring(engine_req.text)
     except:
@@ -128,9 +126,7 @@ def report_cases(url, given_build_config, username, password, buildname):
             "%s/httpAuth/app/rest/builds?locator=buildType:(id:%s),defaultFilter:false,branch:<default>&count=1&fields=count,build(number,statistics,status,statusText,testOccurrences,agent,lastChange,tags(tag),pinned,revisions(revision))"
             % (deltares_build, case)
         )
-        case_req = requests.get(
-            url=url, auth=HTTPBasicAuth(username, password), stream=True, verify=True
-        )
+        case_req = get_request(url, username, password)
         try:
             xml_case_root = ET.fromstring(case_req.text)
         except:
@@ -190,12 +186,7 @@ def report_cases(url, given_build_config, username, password, buildname):
             cnt = int(build.find("./testOccurrences").attrib["count"])
             href = build.find("./testOccurrences").attrib["href"]
             url_1 = "%s%s,count:%d" % (deltares_build, href, cnt)
-            test_occs_req = requests.get(
-                url=url_1,
-                auth=HTTPBasicAuth(username, password),
-                stream=True,
-                verify=True,
-            )
+            test_occs_req = get_request(url_1, username, password)
             try:
                 xml_test_occs = ET.fromstring(test_occs_req.text)
             except:
@@ -205,12 +196,7 @@ def report_cases(url, given_build_config, username, password, buildname):
                 if t_occ.attrib["status"] == "FAILURE":
                     href = t_occ.attrib["href"]
                     url_2 = "%s%s" % (deltares_build, href)
-                    test_occ_req = requests.get(
-                        url=url_2,
-                        auth=HTTPBasicAuth(username, password),
-                        stream=True,
-                        verify=True,
-                    )
+                    test_occ_req = get_request(url_2, username, password)
                     try:
                         xml_test_occ = ET.fromstring(test_occ_req.text)
                     except:
@@ -315,6 +301,24 @@ def report_cases(url, given_build_config, username, password, buildname):
         lprint("            Percentage: %6.2f" % engine_statistics[i].percentage)
 
 
+def get_request(url: str, username: str, password: str) -> requests.Response:
+    """
+    Send an HTTP GET request with authentication.
+
+    Args:
+        url (str): The URL to send the request to.
+        username (str): The username for authentication.
+        password (str): The password for authentication.
+
+    Returns
+    -------
+        requests.Response: The response object from the request.
+    """
+    return requests.get(
+        url=url, auth=HTTPBasicAuth(username, password), stream=True, verify=True
+    )
+
+
 def main(tbroot, given_build_config, username, password, engines):
     global engine_statistics
     global summarydata_array
@@ -327,9 +331,7 @@ def main(tbroot, given_build_config, username, password, engines):
     urltb = "https://dpcbuild.deltares.nl/httpAuth/app/rest/projects/id:%s" % tbroot
 
     try:
-        tbroot_req = requests.get(
-            url=urltb, auth=HTTPBasicAuth(username, password), stream=True, verify=True
-        )
+        tbroot_req = get_request(urltb, username, password)
     except:
         print("Given URL does not exist: %s" % urltb)
         return 1
@@ -359,9 +361,7 @@ def main(tbroot, given_build_config, username, password, engines):
 
         url = "https://dpcbuild.deltares.nl/httpAuth/app/rest/projects/id:%s" % engine
 
-        engine_req = requests.get(
-            url=url, auth=HTTPBasicAuth(username, password), stream=True, verify=True
-        )
+        engine_req = get_request(url, username, password)
         try:
             xml_engine_root = ET.fromstring(engine_req.text)
         except:
@@ -379,12 +379,7 @@ def main(tbroot, given_build_config, username, password, engines):
                     "https://dpcbuild.deltares.nl/httpAuth/app/rest/projects/id:%s"
                     % project.attrib["id"]
                 )
-                level_req = requests.get(
-                    url=url,
-                    auth=HTTPBasicAuth(username, password),
-                    stream=True,
-                    verify=True,
-                )
+                level_req = get_request(url, username, password)
                 try:
                     ET.fromstring(level_req.text)
                 except:
