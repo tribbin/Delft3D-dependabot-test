@@ -9,10 +9,7 @@ import argparse
 import getpass
 import shutil
 
-# http://dpcbuild.deltares.nl/project.html?projectId=Delft3DSobek_DimrTestbench
-# http://dpcbuild.deltares.nl/project.html?projectId=DimrTestbench_DFlow1d
-# http://dpcbuild.deltares.nl/viewType.html?buildTypeId=DimrTestbench_DFlow1d_Win64
-# --tbroot Delft3DSobek_DimrTestbench --output teamcity_retrieve_daily_engine_test_status.txt --username fun_teamcity --password *******
+
 """
 Author: Jan Mooiman
 E-Mail: jan.mooiman@deltares.nl
@@ -182,7 +179,6 @@ def report_cases(url, given_build_config, username, password, buildname):
         a = 0
         b = 0
         if failed[i] != 0:
-            # if there are failed tests, search why they are failed (Comparison failed or Exception occurred)
             cnt = int(build.find("./testOccurrences").attrib["count"])
             href = build.find("./testOccurrences").attrib["href"]
             url_1 = "%s%s,count:%d" % (deltares_build, href, cnt)
@@ -198,8 +194,6 @@ def report_cases(url, given_build_config, username, password, buildname):
                 print("Text is not in XML format: %s" % testOccs_req.text)
                 return 1
             for tOcc in xml_testOccs.findall("testOccurrence"):
-                # if tOcc.attrib['status'] == 'SUCCESS':
-                # if tOcc.attrib['status'] == 'UNKNOWN':
                 if tOcc.attrib["status"] == "FAILURE":
                     href = tOcc.attrib["href"]
                     url_2 = "%s%s" % (deltares_build, href)
@@ -215,8 +209,7 @@ def report_cases(url, given_build_config, username, password, buildname):
                         print("Text is not in XML format: %s" % testOcc_req.text)
                         return 1
                     txt = xml_testOcc.find("details").text
-                    # if txt.find('Comparison failed') != -1:
-                    # if txt.find('Comparison succeeded') != -1:
+
                     try:
                         if (
                             txt.find("Exception occurred") != -1
@@ -439,14 +432,10 @@ if __name__ == "__main__":
         shutil.rmtree("TMPdownload_teamcity_retrieve")
     os.mkdir("TMPdownload_teamcity_retrieve")
 
-    # tbroot = 'DFlowFlexibleMesh'
-    # tbroot = 'Dimr_DimrTestbenchRelease'  # DIMR testbench release
-    # tbroot = 'Delft3DSobek_DimrTestbench'  # DIMR testbench daily
-
     parser = argparse.ArgumentParser(
         description="Retrieve status of a testbench running on TeamCity"
     )
-    # run_mode_group = parser.add_mutually_exclusive_group(required=False)
+
     parser.add_argument(
         "-t",
         "--tbroot",
