@@ -1,14 +1,12 @@
-import os
-import xml.etree.ElementTree as ET
-
-from datetime import datetime
-import requests
-import sys
-from requests.auth import HTTPBasicAuth
 import argparse
 import getpass
+import os
 import shutil
+import xml.etree.ElementTree as ET
+from datetime import datetime
 
+import requests
+from requests.auth import HTTPBasicAuth
 
 """
 Author: Jan Mooiman
