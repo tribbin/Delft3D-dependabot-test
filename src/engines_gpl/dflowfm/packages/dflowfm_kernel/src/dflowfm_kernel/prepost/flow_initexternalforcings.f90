@@ -29,6 +29,7 @@
 !
 !> Initializes boundaries and meteo for the current model.
 !! @return Integer result status (0 if successful)
+
 integer function flow_initexternalforcings() result(iresult)              ! This is the general hook-up to wind and boundary conditions
    use m_init_ext_forcings
    use m_alloc
