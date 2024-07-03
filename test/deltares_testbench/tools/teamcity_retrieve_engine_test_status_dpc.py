@@ -282,14 +282,12 @@ def get_configuration_info(xml_engine_root, given_build_config) -> List[Configur
         List[ConfigurationInfo]: List with configurations.
     """
     result = []
-    for build_types in xml_engine_root.findall("buildTypes"):
+    build_types = xml_engine_root.find("buildTypes")
+    if build_types:
         for build_type in build_types:
-            if len(given_build_config) != 0:
-                for i in range(len(given_build_config)):
-                    if given_build_config[i] == build_type.attrib["id"]:
-                        result.append(ConfigurationInfo(build_type.attrib["name"], build_type.attrib["id"]))
-            else:
-                result.append(ConfigurationInfo(build_type.attrib["name"], build_type.attrib["id"]))
+            build_id = build_type.attrib["id"]
+            if not given_build_config or build_id in given_build_config:
+                result.append(ConfigurationInfo(build_type.attrib["name"], build_id))
     return result
 
 
