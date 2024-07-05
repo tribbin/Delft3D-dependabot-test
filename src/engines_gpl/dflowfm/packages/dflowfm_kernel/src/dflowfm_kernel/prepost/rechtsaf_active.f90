@@ -41,8 +41,8 @@ contains
       use geometry_module, only: duitpl
       use m_sferic, only: jsferic
 
-      implicit none
-      integer :: K1, K2, K3
+      integer, intent(in) :: K1, K2, K3
+
       double precision :: sig
 
       rechtsaf_active = .false.

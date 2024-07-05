@@ -2062,15 +2062,8 @@
    end function iscounterclockwise
 
    LOGICAL FUNCTION RECHTSAF(K1,K2,K3)
-   use network_data
-   implicit none
-   integer :: K1, K2, K3
-   
-   double precision :: sig
-   
+   integer, intent(in) :: K1, K2, K3
    rechtsaf = .false.
-   return
-   
    end FUNCTION RECHTSAF
 
    SUBROUTINE CONNECTDBN(K1,K2,LNU)
