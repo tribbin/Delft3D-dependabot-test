@@ -33,12 +33,15 @@
    subroutine fm_adjust_bedload(sbn, sbt, avalan, slopecor)
    use m_physcoef, only: ag
    use m_sferic, only: pi
-   use m_flowgeom, only: lnxi, lnx, ln, kcs, ba, bl, Dx, wu_mor
+   use m_flowgeom, only: lnxi, kcs, ba, bl, Dx, wu_mor
    use m_flow, only: hu
    use m_flowtimes
    use m_turbulence, only: rhou
    use precision
-   use m_fm_erosed
+   use m_fm_erosed, only: stmpar, has_bedload, alfabn, alfabs, ashld, bshld, cshld, dm, dshld, e_dzdn, e_dzdt, alfpa, avaltime, duneavalan, fixfac
+   use m_fm_erosed, only: frac, hidexp, islope, morfac, rhosol, sedd50fld, sedd50, taurat, tratyp, ust2, wetslope, lsedtot, thcrpa
+   use m_fm_erosed, only: lnx=>lnx_mor
+   use m_fm_erosed, only: ln=>ln_mor
    use m_sediment, only: bermslopeindexbed, bermslopeindexsus
    use m_alloc
 
@@ -49,8 +52,8 @@
    !!
    logical                               ,          intent(in)           :: avalan    !<  do only once for avalanching fluxes
    logical                               ,          intent(in)           :: slopecor  !<  do only on bedload, cf UNST-7286
-   real(fp)  , dimension(1:lnx_mor,1:lsedtot),      intent(inout)        :: sbn       !<  sbcuu, sbwuu, or sswuu
-   real(fp)  , dimension(1:lnx_mor,1:lsedtot),      intent(inout)        :: sbt       !<  sbcvv, sbwvv, or sswvv
+   real(fp)  , dimension(1:lnx,1:lsedtot),      intent(inout)        :: sbn       !<  sbcuu, sbwuu, or sswuu
+   real(fp)  , dimension(1:lnx,1:lsedtot),      intent(inout)        :: sbt       !<  sbcvv, sbwvv, or sswvv
    real(fp)  , dimension(:)  ,          allocatable                      :: sbncor    !<  corrected values
    real(fp)  , dimension(:)  ,          allocatable                      :: sbtcor
    !!
@@ -67,8 +70,8 @@
    !! executable statements -------------------------------------------------------
    !
    ! n: normal to cell face, t: along cell face
-   call realloc(sbncor, lnx_mor)    ! corrected values
-   call realloc(sbtcor, lnx_mor)
+   call realloc(sbncor, lnx)    ! corrected values
+   call realloc(sbtcor, lnx)
 
    !
    ! Make assumptions for friction angle
@@ -76,7 +79,7 @@
    phi  = 30d0 / 180d0 * pi
    tphi = tan(phi)
 
-   do Lf = 1, Lnx_mor
+   do Lf = 1, Lnx
       ! for cutcell
       if (wu_mor(Lf)==0d0) cycle
       !
@@ -87,8 +90,8 @@
       endif
       !
       if (hu(Lf) > 0d0) then
-         k1 = ln_mor(1, Lf)
-         k2 = ln_mor(2, Lf)
+         k1 = ln(1, Lf)
+         k2 = ln(2, Lf)
          call getLbotLtop(Lf, Lb, Lt)
          if (Lt<Lb) cycle
          do l = 1, lsedtot
