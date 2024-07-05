@@ -37,7 +37,7 @@
 subroutine comp_nnow(k,k1in,k2in,n)
    use m_netw
    use m_landboundary
-   use m_RECHTSAF_ACTIVE
+   use m_rechtsaf_active
    
    implicit none
 
