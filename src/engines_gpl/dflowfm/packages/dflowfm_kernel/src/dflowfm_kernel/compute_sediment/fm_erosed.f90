@@ -602,7 +602,7 @@
       ! Interpolate back to links
       k1 = ln(1,L); k2 = ln(2,L)
       !       e_dzdn(L) = acl(L)*(csu(L)*dzdx(k1) + snu(L)*dzdy(k1)) + (1d0-acl(L))*(csu(L)*dzdx(k2) + snu(L)*dzdy(k2))
-      e_dzdn(L) = -dxi(L)*(bl(ln(2,L))-bl(ln(1,L)))                                                      ! more accurate near boundaries
+      e_dzdn(L) = -dxi(L)*(bl(k2)-bl(k1))                                                      ! more accurate near boundaries
       e_dzdt(L) = acl(L)*(-snu(L)*dzdx(k1) + csu(L)*dzdy(k1))+(1d0-acl(L))*(-snu(L)*dzdx(k2) + csu(L)*dzdy(k2))  ! affected near boundaries due to interpolation
    end do
    !
@@ -1236,7 +1236,7 @@
    !
    ! Distribute velocity asymmetry to links
    !
-   do L = 1, lnxi !FM1DIMP2DO inconsistency with <lnx_mor>? 
+   do L = 1, lnxi 
       k1 = ln(1,L); k2=ln(2,L)
       uau(L) = (acL(L)*ua(k1) + (1d0-acL(L))*ua(k2)) * csu(L) +   &
          (acL(L)*va(k1) + (1d0-acL(L))*va(k2)) * snu(L)
