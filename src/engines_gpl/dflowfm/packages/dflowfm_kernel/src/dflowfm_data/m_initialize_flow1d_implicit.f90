@@ -70,7 +70,7 @@ subroutine inifm1dimp_ini(iresult)
 use m_f1dimp
 use m_physcoef, only: ag, rhomean
 use m_flowgeom, only: ndx, ndxi, wu, teta, lnx, tnode, lnx1D, ln, lnxi, nd, lnx1Db
-use m_flowexternalforcings, only: nzbnd, nqbnd
+use fm_external_forcings_data, only: nzbnd, nqbnd
 use m_fm_erosed, only: nd_mor, ln_mor, ndx_mor, lnx_mor
 use unstruc_channel_flow, only: network
 use unstruc_messages
@@ -1347,7 +1347,7 @@ end subroutine inifm1dimp_fbrp
 subroutine inifm1dimp_fbc(iresult)
 
 use m_f1dimp
-use m_flowexternalforcings, only: kbndz, kbndu
+use fm_external_forcings_data, only: kbndz, kbndu
 
 implicit none
 

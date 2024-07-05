@@ -37,7 +37,7 @@ subroutine fm1dimp_update_bc(iresult,time1)
 !use m_flowparameters
 use m_flow, only: au
 use m_f1dimp, only: f1dimppar
-use m_flowexternalforcings
+use fm_external_forcings_data
 !use unstruc_channel_flow, only: network
 !use m_CrossSections, only: createTablesForTabulatedProfile
 !use unstruc_messages
