@@ -1,0 +1,42 @@
+      SUBROUTINE FNDDAT (WNDDIR, NWIND, NTIMW, ILOC, IEnd, ISTART, &
+                         IDEBUG, SYEAR, SMO, SDAY, SHOUR, SMIN, INDX)
+
+      INTEGER NWIND, NTIMW, ILOC, IT, ISTART, IEnd, IDEBUG, &
+              SYEAR, SMO, SDAY, SHOUR, SMIN, INDX
+      Double Precision WNDDIR (NWIND,NTIMW,2), TIME1, TIME2, TIMES
+
+!
+!********************************************************************
+! Find date/time in wind arrays
+!  start at index ISTART
+!  always return a positive index for which date <=searched date
+!  if date is before start of wind array, return index 1.
+! for the time being a stupid linear search (update later with Binsrc)
+!
+! March 2000:
+! - smart thing is that IStart is updated in CmpWindPrediction
+! - IStart can be different for different wind stations!
+!********************************************************************
+
+      TIMES = SYEAR*10000. +SMO*100.+SDAY +SHOUR/100.+SMIN/10000.
+
+      INDX = 1
+      IF (TIMES .LE. WNDDIR(ILOC,1,1)) GOTO 999
+
+      INDX = IEnd
+      IF (TIMES .GT. WNDDIR(ILOC,IEnd,1)) GOTO 999
+
+      DO IT=ISTART,IEnd-1
+         TIME1 = WNDDIR(ILOC,IT,1)
+         TIME2 = WNDDIR(ILOC,IT+1,1)
+         IF (TIMES .GE. TIME1 .AND. TIMES .LT. TIME2) THEN
+            INDX = IT
+            GOTO 999
+         ENDIF
+      ENDDO
+
+  999 CONTINUE
+      IF (IDEBUG .GT. 0) WRITE(IDEBUG,*) ' FNDDAT', TIMES, INDX, ISTART, IEnd
+
+      RETURN
+      END
