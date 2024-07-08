@@ -282,7 +282,6 @@ subroutine reset_flowtimes()
     dtprev       = dt_init           !< previous computational timestep (s)  (1s is a bit like sobek)
     dts          = dt_init           !< internal computational timestep (s)
     dti          = 1d0/dts           !< inverse  computational timestep (1/s)
-    !tfac         = 1d0               !< Time unit in seconds JRE: disabled, and handled in readMDU
     time0        = 0d0               !< current   julian (s) of s0
     time1        = 0d0               !< current   julian (s) of s1  ! and of course, time1 = time0 + dt
     tim1bnd      = -9d9              !< last time bnd signals were given

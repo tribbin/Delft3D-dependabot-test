@@ -130,9 +130,6 @@ subroutine comp_ntopo(L, jalandbound, k1, k2, kL, kR, icellL, icellR, ntopo)
          ntopo =  (n1L-1)**2 + (n1R-1)**2 + (n2L-1)**2 + (n2R-1)**2 + 2d0*((nL+1)**2 + (nR+1)**2) -  &
                   (n1L**2 + n1R**2 + n2L**2 + n2R**2 + 2d0*(nL**2 + nR**2) )
 
-         if ( n1L.ne.n1R .or. n2L.ne.n2R ) then
-            continue
-         end if
       end if
    end if
 

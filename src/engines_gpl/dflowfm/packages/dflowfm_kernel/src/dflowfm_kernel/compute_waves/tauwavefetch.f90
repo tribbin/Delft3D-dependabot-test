@@ -524,7 +524,7 @@ end subroutine calculate_fetch_values
 
 !> get phiwav values    
 subroutine get_phiwav_values()
-use m_sediment, only : phiwav
+use m_waves, only : phiwav
 use m_flowgeom
 use m_flow
 use m_sferic, only : pi 
@@ -544,13 +544,13 @@ do link = 1, lnx
    wyc(k1) = wyc(k1) + wcL(1,link)*wy(link)
    wyc(k2) = wyc(k2) + wcL(2,link)*wy(link)  
 enddo   
-phiwav = atan2(wyc,wxc)*180d0/pi    
+phiwav = atan2(wyc,wxc)*180d0/pi
 
 end subroutine get_phiwav_values
 
-!> copy values to boundary nodes     
+!> copy values to boundary nodes
 subroutine copy_values_to_boundary_nodes()
-use m_sediment, only : phiwav, rlabda
+use m_waves, only : phiwav, rlabda
 use m_flowgeom
 use m_flow
 use m_waves, only: uorb, twav, hwav

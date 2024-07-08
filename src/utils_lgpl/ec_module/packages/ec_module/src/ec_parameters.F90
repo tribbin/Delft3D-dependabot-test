@@ -110,6 +110,7 @@ module m_ec_parameters
    integer, parameter :: accessType_evaluate      = 4
 
    ! enumeration for interpolation types
+   ! JRE to do offline wave
    integer, parameter :: interpolate_unknown                    = 0 !< type is uninitialized
    integer, parameter :: interpolate_passthrough                = 1 !< no interpolation is performed
    integer, parameter :: interpolate_timespace                  = 2 !< interpolate in time, then in space

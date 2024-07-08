@@ -3784,7 +3784,9 @@ end subroutine partition_make_globalnumbers
       double precision, dimension(numobs,numvals), intent(inout) :: valobs       !< values at obervations stations to be output.
       
       double precision, parameter                                :: dsmall = -huge(1d0)
+      
       integer                                                    :: iobs, ival
+      
       integer                                                    :: ierror
       
 #ifdef HAVE_MPI
@@ -3882,6 +3884,7 @@ end subroutine partition_make_globalnumbers
 #ifdef HAVE_MPI
       call MPI_allreduce(srsn,srsn_all,numsrc*NUMVALS,mpi_double_precision,mpi_sum,DFM_COMM_DFMWORLD,ierror)
       srsn = srsn_all
+      
 #endif
       return
    end subroutine reduce_srsn
@@ -6620,7 +6623,7 @@ end module m_partitioninfo
    
 !> see if a discharge boundary is partitioned and set japartqbnd
    subroutine set_japartqbnd()
-      use fm_external_forcings_data
+      use m_flowexternalforcings
       use m_partitioninfo
 #ifdef HAVE_MPI
       use mpi

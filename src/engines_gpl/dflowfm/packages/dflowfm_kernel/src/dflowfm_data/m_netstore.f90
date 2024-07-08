@@ -159,10 +159,6 @@ contains
          icell = ip_st(i)
          N     = netcell(icell)%N
 
-         if ( icell.eq.5005 ) then
-            continue
-         end if
-
    !     store cell data
          netcell_st(i)%lin(1:N) = netcell(icell)%lin(1:N)
          netcell_st(i)%nod(1:N) = netcell(icell)%nod(1:N)

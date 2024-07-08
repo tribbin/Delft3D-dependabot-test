@@ -556,8 +556,8 @@ integer                            :: javau3onbnd = 0   !< vert. adv. u1 bnd Upw
  integer                           :: jamapwav_phiwav           !< output waves to map file for variable phiwav, 0: no, 1: yes
  integer                           :: jamapwav_sxwav            !< output waves to map file for variable sxwav,  0: no, 1: yes
  integer                           :: jamapwav_sywav            !< output waves to map file for variable sywav,  0: no, 1: yes
- integer                           :: jamapwav_sxbwav           !< output waves to map file for variable sxbwav, 0: no, 1: yes
- integer                           :: jamapwav_sybwav           !< output waves to map file for variable sybwav, 0: no, 1: yes
+ integer                           :: jamapwav_sbxwav           !< output waves to map file for variable sxbwav, 0: no, 1: yes
+ integer                           :: jamapwav_sbywav           !< output waves to map file for variable sybwav, 0: no, 1: yes
  integer                           :: jamapwav_mxwav            !< output waves to map file for variable mxwav,  0: no, 1: yes
  integer                           :: jamapwav_mywav            !< output waves to map file for variable mywav,  0: no, 1: yes
  integer                           :: jamapwav_dsurf            !< output waves to map file for variable dsurf,  0: no, 1: yes

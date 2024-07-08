@@ -241,7 +241,7 @@ module m_ec_provider
 
       !> Initialize a new FileReader, by constructing the complete tree of source Items.
       !! On the opposite end of the EC-module is a kernel, which constructs the complete tree of target Items.
-      recursive function ecProviderInitializeFileReader(instancePtr, fileReaderId, fileType, fileName, refdat, tzone, tsunit, quantityName, forcingFile, dtnodal, varname) result(success)
+      recursive function ecProviderInitializeFileReader(instancePtr, fileReaderId, fileType, fileName, refdat, tzone, tsunit, quantityName, forcingFile, dtnodal, varname, varname2) result(success)
          logical                                :: success      !< function status
          type(tEcInstance),          pointer    :: instancePtr  !< intent(in)
          integer,                    intent(in) :: fileReaderId !< unique FileReader id
@@ -254,6 +254,7 @@ module m_ec_provider
          character(len=*), optional, intent(in) :: forcingFile  !< name of the forcing file (if quantityName is given)
          real(kind=hp),    optional, intent(in) :: dtnodal      !< Nodal factors update interval
          character(len=*), optional, intent(in) :: varname      !< variable name within filename
+         character(len=*), optional, intent(in) :: varname2     !< variable name 2 within filename
          !
          type(tEcFileReader), pointer  :: fileReaderPtr  !< FileReader corresponding to fileReaderId
          character(len=:), allocatable :: l_quantityName !< local string with quantityName
@@ -274,29 +275,34 @@ module m_ec_provider
 
             if (.not. ecSupportOpenExistingFile(fileReaderPtr%fileHandle, fileReaderPtr%fileName)) return
             select case (fileReaderPtr%ofType)                 ! Inventory of the opened netcdf-file
-            case (provFile_netcdf)
-               if (.not. ecProviderNetcdfReadvars(fileReaderPtr)) then
-                  ! todo: error handling with message
-                  return
-               end if
-               if (size(fileReaderPtr%dim_length)>=5) then
-                  if (fileReaderPtr%relndx>fileReaderPtr%dim_length(3)) then
-                     call setECMessage("ERROR: ec_provider::ecProviderInitializeFileReader: Number of realization is outside the ensemble size.")
+               case (provFile_netcdf)
+                  if (.not. ecProviderNetcdfReadvars(fileReaderPtr)) then
+                     ! todo: error handling with message
                      return
                   end if
-               end if
+                  if (size(fileReaderPtr%dim_length)>=5) then
+                     if (fileReaderPtr%relndx>fileReaderPtr%dim_length(3)) then
+                        call setECMessage("ERROR: ec_provider::ecProviderInitializeFileReader: Number of realization is outside the ensemble size.")
+                        return
+                     end if
+                  end if
             end select
 
             if(present(dtnodal)) then
                if (.not. ecProviderInitializeTimeFrame(fileReaderPtr, refdat, tzone, tsunit, dtnodal)) return
             else
-               if (.not. ecProviderInitializeTimeFrame(fileReaderPtr, refdat, tzone, tsunit)) return
+               if (.not. ecProviderInitializeTimeFrame(fileReaderPtr, refdat, tzone, tsunit)) return       ! 25 timesteps, okay
             end if
 
             fileReaderPtr%nItems = 0
 
             ! Create source Items and their contained types, based on file type and file header.
-            if (present(quantityName) .and. present(varname)) then
+            
+            ! JRE to do offline waves
+            if (present(quantityName) .and. present(varname) .and. present(varname2)) then
+               l_quantityName = trim(quantityName)
+               if (.not. ecProviderCreateItems(instancePtr, fileReaderPtr, forcingFile, l_quantityName, varname, varname2)) return
+            else if (present(quantityName) .and. present(varname)) then
                l_quantityName = trim(quantityName)
                if (.not. ecProviderCreateItems(instancePtr, fileReaderPtr, forcingFile, l_quantityName, varname)) return
             else if (present(quantityName)) then
@@ -315,7 +321,7 @@ module m_ec_provider
       ! =======================================================================
 
       !> Create source Items and their contained types, based on file type and file header.
-      function ecProviderCreateItems(instancePtr, fileReaderPtr, bctfilename, quantityname, varname) result(success)
+      function ecProviderCreateItems(instancePtr, fileReaderPtr, bctfilename, quantityname, varname, varname2) result(success)
          logical                         :: success          !< function status
          type(tEcInstance),     pointer  :: instancePtr      !< intent(in)
          type(tEcFileReader),   pointer  :: fileReaderPtr    !< intent(inout)
@@ -323,6 +329,7 @@ module m_ec_provider
                                                              !< but also for bct-file
          character(len=*), intent(in), optional :: bctfilename      !< file name of bct-file with data
          character(len=*), intent(in), optional :: varname          !< variable name within filename
+         character(len=*), intent(in), optional :: varname2         !< variable name 2 within filename
          !
          success = .false.
          select case(fileReaderPtr%ofType)
@@ -383,9 +390,9 @@ module m_ec_provider
                            "dewpoint_airtemperature_cloudiness_solarradiation",           &
                            "sea_ice_area_fraction", "sea_ice_thickness",                  &
                            "solarradiation", "longwaveradiation", "wavesignificantheight", &
-                           "waveperiod", "friction_coefficient_time_dependent", "wavedirection", &
+                           "waveperiod", "wavedirection","friction_coefficient_time_dependent", &
                            "xwaveforce", "ywaveforce", &
-                           "freesurfacedissipation","whitecappingdissipation","totalwaveenergydissipation")
+                           "wavebreakerdissipation","whitecappingdissipation","totalwaveenergydissipation")
                         success = ecProviderCreateNetcdfItems(instancePtr, fileReaderPtr, quantityname, varname)
                      case ("hrms","tp", "tps", "rtp","dir","fx","fy","wsbu","wsbv","mx","my","dissurf","diswcap","ubot")
                         success = ecProviderCreateWaveNetcdfItems(instancePtr, fileReaderPtr, quantityname)
@@ -405,8 +412,6 @@ module m_ec_provider
                else
                   call setECMessage("ERROR: ec_provider::ecProviderCreateItems: NetCDF requires a quantity name.")
                end if
-            case (provFile_t3D)
-               success = ecProviderCreatet3DItems(instancePtr, fileReaderPtr)
             case default
                call setECMessage("ERROR: ec_provider::ecProviderCreateItems: Unknown file type.")
          end select
@@ -2648,23 +2653,25 @@ module m_ec_provider
          case ('wavedirection')
              ncvarnames(1) = 'theta0'
              ncstdnames(1) = 'sea_surface_wave_from_direction'
+             ncvarnames(2) = 'hs'
+             ncstdnames(2) = 'sea_surface_wave_significant_height'
          case ('xwaveforce')
              ncvarnames(1) = 'xfor'
-             ncstdnames(1) = 'xfor'
+             ncstdnames(1) = 'eastward_wave_force'
          case ('ywaveforce')
              ncvarnames(1) = 'yfor'
-             ncstdnames(1) = 'yfor'
-         case ('freesurfacedissipation')
+             ncstdnames(1) = 'northward_wave_force'
+         case ('wavebreakerdissipation')
              ncvarnames(1) = 'ssurf'
-             ncstdnames(1) = 'ssurf'
+             ncstdnames(1) = 'depth_induced_surf_breaking_energy_dissipation'
          case ('whitecappingdissipation')
              ncvarnames(1) = 'swcap'
-             ncstdnames(1) = 'swcap'
+             ncstdnames(1) = 'whitecapping_energy_dissipation'
          case ('totalwaveenergydissipation')
-             ncvarnames(1) = varname
-             ncstdnames(1) = varname    
-             case default                                        ! experiment: gather miscellaneous variables from an NC-file,
-             if (index(quantityName,'waqsegmentfunction')==1) then
+             ncvarnames(1) = 'dissip'
+             ncstdnames(1) = 'total_energy_dissipation'    
+         case default                                        ! experiment: gather miscellaneous variables from an NC-file,
+            if (index(quantityName,'waqsegmentfunction')==1) then
                  ncvarnames(1) = quantityName
                ncstdnames(1) = quantityName
             else if (index(quantityName,'initialtracer')==1) then
@@ -2744,7 +2751,7 @@ module m_ec_provider
             allocate(dimids(ndims))
             ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, idvar, dimids=dimids)! get dimension ID's
 
-            do idims = 1,ndims
+            do idims = 1,ndims    ! JRE to check
                coordids(idims) = fileReaderPtr%dim_varids(dimids(idims))
             enddo
 
@@ -2971,16 +2978,17 @@ module m_ec_provider
                   nrel = 0
                endif
 
+               ! this goes wrong when time is defined before space in nc file
                if (grid_type == elmSetType_samples) then
                   ncol = fileReaderPtr%dim_length(dimids(1))
                   nrow = 1
                   nlay = crd_dimlen(1,3)
                else
-                  ncol = fileReaderPtr%dim_length(dimids(1))
+                  ncol = fileReaderPtr%dim_length(fileReaderPtr%lonx_id)
                   nrow = 1
                   nlay = 0
                   if (size(dimids) >= 2) then
-                     nrow = fileReaderPtr%dim_length(dimids(2))
+                     nrow = fileReaderPtr%dim_length(fileReaderPtr%laty_id)
                      if (size(dimids) > 3+dim_offset) then
                         nlay = fileReaderPtr%dim_length(dimids(3+dim_offset))
                      endif
@@ -3910,12 +3918,25 @@ module m_ec_provider
 
    ierror = nf90_inquire(fileReaderPtr%fileHandle,nDimensions=ndim)
    if (ndim>0) then
+      dim_name=''
       allocate(fileReaderPtr%dim_length(ndim))
       allocate(fileReaderPtr%dim_varids(ndim))
       fileReaderPtr%dim_varids = -1
       fileReaderPtr%dim_length = -1
+      fileReaderPtr%time_id = -1
+      fileReaderPtr%lonx_id = -1
+      fileReaderPtr%laty_id = -1
+      
       do idim = 1,ndim
          ierror = nf90_inquire_dimension(fileReaderPtr%fileHandle,idim,len=fileReaderPtr%dim_length(idim))
+         ierror = nf90_inquire_dimension(fileReaderPtr%fileHandle,idim,name=dim_name)
+         ! Find dimension matching columns and rows
+         select case (trim(dim_name))
+            case ('x','longitude','projected_x','xc','grid_longitude','projection_x_coordinate')
+               fileReaderPtr%lonx_id = idim
+            case ('y','latitude','projected_y','yc','grid_latitude','projection_y_coordinate')
+               fileReaderPtr%laty_id = idim
+         end select
       end do   ! idim
    else
       ! no dimensions in the file or netcdf inquiry error .... handle exception
@@ -3925,8 +3946,6 @@ module m_ec_provider
    ! Collects names and standard names of variables in the netcdf as well as the varids associated with dimids
    ! The latter is used later to guess coordinates belonging to a variable
    if (nvar>0) then
-!     allocate(fileReaderPtr%standard_names(nvar))          ! Note: one of these may be obsolete (if we only check standard names)
-!     allocate(fileReaderPtr%variable_names(nvar))
       call realloc(fileReaderPtr%standard_names,nvar)       ! Note: one of these may be obsolete (if we only check standard names)
       call realloc(fileReaderPtr%variable_names,nvar)
       fileReaderPtr%standard_names = ''
@@ -3940,7 +3959,7 @@ module m_ec_provider
          ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, ivar, nDims=ndim)
          dim_name=''
          name_len=0
-         if (ndim==1) then                     ! Is this variable a coordinate variable
+         if (ndim==1) then                     ! Is this variable a 1D coordinate variable
              ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, ivar, dimids=dimid)
              ierror = nf90_inquire_dimension(fileReaderPtr%fileHandle,dimid(1),name=dim_name,len=dim_size)
              call str_lower(dim_name)

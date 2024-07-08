@@ -59,16 +59,8 @@ subroutine comp_curv(num, xsp, ysp, xsp2, ysp2, s, curv, dnx, dny, dsx, dsy)
    iL = max(min(int(s)+1,num-1),1)
    iR = max(iL+1,1)
 
-   if ( iL-1.gt.s .or. iR-1.lt.s ) then
-      continue
-   end if
-
    A  = dble(iR-1) - s
    B  = s - dble(iL-1)
-
-   if ( A+B.ne.1d0 ) then
-      continue
-   end if
 
    call splint(xsp,xsp2,num,s,x)
    call splint(ysp,ysp2,num,s,y)

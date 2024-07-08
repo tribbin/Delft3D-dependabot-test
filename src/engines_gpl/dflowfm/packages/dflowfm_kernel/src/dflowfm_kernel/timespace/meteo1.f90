@@ -34,6 +34,50 @@ module m_itdate
    double precision :: Tzone ! doubling with "use m_flowtimes, only : tzone"
    end module m_itdate
 
+  integer, parameter :: max_file_types                 = 103 !  max nr of supported types for end user in ext file.
+  ! Enumeration for file types of sub-providers (not directly in ext file)
+  integer, parameter :: fourier                        = 101 ! period(hrs), ampl(m), phas(deg) NOTE: not directly used in ext file by users.
+  integer, parameter :: multiple_uni                   = 102 ! multiple time series, no spatial relation 
+  integer, parameter :: qhtable                        = 103 ! used to link to dataprovider file
+
+  ! het filetype legt vast  :  a) format file
+  !                            b) vectormax van grootheid / heden in file
+  !                            c) elementset waarop grootheid is gedefinieerd
+  !                            d) is daarmee bepalend voor de toepasbare interpolatiemethodes
+  !
+
+
+  ! Enumeration for location specification types (used in selectelset_internal_nodes).
+  integer, parameter :: LOCTP_UNKNOWN                  = -1 !< Undefined location specification type.
+  integer, parameter :: LOCTP_POLYGON_FILE             = 10 !< A polygon input file used for inside-polygon check.
+  integer, parameter :: LOCTP_POLYGON_XY               = 11 !< x/y arrays containing a polygon used for inside-polygon check.
+  integer, parameter :: LOCTP_POLYLINE_FILE            = 12 !< A polyline input file used for link-crosses-polyline check.
+  integer, parameter :: LOCTP_POLYLINE_XY              = 13 !< x/y arrays containing a polyline used for link-crosses-polyline check.
+  integer, parameter :: LOCTP_BRANCHID_CHAINAGE        = 14 !< branchid+chainage combination to select the 1D grid point closest to that network branch location.
+  integer, parameter :: LOCTP_NODEID                   = 15 !< nodeid to select the 1D grid point closest to the network point with that nodeId.
+  integer, parameter :: LOCTP_CONTACTID                = 16 !< contactid to select the 1D flow link corresponding with that contactId.
+
+  integer            :: mdia                           =  0 !  -1  ! -1 = write dia, 0 = do not write dia
+
+  ! enumeration for interpolation methods of providers
+
+  integer, parameter :: justupdate                     =  0  ! provider just updates, another provider that
+                                                             ! pointers to this one does the actual interpolation
+  integer, parameter :: spaceandtime                   =  1  ! intp space and time (getval)
+                                                             ! keep  2 meteofields in memory
+  integer, parameter :: spacefirst                     =  2  ! first intp space (update), next intp. time (getval)
+                                                             ! keep 2 flowfields in memory
+  integer, parameter :: weightfactors                  =  3  ! save weightfactors, intp space and time (getval)
+                                                             ! keep 2 pointer- and weight sets in memory
+
+end module timespace_parameters
+
+
+
+    
+    
+    
+
 
 ! ==========================================================================
 
@@ -783,7 +827,6 @@ contains
    use m_find_flownode, only: find_nearest_flownodes_kdtree
    
    implicit none
-   
    integer          :: i1, i2, j1, j2, k, k1, LL, i, j, iL, iR, ierr
    integer, save    :: ini = 0
    double precision :: alf, x, y
@@ -7153,11 +7196,14 @@ module m_meteo
             jamapwav_hwav = 1
          case ('tp', 'tps', 'rtp', 'waveperiod')
             itemPtr1 => item_tp
-            dataPtr1 => twav
+            dataPtr1 => twavcom
             jamapwav_twav = 1
          case ('dir', 'wavedirection')
             itemPtr1 => item_dir
             dataPtr1 => phiwav
+            ! wave height needed as the weighting factor for direction interpolation
+            itemPtr2 => item_hrms
+            dataPtr2 => hwavcom
             jamapwav_phiwav = 1
          case ('fx','xwaveforce')
             itemPtr1 => item_fx
@@ -7170,11 +7216,11 @@ module m_meteo
         case ('wsbu')
             itemPtr1 => item_wsbu
             dataPtr1 => sbxwav
-            jamapwav_sxbwav = 1
+            jamapwav_sbxwav = 1
          case ('wsbv')
             itemPtr1 => item_wsbv
             dataPtr1 => sbywav
-            jamapwav_sybwav = 1
+            jamapwav_sbywav = 1
          case ('mx')
             itemPtr1 => item_mx
             dataPtr1 => mxwav
@@ -7183,7 +7229,7 @@ module m_meteo
             itemPtr1 => item_my
             dataPtr1 => mywav
             jamapwav_mywav = 1
-         case ('dissurf','freesurfacedissipation')
+         case ('dissurf','wavebreakerdissipation')
             itemPtr1 => item_dissurf
             dataPtr1 => dsurf
             jamapwav_dsurf = 1
@@ -7346,7 +7392,7 @@ module m_meteo
    !> Replacement function for FM's meteo1 'addtimespacerelation' function.
    logical function ec_addtimespacerelation(name, x, y, mask, vectormax, filename, filetype, method, operand, &
                                             xyen, z, pzmin, pzmax, pkbot, pktop, targetIndex, forcingfile, srcmaskfile, &
-                                            dtnodal, quiet, varname, maxSearchRadius, targetMaskSelect, &
+                                            dtnodal, quiet, varname, varname2, maxSearchRadius, targetMaskSelect, &
                                             tgt_data1, tgt_data2, tgt_data3, tgt_data4,  &
                                             tgt_item1, tgt_item2, tgt_item3, tgt_item4,  &
                                             multuni1,  multuni2,  multuni3,  multuni4)
@@ -7381,6 +7427,7 @@ module m_meteo
       real(hp),               optional, intent(in)            :: dtnodal         !< update interval for nodal factors
       logical,                optional, intent(in)            :: quiet           !< When .true., in case of errors, do not write the errors to screen/dia at the end of the routine.
       character(len=*),       optional, intent(in)            :: varname         !< variable name within filename
+      character(len=*),       optional, intent(in)            :: varname2        !< variable name within filename
       real(hp),               optional, intent(in)            :: maxSearchRadius !< max search radius in case method==11
       character(len=1),       optional, intent(in)            :: targetMaskSelect !< 'i'nside (default) or 'o'utside mask polygons
       real(hp), dimension(:), optional, pointer               :: tgt_data1       !< optional pointer to the storage location for target data 1 field
@@ -7551,7 +7598,11 @@ module m_meteo
                   if (present(dtnodal)) then
                      success = ecSetFileReaderProperties(ecInstancePtr, fileReaderId, ec_filetype, filename, refdate_mjd, tzone, ec_second, name, dtnodal=dtnodal/86400.d0, varname=varname)
                   else
+                     if (present(varname2)) then
+                        success = ecSetFileReaderProperties(ecInstancePtr, fileReaderId, ec_filetype, filename, refdate_mjd, tzone, ec_second, name, varname=varname, varname2=varname2)
+                     else
                      success = ecSetFileReaderProperties(ecInstancePtr, fileReaderId, ec_filetype, filename, refdate_mjd, tzone, ec_second, name, varname=varname)
+                  end if
                   end if
                   if (.not. success) then
                      ! message = ecGetMessage()
@@ -7969,9 +8020,9 @@ module m_meteo
                 ! wave data is read from a com.nc file produced by D-Waves which contains one time field only
                 fileReaderPtr%one_time_field = .true.
             endif
-            case ('wavesignificantheight', 'waveperiod', 'wavedirection', 'xwaveforce', 'ywaveforce', &
-                  'freesurfacedissipation','whitecappingdissipation', 'totalwaveenergydissipation')
-             ! the name of the source item created by the file reader will be the same as the ext.force. quant name
+         case ('wavesignificantheight', 'waveperiod', 'xwaveforce', 'ywaveforce', &
+               'wavebreakerdissipation','whitecappingdissipation', 'totalwaveenergydissipation')
+            ! the name of the source item created by the file reader will be the same as the ext.force. var name
             sourceItemName = varname
          case ('airpressure', 'atmosphericpressure')
             if (ec_filetype == provFile_arcinfo) then
@@ -8335,10 +8386,9 @@ module m_meteo
             end if
          case ('cloudiness')
             if (ec_filetype == provFile_netcdf) then
-               sourceItemName = 'cloud_area_fraction'
+            sourceItemName = 'cloud_area_fraction'
             else
                sourceItemName = 'cloudiness'
-            end if
          case ('airdensity')
             if (ec_filetype == provFile_netcdf) then
                sourceItemId   = ecFindItemInFileReader(ecInstancePtr, fileReaderId, 'air_density')
@@ -8616,6 +8666,9 @@ module m_meteo
       end if
       if (trim(group_name) == 'bedrock_surface_elevation') then
          if (.not.ec_gettimespacevalue_by_itemID(instancePtr, item_subsiduplift, irefdate, tzone, tunit, timesteps)) return
+      end if
+      if (index(group_name, 'wavedirection') == 1) then
+         if (.not.ec_gettimespacevalue_by_itemID(instancePtr, item_dir, irefdate, tzone, tunit, timesteps)) return
       end if
       success = .true.
    end function ec_gettimespacevalue_by_name

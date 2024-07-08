@@ -30,7 +30,7 @@ subroutine wave_forces(    dir       ,tp        ,fxhis                , &
                          & fyhis     ,dish      ,diss      ,wavel     , &
                          & water_is_too_shallow_or_waves_are_too_small, &
                          & fx        ,fy                              , &
-                         & swdis     ,grav      ,wsbodyu   , wsbodyv   )
+                         & swdis     ,grav      ,wsbodyx   , wsbodyy   )
     !!--description-----------------------------------------------------------------
     !
     !     Input:
@@ -43,42 +43,45 @@ subroutine wave_forces(    dir       ,tp        ,fxhis                , &
     !
     !     Output:
     !     --------
-    !     FX,FY,wsbodyu,wsbodyv
+    !     FX,FY,wsbodyx,wsbodyy
     !     FX,FY : wave forces based on gradients(1) or total dissipation(2) or 3d dissipation(3)
     !             Unit: N/m2
     !
     !!--pseudo code and references--------------------------------------------------
     ! NONE
     !!--declarations----------------------------------------------------------------
+    use precision
     implicit none
     !
     ! Global variables
     !
     logical, intent(in   )  :: water_is_too_shallow_or_waves_are_too_small
     integer, intent(in   )  :: swdis
-    real   , intent(in   )  :: dir
-    real   , intent(in   )  :: dish
-    real   , intent(in   )  :: diss
-    real   , intent(  out)  :: fx
-    real   , intent(in   )  :: fxhis
-    real   , intent(  out)  :: fy
-    real   , intent(in   )  :: fyhis
-    real   , intent(in   )  :: grav
-    real   , intent(in   )  :: tp
-    real   , intent(in   )  :: wavel
-    real   , intent(  out)  :: wsbodyu
-    real   , intent(  out)  :: wsbodyv
+    real(hp),intent(in   )  :: dir
+    real(hp),intent(in   )  :: dish
+    real(hp),intent(in   )  :: diss
+    real(hp),intent(  out)  :: fx
+    real(hp),intent(in   )  :: fxhis
+    real(hp),intent(  out)  :: fy
+    real(hp),intent(in   )  :: fyhis
+    real(hp),intent(in   )  :: grav
+    real(hp),intent(in   )  :: tp
+    real(hp),intent(in   )  :: wavel
+    real(hp),intent(  out)  :: wsbodyx
+    real(hp),intent(  out)  :: wsbodyy
     !
     ! Local variables
     !
-    real    :: frc
-    real    :: tr_angle
+    real(hp)    :: frc
+    real(hp)    :: tr_angle
     !
     !! executable statements -------------------------------------------------------
     !
     if (water_is_too_shallow_or_waves_are_too_small) then
-        fx    = 0.0
-        fy    = 0.0
+        fx      = 0.0
+        fy      = 0.0
+        wsbodyx = 0.0
+        wsbodyy = 0.0
     else
         if (swdis == 1) then
             !
@@ -86,8 +89,8 @@ subroutine wave_forces(    dir       ,tp        ,fxhis                , &
             !
             fx      = fxhis
             fy      = fyhis
-            wsbodyu = 0.0
-            wsbodyv = 0.0
+            wsbodyx = 0.0
+            wsbodyy = 0.0
         elseif (swdis == 2) then
             !
             ! Determine wave forces based on dissipation
@@ -97,8 +100,8 @@ subroutine wave_forces(    dir       ,tp        ,fxhis                , &
             tr_angle = 0.0174533*dir
             fx       = cos(tr_angle)*frc
             fy       = sin(tr_angle)*frc
-            wsbodyu  = 0.0
-            wsbodyv  = 0.0
+            wsbodyx  = 0.0
+            wsbodyy  = 0.0
         elseif (swdis == 3) then
             !
             ! Determine wave forces based on dissipation at the free surface
@@ -110,8 +113,8 @@ subroutine wave_forces(    dir       ,tp        ,fxhis                , &
             tr_angle = 0.0174533*dir
             fx       = cos(tr_angle)*frc
             fy       = sin(tr_angle)*frc
-            wsbodyu = fxhis - fx
-            wsbodyv = fyhis - fy
+            wsbodyx = fxhis - fx
+            wsbodyy = fyhis - fy
         else
         endif
     endif

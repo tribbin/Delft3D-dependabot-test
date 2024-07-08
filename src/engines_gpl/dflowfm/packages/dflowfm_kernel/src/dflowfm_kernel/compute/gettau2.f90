@@ -70,7 +70,8 @@ subroutine gettau2(n,taucurc,czc,ustw2,jawaveswartdelwaq_par)
          else
             ust = ust + taubxu(LL)*ar
          endif
-         z00 = z00 + ar*hu(LL)*exp(-1d0 - vonkar*cz/sag)   ! z0ucur, to avoid double counting
+         !z00 = z00 + ar*hu(LL)*exp(-1d0 - vonkar*cz/sag)   ! z0ucur, to avoid double counting
+         z00 = z00 + ar*z0ucur(LL)   ! z0ucur, to avoid double counting
       endif
    enddo
    if (wa > 0d0) then

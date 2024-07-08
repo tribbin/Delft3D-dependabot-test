@@ -441,8 +441,8 @@ type t_unc_mapids
    integer :: id_mfluff(MAX_ID_VAR)     = -1
    integer :: id_sxwav  (MAX_ID_VAR)    = -1
    integer :: id_sywav  (MAX_ID_VAR)    = -1
-   integer :: id_sxbwav (MAX_ID_VAR)    = -1
-   integer :: id_sybwav (MAX_ID_VAR)    = -1
+   integer :: id_sbxwav (MAX_ID_VAR)    = -1
+   integer :: id_sbywav (MAX_ID_VAR)    = -1
    integer :: id_z0c(MAX_ID_VAR)        = -1
    integer :: id_z0r(MAX_ID_VAR)        = -1
    integer :: id_dtcell (MAX_ID_VAR)    = -1
@@ -6157,9 +6157,9 @@ subroutine unc_write_map_filepointer_ugrid(mapids, tim, jabndnd) ! wrimap
             ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_zk , nc_precision, UNC_LOC_CN,'netnode_bedlevel_zk', ''      , 'Flow element corner bedlevel (zk)'                          , 'm', jabndnd=jabndnd_)
          endif
       endif
-
+      
       if (jamapwav>0) then
-         if (flowWithoutWaves) then      ! Check the external forcing wave quantities and their associated arrays
+         if (1) then      ! Check the external forcing wave quantities and their associated arrays
             if (jamapwav_hwav > 0      .and. allocated(hwav)) then
                if (jamapsigwav==0) then
                   ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_hwav     , nc_precision, UNC_LOC_S, 'hwav'         , 'sea_surface_wave_rms_height'          , 'RMS wave height'          , 'm'    , jabndnd=jabndnd_) ! not CF
@@ -6179,11 +6179,11 @@ subroutine unc_write_map_filepointer_ugrid(mapids, tim, jabndnd) ! wrimap
             if (jamapwav_sywav > 0  .and. allocated(sywav)) then
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sywav       , nc_precision, UNC_LOC_S, 'sywav' , 'sea_surface_y_wave_force_surface', 'Surface layer wave forcing term, y-component'   , 'N m-2', jabndnd=jabndnd_) ! not CF
             endif
-            if (jamapwav_sxbwav > 0 .and. allocated(sbxwav)) then
-               ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sxbwav      , nc_precision, UNC_LOC_S, 'sxbwav', 'sea_surface_x_wave_force_bottom' , 'Bottom layer wave forcing term, x-component'    , 'N m-2', jabndnd=jabndnd_) ! not CF
+            if (jamapwav_sbxwav > 0 .and. allocated(sbxwav)) then
+               ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sbxwav      , nc_precision, UNC_LOC_S, 'sbxwav', 'sea_surface_x_wave_force_body' , 'Water body wave forcing term, x-component'    , 'N m-2', jabndnd=jabndnd_) ! not CF
             endif
-            if (jamapwav_sybwav > 0 .and. allocated(sbywav)) then
-               ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sybwav      , nc_precision, UNC_LOC_S, 'sybwav', 'sea_surface_y_wave_force_bottom' , 'Bottom layer wave forcing term, y-component'    , 'N m-2', jabndnd=jabndnd_) ! not CF
+            if (jamapwav_sbywav > 0 .and. allocated(sbywav)) then
+               ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sbywav      , nc_precision, UNC_LOC_S, 'sbywav', 'sea_surface_y_wave_force_body' , 'Water body wave forcing term, y-component'    , 'N m-2', jabndnd=jabndnd_) ! not CF
             endif
             if (jamapwav_mxwav > 0  .and. allocated(mxwav)) then
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_mxwav       , nc_precision, UNC_LOC_S, 'mx' , '', 'Wave-induced volume flux in x-direction'   , 'm3 s-1 m-1', jabndnd=jabndnd_) ! not CF
@@ -6237,8 +6237,8 @@ subroutine unc_write_map_filepointer_ugrid(mapids, tim, jabndnd) ! wrimap
             if ((jawave==3 .or. jawave==4).and. kmx>0) then
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sxwav       , nc_precision, UNC_LOC_S, 'sxwav' , 'sea_surface_x_wave_force_surface', 'Surface layer wave forcing term, x-component'   , 'N m-2', jabndnd=jabndnd_) ! not CF
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sywav       , nc_precision, UNC_LOC_S, 'sywav' , 'sea_surface_y_wave_force_surface', 'Surface layer wave forcing term, y-component'   , 'N m-2', jabndnd=jabndnd_) ! not CF
-               ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sxbwav      , nc_precision, UNC_LOC_S, 'sxbwav', 'sea_surface_x_wave_force_bottom' , 'Water body wave forcing term, x-component'    , 'N m-2', jabndnd=jabndnd_) ! not CF
-               ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sybwav      , nc_precision, UNC_LOC_S, 'sybwav', 'sea_surface_y_wave_force_bottom' , 'Water body wave forcing term, y-component'    , 'N m-2', jabndnd=jabndnd_) ! not CF
+               ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sbxwav      , nc_precision, UNC_LOC_S, 'sxbwav', 'sea_surface_x_wave_force_body' , 'Water body wave forcing term, x-component'    , 'N m-2', jabndnd=jabndnd_) ! not CF
+               ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sbywav      , nc_precision, UNC_LOC_S, 'sybwav', 'sea_surface_y_wave_force_body' , 'Water body wave forcing term, y-component'    , 'N m-2', jabndnd=jabndnd_) ! not CF
             endif
 
             if (jawave .gt. 0) then
@@ -7534,7 +7534,7 @@ if (jamapsed > 0 .and. jased > 0 .and. stm_included) then
    endif
 
    if (jamapwav>0) then
-      if (flowWithoutWaves) then      ! Check the external forcing wave quantities and their associated arrays
+      if (1) then      ! Check the external forcing wave quantities and their associated arrays
          if (jamapwav_hwav > 0      .and. allocated(hwav)) then
             if (jamapsigwav==0) then
                wavfac = 1d0
@@ -7560,11 +7560,11 @@ if (jamapsed > 0 .and. jased > 0 .and. stm_included) then
          if (jamapwav_sywav > 0  .and. allocated(sywav)) then
             ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sywav       , UNC_LOC_S, sywav, jabndnd=jabndnd_)
          endif
-         if (jamapwav_sxbwav > 0 .and. allocated(sbxwav)) then
-            ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sxbwav      , UNC_LOC_S, sbxwav, jabndnd=jabndnd_)
+         if (jamapwav_sbxwav > 0 .and. allocated(sbxwav)) then
+            ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sbxwav      , UNC_LOC_S, sbxwav, jabndnd=jabndnd_)
          endif
-         if (jamapwav_sybwav > 0 .and. allocated(sbywav)) then
-            ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sybwav      , UNC_LOC_S, sbywav, jabndnd=jabndnd_)
+         if (jamapwav_sbywav > 0 .and. allocated(sbywav)) then
+            ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sbywav      , UNC_LOC_S, sbywav, jabndnd=jabndnd_)
          endif
          if (jamapwav_mxwav > 0  .and. allocated(mxwav)) then
             ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_mxwav       , UNC_LOC_S, mxwav, jabndnd=jabndnd_)
@@ -7614,11 +7614,13 @@ if (jamapsed > 0 .and. jased > 0 .and. stm_included) then
            ierr = nf90_put_var(mapids%ncid, mapids%id_ctheta(2)   , ctheta(:,1:ndxndxi) , start = (/ 1, 1, itim /), count = (/ ntheta, ndxndxi, 1 /))
         endif
 
+        
+        ! JRE to do Offline wave
         if ((jawave == 3 .or. jawave==4) .and. kmx>0) then
            ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sxwav,  UNC_LOC_S, sxwav, jabndnd=jabndnd_)
            ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sywav,  UNC_LOC_S, sywav, jabndnd=jabndnd_)
-           ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sxbwav, UNC_LOC_S, sbxwav, jabndnd=jabndnd_)
-           ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sybwav, UNC_LOC_S, sbywav, jabndnd=jabndnd_)
+           ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sbxwav, UNC_LOC_S, sbxwav, jabndnd=jabndnd_)
+           ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sbywav, UNC_LOC_S, sbywav, jabndnd=jabndnd_)
         endif
 
         if (jawave .gt. 0) then
