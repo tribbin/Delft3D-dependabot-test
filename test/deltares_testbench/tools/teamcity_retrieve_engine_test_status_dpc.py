@@ -101,7 +101,6 @@ def lprint(*args: str) -> None:
 
 def report_cases(url, given_build_config, username, password, buildname):
     global _enginge_statistics
-    global summarydata_array
 
     engine_req = get_request(url, username, password)
     if not text_in_xml_message(engine_req.text):
@@ -362,14 +361,13 @@ def text_in_xml_message(text: str) -> bool:
         return False
 
 
-def retrieve_engine_test_status(project_id, given_build_config, username, password, engines):
+def retrieve_engine_test_status(project_id, given_build_config, username, password, engines) -> List[SummaryData]:
     global engine_statistics
-    global summarydata_array
-
-    summarydata_array.append(SummaryData("All"))
+    engine_test_status = []
+    engine_test_status.append(SummaryData("All"))
     if engines is not None:
         for engine in engines.split(","):
-            summarydata_array.append(SummaryData(engine))
+            engine_test_status.append(SummaryData(engine))
 
     project_url = PROJECTS_URL % project_id
 
@@ -433,9 +431,13 @@ def retrieve_engine_test_status(project_id, given_build_config, username, passwo
             password,
             engine_name[engine_id.index(engine)],
         )
-
     lprint("\nTestbench root: %s" % project_text.attrib["name"])
-    for summary in summarydata_array:
+    return engine_test_status
+
+
+def print_summary(engine_test_status: List[SummaryData]) -> None:
+    """Print test result summary."""
+    for summary in engine_test_status:
         total = (
             summary.sum_passed + summary.sum_failed + summary.sum_exception + summary.sum_ignored + summary.sum_muted
         )
@@ -544,7 +546,9 @@ if __name__ == "__main__":
 
     print("Listing is written to: %s" % out_put)
 
-    retrieve_engine_test_status(tbroot, given_build_config, username, password, engines)
+    engine_test_status = retrieve_engine_test_status(tbroot, given_build_config, username, password, engines)
+
+    print_summary(engine_test_status)
 
     if os.path.exists("TMPdownload_teamcity_retrieve"):
         shutil.rmtree("TMPdownload_teamcity_retrieve")
