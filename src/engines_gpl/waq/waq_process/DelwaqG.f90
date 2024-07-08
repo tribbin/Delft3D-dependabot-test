@@ -36,7 +36,6 @@ contains
      use m_logger_helper, only : write_error_message, get_log_unit_number
      use m_extract_waq_attribute
 
-!XXXDEC$ ATTRIBUTES DLLEXPORT, ALIAS: 'DLWQG2' :: DLWQG2
 !
 !*******************************************************************************
 !
@@ -85,6 +84,7 @@ contains
       integer(kind=int_wp),parameter    ::nototsed = 34
       integer(kind=int_wp),parameter    ::nototseddis = 12
       integer(kind=int_wp),parameter    ::nototsedpart = 22
+      integer(kind=int_wp),parameter    ::nototsedextra = 6
       integer(kind=int_wp),parameter    ::nofl = 101
 
       ! pointers to concrete items
@@ -242,10 +242,11 @@ contains
       integer(kind=int_wp),parameter  ::OFFSET_S1 = ip_Depth + nototseddis
 
       ! settling fluxes (particulate)
-      integer(kind=int_wp),parameter  ::OFFSET_Setl = ip_Depth + nototseddis + nototsed
+      integer(kind=int_wp),parameter  ::OFFSET_Setl  = ip_Depth + nototseddis + nototsed
+      integer(kind=int_wp),parameter  ::OFFSET_Extra = ip_Depth + nototseddis + nototsed + nototsedpart
 
       ! VB fluxes
-      integer(kind=int_wp),parameter  ::OFFSET_VB = ip_Depth + nototseddis + nototsed + nototsedpart
+      integer(kind=int_wp),parameter  ::OFFSET_VB = ip_Depth + nototseddis + nototsed + nototsedpart + nototsedextra
       integer(kind=int_wp),parameter  ::nflvb = 22
       integer(kind=int_wp),parameter  ::ip_fN1VBup = OFFSET_VB + 1
       integer(kind=int_wp),parameter  ::ip_fN2VBup = OFFSET_VB + 2
@@ -593,6 +594,13 @@ contains
       integer(kind=int_wp), save  ::ipnt(1) = -999
       integer(kind=int_wp)        ::i
 
+      !
+      ! Algae related pools and fluxes
+      ! Includes sedimentation and resuspension
+      !
+      integer(kind=int_wp), save :: id_algal_nutrient(nototsedextra) = [ is_POC1, is_PON1, is_POP1, is_POC1, is_PON1, is_POP1 ]
+      real(kind=real_wp), save   :: weight_flux_algae(nototsedextra) = [     1.0,     1.0,     1.0,    -1.0,    -1.0,    -1.0 ]
+
       save
 !
 !******************************************************************************* INITIAL PROCESSING
@@ -836,6 +844,11 @@ contains
           !
           call initialise_sedconc
 
+          !
+          ! Calculate correction fluxes - they synchronise the S1 substances with the sedconc array
+          !
+          call sync_S1_sedconc
+
           first = .false.
 
       endif
@@ -845,12 +858,6 @@ contains
       if (mod(itime,outint*3600)==0) then
           call write_sedconc
       endif
-
-      !
-      ! Calculate correction fluxes - they synchronise the S1 substances with the sedconc array
-      ! (required for complicated reasons)
-      !
-      call sync_S1_sedconc
 
       ! loop over bottom segments
 
@@ -920,6 +927,16 @@ contains
               !iflux = nototseddis + nofl + isys
               !fl(iflux+(iseg-1)*noflux) = sedwatflx/depth
 
+          enddo
+
+          !
+          ! Algae related fluxes: add sedimentation fluxes, subtract resuspension fluxes
+          !
+          do i = 1,nototsedextra
+              isys = id_algal_nutrient(i)
+              ip   = offset_extra + i
+              sedwatflx = weight_flux_algae(i) * process_space_real(IPOINT(ip)+(iseg-1)*INCREM(ip))  ! g/m2/d
+              sedconc(1,isys,iseg2d) = sedconc(1,isys,iseg2d) + sedwatflx/dl(1)*delt ! to g/m3
           enddo
 
           kp = 0.0

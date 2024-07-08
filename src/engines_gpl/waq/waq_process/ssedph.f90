@@ -65,6 +65,7 @@ contains
         !     Local
         !
         INTEGER(kind = int_wp) :: NALG
+        integer(kind = int_wp), parameter :: vx_index = 6 ! The one velocity array starts AFTER the segment-based output
         !
         NALG = NINT(process_space_real(IPOINT(1)))
         IFLUX = 0
@@ -111,6 +112,12 @@ contains
                     process_space_real (IP) = SEDCAR
                     IP = IPOINT(2 + 7 * NALG + 2) + (ISEG - 1) * INCREM(2 + 7 * NALG + 2)
                     process_space_real (IP) = SEDDM
+                    IP = IPOINT(2 + 7 * NALG + 3) + (ISEG - 1) * INCREM(2 + 7 * NALG + 3)
+                    process_space_real (IP) = SEDNIT
+                    IP = IPOINT(2 + 7 * NALG + 4) + (ISEG - 1) * INCREM(2 + 7 * NALG + 4)
+                    process_space_real (IP) = SEDPHO
+                    IP = IPOINT(2 + 7 * NALG + 5) + (ISEG - 1) * INCREM(2 + 7 * NALG + 5)
+                    process_space_real (IP) = SEDSIL
 
                     !         NO LONGER Define fluxes only for Bloom (NALG .GT. 6)
 
@@ -137,7 +144,7 @@ contains
         !.....Exchangeloop over de horizontale richting ter initialisatie
         DO IQ = 1, num_exchanges_u_dir + num_exchanges_v_dir + num_exchanges_z_dir
 
-            IP = IPOINT(2 + 7 * NALG + 3) + (IQ - 1) * INCREM(2 + 7 * NALG + 3)
+            IP = IPOINT(2 + 7 * NALG + vx_index) + (IQ - 1) * INCREM(2 + 7 * NALG + vx_index)
             process_space_real (IP) = 0.0
 
         end do
@@ -168,7 +175,7 @@ contains
                         TOTFLX = TOTFLX + CONSPE * VELSPE
                         TOTCON = TOTCON + CONSPE
                     end do
-                    IP = IPOINT(2 + 7 * NALG + 3) + (IQ - 1) * INCREM(2 + 7 * NALG + 3)
+                    IP = IPOINT(2 + 7 * NALG + vx_index) + (IQ - 1) * INCREM(2 + 7 * NALG + vx_index)
                     IF (TOTCON > 0.0) THEN
                         process_space_real(IP) = TOTFLX / TOTCON
                     ELSE
