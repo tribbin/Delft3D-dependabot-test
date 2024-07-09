@@ -794,7 +794,7 @@ subroutine inifm1dimp_faap(iresult)
 
 use m_f1dimp
 use m_flowgeom, only: ndx, bai_mor, ba, bl, dx, lnx, dxi, acl, wu, snu, csu, wu_mor, wcx1, wcx2, wcy1, wcy2, kcu, wcl, lnxi, griddim
-use m_flow, only: s0, s1, u1, au, hu, qa, frcu_mor, frcu, z0urou, ifrcutp, taubxu, ucx_mor, ucy_mor
+use m_flow, only: s0, s1, u1, au, hu, qa, frcu_mor, frcu, z0urou, ifrcutp, taubxu, ucx_mor, ucy_mor, ustb
 use m_sediment, only: stmpar, jased, stm_included, kcsmor
 use m_fm_erosed, only: ndx_mor, lsedtot, lnx_mor, pmcrit, link1, ln_mor, hs_mor, ucxq_mor, ucyq_mor, uau
 use m_turbulence, only: rhowat
@@ -974,6 +974,7 @@ call reallocate_fill(wcx1    ,grd_ghost_link_closest,lnx,lnx_mor)
 call reallocate_fill(wcx2    ,grd_ghost_link_closest,lnx,lnx_mor)
 call reallocate_fill(wcy1    ,grd_ghost_link_closest,lnx,lnx_mor)
 call reallocate_fill(wcy2    ,grd_ghost_link_closest,lnx,lnx_mor)
+call reallocate_fill(ustb    ,grd_ghost_link_closest,lnx,lnx_mor)
 
 call reallocate_fill_int(ifrcutp,grd_ghost_link_closest,lnx,lnx_mor) 
 call reallocate_fill_int(kcu,grd_ghost_link_closest,lnx,lnx_mor)
