@@ -27,21 +27,16 @@
 !                                                                               
 !-------------------------------------------------------------------------------
 
-! $Id$
-! $HeadURL$
+! 
+!
 
 !> Updates the boundary conditions. The FM variables are updated in <flow_initimestep>
 ! and here we put them into the table that uses SRE. 
 subroutine fm1dimp_update_bc(iresult,time1)
 
-!use m_flowparameters
 use m_flow, only: au
 use m_f1dimp, only: f1dimppar
 use fm_external_forcings_data
-!use unstruc_channel_flow, only: network
-!use m_CrossSections, only: createTablesForTabulatedProfile
-!use unstruc_messages
-
 
 implicit none
 
