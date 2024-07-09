@@ -4,35 +4,22 @@ set(src_path src)
 # Gather source files
 get_fortran_source_files(${src_path} source_files)
 
+set(rr_path "${CMAKE_CURRENT_SOURCE_DIR}/../../")
+
 # Set version file variables
-#set(ini_version_file ${CMAKE_CURRENT_SOURCE_DIR}/../version/version_number.ini)
-#set(rc_version_file ${CMAKE_CURRENT_SOURCE_DIR}/src/rr_dll_version.rc)
+#Version includes
+set(version_include_dir ${CMAKE_SOURCE_DIR}/../version_includes)
+set(rr_version_header_path ${rr_path}/version)
+set(rc_version_file ${rr_version_header_path}/rr_dll_version.rc)
 set(fortran_version_file ${CMAKE_CURRENT_SOURCE_DIR}/src/rr_dll_version.F90)
 
-# # Generate the version files
-# generate_version_files(${rc_version_file} 
-                       # ${ini_version_file} 
-                       # ON)
-# generate_version_files(${fortran_version_file} 
-                       # ${ini_version_file} 
-                       # ON)
+include_directories(${version_include_dir} ${rr_version_header_path})
 
 # Define library
 set(library_name rr_dll)
 add_library(${library_name} SHARED  ${source_files}
                                     ${rc_version_file} 
                                     ${fortran_version_file})
-
-# # Define prebuild events
-# prebuild_version_number(${library_name} ${rc_version_file} 
-                                        # ${checkout_src_root}
-                                        # ${ini_version_file}
-                                        # ON)
-
-# prebuild_version_number(${library_name} ${fortran_version_file} 
-                                        # ${checkout_src_root}
-                                        # ${ini_version_file}
-                                        # ON)
 
 set_source_files_properties(
                     src/OESOpenMI.F90
