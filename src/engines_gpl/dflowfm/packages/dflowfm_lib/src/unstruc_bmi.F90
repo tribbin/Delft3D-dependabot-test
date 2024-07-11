@@ -148,7 +148,7 @@ subroutine get_output_var_names(names) bind(C, name="get_output_var_names")
 
    allocate(cnames(MAXSTRLEN, var_count))
    do i_var = 1,var_count
-      fname = 'test_get_input_var_names' ! TODO: UNST-7403: implement this.
+      fname = 'test_get_output_var_names' ! TODO: UNST-7403: implement this.
       cnames(:,i_var) = string_to_char_array(trim(fname), len(trim(fname)))
       names(i_var) = c_loc(cnames(:,i_var))
    end do
