@@ -14372,3 +14372,5 @@ itemid,itemse,itemex,itemde,itemun,itemnm,itemag,itemda,itemwk,itemgr
 "G5_FpGroSM","x"," ",    0.00000    ,"(-)                 ","Growth-based contribution to shell matrix Grazer5 ","volume    ","volume    "," ","                              "
 "G5_FpDisSM","x"," ",    0.00000    ,"(-)                 ","Dissipation-based contribution to shell matrix Gra","volume    ","volume    "," ","                              "
 "G5_YCaCOSM","x"," ",    0.00000    ,"(-)                 ","Yield coefficient CaCO3 deposition on matrix Graze","volume    ","volume    "," ","                              "
+"DiaMicro  ","x"," ",   0.100000E-03,"(m)                 ","Characteristic diameter of micro flocs            ","volume    ","volume    "," ","                              "
+"UstarMacro","x"," ",   0.670000E-01,"(m/s)               ","Characteristic shear velocity of macro flocs      ","volume    ","volume    "," ","                              "
