@@ -429,7 +429,8 @@ def get_request(url: str, username: str, password: str) -> requests.Response:
     -------
         requests.Response: The response object from the request.
     """
-    return requests.get(url=url, auth=HTTPBasicAuth(username, password), stream=True, verify=True)
+    headers = {"Accept": "application/xml"}
+    return requests.get(url=url, auth=HTTPBasicAuth(username, password), headers=headers, stream=True, verify=True)
 
 
 def text_in_xml_message(text: str) -> bool:
