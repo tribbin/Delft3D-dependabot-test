@@ -25,6 +25,7 @@ teamcity_retrieve_engine_test_status.py --tbroot DFlowFlexibleMesh
 teamcity_retrieve_engine_test_status.py --tbroot Dimr_DimrTestbenchRelease  # DIMR testbench release
 teamcity_retrieve_engine_test_status.py --tbroot Delft3DSobek_DimrTestbench  # DIMR testbench daily
 """
+TEST_RESULT_FOLDER = "TMPdownload_teamcity_retrieve"
 BASE_URL = "https://dpcbuild.deltares.nl"
 REST_API_URL = f"{BASE_URL}/httpAuth/app/rest"
 PROJECTS_URL = f"{REST_API_URL}/projects/id:%s"
@@ -295,7 +296,7 @@ def get_test_result_list(log_file: TextIOWrapper, engine_cases: EngineCaseList) 
         if not text_in_xml_message(case_req.text):
             return 1
 
-        file_name = "TMPdownload_teamcity_retrieve/%s.xml" % identifier
+        file_name = f"{TEST_RESULT_FOLDER}/{identifier}.xml"
         with open(file_name, "wb") as out_file:
             out_file.write(case_req.content)
 
@@ -648,9 +649,9 @@ def create_argument_parser() -> argparse.ArgumentParser:
 if __name__ == "__main__":
     start_time = datetime.now()
 
-    if os.path.exists("TMPdownload_teamcity_retrieve"):
-        shutil.rmtree("TMPdownload_teamcity_retrieve")
-    os.mkdir("TMPdownload_teamcity_retrieve")
+    if os.path.exists(TEST_RESULT_FOLDER):
+        shutil.rmtree(TEST_RESULT_FOLDER)
+    os.mkdir(TEST_RESULT_FOLDER)
 
     parser = create_argument_parser()
     args = parser.parse_args()
@@ -703,8 +704,8 @@ if __name__ == "__main__":
     executive_summary = tree_result_overview.get_executive_summary()
     log_executive_summary(log_file, executive_summary)
 
-    if os.path.exists("TMPdownload_teamcity_retrieve"):
-        shutil.rmtree("TMPdownload_teamcity_retrieve")
+    if os.path.exists(TEST_RESULT_FOLDER):
+        shutil.rmtree(TEST_RESULT_FOLDER)
 
     log_to_file(log_file, "Start: %s" % start_time)
     log_to_file(log_file, "End  : %s" % datetime.now())
