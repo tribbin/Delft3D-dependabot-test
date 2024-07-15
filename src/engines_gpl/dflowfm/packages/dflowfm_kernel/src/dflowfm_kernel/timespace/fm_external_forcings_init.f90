@@ -45,6 +45,8 @@ contains
       use m_lateral, only: balat, qplat, lat_ids, n1latsg, n2latsg, ILATTP_1D, ILATTP_2D, ILATTP_ALL, kclat, numlatsg, nnlat, nlatnd
       use m_meteo, only: ec_addtimespacerelation
       use timespace
+      use timespace_parameters
+      use fm_location_types
       use string_module, only: str_tolower, strcmpi
       use system_utils
       use unstruc_files, only: resolvePath
@@ -519,8 +521,6 @@ contains
       !> Read the current [Meteo] block from new external forcings file
       !! and do required initialisation for that quantity.
       function init_meteo_forcings() result(res)
-         use timespace_parameters
-
          logical :: res
 
          integer, allocatable :: mask(:)
@@ -546,13 +546,6 @@ contains
          call prop_get(node_ptr, '', 'quantity ', quantity, is_successful)
          if (.not. is_successful) then
             write (msgbuf, '(5a)') 'Incomplete block in file ''', file_name, ''': [', group_name, ']. Field ''quantity'' is missing.'
-            call warn_flush()
-            return
-         end if
-         ierr = get_quantity_target_properties(quantity, target_location_type, target_num_points, target_x, target_y, target_mask)
-         if (ierr /= DFM_NOERR) then
-            write (msgbuf, '(7a)') 'Invalid data in file ''', file_name, ''': [', group_name, &
-               ']. Line ''quantity = ', trim(quantity), ''' contains an unknown quantity.'
             call warn_flush()
             return
          end if
@@ -640,6 +633,8 @@ contains
          
          filetype = convert_file_type_string_to_integer(forcing_file_type)
 
+         ! Default location type: s-points. Only cases below that need u-points or different, will override.
+         target_location_type = UNC_LOC_S
          select case (quantity)
          case ('airpressure', 'atmosphericpressure')
             ierr = allocate_patm()
@@ -691,17 +686,27 @@ contains
             return
          end select
 
+         ! Derive target element set properties from the quantity's topological location type
+         ierr = get_location_target_properties(target_location_type, target_num_points, target_x, target_y, target_mask)
+         if (ierr /= DFM_NOERR) then
+            write (msgbuf, '(7a)') 'Invalid data in file ''', file_name, ''': [', group_name, &
+               ']. Line ''quantity = ', trim(quantity), ''' has no known target grid properties.'
+            call warn_flush()
+            return
+         end if
+         
+         ! The actual construction of the time-space relation
          select case (trim(str_tolower(forcing_file_type)))
          case ('bcascii')
             ! NOTE: Currently, we only support name=global meteo in.bc files, later maybe station time series as well.
-            is_successful = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), mask, kx, 'global', filetype, &
+            is_successful = ec_addtimespacerelation(quantity, target_x, target_y, target_mask, kx, 'global', filetype, &
                                                     method, oper, forcingfile=forcing_file)
          case default
             if (is_variable_name_available) then
-               is_successful = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), mask, kx, forcing_file, filetype, &
+               is_successful = ec_addtimespacerelation(quantity, target_x, target_y, target_mask, kx, forcing_file, filetype, &
                                                        method, oper, varname=variable_name)
             else
-               is_successful = ec_addtimespacerelation(quantity, xz(1:ndx), yz(1:ndx), mask, kx, forcing_file, filetype, &
+               is_successful = ec_addtimespacerelation(quantity, target_x, target_y, target_mask, kx, forcing_file, filetype, &
                                                        method, oper)
             end if
          end select
@@ -722,5 +727,40 @@ contains
       end function init_meteo_forcings
 
    end subroutine init_new
+
+   !> Get several target grid properties for a given location type.
+   !!
+   !! Properties include: coordinates, mask and location count,
+   !! typically used in setting up the time-space relations for
+   !! external forcings quantities.
+   function get_location_target_properties(target_location_type, target_num_points, target_x, target_y, target_mask) result(ierr)
+      use fm_location_types
+      use m_flowgeom, only: ndx, lnx, xz, yz, xu, yu
+      use precision_basics, only: hp
+      use dfm_error
+      integer, intent(in) :: target_location_type                !< The location type parameter (one from fm_location_types::UNC_LOC_*) for this quantity's target element set.
+      integer, intent(out) :: target_num_points                  !< Number of points in target element set.
+      real(hp), dimension(:), pointer, intent(out) :: target_x   !< Pointer to x-coordinates array of target element set.
+      real(hp), dimension(:), pointer, intent(out) :: target_y   !< Pointer to y-coordinates array of target element set.
+      integer, dimension(:), pointer, intent(out) :: target_mask !< Pointer to mask array for the target element set.
+      integer :: ierr                                            !< Result status (DFM_NOERR if succesful, or different if unknown quantity was given).
+
+      ierr = DFM_NOERR
+
+      select case(target_location_type)
+      case(UNC_LOC_S)
+         target_num_points = ndx
+         target_x => xz(1:target_num_points)
+         target_x => xz(1:target_num_points)
+         ! TODO: mask => kcs
+      case(UNC_LOC_U)
+         target_num_points = lnx
+         target_x => xu(1:target_num_points)
+         target_x => xu(1:target_num_points)
+         ! TODO: mask => mask_u
+      case default
+         ierr = DFM_NOTIMPLEMENTED
+      end select
+   end function get_location_target_properties
 
 end submodule fm_external_forcings_init
