@@ -26,7 +26,6 @@ teamcity_retrieve_engine_test_status.py --tbroot DFlowFlexibleMesh
 teamcity_retrieve_engine_test_status.py --tbroot Dimr_DimrTestbenchRelease  # DIMR testbench release
 teamcity_retrieve_engine_test_status.py --tbroot Delft3DSobek_DimrTestbench  # DIMR testbench daily
 """
-TEST_RESULT_FOLDER = "TMPdownload_teamcity_retrieve"
 BASE_URL = "https://dpcbuild.deltares.nl"
 REST_API_URL = f"{BASE_URL}/httpAuth/app/rest"
 PROJECTS_URL = f"{REST_API_URL}/projects/id:"
@@ -299,10 +298,6 @@ def get_test_result_list(
         case_req = get_request(url, username, password)
         if not text_in_xml_message(case_req.text):
             return 1
-
-        file_name = f"{TEST_RESULT_FOLDER}/{identifier}.xml"
-        with open(file_name, "wb") as out_file:
-            out_file.write(case_req.content)
 
         xml_case_root = ET.fromstring(case_req.text)
 
@@ -661,10 +656,6 @@ def get_number_of_failed_tests(tree_result_overview: TreeResult) -> int:
 if __name__ == "__main__":
     start_time = datetime.now()
 
-    if os.path.exists(TEST_RESULT_FOLDER):
-        shutil.rmtree(TEST_RESULT_FOLDER)
-    os.mkdir(TEST_RESULT_FOLDER)
-
     parser = create_argument_parser()
     args = parser.parse_args()
 
@@ -715,9 +706,6 @@ if __name__ == "__main__":
     log_tree(log_file, tree_result_overview)
     executive_summary = tree_result_overview.get_executive_summary()
     log_executive_summary(log_file, executive_summary)
-
-    if os.path.exists(TEST_RESULT_FOLDER):
-        shutil.rmtree(TEST_RESULT_FOLDER)
 
     tests_failed = get_number_of_failed_tests(tree_result_overview)
     print(f"Total test failed: {tests_failed}")
