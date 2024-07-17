@@ -16,49 +16,12 @@
 ###############################################
 echo "Module Load"
 
-if [ "$1" == "intel21" ]; then
-     echo "Loading Intel21 compiled modules"
-  
-     module load    intel/21.2.0
-     module display intel/21.2.0
- 
-     module load    intelmpi/21.2.0
-     module display intelmpi/21.2.0
-
-      . $SETVARS_VARS_PATH -ofi_internal=1
- 
-     module load    netcdf/v4.7.4_v4.5.3_intel21.2.0
-     module display netcdf/v4.7.4_v4.5.3_intel21.2.0
-  
-     module load    petsc/3.13.3_intel21.2.0_intelmpi21.2.0_no_mkl
-     module display petsc/3.13.3_intel21.2.0_intelmpi21.2.0_no_mkl
-  
-     module load    metis/5.1.0_intel21.2.0
-     module display metis/5.1.0_intel21.2.0
-  
-     module load    cmake/3.19.3_intel21.2.0 
-     module display cmake/3.19.3_intel21.2.0 
-     
-     module load    gcc/7.3.0
-     module display gcc/7.3.0
-     
-     module load    proj/7.1.0_gcc7.3.0
-     module display proj/7.1.0_gcc7.3.0
-     
-     module load    gdal/3.1.2_gcc7.3.0
-     module display gdal/3.1.2_gcc7.3.0
-     
-     module load    svn/1.9.12serf_gcc7.3.0
-     module display svn/1.9.12serf_gcc7.3.0
-     
-     module load    patchelf/0.12
-     module display patchelf/0.12
-elif [[ "$1" == intel24* ]]; then
+if [[ "$1" == intel24* ]]; then
      echo "Loading Intel24 compiled modules"
   
      module load intel/2024.0.0
      module load intelmpi/2021.11.0
-     module load cmake/3.26.4_intel2023.1.0_native
+     module load cmake/3.30.0_intel2024.0.0
      module load netcdf/4.9.2_4.6.1_intel2023.1.0_standalone
      module load gdal/3.6.3_intel2023.1.0_standalone
      module load proj/9.2.0_intel2024.0.0
