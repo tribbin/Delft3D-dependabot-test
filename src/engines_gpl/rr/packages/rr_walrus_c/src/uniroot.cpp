@@ -25,7 +25,7 @@
 //                                                                               
 //-------------------------------------------------------------------------------
 
- #include <cmath>
+#include <cmath>
 
 template <class T>
 double findzero(double a, double b, double t, T *f)

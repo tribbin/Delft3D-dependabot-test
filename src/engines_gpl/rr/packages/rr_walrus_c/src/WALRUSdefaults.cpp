@@ -25,7 +25,7 @@
 //                                                                               
 //-------------------------------------------------------------------------------
 
- #include "WALRUS.hh"
+#include "WALRUS.hh"
 
 /*! @file
  * @brief sets the defaults of the WALRUS class

@@ -4,12 +4,10 @@ set(src_path src)
 # Gather source files
 get_fortran_source_files(${src_path} source_files)
 
-set(rr_path "${CMAKE_CURRENT_SOURCE_DIR}/../../")
-
 # Set version file variables
 #Version includes
 set(version_include_dir ${CMAKE_SOURCE_DIR}/../version_includes)
-set(rr_version_header_path ${rr_path}/version)
+set(rr_version_header_path ${CMAKE_CURRENT_SOURCE_DIR}/../../version)
 set(rc_version_file ${rr_version_header_path}/rr_dll_version.rc)
 set(fortran_version_file ${CMAKE_CURRENT_SOURCE_DIR}/src/rr_dll_version.F90)
 

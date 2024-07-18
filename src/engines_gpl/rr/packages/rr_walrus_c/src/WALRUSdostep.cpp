@@ -25,7 +25,7 @@
 //                                                                               
 //-------------------------------------------------------------------------------
 
- #include "WALRUS.hh"
+#include "WALRUS.hh"
 
 /*! @file
  * @brief implements the actual step (with substeps)
