@@ -1215,7 +1215,7 @@ contains
       use m_flow, only: hs, hu, kmx
       use mathconsts, only: sqrt2_hp
       use m_waves                !only : hwavcom, hwav, gammax, twav, phiwav, ustokes, vstokes
-      use m_flowgeom, only: lnx, ln, csu, snu
+      use m_flowgeom, only: lnx, ln, csu, snu, ndx
       use m_sferic, only: dg2rd
       use m_physcoef, only: ag
       use m_transform_wave_physics
