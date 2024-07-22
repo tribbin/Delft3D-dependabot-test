@@ -42,7 +42,6 @@ module m_lateral
    public reset_outgoing_lat_concentration
    public finish_outgoing_lat_concentration
    public distribute_lateral_discharge
-   public get_lateral_layer_positions
    !!
    !! Laterals
    !!
@@ -85,8 +84,6 @@ module m_lateral
    real(kind=dp), allocatable, target, dimension(:, :, :), public :: outgoing_lat_concentration !< Average concentration per lateral discharge location.
    real(kind=dp), allocatable, target, dimension(:, :, :), public :: incoming_lat_concentration !< Concentration of the inflowing water at the lateral discharge location.
    real(kind=dp), allocatable, target, dimension(:, :), public :: lateral_volume_per_layer !< Total water volume per layer, for each lateral (kmx,numlatsg).
-   real(kind=dp), allocatable, target, dimension(:, :), public :: lateral_center_position_per_layer !< Vertical position of the averaged center location of a layer
-   !< (num_layers,numlatsg)
 
    integer, allocatable, target, dimension(:), public :: apply_transport !< Flag to apply transport for laterals (0 means only water and no substances are transported).
    logical, public :: apply_transport_is_used
@@ -175,22 +172,13 @@ module m_lateral
       end subroutine get_lateral_volume_per_layer
    end interface get_lateral_volume_per_layer
 
-   !> Calculate the average cell center positions for each layer for all laterals.
-   interface get_lateral_layer_positions
-      module subroutine get_lateral_layer_positions(lateral_center_position_per_layer, cell_center_position)
-         real(kind=dp), dimension(:, :), intent(out) :: lateral_center_position_per_layer !< Lateral center position of each layer,
-         !< dimension = (number_of_layer,number_of_lateral) = (kmx,numlatsg)
-         real(kind=dp), dimension(:), intent(in) :: cell_center_position !< Vertical cell center positions.
-      end subroutine get_lateral_layer_positions
-   end interface get_lateral_layer_positions
-
    !> Distributes lateral discharge per layer, that is retrieved from BMI, to per layer per cell
    interface distribute_lateral_discharge
       module subroutine distribute_lateral_discharge(provided_lateral_discharge, lateral_discharge_per_layer_lateral_cell)
          real(kind=dp), dimension(:, :), intent(in) :: provided_lateral_discharge !< Provided lateral discharge per
                                                                                   !! layer, retrieved from BMI
          real(kind=dp), dimension(:, :, :), intent(out) :: lateral_discharge_per_layer_lateral_cell !< Real lateral discharge
-                                                                                               !! per layer per lateral per cell
+                                                                                                    !! per layer per lateral per cell
       end subroutine distribute_lateral_discharge
    end interface distribute_lateral_discharge
 end module m_lateral

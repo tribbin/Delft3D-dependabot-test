@@ -199,7 +199,6 @@
 
              !DIR$ FORCEINLINE
              isGhost = is_ghost_node(k)
-
              do nlayer = 1, num_layers
                 do ilat = 1, numlatsg
                    if (qqlat(nlayer, ilat, k) > 0) then

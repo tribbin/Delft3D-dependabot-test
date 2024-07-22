@@ -132,7 +132,7 @@ contains
          call set_structure_grid_numbers()
          call timstop(handle)
 
-         if (jased > 0 .and. stm_included) then
+         if ((jased > 0 .and. stm_included) .or. (flow_solver == FLOW_SOLVER_SRE)) then !V: this test is also done in <set_cross_sections_to_gridpoints>. Isn't it redundant?
             !
             handle = 0
             call timstrt('Set cross sections to grid points', handle)
@@ -324,6 +324,7 @@ contains
       use m_flowgeom
       use m_sediment
       use messageHandling
+      use m_flowparameters, only: flow_solver, FLOW_SOLVER_SRE
 
       implicit none
 
@@ -343,7 +344,7 @@ contains
       ! cross sections (in case of sediment transport every gridpoint requires a unique
       ! cross section)
       line2cross => network%adm%line2cross
-      if (jased > 0 .and. stm_included) then
+      if ((jased > 0 .and. stm_included) .or. (flow_solver == FLOW_SOLVER_SRE)) then
          if (allocated(gridpoint2cross)) deallocate (gridpoint2cross)
          allocate (gridpoint2cross(ndxi))
          do i = 1, ndxi
@@ -833,7 +834,7 @@ contains
    !! * the highest nearby cross section level ("embankment") for other nodes,
    !! * dmiss, i.e. not applicable, if no cross section is defined at the node.
    subroutine set_ground_level_for_1d_nodes(network)
-      use m_flowgeom, only: groundLevel, groundStorage, ndxi, ndx2d, nd, kcu
+      use m_flowgeom, only: groundLevel, groundStorage, ndxi, ndx2d, nd, lnxi, kcu
       use m_Storage
       use m_CrossSections
       use m_network
@@ -1121,7 +1122,6 @@ contains
       qCurLat = 0d0
       num_layers = max(1, kmx)
       ! Don't reset vTotLat
-
       if (allocated(qqlat)) then
          do i_lat = 1, numlatsg
             do n = n1latsg(i_lat), n2latsg(i_lat)

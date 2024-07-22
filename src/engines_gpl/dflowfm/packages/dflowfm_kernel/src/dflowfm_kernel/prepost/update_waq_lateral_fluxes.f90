@@ -50,7 +50,6 @@ subroutine update_waq_lateral_fluxes()
    integer :: ilatwaq, nlayer, num_layers
 
 ! Accumulate lateral discharges for waq
-
    ilatwaq = 0
    num_layers = max(1, kmx)
    do ilat = 1, numlatsg
