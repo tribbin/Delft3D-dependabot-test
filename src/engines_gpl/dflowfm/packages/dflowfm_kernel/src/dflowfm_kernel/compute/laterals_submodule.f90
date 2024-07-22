@@ -39,8 +39,8 @@ contains
 
    !> Reset the counters for lateral data.
    module subroutine reset_lateral()
-      numlatsg = 0  !< [] nr of lateral discharge providers
-      nlatnd = 0  !< lateral nodes dimension, counter of nnlat(:)
+      numlatsg = 0 !< [] nr of lateral discharge providers
+      nlatnd = 0 !< lateral nodes dimension, counter of nnlat(:)
    end subroutine reset_lateral
 
    !> allocate the arrays for laterals on 3d/BMI
@@ -49,11 +49,11 @@ contains
       use m_flowgeom, only: ndx
       use m_alloc
 
-      integer, intent(in) :: numconst  !< number of constitiuents
+      integer, intent(in) :: numconst !< number of constitiuents
 
-      integer :: i           ! loop counter
-      integer :: num_layers  ! Number of layers
-      integer :: ierr  ! error status
+      integer :: i ! loop counter
+      integer :: num_layers ! Number of layers
+      integer :: ierr ! error status
 
       apply_transport_is_used = .false.
       if (allocated(apply_transport)) then
@@ -73,10 +73,10 @@ contains
       call realloc(lateral_volume_per_layer, [num_layers, numlatsg])
       call realloc(lateral_center_position_per_layer, [num_layers, numlatsg])
 
-      call realloc(lateral_volume_per_layer,[num_layers,numlatsg])
-      call realloc(lateral_center_position_per_layer,[num_layers,numlatsg])
+      call realloc(lateral_volume_per_layer, [num_layers, numlatsg])
+      call realloc(lateral_center_position_per_layer, [num_layers, numlatsg])
       allocate (qqlat(num_layers, numlatsg, ndx), stat=ierr)
-      call aerr('qqlat(num_layers, numlatsg, ndx)', ierr, num_layers*numlatsg*ndx)
+      call aerr('qqlat(num_layers, numlatsg, ndx)', ierr, num_layers * numlatsg * ndx)
       qqlat = 0._dp
 
    end subroutine initialize_lateraldata
@@ -100,12 +100,12 @@ contains
 
       use m_alloc
 
-      integer, intent(in) :: numconst       !< Number or constituents.
-      integer, intent(in) :: kmx            !< Number of layers (0 means 2D computation).
-      integer, dimension(:), intent(in) :: kmxn           !< Maximum number of vertical cells per base node n.
-      real(kind=dp), dimension(:), intent(in) :: cell_volume    !< Volume of water in computational cells.
-      real(kind=dp), dimension(:, :), intent(in) :: constituents   !< Concentrations of constituents.
-      real(kind=dp), intent(in) :: dt             !< Timestep in seconds.
+      integer, intent(in) :: numconst !< Number or constituents.
+      integer, intent(in) :: kmx !< Number of layers (0 means 2D computation).
+      integer, dimension(:), intent(in) :: kmxn !< Maximum number of vertical cells per base node n.
+      real(kind=dp), dimension(:), intent(in) :: cell_volume !< Volume of water in computational cells.
+      real(kind=dp), dimension(:, :), intent(in) :: constituents !< Concentrations of constituents.
+      real(kind=dp), intent(in) :: dt !< Timestep in seconds.
 
       integer :: ilat, i_node, iconst, k, k1, kt, kb
       integer :: num_layers, i_layer
@@ -163,9 +163,9 @@ contains
       use m_flowtimes, only: dts
       use m_partitioninfo, only: is_ghost_node
 
-      real(kind=dp), dimension(:, :, :), intent(inout) :: lateral_discharge_in   !< Lateral discharge flowing into the model (source)
-      real(kind=dp), dimension(:, :, :), intent(inout) :: lateral_discharge_out  !< Lateral discharge extracted out of the model (sink)
-      real(kind=dp), dimension(:), intent(in) :: cell_volume            !< [m3] total volume at end of timestep {"location": "face", "shape": ["ndx"]}
+      real(kind=dp), dimension(:, :, :), intent(inout) :: lateral_discharge_in !< Lateral discharge flowing into the model (source)
+      real(kind=dp), dimension(:, :, :), intent(inout) :: lateral_discharge_out !< Lateral discharge extracted out of the model (sink)
+      real(kind=dp), dimension(:), intent(in) :: cell_volume !< [m3] total volume at end of timestep {"location": "face", "shape": ["ndx"]}
 
       integer :: k1, i_cell, i_lateral, i_layer
       real(kind=dp) :: qlat
@@ -200,12 +200,12 @@ contains
    ! Add lateral input contribution to the load being transported
    module subroutine add_lateral_load_and_sink(transport_load, transport_sink, discharge_in, discharge_out, cell_volume, dtol)
       use m_transportdata, only: numconst
-      real(kind=dp), dimension(:, :), intent(inout) :: transport_load  !< Load being transported into domain
-      real(kind=dp), dimension(:, :), intent(inout) :: transport_sink  !< Load being transported out
-      real(kind=dp), dimension(:, :, :), intent(in) :: discharge_in    !< Lateral discharge going into domain (source)
-      real(kind=dp), dimension(:, :, :), intent(in) :: discharge_out   !< Lateral discharge going out (sink)
-      real(kind=dp), dimension(:), intent(in) :: cell_volume     !< [m3] total volume at end of timestep {"location": "face", "shape": ["ndx"]}
-      real(kind=dp), intent(in) :: dtol            !< cut off value for cell_volume, to prevent division by zero
+      real(kind=dp), dimension(:, :), intent(inout) :: transport_load !< Load being transported into domain
+      real(kind=dp), dimension(:, :), intent(inout) :: transport_sink !< Load being transported out
+      real(kind=dp), dimension(:, :, :), intent(in) :: discharge_in !< Lateral discharge going into domain (source)
+      real(kind=dp), dimension(:, :, :), intent(in) :: discharge_out !< Lateral discharge going out (sink)
+      real(kind=dp), dimension(:), intent(in) :: cell_volume !< [m3] total volume at end of timestep {"location": "face", "shape": ["ndx"]}
+      real(kind=dp), intent(in) :: dtol !< cut off value for cell_volume, to prevent division by zero
 
       real(kind=dp) :: delta_cell_volume
       integer :: i_const, i_lateral, i_cell, k1, i_layer
@@ -233,7 +233,7 @@ contains
 
       use m_flow, only: vol1, kmx, kmxn
 
-      real(kind=dp), dimension(:, :), intent(out) :: lateral_volume_per_layer  !< Water volume per layer in laterals, dimension = (number_of_layer,number_of_lateral) = (kmx,numlatsg)
+      real(kind=dp), dimension(:, :), intent(out) :: lateral_volume_per_layer !< Water volume per layer in laterals, dimension = (number_of_layer,number_of_lateral) = (kmx,numlatsg)
 
       integer :: i_node, i_lateral, i_layer, i_nnlat, i_vol1, index_vol1_bottom_layer, index_vol1_top_layer, index_active_bottom_layer
 
@@ -262,11 +262,11 @@ contains
 
       use m_flow, only: cell_center_position, kmx, kmxn
 
-      real(kind=dp), dimension(:, :), intent(out) :: lateral_center_position_per_layer  !< Lateral center position of each layer,
+      real(kind=dp), dimension(:, :), intent(out) :: lateral_center_position_per_layer !< Lateral center position of each layer,
       !< dimension = (number_of_layer,number_of_lateral) = (kmx,numlatsg).
-      real(kind=dp), dimension(:), intent(in) :: cell_center_position               !< Vertical cell center positions.
+      real(kind=dp), dimension(:), intent(in) :: cell_center_position !< Vertical cell center positions.
 
-      integer, allocatable, target, dimension(:) :: active_cell_count    !< Help array for counting the active cells.
+      integer, allocatable, target, dimension(:) :: active_cell_count !< Help array for counting the active cells.
       integer :: i_node, i_lateral, i_layer, i_nnlat, index_bottom_layer, index_top_layer, index_active_bottom_layer
 
       if (kmx == 0) then
@@ -306,9 +306,9 @@ contains
 
    !> Add the cell center positions of 1 node to the lateral_center_position_per_layer and update the active_cell_count.
    subroutine accumulate_active_cell_positions(lateral_center_position_per_layer, cell_center_position, active_cell_count)
-      real(kind=dp), dimension(:), intent(out) :: lateral_center_position_per_layer  !< Cumulative cell center positions for 1 lateral.
-      real(kind=dp), dimension(:), intent(in) :: cell_center_position               !< Cell center positions per layer for the current cell.
-      integer, dimension(:), intent(inout) :: active_cell_count                  !< Number of active cells per layer.
+      real(kind=dp), dimension(:), intent(out) :: lateral_center_position_per_layer !< Cumulative cell center positions for 1 lateral.
+      real(kind=dp), dimension(:), intent(in) :: cell_center_position !< Cell center positions per layer for the current cell.
+      integer, dimension(:), intent(inout) :: active_cell_count !< Number of active cells per layer.
 
       integer :: i
 
@@ -352,17 +352,17 @@ contains
 
       lateral_discharge_per_layer_lateral_cell(:, :, :) = 0.0_dp
       do i_lateral = 1, numlatsg
-         if (apply_transport(i_lateral) > 0) then 
+         if (apply_transport(i_lateral) > 0) then
             do i_nnlat = n1latsg(i_lateral), n2latsg(i_lateral)
                i_node = nnlat(i_nnlat)
                call getkbotktop(i_node, i_node_bottom_layer, i_node_top_layer)
                i_active_bottom_layer = kmx - kmxn(i_node) + 1
-               i_layer = max(i_active_bottom_layer,1)
+               i_layer = max(i_active_bottom_layer, 1)
                do i_flownode = i_node_bottom_layer, i_node_top_layer
                   if (comparereal(lateral_volume_per_layer(i_layer, i_lateral), 0.0_dp, flow1d_eps10) /= 0) then ! Avoid division by 0
                      lateral_discharge_per_layer_lateral_cell(i_layer, i_lateral, i_flownode) = vol1(i_flownode) &
-                                                                                 / lateral_volume_per_layer(i_layer, i_lateral) &
-                                                                                 * provided_lateral_discharge(i_layer, i_lateral)
+                                                                                                / lateral_volume_per_layer(i_layer, i_lateral) &
+                                                                                                * provided_lateral_discharge(i_layer, i_lateral)
                      i_layer = i_layer + 1
                   end if
                end do
