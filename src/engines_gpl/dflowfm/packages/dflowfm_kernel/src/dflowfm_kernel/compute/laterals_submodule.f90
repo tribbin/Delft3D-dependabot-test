@@ -290,9 +290,8 @@ contains
                i_layer = max(i_active_bottom_layer, 1)
                do i_flownode = i_node_bottom_layer, i_node_top_layer
                   if (comparereal(lateral_volume_per_layer(i_layer, i_lateral), 0.0_dp, flow1d_eps10) /= 0) then ! Avoid division by 0
-                     lateral_discharge_per_layer_lateral_cell(i_layer, i_lateral, i_flownode) = vol1(i_flownode) &
-                                                                                                / lateral_volume_per_layer(i_layer, i_lateral) &
-                                                                                                * provided_lateral_discharge(i_layer, i_lateral)
+                     lateral_discharge_per_layer_lateral_cell(i_layer, i_lateral, i_flownode) = & 
+                        provided_lateral_discharge(i_layer, i_lateral) * (vol1(i_flownode) / lateral_volume_per_layer(i_layer, i_lateral))
                      i_layer = i_layer + 1
                   end if
                end do
