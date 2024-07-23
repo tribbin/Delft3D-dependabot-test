@@ -608,11 +608,17 @@ contains
          call prop_get(node_ptr, '', 'averagingPercentile ', transformcoef(7), is_successful)
 
          filetype = convert_file_type_string_to_integer(forcing_file_type)
-         success = scan_for_heat_quantities(quantity, mask, kx)
+         success = scan_for_heat_quantities(quantity, kx)
          if (success) then
             is_data_on_p_points = .true.
          else
             select case (quantity)
+            case ('airdensity')
+               kx = 1
+               if (.not. allocated(airdensity)) then
+                  allocate (airdensity(ndx), stat=ierr, source=0d0)
+                  call aerr('airdensity(ndx)', ierr, ndx)
+               end if
             case ('airpressure', 'atmosphericpressure')
                kx = 1
                is_data_on_p_points = .true.
@@ -817,7 +823,7 @@ contains
    end subroutine init_new
 
    !> Scan the quantity name for heat relatede quantities.
-   function scan_for_heat_quantities(quantity, mask, kx) result(success)
+   function scan_for_heat_quantities(quantity, kx) result(success)
       use precision_basics, only: dp
       use fm_external_forcings_data, only: tair_available, dewpoint_available, solrad_available, longwave_available
       use m_flowparameters, only: btempforcingtypA, btempforcingtypC, btempforcingtypH, btempforcingtypL, btempforcingtypS, itempforcingtyp
