@@ -830,7 +830,7 @@ contains
                if (success) then
                   tair_available = .true.
                   solrad_available = .true.
-               end if
+              end if
 
             else if (qid == 'dewpoint_airtemperature_cloudiness_solarradiation') then
 
