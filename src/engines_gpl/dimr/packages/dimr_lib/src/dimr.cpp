@@ -1040,7 +1040,7 @@ void Dimr::runParallelUpdate(dimr_control_block* cb, double tStep) {
                         }
                         else {
                             cb->subBlocks[i].tCur = *currentTime - masterComponent->tStart;
-    log->Write(INFO, my_rank, "Parallel Child 2: Current time: %15.5f -- %d", *currentTime, i);
+                            log->Write(INFO, my_rank, "Parallel Child 2: Current time: %15.5f -- %d", *currentTime, i);
                         }
                     }
                     cb->subBlocks[i].tNext = cb->subBlocks[i].tNext + cb->subBlocks[i].tStep;
@@ -1049,6 +1049,9 @@ void Dimr::runParallelUpdate(dimr_control_block* cb, double tStep) {
                         // Force this by giving it a nextTime > simulationEndTime
                         cb->subBlocks[i].tNext = 2.0 * masterComponent->tEnd;
                     if (cb->subBlocks[i].compTimesCurrent > 0) {
+                        // Computation times specified in a timeserie:
+                        // Use the current element from the compTimes array. Substract tNext to obtain the new tStep.
+                        // Increase index comptimesCurrent, reset to -1 if there no valid timepoint in array compTimes anymore
                         cb->subBlocks[i].tStep = cb->subBlocks[i].compTimes[cb->subBlocks[i].compTimesCurrent] - cb->subBlocks[i].tNext;
                         cb->subBlocks[i].compTimesCurrent++;
                         if (cb->subBlocks[i].compTimesCurrent >= cb->subBlocks[i].compTimesLen)
@@ -1713,28 +1716,38 @@ void Dimr::scanControl(XmlTree* controlBlockXml, dimr_control_block* controlBloc
         XmlTree* timeElt = controlBlockXml->Lookup("time");
         if (timeElt == NULL)
             throw Exception(true, Exception::ERR_INVALID_INPUT, "The startGroup component \"%s\" does not contain a time element", controlBlockXml->name);
+        // The time field either contains:
+        // - tStart, tStep, tStop                             , e.g. <time>0.0 3.6e3 9.99e4</time>
+        // - name of a file containing computation time points, e.g. <time>wave_computations.tim</time>
+        // First check whether it's the name of a file:
         std::ifstream compTimesFile(timeElt->charData);
         if (compTimesFile.is_open()) {
+            // Yes, it's the name of a file. Count the number of lines
             std::string myline;
             controlBlock->compTimesLen = 0;
             while (std::getline(compTimesFile, myline))
                 ++controlBlock->compTimesLen;
+            // Rewind
             compTimesFile.close(); compTimesFile.open(timeElt->charData);
+            // Use compTimesLen to allocate compTimes
             controlBlock->compTimes = new double[controlBlock->compTimesLen];
+            // Read compTimes from the file
             for (int i = 0; i < controlBlock->compTimesLen; i++) {
                 std::getline(compTimesFile, myline);
                 int intRead = sscanf(myline.c_str(), "%lf", &(controlBlock->compTimes[i]));
             }
             compTimesFile.close();
-            controlBlock->tStart = controlBlock->compTimes[0];
-            controlBlock->tStep = controlBlock->compTimes[1] - controlBlock->tStart;
-            controlBlock->tEnd = 9.99e99;
-            controlBlock->compTimesCurrent = 2;
+            controlBlock->tStart = controlBlock->compTimes[0];                       // First  timePoint to do a computation
+            controlBlock->tStep = controlBlock->compTimes[1] - controlBlock->tStart; // Second timePoint to do a computation
+            controlBlock->compTimesCurrent = 2;                                      // Index to next timePoint
+            controlBlock->tEnd = 9.99e99;                                            // Set tEnd to infinity
         }
         else {
+            // No, it's not the name of a file. Assume that it contains tStart, tStep, tStop
             int intRead = sscanf(timeElt->charData, "%lf %lf %lf", &(controlBlock->tStart), &(controlBlock->tStep), &(controlBlock->tEnd));
             if (intRead != 3)
                 throw Exception(true, Exception::ERR_INVALID_INPUT, "Cannot find tStart, tStep, tEnd");
+            // compTimesCurrent>0 indicates a timeserie read from file
             controlBlock->compTimesCurrent = -1;
         }
     }
