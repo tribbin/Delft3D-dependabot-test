@@ -70,7 +70,8 @@ contains
       call realloc(incoming_lat_concentration, [num_layers, numconst, numlatsg])
       incoming_lat_concentration = 0._dp
       call realloc(outgoing_lat_concentration, [num_layers, numconst, numlatsg])
-      call realloc(lateral_volume_per_layer, [num_layers, numlatsg], fill=0._dp)
+      call realloc(lateral_volume_per_layer, [num_layers, numlatsg])
+      call realloc(qqlat, [num_layers, numlatsg], fill=0._dp)
 
    end subroutine initialize_lateraldata
 
