@@ -65,6 +65,7 @@ contains
       use m_delpol
       use m_get_kbot_ktop
       use m_observations, only: addobservation
+      use unstruc_inifields, only: initialfield2Dto3D
 
       integer, intent(inout) :: iresult !< integer error code, is preserved in case earlier errors occur.
 
@@ -386,7 +387,7 @@ contains
                   sah = dmiss
                   success = timespaceinitialfield(xz, yz, sah, ndx, filename, filetype, method, operand, transformcoef, UNC_LOC_S)
                   if (success) then
-                     call initialfield2Dto3D(sah, sa1, transformcoef(13), transformcoef(14))
+                     call initialfield2Dto3D(sah, sa1, transformcoef(13), transformcoef(14), operand)
                   end if
                end if
                success = .true. ! We allow to disable salinity without removing the quantity.
