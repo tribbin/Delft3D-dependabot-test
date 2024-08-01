@@ -196,8 +196,8 @@ Dimr::~Dimr(void) {
 void Dimr::deleteControlBlock(dimr_control_block cb) {
     if (cb.numSubBlocks > 0) {
         for (int i = 0; i < cb.numSubBlocks; i++) {
-            if (cb.compTimesLen > 0)
-                delete[] cb.compTimes;
+            if (cb.computeTimes->size() > 0)
+                cb.computeTimes->clear();
             // Recursively delete all subBlocks
             deleteControlBlock(cb.subBlocks[i]);
         }
@@ -1048,17 +1048,17 @@ void Dimr::runParallelUpdate(dimr_control_block* cb, double tStep) {
                         // This subBlock does not have to be executed anymore
                         // Force this by giving it a nextTime > simulationEndTime
                         cb->subBlocks[i].tNext = 2.0 * masterComponent->tEnd;
-                    if (cb->subBlocks[i].compTimesCurrent > 0) {
-                        // Computation times specified in a timeserie:
-                        // Use the current element from the compTimes array. Substract tNext to obtain the new tStep.
-                        // Increase index comptimesCurrent, reset to -1 if there no valid timepoints in array compTimes anymore
-                        cb->subBlocks[i].compTimesCurrent++;
-                        if (cb->subBlocks[i].compTimesCurrent >= cb->subBlocks[i].compTimesLen) {
-                            cb->subBlocks[i].tStep = 2.0 * masterComponent->tEnd;
-                            cb->subBlocks[i].compTimesCurrent = -1;
-                        }
+                    else if (cb->subBlocks[i].computeTimesCurrent > 0) {
+                        // Computation times specified in a time series:
+                        // Use the next element from the computeTimes array
+                        cb->subBlocks[i].computeTimesCurrent++;
+                        // If there are no valid timepoints in array computeTimes anymore:
+                        //     Ensure that tStep is big enough to cover the interval from currentTime to tEnd
+                        if (cb->subBlocks[i].computeTimesCurrent >= cb->subBlocks[i].computeTimes->size())
+                            cb->subBlocks[i].tStep = 2.0 * (masterComponent->tEnd - *currentTime);
                         else {
-                            cb->subBlocks[i].tStep = cb->subBlocks[i].compTimes[cb->subBlocks[i].compTimesCurrent] - cb->subBlocks[i].tNext;
+                            // Substract tNext to obtain the new tStep
+                            cb->subBlocks[i].tStep = cb->subBlocks[i].computeTimes->at(cb->subBlocks[i].computeTimesCurrent) - cb->subBlocks[i].tNext;
                         }
                     }
                 }
@@ -1724,38 +1724,17 @@ void Dimr::scanControl(XmlTree* controlBlockXml, dimr_control_block* controlBloc
         // - tStart, tStep, tStop                             , e.g. <time>0.0 3.6e3 9.99e4</time>
         // - name of a file containing computation time points, e.g. <time>wave_computations.tim</time>
         // First check whether it's the name of a file:
-        std::ifstream compTimesFile(timeElt->charData);
-        if (compTimesFile.is_open()) {
-            // Yes, it's the name of a file. Count the number of lines
-            std::string myline;
-            controlBlock->compTimesLen = 0;
-            while (std::getline(compTimesFile, myline))
-                ++controlBlock->compTimesLen;
-            // Rewind
-            compTimesFile.close(); compTimesFile.open(timeElt->charData);
-            if (controlBlock->compTimesLen < 3)
+        if (ReadComputeTimesFile(timeElt->charData, controlBlock)) {
+            if (controlBlock->computeTimes->size() < 3)
                 throw Exception(true, Exception::ERR_INVALID_INPUT, "File '%s' must contain at least 3 times", timeElt->charData);
-            // Use compTimesLen to allocate compTimes
-            controlBlock->compTimes = new double[controlBlock->compTimesLen];
-            // Read compTimes from the file
-            log->Write(INFO, my_rank, "Reading %d lines from file '%s'", controlBlock->compTimesLen, timeElt->charData);
-            for (int i = 0; i < controlBlock->compTimesLen; i++) {
-                std::getline(compTimesFile, myline);
-                int intRead = sscanf(myline.c_str(), "%lf", &(controlBlock->compTimes[i]));
-            }
-            compTimesFile.close();
-            controlBlock->tStart = controlBlock->compTimes[0];                       // First  timePoint to do a computation
-            controlBlock->tStep = controlBlock->compTimes[1] - controlBlock->tStart; // Second timePoint to do a computation
-            controlBlock->compTimesCurrent = 1;                                      // Index to current timePoint
-            controlBlock->tEnd = 9.99e99;                                            // Set tEnd to infinity
         }
         else {
             // No, it's not the name of a file. Assume that it contains tStart, tStep, tStop
             int intRead = sscanf(timeElt->charData, "%lf %lf %lf", &(controlBlock->tStart), &(controlBlock->tStep), &(controlBlock->tEnd));
             if (intRead != 3)
-                throw Exception(true, Exception::ERR_INVALID_INPUT, "Cannot find tStart, tStep, tEnd");
-            // compTimesCurrent>0 indicates a timeserie read from file
-            controlBlock->compTimesCurrent = -1;
+                throw Exception(true, Exception::ERR_INVALID_INPUT, "'%s' must either contain 'tStart, tStep, tEnd' or the name of a time series file", timeElt->charData);
+            // computeTimesCurrent>0 indicates a time series read from file
+            controlBlock->computeTimesCurrent = -1;
         }
     }
     else if (strcmp(controlBlockXml->name, "coupler") == 0) {
@@ -1818,6 +1797,24 @@ bool Dimr::IsCouplerItemTypePTR(int couplerItem) {
     return couplerItem == ITEM_TYPE_PTR;
 }
 
+bool Dimr::ReadComputeTimesFile(const char* fileName, dimr_control_block* controlBlock) {
+    std::ifstream computeTimesFile(fileName);
+    if (computeTimesFile.is_open()) {
+        // Yes, it's the name of a file. Count the number of lines
+        double timeRead;
+        controlBlock->computeTimes = new vector<double>();
+        while (computeTimesFile >> timeRead)
+            controlBlock->computeTimes->push_back(timeRead);
+        computeTimesFile.close();
+        controlBlock->tStart = controlBlock->computeTimes->at(0);                       // First  timePoint to do a computation
+        controlBlock->tStep = controlBlock->computeTimes->at(1) - controlBlock->tStart; // Second timePoint to do a computation
+        controlBlock->computeTimesCurrent = 1;                                          // Index to current timePoint
+        controlBlock->tEnd = std::numeric_limits<double>::infinity();
+        return true;
+    } else {
+        return false;
+    }
+}
 
 //------------------------------------------------------------------------------
 void Dimr::connectLibs(void) {
