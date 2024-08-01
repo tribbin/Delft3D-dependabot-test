@@ -163,7 +163,7 @@ contains
       integer :: k1, i_cell, i_lateral, i_layer
       real(kind=dp) :: qlat
 
-      ! TODO-8090 set i_layer = 1 for the moment
+      ! TODO, UNST-8062: this routine will be elimated, so setting i_layer = 1 is acceptable for the moment. 
       i_layer = 1
       if (numlatsg > 0) then
          lateral_discharge_in = 0._dp
@@ -203,7 +203,7 @@ contains
       real(kind=dp) :: delta_cell_volume
       integer :: i_const, i_lateral, i_cell, k1, i_layer
 
-      ! TODO-8090 set i_layer = 1 for the moment
+      ! TODO, in combination with UNST-8062, generalize do i_layer = 1, num_layers
       i_layer = 1
       do i_const = 1, numconst
          do i_lateral = 1, numlatsg
@@ -265,7 +265,8 @@ contains
       outgoing_lat_concentration = outgoing_lat_concentration / time_interval
    end subroutine finish_outgoing_lat_concentration
 
-   !> Distributes lateral discharge per layer, that is retrieved from BMI, to per layer per lateral, per cell
+   !> Distributes provided lateral discharge across flow nodes. 
+   !. Input is lateral discharge per layer per lateral, output is per layer per lateral per cell.
    module subroutine distribute_lateral_discharge(provided_lateral_discharge, lateral_discharge_per_layer_lateral_cell)
 
       use m_flow, only: vol1, kmx, kmxn

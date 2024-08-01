@@ -44,11 +44,11 @@
                          apply_transport
     implicit none
 
-    integer :: L, k1, k2, k, LL, kt, idim, imba, ilat
+    integer :: L, k1, k2, k, LL, kt, idim, imba, i_lat, i_node
     double precision :: aufu, auru, tetau
     double precision :: ds, hsk, Qeva_ow, Qeva_icept, Qrain, Qicept, Qextk, aloc
     logical :: isGhost
-    integer :: nlayer, num_layers
+    integer :: i_layer, num_layers
 
     bb = 0d0
     ccr = 0d0
@@ -174,16 +174,16 @@
        if (numlatsg > 0) then
           ! First accumulate all lateral discharges per grid cell
           ! qqlat may have been computed in flow_run_sometimesteps already but only for
-          ! laterals with apply_transort(ilat) > 0
+          ! laterals with apply_transort(i_lat) > 0
           num_layers = max(1, kmx)
 
-          do ilat = 1, numlatsg
-             if (apply_transport(ilat) == 0) then
-                do k1 = n1latsg(ilat), n2latsg(ilat)
-                   k = nnlat(k1)
-                   if (k > 0) then
-                      do nlayer = 1, num_layers
-                         qqlat(nlayer, ilat, k) = qqlat(nlayer, ilat, k) + qplat(nlayer, ilat) * ba(k) / balat(ilat)
+          do i_lat = 1, numlatsg
+             if (apply_transport(i_lat) == 0) then
+                do k1 = n1latsg(i_lat), n2latsg(i_lat)
+                   i_node = nnlat(k1)
+                   if (i_node > 0) then
+                      do i_layer = 1, num_layers
+                         qqlat(i_layer, i_lat, i_node) = qqlat(i_layer, i_lat, i_node) + qplat(i_layer, i_lat) * ba(i_node) / balat(i_lat)
                       end do
                    end if
                 end do
@@ -199,21 +199,21 @@
 
              !DIR$ FORCEINLINE
              isGhost = is_ghost_node(k)
-             do nlayer = 1, num_layers
-                do ilat = 1, numlatsg
-                   if (qqlat(nlayer, ilat, k) > 0) then
+             do i_lat = 1, numlatsg
+                do i_layer = 1, num_layers
+                   if (qqlat(i_layer, i_lat, k) > 0) then
                       if (.not. isGhost) then ! Do not count ghosts in mass balances
-                         qinlat(idim) = qinlat(idim) + qqLat(nlayer, ilat, k) ! qqlat can be pos or neg
+                         qinlat(idim) = qinlat(idim) + qqLat(i_layer, i_lat, k) ! qqlat can be pos or neg
                       end if
                    else if (hs(k) > epshu) then
-                      qqlat(nlayer, ilat, k) = -min(0.5d0 * vol1(k) / dts, -qqlat(nlayer, ilat, k))
+                      qqlat(i_layer, i_lat, k) = -min(0.5d0 * vol1(k) / dts, -qqlat(i_layer, i_lat, k))
                       if (.not. isGhost) then
-                         qoutlat(idim) = qoutlat(idim) - qqlat(nlayer, ilat, k)
+                         qoutlat(idim) = qoutlat(idim) - qqlat(i_layer, i_lat, k)
                       end if
                    else
-                      qqlat(nlayer, ilat, k) = 0d0
+                      qqlat(i_layer, i_lat, k) = 0d0
                    end if
-                   qin(k) = qin(k) + qqlat(nlayer, ilat, k)
+                   qin(k) = qin(k) + qqlat(i_layer, i_lat, k)
                 end do
              end do
           end do

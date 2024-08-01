@@ -172,7 +172,8 @@ module m_lateral
       end subroutine get_lateral_volume_per_layer
    end interface get_lateral_volume_per_layer
 
-   !> Distributes lateral discharge per layer, that is retrieved from BMI, to per layer per cell
+   !> Distributes provided lateral discharge across flow nodes. 
+   !. Input is lateral discharge per layer per lateral, output is per layer per lateral per cell.
    interface distribute_lateral_discharge
       module subroutine distribute_lateral_discharge(provided_lateral_discharge, lateral_discharge_per_layer_lateral_cell)
          real(kind=dp), dimension(:, :), intent(in) :: provided_lateral_discharge !< Provided lateral discharge per
