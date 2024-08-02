@@ -904,8 +904,9 @@ void Dimr::runParallelUpdate(dimr_control_block* cb, double tStep) {
                             // tUpdate is the timeInterval since the last time this component was executed
                             // This is not the overall tStep!
                             double tUpdate;
-                            tUpdate = *currentTime - masterComponent->tStart - cb->subBlocks[i].tCur;
-                            log->Write(INFO, my_rank, "Parallel Startgroup: Current time: %15.5f -- %15.5f", *currentTime, cb->subBlocks[i].tCur);
+                            double subblock_time = cb->subBlocks[i].tCur; // Shortcut to keep the code readable
+                            tUpdate = *currentTime - masterComponent->tStart - subblock_time;
+                            log->Write(INFO, my_rank, "Parallel Startgroup: Current time: %15.5f -- %15.5f", *currentTime, subblock_time);
                             // Hack: Always call RTCTools.Update with argument -1.0
                             if (cb->subBlocks[i].subBlocks[j].unit.component->type == COMP_TYPE_RTC) {
                                 tUpdate = -1.0;
@@ -914,7 +915,7 @@ void Dimr::runParallelUpdate(dimr_control_block* cb, double tStep) {
                             //              Otherwise, WANDA will hang in case tUpdate is very big (FLOW start time big, related to ref time)
                             //              It doesn't matter for the WANDA results; with this coupling, WANDA doesn't have a time knowledge at all
                             if (cb->subBlocks[i].subBlocks[j].unit.component->type == COMP_TYPE_WANDA) {
-                                if (cb->subBlocks[i].tCur == 0.0) {
+                                if (subblock_time == 0.0) {
                                     tUpdate = 0.0;
                                 }
                             }
