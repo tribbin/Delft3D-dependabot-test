@@ -349,19 +349,19 @@ contains
                !
                call set_all_wave_parameters()
 
-         ! NB: choose whether to keep if(.not. initialization) hidden in initialize_wave_parameters or in set_wave_parameters
-
-         if (.not. success) then
-            !
-            ! success = .false. : Most commonly, WAVE data has not been written to the com-file yet:
-            ! - Print a warning
-            ! - Continue with the calculation
-            ! - Just try it the next timestep again
-            ! - success must be set to .true., otherwise the calculation is aborted
-            !
-            message = dumpECMessageStack(LEVEL_WARN, callback_msg)
-            success = .true.
-         end if
+               ! NB: choose whether to keep if(.not. initialization) hidden in initialize_wave_parameters or in set_wave_parameters
+               
+               if (.not. success) then
+                  !
+                  ! success = .false. : Most commonly, WAVE data has not been written to the com-file yet:
+                  ! - Print a warning
+                  ! - Continue with the calculation
+                  ! - Just try it the next timestep again
+                  ! - success must be set to .true., otherwise the calculation is aborted
+                  !
+                  message = dumpECMessageStack(LEVEL_WARN, callback_msg)
+                  success = .true.
+               end if
          end if
       end if
       !
@@ -375,6 +375,20 @@ contains
       endif
 
          if (jawave == 7) then
+            ! If wave model and flow model do not cover each other exactly, NaN values can propagate in the flow model.
+            ! Correct for this by setting values to zero
+            where(isnan(hwavcom))   ! one check should be enough, everything is collocated
+               hwavcom = 0d0
+               twavcom = 0d0
+               sxwav = 0d0
+               sywav = 0d0
+               sbxwav = 0d0
+               sbywav = 0d0
+               dsurf = 0d0
+               dwcap = 0d0
+               mxwav = 0d0
+               mywav = 0d0
+            end where
             phiwav = convert_wave_direction_from_nautical_to_cartesian(phiwav)
          end if
 
@@ -532,10 +546,10 @@ contains
    !> set wave parameters for jawave == 7 (offline wave coupling) and waveforcing == 3 (wave forces via 3D dissipation distribution)
    subroutine set_parameters_for_3d_dissipation_driven_forces()
 
-   twav(:) = 0d0
+      twav(:) = 0d0
       success = success .and. ecGetValues(ecInstancePtr, item_tp, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_dir, ecTime)
-   success = success .and. ecGetValues(ecInstancePtr, item_hrms   , ecTime)
+      success = success .and. ecGetValues(ecInstancePtr, item_hrms   , ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_fx, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_fy, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_dissurf, ecTime)

@@ -2699,6 +2699,7 @@ module m_ec_converter
          integer, dimension(:), pointer :: ja                    ! sparsity pattern in CRS format, column numbers
 
          integer                        :: Ndatasize
+         integer                        :: nrow, ncol
          integer, dimension(2)          :: idx
 
          integer                        :: istat
@@ -2751,10 +2752,16 @@ module m_ec_converter
                  return
               endif
               has_wave_direction = .true.
-              waveheightT0(1:wavehgtPtr%elementsetPtr%n_cols,1:wavehgtPtr%elementsetPtr%n_rows) => wavehgtPtr%SourceT0fieldptr%arr1d
-              waveheightT1(1:wavehgtPtr%elementsetPtr%n_cols,1:wavehgtPtr%elementsetPtr%n_rows) => wavehgtPtr%SourceT1fieldptr%arr1d
-              allocate(wdtemp(wavedirPtr%elementsetPtr%ncoordinates))
-              allocate(wd2d(1:wavehgtPtr%elementsetPtr%n_cols,1:wavehgtPtr%elementsetPtr%n_rows))
+              col0 = wavehgtPtr%SourceT0fieldptr%bbox(1)
+              row0 = wavehgtPtr%SourceT0fieldptr%bbox(2)
+              col1 = wavehgtPtr%SourceT0fieldptr%bbox(3)
+              row1 = wavehgtPtr%SourceT0fieldptr%bbox(4)
+              nrow = row1 - row0 + 1
+              ncol = col1 - col0 + 1
+              waveheightT0(1:ncol,1:nrow) => wavehgtPtr%SourceT0fieldptr%arr1d
+              waveheightT1(1:ncol,1:nrow) => wavehgtPtr%SourceT1fieldptr%arr1d
+              allocate(wdtemp(ncol*nrow))
+              allocate(wd2d(ncol,nrow))
               wdtemp = 0d0
               wd2d = 0d0
               coswd = 0d0
@@ -2907,7 +2914,7 @@ module m_ec_converter
                         ! if we have wave direction, do the time interpolation here on the weighted fields
                         if (trim(connection%SourceItemsPtr(i)%ptr%quantityPtr%name)=='sea_surface_wave_from_direction') then
                            wdtemp = cyclic_interpolation(sourceT0Field%arr1d,sourceT1Field%arr1d,a0,a1)
-                           wd2d = reshape(wdtemp,(/n_cols,n_rows/))
+                           wd2d = reshape(wdtemp,(/ncol,nrow/))
                         endif
                      end if
 
@@ -3113,6 +3120,9 @@ module m_ec_converter
                                           sourcevals(1+ii,1+jj,1,1) = wd2d(mp+ii, np+jj)
                                           sourcevals(1+ii,1+jj,1,2) = wd2d(mp+ii, np+jj)  ! needed for finding extrapolations
                                           waveheight(1+ii,1+jj) = a0*waveheightT0(mp+ii, np+jj)+a1*waveheightT1(mp+ii, np+jj)
+                                          if (isnan(waveheight(1+ii,1+jj)).or.waveheight(1+ii,1+jj)<0.01_fp) then
+                                             waveheight(1+ii,1+jj) = 1.0_fp
+                                          end if
                                        end do
                                     end do
                                  else
