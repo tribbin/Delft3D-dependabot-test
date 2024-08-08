@@ -12,7 +12,7 @@ Each testcase contains:
 To run your own model:
 1. Copy the relevant one-line-script mentioned above into your working directory
    These scripts refer to version "latest". You can replace this to have it referred to a specific version.
-   Example: p:\d-hydro\dimrset\weekly\2.09.05_63956\x64\dimr\scripts\run_dimr.bat
+   Example: p:\d-hydro\dimrset\weekly\2.09.05_63956\x64\bin\run_dimr.bat
 2. Copy the relevant "dimr_config.xml" into your working directory
    Open it in an editor and change the name of the mdu/mdw-file it refers to.
 3. Execute the one-line-script (without qsub)
