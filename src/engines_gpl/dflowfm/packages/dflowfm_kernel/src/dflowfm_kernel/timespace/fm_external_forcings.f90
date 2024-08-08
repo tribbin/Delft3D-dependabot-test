@@ -1228,11 +1228,8 @@ contains
       integer :: ierr
       integer :: nlatndguess
 
-      if (.not. allocated(QQlat)) then ! just once
+      if (.not. allocated(nnlat)) then                      ! just once
          nlatndguess = ndx2d + 2 * (ndxi - ndx2d) ! first guess: all 2D + twice all 1D, nnlat *might* be bigger.
-         allocate (QQLat(max(1, kmx), ndx), stat=ierr)
-         call aerr('QQLAT(ndx)', ierr, ndx)
-         QQLat = 0d0
          allocate (nnLat(nlatndguess), stat=ierr)
          call aerr('nnLat(nlatndguess)', ierr, nlatndguess)
          nnLat = 0

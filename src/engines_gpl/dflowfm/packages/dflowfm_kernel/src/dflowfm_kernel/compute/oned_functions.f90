@@ -1112,20 +1112,25 @@ contains
    !> Update total net inflow of all laterals for each 1d node with given computational time step.
    subroutine updateTotalInflowLat(dts)
       use m_flow, only: vTotLat, qCurLat, kmx
-      use m_flowgeom, only: ndx2d, ndxi
-      use m_lateral, only: qqlat
+      use m_flowgeom, only: ndx2d
+      use m_lateral, only: qqlat, num_layers, numlatsg, n1latsg, n2latsg, nnlat
       implicit none
       double precision, intent(in) :: dts ! current computational time step
-      integer :: n, nlayer, num_layers
+      integer :: n
+      integer :: i_lat, i_node
 
       qCurLat = 0d0
-      num_layers = max(1, kmx)
       ! Don't reset vTotLat
       if (allocated(qqlat)) then
-         do n = ndx2d + 1, ndxi ! all 1d nodes
-            do nlayer = 1, num_layers !loop on layers
-               qCurLat(n) = qCurLat(n) + qqlat(nlayer, n)
-               vTotLat(n) = vTotLat(n) + qqlat(nlayer, n) * dts
+         do i_lat = 1, numlatsg
+            do n = n1latsg(i_lat), n2latsg(i_lat)
+               i_node = nnlat(n)
+               if (i_node <= ndx2d) then
+                  cycle
+               end if
+               ! only 1D nodes, so only 1 layer in qqlat
+               qCurLat(i_node) = qCurLat(i_node) + qqlat(1, i_lat, i_node)
+               vTotLat(i_node) = vTotLat(i_node) + qqlat(1, i_lat, i_node) * dts
             end do
          end do
       else

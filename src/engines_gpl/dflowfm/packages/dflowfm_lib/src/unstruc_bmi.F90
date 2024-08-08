@@ -864,7 +864,7 @@ contains
       use network_data
       use m_observations, only: numobs, nummovobs, MAXNUMVALOBS2D, MAXNUMVALOBS3D, MAXNUMVALOBS3Dw
       use m_monitoring_crosssections, only: ncrs, maxnval
-      use m_lateral, only: numlatsg
+      use m_lateral, only: num_layers, numlatsg
       use unstruc_channel_flow, only: network
       use m_transport, only: NAMLEN, NUMCONST
       use m_lateral, only: numlatsg, nlatnd
@@ -2288,7 +2288,7 @@ contains
    !> Returns the c_ptr for a variable on a lateral location
    function get_pointer_to_lateral_variable(item_name, field_name) result(c_lateral_pointer)
       use m_lateral, only: qplat, nnlat, n1latsg, outgoing_lat_concentration, incoming_lat_concentration, apply_transport, &
-                           lateral_volume_per_layer
+                           lateral_volume_per_layer, num_layers
       use m_flow, only: s1
       use string_module, only: str_token
 
@@ -2307,7 +2307,7 @@ contains
       select case (field_name)
       case ("water_discharge")
          if (apply_transport(item_index) == 1 .or. kmx == 0) then
-            c_lateral_pointer = c_loc(qplat(:, item_index))
+            c_lateral_pointer = c_loc(qplat(1:num_layers, item_index))
          else
             c_lateral_pointer = c_loc(qplat(kmx, item_index))
          end if
