@@ -1044,6 +1044,7 @@ contains
    !     3) Matrix flip up to down and/or left to right
    !
    subroutine flipv(x, M)
+      use precision_basics, only: dp
 
       implicit none
 
@@ -1051,8 +1052,8 @@ contains
       ! M is size vector
 
       integer :: M, i
-      real*8, dimension(M) :: x
-      real*8, dimension(:), allocatable :: temp1, temp3
+      real(dp), dimension(M) :: x
+      real(dp), dimension(:), allocatable :: temp1, temp3
       integer, dimension(:), allocatable :: temp2
 
       allocate (temp1(M))
@@ -1115,6 +1116,7 @@ contains
    end subroutine flipiv
 
    subroutine flipa(x, M1, M2, flip)
+      use precision_basics, only: dp
 
       implicit none
 
@@ -1122,8 +1124,8 @@ contains
       ! flip (1 or 2) is flip rows(1) or columns(2)
 
       integer :: M1, M2, flip, ii
-      real*8, dimension(M1, M2) :: x
-      real*8, dimension(:, :), allocatable :: temp1a, temp3a
+      real(dp), dimension(M1, M2) :: x
+      real(dp), dimension(:, :), allocatable :: temp1a, temp3a
 
       allocate (temp1a(M1, M2))
       allocate (temp3a(M1, M2))
@@ -1278,7 +1280,8 @@ contains
 
    end function xerf
 
-   real * 8 function random(j)
+   real(kind=dp) function random(j)
+      use precision, only: dp
       implicit none
 !
 ! From Communications of the ACM, Vol 31 Oct 1988 number 10
@@ -1295,7 +1298,7 @@ contains
 
       integer a, m, q, r, lo, hi, test, seed
       integer, intent(in) :: j
-      real * 8 rm
+      real(dp) :: rm
       parameter(a=16807, m=2147483647, q=127773, r=2836, rm=m)
       save seed
       data seed/1/
