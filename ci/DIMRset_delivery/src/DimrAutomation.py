@@ -20,11 +20,6 @@ class DimrAutomation(object):
     updating the public wiki, downloading the artifacts to the network drive,
     installing the new DIMR set on Linux, pinning and tagging the appropriate builds,
     updating SVN, and preparing a mail for the release notification.
-
-    For questions about the release process, please contact Adri Mourits,
-    Maarten Klapwijk or Robin van Westrenen.
-
-    For questions about the code, please contact Tim van den Aardweg.
     """
 
     def __init__(self, atlassian: Atlassian, teamcity: TeamCity, ssh_client: SshClient):

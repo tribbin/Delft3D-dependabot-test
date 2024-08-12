@@ -7,11 +7,6 @@ updating SVN, and preparing a mail for the release notification.
 This script makes some assumptions:
 - The latest successful DIMR build, is the build that we are going to release.
 - The second latest successful build, is the build that was released last week.
-
-For questions about the release process, please contact Adri Mourits,
-Maarten Klapwijk or Robin van Westrenen.
-
-For questions about the code, please contact Tim van den Aardweg.
 """
 # Don't touch this.
 # This is magic to have a common library between

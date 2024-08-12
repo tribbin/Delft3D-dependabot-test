@@ -34,6 +34,4 @@ Finally, the main class putting everything together is the DimrAutomation class.
 
 
 # Contact
-For questions about the DIMR release process, please contact Adri Mourits, Maarten Klapwijk or Robin van Westrenen.
-
-For questions about the script itself, please contact Tim van den Aardweg.
+For questions about the DIMR release process, please contact the DIMR bakkers at DIMRbakkers@deltares.nl.
