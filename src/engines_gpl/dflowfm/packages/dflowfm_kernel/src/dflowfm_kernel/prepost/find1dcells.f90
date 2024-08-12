@@ -39,8 +39,9 @@
       use m_flowgeom, only: xz, yz, ba
       use gridoperations
       use MessageHandling
+#ifdef _OPENMP
       use omp_lib
-
+#endif
       implicit none
 
       integer :: K1, K2, K3, L, N, NC1, NC2
@@ -55,21 +56,25 @@
       nump1d2d = nump
 
       allocate (NC1_array(NUML1D), NC2_array(NUML1D))
+#ifdef _OPENMP
       temp_threads = omp_get_max_threads() !> Save old number of threads
       call omp_set_num_threads(OMP_GET_NUM_PROCS()) !> Set number of threads to max for this O(N^2) operation
-      !$OMP PARALLEL DO 
+#endif
+      !$OMP PARALLEL DO
       do L = 1, NUML1D
          if (KN(1, L) /= 0 .and. kn(3, L) /= 1 .and. kn(3, L) /= 6) then
             call INCELLS(Xk(KN(1, L)), Yk(KN(1, L)), NC1_array(L))
             call INCELLS(Xk(KN(2, L)), Yk(KN(2, L)), NC2_array(L))
          end if
       end do
-      !$OMP END PARALLEL DO 
+      !$OMP END PARALLEL DO
+#ifdef _OPENMP
       call omp_set_num_threads(temp_threads)
-      
+#endif
+
 !     BEGIN COPY from flow_geominit
       KC = 2 ! ONDERSCHEID 1d EN 2d NETNODES
-      
+
       do L = 1, NUML
          K1 = KN(1, L); K2 = KN(2, L); K3 = KN(3, L)
          if (K3 >= 1 .and. K3 <= 7) then
