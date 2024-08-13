@@ -5544,7 +5544,20 @@ c***********************************************************************
 *     ..
 *     .. Executable Statements ..
 *
-      GO TO ( 100, 100, 100, 400, 500, 600, 700, 800 ) ISPEC
+c      GO TO ( 100, 100, 100, 400, 500, 600, 700, 800 ) ISPEC
+      if (ISPEC >= 1 .and. ISPEC <=3) then
+         goto 100 
+      else if (ISPEC == 4) then
+         goto 400
+      else if (ISPEC == 5) then
+         goto 500
+      else if (ISPEC == 6) then
+         goto 600
+      else if (ISPEC == 7) then
+         goto 700
+      else if (ISPEC == 8) then
+         goto 800
+      end if
 *
 *     Invalid value for ISPEC
 *
@@ -5612,7 +5625,13 @@ c***********************************************************************
       C3 = SUBNAM( 4:6 )
       C4 = C3( 2:3 )
 *
-      GO TO ( 110, 200, 300 ) ISPEC
+      if (ISPEC == 1) then
+         goto 110
+      else if (ISPEC == 2) then
+         goto 200
+      else if (ISPEC == 3) then
+         goto 300
+      end if
 *
   110 CONTINUE
 *
