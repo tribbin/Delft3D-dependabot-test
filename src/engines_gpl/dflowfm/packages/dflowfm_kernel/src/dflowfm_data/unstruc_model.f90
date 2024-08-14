@@ -966,14 +966,14 @@ contains
             end if
          else if (iStrchType == STRCH_EXPONENT) then
             call realloc(laycof, 3)
-            laycof(:)= dmiss
+            laycof(:) = dmiss
             call prop_get_doubles(md_ptr, 'geometry', 'StretchCoef', laycof, 3, success)
-            if(.not.success) then
-                call mess(LEVEL_ERROR, '"StretchCoef" values are absent.')
+            if (.not. success) then
+               call mess(LEVEL_ERROR, '"StretchCoef" values are absent.')
             else
-                if(any(laycof == dmiss) ) then
-                   call mess(LEVEL_ERROR, '"StretchCoef" values are not properly set.')
-                end if
+               if (any(laycof == dmiss)) then
+                  call mess(LEVEL_ERROR, '"StretchCoef" values are not properly set.')
+               end if
             end if
          end if
 
@@ -1849,7 +1849,7 @@ contains
       call prop_get_doubles(md_ptr, 'output', 'MapInterval', ti_map_array, 3, success)
       call getOutputTimeArrays(ti_map_array, ti_maps, ti_map, ti_mape, success)
       call check_time_interval(ti_maps, ti_map, ti_mape, dt_user, 'MapInterval', tstart_user)
-      
+
       if (jawave == 3) then
          ti_com_array = 0.0_hp
          ti_com = dt_user !< defaults to backward compatible behaviour
@@ -3691,7 +3691,6 @@ contains
       ti_com_array(3) = ti_come
       call prop_set(prop_ptr, 'output', 'ComInterval', ti_com_array, 'Communication times (s), interval, starttime, stoptime (s), if starttime, stoptime are left blank, use whole simulation period')
 
-      
       ti_rst_array(1) = ti_rst
       ti_rst_array(2) = ti_rsts
       ti_rst_array(3) = ti_rste
@@ -4111,24 +4110,24 @@ contains
          call mess(LEVEL_ERROR, trim(mdu_keyword), ' should be larger than 0.')
       end if
    end subroutine check_positive_value
-   
+
    subroutine set_output_time_vector(md_tvfil, ti_tv, ti_tv_rel)
-      
+
       use m_flowtimes, only: tstop_user
-      
+
       implicit none
-      
+
       character(len=255), intent(in) :: md_tvfil !< file with output times requested
       real(kind=dp), allocatable, dimension(:), intent(out) :: ti_tv
       real(kind=dp), allocatable, dimension(:), intent(out) :: ti_tv_rel
-      
+
       integer :: j, je
       integer :: warn
       integer :: tvfile
       integer :: readerr
       real(kind=dp) :: acc
       logical :: success
-      
+
       warn = 0
       if (allocated(ti_tv)) deallocate (ti_tv)
       if (allocated(ti_tv_rel)) deallocate (ti_tv_rel)
@@ -4177,7 +4176,7 @@ contains
          ti_tv = 0.0_dp
          ti_tv_rel = tstop_user
       end if
-   
+
    end subroutine set_output_time_vector
 
 end module unstruc_model
