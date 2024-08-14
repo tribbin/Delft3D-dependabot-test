@@ -1,13 +1,3 @@
-module m_protistlog
-    use m_logger_helper
-
-    implicit none
-
-    integer, private            :: message_counter = 0
-    integer, private, parameter :: max_counter     = 100
-
-contains
-
     !!  Copyright (C)  Stichting Deltares, 2012-2024.
     !!
     !!  This program is free software: you can redistribute it and/or modify
@@ -32,6 +22,16 @@ contains
     !!  rights reserved.
 
     !!  Module to help with the warning messages issued by PROTIST
+
+module m_protistlog
+    use m_logger_helper
+
+    implicit none
+
+    integer, private            :: message_counter = 0
+    integer, private, parameter :: max_counter     = 100
+
+contains
 
     !> Write and count the warning
     !! But only actually write it if there are less than max_counter messages already
