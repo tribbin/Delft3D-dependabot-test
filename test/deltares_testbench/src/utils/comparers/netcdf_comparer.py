@@ -238,14 +238,8 @@ class NetcdfComparer(IComparer):
                             logger.info(f"Plotting of 1d-array not yet supported, variable name: {variable_name}")
                         if left_nc_var.ndim == 2:
                             try:
-                                # Search for the time variable of this parameter.
                                 time_var = search_time_variable(left_nc_root, variable_name)
-                                if time_var is None:
-                                    raise ValueError(
-                                        "Can not find the time variable. Plotting of non-time dependent parameters is not supported. Parameter name: '"
-                                        + variable_name
-                                        + "'."
-                                    )
+                                self.check_time_variable_found(time_var, variable_name)
 
                                 if cf_role_time_series_var is not None:
                                     plot_location = self.determine_plot_location(
@@ -289,6 +283,14 @@ class NetcdfComparer(IComparer):
                     )
                     raise Exception(error_msg)
         return results
+
+    def check_time_variable_found(self, time_var: nc.Dataset, variable_name: str) -> None:
+        """Check if the time variable is not None."""
+        if time_var is None:
+            raise ValueError(
+                "Can not find the time variable. Plotting of non-time dependent parameters is not supported."
+                + f"Parameter name: '{variable_name}'."
+            )
 
     def check_for_dimension_equality(
         self, left_nc_var: nc.Dataset, right_nc_var: nc.Dataset, variable_name: str
