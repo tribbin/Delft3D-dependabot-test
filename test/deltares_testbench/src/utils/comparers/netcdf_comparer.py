@@ -76,7 +76,6 @@ class NetcdfComparer(IComparer):
                                 self.compare_1d_arrays(left_nc_root, right_nc_root)
                             )
 
-                            plot_location = str(variable_name)
                             plot_ref_val = left_nc_var[:]
                             plot_cmp_val = right_nc_var[:]
 
@@ -156,47 +155,76 @@ class NetcdfComparer(IComparer):
                         if left_nc_var.ndim == 1:
                             logger.info(f"Plotting of 1d-array not yet supported, variable name: {variable_name}")
                         if left_nc_var.ndim == 2:
-                            try:
-                                time_var = search_time_variable(left_nc_root, variable_name)
-                                self.check_time_variable_found(time_var, variable_name)
-                                if cf_role_time_series_vars.__len__() == 0:
-                                    subtitle = self.get_plot_subtitle(time_var, row_id)
-                                    plot_ref_val = left_nc_var[row_id, :]
-                                    plot_cmp_val = right_nc_var[row_id, :]
-                                    self.create_2d_plot(
-                                        testcase_name,
-                                        variable_name,
-                                        plot_ref_val,
-                                        plot_cmp_val,
-                                        right_path,
-                                        left_nc_root,
-                                        left_nc_var,
-                                        param_new,
-                                        subtitle,
-                                    )
-                                else:
-                                    plot_location = self.determine_plot_location(
-                                        left_nc_root, observation_type, column_id
-                                    )
-                                    self.create_time_series_plot(
-                                        testcase_name,
-                                        variable_name,
-                                        plot_ref_val,
-                                        plot_cmp_val,
-                                        right_path,
-                                        time_var,
-                                        plot_location,
-                                    )
-
-                            except Exception as e:
-                                logger.error(f"Plotting of parameter {variable_name} failed")
-                                logger.error(str(e))
-                                local_error = True
-                                result.error = True
+                            result.error = self.plot_2d_array(
+                                logger,
+                                testcase_name,
+                                variable_name,
+                                plot_ref_val,
+                                plot_cmp_val,
+                                cf_role_time_series_vars,
+                                left_nc_root,
+                                left_nc_var,
+                                row_id,
+                                column_id,
+                                right_path,
+                                param_new,
+                                observation_type,
+                            )
                     results.append((testcase_name, file_check, param_new, result))
 
                 self.check_match_for_parameter_name(matchnumber, parameter_name, left_path, filename)
         return results
+
+    def plot_2d_array(
+        self,
+        logger,
+        testcase_name,
+        variable_name,
+        plot_ref_val,
+        plot_cmp_val,
+        cf_role_time_series_vars,
+        left_nc_root,
+        left_nc_var,
+        row_id,
+        column_id,
+        right_path,
+        param_new,
+        observation_type,
+    ):
+        try:
+            time_var = search_time_variable(left_nc_root, variable_name)
+            self.check_time_variable_found(time_var, variable_name)
+            if cf_role_time_series_vars.__len__() == 0:
+                subtitle = self.get_plot_subtitle(time_var, row_id)
+
+                self.plot_2d(
+                    testcase_name,
+                    variable_name,
+                    plot_ref_val,
+                    plot_cmp_val,
+                    right_path,
+                    left_nc_root,
+                    left_nc_var,
+                    param_new,
+                    subtitle,
+                )
+            else:
+                plot_location = self.determine_plot_location(left_nc_root, observation_type, column_id)
+                self.plot_time_Series(
+                    testcase_name,
+                    variable_name,
+                    plot_ref_val,
+                    plot_cmp_val,
+                    right_path,
+                    time_var,
+                    plot_location,
+                )
+
+        except Exception as e:
+            logger.error(f"Plotting of parameter {variable_name} failed")
+            logger.error(str(e))
+            return True
+        return False
 
     def compare_nd_arrays(self, left_nc_var: nc.Dataset, right_nc_var: nc.Dataset):
         """
@@ -304,8 +332,12 @@ class NetcdfComparer(IComparer):
         result.min_ref_value = np.min(left_nc_var[:, column_id])
         result.max_ref_value = np.max(left_nc_var[:, column_id])
 
-        result.plot_ref_val = left_nc_var[:, column_id]
-        result.plot_cmp_val = right_nc_var[:, column_id]
+        if cf_role_time_series_vars.__len__() == 0:
+            result.plot_ref_val = left_nc_var[row_id, :]
+            result.plot_cmp_val = right_nc_var[row_id, :]
+        else:
+            result.plot_ref_val = left_nc_var[:, column_id]
+            result.plot_cmp_val = right_nc_var[:, column_id]
 
         result.max_abs_diff = diff_arr[row_id, column_id]
         result.max_abs_diff_coordinates = (row_id, column_id)
@@ -343,7 +375,7 @@ class NetcdfComparer(IComparer):
                 + f"{left_nc_var.shape}. Shape of run data: {right_nc_var.shape}"
             )
 
-    def create_time_series_plot(
+    def plot_time_Series(
         self,
         testcase_name: str,
         variable_name: str,
@@ -377,7 +409,7 @@ class NetcdfComparer(IComparer):
             plot_location = "model_wide"
         return plot_location
 
-    def create_2d_plot(
+    def plot_2d(
         self,
         testcase_name: str,
         variable_name: str,
