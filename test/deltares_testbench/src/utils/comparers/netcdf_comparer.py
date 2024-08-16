@@ -98,6 +98,7 @@ class NetcdfComparer(IComparer):
                                 param_new,
                                 variable_name,
                                 cf_role_time_series_vars,
+
                             )
 
                             result.maxAbsDiff = result_2d_array.max_abs_diff
@@ -105,11 +106,16 @@ class NetcdfComparer(IComparer):
                             result.maxAbsDiffValues = result_2d_array.max_abs_diff_values
                             min_ref_value = result_2d_array.min_ref_value
                             max_ref_value = result_2d_array.max_ref_value
-                            plot_ref_val = result_2d_array.plot_ref_val
-                            plot_cmp_val = result_2d_array.plot_cmp_val
                             observation_type = result_2d_array.observation_type
                             row_id = result_2d_array.row_id
                             column_id = result_2d_array.column_id
+                            
+                            if cf_role_time_series_vars.__len__() == 0:
+                                plot_ref_val = left_nc_var[row_id, :]
+                                plot_cmp_val = right_nc_var[row_id, :]
+                            else:
+                                plot_ref_val = left_nc_var[:, column_id]
+                                plot_cmp_val = right_nc_var[:, column_id]
 
                         else:
                             result.maxAbsDiff, result.maxAbsDiffCoordinates, result.maxAbsDiffValues = (
@@ -332,13 +338,6 @@ class NetcdfComparer(IComparer):
         # This overrides the default min/max of all ref values.
         result.min_ref_value = np.min(left_nc_var[:, column_id])
         result.max_ref_value = np.max(left_nc_var[:, column_id])
-
-        if cf_role_time_series_vars.__len__() == 0:
-            result.plot_ref_val = left_nc_var[row_id, :]
-            result.plot_cmp_val = right_nc_var[row_id, :]
-        else:
-            result.plot_ref_val = left_nc_var[:, column_id]
-            result.plot_cmp_val = right_nc_var[:, column_id]
 
         result.max_abs_diff = diff_arr[row_id, column_id]
         result.max_abs_diff_coordinates = (row_id, column_id)

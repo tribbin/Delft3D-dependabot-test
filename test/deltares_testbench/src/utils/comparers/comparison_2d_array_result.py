@@ -7,8 +7,6 @@ class Comparison2DArrayResult:
         self.max_abs_diff_values = (0.0, 0.0)  # Left and right.
         self.min_ref_value = 0.0
         self.max_ref_value = 0.0
-        self.plot_ref_val = 0.0
-        self.plot_cmp_val = 0.0
         self.observation_type = ""
         self.column_id = 0
         self.row_id = 0
