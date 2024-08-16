@@ -13,6 +13,7 @@ from typing import List, Tuple
 import netCDF4 as nc
 import numpy as np
 
+from typing import Any
 import src.utils.plot_differences as plot
 from src.config.file_check import FileCheck
 from src.config.parameter import Parameter
@@ -40,22 +41,20 @@ class NetcdfComparer(IComparer):
         for parameters in file_check.parameters.values():
             for parameter in parameters:
                 local_error = False
-                parameter_name = parameter.name
                 result = ComparisonResult(error=local_error)
 
                 min_ref_value = sys.float_info.max
                 max_ref_value = sys.float_info.min
 
-                plot_ref_val = None
-                plot_cmp_val = None
+                plot_ref_val = np.array([])
+                plot_cmp_val = np.array([])
 
-                filename = file_check.name
-                left_nc_root = self.open_netcdf_file(left_path, filename)
-                right_nc_root = self.open_netcdf_file(right_path, filename)
+                left_nc_root = self.open_netcdf_file(left_path, file_check.name)
+                right_nc_root = self.open_netcdf_file(right_path, file_check.name)
 
                 matchnumber = 0
                 for variable_name in left_nc_root.variables.keys():
-                    if re.match(f"^{parameter_name}$", variable_name) is None:
+                    if re.match(f"^{parameter.name}$", variable_name) is None:
                         continue
                     try:
                         param_new: Parameter = copy.deepcopy(parameter)
@@ -73,7 +72,7 @@ class NetcdfComparer(IComparer):
                         # http://docs.scipy.org/doc/numpy/reference/generated/numpy.argmax.html
                         if left_nc_var.ndim == 1:
                             result.maxAbsDiff, result.maxAbsDiffCoordinates, result.maxAbsDiffValues = (
-                                self.compare_1d_arrays(left_nc_root, right_nc_root)
+                                self.compare_1d_arrays(left_nc_var, right_nc_var)
                             )
 
                             plot_ref_val = left_nc_var[:]
@@ -107,7 +106,7 @@ class NetcdfComparer(IComparer):
                             #   history file, with stations. Plot the time series for the station with the largest
                             #   deviation.
                             if cf_role_time_series_vars.__len__() == 0:
-                                observation_type = parameter_name
+                                observation_type = parameter.name
                                 plot_ref_val = left_nc_var[row_id, :]
                                 plot_cmp_val = right_nc_var[row_id, :]
                             else:
@@ -124,7 +123,7 @@ class NetcdfComparer(IComparer):
                         result.error = True
 
                     except Exception as e:
-                        logger.error(f"Could not find parameter: {variable_name}, in file: {filename}")
+                        logger.error(f"Could not find parameter: {variable_name}, in file: {file_check.name}")
                         logger.error(str(e))
                         result.error = True
 
@@ -160,15 +159,15 @@ class NetcdfComparer(IComparer):
                                 row_id,
                                 column_id,
                                 right_path,
-                                param_new,
+                                param_new.tolerance_absolute,
                                 observation_type,
                             )
                     results.append((testcase_name, file_check, param_new, result))
 
-                self.check_match_for_parameter_name(matchnumber, parameter_name, left_path, filename)
+                self.check_match_for_parameter_name(matchnumber, parameter.name, left_path, file_check.name)
         return results
 
-    def get_max_rel_diff(self, maxAbsDiff, min_ref_value, max_ref_value):
+    def get_max_rel_diff(self, max_abs_diff: float, min_ref_value: float, max_ref_value: float) -> float:
         """
         Calculate the maximum relative difference.
 
@@ -176,35 +175,34 @@ class NetcdfComparer(IComparer):
         the maximum and minimum reference values. It handles edge cases where the differences are very small.
         """
         # Make the absolute difference in maxDiff relative, by dividing by (max_ref_value-min_ref_value).
-        if maxAbsDiff < 2 * sys.float_info.epsilon:
+        if max_abs_diff < 2 * sys.float_info.epsilon:
             # No difference found, so relative difference is set to 0.
             return 0.0
         elif max_ref_value - min_ref_value < 2 * sys.float_info.epsilon:
             # Very small difference found, so the denominator will be very small, so set relative difference to maximum.
             return 1.0
         else:
-            return min(1.0, maxAbsDiff / (max_ref_value - min_ref_value))
+            return min(1.0, max_abs_diff / (max_ref_value - min_ref_value))
 
     def plot_2d_array(
         self,
-        logger,
-        testcase_name,
-        variable_name,
-        plot_ref_val,
-        plot_cmp_val,
-        cf_role_time_series_vars,
-        left_nc_root,
-        left_nc_var,
-        row_id,
-        column_id,
-        right_path,
-        param_new,
-        observation_type,
-    ):
+        logger: ILogger,
+        testcase_name: str,
+        variable_name: str,
+        plot_ref_val: np.ndarray,
+        plot_cmp_val: np.ndarray,
+        cf_role_time_series_vars: List[str],
+        left_nc_root: nc.Dataset,
+        left_nc_var: nc.Variable,
+        row_id: int,
+        column_id: int,
+        right_path: str,
+        tolerance_absolute: float,
+        observation_type: str,
+    ) -> bool:
         """Plot a 2D array or time series based on the provided parameters."""
         try:
             time_var = search_time_variable(left_nc_root, variable_name)
-            self.check_time_variable_found(time_var, variable_name)
             if cf_role_time_series_vars.__len__() == 0:
                 subtitle = self.get_plot_subtitle(time_var, row_id)
 
@@ -216,12 +214,12 @@ class NetcdfComparer(IComparer):
                     right_path,
                     left_nc_root,
                     left_nc_var,
-                    param_new,
+                    tolerance_absolute,
                     subtitle,
                 )
             else:
                 plot_location = self.determine_plot_location(left_nc_root, observation_type, column_id)
-                self.plot_time_Series(
+                self.plot_time_series(
                     testcase_name,
                     variable_name,
                     plot_ref_val,
@@ -237,7 +235,7 @@ class NetcdfComparer(IComparer):
             return True
         return False
 
-    def compare_nd_arrays(self, left_nc_var: nc.Dataset, right_nc_var: nc.Dataset):
+    def compare_nd_arrays(self, left_nc_var: nc.Variable, right_nc_var: nc.Variable):
         """
         Compare two n-dimensional arrays and find the maximum absolute difference.
 
@@ -285,7 +283,7 @@ class NetcdfComparer(IComparer):
         )
         return max_abs_diff, max_abs_diff_coordinates, max_abs_diff_values
 
-    def compare_1d_arrays(self, left_nc_var: nc.Dataset, right_nc_var: nc.Dataset):
+    def compare_1d_arrays(self, left_nc_var: nc.Variable, right_nc_var: nc.Variable):
         """Compare two 1D arrays datasets and returns the maximum absolute difference."""
         diff_arr = np.abs(left_nc_var[:] - right_nc_var[:])
         i_max = np.argmax(diff_arr)
@@ -296,13 +294,13 @@ class NetcdfComparer(IComparer):
 
     def compare_2d_arrays(
         self,
-        left_nc_var: nc.Dataset,
-        right_nc_var: nc.Dataset,
-        left_nc_root,
+        left_nc_var: nc.Variable,
+        right_nc_var: nc.Variable,
+        left_nc_root: nc.Dataset,
         param_new: Parameter,
         variable_name: str,
-        cf_role_time_series_vars,
-    ):
+        cf_role_time_series_vars: List[str],
+    ) -> Comparison2DArrayResult:
         """Compare two 2D arrays datasets and returns the comparison result."""
         result = Comparison2DArrayResult()
         # 2D array
@@ -334,25 +332,30 @@ class NetcdfComparer(IComparer):
             error_msg = f"No match for parameter name {parameter_name} in file {os.path.join(left_path, filename)}"
             raise Exception(error_msg)
 
-    def get_observation_type(self, left_nc_var, cf_role_time_series_vars):
+    def get_observation_type(self, left_nc_var: nc.Variable, cf_role_time_series_vars: List[str]) -> str:
         """Determine the observation type based on the coordinates attribute of the NetCDF variable."""
         if hasattr(left_nc_var, "coordinates"):
             location_types = left_nc_var.coordinates.split(" ")
             for variable in cf_role_time_series_vars:
                 for location_type in location_types:
                     if location_type == variable:
-                        return location_type
-        return cf_role_time_series_vars[0]
+                        return str(location_type)
+        return str(cf_role_time_series_vars[0])
 
     def find_column_and_row_id(
-        self, parameter_location, cf_role_time_series_vars, left_nc_root, diff_arr, variable_name
-    ):
+        self,
+        parameter_location: str,
+        cf_role_time_series_vars: List[str],
+        left_nc_root: nc.Dataset,
+        diff_arr: np.ndarray,
+        variable_name: str,
+    ) -> Tuple[int, int]:
         """Find the column and row ID based on the given parameter location and difference array."""
         parameter_location_found = False
-        column_id = None
-        row_id = None
+        column_id = 0
+        row_id = 0
 
-        if parameter_location is not None:
+        if parameter_location != "":
             for variable in cf_role_time_series_vars:
                 if variable is not None:
                     location_var = left_nc_root.variables[variable]
@@ -369,21 +372,13 @@ class NetcdfComparer(IComparer):
             row_id = int(np.argmax(diff_arr[:, column_id]))
         else:
             i_max = np.argmax(diff_arr)
-            column_id = i_max % diff_arr.shape[1]
+            column_id = int(i_max % diff_arr.shape[1])
             row_id = int(i_max / diff_arr.shape[1])  # diff_arr.shape = (nrows, ncolumns)
 
         return column_id, row_id
 
-    def check_time_variable_found(self, time_var: nc.Dataset, variable_name: str) -> None:
-        """Check if the time variable is not None."""
-        if time_var is None:
-            raise ValueError(
-                "Can not find the time variable. Plotting of non-time dependent parameters is not supported."
-                + f"Parameter name: '{variable_name}'."
-            )
-
     def check_for_dimension_equality(
-        self, left_nc_var: nc.Dataset, right_nc_var: nc.Dataset, variable_name: str
+        self, left_nc_var: nc.Variable, right_nc_var: nc.Variable, variable_name: str
     ) -> None:
         """Check dimension equility and raises exception if not correct."""
         if left_nc_var.shape != right_nc_var.shape:
@@ -392,16 +387,16 @@ class NetcdfComparer(IComparer):
                 + f"{left_nc_var.shape}. Shape of run data: {right_nc_var.shape}"
             )
 
-    def plot_time_Series(
+    def plot_time_series(
         self,
         testcase_name: str,
         variable_name: str,
-        plot_ref_val,
-        plot_cmp_val,
+        plot_ref_val: np.ndarray,
+        plot_cmp_val: np.ndarray,
         right_path: str,
         time_var: nc.Dataset,
-        plot_location,
-    ):
+        plot_location: str,
+    ) -> None:
         """Plot a time series graph."""
         unit_txt = "".join(time_var.units).strip()
         start_datetime, delta = interpret_time_unit(unit_txt)
@@ -418,26 +413,26 @@ class NetcdfComparer(IComparer):
             "netcdf",
         )
 
-    def determine_plot_location(self, left_nc_root, observation_type, column_id: int):
+    def determine_plot_location(self, left_nc_root: nc.Dataset, observation_type: str, column_id: int) -> str:
         """Determine location name, needed when no location is specified otherwise it is equal to parameter_location."""
         plot_location = left_nc_root.variables[observation_type][column_id][:]
         plot_location = b"".join(filter(None, plot_location)).decode("utf-8").strip()
         if plot_location == "":
             plot_location = "model_wide"
-        return plot_location
+        return str(plot_location)
 
     def plot_2d(
         self,
         testcase_name: str,
         variable_name: str,
-        plot_ref_val,
-        plot_cmp_val,
+        plot_ref_val: np.ndarray,
+        plot_cmp_val: np.ndarray,
         right_path: str,
-        left_nc_root,
-        left_nc_var: nc.Dataset,
-        param_new,
-        subtitle,
-    ):
+        left_nc_root: nc.Dataset,
+        left_nc_var: nc.Variable,
+        tolerance_absolute: float,
+        subtitle: str,
+    ) -> None:
         """Plot a 2D graph."""
         # search coordinates
         coords = left_nc_var.coordinates.split()
@@ -450,14 +445,14 @@ class NetcdfComparer(IComparer):
             y_coords,
             plot_ref_val,
             plot_cmp_val,
-            param_new.tolerance_absolute,
+            tolerance_absolute,
             testcase_name,
             variable_name,
             subtitle,
             "netcdf",
         )
 
-    def get_plot_subtitle(self, time_var, row_id) -> str:
+    def get_plot_subtitle(self, time_var: nc.Variable, row_id: int) -> str:
         """Compute datetime for which we are making a plot / scalar field."""
         unit_txt = "".join(time_var.units).strip()
         start_datetime, delta = interpret_time_unit(unit_txt)
@@ -477,17 +472,21 @@ class NetcdfComparer(IComparer):
         return nc_root
 
 
-def search_time_variable(nc_root, var_name):
+def search_time_variable(nc_root: nc.Dataset, var_name: str) -> nc.Variable:
     """Return time dimension or `None`."""
     keywords = ("seconds", "minute", "hour", "days")
     for dim in nc_root.variables[var_name].dimensions:
         if dim in nc_root.variables:
             if any(keyword in nc_root.variables[dim].units for keyword in keywords):
                 return nc_root.variables[dim]
-    return None
+
+    raise ValueError(
+        "Can not find the time variable. Plotting of non-time dependent parameters is not supported."
+        + f"Parameter name: '{var_name}'."
+    )
 
 
-def search_times_series_id(nc_root) -> List:
+def search_times_series_id(nc_root: nc.Dataset) -> List[str]:
     """Return variable key if `cf_role == timeseries_id`, otherwise `None`."""
     keys = []
     for key, value in nc_root.variables.items():
