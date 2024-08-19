@@ -224,10 +224,6 @@ class NetcdfComparer(IComparer):
         result.column_id = column_id
         return result
 
-    def get_difference(self, left_nc_var: nc.Variable, right_nc_var: nc.Variable) -> np.ndarray:
-        """Calculate the absolute difference between two NetCDF variables."""
-        return np.abs(left_nc_var[:] - right_nc_var[:])
-
     def compare_nd_arrays(self, left_nc_var: nc.Variable, right_nc_var: nc.Variable):
         """
         Compare two n-dimensional arrays and find the maximum absolute difference.
@@ -381,6 +377,10 @@ class NetcdfComparer(IComparer):
         if plot_location == "":
             plot_location = "model_wide"
         return str(plot_location)
+
+    def get_difference(self, left_nc_var: nc.Variable, right_nc_var: nc.Variable) -> np.ndarray:
+        """Calculate the absolute difference between two NetCDF variables."""
+        return np.abs(left_nc_var[:] - right_nc_var[:])
 
     def get_plot_subtitle(self, time_var: nc.Variable, row_id: int) -> str:
         """Compute datetime for which we are making a plot / scalar field."""
