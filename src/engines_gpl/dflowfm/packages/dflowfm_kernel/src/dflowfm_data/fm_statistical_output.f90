@@ -561,7 +561,7 @@ contains
       implicit none
 
       type(t_output_quantity_config_set), intent(inout) :: output_config_set !< Output configuration for the his-file.
-      integer, allocatable, intent(out) :: idx_wqbot3D_stations(:) !< Indices of just-in-time added waq bottom    substances in output_config_set array
+      integer, allocatable, intent(out) :: idx_wqbot3D_stations(:) !< Indices of just-in-time added waq bottom substances in output_config_set array
 
       character(len=idlen) :: waqb_sub_name
       character(len=idlen) :: unit_string
@@ -582,13 +582,12 @@ contains
          end if
 
          ! add output config item
-         call add_output_config(output_config_set, idx_wqbot3D_stations(i), 'Wrihis_wqbot3d', waqb_sub_name, &
+         call add_output_config(output_config_set, idx_wqbot3D_stations(i), 'Wrihis_wqbot3d', trim(waqb_sub_name)//'_3D', &
                                 trim(wqbotnames(i))//' (3D)', '', unit_string, UNC_LOC_STATION, nc_dim_ids=station_nc_dims_3D_center, nc_attributes=atts)
 
          output_config_set%configs(idx_wqbot3D_stations(i))%input_value = &
             output_config_set%configs(IDX_HIS_WQBOT_ABSTRACT)%input_value
       end do
-
    end subroutine add_station_wqbot3D_configs
 
    !> Add output items for all waq bottom substances on stations to output set.
@@ -2153,7 +2152,7 @@ contains
       use m_longculverts, only: nlongculverts
       use m_monitoring_crosssections, only: ncrs
       use m_monitoring_runupgauges, only: num_rugs, rug
-      use m_fm_wq_processes, only: jawaqproc, numwqbots
+      use m_fm_wq_processes, only: jawaqproc, numwqbots, wqbot3d_output
       use processes_input, only: num_wq_user_outputs => noout_user
       use m_dad, only: dad_included, dadpar
       use m_laterals, only: numlatsg, qplat, qplatAve, qLatRealAve, qLatReal
@@ -2635,7 +2634,7 @@ contains
 
          if (jahissed > 0 .and. jased > 0 .and. stm_included) then
             if (stmpar%morpar%moroutput%taub) then
-               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_TAUB), valobs(1:ntot,IPNT_TAUB))
+               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_TAUB), valobs(1:ntot, IPNT_TAUB))
             end if
             if (stmpar%lsedtot > 0) then
                if (stmpar%morpar%moroutput%sbcuv) then
@@ -2727,7 +2726,7 @@ contains
          if (numwqbots > 0) then
             call add_station_wqbot_configs(output_config_set, idx_wqbot_stations)
             call add_station_wqbot_output_items(output_set, output_config_set, idx_wqbot_stations)
-            if (model_is_3D()) then
+            if (model_is_3D() .and. wqbot3d_output == 1) then
                call add_station_wqbot3D_configs(output_config_set, idx_wqbot3D_stations)
                call add_station_wqbot3D_output_items(output_set, output_config_set, idx_wqbot3D_stations)
             end if
