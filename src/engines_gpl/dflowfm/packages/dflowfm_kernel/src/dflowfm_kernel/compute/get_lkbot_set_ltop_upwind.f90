@@ -29,38 +29,24 @@
 
 !
 !
+!> Get 3D flow link and node indices for a given "2D" flow link based on given upwind node.
+!! Also sets global Lbot array.
+subroutine get_lkbot_set_ltop_upwind(link, upstream_cell, upstream_cell_index, Lb, kb, kt)
+   use m_flow, only: Lbot, ktop, Ltop
+   use m_turbulence, only: ln0
 
- subroutine gate3D(jazerou1)
-    use m_flow
-    use m_flowgeom
-    use fm_external_forcings_data
-    implicit none
-    integer :: jazerou1 ! 1 set u1 zero above gate
-    integer :: L, LL, Lb, Lt, ng, n
-    double precision :: zga, bup, zLu, fac
+   implicit none
 
-    do ng = 1, ngatesg
-       zga = zgate(ng)
-       do n = L1gatesg(ng), L2gatesg(ng)
-          LL = kgate(3, n)
-          if (hu(LL) > 0d0) then
-             bup = 0.5d0 * (bob(1, LL) + bob(2, LL))
+   integer, intent(in) :: link ! flow link index
+   integer, intent(in) :: upstream_cell ! upstream flow node
+   integer, intent(in) :: upstream_cell_index ! index in flowlink to flownode array
+   integer, intent(out) :: Lb ! 3D flow link index at bed
+   integer, intent(out) :: kb ! 3D flow node index at bed
+   integer, intent(out) :: kt ! 3D flow node index at top
 
-             call getLbotLtop(LL, Lb, Lt)
-             do L = Lb, Lt
-                ZLu = bup + hu(L - 1)
-                fac = (zga - zLu) / (hu(L) - hu(L - 1))
-                if (fac < 0.1d0) then
-                   Ltop(LL) = L - 1; exit
-                else
-                   fac = max(0d0, min(1d0, fac))
-                end if
-                hu(L) = hu(L - 1) + fac * (hu(L) - hu(l - 1))
-                au(L) = au(L) * fac
-             end do
-             au(Ltop(LL) + 1:Lbot(LL) + kmxL(LL) - 1) = 0d0 ! -12346d0 ! 6 not 5
+   Lb = Lbot(link)
+   kt = ktop(upstream_cell)
+   kb = min(ln0(upstream_cell_index, Lb), kt)
+   Ltop(link) = Lb + kt - kb
 
-          end if
-       end do
-    end do
- end subroutine gate3D
+end subroutine get_lkbot_set_ltop_upwind

@@ -30,7 +30,7 @@
 !
 !
 
-  subroutine NETLINKVALS(MET, NCOL)
+  subroutine NETLINKVALS(MET)
 
      use m_flowgeom, only: XZ, YZ, lne2ln
      use m_missing
@@ -44,7 +44,7 @@
 
      implicit none
 
-     integer :: MET, NCOL
+     integer :: MET
      integer :: jacftrt
      double precision :: ag
      double precision :: cfl
@@ -110,15 +110,15 @@
            if (MET == 2) then
               V = L
            else if (MET == 3) then
-              call DHITEXT(K1, XK(K1), YK(K1), ZK(K1))
-              call DHITEXT(K2, XK(K2), YK(K2), ZK(K2))
+              call DHITEXT(K1, XK(K1), YK(K1))
+              call DHITEXT(K2, XK(K2), YK(K2))
            else if (MET == 4) then
               if (NUMP > 0 .and. jaxz == 1 .and. L <= size(LNN)) then
                  if (LNN(L) == 2) then
-                    X3 = XZ(iabs(LNE(1, L)))
-                    X4 = XZ(iabs(LNE(2, L)))
-                    Y3 = YZ(iabs(LNE(1, L)))
-                    Y4 = YZ(iabs(LNE(2, L)))
+                    X3 = XZ(abs(LNE(1, L)))
+                    X4 = XZ(abs(LNE(2, L)))
+                    Y3 = YZ(abs(LNE(1, L)))
+                    Y4 = YZ(abs(LNE(2, L)))
                     V = DCOSPHI(XK(K1), YK(K1), XK(K2), YK(K2), X3, Y3, X4, Y4, jsferic, jasfer3D, dxymis)
                     if (v /= dmiss) then
                        v = abs(v)
