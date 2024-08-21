@@ -133,32 +133,10 @@ class NetcdfComparer(IComparer):
             right_nc_var = right_nc_root.variables[variable_name]
             self.check_for_dimension_equality(left_nc_var, right_nc_var, variable_name)
 
-            reference_values = ReferenceValues(float(np.min(left_nc_var[:])), float(np.max(left_nc_var[:])))
-
             # http://docs.scipy.org/doc/numpy/reference/generated/numpy.argmax.html
-            if left_nc_var.ndim == 1:
-                result = self.compare_1d_arrays(left_nc_var, right_nc_var)
-                plot_values = PlotValues(left_nc_var[:], right_nc_var[:])
-
-            elif left_nc_var.ndim == 2:
-                cf_role_time_series_vars = search_times_series_id(left_nc_root)
-                diff_arr = self.get_difference(left_nc_var, right_nc_var)
-
-                array_index = self.get_array_index(
-                    parameter.location, cf_role_time_series_vars, left_nc_root, diff_arr, variable_name
-                )
-                reference_values.minimum = np.min(left_nc_var[:, array_index.column])
-                reference_values.maximum = np.max(left_nc_var[:, array_index.column])
-                result = self.compare_2d_arrays(left_nc_var, right_nc_var, diff_arr, array_index)
-
-                if cf_role_time_series_vars.__len__() == 0:
-                    plot_values = PlotValues(left_nc_var[array_index.row, :], right_nc_var[array_index.row, :])
-                    observation_type = parameter.name
-                else:
-                    plot_values = PlotValues(left_nc_var[:, array_index.column], right_nc_var[:, array_index.column])
-                    observation_type = self.get_observation_type(left_nc_var, cf_role_time_series_vars)
-            else:
-                result = self.compare_nd_arrays(left_nc_var, right_nc_var)
+            result, cf_role_time_series_vars, array_index = self.compare_array(
+                parameter, left_nc_root, variable_name, left_nc_var, right_nc_var
+            )
 
         except RuntimeError as e:
             logger.error(str(e))
@@ -168,6 +146,47 @@ class NetcdfComparer(IComparer):
             logger.error(f"Could not find parameter: {variable_name}, in file: {file_check_name}")
             logger.error(str(e))
             result.error = True
+
+        if result.result == "NOK":
+            if left_nc_var.ndim == 1:
+                logger.info(f"Plotting of 1d-array not yet supported, variable name: {variable_name}")
+            if left_nc_var.ndim == 2:
+                result.error = self.plot_2d_array(
+                    logger,
+                    plot_data,
+                    cf_role_time_series_vars,
+                    left_nc_root,
+                    left_nc_var,
+                    right_nc_var,
+                    array_index,
+                    parameter,
+                )
+
+        return result
+
+    def compare_array(
+        self,
+        parameter: Parameter,
+        left_nc_root: nc.Dataset,
+        variable_name: str,
+        left_nc_var: nc.Variable,
+        right_nc_var: nc.Variable,
+    ):
+        reference_values = ReferenceValues(float(np.min(left_nc_var[:])), float(np.max(left_nc_var[:])))
+        if left_nc_var.ndim == 1:
+            result = self.compare_1d_arrays(left_nc_var, right_nc_var)
+        elif left_nc_var.ndim == 2:
+            cf_role_time_series_vars = search_times_series_id(left_nc_root)
+            diff_arr = self.get_difference(left_nc_var, right_nc_var)
+
+            array_index = self.get_array_index(
+                parameter.location, cf_role_time_series_vars, left_nc_root, diff_arr, variable_name
+            )
+            reference_values.minimum = np.min(left_nc_var[:, array_index.column])
+            reference_values.maximum = np.max(left_nc_var[:, array_index.column])
+            result = self.compare_2d_arrays(left_nc_var, right_nc_var, diff_arr, array_index)
+        else:
+            result = self.compare_nd_arrays(left_nc_var, right_nc_var)
 
         # if min_ref_value has no value (it is a  _FillValue) then the test is OK (presumed)
         if np.ma.is_masked(reference_values.minimum):
@@ -182,24 +201,7 @@ class NetcdfComparer(IComparer):
             parameter.tolerance_absolute,
             parameter.tolerance_relative,
         )
-
-        if result.result == "NOK":
-            if left_nc_var.ndim == 1:
-                logger.info(f"Plotting of 1d-array not yet supported, variable name: {variable_name}")
-            if left_nc_var.ndim == 2:
-                result.error = self.plot_2d_array(
-                    logger,
-                    plot_data,
-                    plot_values,
-                    cf_role_time_series_vars,
-                    left_nc_root,
-                    left_nc_var,
-                    array_index,
-                    parameter.tolerance_absolute,
-                    observation_type,
-                )
-
-        return result
+        return result, cf_role_time_series_vars, array_index
 
     def compare_1d_arrays(self, left_nc_var: nc.Variable, right_nc_var: nc.Variable) -> ComparisonResult:
         """Compare two 1D arrays datasets and returns the maximum absolute difference."""
@@ -268,6 +270,50 @@ class NetcdfComparer(IComparer):
         )
         return result
 
+    def plot_2d_array(
+        self,
+        logger: ILogger,
+        plot_data: PlotData,
+        cf_role_time_series_vars: List[str],
+        left_nc_root: nc.Dataset,
+        left_nc_var: nc.Variable,
+        right_nc_var: nc.Variable,
+        array_index: RowColumnIndex,
+        parameter: Parameter,
+    ) -> bool:
+        """Plot a 2D array or time series based on the provided parameters."""
+        try:
+            time_var = search_time_variable(left_nc_root, plot_data.variable_name)
+            if cf_role_time_series_vars.__len__() == 0:
+                plot_values = PlotValues(left_nc_var[array_index.row, :], right_nc_var[array_index.row, :])
+                observation_type = parameter.name
+                subtitle = self.get_plot_subtitle(time_var, array_index.row)
+
+                self.plot_2d(
+                    plot_data,
+                    plot_values,
+                    left_nc_root,
+                    left_nc_var,
+                    parameter.tolerance_absolute,
+                    subtitle,
+                )
+            else:
+                plot_values = PlotValues(left_nc_var[:, array_index.column], right_nc_var[:, array_index.column])
+                observation_type = self.get_observation_type(left_nc_var, cf_role_time_series_vars)
+                plot_location = self.determine_plot_location(left_nc_root, observation_type, array_index.column)
+                self.plot_time_series(
+                    plot_data,
+                    plot_values,
+                    time_var,
+                    plot_location,
+                )
+
+        except Exception as e:
+            logger.error(f"Plotting of parameter {plot_data.variable_name} failed")
+            logger.error(str(e))
+            return True
+        return False
+
     def plot_2d(
         self,
         plot_data: PlotData,
@@ -294,47 +340,6 @@ class NetcdfComparer(IComparer):
             subtitle,
             "netcdf",
         )
-
-    def plot_2d_array(
-        self,
-        logger: ILogger,
-        plot_data: PlotData,
-        plot_values: PlotValues,
-        cf_role_time_series_vars: List[str],
-        left_nc_root: nc.Dataset,
-        left_nc_var: nc.Variable,
-        array_index: RowColumnIndex,
-        tolerance_absolute: float,
-        observation_type: str,
-    ) -> bool:
-        """Plot a 2D array or time series based on the provided parameters."""
-        try:
-            time_var = search_time_variable(left_nc_root, plot_data.variable_name)
-            if cf_role_time_series_vars.__len__() == 0:
-                subtitle = self.get_plot_subtitle(time_var, array_index.row)
-
-                self.plot_2d(
-                    plot_data,
-                    plot_values,
-                    left_nc_root,
-                    left_nc_var,
-                    tolerance_absolute,
-                    subtitle,
-                )
-            else:
-                plot_location = self.determine_plot_location(left_nc_root, observation_type, array_index.column)
-                self.plot_time_series(
-                    plot_data,
-                    plot_values,
-                    time_var,
-                    plot_location,
-                )
-
-        except Exception as e:
-            logger.error(f"Plotting of parameter {plot_data.variable_name} failed")
-            logger.error(str(e))
-            return True
-        return False
 
     def plot_time_series(
         self,
