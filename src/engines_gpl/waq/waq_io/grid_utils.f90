@@ -48,7 +48,7 @@ contains
         !!              processing. In new input processing the software counts the number
         !!              of additional grid specifications.
         !!          - ZMODEL. A Zlayer model is used, relevance unknown.
-        !!          - num_layers followed by an integer, specifies number of layers in base grid.
+        !!          - NOLAY followed by an integer, specifies number of layers in base grid.
         !!              May be redundant because this can be done at several locations.
         !!          - BOTTOMGRID. Specifies grid in waterbed. Diverts to read_grid.
         !!          - BEDGRID. Seems to be the right name for BOTTOMGRID.
@@ -169,7 +169,7 @@ contains
 
             if (.not. multigrid) then                 ! still no multigrid chosen
                 select case (ctoken)                   ! num_layers necessary here
-                case ('num_layers')                      ! Deal with number of layers
+                case ('NOLAY')                      ! Deal with number of layers
                     if (gettoken(num_layers, ierr2) > 0) goto 1000
                     write (file_unit, 2020) num_layers
                 case ('MULTIGRID')                  ! Deal with multiple grids
@@ -191,7 +191,7 @@ contains
                 newinput = .true.
                 zmodel = .true.
 
-            case ('num_layers')
+            case ('NOLAY')
                 ! num_layers must precede grid definitions
                 if (GridPs%current_size > 1) then
                     write(file_unit, 2050)
@@ -578,7 +578,7 @@ contains
             if (itype == 1) then                              ! it is a string
                 select case (ctoken)
 
-                case ('num_layers')
+                case ('NOLAY')
                     if (gettoken(aGrid%num_layers, ierr2) > 0) goto 1000
                     write (file_unit, 2010) aGrid%num_layers
 
