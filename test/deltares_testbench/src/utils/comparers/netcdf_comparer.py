@@ -134,9 +134,7 @@ class NetcdfComparer(IComparer):
             self.check_for_dimension_equality(left_nc_var, right_nc_var, variable_name)
 
             # http://docs.scipy.org/doc/numpy/reference/generated/numpy.argmax.html
-            result, cf_role_time_series_vars, array_index = self.compare_array(
-                parameter, left_nc_root, variable_name, left_nc_var, right_nc_var
-            )
+            result = self.compare_array(parameter, left_nc_root, variable_name, left_nc_var, right_nc_var)
 
         except RuntimeError as e:
             logger.error(str(e))
@@ -154,11 +152,9 @@ class NetcdfComparer(IComparer):
                 result.error = self.plot_2d_array(
                     logger,
                     plot_data,
-                    cf_role_time_series_vars,
                     left_nc_root,
                     left_nc_var,
                     right_nc_var,
-                    array_index,
                     parameter,
                 )
 
@@ -201,7 +197,7 @@ class NetcdfComparer(IComparer):
             parameter.tolerance_absolute,
             parameter.tolerance_relative,
         )
-        return result, cf_role_time_series_vars, array_index
+        return result
 
     def compare_1d_arrays(self, left_nc_var: nc.Variable, right_nc_var: nc.Variable) -> ComparisonResult:
         """Compare two 1D arrays datasets and returns the maximum absolute difference."""
@@ -274,15 +270,20 @@ class NetcdfComparer(IComparer):
         self,
         logger: ILogger,
         plot_data: PlotData,
-        cf_role_time_series_vars: List[str],
         left_nc_root: nc.Dataset,
         left_nc_var: nc.Variable,
         right_nc_var: nc.Variable,
-        array_index: RowColumnIndex,
         parameter: Parameter,
     ) -> bool:
         """Plot a 2D array or time series based on the provided parameters."""
         try:
+            cf_role_time_series_vars = search_times_series_id(left_nc_root)
+            diff_arr = self.get_difference(left_nc_var, right_nc_var)
+
+            array_index = self.get_array_index(
+                parameter.location, cf_role_time_series_vars, left_nc_root, diff_arr, plot_data.variable_name
+            )
+
             time_var = search_time_variable(left_nc_root, plot_data.variable_name)
             if cf_role_time_series_vars.__len__() == 0:
                 plot_values = PlotValues(left_nc_var[array_index.row, :], right_nc_var[array_index.row, :])
