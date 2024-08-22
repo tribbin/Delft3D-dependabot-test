@@ -5,7 +5,7 @@ rem build.bat all
 rem See README.md there for more information
 
 set build_configuration=build_delft3d4
-set script_path=..\..\%build_configuration%\x64\dflow2d3d\scripts
+set script_path=..\..\..\%build_configuration%\x64\dflow2d3d\scripts
 call %script_path%\run_dflow2d3d.bat
 
 

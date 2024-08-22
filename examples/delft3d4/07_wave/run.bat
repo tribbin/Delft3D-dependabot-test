@@ -5,7 +5,7 @@ rem build.bat all
 rem See README.md there for more information
 
 set build_configuration=build_all
-set script_path=..\..\%build_configuration%\x64\dwaves\scripts
+set script_path=..\..\..\%build_configuration%\x64\dwaves\scripts
 call %script_path%\run_dwaves.bat obw.mdw
 
 
