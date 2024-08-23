@@ -45,6 +45,7 @@ add_library(${netcdf_library_name} ${fortran_sources})
 
 # Set additional compilation properties for the netcdf library
 target_compile_options(${netcdf_library_name} PRIVATE ${file_preprocessor_flag})
+target_link_libraries(${netcdf_library_name} PRIVATE no_compiler_warnings)
 
 # Set additional compilation properties, specific for Debug mode
 target_compile_options(${netcdf_library_name} PRIVATE "$<$<CONFIG:Debug>:${check_pointers_flag}>")

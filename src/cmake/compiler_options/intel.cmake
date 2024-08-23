@@ -17,7 +17,7 @@ add_library(limit_compiler_warnings INTERFACE)
 # Disable warning 5268, allow text longer than 132 characters
 set(windows_disabled_warning_flags /Qdiag-disable:5462 /Qdiag-disable:5268)
 set(linux_disabled_warning_flags "SHELL:-diag-disable 5462" "SHELL:-diag-disable 5268")
-target_compile_options(disable_compiler_warnings INTERFACE "$<$<COMPILE_LANGUAGE:Fortran>:$<IF:$<BOOL:${WIN32}>,${windows_disabled_warning_flags},${linux_disabled_warning_flags}>>")
+target_compile_options(limit_compiler_warnings INTERFACE "$<$<COMPILE_LANGUAGE:Fortran>:$<IF:$<BOOL:${WIN32}>,${windows_disabled_warning_flags},${linux_disabled_warning_flags}>>")
 
 add_library(no_compiler_warnings INTERFACE)
 set(windows_no_warning_flags /warn:none)

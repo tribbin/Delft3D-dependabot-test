@@ -24,6 +24,8 @@ set(md5file_library_name md5)
 set(md5file_library_src ${md5file_source_path}/md5file.f90)
 add_library(${md5file_library_name} ${md5file_library_src})
 
+target_link_libraries(${md5file_library_name} PRIVATE no_compiler_warnings)
+
 # Add dependencies
 add_dependencies(${md5file_library_name} ${md5digest_library_name})
 
