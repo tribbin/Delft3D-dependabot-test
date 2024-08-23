@@ -1,9 +1,9 @@
 add_library(all_compiler_warnings INTERFACE)
-set(intel_windows_all_warning_flags /stand /warn:all)
-set(intel_linux_all_warning_flags -stand "SHELL:-warn all")
+set(intel_fortran_windows_all_warning_flags /stand /warn:all)
+set(intel_fortran_linux_all_warning_flags -stand "SHELL:-warn all")
 set(gcc_all_warning_flags -Wall -pedantic)
 target_compile_options(all_compiler_warnings INTERFACE
-                       "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<Fortran_COMPILER_ID:Intel,IntelLLVM>>:$<IF:$<BOOL:${WIN32}>,${intel_windows_all_warning_flags},${intel_linux_all_warning_flags}>>"
+                       "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<Fortran_COMPILER_ID:Intel,IntelLLVM>>:$<IF:$<BOOL:${WIN32}>,${intel_fortran_windows_all_warning_flags},${intel_fortran_linux_all_warning_flags}>>"
                        "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<Fortran_COMPILER_ID:GNU>>:${gcc_all_warning_flags}>"
 )
 
@@ -26,17 +26,12 @@ target_compile_options(limit_compiler_warnings INTERFACE
 )
 
 add_library(no_compiler_warnings INTERFACE)
-set(intel_windows_no_warning_flags /warn:none)
-set(intel_linux_no_warning_flags "SHELL:-warn none")
-set(gcc_no_warning_flags -w)
-set(msvc_no_warning_flags /w)
+set(intel_fortran_windows_no_warning_flags /warn:none)
+set(intel_fortran_linux_no_warning_flags "SHELL:-warn none")
+set(linux_no_warning_flags -w)
+set(windows_no_warning_flags /w)
 target_compile_options(no_compiler_warnings INTERFACE
-                       "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<Fortran_COMPILER_ID:Intel,IntelLLVM>>:$<IF:$<BOOL:${WIN32}>,${intel_windows_no_warning_flags},${intel_linux_no_warning_flags}>>"
-                       "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<Fortran_COMPILER_ID:GNU>>:${gcc_no_warning_flags}>"
-                       "$<$<AND:$<COMPILE_LANGUAGE:C>,$<C_COMPILER_ID:MSVC>>:${msvc_no_warning_flags}>"
-                       "$<$<AND:$<COMPILE_LANGUAGE:C>,$<C_COMPILER_ID:GNU>>:${gcc_no_warning_flags}>"
-                       "$<$<AND:$<COMPILE_LANGUAGE:C>,$<C_COMPILER_ID:Intel,IntelLLVM>>:$<IF:$<BOOL:${WIN32}>,${intel_windows_no_warning_flags},${intel_linux_no_warning_flags}>>"
-                       "$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CXX_COMPILER_ID:MSVC>>:${msvc_no_warning_flags}>"
-                       "$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CXX_COMPILER_ID:GNU>>:${gcc_no_warning_flags}>"
-                       "$<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CXX_COMPILER_ID:Intel,IntelLLVM>>:$<IF:$<BOOL:${WIN32}>,${intel_windows_no_warning_flags},${intel_linux_no_warning_flags}>>"
+                       "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<Fortran_COMPILER_ID:Intel,IntelLLVM>>:$<IF:$<BOOL:${WIN32}>,${intel_fortran_windows_no_warning_flags},${intel_fortran_linux_no_warning_flags}>>"
+                       "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<Fortran_COMPILER_ID:GNU>>:${linux_no_warning_flags}>"
+                       "$<$<COMPILE_LANGUAGE:C,CXX>:$<IF:$<BOOL:${WIN32}>,${windows_no_warning_flags},${linux_no_warning_flags}>>"
 )
