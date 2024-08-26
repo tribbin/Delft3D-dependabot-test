@@ -192,7 +192,7 @@ contains
                 zmodel = .true.
 
             case ('NOLAY')
-                ! num_layers must precede grid definitions
+                ! Keyword 'NOLAY' must precede grid definitions
                 if (GridPs%current_size > 1) then
                     write(file_unit, 2050)
                     goto 1000
@@ -398,7 +398,7 @@ contains
         2020 format (' Number of layers in base grid :', I10)
         2030 format (/' ERROR, unrecognized token: ', A)
         2040 format (/' Reading MULTIGRID information')
-        2050 format (/' ERROR, num_layers definition must preceed the GRID definitions')
+        2050 format (/' ERROR, keyword ''NOLAY'' must preceed the GRID definitions')
         2060 format (/' ERROR, nr of segments/nr of layers is no integer.')
         2070 format (/' WARNING, bottomgrid already defined, first definition prevails!')
         2080 format (' Number of segments in sub-grid', I4, ' equals:', i10)
@@ -508,7 +508,7 @@ contains
         !!      The type of the grid has already been set in the calling grid.f routine
         !!
         !!      Poperties that can be set are:
-        !!          - num_layers followed by an integer, number of layers of the grid (default is 0)
+        !!          - NOLAY followed by an integer, number of layers of the grid (default is 0)
         !!          - AGGREGATIONFILE followed by a filename of a .lga type binary aggregation file
         !!          - REFERENCEGRID followed by the name of the reference grid for this grid
         !!          If an integer is met, the routine expects as many integers as in one
