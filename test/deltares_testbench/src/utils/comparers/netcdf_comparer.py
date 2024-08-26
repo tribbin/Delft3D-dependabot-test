@@ -343,6 +343,8 @@ class NetcdfComparer(IComparer):
         coordinates = self.get_coordinates_of_max_deviation(i_max, block_sizes)
 
         maxdiff = diff_arr
+        left_at_maxdiff = nc_var.left
+        right_at_maxdiff = nc_var.right
         try:
             for c in coordinates:
                 maxdiff = maxdiff[c]

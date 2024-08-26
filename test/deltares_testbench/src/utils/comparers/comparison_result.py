@@ -40,8 +40,8 @@ class ComparisonResult:
         elif (
             (maxAbsDiffTolerance is not None and self.max_abs_diff <= maxAbsDiffTolerance)
             or (maxRelDiffTolerance is not None and self.max_rel_diff <= maxRelDiffTolerance)
-            or (self.max_abs_diff < 0.0001)
-            or (self.max_rel_diff < 0.0001)
+            or (self.max_abs_diff == 0.0)
+            or (self.max_rel_diff == 0.0)
         ):
             self.passed = True
             self.result = "OK"
