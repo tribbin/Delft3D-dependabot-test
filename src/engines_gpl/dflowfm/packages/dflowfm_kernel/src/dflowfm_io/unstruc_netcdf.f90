@@ -7894,12 +7894,12 @@ contains
          ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_veg_stemheight, UNC_LOC_S, stemheight, jabndnd=jabndnd_)
       end if
 
-      if (ndxi - ndx2d > 0 .and. jamapPure1D_debug/=0) then
+      if (ndxi - ndx2d > 0 .and. jamapPure1D_debug /= 0) then
          ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_adve, UNC_LOC_U, adve(:), jabndnd=jabndnd_)
          ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_advi, UNC_LOC_U, advi(:), jabndnd=jabndnd_)
       end if
 
-      if (ndxi - ndx2d > 0 .and. jaPure1D >= 3 .and. jamapPure1D_debug/=0) then
+      if (ndxi - ndx2d > 0 .and. jaPure1D >= 3 .and. jamapPure1D_debug /= 0) then
          ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_q1d_1, UNC_LOC_U, q1d(1, :), jabndnd=jabndnd_)
          ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_q1d_2, UNC_LOC_U, q1d(2, :), jabndnd=jabndnd_)
          ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_volu1d, UNC_LOC_U, volu1D(:), jabndnd=jabndnd_)
@@ -11513,11 +11513,13 @@ contains
       integer :: i, k, k1, k2, numl2d, numk1d, numk2d, nump1d, L, Lnew, nv, n1, n2, n
       integer :: jaInDefine
       integer :: id_zf
-
+      real :: x, y
       real(kind=hp), allocatable :: xn(:), yn(:), zn(:), xe(:), ye(:), zf(:)
 
       integer :: n1dedges, n1d2dcontacts, start_index
       integer, allocatable :: contacttype(:), idomain1d(:), iglobal_s1d(:)
+      integer, allocatable :: NETCELL_PERMUTATION(:)! backup_branchid(:), backup_chainage(:)
+      type(tface), allocatable :: tempcell
 
       call readyy('Writing net data', 0d0)
 
@@ -11645,24 +11647,47 @@ contains
          NUMK1D = 0
          KC(:) = 0
          nump1d = nump1d2d - nump
+
          if (janetcell_ == 1 .and. nump1d > 0) then
+            allocate(NETCELL_permutation(nump1d))
+            do N1 = 1,nump1d
+            NETCELL_permutation(N1) = N1 + nump
+            enddo
             ! Determine 1D net nodes directly from 1D net cells
             do N1 = nump + 1, nump1d2d
-               k1 = netcell(N1)%nod(1)
-
                numk1d = numk1d + 1
+               k1 = netcell(N1)%nod(1)
+               if (k1 /= numk1d) then !netcells not in correct order
+                  do N2 = N1 + 1, nump1d2d
+                     k2 = netcell(n2)%nod(1)
+                     if (k2 == numk1d) then
+                        tempcell = netcell(N1)
+                        netcell(N1) = netcell(N2)
+                        netcell(N2) = tempcell
+                        netcell_permutation(n1-nump) = N2
+                        netcell_permutation(N2-nump) = N1
+                        exit
+                     end if
+                  end do
+               end if
+
                xn(numk1d) = xk(k1)
                yn(numk1d) = yk(k1)
                zn(numk1d) = zk(k1)
+
                kc(k1) = -numk1d ! Remember new node number
             end do
 
+            !backup_branchid = meshgeom1d%nodebranchidx
+            !backup_chainage = meshgeom1d%nodeoffsets
             do L = 1, NUML1D
                if (kn(3, L) == 1 .or. kn(3, L) == 6) then
                   n1dedges = n1dedges + 1
                   K1 = KN(1, L)
                   K2 = KN(2, L)
 
+                  !meshgeom1d%nodebranchidx(n1dedges) = backup_branchid(abs(KC(K1)))
+                  !meshgeom1d%nodeoffsets(n1dedges) = backup_chainage(abs(KC(K1)))
                   edge_nodes(1, n1dedges) = abs(KC(K1))
                   edge_nodes(2, n1dedges) = abs(KC(K2))
                   edge_type(n1dedges) = KN(3, L)
@@ -11678,9 +11703,11 @@ contains
 
                   n1d2dcontacts = n1d2dcontacts + 1
                   if (N1 > nump .and. N2 <= nump) then ! First point of 1D link is 1D cell
+                     N1 = NETCELL_PERMUTATION(N1-nump)
                      contacts(1, n1d2dcontacts) = abs(KC(netcell(N1)%nod(1))) ! cell -> orig node -> new node
                      contacts(2, n1d2dcontacts) = N2 ! 2D cell number in network_data is the same in UGRID mesh2d numbering (see below).
                   else if (N2 > nump .and. N1 <= nump) then ! First point of 1D link is 1D cell
+                     N2 = NETCELL_PERMUTATION(N2-nump)
                      contacts(1, n1d2dcontacts) = abs(KC(netcell(N2)%nod(1))) ! cell -> orig node -> new node
                      contacts(2, n1d2dcontacts) = N1 ! 2D cell number in network_data is the same in UGRID mesh2d numbering (see below).
                   else
