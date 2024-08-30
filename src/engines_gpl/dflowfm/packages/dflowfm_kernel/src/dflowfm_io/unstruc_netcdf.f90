@@ -11659,8 +11659,8 @@ contains
                k1 = netcell(N1)%nod(1)
                if (k1 /= numk1d) then !netcells not in correct order
                   do N2 = N1 + 1, nump1d2d
-                     k2 = netcell(n2)%nod(1)
-                     if (k2 == numk1d) then
+                     k1 = netcell(n2)%nod(1)
+                     if (k1 == numk1d) then
                         tempcell = netcell(N1)
                         netcell(N1) = netcell(N2)
                         netcell(N2) = tempcell
