@@ -187,15 +187,15 @@ subroutine test_properties_version
     call prop_inifile( 'test_fileversion.ini', tree, error )
 
     ! test default version number
-    call prop_get_version_number(tree, major = major, minor = minor, success = success)
+    call get_version_number(tree, major = major, minor = minor, success = success)
     call assert_equal( major, 1, 'Major version')
     call assert_equal( minor, 245, 'Minor version')
 
-    call prop_get_version_number(tree, keyin = 'versionNumber', major = major, minor = minor, versionstring = fileVersion, success = success)
+    call get_version_number(tree, keyin = 'versionNumber', major = major, minor = minor, versionstring = fileVersion, success = success)
     call assert_equal( success, .false., 'Incorrect version string')
     call assert_equal( trim(fileVersion), '3', 'version string')
 
-    call prop_get_version_number(tree, 'new', 'version', major = major, minor = minor, versionstring = fileVersion, success = success)
+    call get_version_number(tree, 'new', 'version', major = major, minor = minor, versionstring = fileVersion, success = success)
     call assert_equal( major, 5, 'Major version')
     call assert_equal( minor, 1, 'Minor version')
     call assert_equal( trim(fileVersion), '5.001', 'version string')

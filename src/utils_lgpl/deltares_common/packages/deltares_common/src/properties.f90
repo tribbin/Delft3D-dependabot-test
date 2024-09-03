@@ -75,10 +75,8 @@ module properties
    end interface
 
    interface prop_get
-      module procedure prop_file
       module procedure prop_get_string
       module procedure prop_get_integer
-      module procedure prop_get_integers
       module procedure prop_get_real
       module procedure prop_get_reals
       module procedure prop_get_logical
@@ -100,14 +98,17 @@ module properties
       module procedure prop_set_integer
       module procedure prop_set_integers
       module procedure prop_set_double
-      module procedure prop_set_doubles
+      module procedure prop_set
    end interface
 
    interface get_version_number
       module procedure prop_get_version_number
    end interface
 
-   public :: readIniFile, max_keylength, leaf_keylength, print_initree, has_prop, prop_get, prop_set, get_version_number
+   public :: readIniFile, max_keylength, leaf_keylength, print_initree, has_prop, prop_get, prop_set, get_version_number, count_occurrences
+   public :: prop_file, prop_inifile, prop_get_strings, prop_write_xmlfile, prop_get_integers, prop_write_inifile, prop_get_alloc_string
+   public :: node_value, tree_data, tree_get_name, tree_create, tree_create_node, tree_put_data, tree_get_node_by_name, tree_get_data_ptr, tree_remove_child_by_name
+   public :: tree_destroy, tree_add_node, tree_disconnect_node, tree_get_data_string, tree_num_nodes, tree_traverse_level, tree_count_nodes_byname, tree_fold, tree_traverse, maxlen
 
 contains
    ! ====================================================================
@@ -2791,7 +2792,7 @@ contains
    ! ====================================================================
    !> Sets a double precision array property in the tree.
    !! The property value is stored as a string representation.
-   subroutine prop_set_doubles(tree, chapter, key, value, anno, success)
+   subroutine prop_set(tree, chapter, key, value, anno, success)
       type(tree_data), pointer :: tree !< The property tree
       character(*), intent(in) :: chapter !< Name of the chapter under which to store the property ('' or '*' for global)
       character(*), intent(in) :: key !< Name of the property
@@ -2828,7 +2829,7 @@ contains
          success = success_
       end if
 
-   end subroutine prop_set_doubles
+   end subroutine prop_set
    !
    !
    ! ====================================================================
@@ -2848,9 +2849,9 @@ contains
       valuearray(1) = value
 
       if (present(anno)) then
-         call prop_set_doubles(tree, chapter, key, valuearray, anno=anno, success=success_)
+         call prop_set(tree, chapter, key, valuearray, anno=anno, success=success_)
       else
-         call prop_set_doubles(tree, chapter, key, valuearray, success=success_)
+         call prop_set(tree, chapter, key, valuearray, success=success_)
       end if
 
       if (present(success)) then

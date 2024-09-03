@@ -680,7 +680,7 @@ contains
       ! check FileVersion
       major = 1
       minor = 0
-      call prop_get_version_number(bnd_ptr, major=major, minor=minor, success=file_ok)
+      call get_version_number(bnd_ptr, major=major, minor=minor, success=file_ok)
       if ((major /= ExtfileNewMajorVersion .and. major /= 1) .or. minor > ExtfileNewMinorVersion) then
          write (msgbuf, '(a,i0,".",i2.2,a,i0,".",i2.2,a)') 'Unsupported format of new external forcing file detected in '''//trim(filename)//''': v', major, minor, '. Current format: v', ExtfileNewMajorVersion, ExtfileNewMinorVersion, '. Ignoring this file.'
          call err_flush()

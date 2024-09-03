@@ -112,7 +112,7 @@ contains
       ! check FileVersion
       major = 1
       minor = 0
-      call prop_get_version_number(bnd_ptr, major=major, minor=minor, success=is_successful)
+      call get_version_number(bnd_ptr, major=major, minor=minor, success=is_successful)
       if ((major /= ExtfileNewMajorVersion .and. major /= 1) .or. minor > ExtfileNewMinorVersion) then
          write (msgbuf, '(a,i0,".",i2.2,a,i0,".",i2.2,a)') 'Unsupported format of new external forcing file detected in ''' &
             //file_name//''': v', major, minor, '. Current format: v', ExtfileNewMajorVersion, ExtfileNewMinorVersion, &
@@ -226,6 +226,7 @@ contains
 
          logical :: res
 
+         character(len=INI_VALUE_LEN) :: location_file
          type(tree_data), pointer :: block_ptr !
 
          res = .false.
@@ -364,7 +365,7 @@ contains
 
       !> Read the discharge specification by the current [Lateral] block from new external forcings file
       subroutine read_lateral_discharge_definition(loc_id, loc_spec_type, node_id, branch_id, chainage, num_coordinates, x_coordinates, y_coordinates, location_file, is_success)
-      use m_precision_basics, only: dp
+      use precision, only: dp
       character(len=INI_VALUE_LEN), intent(in) :: loc_id !< The id of the lateral
       integer, intent(out) :: loc_spec_type !< Specify how lateral discharge is defined
       character(len=INI_VALUE_LEN), intent(out) :: node_id
@@ -397,7 +398,7 @@ contains
       has_location_file = has_prop(node_ptr, '', 'locationFile')
 
       ! Test if multiple discharge methods were set
-      number_of_discharge_specifications = sum([integer :: i=1, maximum_number_of_discharge_specifications, 1], [has_node_id, has_branch_id .or. has_chainage, has_num_coordinates .or. has_x_coordinates .or. has_y_coordinates, has_location_file])
+      number_of_discharge_specifications = sum([(1, integer :: i = 1, maximum_number_of_discharge_specifications)], [has_node_id, has_branch_id .or. has_chainage, has_num_coordinates .or. has_x_coordinates .or. has_y_coordinates, has_location_file])
 
       if (number_of_discharge_specifications < 1) then
          call mess(LEVEL_WARN, 'Lateral '''//trim(loc_id)//''': No discharge specifications found. Use nodeId, branchId + chainage, numcoor + xcoors + ycoors, or locationFile.')
@@ -446,8 +447,8 @@ contains
          call prop_get(node_ptr, '', 'numCoordinates', num_coordinates)
          allocate (x_coordinates(num_coordinates), stat=ierr)
          allocate (y_coordinates(num_coordinates), stat=ierr)
-         call prop_get_doubles(node_ptr, '', 'xCoordinates', x_coordinates, num_coordinates)
-         call prop_get_doubles(node_ptr, '', 'yCoordinates', y_coordinates, num_coordinates)
+         call prop_get(node_ptr, '', 'xCoordinates', x_coordinates, num_coordinates)
+         call prop_get(node_ptr, '', 'yCoordinates', y_coordinates, num_coordinates)
          loc_spec_type = LOCTP_POLYGON_XY
          is_successful = .true.
          return
@@ -466,7 +467,7 @@ contains
          return
       end if
       call err('Programming error, please report: read_lateral_discharge_definition failed to read lateral '''//trim(loc_id)//'''')
-      end function read_lateral_discharge_definition
+      end subroutine read_lateral_discharge_definition
 
       !> Read lateral blocks from new external forcings file and makes required initialisations
       function init_lateral_forcings() result(is_succesful)
@@ -510,7 +511,7 @@ contains
          call reserve_sufficient_space(apply_transport, numlatsg + 1, 0)
          call prop_get(node_ptr, '', 'applyTransport', apply_transport(numlatsg + 1), is_read)
 
-         call read_lateral_discharge_specification(loc_id, loc_spec_type, node_id, branch_id, chainage, num_coordinates, x_coordinates, y_coordinates, location_file, is_successful)
+         call read_lateral_discharge_definition(loc_id, loc_spec_type, node_id, branch_id, chainage, num_coordinates, x_coordinates, y_coordinates, location_file, is_successful)
 
          call ini_alloc_laterals()
 
@@ -519,15 +520,15 @@ contains
          numlatsg = numlatsg + 1
          call realloc(nnlat, max(2 * ndxi, nlatnd + ndxi), keepExisting=.true., fill=0)
          call selectelset_internal_nodes(xz, yz, kclat, ndxi, nnLat(nlatnd + 1:), nlat, &
-                                         loc_spec_type, location_file, numcoordinates, xcoordinates, ycoordinates, branchid, chainage, nodeId)
+                                         loc_spec_type, location_file, num_coordinates, x_coordinates, y_coordinates, branch_id, chainage, node_id)
 
          n1latsg(numlatsg) = nlatnd + 1
          n2latsg(numlatsg) = nlatnd + nlat
 
          nlatnd = nlatnd + nlat
 
-         if (allocated(xcoordinates)) deallocate (xcoordinates, stat=ierr)
-         if (allocated(ycoordinates)) deallocate (ycoordinates, stat=ierr)
+         if (allocated(x_coordinates)) deallocate (x_coordinates, stat=ierr)
+         if (allocated(y_coordinates)) deallocate (y_coordinates, stat=ierr)
 
          ! [lateral]
          ! Flow = 1.23 | test.tim | REALTIME
