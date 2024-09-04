@@ -15,9 +15,9 @@
         <tags>native</tags>
     </metadata>
     <files>
-        <file src="..\..\x64\**\*" target="content\native\kernels\x64" />
-        <file src="..\..\x64\share\drtc\*.xsd" target="content\drtc_xsd" />
-        <file src="..\..\x64\dimr\schema\latest\*.xsd" target="content\dimr_xsd" />
+        <file src="..\..\..\source\x64\**\*" target="content\native\kernels\x64" />
+        <file src="..\..\..\source\x64\share\drtc\*.xsd" target="content\drtc_xsd" />
+        <file src="..\..\..\source\x64\dimr\schema\latest\*.xsd" target="content\dimr_xsd" />
         <file src="build\**\*" target="build"/>
     </files>
 </package>
