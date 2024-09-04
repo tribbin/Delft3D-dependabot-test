@@ -37,7 +37,6 @@ module m_dfparall
 
 
     use globaldata
-    use properties, only: prop_get_integers
     use dfparall
     
     implicit none
@@ -231,8 +230,11 @@ module m_dfparall
     endif
        
     end subroutine manual_partitioning
-    
-subroutine dfpartit ( ipown, icom, mmax, nmax, gdp )
+
+    !>Carries out the partitioning of the computational grid
+    subroutine dfpartit ( ipown, icom, mmax, nmax, gdp )
+
+    use properties, only: prop_get_integers
     !
     type(globdat), target    :: gdp
 !
