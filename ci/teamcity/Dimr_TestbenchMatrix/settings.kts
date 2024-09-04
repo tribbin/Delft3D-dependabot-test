@@ -12,15 +12,14 @@ version = "2024.03"
 project {
     description = "contact: BlackOps"
 
-    buildType(TriggerMatrix)
+    buildType(Trigger)
     buildType(Windows)
     buildType(Linux)
 
-    buildTypesOrder = arrayListOf(TriggerMatrix, Linux, Windows)
+    buildTypesOrder = arrayListOf(Trigger, Linux, Windows)
 }
 
-object TriggerMatrix : BuildType({
-    id("Dimr_TestbenchMatrix_Trigger")
+object Trigger : BuildType({
     name = "Trigger Matrix"
 
     vcs {
@@ -115,7 +114,7 @@ object Linux : BuildType({
     }
 
     dependencies {
-        snapshot(Dimr_TestbenchMatrix_Trigger) {
+        snapshot(Trigger) {
             onDependencyFailure = FailureAction.CANCEL
             onDependencyCancel = FailureAction.CANCEL
         }
