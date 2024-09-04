@@ -1,3 +1,5 @@
+package testbenchMatrix
+
 import java.io.File
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.commitStatusPublisher
@@ -7,7 +9,7 @@ import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 
-import trigger.trigger
+import testbenchMatrix.trigger
 
 object windows : BuildType({
     name = "Windows"

@@ -7,9 +7,9 @@ import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 
-import trigger.trigger
-import linux.linux
-import windows.windows
+import testbenchMatrix.trigger
+import testbenchMatrix.linux
+import testbenchMatrix.windows
 
 version = "2024.03"
 
