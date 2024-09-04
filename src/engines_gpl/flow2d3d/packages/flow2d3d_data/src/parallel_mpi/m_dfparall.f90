@@ -124,7 +124,7 @@ module m_dfparall
     end subroutine automatic_partitioning
     
     !>Manual partitioning of domain.
-    subroutine manual_partitioning(ierr,ipown, icom, mmax, nmax)
+    subroutine manual_partitioning(ierr, lundia, ipown, icom, mmax, nmax)
     
     !
     ! Local parameters
@@ -135,7 +135,9 @@ module m_dfparall
     !
     ! Global variables
     !
+    integer, intent(in)                             :: lundia !< unit number of diagnostic output file
     integer, intent(out)                            :: ierr  ! error flag (0=OK, 1=error)
+    
     integer, intent(in)                             :: mmax  ! number of gridpoints in the x-direction
     integer, intent(in)                             :: nmax  ! number of gridpoints in the y-direction
     !
@@ -147,7 +149,6 @@ module m_dfparall
     ! Local variables
     !
     integer               :: dirmax         !< length of dimension to be partitioned
-    integer, pointer      :: lundia         !< unit number of diagnostic output file
     integer               :: i              !< loop counter
     integer               :: m              !< current M-index of point in computational row
     integer               :: n              !< current N-index of point in computational column
@@ -291,7 +292,7 @@ module m_dfparall
        write(lundia,'(10x,a)') '"max(mmax,nmax) / num_partitions" must be greater than 3'
        ierr=1
     elseif (partbnd_read) then
-        call manual_partitioning(ierr,ipown, icom, mmax, nmax)
+        call manual_partitioning(ierr, lundia, ipown, icom, mmax, nmax)
     else
         call automatic_partitioning(ipown, icom, mmax, nmax, gdp)    
     endif
