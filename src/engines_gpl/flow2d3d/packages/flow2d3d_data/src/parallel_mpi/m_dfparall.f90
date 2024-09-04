@@ -52,19 +52,19 @@ module m_dfparall
     !
     ! Local parameters
     !
-    logical, parameter :: LORB = .false. ! logical indicating which partition method will be carried out:
-                                         ! true, in case of ORB
-                                         ! false, in case of stripwise manner
+    logical, parameter :: LORB = .false. !< logical indicating which partition method will be carried out:
+                                         !! true, in case of ORB
+                                         !! false, in case of stripwise manner
     !
     ! Global variables
     !
-    integer, intent(in)                             :: mmax  ! number of gridpoints in the x-direction
-    integer, intent(in)                             :: nmax  ! number of gridpoints in the y-direction
+    integer, intent(in)                             :: mmax  !< number of gridpoints in the x-direction
+    integer, intent(in)                             :: nmax  !< number of gridpoints in the y-direction
     !
-    integer, dimension(-1:mmax+2, nmax), intent(in) :: icom  ! mask array for the water level points in global domain
-                                                             !  = 0 : point is not active
-                                                             ! <> 0 : point is active
-    integer, dimension(mmax,nmax), intent(inout)    :: ipown ! array giving the subdomain number of each gridpoint   
+    integer, dimension(-1:mmax+2, nmax), intent(in) :: icom  !< mask array for the water level points in global domain
+                                                             !!  = 0 : point is not active
+                                                             !! <> 0 : point is active
+    integer, dimension(mmax,nmax), intent(inout)    :: ipown !< array giving the subdomain number of each gridpoint   
     !
     ! Local variables
     !
@@ -129,22 +129,22 @@ module m_dfparall
     !
     ! Local parameters
     !
-    logical, parameter :: LORB = .false. ! logical indicating which partition method will be carried out:
-                                         ! true, in case of ORB
-                                         ! false, in case of stripwise manner
+    logical, parameter :: LORB = .false. !< logical indicating which partition method will be carried out:
+                                         !! true, in case of ORB
+                                         !! false, in case of stripwise manner
     !
     ! Global variables
     !
     integer, intent(in)                             :: lundia !< unit number of diagnostic output file
-    integer, intent(out)                            :: ierr  ! error flag (0=OK, 1=error)
-    
-    integer, intent(in)                             :: mmax  ! number of gridpoints in the x-direction
-    integer, intent(in)                             :: nmax  ! number of gridpoints in the y-direction
-    !
-    integer, dimension(-1:mmax+2, nmax), intent(in) :: icom  ! mask array for the water level points in global domain
-                                                             !  = 0 : point is not active
-                                                             ! <> 0 : point is active
-    integer, dimension(mmax,nmax), intent(inout)    :: ipown ! array giving the subdomain number of each gridpoint   
+    integer, intent(out)                            :: ierr   !< error flag (0=OK, 1=error)
+                                                              
+    integer, intent(in)                             :: mmax   !< number of gridpoints in the x-direction
+    integer, intent(in)                             :: nmax   !< number of gridpoints in the y-direction
+    !                                                         
+    integer, dimension(-1:mmax+2, nmax), intent(in) :: icom   !< mask array for the water level points in global domain
+                                                              !!  = 0 : point is not active
+                                                              !! <> 0 : point is active
+    integer, dimension(mmax,nmax), intent(inout)    :: ipown  !< array giving the subdomain number of each gridpoint   
     !
     ! Local variables
     !
@@ -237,19 +237,19 @@ module m_dfparall
     !
     ! Local parameters
     !
-    logical, parameter :: LORB = .false. ! logical indicating which partition method will be carried out:
-                                         ! true, in case of ORB
-                                         ! false, in case of stripwise manner
+    logical, parameter :: LORB = .false. !< logical indicating which partition method will be carried out:
+                                         !! true, in case of ORB
+                                         !! false, in case of stripwise manner
     !
     ! Global variables
     !
-    integer, intent(in)                             :: mmax  ! number of gridpoints in the x-direction
-    integer, intent(in)                             :: nmax  ! number of gridpoints in the y-direction
+    integer, intent(in)                             :: mmax  !< number of gridpoints in the x-direction
+    integer, intent(in)                             :: nmax  !< number of gridpoints in the y-direction
     !
-    integer, dimension(-1:mmax+2, nmax), intent(in) :: icom  ! mask array for the water level points in global domain
-                                                             !  = 0 : point is not active
-                                                             ! <> 0 : point is active
-    integer, dimension(mmax,nmax), intent(inout)    :: ipown ! array giving the subdomain number of each gridpoint
+    integer, dimension(-1:mmax+2, nmax), intent(in) :: icom  !< mask array for the water level points in global domain
+                                                             !!  = 0 : point is not active
+                                                             !! <> 0 : point is active
+    integer, dimension(mmax,nmax), intent(inout)    :: ipown !< array giving the subdomain number of each gridpoint
     !
     ! Local variables
     !
