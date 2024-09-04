@@ -70,7 +70,7 @@ module m_ec_provider
       module procedure ecProviderInitializeFileReader
    end interface ecSetFileReaderProperties
 
-   public :: ecAtLeastOnePointIsCorrection            ! TODO: Refactor this shortcut (UNST-180).
+   public :: ecAtLeastOnePointIsCorrection ! TODO: Refactor this shortcut (UNST-180).
    logical :: ecAtLeastOnePointIsCorrection = .false. ! TODO: Refactor this shortcut (UNST-180).
 
 contains
@@ -82,15 +82,15 @@ contains
       use m_ec_support
       implicit none
       logical :: success
-      type(tEcInstance), pointer :: instancePtr  !< intent(in)
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       character(len=*), intent(in) :: forcingfile
       character(len=*), intent(in) :: location
       character(len=*), intent(in) :: quantity
-      real(hp), intent(in) :: k_refdat     !< kernel ref date
-      real(hp), intent(in) :: k_tzone      !< kernel time zone
-      integer, intent(in) :: k_tsunit     !< kernel timestep unit (1=sec, 2=min, 3=hour)
+      real(hp), intent(in) :: k_refdat !< kernel ref date
+      real(hp), intent(in) :: k_tzone !< kernel time zone
+      integer, intent(in) :: k_tsunit !< kernel timestep unit (1=sec, 2=min, 3=hour)
       integer, intent(out) :: fileReaderId !< unique fileReader id
-      character(len=*), optional, intent(in) :: funtype   !< matching function in the BC-block header
+      character(len=*), optional, intent(in) :: funtype !< matching function in the BC-block header
       !
       integer :: istat
       integer :: forcingfiletype
@@ -104,9 +104,9 @@ contains
          call setECMessage("Forcing file ("//trim(forcingfile)//") not found.")
          return
       end if
-      if (index(trim(forcingfile)//'|', '.bc|') > 0) then                               ! ASCII: bc-format  : detection is extension-based
+      if (index(trim(forcingfile)//'|', '.bc|') > 0) then ! ASCII: bc-format  : detection is extension-based
          forcingfiletype = BC_FTYPE_ASCII
-      else if (index(trim(forcingfile)//'|', '.nc|') > 0) then                          ! NETCDF: nc-format
+      else if (index(trim(forcingfile)//'|', '.nc|') > 0) then ! NETCDF: nc-format
          forcingfiletype = BC_FTYPE_NETCDF
       else
          call setECMessage("Forcing file ("//trim(forcingfile)//") should either have extension .nc (netcdf timeseries file) or .bc (ascii BC-file).")
@@ -133,24 +133,24 @@ contains
       use m_ec_netcdf_timeseries
       use m_ec_alloc
       implicit none
-      logical :: success      !< function status
-      type(tEcInstance), pointer :: instancePtr  !< intent(in)
-      integer, intent(in) :: bcBlockId    !< unique bcBlock id
-      real(hp), intent(in) :: k_refdat     !< kernel ref date
-      real(hp), intent(in) :: k_tzone      !< kernel time zone
-      integer, intent(in) :: k_tsunit     !< kernel timestep unit (1=sec, 2=min, 3=hour)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
+      integer, intent(in) :: bcBlockId !< unique bcBlock id
+      real(hp), intent(in) :: k_refdat !< kernel ref date
+      real(hp), intent(in) :: k_tzone !< kernel time zone
+      integer, intent(in) :: k_tsunit !< kernel timestep unit (1=sec, 2=min, 3=hour)
       integer, intent(out) :: fileReaderId !< unique fileReader id
-      character(*), intent(in) :: fileName     !< relative path of data file
-      integer, intent(in) :: fileType     !< type of the BC-file (ascii=bc, netcdf=nc)
+      character(*), intent(in) :: fileName !< relative path of data file
+      integer, intent(in) :: fileType !< type of the BC-file (ascii=bc, netcdf=nc)
       character(*), intent(in) :: quantityName !< name of quantity, needed for structured input files (NetCDF and BC)
-      character(*), intent(in) :: plilabel     !< identify a (set of) pli-points
-      real(hp), optional, intent(in) :: dtnodal      !< Nodal factors in astronomical bc update interval
-      integer, intent(out) :: istat        !< Detailed result status. \see{m_ec_parameters}.
-      character(len=*), optional, intent(in) :: funtype   !< Function type requested to match; the value for the keyword 'FUNCTION' in the bc-headers
+      character(*), intent(in) :: plilabel !< identify a (set of) pli-points
+      real(hp), optional, intent(in) :: dtnodal !< Nodal factors in astronomical bc update interval
+      integer, intent(out) :: istat !< Detailed result status. \see{m_ec_parameters}.
+      character(len=*), optional, intent(in) :: funtype !< Function type requested to match; the value for the keyword 'FUNCTION' in the bc-headers
       !< passing funtype narrows down the search for blocks to blocks with the requested function
 
-      type(tEcBCBlock), pointer :: bcBlockPtr     !< BCBlock corresponding to bcBlockId
-      type(tEcFileReader), pointer :: fileReaderPtr  !< FileReader associated with the BC instance
+      type(tEcBCBlock), pointer :: bcBlockPtr !< BCBlock corresponding to bcBlockId
+      type(tEcFileReader), pointer :: fileReaderPtr !< FileReader associated with the BC instance
       integer :: iostat
 
       integer :: netCDFId
@@ -164,8 +164,8 @@ contains
       bcBlockPtr%ftype = fileType
       select case (bcBlockPtr%ftype)
       case (BC_FTYPE_ASCII)
-         bcBlockPtr%bcFilePtr => ecSupportFindBCFileByFilename(instancePtr, fileName)! was this BC-file already opened?
-         if (.not. associated(bcBlockPtr%bcFilePtr)) then                                    ! if not, create anew
+         bcBlockPtr%bcFilePtr => ecSupportFindBCFileByFilename(instancePtr, fileName) ! was this BC-file already opened?
+         if (.not. associated(bcBlockPtr%bcFilePtr)) then ! if not, create anew
             ! ensure capacity
             if (instancePtr%nBCFiles == size(instancePtr%ecBCFilesPtr)) then
                if (.not. ecArrayIncrease(instancePtr%ecBCFilesPtr, instancePtr%nBCFiles)) then
@@ -184,8 +184,8 @@ contains
          !endif                                                                  ! not supported in combination with netcdf-files
          ! This is something dirty, which deserves refactoring
          ! but no alternative for it as we speak
-         bcBlockPtr%ncptr => ecSupportFindNetCDFByFilename(instancePtr, fileName)! is there a netCDF instance with this file ?
-         if (.not. associated(bcBlockPtr%ncptr)) then                             ! if not ...
+         bcBlockPtr%ncptr => ecSupportFindNetCDFByFilename(instancePtr, fileName) ! is there a netCDF instance with this file ?
+         if (.not. associated(bcBlockPtr%ncptr)) then ! if not ...
             netCDFId = ecInstanceCreateNetCDF(instancePtr)
             bcBlockPtr%ncptr => ecSupportFindNetCDF(instancePtr, netCDFId)
             if (.not. ecNetCDFInit(fileName, bcBlockPtr%ncptr, iostat)) then
@@ -231,7 +231,7 @@ contains
       case (BC_FUNC_TIM3D)
          success = ecProviderCreatet3DItems(instancePtr, fileReaderPtr)
       case default
-         call setECMessage("ERROR: unknown function type.")             ! RL666 Todo: expand info on which file this is ...
+         call setECMessage("ERROR: unknown function type.") ! RL666 Todo: expand info on which file this is ...
       end select
    end function ecProviderInitializeBCBlock
    ! =======================================================================
@@ -239,21 +239,21 @@ contains
    !> Initialize a new FileReader, by constructing the complete tree of source Items.
       !! On the opposite end of the EC-module is a kernel, which constructs the complete tree of target Items.
    recursive function ecProviderInitializeFileReader(instancePtr, fileReaderId, fileType, fileName, refdat, tzone, tsunit, quantityName, forcingFile, dtnodal, varname, varname2) result(success)
-      logical :: success      !< function status
-      type(tEcInstance), pointer :: instancePtr  !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       integer, intent(in) :: fileReaderId !< unique FileReader id
-      integer, intent(in) :: fileType     !< type of data file, see provFile enumeration
-      character(len=*), intent(in) :: fileName     !< relative path of data file
-      real(kind=hp), intent(in) :: refdat       !< Kernel's reference date, format: Gregorian yyyymmdd
-      real(kind=hp), intent(in) :: tzone        !< Kernel's timezone.
-      integer, intent(in) :: tsunit       !< Kernel's timestep unit (1=sec 2=min 3=sec).
+      integer, intent(in) :: fileType !< type of data file, see provFile enumeration
+      character(len=*), intent(in) :: fileName !< relative path of data file
+      real(kind=hp), intent(in) :: refdat !< Kernel's reference date, format: Gregorian yyyymmdd
+      real(kind=hp), intent(in) :: tzone !< Kernel's timezone.
+      integer, intent(in) :: tsunit !< Kernel's timestep unit (1=sec 2=min 3=sec).
       character(len=*), optional, intent(in) :: quantityName !< name of quantity, needed for structured input files (NetCDF and BC)
-      character(len=*), optional, intent(in) :: forcingFile  !< name of the forcing file (if quantityName is given)
-      real(kind=hp), optional, intent(in) :: dtnodal      !< Nodal factors update interval
-      character(len=*), optional, intent(in) :: varname      !< variable name within filename
-      character(len=*), optional, intent(in) :: varname2     !< variable name 2 within filename
+      character(len=*), optional, intent(in) :: forcingFile !< name of the forcing file (if quantityName is given)
+      real(kind=hp), optional, intent(in) :: dtnodal !< Nodal factors update interval
+      character(len=*), optional, intent(in) :: varname !< variable name within filename
+      character(len=*), optional, intent(in) :: varname2 !< variable name 2 within filename
       !
-      type(tEcFileReader), pointer :: fileReaderPtr  !< FileReader corresponding to fileReaderId
+      type(tEcFileReader), pointer :: fileReaderPtr !< FileReader corresponding to fileReaderId
       character(len=:), allocatable :: l_quantityName !< local string with quantityName
       !
       success = .false.
@@ -268,10 +268,10 @@ contains
       if (associated(fileReaderPtr)) then
          fileReaderPtr%ofType = fileType
          fileReaderPtr%fileName = fileName
-         fileReaderPtr%fileHandle = ec_undef_int                      ! The filereader itself has now an invalid filehandle
+         fileReaderPtr%fileHandle = ec_undef_int ! The filereader itself has now an invalid filehandle
 
          if (.not. ecSupportOpenExistingFile(fileReaderPtr%fileHandle, fileReaderPtr%fileName)) return
-         select case (fileReaderPtr%ofType)                 ! Inventory of the opened netcdf-file
+         select case (fileReaderPtr%ofType) ! Inventory of the opened netcdf-file
          case (provFile_netcdf)
             if (.not. ecProviderNetcdfReadvars(fileReaderPtr)) then
                ! todo: error handling with message
@@ -318,14 +318,14 @@ contains
 
    !> Create source Items and their contained types, based on file type and file header.
    function ecProviderCreateItems(instancePtr, fileReaderPtr, bctfilename, quantityname, varname, varname2) result(success)
-      logical :: success          !< function status
-      type(tEcInstance), pointer :: instancePtr      !< intent(in)
-      type(tEcFileReader), pointer :: fileReaderPtr    !< intent(inout)
-      character(len=*), intent(in), optional :: quantityname     !< Names of the quantities read from file, needed for structured files (NetCDF),
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
+      type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
+      character(len=*), intent(in), optional :: quantityname !< Names of the quantities read from file, needed for structured files (NetCDF),
       !< but also for bct-file
-      character(len=*), intent(in), optional :: bctfilename      !< file name of bct-file with data
-      character(len=*), intent(in), optional :: varname          !< variable name within filename
-      character(len=*), intent(in), optional :: varname2         !< variable name 2 within filename
+      character(len=*), intent(in), optional :: bctfilename !< file name of bct-file with data
+      character(len=*), intent(in), optional :: varname !< variable name within filename
+      character(len=*), intent(in), optional :: varname2 !< variable name 2 within filename
       !
       success = .false.
       select case (fileReaderPtr%ofType)
@@ -419,23 +419,23 @@ contains
 
    !> Create source Items and their contained types, from a qh-table file.
    function ecProviderCreateQhtableItems(instancePtr, fileReaderPtr, use_std_names) result(success)
-      logical :: success       !< function status
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
       logical, optional :: use_std_names !< us
       !
-      real(hp), dimension(:), allocatable :: discharges      !< the table's discharge values
-      real(hp), dimension(:), allocatable :: waterlevels     !< the table's water level values
-      integer :: nr_rows         !< the number of rows in the table
-      integer :: itemId          !< helper variable
-      integer :: quantityId      !< helper variable
-      integer :: elementSetId    !< helper variable
-      integer :: field0Id        !< helper variable
-      integer :: field1Id        !< helper variable
-      type(tEcItem), pointer :: item_discharge  !< Item
+      real(hp), dimension(:), allocatable :: discharges !< the table's discharge values
+      real(hp), dimension(:), allocatable :: waterlevels !< the table's water level values
+      integer :: nr_rows !< the number of rows in the table
+      integer :: itemId !< helper variable
+      integer :: quantityId !< helper variable
+      integer :: elementSetId !< helper variable
+      integer :: field0Id !< helper variable
+      integer :: field1Id !< helper variable
+      type(tEcItem), pointer :: item_discharge !< Item
       type(tEcItem), pointer :: item_waterlevel !< Item
-      type(tEcItem), pointer :: item_slope      !< Item
-      type(tEcItem), pointer :: item_crossing   !< Item
+      type(tEcItem), pointer :: item_slope !< Item
+      type(tEcItem), pointer :: item_crossing !< Item
       integer :: i !< loop counter
       integer :: n1, n2 !< helper variables
       character(len=:), allocatable :: elementSetName
@@ -658,26 +658,26 @@ contains
    function ecProviderCreateFourierItems(instancePtr, fileReaderPtr) result(success)
       use m_ec_message
       implicit none
-      logical :: success       !< function status
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
       !
-      integer :: i            !< loop counter
-      integer :: quantityId   !< helper variable
+      integer :: i !< loop counter
+      integer :: quantityId !< helper variable
       integer :: elementSetId !< helper variable
-      integer :: field0Id     !< helper variable
-      integer :: field1Id     !< helper variable
-      integer :: itemId       !< helper variable
-      integer :: istat        !< error status
+      integer :: field0Id !< helper variable
+      integer :: field1Id !< helper variable
+      integer :: itemId !< helper variable
+      integer :: istat !< error status
       !
-      integer :: nPeriods      !< number of periods
-      type(tEcItem), pointer :: itemPeriod    !< Item containing the Fourier period
+      integer :: nPeriods !< number of periods
+      type(tEcItem), pointer :: itemPeriod !< Item containing the Fourier period
       type(tEcItem), pointer :: itemMagnitude !< Item containing the Fourier magnitude
-      type(tEcItem), pointer :: itemPhase     !< Item containing the Fourier phase
-      real(hp), dimension(:), allocatable :: periods       !< Fourier components transformed into periods
+      type(tEcItem), pointer :: itemPhase !< Item containing the Fourier phase
+      real(hp), dimension(:), allocatable :: periods !< Fourier components transformed into periods
       character(len=8), dimension(:), allocatable :: components !< Astro component names read from file
-      real(hp), dimension(:), allocatable :: magnitudes    !< seed values for the magnitudes of the Fourier components
-      real(hp), dimension(:), allocatable :: phases        !< seed values for the phases of the Fourier components
+      real(hp), dimension(:), allocatable :: magnitudes !< seed values for the magnitudes of the Fourier components
+      real(hp), dimension(:), allocatable :: phases !< seed values for the phases of the Fourier components
       !
       success = .true.
       itemPeriod => null()
@@ -839,18 +839,18 @@ contains
    function ecProviderCreateUniformItems(instancePtr, fileReaderPtr) result(success)
       use m_ec_message
       implicit none
-      logical :: success       !< function status
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
       !
-      character(len=:), allocatable :: rec          !< first data line in file
+      character(len=:), allocatable :: rec !< first data line in file
       integer :: n_quantities !< number of quantities in the file
-      integer :: quantityId   !< helper variable
+      integer :: quantityId !< helper variable
       integer :: elementSetId !< helper variable
-      integer :: field0Id     !< helper variable
-      integer :: field1Id     !< helper variable
-      integer :: itemId       !< helper variable
-      type(tEcItem), pointer :: item         !< Item containing all components
+      integer :: field0Id !< helper variable
+      integer :: field1Id !< helper variable
+      integer :: itemId !< helper variable
+      type(tEcItem), pointer :: item !< Item containing all components
       character(len=:), allocatable :: elementSetName
       character(len=:), allocatable :: quantityName
       !
@@ -951,23 +951,23 @@ contains
 
    !> Create source Items and their contained types, based on Arcinfo file header.
    function ecProviderCreateArcinfoItems(instancePtr, fileReaderPtr) result(success)
-      logical :: success       !< function status
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
       !
-      integer :: n_cols       !< number of columns
-      integer :: n_rows       !< number of rows
-      real(hp) :: x0           !< seed x-coordinate
-      real(hp) :: y0           !< seed y-coordinate
-      real(hp) :: dxa          !< step size in x
-      real(hp) :: dya          !< step size in y
-      real(hp) :: dmiss        !< missing data value
-      integer :: quantityId   !< helper variable
+      integer :: n_cols !< number of columns
+      integer :: n_rows !< number of rows
+      real(hp) :: x0 !< seed x-coordinate
+      real(hp) :: y0 !< seed y-coordinate
+      real(hp) :: dxa !< step size in x
+      real(hp) :: dya !< step size in y
+      real(hp) :: dmiss !< missing data value
+      integer :: quantityId !< helper variable
       integer :: elementSetId !< helper variable
-      integer :: field0Id     !< helper variable
-      integer :: field1Id     !< helper variable
-      integer :: itemId       !< helper variable
-      type(tEcItem), pointer :: item  !< ec item
+      integer :: field0Id !< helper variable
+      integer :: field1Id !< helper variable
+      integer :: itemId !< helper variable
+      type(tEcItem), pointer :: item !< ec item
       character(len=maxFileNameLen) :: lc_filename !< filename (lowercase)
       !
       success = .true.
@@ -1112,21 +1112,21 @@ contains
    !> Construct an ElementSet from a curvilinear grid file.
       !! meteo1: reaarc_curv_tim
    function ecProviderCreateCurviElementSet(instancePtr, fileReaderPtr, elementSetId, n_cols, n_rows) result(success)
-      logical :: success       !< function status
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
-      integer, intent(out) :: elementSetId  !< if of new ElementSet
+      integer, intent(out) :: elementSetId !< if of new ElementSet
       integer, intent(out) :: n_cols, n_rows
       !
-      character(len=:), allocatable :: rec       !< a read line
+      character(len=:), allocatable :: rec !< a read line
       character(len=maxFileNameLen) :: grid_file !< file name of curvilinear grid
-      integer :: minp      !< IO unit number
-      integer :: mx, grid_width    !< n_clos, n_rows
-      real(hp), dimension(:), allocatable :: x, y      !< coordinate arrays
-      integer :: i, j      !< loop counters
-      character(len=10) :: dummy     !< helper variable for ignored data
-      integer :: istat     !< status of operation
-      integer :: elmSetType  !< spherical (elmSetType_spheric) or not (elmSetType_Cartesian)
+      integer :: minp !< IO unit number
+      integer :: mx, grid_width !< n_clos, n_rows
+      real(hp), dimension(:), allocatable :: x, y !< coordinate arrays
+      integer :: i, j !< loop counters
+      character(len=10) :: dummy !< helper variable for ignored data
+      integer :: istat !< status of operation
+      integer :: elmSetType !< spherical (elmSetType_spheric) or not (elmSetType_Cartesian)
       !
       success = .false.
       ! Find and open the curvilinear grid file.
@@ -1143,7 +1143,7 @@ contains
 20    call GetLine(minp, rec, istat)
       !
       ! handle comment lines
-      if (index(rec, '*') > 0) then     ! read comment lines where spherical might occur
+      if (index(rec, '*') > 0) then ! read comment lines where spherical might occur
 
          ! Backwards compatible: first line could contain spherical keyword
          if (index(rec, 'Spherical') >= 1 .or. &
@@ -1206,17 +1206,17 @@ contains
    !> Create source Items with their contained types, based on curvilinear file header.
       !! metteo1: reaarc_curv_tim
    function ecProviderCreateCurviItems(instancePtr, fileReaderPtr) result(success)
-      logical :: success       !< function status
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
       !
-      integer :: quantityId      !< id of new Quantity
-      integer :: elementSetId    !< id of new ElementSet
-      integer :: field0Id        !< id of new Field
-      integer :: field1Id        !< id of new Field
-      integer :: itemId          !< id of new Item
-      character(len=:), allocatable :: rec             !< a read line
-      real(hp) :: missingValue    !< helper variable
+      integer :: quantityId !< id of new Quantity
+      integer :: elementSetId !< id of new ElementSet
+      integer :: field0Id !< id of new Field
+      integer :: field1Id !< id of new Field
+      integer :: itemId !< id of new Item
+      character(len=:), allocatable :: rec !< a read line
+      real(hp) :: missingValue !< helper variable
       integer :: n_cols, n_rows
       integer :: n_quantity
       integer :: i
@@ -1292,22 +1292,22 @@ contains
 
    !> Create source Items and their contained types, based on the 'sample' file format.
    function ecProviderCreateSampleItems(instancePtr, fileReaderPtr) result(success)
-      logical :: success       !< function status
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
       !
       real(hp), dimension(:), allocatable :: xs
       real(hp), dimension(:), allocatable :: ys
       real(hp), dimension(:, :), allocatable :: zs
 
-      integer :: nSamples     !< number of samples
-      integer :: kx           !< vector max of values at sample points
+      integer :: nSamples !< number of samples
+      integer :: kx !< vector max of values at sample points
 
-      integer :: quantityId   !< helper variable
+      integer :: quantityId !< helper variable
       integer :: elementSetId !< helper variable
-      integer :: field0Id     !< helper variable
-      integer :: field1Id     !< helper variable
-      integer :: itemId       !< helper variable
+      integer :: field0Id !< helper variable
+      integer :: field1Id !< helper variable
+      integer :: itemId !< helper variable
       type(tEcItem), pointer :: item
       integer :: i !< loop counter
       !
@@ -1358,33 +1358,33 @@ contains
 
    !> Create source Items with their contained types, based on t3D file header.
    function ecProviderCreatet3DItems(instancePtr, fileReaderPtr) result(success)
-      logical :: success       !< function status
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
       !
-      integer :: quantityId    !< id of new Quantity
-      integer :: elementSetId  !< id of new ElementSet
-      integer :: field0Id      !< id of new Field
-      integer :: field1Id      !< id of new Field
-      integer :: itemId        !< id of new Item
-      integer :: vptyp         !< type of layer
-      integer :: zInterpolationType    !< vertical interpolation type
-      type(tEcItem), pointer :: valueptr      !< Item containing z/sigma-dependent values
+      integer :: quantityId !< id of new Quantity
+      integer :: elementSetId !< id of new ElementSet
+      integer :: field0Id !< id of new Field
+      integer :: field1Id !< id of new Field
+      integer :: itemId !< id of new Item
+      integer :: vptyp !< type of layer
+      integer :: zInterpolationType !< vertical interpolation type
+      type(tEcItem), pointer :: valueptr !< Item containing z/sigma-dependent values
       type(tEcBCBlock), pointer :: bcptr
-      character(len=:), allocatable :: rec           !< a read line
+      character(len=:), allocatable :: rec !< a read line
       integer, parameter :: MAXSTRLEN = 128 !<
-      integer, parameter :: MAXLAY = 256    !<
-      integer :: numlay, i     !<
-      real(hp), dimension(:), allocatable :: xws           !< x-values
-      real(hp), dimension(:), allocatable :: yws           !< y-values
-      real(hp), dimension(:), allocatable :: zws           !< z-values of vertical velocities
-      real(hp), dimension(MAXLAY) :: a             !<
+      integer, parameter :: MAXLAY = 256 !<
+      integer :: numlay, i !<
+      real(hp), dimension(:), allocatable :: xws !< x-values
+      real(hp), dimension(:), allocatable :: yws !< y-values
+      real(hp), dimension(:), allocatable :: zws !< z-values of vertical velocities
+      real(hp), dimension(MAXLAY) :: a !<
 
       integer :: vectormax, iostat
       !
       success = .false.
       valueptr => null()
-      vectormax = 1                    ! assumed scalar if vector dimensions not made explicit
+      vectormax = 1 ! assumed scalar if vector dimensions not made explicit
       zInterpolationType = zinterpolate_unknown
       select case (fileReaderPtr%ofType)
       case (provFile_t3D)
@@ -1543,27 +1543,27 @@ contains
    !> Create subproviders, which create source Items and their contained types.
       !! meteo1.f90: read1polylin
    function ecProviderCreatePolyTimItems(instancePtr, fileReaderPtr) result(success)
-      logical :: success       !< function status
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
 
       !
-      real(hp), dimension(:), allocatable :: xs    !< x-coordinates of support points
-      real(hp), dimension(:), allocatable :: ys    !< y-coordinates of support points
-      integer, dimension(:), allocatable :: mask  !< support point mask array (for polytime ElementSet)
+      real(hp), dimension(:), allocatable :: xs !< x-coordinates of support points
+      real(hp), dimension(:), allocatable :: ys !< y-coordinates of support points
+      integer, dimension(:), allocatable :: mask !< support point mask array (for polytime ElementSet)
       integer :: n_points !< number of support points
       integer :: n_signals !< Number of forcing signals created (at most n_signals==n_points, but warn if n_signals==0)
-      character(len=:), allocatable :: rec      !< a read line
-      integer :: i        !< loop counters
-      integer :: istat    !< status of read operation
-      integer :: L        !< helper index
+      character(len=:), allocatable :: rec !< a read line
+      integer :: i !< loop counters
+      integer :: istat !< status of read operation
+      integer :: L !< helper index
       character(len=maxFileNameLen) :: filename !< helper string containing subprovider file name.
-      character(len=maxFileNameLen) :: plipointlbl   !< temporary name of current pli-point in bct context
+      character(len=maxFileNameLen) :: plipointlbl !< temporary name of current pli-point in bct context
       character(len=maxFileNameLen), &
-      &   dimension(:), allocatable :: plipointlbls  !< user-specified name for all pli-point in bct context
+      &   dimension(:), allocatable :: plipointlbls !< user-specified name for all pli-point in bct context
       character(len=maxFileNameLen) :: polyline_name !< polyline name read from pli-file
-      logical :: exists   !< helper boolean, indicating file existence
-      integer :: id       !< dummy, catches ids which are not used
+      logical :: exists !< helper boolean, indicating file existence
+      integer :: id !< dummy, catches ids which are not used
       integer :: quantityId, elementSetId, fieldId, itemId
       integer :: maxLay
       type(tEcItem), pointer :: itemPT
@@ -1620,11 +1620,11 @@ contains
 
       do i = 1, n_points
          call GetLine(fileReaderPtr%fileHandle, rec, istat)
-         if (index(rec, '!') > 0) rec = rec(1:index(rec, '!') - 1)          ! trim commented  (!)
-         if (index(rec, '#') > 0) rec = rec(1:index(rec, '#') - 1)          ! trim commented  (#)
-         if (len(trim(rec)) == 0) cycle                               ! skip empty lines     (or commented-out coordinate pairs)
+         if (index(rec, '!') > 0) rec = rec(1:index(rec, '!') - 1) ! trim commented  (!)
+         if (index(rec, '#') > 0) rec = rec(1:index(rec, '#') - 1) ! trim commented  (#)
+         if (len(trim(rec)) == 0) cycle ! skip empty lines     (or commented-out coordinate pairs)
          istat = 0
-         read (rec, *, iostat=istat) xs(i), ys(i)                    ! see if we can at least read a coordinate pair
+         read (rec, *, iostat=istat) xs(i), ys(i) ! see if we can at least read a coordinate pair
          if (istat /= 0) then
             call setECMessage("   '"//trim(rec)//"'")
             call setECMessage("Unable to read a coordinate pair from file "//trim(fileReaderPtr%fileName))
@@ -1714,22 +1714,22 @@ contains
                                                             fileReaderPtr%tframe%k_timezone, fileReaderPtr%tframe%k_timestep_unit))) return
 
                   signaltype = BC_FUNC_TIM3D
-               else                           ! No file with data for this point
-                  if (has_label) then    ! Report explicitly labelled point without data
+               else ! No file with data for this point
+                  if (has_label) then ! Report explicitly labelled point without data
                      call setECMessage("No .tim, .cmp or .t3d file found for labelled point '" &
                                        //trim(plipointlbl)//"' (required).")
                      return
                   end if ! labelled point ?
                   signaltype = -1
-               end if    ! tim3d-file ?
-            end if       ! cmp file ?
-         end if          ! tim-file ?
+               end if ! tim3d-file ?
+            end if ! cmp file ?
+         end if ! tim-file ?
          if (.not. ecProviderConnectSourceItemsToTargets(instancePtr, signaltype, id, itemId, i, &
                                                          n_signals, maxlay, itemIDList)) then
             ! No sub-FileReader made.
             mask(i) = 0
          end if
-      end do               ! loop over support points
+      end do ! loop over support points
       if (n_signals <= 0) then
          call setECMessage("ERROR: ec_provider::ecProviderPolyTimItems: No forcing signals (.tim/.cmp/.t3d/.qh) could be attached for polyline file '"//trim(fileReaderPtr%filename)//"'.")
          return
@@ -1750,25 +1750,25 @@ contains
    !> Create subproviders, which create source Items and their contained types.
       !! meteo1.f90: read1polylin
    function ecProviderCreatePolyTimItemsBC(instancePtr, fileReaderPtr, bctfilename, quantityname) result(success)
-      logical :: success       !< function status
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
-      character(len=*), intent(in) :: bctfilename   !< in case of bct-data, we neeed the explicit filename
-      character(len=*), intent(in) :: quantityname  !< in case of bct-data, we neeed the explicit quantityname
+      character(len=*), intent(in) :: bctfilename !< in case of bct-data, we neeed the explicit filename
+      character(len=*), intent(in) :: quantityname !< in case of bct-data, we neeed the explicit quantityname
       !
-      real(hp), dimension(:), allocatable :: xs    !< x-coordinates of support points
-      real(hp), dimension(:), allocatable :: ys    !< y-coordinates of support points
-      integer, dimension(:), allocatable :: mask  !< support point mask array (for polytime ElementSet)
+      real(hp), dimension(:), allocatable :: xs !< x-coordinates of support points
+      real(hp), dimension(:), allocatable :: ys !< y-coordinates of support points
+      integer, dimension(:), allocatable :: mask !< support point mask array (for polytime ElementSet)
       integer :: n_points !< number of support points
       integer :: n_signals !< Number of forcing signals created (at most n_signals==n_points, but warn if n_signals==0)
-      character(len=:), allocatable :: rec      !< a read line
-      integer :: i        !< loop counters
-      integer :: istat    !< status of read operation
-      character(len=:), allocatable :: plipointlbl   !< temporary name of current pli-point in bct context
-      type(VLSType), dimension(:), allocatable :: plipointlbls  !< user-specified name for all pli-point in bct context
+      character(len=:), allocatable :: rec !< a read line
+      integer :: i !< loop counters
+      integer :: istat !< status of read operation
+      character(len=:), allocatable :: plipointlbl !< temporary name of current pli-point in bct context
+      type(VLSType), dimension(:), allocatable :: plipointlbls !< user-specified name for all pli-point in bct context
       character(len=:), allocatable :: polyline_name !< polyline name read from pli-file
-      character(len=4) :: cnum     !< temp integer converted to a string
-      integer :: id       !< dummy, catches ids which are not used
+      character(len=4) :: cnum !< temp integer converted to a string
+      integer :: id !< dummy, catches ids which are not used
       integer :: quantityId, elementSetId, fieldId, itemId, BCBlockID
       integer :: maxLay
       type(tEcItem), pointer :: itemPT
@@ -1823,11 +1823,11 @@ contains
       itemIDList = ec_undef_int
       do i = 1, n_points
          call GetLine(fileReaderPtr%fileHandle, rec, istat)
-         if (index(rec, '!') > 0) rec = rec(1:index(rec, '!') - 1)          ! trim commented  (!)
-         if (index(rec, '#') > 0) rec = rec(1:index(rec, '#') - 1)          ! trim commented  (#)
-         if (len(trim(rec)) == 0) cycle                               ! skip empty lines     (or commented-out coordinate pairs)
+         if (index(rec, '!') > 0) rec = rec(1:index(rec, '!') - 1) ! trim commented  (!)
+         if (index(rec, '#') > 0) rec = rec(1:index(rec, '#') - 1) ! trim commented  (#)
+         if (len(trim(rec)) == 0) cycle ! skip empty lines     (or commented-out coordinate pairs)
          istat = 0
-         read (rec, *, iostat=istat) xs(i), ys(i)                    ! see if we can at least read a coordinate pair
+         read (rec, *, iostat=istat) xs(i), ys(i) ! see if we can at least read a coordinate pair
          if (istat /= 0) then
             call setECMessage("   '"//trim(rec)//"'")
             call setECMessage("Unable to read a coordinate pair from file "//trim(fileReaderPtr%fileName))
@@ -1865,7 +1865,7 @@ contains
          call setECMessage("Forcing file ("//trim(bctfilename)//") not found.")
          return
       end if
-      if (index(trim(bctfilename)//'|', '.bc|') > 0) then   ! ASCII: bc-format  : detection is extension-based
+      if (index(trim(bctfilename)//'|', '.bc|') > 0) then ! ASCII: bc-format  : detection is extension-based
          bctfiletype = BC_FTYPE_ASCII
       else if (index(trim(bctfilename)//'|', '.nc|') > 0) then ! NETCDF: nc-format
          bctfiletype = BC_FTYPE_NETCDF
@@ -1880,7 +1880,7 @@ contains
       bcBlockPtr => ecSupportFindBCBlock(instancePtr, bcBlockId)
       plipointlbl = polyline_name
       call str_upper(quantityname)
-      n_signals = 0                                   ! Record whether at least one child provider is created for this polytim.
+      n_signals = 0 ! Record whether at least one child provider is created for this polytim.
       do i = 1, n_points
          ! Process a *.tim file.
          bcBlockId = ecInstanceCreateBCBlock(InstancePtr)
@@ -1890,7 +1890,7 @@ contains
          ! plipoint labels read from the third column in the pli-file. Currently this goes wrong if in the test third-column labels are not unique
          if (.not. allocated(plipointlbls(i)%s)) then
             write (cnum, '(i4.4)') i
-            plipointlbl = polyline_name//'_'//cnum     ! using polyline_name from tekal-block
+            plipointlbl = polyline_name//'_'//cnum ! using polyline_name from tekal-block
             has_label = .false.
          else
             plipointlbl = trim(plipointlbls(i)%s)
@@ -1899,7 +1899,7 @@ contains
 
          if (.not. ecProviderInitializeBCBlock(InstancePtr, bcBlockId, fileReaderPtr%tframe%k_refdate, fileReaderPtr%tframe%k_timezone, fileReaderPtr%tframe%k_timestep_unit, &
                                                id, bctfilename, bctfiletype, quantityname, plipointlbl, istat, dtnodal=fileReaderPtr%tframe%dtnodal)) then
-            if (has_label) then               ! for explicitly labelled pli-points, require data
+            if (has_label) then ! for explicitly labelled pli-points, require data
                call setECMessage("BC-File "//trim(bctfilename)//" contains no data for labelled point '" &
                                  //trim(plipointlbl)//"' and quantity '"//trim(quantityname)//"' (required).")
                return
@@ -1928,7 +1928,7 @@ contains
             ! No sub-FileReader made.
             mask(i) = 0
          end if
-      end do               ! loop over support points
+      end do ! loop over support points
 
       if (n_signals > 0) then
          if (.not. ecQuantitySet(instancePtr, quantityId, &
@@ -1939,7 +1939,7 @@ contains
          end if
       end if
 
-      if (ecAtLeastOnePointIsCorrection) then  ! TODO: Refactor this shortcut (UNST-180).
+      if (ecAtLeastOnePointIsCorrection) then ! TODO: Refactor this shortcut (UNST-180).
          if (all_points_are_corr) then
             success = .true.
          else
@@ -1973,14 +1973,14 @@ contains
 
       logical :: success
 
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcItem), pointer :: itemPT
       integer, intent(in) :: mask(:)
       integer, intent(in) :: maxlay
       integer, intent(in) :: n_points
       integer, dimension(:), allocatable :: itemIDList
 
-      real(hp), dimension(:), allocatable :: zs    !< z/sigma-coordinates of support points
+      real(hp), dimension(:), allocatable :: zs !< z/sigma-coordinates of support points
       integer :: i, magnitude, vectormax, zInterpolationType
       type(tEcItem), pointer :: itemt3D, itemSRC
       integer :: elementSetId
@@ -2016,14 +2016,14 @@ contains
       ! Determine vectormax.
       itemPT%quantityptr%vectormax = 0
       do iconn = 1, itemPT%nConnections
-         if (itemPT%connectionsptr(iconn)%ptr%nSourceItems > 0) then                        ! assume those of the first source item ....
+         if (itemPT%connectionsptr(iconn)%ptr%nSourceItems > 0) then ! assume those of the first source item ....
             itemSRC => itemPT%connectionsptr(iconn)%ptr%sourceItemsptr(1)%ptr
             zInterpolationType = itemSRC%quantityptr%zInterpolationType
             vectormax = itemSRC%quantityptr%vectormax
             itemPT%quantityptr%zInterpolationType = zInterpolationType
             itemPT%quantityptr%vectormax = vectormax
          end if
-         do isrc = 1, itemPT%connectionsptr(iconn)%ptr%nSourceItems                       ! ... check with all followinf source items
+         do isrc = 1, itemPT%connectionsptr(iconn)%ptr%nSourceItems ! ... check with all followinf source items
             itemSRC => itemPT%connectionsptr(iconn)%ptr%sourceItemsptr(isrc)%ptr
             if (itemPT%quantityptr%vectormax /= vectormax) then
                call setECMessage("ERROR: ec_provider::ecProvider3DVectmax: Polytim subitems have different vectormax.")
@@ -2048,12 +2048,12 @@ contains
 
    function ecProviderConnectSourceItemsToTargets(instancePtr, signaltype, fileReaderId, targetItemId, targetIndex, n_signals, maxlay, itemIDList, qname) result(itemFound)
       logical :: itemFound
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       integer :: fileReaderId ! file reader id
       integer :: targetItemId ! target item id
       integer :: targetIndex ! index in target item's values
       integer :: n_signals, maxlay ! INOUT
-      integer, dimension(:) :: itemIDList  ! INOUT
+      integer, dimension(:) :: itemIDList ! INOUT
       integer :: signaltype
       integer :: subconverterId, magnitude, j, connectionId, nr_fourier_items, anItemId
       type(tEcItem), pointer :: itemt3D
@@ -2068,7 +2068,7 @@ contains
          ! Determine the source Items.
          if (present(qname)) then
             magnitude = ecFileReaderFindItem(instancePtr, fileReaderId, trim(qname))
-            if (magnitude == ec_undef_int) then            ! new BC-format has items labelled with the quantity
+            if (magnitude == ec_undef_int) then ! new BC-format has items labelled with the quantity
                call setECMessage("ecProviderConnectSourceItemsToTargets: cannot find filereader item with quantity "//trim(qname)//".")
                magnitude = ecFileReaderFindItem(instancePtr, fileReaderId, 'uniform_item')
             end if
@@ -2123,7 +2123,7 @@ contains
          ! Determine the source Items.
          if (present(qname)) then
             magnitude = ecFileReaderFindItem(instancePtr, fileReaderId, trim(qname))
-            if (magnitude == ec_undef_int) then            ! new BC-format has items labelled with the quantity
+            if (magnitude == ec_undef_int) then ! new BC-format has items labelled with the quantity
                call setECMessage("ecProviderConnectSourceItemsToTargets: cannot find filereader item with quantity "//trim(qname)//".")
                magnitude = ecFileReaderFindItem(instancePtr, fileReaderId, 'uniform_item')
             end if
@@ -2164,25 +2164,25 @@ contains
    !> Create source Items and their contained types, based on a spiderweb file's header.
       !! meteo1.f90: reaspwheader
    function ecProviderCreateSpiderwebItems(instancePtr, fileReaderPtr) result(success)
-      logical :: success       !< function status
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
       !
-      integer :: quantityId      !< helper variable
-      integer :: elementSetId    !< helper variable
-      integer :: field0Id        !< helper variable
-      integer :: field1Id        !< helper variable
-      integer :: itemId          !< helper variable
-      integer :: n_cols          !< helper variable
-      integer :: n_rows          !< helper variable
-      real(hp) :: missingValue    !< helper variable
-      real(hp) :: radius          !< helper variable
-      real(hp) :: spw_merge_frac  !< helper variable
-      character(len=maxNameLen) :: radius_unit     !< helper variable
-      type(tEcItem), pointer :: item1           !< Item containing quantity1
-      type(tEcItem), pointer :: item2           !< Item containing quantity2
-      type(tEcItem), pointer :: item3           !< Item containing quantity3
-      character(len=maxNameLen) :: rec             !< helper variable
+      integer :: quantityId !< helper variable
+      integer :: elementSetId !< helper variable
+      integer :: field0Id !< helper variable
+      integer :: field1Id !< helper variable
+      integer :: itemId !< helper variable
+      integer :: n_cols !< helper variable
+      integer :: n_rows !< helper variable
+      real(hp) :: missingValue !< helper variable
+      real(hp) :: radius !< helper variable
+      real(hp) :: spw_merge_frac !< helper variable
+      character(len=maxNameLen) :: radius_unit !< helper variable
+      type(tEcItem), pointer :: item1 !< Item containing quantity1
+      type(tEcItem), pointer :: item2 !< Item containing quantity2
+      type(tEcItem), pointer :: item3 !< Item containing quantity3
+      character(len=maxNameLen) :: rec !< helper variable
       !
       success = .false.
       item1 => null()
@@ -2319,13 +2319,13 @@ contains
       use m_ec_field, only: ecFieldCreate1dArray
       use m_ec_item
 
-      type(tEcInstance), pointer :: instancePtr    !< EC-instance
-      integer, intent(in) :: sourceItemId   !< Source item id, before temporal interpolation
-      integer, intent(in), optional :: tgtNdx         !< Optional target index, 1 is assumed as default
-      real(hp), pointer, optional :: arrayPtr(:)    !< Optional pointer to a target array somewhere else
-      real(hp), pointer, optional :: scalarPtr      !< Optional pointer to a target scalar somewhere else
-      integer :: targetItemId   !< Target item id, after temporal interpolation
-      integer :: itemId         !< returned  target item ID, if successful, otherwise -1
+      type(tEcInstance), pointer :: instancePtr !< EC-instance
+      integer, intent(in) :: sourceItemId !< Source item id, before temporal interpolation
+      integer, intent(in), optional :: tgtNdx !< Optional target index, 1 is assumed as default
+      real(hp), pointer, optional :: arrayPtr(:) !< Optional pointer to a target array somewhere else
+      real(hp), pointer, optional :: scalarPtr !< Optional pointer to a target scalar somewhere else
+      integer :: targetItemId !< Target item id, after temporal interpolation
+      integer :: itemId !< returned  target item ID, if successful, otherwise -1
       type(tECItem), pointer :: sourceItemPtr => null()
       character(len=:), allocatable :: quantityName
       logical :: quantityPeriodic, quantityConstant
@@ -2357,7 +2357,7 @@ contains
             call setECMessage("ecProviderCreateTimeInterpolatedItem: pointer to target array unassociated.")
             return
          end if
-         if (size(arrayPtr) /= arraySize) then               ! check size
+         if (size(arrayPtr) /= arraySize) then ! check size
             call setECMessage("ecProviderCreateTimeInterpolatedItem: reserved target size and source size do not match.")
             return
          end if
@@ -2421,58 +2421,58 @@ contains
       use m_ec_message
       use m_alloc
       implicit none
-      logical :: success        !< function status
-      type(tEcInstance), pointer :: instancePtr    !< intent(in)
-      type(tEcFileReader), pointer :: fileReaderPtr  !< intent(inout)
-      character(len=*), intent(in) :: quantityName   !< name of quantity to read
-      character(len=*), optional, intent(in) :: varname        !< name of variabele (ignored if = ' ')
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
+      type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
+      character(len=*), intent(in) :: quantityName !< name of quantity to read
+      character(len=*), optional, intent(in) :: varname !< name of variabele (ignored if = ' ')
 
-      integer :: ierror                !< return value of NetCDF function calls
-      integer :: idvar                 !< variable id of the forcing variable
-      integer :: varid                 !< dummy variable id of coordinate variable
-      integer :: ndims                 !< number of dimensions within NetCDF or for the current variable
-      integer :: idims                 !< helper variables
-      integer :: ifgd, isgd            !< helper variables
-      integer, dimension(:), allocatable :: dimids                !< ids of a variable's dimensions
-      integer, dimension(:), allocatable :: coordids              !< helper variable
-      integer :: i, j                   !< loop counter
-      integer :: grid_mapping_id       !< id of the applied grid mapping
-      integer :: fgd_id                !< var_id for elementset X or latitude
-      integer :: sgd_id                !< var_id for elementset Y or longitude
-      integer :: tgd_id                !< var_id for elementset Z or depth
-      integer :: fgd_grid_type         !< helper variable for consistency check on grid_type
-      integer :: sgd_grid_type         !< helper variable for consistency check on grid_type
-      integer :: grid_type             !< elmSetType enum
-      integer :: vptyp                 !< interpretation of the vertical coordinate
-      character(len=NF90_MAX_NAME) :: z_positive            !< which direction of z is positive ?
-      character(len=NF90_MAX_NAME) :: z_standardname        !< which direction of z is positive ?
-      real(hp) :: gnplon, gnplat         !< coordinates of shifted north pole obtained from gridmapping
-      real(hp) :: gsplon, gsplat         !< coordinates of shifted south pole obtained from gridmapping
-      real(hp), dimension(:, :), allocatable :: fgd_data              !< coordinate data along first dimension's axis
-      real(hp), dimension(:), allocatable :: fgd_data_1d           !< coordinate data along first dimension's axis
-      real(hp), dimension(:), allocatable :: fgd_data_trans        !< coordinate data along first dimension's axis transformed, rotating pole
-      real(hp), dimension(:, :), allocatable :: sgd_data              !< coordinate data along second dimension's axis
-      real(hp), dimension(:), allocatable :: sgd_data_1d           !< coordinate data along second dimension's axis
-      real(hp), dimension(:), allocatable :: sgd_data_trans        !< coordinate data along first dimension's axis transformed, rotating pole
-      real(hp), dimension(:), allocatable :: tgd_data_1d           !< coordinate data along third dimension's axis
-      real(hp), dimension(:), allocatable :: pdiri                 !<
-      real(hp) :: var_miss              !< missing data value in second dimension
-      character(len=NF90_MAX_NAME) :: grid_mapping          !< name of the applied grid mapping
-      character(len=NF90_MAX_NAME) :: units                 !< helper variable for variable's units
-      character(len=NF90_MAX_NAME) :: coord_name            !< helper variable
-      character(len=NF90_MAX_NAME), dimension(:), allocatable :: coord_names           !< helper variable
-      character(len=NF90_MAX_NAME) :: name                  !< helper variable
-      character(len=NF90_MAX_NAME), dimension(4) :: ncstdnames            !< helper variable : temp. list of standard names to search for in netcdf
-      character(len=NF90_MAX_NAME), dimension(1) :: ncstdnames_fallback   !< idem
-      character(len=NF90_MAX_NAME), dimension(:), allocatable :: ncvarnames            !< helper variable : temp. list of variable names to search for in netcdf
-      character(len=NF90_MAX_NAME), dimension(:), allocatable :: nccustomnames         !< helper variable : temp. list of user-defined variables names to search for
-      integer :: quantityId            !< helper variable
-      integer :: elementSetId          !< helper variable
-      integer :: field0Id              !< helper variable
-      integer :: field1Id              !< helper variable
-      integer :: itemId                !< helper variable
-      type(tEcItem), pointer :: itemPtr               !< Item containing quantity
-      logical :: dummy                 !< temp
+      integer :: ierror !< return value of NetCDF function calls
+      integer :: idvar !< variable id of the forcing variable
+      integer :: varid !< dummy variable id of coordinate variable
+      integer :: ndims !< number of dimensions within NetCDF or for the current variable
+      integer :: idims !< helper variables
+      integer :: ifgd, isgd !< helper variables
+      integer, dimension(:), allocatable :: dimids !< ids of a variable's dimensions
+      integer, dimension(:), allocatable :: coordids !< helper variable
+      integer :: i, j !< loop counter
+      integer :: grid_mapping_id !< id of the applied grid mapping
+      integer :: fgd_id !< var_id for elementset X or latitude
+      integer :: sgd_id !< var_id for elementset Y or longitude
+      integer :: tgd_id !< var_id for elementset Z or depth
+      integer :: fgd_grid_type !< helper variable for consistency check on grid_type
+      integer :: sgd_grid_type !< helper variable for consistency check on grid_type
+      integer :: grid_type !< elmSetType enum
+      integer :: vptyp !< interpretation of the vertical coordinate
+      character(len=NF90_MAX_NAME) :: z_positive !< which direction of z is positive ?
+      character(len=NF90_MAX_NAME) :: z_standardname !< which direction of z is positive ?
+      real(hp) :: gnplon, gnplat !< coordinates of shifted north pole obtained from gridmapping
+      real(hp) :: gsplon, gsplat !< coordinates of shifted south pole obtained from gridmapping
+      real(hp), dimension(:, :), allocatable :: fgd_data !< coordinate data along first dimension's axis
+      real(hp), dimension(:), allocatable :: fgd_data_1d !< coordinate data along first dimension's axis
+      real(hp), dimension(:), allocatable :: fgd_data_trans !< coordinate data along first dimension's axis transformed, rotating pole
+      real(hp), dimension(:, :), allocatable :: sgd_data !< coordinate data along second dimension's axis
+      real(hp), dimension(:), allocatable :: sgd_data_1d !< coordinate data along second dimension's axis
+      real(hp), dimension(:), allocatable :: sgd_data_trans !< coordinate data along first dimension's axis transformed, rotating pole
+      real(hp), dimension(:), allocatable :: tgd_data_1d !< coordinate data along third dimension's axis
+      real(hp), dimension(:), allocatable :: pdiri !<
+      real(hp) :: var_miss !< missing data value in second dimension
+      character(len=NF90_MAX_NAME) :: grid_mapping !< name of the applied grid mapping
+      character(len=NF90_MAX_NAME) :: units !< helper variable for variable's units
+      character(len=NF90_MAX_NAME) :: coord_name !< helper variable
+      character(len=NF90_MAX_NAME), dimension(:), allocatable :: coord_names !< helper variable
+      character(len=NF90_MAX_NAME) :: name !< helper variable
+      character(len=NF90_MAX_NAME), dimension(4) :: ncstdnames !< helper variable : temp. list of standard names to search for in netcdf
+      character(len=NF90_MAX_NAME), dimension(1) :: ncstdnames_fallback !< idem
+      character(len=NF90_MAX_NAME), dimension(:), allocatable :: ncvarnames !< helper variable : temp. list of variable names to search for in netcdf
+      character(len=NF90_MAX_NAME), dimension(:), allocatable :: nccustomnames !< helper variable : temp. list of user-defined variables names to search for
+      integer :: quantityId !< helper variable
+      integer :: elementSetId !< helper variable
+      integer :: field0Id !< helper variable
+      integer :: field1Id !< helper variable
+      integer :: itemId !< helper variable
+      type(tEcItem), pointer :: itemPtr !< Item containing quantity
+      logical :: dummy !< temp
       character(len=50) :: attstr
       logical :: rotate_pole
       integer :: lon_varid, lon_dimid, lat_varid, lat_dimid, tim_varid, tim_dimid
@@ -2483,8 +2483,8 @@ contains
       integer, dimension(:, :), allocatable :: crd_dimids, crd_dimlen
       integer :: timeint
       integer :: expectedLength
-      character(len=:), allocatable :: nameVar         ! variable name in error message
-      character(len=2) :: cnum1, cnum2    ! 1st and 2nd number converted to string for error message
+      character(len=:), allocatable :: nameVar ! variable name in error message
+      character(len=2) :: cnum1, cnum2 ! 1st and 2nd number converted to string for error message
       integer :: nrow, ncol, nlay, nrel
       !
       success = .false.
@@ -2515,7 +2515,7 @@ contains
       ! For now assuming the MATROOS-definitions of variables, listed at
       ! https://publicwiki.deltares.nl/display/NETCDF/Matroos+Standard+names
       ncstdnames(:) = ''
-      allocate (ncvarnames(4))  ! todo: error handling
+      allocate (ncvarnames(4)) ! todo: error handling
       ncvarnames(:) = ''
       ncstdnames_fallback = ' '
       idvar = -1
@@ -2527,110 +2527,110 @@ contains
          ncvarnames(1) = 'rainfall'
          ncstdnames(1) = 'rainfall_rate'
       case ('windx')
-         ncvarnames(1) = 'u10'                            ! 10 meter eastward wind
+         ncvarnames(1) = 'u10' ! 10 meter eastward wind
          ncstdnames(1) = 'eastward_wind'
       case ('windy')
-         ncvarnames(1) = 'v10'                            ! 10 meter northward wind
+         ncvarnames(1) = 'v10' ! 10 meter northward wind
          ncstdnames(1) = 'northward_wind'
       case ('windxy')
-         ncvarnames(1) = 'u10'                            ! 10 meter eastward wind
+         ncvarnames(1) = 'u10' ! 10 meter eastward wind
          ncstdnames(1) = 'eastward_wind'
-         ncvarnames(2) = 'v10'                            ! 10 meter northward wind
+         ncvarnames(2) = 'v10' ! 10 meter northward wind
          ncstdnames(2) = 'northward_wind'
       case ('stressx')
-         ncvarnames(1) = 'tauu'                           ! eastward wind stress
+         ncvarnames(1) = 'tauu' ! eastward wind stress
          ncstdnames(1) = 'surface_downward_eastward_stress'
       case ('stressy')
-         ncvarnames(1) = 'tauv'                           ! northward wind stress
+         ncvarnames(1) = 'tauv' ! northward wind stress
          ncstdnames(1) = 'surface_downward_northward_stress'
       case ('stressxy')
-         ncvarnames(1) = 'tauu'                           ! eastward wind stress
+         ncvarnames(1) = 'tauu' ! eastward wind stress
          ncstdnames(1) = 'surface_downward_eastward_stress'
-         ncvarnames(2) = 'tauv'                           ! northward wind stress
+         ncvarnames(2) = 'tauv' ! northward wind stress
          ncstdnames(2) = 'surface_downward_northward_stress'
       case ('airpressure', 'atmosphericpressure')
-         ncvarnames(1) = 'msl'                            ! mean sea-level pressure
+         ncvarnames(1) = 'msl' ! mean sea-level pressure
          ncstdnames(1) = 'air_pressure'
       case ('airdensity')
          ! UNST-6593: airdensity has variable name p140209 and no standard_name, will be changed in the future according to ECMWF.
-         ncvarnames(1) = 'p140209'                        ! air density above sea
+         ncvarnames(1) = 'p140209' ! air density above sea
          ncstdnames(1) = 'air_density'
       case ('airpressure_windx_windy')
-         ncvarnames(1) = 'msl'                            ! mean sea-level pressure
+         ncvarnames(1) = 'msl' ! mean sea-level pressure
          ncstdnames(1) = 'air_pressure'
-         ncvarnames(2) = 'u10'                            ! 10 meter eastward wind
+         ncvarnames(2) = 'u10' ! 10 meter eastward wind
          ncstdnames(2) = 'eastward_wind'
-         ncvarnames(3) = 'v10'                            ! 10 meter northward wind
+         ncvarnames(3) = 'v10' ! 10 meter northward wind
          ncstdnames(3) = 'northward_wind'
       case ('airpressure_stressx_stressy')
-         ncvarnames(1) = 'msl'                            ! mean sea-level pressure
+         ncvarnames(1) = 'msl' ! mean sea-level pressure
          ncstdnames(1) = 'air_pressure'
-         ncvarnames(2) = 'tauu'                           ! eastward wind stress
+         ncvarnames(2) = 'tauu' ! eastward wind stress
          ncstdnames(2) = 'surface_downward_eastward_stress'
-         ncvarnames(3) = 'tauv'                           ! northward wind stress
+         ncvarnames(3) = 'tauv' ! northward wind stress
          ncstdnames(3) = 'surface_downward_northward_stress'
       case ('airpressure_windx_windy_charnock')
-         ncvarnames(1) = 'msl'                            ! mean sea-level pressure
+         ncvarnames(1) = 'msl' ! mean sea-level pressure
          ncstdnames(1) = 'air_pressure'
-         ncvarnames(2) = 'u10'                            ! 10 meter eastward wind
+         ncvarnames(2) = 'u10' ! 10 meter eastward wind
          ncstdnames(2) = 'eastward_wind'
-         ncvarnames(3) = 'v10'                            ! 10 meter northward wind
+         ncvarnames(3) = 'v10' ! 10 meter northward wind
          ncstdnames(3) = 'northward_wind'
-         ncvarnames(4) = 'c'                              ! space varying Charnock coefficients
+         ncvarnames(4) = 'c' ! space varying Charnock coefficients
          ncstdnames(4) = 'charnock'
       case ('charnock')
-         ncvarnames(1) = 'c'                              ! space varying Charnock coefficients
+         ncvarnames(1) = 'c' ! space varying Charnock coefficients
          ncstdnames(1) = 'charnock'
       case ('airtemperature')
-         ncvarnames(1) = 't2m'                            ! 2-meter air temperature
+         ncvarnames(1) = 't2m' ! 2-meter air temperature
          ncstdnames(1) = 'air_temperature'
       case ('cloudiness')
-         ncvarnames(1) = 'tcc'                            ! cloud cover (fraction)
+         ncvarnames(1) = 'tcc' ! cloud cover (fraction)
          ncstdnames(1) = 'cloud_area_fraction'
       case ('humidity')
          ncstdnames(1) = 'humidity'
          ncstdnames_fallback(1) = 'relative_humidity'
       case ('dewpoint')
-         ncvarnames(1) = 'd2m'                            ! dew-point temperature
+         ncvarnames(1) = 'd2m' ! dew-point temperature
          ncstdnames(1) = 'dew_point_temperature'
       case ('wind_speed')
          ncstdnames(1) = 'wind_speed'
       case ('wind_from_direction')
          ncstdnames(1) = 'wind_from_direction'
       case ('humidity_airtemperature_cloudiness')
-         ncvarnames(1) = 'rhum'                           ! relative_humidity
+         ncvarnames(1) = 'rhum' ! relative_humidity
          ncstdnames(1) = 'relative_humidity'
-         ncvarnames(2) = 't2m'                            ! 2-meter air temperature
+         ncvarnames(2) = 't2m' ! 2-meter air temperature
          ncstdnames(2) = 'air_temperature'
-         ncvarnames(3) = 'tcc'                            ! cloud cover (fraction)
+         ncvarnames(3) = 'tcc' ! cloud cover (fraction)
          ncstdnames(3) = 'cloud_area_fraction'
       case ('dewpoint_airtemperature_cloudiness')
-         ncvarnames(1) = 'd2m'                            ! dew-point temperature
+         ncvarnames(1) = 'd2m' ! dew-point temperature
          ncstdnames(1) = 'dew_point_temperature'
-         ncvarnames(2) = 't2m'                            ! 2-meter air temperature
+         ncvarnames(2) = 't2m' ! 2-meter air temperature
          ncstdnames(2) = 'air_temperature'
-         ncvarnames(3) = 'tcc'                            ! cloud cover (fraction)
+         ncvarnames(3) = 'tcc' ! cloud cover (fraction)
          ncstdnames(3) = 'cloud_area_fraction'
       case ('dewpoint_airtemperature_cloudiness_solarradiation')
-         ncvarnames(1) = 'd2m'                            ! dew-point temperature
+         ncvarnames(1) = 'd2m' ! dew-point temperature
          ncstdnames(1) = 'dew_point_temperature'
-         ncvarnames(2) = 't2m'                            ! 2-meter air temperature
+         ncvarnames(2) = 't2m' ! 2-meter air temperature
          ncstdnames(2) = 'air_temperature'
-         ncvarnames(3) = 'tcc'                            ! cloud cover (fraction)
+         ncvarnames(3) = 'tcc' ! cloud cover (fraction)
          ncstdnames(3) = 'cloud_area_fraction'
-         ncvarnames(4) = 'ssr'                            ! outgoing SW radiation at the top-of-the-atmosphere
+         ncvarnames(4) = 'ssr' ! outgoing SW radiation at the top-of-the-atmosphere
          ncstdnames(4) = 'surface_net_downward_shortwave_flux'
       case ('solarradiation')
-         ncvarnames(1) = 'ssr'                            ! outgoing SW radiation at the top-of-the-atmosphere
+         ncvarnames(1) = 'ssr' ! outgoing SW radiation at the top-of-the-atmosphere
          ncstdnames(1) = 'surface_net_downward_shortwave_flux'
          ncstdnames_fallback(1) = 'solar_irradiance'
       case ('longwaveradiation')
-         ncvarnames(1) = 'strd'                           ! outgoing long wave radiation
+         ncvarnames(1) = 'strd' ! outgoing long wave radiation
          ncstdnames(1) = 'surface_net_downward_longwave_flux'
       case ('nudge_salinity_temperature')
-         ncvarnames(1) = 'thetao'                         ! temperature
+         ncvarnames(1) = 'thetao' ! temperature
          ncstdnames(1) = 'sea_water_potential_temperature'
-         ncvarnames(2) = 'so'                             ! salinity
+         ncvarnames(2) = 'so' ! salinity
          ncstdnames(2) = 'sea_water_salinity'
       case ('sea_ice_area_fraction', 'sea_ice_thickness')
          ncstdnames(1) = quantityName
@@ -2638,10 +2638,10 @@ contains
          ncvarnames(1) = 'friction_coefficient'
          ncstdnames(1) = 'friction_coefficient'
       case ('wavesignificantheight')
-         ncvarnames(1) = 'hs'                             ! significant wave height
+         ncvarnames(1) = 'hs' ! significant wave height
          ncstdnames(1) = 'sea_surface_wave_significant_height'
       case ('waveperiod')
-         ncvarnames(1) = varname                          ! wave period
+         ncvarnames(1) = varname ! wave period
          ncstdnames(1) = varname
       case ('wavedirection')
          ncvarnames(1) = 'theta0'
@@ -2663,7 +2663,7 @@ contains
       case ('totalwaveenergydissipation')
          ncvarnames(1) = 'dissip'
          ncstdnames(1) = 'total_energy_dissipation'
-      case default                                        ! experiment: gather miscellaneous variables from an NC-file,
+      case default ! experiment: gather miscellaneous variables from an NC-file,
          if (index(quantityName, 'waqsegmentfunction') == 1) then
             ncvarnames(1) = quantityName
             ncstdnames(1) = quantityName
@@ -2698,8 +2698,8 @@ contains
       ! if no varid id for stations was found through the cf_role=timeseriesid criterion there is an alternative
       ! way to discover timeseries. Remove this to make it more strict: always demand a cf_role attribute
       if (nod_dimid < 0) then
-         if (lon_dimid > 0 .and. lon_dimid == lat_dimid) nod_dimid = lon_dimid    ! stations with lon/lat
-         if (x_dimid > 0 .and. x_dimid == y_dimid) nod_dimid = x_dimid      ! stations with x/y
+         if (lon_dimid > 0 .and. lon_dimid == lat_dimid) nod_dimid = lon_dimid ! stations with lon/lat
+         if (x_dimid > 0 .and. x_dimid == y_dimid) nod_dimid = x_dimid ! stations with x/y
       end if
 
       expectedLength = count(ncstdnames > ' ')
@@ -2725,7 +2725,7 @@ contains
          if (idvar <= 0 .and. ncstdnames_fallback(1) /= ' ') then
             call ecProviderSearchStdOrVarnames(fileReaderPtr, i, idvar, ncstdnames_fallback, ncvarnames)
          end if
-         if (idvar <= 0) then                              ! Variable not found among standard names and variable names either
+         if (idvar <= 0) then ! Variable not found among standard names and variable names either
             if (allocated(nccustomnames)) then
                nameVar = trim(nccustomnames(i))
             else
@@ -2734,17 +2734,17 @@ contains
             call setECMessage("Variable '"//nameVar//"' not found in NetCDF file '"//trim(fileReaderPtr%filename))
             return
          end if
-         fileReaderPtr%standard_names(idvar) = ncstdnames(i)                 ! overwrite the standardname by the one required
+         fileReaderPtr%standard_names(idvar) = ncstdnames(i) ! overwrite the standardname by the one required
 
-         ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, idvar, ndims=ndims)  ! get the number of dimensions
-         if (allocated(coordids)) deallocate (coordids)                                 ! allocate space for the variable id's
-         allocate (coordids(ndims))                                                     ! .. representing the var's coordinates
+         ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, idvar, ndims=ndims) ! get the number of dimensions
+         if (allocated(coordids)) deallocate (coordids) ! allocate space for the variable id's
+         allocate (coordids(ndims)) ! .. representing the var's coordinates
          coordids = -1
          if (allocated(dimids)) deallocate (dimids)
          allocate (dimids(ndims))
-         ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, idvar, dimids=dimids)! get dimension ID's
+         ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, idvar, dimids=dimids) ! get dimension ID's
 
-         do idims = 1, ndims    ! JRE to check
+         do idims = 1, ndims ! JRE to check
             coordids(idims) = fileReaderPtr%dim_varids(dimids(idims))
          end do
 
@@ -2774,11 +2774,11 @@ contains
             if (lat_varid > 0) then
                sgd_id = lat_varid
             end if
-            if ((grid_lon_varid > 0) .and. (grid_lat_varid > 0) .and. (fgd_id < 0 .or. sgd_id < 0)) then  ! ... then try relative (rotated-pole-) lon and lat
+            if ((grid_lon_varid > 0) .and. (grid_lat_varid > 0) .and. (fgd_id < 0 .or. sgd_id < 0)) then ! ... then try relative (rotated-pole-) lon and lat
                fgd_id = grid_lon_varid
                sgd_id = grid_lat_varid
                grid_mapping = ''
-               ierror = nf90_get_att(fileReaderPtr%fileHandle, idvar, "grid_mapping", grid_mapping)      ! check if there is a gridmapping variable for this var
+               ierror = nf90_get_att(fileReaderPtr%fileHandle, idvar, "grid_mapping", grid_mapping) ! check if there is a gridmapping variable for this var
                if (len_trim(grid_mapping) > 0) then
                   ierror = nf90_inq_varid(fileReaderPtr%fileHandle, grid_mapping, grid_mapping_id)
                   if (ierror == NF90_NOERR) then
@@ -2793,11 +2793,11 @@ contains
                         if (.not. (nf90_get_att(fileReaderPtr%fileHandle, grid_mapping_id, "grid_north_pole_latitude", gnplat) == NF90_NOERR)) gnplat = -999.9
                         if (.not. (nf90_get_att(fileReaderPtr%fileHandle, grid_mapping_id, "grid_south_pole_longitude", gsplon) == NF90_NOERR)) gsplon = -999.9
                         if (.not. (nf90_get_att(fileReaderPtr%fileHandle, grid_mapping_id, "grid_south_pole_latitude", gsplat) == NF90_NOERR)) gsplat = -999.9
-                        if ((gnplon > -900.d0) .and. (gnplat > -900.d0)) then         ! northpole given
+                        if ((gnplon > -900.d0) .and. (gnplat > -900.d0)) then ! northpole given
                            gsplon = gnplon + 180.d0
                            gsplat = -gnplat
                         end if
-                        if ((gsplon > -900.d0) .and. (gsplat > -900.d0)) then         ! southpole given
+                        if ((gsplon > -900.d0) .and. (gsplat > -900.d0)) then ! southpole given
                            rotate_pole = .true.
                         end if
                      end if
@@ -2815,7 +2815,7 @@ contains
          ! inspect the coordinate attribute string
          ! The contents of the coordinate string OVERRULE the id's of coordinate variables (i.e. fgd_id, sgd_id, tgd_id set above)
          coord_name = ''
-         ierror = nf90_get_att(fileReaderPtr%fileHandle, idvar, "coordinates", coord_name)      ! get coordinates attribute
+         ierror = nf90_get_att(fileReaderPtr%fileHandle, idvar, "coordinates", coord_name) ! get coordinates attribute
          if (len_trim(coord_name) > 0) then
             if (allocated(coord_names)) deallocate (coord_names)
             call strsplit(coord_name, 1, coord_names, 1)
@@ -2845,7 +2845,7 @@ contains
                   end if
                end if
             end do
-         end if    ! has non-empty coordinates attribute
+         end if ! has non-empty coordinates attribute
 
          if (fgd_id < 0 .or. sgd_id < 0) then
             if (instancePtr%coordsystem == EC_COORDS_CARTESIAN) then
@@ -2878,14 +2878,14 @@ contains
 
             ! Dimensions ID's and dimension lengths of the FIRST coordinate variable
             ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, fgd_id, ndims=ndims)
-            ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, fgd_id, dimids=crd_dimids(1:ndims, 1))  ! count dimensions of the first coordinate variable
+            ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, fgd_id, dimids=crd_dimids(1:ndims, 1)) ! count dimensions of the first coordinate variable
             do idims = 1, ndims
                crd_dimlen(idims, 1) = fileReaderPtr%dim_length(crd_dimids(idims, 1))
             end do
 
             ! Dimensions ID's and dimension lengths of the SECOND coordinate variable
             ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, sgd_id, ndims=ndims)
-            ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, sgd_id, dimids=crd_dimids(1:ndims, 2))  ! count dimensions of the first coordinate variable
+            ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, sgd_id, dimids=crd_dimids(1:ndims, 2)) ! count dimensions of the first coordinate variable
             do idims = 1, ndims
                crd_dimlen(idims, 2) = fileReaderPtr%dim_length(crd_dimids(idims, 2))
             end do
@@ -2895,7 +2895,7 @@ contains
                crd_dimlen(:, 3) = 0
             else
                ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, tgd_id, ndims=ndims)
-               ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, tgd_id, dimids=crd_dimids(1:ndims, 3))  ! count dimensions of the first coordinate variable
+               ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, tgd_id, dimids=crd_dimids(1:ndims, 3)) ! count dimensions of the first coordinate variable
                do idims = 1, ndims
                   crd_dimlen(idims, 3) = fileReaderPtr%dim_length(crd_dimids(idims, 3))
                end do
@@ -3057,10 +3057,10 @@ contains
                call str_lower(z_positive)
                ! Set the vptyp of the elementset
                select case (z_standardname)
-               case ('depth')                                                          ! absolute depth below geoid
+               case ('depth') ! absolute depth below geoid
                   vptyp = BC_VPTYP_ZDATUM
                   if (z_positive == 'down') vptyp = BC_VPTYP_ZDATUM_DOWN
-               case ('ocean_sigma_coordinate', 'ocean_sigma_z_coordinate')              ! relative vertical coordinate
+               case ('ocean_sigma_coordinate', 'ocean_sigma_z_coordinate') ! relative vertical coordinate
                   vptyp = BC_VPTYP_PERCBED
                   if (z_positive == 'down') vptyp = BC_VPTYP_PERCSURF
                case ('hybrid_height')
@@ -3138,17 +3138,17 @@ contains
 
    !> Search for a single variabele index in a (NetCDF) dataset, using standard_name values, hardcoded values, or user-defined values.
    subroutine ecProviderSearchStdOrVarnames(fileReaderPtr, ncIndex, id, ncstdnames, ncvarnames, uservarnames, ignore_case)
-      type(tEcFileReader), intent(in) :: fileReaderPtr  !< used for input standard and variable names
-      integer, intent(in) :: ncIndex        !< index in list(s) ncstdnames, ncvarnames, uservarnames
-      integer, intent(out) :: id             !< found index in data set variable list.
-      character(len=*), intent(in), optional :: ncstdnames(:)  !< list with standard names to compare with. Gets last priority.
-      character(len=*), intent(in), optional :: ncvarnames(:)  !< list with predefined variable names to compare with. Gets second priority.
-      character(len=*), intent(in), optional, allocatable :: uservarnames(:)!< list with user-specified variable names to compare with. Gets first priority.
-      logical, intent(in), optional :: ignore_case    !< optionally perform a case INsensitive lookup
+      type(tEcFileReader), intent(in) :: fileReaderPtr !< used for input standard and variable names
+      integer, intent(in) :: ncIndex !< index in list(s) ncstdnames, ncvarnames, uservarnames
+      integer, intent(out) :: id !< found index in data set variable list.
+      character(len=*), intent(in), optional :: ncstdnames(:) !< list with standard names to compare with. Gets last priority.
+      character(len=*), intent(in), optional :: ncvarnames(:) !< list with predefined variable names to compare with. Gets second priority.
+      character(len=*), intent(in), optional, allocatable :: uservarnames(:) !< list with user-specified variable names to compare with. Gets first priority.
+      logical, intent(in), optional :: ignore_case !< optionally perform a case INsensitive lookup
 
       logical :: ic
-      integer :: idvar    ! loop counter
-      integer :: nvar     ! number/loopvariable of varids in this netcdf file
+      integer :: idvar ! loop counter
+      integer :: nvar ! number/loopvariable of varids in this netcdf file
 
       id = -999
       ic = .false.
@@ -3195,7 +3195,7 @@ contains
          implicit none
          logical :: match
          character(len=*), intent(in) :: s1, s2 !< Input strings to be compared.
-         logical, intent(in) :: ic     !< Whether or not case-INsensitive comparison should be cone.
+         logical, intent(in) :: ic !< Whether or not case-INsensitive comparison should be cone.
          if (ic) then
             match = strcmpi(trim(s1), trim(s2))
          else
@@ -3209,25 +3209,25 @@ contains
 
    !> Create source Items and their contained types, based on NetCDF file header.
    function ecProviderCreateWaveNetcdfItems(instancePtr, fileReaderPtr, quantityName) result(success)
-      logical :: success       !< function status
-      type(tEcInstance), pointer :: instancePtr   !< intent(in)
+      logical :: success !< function status
+      type(tEcInstance), pointer :: instancePtr !< intent(in)
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
-      character(len=*), intent(in) :: quantityName  !< name of quantity to read
+      character(len=*), intent(in) :: quantityName !< name of quantity to read
       !
-      integer :: ierror         !< return value of function calls
-      integer :: iddim_netelem  !< id as obtained from NetCDF
-      integer :: idvar_q        !< id as obtained from NetCDF
-      integer :: n              !< number of values
-      integer :: quantityId     !< helper variable
-      integer :: elementSetId   !< helper variable
-      integer :: field0Id       !< helper variable
-      integer :: field1Id       !< helper variable
-      integer :: itemId         !< helper variable
-      integer :: t0t1           !< indicates whether the 0 or the 1 field is read. -1: choose yourself
-      logical :: local_success  !< when the return flag should not be influenced
-      real(hp) :: dmiss          !< missing data value
+      integer :: ierror !< return value of function calls
+      integer :: iddim_netelem !< id as obtained from NetCDF
+      integer :: idvar_q !< id as obtained from NetCDF
+      integer :: n !< number of values
+      integer :: quantityId !< helper variable
+      integer :: elementSetId !< helper variable
+      integer :: field0Id !< helper variable
+      integer :: field1Id !< helper variable
+      integer :: itemId !< helper variable
+      integer :: t0t1 !< indicates whether the 0 or the 1 field is read. -1: choose yourself
+      logical :: local_success !< when the return flag should not be influenced
+      real(hp) :: dmiss !< missing data value
       type(tEcItem), pointer :: item
-      character(NF90_MAX_NAME) :: string         !< read from NetCDF file
+      character(NF90_MAX_NAME) :: string !< read from NetCDF file
       character(300) :: message
 
       !
@@ -3330,12 +3330,12 @@ contains
 
    !> Set the TimeFrame's properties, based on a file header when present, or to refdat and hardcoded values otherwise.
    function ecProviderInitializeTimeFrame(fileReaderPtr, k_refdate, k_timezone, k_timestep_unit, dtnodal) result(success)
-      logical :: success          !< function status
-      type(tEcFileReader), pointer :: fileReaderPtr    !< intent(inout)
-      real(hp), intent(in) :: k_refdate        !< Kernel's reference date as MJD
-      real(hp), intent(in) :: k_timezone       !< Kernel's timezone.
-      integer, intent(in) :: k_timestep_unit  !< Kernel's time step unit (1=seconds, 2=minutes, 3=hours)
-      real(hp), optional, intent(in) :: dtnodal          !< Nodal factors update interval
+      logical :: success !< function status
+      type(tEcFileReader), pointer :: fileReaderPtr !< intent(inout)
+      real(hp), intent(in) :: k_refdate !< Kernel's reference date as MJD
+      real(hp), intent(in) :: k_timezone !< Kernel's timezone.
+      integer, intent(in) :: k_timestep_unit !< Kernel's time step unit (1=seconds, 2=minutes, 3=hours)
+      real(hp), optional, intent(in) :: dtnodal !< Nodal factors update interval
       !
       success = .false.
       !
@@ -3429,12 +3429,12 @@ contains
    !> Set the TimeFrame's properties, based on a default time string format.
       !! meteo1.f90: reaspwtim
    function ecDefaultInitializeTimeFrame(fileReaderPtr) result(success)
-      logical :: success       !< function status
+      logical :: success !< function status
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(in)
       !
-      character(len=maxNameLen) :: keyword    !< helper variable
-      character(len=maxNameLen) :: rec        !< helper variable
-      character(len=maxNameLen) :: prev_rec   !< helper variable
+      character(len=maxNameLen) :: keyword !< helper variable
+      character(len=maxNameLen) :: rec !< helper variable
+      character(len=maxNameLen) :: prev_rec !< helper variable
       !
       success = .false.
       keyword = 'TIME'
@@ -3478,7 +3478,7 @@ contains
       !! uniform: time[minute], wind_x[m s-1](, wind_y[m s-1])
       !! unimagdir: time[minute], windspeed[m s-1], winddirection[degree]
    function ecUniInitializeTimeFrame(fileReaderPtr) result(success)
-      logical :: success       !< function status
+      logical :: success !< function status
       type(tEcFileReader), pointer :: fileReaderPtr !< FileReader to initialize
       !
       success = .false.
@@ -3494,16 +3494,16 @@ contains
    function ecNetcdfInitializeTimeFrame(fileReaderPtr) result(success)
       use netcdf
       !
-      logical :: success       !< function status
+      logical :: success !< function status
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(in)
       !
       integer :: nVariables !< number of variables in NetCDF file
-      integer :: time_id    !< integer id of variable with standard_name "time"
-      integer :: i          !< loop counter
-      character(len=NF90_MAX_NAME) :: units      !< units attribute of a variable
-      integer, dimension(1) :: dimid      !< integer id of time variable's dimension variable
-      integer :: length     !< number of time steps
-      integer :: istat      !< status of allocation operation
+      integer :: time_id !< integer id of variable with standard_name "time"
+      integer :: i !< loop counter
+      character(len=NF90_MAX_NAME) :: units !< units attribute of a variable
+      integer, dimension(1) :: dimid !< integer id of time variable's dimension variable
+      integer :: length !< number of time steps
+      integer :: istat !< status of allocation operation
       !
       success = .false.
       nVariables = 0
@@ -3513,20 +3513,20 @@ contains
       !
       ! Inspect the standard_name attribute of all variables to find "time" and store that variable's id.
       nVariables = size(fileReaderPtr%variable_names)
-      do i = 1, nVariables                       ! check the standard names for TIME
+      do i = 1, nVariables ! check the standard names for TIME
          if (strcmpi(fileReaderPtr%standard_names(i), 'TIME')) then
             time_id = i
             exit
          end if
       end do
       if (i > nVariables) then
-         do i = 1, nVariables                    ! .... if not found, check variable names for TIME ....
+         do i = 1, nVariables ! .... if not found, check variable names for TIME ....
             if (strcmpi(fileReaderPtr%variable_names(i), 'TIME')) then
                time_id = i
                exit
             end if
          end do
-         if (i > nVariables) then                ! .... if still not found, you are out of luck !
+         if (i > nVariables) then ! .... if still not found, you are out of luck !
             return
          end if
       end if
@@ -3555,12 +3555,12 @@ contains
    function ecNetcdfFindVariableId(fileReaderPtr, variable_name) result(variable_id)
       use netcdf
       !
-      integer :: variable_id   !< variable id of name in file, ec_undef_int if not found.
+      integer :: variable_id !< variable id of name in file, ec_undef_int if not found.
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(in) File being read.
       character(*), intent(in) :: variable_name !< variable name to find.
       !
-      integer :: nVariables    !< number of variables in NetCDF file
-      integer :: i             !< loop variable
+      integer :: nVariables !< number of variables in NetCDF file
+      integer :: i !< loop variable
       !
       variable_id = ec_undef_int
       !
@@ -3590,17 +3590,17 @@ contains
    function ecNetcdfInitializeHarmonicsFrame(fileReaderPtr) result(success)
       use netcdf
       !
-      logical :: success       !< function status
+      logical :: success !< function status
       type(tEcFileReader), pointer :: fileReaderPtr !< intent(in)
       !
-      integer :: phase_id     !< integer id of variable with standard_name "phase"
-      character(len=NF90_MAX_NAME) :: units        !< units attribute of a variable
-      character(len=NF90_MAX_NAME) :: attrstring   !< global attribute
-      integer :: period       !< period value in seconds.
-      integer, dimension(2) :: dimids       !< integer id's of amplitude/phase variable's dimension variables eg: phase(y,x) -> id's of y and x.
-      integer :: numids       !< number of variable id's of amplitude/phase (we expect 2: y,x)
-      integer, dimension(2) :: phase_dims   !< number of points in Y,X directions.
-      integer :: istat        !< status of allocation operation
+      integer :: phase_id !< integer id of variable with standard_name "phase"
+      character(len=NF90_MAX_NAME) :: units !< units attribute of a variable
+      character(len=NF90_MAX_NAME) :: attrstring !< global attribute
+      integer :: period !< period value in seconds.
+      integer, dimension(2) :: dimids !< integer id's of amplitude/phase variable's dimension variables eg: phase(y,x) -> id's of y and x.
+      integer :: numids !< number of variable id's of amplitude/phase (we expect 2: y,x)
+      integer, dimension(2) :: phase_dims !< number of points in Y,X directions.
+      integer :: istat !< status of allocation operation
       !
       success = .false.
       !
@@ -3670,14 +3670,14 @@ contains
       !! meteo1:: readarcinfoheader
    function readarcinfoheader(minp, num_columns, num_rows, x0, y0, dxa, dya, dmiss) result(success)
       logical :: success !< function status
-      integer :: minp    !<
-      integer, intent(out) :: num_columns    !<
-      integer, intent(out) :: num_rows    !<
-      real(hp), intent(out) :: x0      !<
-      real(hp), intent(out) :: y0      !<
-      real(hp), intent(out) :: dxa     !<
-      real(hp), intent(out) :: dya     !<
-      real(hp), intent(out) :: dmiss   !<
+      integer :: minp !<
+      integer, intent(out) :: num_columns !<
+      integer, intent(out) :: num_rows !<
+      real(hp), intent(out) :: x0 !<
+      real(hp), intent(out) :: y0 !<
+      real(hp), intent(out) :: dxa !<
+      real(hp), intent(out) :: dya !<
+      real(hp), intent(out) :: dmiss !<
       !
       integer :: jacornerx
       integer :: jacornery
@@ -3739,7 +3739,7 @@ contains
             read (rec(L:), *, err=105) dya
          end if
          !
-         if (index(rec, '### END OF HEADER') == 0) then  ! new d3dflow header
+         if (index(rec, '### END OF HEADER') == 0) then ! new d3dflow header
             goto 20
          end if
       else
@@ -3857,8 +3857,8 @@ contains
 !  use m_ec_provider
       implicit none
 
-      type(tEcBCBlock), pointer :: bcPtr                      !< Pointer to a BCBlock instance
-      type(tEcFileReader), pointer :: fileReaderPtr              !< Pointer to a filereader instance
+      type(tEcBCBlock), pointer :: bcPtr !< Pointer to a BCBlock instance
+      type(tEcFileReader), pointer :: fileReaderPtr !< Pointer to a filereader instance
       type(tEcInstance), pointer :: instancePtr
 
       integer :: ic, nc
@@ -3925,7 +3925,7 @@ contains
             case ('y', 'latitude', 'projected_y', 'yc', 'grid_latitude', 'projection_y_coordinate')
                fileReaderPtr%laty_id = idim
             end select
-         end do   ! idim
+         end do ! idim
       else
          ! no dimensions in the file or netcdf inquiry error .... handle exception
          return
@@ -3934,7 +3934,7 @@ contains
       ! Collects names and standard names of variables in the netcdf as well as the varids associated with dimids
       ! The latter is used later to guess coordinates belonging to a variable
       if (nvar > 0) then
-         call realloc(fileReaderPtr%standard_names, nvar)       ! Note: one of these may be obsolete (if we only check standard names)
+         call realloc(fileReaderPtr%standard_names, nvar) ! Note: one of these may be obsolete (if we only check standard names)
          call realloc(fileReaderPtr%variable_names, nvar)
          fileReaderPtr%standard_names = ''
          fileReaderPtr%variable_names = ''
@@ -3947,12 +3947,12 @@ contains
             ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, ivar, nDims=ndim)
             dim_name = ''
             name_len = 0
-            if (ndim == 1) then                     ! Is this variable a 1D coordinate variable
+            if (ndim == 1) then ! Is this variable a 1D coordinate variable
                ierror = nf90_inquire_variable(fileReaderPtr%fileHandle, ivar, dimids=dimid)
                ierror = nf90_inquire_dimension(fileReaderPtr%fileHandle, dimid(1), name=dim_name, len=dim_size)
                call str_lower(dim_name)
                if (trim(dim_name) == trim(fileReaderPtr%variable_names(ivar))) then
-                  fileReaderPtr%dim_varids(dimid(1)) = ivar      ! connects a varid to a dimid
+                  fileReaderPtr%dim_varids(dimid(1)) = ivar ! connects a varid to a dimid
                end if
             end if
          end do

@@ -26,7 +26,7 @@
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
 !
 !-------------------------------------------------------------------------------
-   
+
 submodule(fm_external_forcings) fm_external_forcings_update
    use timers, only: timstrt, timstop
    use m_flowtimes
@@ -52,13 +52,13 @@ submodule(fm_external_forcings) fm_external_forcings_update
    integer, parameter :: DEWPOINT_AIRTEMPERATURE_CLOUDINESS_SOLARRADIATION = 4
    integer, parameter :: DEWPOINT = 5
 
-   integer :: ierr             !< error flag
+   integer :: ierr !< error flag
    logical :: l_set_frcu_mor = .false.
    logical :: first_time_wind
 
    logical, external :: flow_initwaveforcings_runtime, flow_trachy_needs_update
    character(len=255) :: tmpstr
-   type(c_time) :: ecTime           !< Time in EC-module
+   type(c_time) :: ecTime !< Time in EC-module
 
    ! variables for processing the pump with levels, SOBEK style
    logical :: success_copy
@@ -67,9 +67,9 @@ contains
 
    !> set field oriented boundary conditions
    module subroutine set_external_forcings(time_in_seconds, initialization, iresult)
-      double precision, intent(in) :: time_in_seconds  !< Time in seconds
-      logical, intent(in) :: initialization   !< initialization phase
-      integer, intent(out) :: iresult          !< Integer error status: DFM_NOERR==0 if succesful.
+      double precision, intent(in) :: time_in_seconds !< Time in seconds
+      logical, intent(in) :: initialization !< initialization phase
+      integer, intent(out) :: iresult !< Integer error status: DFM_NOERR==0 if succesful.
 
       call timstrt('External forcings', handle_ext)
 
@@ -178,11 +178,11 @@ contains
 
       if (bfm_included .and. .not. initialization) then
          if (bfmpar%lfbedfrm) then
-            call fm_calbf()            ! JRE+BJ to check: see with which timestep we update this?
+            call fm_calbf() ! JRE+BJ to check: see with which timestep we update this?
          end if
       end if
 
-      if (bfmpar%lfbedfrmrou .and. .not. initialization) then     ! .true. if van rijn 2004 or trachy contains ripple roughness
+      if (bfmpar%lfbedfrmrou .and. .not. initialization) then ! .true. if van rijn 2004 or trachy contains ripple roughness
          call fm_calksc()
       end if
 
@@ -193,7 +193,7 @@ contains
 
       if (jatrt == 1) then
          if (flow_trachy_needs_update(time1)) then
-            call flow_trachyupdate()                            ! perform a trachy update step
+            call flow_trachyupdate() ! perform a trachy update step
             l_set_frcu_mor = .true.
          end if
       end if
@@ -206,7 +206,7 @@ contains
 
       if (stm_included) then
          if ((jased > 0) .and. l_set_frcu_mor) then
-            call set_frcu_mor(1)     !otherwise frcu_mor is set in getprof_1d()
+            call set_frcu_mor(1) !otherwise frcu_mor is set in getprof_1d()
             call set_frcu_mor(2)
          end if
       end if
@@ -223,9 +223,9 @@ contains
 !> get_timespace_value_by_item_and_array_and_consider_success_value
    subroutine get_timespace_value_by_item_array_consider_success_value(item, array, time_in_seconds)
 
-      integer, intent(in) :: item      !< Item for getting values
-      double precision, intent(inout) :: array(:)  !< Array that stores the values
-      double precision, intent(in) :: time_in_seconds  !< Time in seconds
+      integer, intent(in) :: item !< Item for getting values
+      double precision, intent(inout) :: array(:) !< Array that stores the values
+      double precision, intent(in) :: time_in_seconds !< Time in seconds
 
       success = success .and. ec_gettimespacevalue(ecInstancePtr, item, irefdate, tzone, tunit, time_in_seconds, array)
 
@@ -233,7 +233,7 @@ contains
 
 !> set_temperature_models
    subroutine set_temperature_models(time_in_seconds)
-      double precision, intent(in) :: time_in_seconds  !< Time in seconds
+      double precision, intent(in) :: time_in_seconds !< Time in seconds
 
       logical :: foundtempforcing
 
@@ -286,7 +286,7 @@ contains
 !> get_timespace_value_by_name_and_consider_success_value
    subroutine get_timespace_value_by_name_and_consider_success_value(name, time_in_seconds)
       character(*), intent(in) :: name
-      double precision, intent(in) :: time_in_seconds  !< Time in seconds
+      double precision, intent(in) :: time_in_seconds !< Time in seconds
 
       success = success .and. ec_gettimespacevalue(ecInstancePtr, name, time_in_seconds)
 
@@ -296,7 +296,7 @@ contains
    subroutine get_timespace_value_by_item_and_consider_success_value(item, time_in_seconds)
 
       integer, intent(in) :: item
-      double precision, intent(in) :: time_in_seconds  !< Time in seconds
+      double precision, intent(in) :: time_in_seconds !< Time in seconds
 
       success = success .and. ec_gettimespacevalue(ecInstancePtr, item, irefdate, tzone, tunit, time_in_seconds)
 
@@ -305,9 +305,9 @@ contains
    !> get_timespace_value_by_item_and_array
    subroutine get_timespace_value_by_item_and_array(item, array, time_in_seconds)
 
-      integer, intent(in) :: item     !< Item for getting values
+      integer, intent(in) :: item !< Item for getting values
       double precision, intent(inout) :: array(:) !< Array that stores the values
-      double precision, intent(in) :: time_in_seconds  !< Time in seconds
+      double precision, intent(in) :: time_in_seconds !< Time in seconds
 
       success = ec_gettimespacevalue(ecInstancePtr, item, irefdate, tzone, tunit, time_in_seconds, array)
 
@@ -317,7 +317,7 @@ contains
    subroutine get_timespace_value_by_item(item, time_in_seconds)
 
       integer, intent(in) :: item !< Item for getting values
-      double precision, intent(in) :: time_in_seconds  !< Time in seconds
+      double precision, intent(in) :: time_in_seconds !< Time in seconds
 
       success = ec_gettimespacevalue(ecInstancePtr, item, irefdate, tzone, tunit, time_in_seconds)
 
@@ -327,10 +327,10 @@ contains
    subroutine set_wave_parameters(initialization)
       use ieee_arithmetic, only: ieee_is_nan
 
-      logical, intent(in) :: initialization   !< initialization phase
+      logical, intent(in) :: initialization !< initialization phase
 
       logical :: all_wave_variables !< flag indicating whether _all_ wave variables should be mirrored at the boundary
-      
+
       integer :: k
 
       if (jawave == 3 .or. jawave == 6 .or. jawave == 7) then
@@ -353,7 +353,7 @@ contains
                call set_all_wave_parameters()
 
                ! NB: choose whether to keep if(.not. initialization) hidden in initialize_wave_parameters or in set_wave_parameters
-               
+
                if (.not. success) then
                   !
                   ! success = .false. : Most commonly, WAVE data has not been written to the com-file yet:
@@ -365,33 +365,33 @@ contains
                   message = dumpECMessageStack(LEVEL_WARN, callback_msg)
                   success = .true.
                end if
+            end if
          end if
-      end if
-      !
-      ! Now do the check on success for non-com file situations, and error when variable is missing
-      !
-      if (.not. success) then
-         write (msgbuf, '(a,i0,a)') 'set_external_forcings:: Offline wave coupling with waveforcing=', waveforcing, '. &
-            & Error reading data from nc file.'
-         call warn_flush() ! ECMessage stack is not very informative
-         message = dumpECMessageStack(LEVEL_ERROR,callback_msg)
-      endif
+         !
+         ! Now do the check on success for non-com file situations, and error when variable is missing
+         !
+         if (.not. success) then
+            write (msgbuf, '(a,i0,a)') 'set_external_forcings:: Offline wave coupling with waveforcing=', waveforcing, '. &
+               & Error reading data from nc file.'
+            call warn_flush() ! ECMessage stack is not very informative
+            message = dumpECMessageStack(LEVEL_ERROR, callback_msg)
+         end if
 
          if (jawave == 7) then
             ! If wave model and flow model do not cover each other exactly, NaN values can propagate in the flow model.
             ! Correct for this by setting values to zero
             do k = 1, ndx
-               if(isnan(hwavcom(k))) then   ! one check should be enough, everything is collocated
-               hwavcom = 0d0
-               twavcom = 0d0
-               sxwav = 0d0
-               sywav = 0d0
-               sbxwav = 0d0
-               sbywav = 0d0
-               dsurf = 0d0
-               dwcap = 0d0
-               mxwav = 0d0
-               mywav = 0d0
+               if (isnan(hwavcom(k))) then ! one check should be enough, everything is collocated
+                  hwavcom = 0d0
+                  twavcom = 0d0
+                  sxwav = 0d0
+                  sywav = 0d0
+                  sbxwav = 0d0
+                  sbywav = 0d0
+                  dsurf = 0d0
+                  dwcap = 0d0
+                  mxwav = 0d0
+                  mywav = 0d0
                end if
             end do
             phiwav = convert_wave_direction_from_nautical_to_cartesian(phiwav)
@@ -430,25 +430,25 @@ contains
             ! In MPI case, partition ghost cells are filled properly already, open boundaries are not
             !
             ! velocity boundaries
-         if (nbndu>0) then
-            call fill_open_boundary_cells_with_inner_values(nbndu, kbndu)
-         endif
+            if (nbndu > 0) then
+               call fill_open_boundary_cells_with_inner_values(nbndu, kbndu)
+            end if
             !
             ! waterlevel boundaries
-         if (nbndz>0) then
-            call fill_open_boundary_cells_with_inner_values(nbndz, kbndz)
-         endif
+            if (nbndz > 0) then
+               call fill_open_boundary_cells_with_inner_values(nbndz, kbndz)
+            end if
             !
             !  normal-velocity boundaries
-         if (nbndn>0) then
-            call fill_open_boundary_cells_with_inner_values(nbndn, kbndn)
-         endif
+            if (nbndn > 0) then
+               call fill_open_boundary_cells_with_inner_values(nbndn, kbndn)
+            end if
             !
             !  tangential-velocity boundaries
-         if (nbndt>0) then
-            call fill_open_boundary_cells_with_inner_values(nbndt, kbndt)
+            if (nbndt > 0) then
+               call fill_open_boundary_cells_with_inner_values(nbndt, kbndt)
+            end if
          end if
-      end if
 
          if (jawave > 0) then
             ! this call  is needed for bedform updates with van Rijn 2007 (cal_bf, cal_ksc below)
@@ -481,7 +481,7 @@ contains
       if (allocated(hwavcom)) then
          success = success .and. ecGetValues(ecInstancePtr, item_hrms, ecTime)
       end if
-   if (allocated(twavcom)) then
+      if (allocated(twavcom)) then
          success = success .and. ecGetValues(ecInstancePtr, item_tp, ecTime)
       end if
       if (allocated(phiwav)) then
@@ -520,8 +520,8 @@ contains
 !> set wave parameters for jawave == 7 (offline wave coupling) and waveforcing == 1 (wave forces via radiation stress)
    subroutine set_parameters_for_radiation_stress_driven_forces()
 
-   twav(:) = 0d0
-   success = success .and. ecGetValues(ecInstancePtr, item_dir , ecTime)
+      twav(:) = 0d0
+      success = success .and. ecGetValues(ecInstancePtr, item_dir, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_hrms, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_tp, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_fx, ecTime)
@@ -534,8 +534,8 @@ contains
    !> set wave parameters for jawave == 7 (offline wave coupling) and waveforcing == 2 (wave forces via total dissipation)
    subroutine set_parameters_for_dissipation_driven_forces()
 
-   twav(:) = 0d0
-   success = success .and. ecGetValues(ecInstancePtr, item_dir   , ecTime)
+      twav(:) = 0d0
+      success = success .and. ecGetValues(ecInstancePtr, item_dir, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_hrms, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_tp, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_dir, ecTime)
@@ -554,7 +554,7 @@ contains
       twav(:) = 0d0
       success = success .and. ecGetValues(ecInstancePtr, item_tp, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_dir, ecTime)
-      success = success .and. ecGetValues(ecInstancePtr, item_hrms   , ecTime)
+      success = success .and. ecGetValues(ecInstancePtr, item_hrms, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_fx, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_fy, ecTime)
       success = success .and. ecGetValues(ecInstancePtr, item_dissurf, ecTime)
@@ -570,7 +570,7 @@ contains
 !> convert wave direction [degrees] from nautical to cartesian meteorological convention
    elemental function convert_wave_direction_from_nautical_to_cartesian(nautical_wave_direction) result(cartesian_wave_direction)
 
-      double precision, intent(in) :: nautical_wave_direction  !< wave direction [degrees] in nautical  convention
+      double precision, intent(in) :: nautical_wave_direction !< wave direction [degrees] in nautical  convention
       double precision :: cartesian_wave_direction !< wave direction [degrees] in cartesian convention
 
       double precision, parameter :: MAX_RANGE_IN_DEGREES = 360d0
@@ -583,7 +583,7 @@ contains
 !> retrieve icecover
    subroutine retrieve_icecover(time_in_seconds)
       use m_fm_icecover, only: ja_icecover, ice_af, ice_h, ICECOVER_EXT
-      double precision, intent(in) :: time_in_seconds  !< Time in seconds
+      double precision, intent(in) :: time_in_seconds !< Time in seconds
 
       if (ja_icecover == ICECOVER_EXT) then
          ice_af = 0.d0
@@ -600,7 +600,7 @@ contains
 
 !> retrieve_rainfall
    subroutine retrieve_rainfall(time_in_seconds)
-      double precision, intent(in) :: time_in_seconds  !< Time in seconds
+      double precision, intent(in) :: time_in_seconds !< Time in seconds
 
       ! Retrieve rainfall for ext-file quantity 'rainfall'.
       if (jarain > 0) then
@@ -616,7 +616,7 @@ contains
 
 !> update_network_data
    subroutine update_network_data(time_in_seconds)
-      double precision, intent(in) :: time_in_seconds  !< Time in seconds
+      double precision, intent(in) :: time_in_seconds !< Time in seconds
 
       logical :: success_previous
 
@@ -650,7 +650,7 @@ contains
 
 !> update_subsidence_and_uplift_data
    subroutine update_subsidence_and_uplift_data(time_in_seconds)
-      double precision, intent(in) :: time_in_seconds  !< Time in seconds
+      double precision, intent(in) :: time_in_seconds !< Time in seconds
 
       if (.not. sdu_first) then
          ! preserve the previous 'bedrock_surface_elevation' for computing the subsidence/uplift rate

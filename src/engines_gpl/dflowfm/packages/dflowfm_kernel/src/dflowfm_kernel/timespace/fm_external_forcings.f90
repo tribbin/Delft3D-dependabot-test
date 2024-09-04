@@ -636,7 +636,7 @@ contains
       use unstruc_model, only: ExtfileNewMajorVersion, ExtfileNewMinorVersion
       use m_missing, only: dmiss
       use m_qnerror
-      
+
       implicit none
 
       character(len=*), intent(in) :: filename
@@ -1231,7 +1231,7 @@ contains
       integer :: ierr
       integer :: nlatndguess
 
-      if (.not. allocated(nnlat)) then                      ! just once
+      if (.not. allocated(nnlat)) then ! just once
          nlatndguess = ndx2d + 2 * (ndxi - ndx2d) ! first guess: all 2D + twice all 1D, nnlat *might* be bigger.
          allocate (nnLat(nlatndguess), stat=ierr)
          call aerr('nnLat(nlatndguess)', ierr, nlatndguess)

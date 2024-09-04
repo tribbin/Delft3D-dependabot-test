@@ -5989,7 +5989,7 @@ contains
          end do
       end if
       if (loc_spec_type == LOCTP_POLYGON_FILE) then
-         call restorepol() ! restore state 
+         call restorepol() ! restore state
       end if
    end subroutine selectelset_internal_nodes
 
@@ -7509,8 +7509,8 @@ contains
                      if (present(varname2)) then
                         success = ecSetFileReaderProperties(ecInstancePtr, fileReaderId, ec_filetype, filename, refdate_mjd, tzone, ec_second, name, varname=varname, varname2=varname2)
                      else
-                     success = ecSetFileReaderProperties(ecInstancePtr, fileReaderId, ec_filetype, filename, refdate_mjd, tzone, ec_second, name, varname=varname)
-                  end if
+                        success = ecSetFileReaderProperties(ecInstancePtr, fileReaderId, ec_filetype, filename, refdate_mjd, tzone, ec_second, name, varname=varname)
+                     end if
                   end if
                   if (.not. success) then
                      ! message = ecGetMessage()
