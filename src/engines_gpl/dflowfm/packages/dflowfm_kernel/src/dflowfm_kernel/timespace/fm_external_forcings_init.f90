@@ -31,66 +31,44 @@ submodule(fm_external_forcings) fm_external_forcings_init
    use precision_basics, only: hp
    implicit none
 
+   integer, parameter :: INI_VALUE_LEN = 256
+   integer, parameter :: INI_KEY_LEN = 32
+
 contains
 
    !> reads new external forcings file and makes required initialisations. Only to be called once as part of fm_initexternalforcings.
    module subroutine init_new(external_force_file_name, iresult)
-      use properties
-      use tree_structures
+      use properties, only: get_version_number, prop_file
+      use tree_structures, only: tree_data, tree_create, tree_destroy, tree_num_nodes, tree_count_nodes_byname, tree_get_name
       use messageHandling
-      use fm_external_forcings_data
-      use m_flowgeom
-      use timespace_data, only: WEIGHTFACTORS, POLY_TIM, UNIFORM, SPACEANDTIME, getmeteoerror
-      use m_laterals, only: balat, qplat, lat_ids, n1latsg, n2latsg, ILATTP_1D, ILATTP_2D, ILATTP_ALL, kclat, numlatsg, nnlat, nlatnd
-      use m_meteo, only: ec_addtimespacerelation
-      use timespace
-      use timespace_parameters
-      use fm_location_types
-      use string_module, only: str_tolower, strcmpi
-      use system_utils
-      use unstruc_files, only: resolvePath
+      use fm_external_forcings_data, only: nbndz, itpenz, nbndu, itpenu, thrtt, num_lat_ini_blocks
+      use m_flowgeom, only: ba
+      use m_laterals, only: balat, qplat, lat_ids, n1latsg, n2latsg, kclat, numlatsg, nnlat
+      use string_module, only: str_tolower
+      use system_utils, only: split_filename
       use unstruc_model, only: ExtfileNewMajorVersion, ExtfileNewMinorVersion
-      use m_missing
       use m_ec_parameters, only: provFile_uniform
       use m_partitioninfo, only: jampi, reduce_sum, is_ghost_node
-      use m_laterals, only: apply_transport
       use m_flow, only: kmx
       use m_deprecation, only: check_file_tree_for_deprecated_keywords
       use fm_deprecated_keywords, only: deprecated_ext_keywords
-      use m_lateral_helper_fuctions, only: prepare_lateral_mask
-      use dfm_error, only: DFM_NOERR, DFM_WRONGINPUT, DFM_NOTIMPLEMENTED
-      use m_flowparameters, only: btempforcingtypA, btempforcingtypC, btempforcingtypH, btempforcingtypL, btempforcingtypS, itempforcingtyp
+      use dfm_error, only: DFM_NOERR, DFM_WRONGINPUT
+      use m_alloc, only: realloc
 
       character(len=*), intent(in) :: external_force_file_name !< file name for new external forcing boundary blocks
       integer, intent(inout) :: iresult !< integer error code. Intent(inout) to preserve earlier errors.
-      logical :: res
 
+      logical :: res
       logical :: is_successful
       type(tree_data), pointer :: bnd_ptr !< tree of extForceBnd-file's [boundary] blocks
-      type(tree_data), pointer :: node_ptr !
-      integer :: istat !
-      integer, parameter :: INI_KEY_LEN = 32 !
-      integer, parameter :: INI_VALUE_LEN = 256 !
-      character(len=:), allocatable :: group_name !
-      character(len=INI_VALUE_LEN) :: property_name
-      character(len=INI_VALUE_LEN) :: property_value
-      character(len=INI_VALUE_LEN) :: quantity
-      character(len=INI_VALUE_LEN) :: forcing_file !
-      character(len=INI_VALUE_LEN) :: forcing_file_type !
-      character(len=INI_VALUE_LEN) :: target_mask_file !
-      integer :: i, j !
-      integer :: method
-      integer :: num_items_in_file !
-      integer :: num_items_in_block
-      character(len=1) :: oper !
-      character(len=300) :: rec
-      character(len=INI_VALUE_LEN) :: item_type
-      character(len=INI_VALUE_LEN) :: fnam
-      character(len=INI_VALUE_LEN) :: base_dir
+      type(tree_data), pointer :: node_ptr
+      integer :: istat
+      character(len=:), allocatable :: group_name
+      integer :: i
+      integer :: num_items_in_file
+      character(len=INI_VALUE_LEN) :: fnam, base_dir
       integer :: ierr ! error number from allocate function
-      integer :: ilattype, nlat
       integer :: k, n, k1
-      integer, dimension(1) :: target_index
       integer :: ib, ibqh, ibt
       integer :: maxlatsg
       integer :: major, minor
@@ -165,13 +143,13 @@ contains
             ! General block, was already read.
 
          case ('boundary')
-            res = init_boundary_forcings()
+            res = init_boundary_forcings(node_ptr, base_dir, file_name, group_name, itpenzr, itpenur, ib, ibqh)
 
          case ('lateral')
-            res = init_lateral_forcings()
+            res = init_lateral_forcings(node_ptr, base_dir, i, major)
 
          case ('meteo')
-            res = init_meteo_forcings()
+            res = init_meteo_forcings(node_ptr, base_dir, file_name, group_name)
 
          case default ! Unrecognized item in a ext block
             ! res remains unchanged: Not an error (support commented/disabled blocks in ext file)
@@ -220,12 +198,34 @@ contains
    end subroutine init_new
 
    !> reads boundary blocks from new external forcings file and makes required initialisations
-   function init_boundary_forcings() result(res)
+   function init_boundary_forcings(node_ptr, base_dir, file_name, group_name, itpenzr, itpenur, ib, ibqh) result(res)
       use tree_data_types, only: tree_data
+      use fm_external_forcings_data, only: filetype, qhpliname
+      use timespace_parameters, only: NODE_ID
+      use timespace_data, only: WEIGHTFACTORS, POLY_TIM, SPACEANDTIME, getmeteoerror
+      use tree_structures, only: tree_get_name, tree_get_data_string
+      use messageHandling
+      use string_module, only: strcmpi
+      use properties, only: prop_get
+      use unstruc_files, only: resolvePath
+
+      type(tree_data), pointer, intent(in) :: node_ptr
+      character(len=*), intent(in) :: base_dir
+      character(len=*), intent(in) :: file_name
+      character(len=*), intent(in) :: group_name
+      integer, dimension(:), intent(in) :: itpenzr
+      integer, dimension(:), intent(in) :: itpenur
+      integer, intent(inout) :: ib
+      integer, intent(inout) :: ibqh
       logical :: res
 
-      character(len=INI_VALUE_LEN) :: location_file
-      type(tree_data), pointer :: block_ptr !
+      integer, dimension(1) :: target_index
+      character(len=INI_VALUE_LEN) :: location_file, quantity, forcing_file, forcing_file_type, property_name, property_value
+      type(tree_data), pointer :: block_ptr
+      character(len=300) :: rec
+      character(len=1) :: oper
+      logical :: is_successful
+      integer :: method, num_items_in_block, j
 
       res = .false.
       ! First check for required input:
@@ -362,20 +362,42 @@ contains
    end function init_boundary_forcings
 
    !> Read lateral blocks from new external forcings file and makes required initialisations
-   function init_lateral_forcings() result(is_succesful)
+   function init_lateral_forcings(node_ptr, base_dir, block_number, major) result(is_successful)
+      use messageHandling
+      use string_module, only: str_tolower
+      use tree_data_types, only: tree_data
+      use m_laterals, only: qplat, lat_ids, n1latsg, n2latsg, ILATTP_1D, ILATTP_2D, ILATTP_ALL, kclat, numlatsg, nnlat, nlatnd
+      use m_flowgeom, only: ndxi, xz, yz
+      use m_laterals, only: apply_transport
+      use m_missing, only: imiss, dmiss
+      use timespace_parameters, only: LOCTP_NODEID, LOCTP_BRANCHID_CHAINAGE, LOCTP_POLYGON_XY, LOCTP_POLYGON_FILE, convert_file_type_string_to_integer
+      use m_alloc, only: realloc, reserve_sufficient_space
+      use fm_external_forcings_data, only: kx, qid
+      use m_wind, only: jaqin
+      use properties, only: prop_get
+      use unstruc_files, only: resolvePath
+      use m_lateral_helper_fuctions, only: prepare_lateral_mask
+      use timespace, only: selectelset_internal_nodes
+
+      type(tree_data), pointer, intent(in) :: node_ptr
+      character(len=*), intent(in) :: base_dir
+      integer, intent(in) :: block_number
+      integer, intent(in) :: major
       character(len=INI_VALUE_LEN) :: loc_id
       integer :: loc_spec_type, num_coordinates
-      character(len=INI_VALUE_LEN) :: node_id, branch_id, location_file
-      real(kind=dp) :: chainage
-      real(kind=dp), allocatable :: x_coordinates(:), y_coordinates(:)
-      logical :: is_succesful, is_read
+      character(len=INI_VALUE_LEN) :: node_id, branch_id, location_file, item_type
+      real(kind=hp) :: chainage
+      real(kind=hp), allocatable :: x_coordinates(:), y_coordinates(:)
+      logical :: is_successful, is_read
+      character(len=300) :: rec
+      integer :: ilattype, nlat, ierr
 
-      is_succesful = .false.
+      is_successful = .false.
 
       loc_id = ' '
       call prop_get(node_ptr, '', 'Id', loc_id, is_read)
       if (.not. is_read .or. len_trim(loc_id) == 0) then
-         write (msgbuf, '(a,i0,a)') 'Required field ''Id'' missing in lateral (block #', i, ').'
+         write (msgbuf, '(a,i0,a)') 'Required field ''Id'' missing in lateral (block #', block_number, ').'
          call warn_flush()
          return
       end if
@@ -405,15 +427,15 @@ contains
 
       ! [lateral]
       ! fileVersion >= 2: nodeId                  => location_specifier = LOCTP_NODEID
-      !                   branchId+chainage       => location_specifier = LOCTP_BRANCH_CHAINAGE
-      !                   numcoor+xcoors+ycoors   => location_specifier = LOCTP_XY_POLYGON
+      !                   branchId+chainage       => location_specifier = LOCTP_BRANCHID_CHAINAGE
+      !                   numcoor+xcoors+ycoors   => location_specifier = LOCTP_POLYGON_XY
       ! fileVersion <= 1: locationFile = test.pol => location_specifier = LOCTP_POLYGON_FILE
       loc_spec_type = imiss
       node_id = ' '
       branch_id = ' '
       chainage = dmiss
       num_coordinates = imiss
-      !
+
       if (major >= 2) then
          call prop_get(node_ptr, '', 'nodeId', node_id, is_successful)
          if (is_successful) then
@@ -444,7 +466,7 @@ contains
          end if
       else ! fileVersion <= 1
          loc_spec_type = LOCTP_POLYGON_FILE
-         !
+
          location_file = ''
          call prop_get(node_ptr, '', 'locationFile', location_file, is_successful)
          if (.not. is_successful .or. len_trim(location_file) == 0) then
@@ -502,13 +524,37 @@ contains
          lat_ids(numlatsg) = loc_id
       end if
 
-      is_succesful = .true.
+      is_successful = .true.
 
    end function init_lateral_forcings
 
    !> Read the current [Meteo] block from new external forcings file
       !! and do required initialisation for that quantity.
-   function init_meteo_forcings() result(res)
+   function init_meteo_forcings(node_ptr, base_dir, file_name, group_name) result(res)
+      use string_module, only: strcmpi, str_tolower
+      use messageHandling
+      use m_laterals, only: ILATTP_1D, ILATTP_2D, ILATTP_ALL
+      use m_missing, only: dmiss
+      use tree_data_types, only: tree_data
+      use timespace, only: convert_method_string_to_integer, get_default_method_for_file_type, update_method_in_case_extrapolation, convert_file_type_string_to_integer
+      use fm_external_forcings_data, only: filetype, transformcoef, kx, tair_available, dewpoint_available
+      use fm_external_forcings, only: allocatewindarrays
+      use fm_location_types, only: UNC_LOC_S, UNC_LOC_U
+      use m_wind, only: airdensity, jawindstressgiven, jaspacevarcharn, ja_airdensity, japatm, jawind, jarain, jaqin, jaqext, jatair, jaclou, jarhum, solrad_available, longwave_available, ec_pwxwy_x, ec_pwxwy_y, ec_pwxwy_c, ec_charnock, wcharnock, rain, qext
+      use m_flowgeom, only: ndx, lnx, xz, yz
+      use m_flowparameters, only: btempforcingtypA, btempforcingtypC, btempforcingtypH, btempforcingtypL, btempforcingtypS, itempforcingtyp
+      use timespace, only: timespaceinitialfield
+      use m_meteo, only: ec_addtimespacerelation
+      use dfm_error, only: DFM_NOERR
+      use properties, only: prop_get
+      use unstruc_files, only: resolvePath
+      use m_lateral_helper_fuctions, only: prepare_lateral_mask
+      use m_alloc, only: aerr
+
+      type(tree_data), pointer, intent(in) :: node_ptr
+      character(len=*), intent(in) :: base_dir
+      character(len=*), intent(in) :: file_name
+      character(len=*), intent(in) :: group_name
       logical :: res
 
       integer, allocatable :: mask(:)
@@ -516,14 +562,16 @@ contains
       logical :: is_variable_name_available
       logical :: is_extrapolation_allowed
       character(len=INI_KEY_LEN) :: variable_name
-      character(len=INI_VALUE_LEN) :: interpolation_method
+      character(len=INI_VALUE_LEN) :: interpolation_method, forcing_file, forcing_file_type, item_type, quantity, target_mask_file
+      character(len=1) :: oper
       real(hp) :: max_search_radius
       ! generalized properties+pointers to target element grid:
       integer :: target_location_type !< The location type parameter (one from fm_location_types::UNC_LOC_*) for this quantity's target element set.
       integer :: target_num_points !< Number of points in target element set.
       real(hp), dimension(:), pointer :: target_x !< Pointer to x-coordinates array of target element set.
       real(hp), dimension(:), pointer :: target_y !< Pointer to y-coordinates array of target element set.
-      integer :: ierr
+      integer :: ierr, method, ilattype
+      logical :: is_successful
 
       res = .false.
 
@@ -601,8 +649,8 @@ contains
       ! Default location type: s-points. Only cases below that need u-points or different, will override.
       target_location_type = UNC_LOC_S
 
-      success = scan_for_heat_quantities(quantity, kx)
-      if (.not. success) then
+      is_successful = scan_for_heat_quantities(quantity, kx)
+      if (.not. is_successful) then
          select case (quantity)
          case ('airdensity')
             kx = 1
@@ -806,7 +854,7 @@ contains
       use fm_location_types
       use m_flowgeom, only: ndx, lnx, xz, yz, xu, yu
       use precision_basics, only: hp
-      use dfm_error
+      use dfm_error, only: DFM_NOERR, DFM_NOTIMPLEMENTED
       integer, intent(in) :: target_location_type !< The location type parameter (one from fm_location_types::UNC_LOC_*) for this quantity's target element set.
       integer, intent(out) :: target_num_points !< Number of points in target element set.
       real(hp), dimension(:), pointer, intent(out) :: target_x !< Pointer to x-coordinates array of target element set.
@@ -886,7 +934,6 @@ contains
 
    !> Scan the quantity name for heat relatede quantities.
    function scan_for_heat_quantities(quantity, kx) result(success)
-      use precision_basics, only: dp
       use m_wind, only: tair, clou, rhum, qrad, longwave
       use m_flowgeom, only: ndx
       use m_alloc, only: aerr, realloc
@@ -903,22 +950,22 @@ contains
       select case (quantity)
 
       case ('airtemperature')
-         call realloc(tair, ndx, stat=ierr, fill=0.0_dp, keepexisting=.false.)
+         call realloc(tair, ndx, stat=ierr, fill=0.0_hp, keepexisting=.false.)
          call aerr('tair(ndx)', ierr, ndx)
       case ('cloudiness')
-         call realloc(clou, ndx, stat=ierr, fill=0.0_dp, keepexisting=.false.)
+         call realloc(clou, ndx, stat=ierr, fill=0.0_hp, keepexisting=.false.)
          call aerr('clou(ndx)', ierr, ndx)
       case ('humidity')
-         call realloc(rhum, ndx, stat=ierr, fill=0.0_dp, keepexisting=.false.)
+         call realloc(rhum, ndx, stat=ierr, fill=0.0_hp, keepexisting=.false.)
          call aerr('rhum(ndx)', ierr, ndx)
       case ('dewpoint') ! Relative humidity array used to store dewpoints
-         call realloc(rhum, ndx, stat=ierr, fill=0.0_dp, keepexisting=.false.)
+         call realloc(rhum, ndx, stat=ierr, fill=0.0_hp, keepexisting=.false.)
          call aerr('rhum(ndx)', ierr, ndx)
       case ('solarradiation')
-         call realloc(qrad, ndx, stat=ierr, fill=0.0_dp, keepexisting=.false.)
+         call realloc(qrad, ndx, stat=ierr, fill=0.0_hp, keepexisting=.false.)
          call aerr('qrad(ndx)', ierr, ndx)
       case ('longwaveradiation')
-         call realloc(longwave, ndx, stat=ierr, fill=0.0_dp, keepexisting=.false.)
+         call realloc(longwave, ndx, stat=ierr, fill=0.0_hp, keepexisting=.false.)
          call aerr('longwave(ndx)', ierr, ndx)
       case ('humidity_airtemperature_cloudiness')
          kx = 3
