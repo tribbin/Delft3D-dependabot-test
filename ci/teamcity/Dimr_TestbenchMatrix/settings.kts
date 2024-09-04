@@ -38,7 +38,8 @@ object TriggerMatrix : BuildType({
 
             val git_head: String
             val merge_regex = "^merge-requests/".toRegex()
-            if (merge_regex.containsMatchIn(%teamcity.build.branch%)) {
+
+            if (merge_regex.containsMatchIn("%teamcity.build.branch%")) {
                 git_head = "refs/%teamcity.build.branch%/head"
             } else {
                 git_head = "refs/%teamcity.build.branch%"
