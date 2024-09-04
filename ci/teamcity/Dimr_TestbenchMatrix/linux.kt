@@ -17,7 +17,7 @@ object Linux : BuildType({
     val filePath = "${DslContext.baseDir}/dimr_testbench_table.csv"
     val lines = File(filePath).readLines()
     val configs = lines.drop(1).map { line ->
-        line.split(",")[0]
+        line.split(",")[1]
     }
 
     vcs {
