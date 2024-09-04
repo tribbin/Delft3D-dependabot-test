@@ -98,7 +98,10 @@ object Trigger : BuildType({
                 authType = token {
                     token = "%gitlab_private_access_token%"
                 }
-                filterSourceBranch = "+:*"
+                filterSourceBranch = """
+                    -:refs/heads/none/*
+                    +:*
+                """
                 ignoreDrafts = true
             }
         }
