@@ -32,9 +32,11 @@ object Trigger : BuildType({
         param("teamcity_user", "svc_dimr_trigger")
         password("teamcity_pass", "credentialsJSON:15cc6665-e900-4360-8942-00e654f6acfe")
     
-        param("matrix_list", "dummy_value")
-        param("git_head",    "dummy_value")
-        param("branch_name", "dummy_value")
+        param("matrix_list",         "dummy_value")
+        param("matrix_list_linux",   "dummy_value")
+        param("matrix_list_windows", "dummy_value")
+        param("git_head",            "dummy_value")
+        param("branch_name",         "dummy_value")
     }
 
     steps {
@@ -56,10 +58,24 @@ object Trigger : BuildType({
         }
 
         python {
-            name = "Filter Testbench xmls"
+            name = "Retrieve Testbench XMLs from CSV"
             command = file {
                 filename = "ci/teamcity/scripts/testbench_filter.py"
-                scriptArguments = "%branch_name% %testbench_table%"
+                scriptArguments = "%branch_name% %testbench_table% matrix_list"
+            }
+        }
+
+        python {
+            name = "Filter Testbench xmls"
+            command = script {
+                content="""
+                    matrix_list = "%matrix_list%".split(',')
+                    matrix_list_linux   = [xml for xml in matrix_list if "lnx64" in item]
+                    matrix_list_windows = [xml for xml in matrix_list if "win64" in item]
+
+                    print(f"##teamcity[setParameter name='matrix_list_linux' value='{matrix_list_linux}']")
+                    print(f"##teamcity[setParameter name='matrix_list_windows' value='{matrix_list_windows}']")
+                """.trimIndent()
             }
         }
 
@@ -78,7 +94,7 @@ object Trigger : BuildType({
                                 </revision>
                             </revisions>
                             <properties>
-                                <property name="configfile" value="%matrix_list%"/>
+                                <property name="configfile" value="%matrix_list_linux%"/>
                             </properties>
                          </build>' \
                      "https://build.avi.directory.intra/app/rest/buildQueue"
