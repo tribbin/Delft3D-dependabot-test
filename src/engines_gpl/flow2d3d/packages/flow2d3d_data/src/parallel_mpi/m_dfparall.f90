@@ -40,7 +40,8 @@ module m_dfparall
     
     implicit none
     
-    public automatic_partitioning, manual_partitioning
+    private
+    public dfpartit
     
     contains
     
