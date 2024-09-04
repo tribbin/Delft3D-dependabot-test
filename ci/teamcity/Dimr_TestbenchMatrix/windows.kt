@@ -58,6 +58,6 @@ object windows : BuildType({
     }
 
     requirements {
-        equals("teamcity.agent.jvm.os.name", "Windows 10")
+        startsWith("teamcity.agent.jvm.os.name", "Windows 1")
     }
 })
