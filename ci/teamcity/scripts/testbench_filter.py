@@ -15,11 +15,12 @@ def csv_to_dict(file_path):
 
 # Function to filter values based on the 'this' list
 def filter_config(data, branch_name):
-    config_values = data["config"]
-    this_values = data[branch_name]
+    config_names  = data["#name"]
+    config_values = data["#config"]
+    this_values   = data[branch_name]
     
     # Filtered list based on 'this' values being "TRUE"
-    filtered_values = [config for config, this in zip(config_values, this_values) if this == "TRUE"]
+    filtered_values = [f"{name}=>{config}" for name, config, this in zip(config_names, config_values, this_values) if this == "TRUE"]
     
     return filtered_values
 
