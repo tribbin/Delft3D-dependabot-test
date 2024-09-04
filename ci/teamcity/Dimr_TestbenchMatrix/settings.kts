@@ -35,6 +35,19 @@ object TriggerMatrix : BuildType({
     steps {
         script {
             id = "Start Linux Testbench"
+
+            val git_head: String
+            val merge_regex = "^merge-requests/".toRegex()
+            if (merge_regex.containsMatchIn(%teamcity.build.branch%)) {
+                git_head = "refs/%teamcity.build.branch%/head"
+            } else {
+                git_head = "refs/%teamcity.build.branch%"
+            }
+
+            params {
+                param("git_head", $git_head)
+            }
+
             scriptContent = """
                 curl -u %teamcity_user%:%teamcity_pass% \
                      -X POST \
@@ -42,7 +55,7 @@ object TriggerMatrix : BuildType({
                      -d '<build branchName="%teamcity.build.branch%">
                             <buildType id="Dimr_TestbenchMatrix_Linux"/>
                             <revisions>
-                                <revision version="%build.vcs.number%" vcsBranchName="refs/%teamcity.build.branch%/head">
+                                <revision version="%build.vcs.number%" vcsBranchName="%git_head%">
                                     <vcs-root-instance vcs-root-id="Delft3dGitlab"/>
                                 </revision>
                             </revisions>
