@@ -20,7 +20,7 @@ project {
 }
 
 object TriggerMatrix : BuildType({
-    id = "Dimr_TestbenchMatrix_Trigger"
+    id("Dimr_TestbenchMatrix_Trigger")
     name = "Trigger Matrix"
 
     vcs {
