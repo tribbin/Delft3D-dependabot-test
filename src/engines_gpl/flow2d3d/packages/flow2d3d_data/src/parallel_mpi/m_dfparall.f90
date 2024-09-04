@@ -52,7 +52,7 @@ module m_dfparall
     !
     ! Local parameters
     !
-    logical, parameter :: lorb = .false. ! logical indicating which partition method will be carried out:
+    logical, parameter :: LORB = .false. ! logical indicating which partition method will be carried out:
                                          ! true, in case of ORB
                                          ! false, in case of stripwise manner
     !
@@ -109,7 +109,7 @@ module m_dfparall
     !
     ! partition grid
     !
-    if ( lorb ) then
+    if ( LORB ) then
        !
        ! performs orthogonal recursive bisection partitioning
        !
@@ -129,7 +129,7 @@ module m_dfparall
     !
     ! Local parameters
     !
-    logical, parameter :: lorb = .false. ! logical indicating which partition method will be carried out:
+    logical, parameter :: LORB = .false. ! logical indicating which partition method will be carried out:
                                          ! true, in case of ORB
                                          ! false, in case of stripwise manner
     !
@@ -237,7 +237,7 @@ module m_dfparall
     !
     ! Local parameters
     !
-    logical, parameter :: lorb = .false. ! logical indicating which partition method will be carried out:
+    logical, parameter :: LORB = .false. ! logical indicating which partition method will be carried out:
                                          ! true, in case of ORB
                                          ! false, in case of stripwise manner
     !
