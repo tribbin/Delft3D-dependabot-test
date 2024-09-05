@@ -973,7 +973,7 @@ contains
                   call mess(LEVEL_ERROR, '"StretchCoef" values are not properly set.')
                end if
             end if
-         end if
+         end if   
 
          call prop_get_integer(md_ptr, 'geometry', 'Keepzlayeringatbed', keepzlayeringatbed, success)
          if (.not. success) then
@@ -1582,8 +1582,11 @@ contains
 
       call prop_get_integer(md_ptr, 'waves', 'Wavemodelnr', jawave)
       call prop_get_integer(md_ptr, 'waves', 'Waveforcing', waveforcing)
+      call prop_get_double(md_ptr, 'waves', 'WavePeakEnhancementFactor', JONSWAPgamma0)
       if (jawave /= 7 .and. waveforcing /= 0) then
-         call mess(LEVEL_ERROR, 'Waveforcing = 1, 2 or 3 is only supported for Wavemodelnr = 7.')
+         write (msgbuf, '(a,i0,a)') 'Waveforcing = , ', waveforcing, ' is only supported for Wavemodelnr = 7. Keyword ignored.'
+         call mess(LEVEL_WARN, msgbuf)
+         waveforcing = 0
       end if
       call prop_get_double(md_ptr, 'waves', 'Tifetchcomp', Tifetch)
       call prop_get_string(md_ptr, 'waves', 'SurfbeatInput', md_surfbeatfile)
@@ -2061,8 +2064,8 @@ contains
       jamapwav_phiwav = 0
       jamapwav_sxwav = 0
       jamapwav_sywav = 0
-      jamapwav_sxbwav = 0
-      jamapwav_sybwav = 0
+      jamapwav_sbxwav = 0
+      jamapwav_sbywav = 0
       jamapwav_mxwav = 0
       jamapwav_mywav = 0
       jamapwav_dsurf = 0
@@ -2219,7 +2222,7 @@ contains
 
       call prop_get_string(md_ptr, 'output', 'MapOutputTimeVector', md_mptfile, success)
       call set_output_time_vector(md_mptfile, ti_mpt, ti_mpt_rel)
-
+         
       call prop_get_integer(md_ptr, 'output', 'FullGridOutput', jafullgridoutput, success)
       if (jafullgridoutput < 1 .and. jawave == 3 .and. kmx > 0) then
          jafullgridoutput = 1
@@ -2593,11 +2596,10 @@ contains
       integer, intent(out) :: istat !< Return status (0=success)
 
       type(tree_data), pointer :: prop_ptr
-      ! TODO: [TRUNKMERGE] WO: I prefer having tfac not in m_flowtimes, but back here again.
       character(len=20) :: rundat
       character(len=128) :: helptxt
       character(len=256) :: tmpstr
-      integer :: i, ibuf
+      integer :: i, ibuf, fww
       real(kind=hp) :: ti_map_array(3), ti_rst_array(3), ti_his_array(3), ti_waq_array(3), ti_classmap_array(3), ti_st_array(3), ti_com_array(3)
 
       istat = 0 ! Success
@@ -3532,7 +3534,12 @@ contains
          call prop_set(prop_ptr, 'waves', 'jahissigwav', jahissigwav, '1: sign wave height on his output; 0: hrms wave height on his output. Default=1.')
          call prop_set(prop_ptr, 'waves', 'jamapsigwav', jamapsigwav, '1: sign wave height on map output; 0: hrms wave height on map output. Default=0 (legacy behaviour).')
          call prop_set(prop_ptr, 'waves', 'hminlw', hminlw, 'Cut-off depth for application of wave forces in momentum balance')
-         ! prop_set_logical is not yet implemented call prop_set(prop_ptr, 'waves', 'FlowWithoutWaves',    flowWithoutWaves, 'True: Do not use Wave data in the flow computations, it will only be passed through to D-WAQ')
+         if (flowWithoutWaves) then
+            fww = 1
+         else
+            fww = 0
+         end if
+         call prop_set(prop_ptr, 'waves', 'FlowWithoutWaves', fww, '1: Do not use wave data in the flow computations, it will only be passed through to D-WAQ; 0: use wave information. Default 0.')
          if (writeall .or. hwavuni /= 0d0) then
             call prop_set(prop_ptr, 'waves', 'Hwavuni', hwavuni, 'root mean square wave height (m)')
             call prop_set(prop_ptr, 'waves', 'Twavuni', twavuni, 'root mean square wave period (s)')
@@ -4191,7 +4198,7 @@ contains
          ti_tv = 0.0_dp
          ti_tv_rel = tstop_user
       end if
-
+      
    end subroutine set_output_time_vector
 
 end module unstruc_model
