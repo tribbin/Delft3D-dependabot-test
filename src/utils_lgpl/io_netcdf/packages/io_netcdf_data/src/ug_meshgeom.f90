@@ -63,6 +63,7 @@ module m_ug_meshgeom
 
       integer,                           pointer :: nedge_nodes(:,:)        => null()   !< Start-end node of each branch
       character(len=ug_idsLen),          pointer :: nbranchids(:)           => null()   !< Branch nodes ids
+      integer,                           pointer :: nodeidx(:)              => null()   !< node indices in main netnodes array corresponding to branchid/nodeoffset array
       character(len=ug_idsLongNamesLen), pointer :: nbranchlongnames(:)     => null()   !< Branch long names
       double precision,                  pointer :: nbranchlengths(:)       => null()   !< Branch lenghts
       integer,                           pointer :: nbranchgeometrynodes(:) => null()   !< Number of geometry points in each branch

@@ -11499,7 +11499,7 @@ contains
       use network_data, xe_no => xe, ye_no => ye
       use m_flowgeom, only: ndx2d, ndxi
       use m_partitioninfo, only: idomain, ndomains, iglobal_s, Nglobal_s
-      use m_sferic, only: jsferic
+      use m_sferic, only: jsferic, jasfer3d
       use m_missing, only: dmiss
       use netcdf
       use m_alloc
@@ -11507,6 +11507,7 @@ contains
       use m_save_ugrid_state
       use gridoperations
       use fm_location_types
+      use stdlib_sorting, only: sort_index
 
       implicit none
 
@@ -11524,16 +11525,18 @@ contains
       integer, allocatable :: edge_nodes(:, :), face_nodes(:, :), edge_type(:), contacts(:, :)
 
       integer :: ierr
-      integer :: i, k, k1, k2, numl2d, numk1d, numk2d, nump1d, L, Lnew, nv, n1, n2, n
+      integer :: i, k, k1, k2, numl2d, numk1d, numk2d, nump1d, L, Lnew, nv, n1, n2, n3, n4, n
       integer :: jaInDefine
       integer :: id_zf
       real :: x, y
       real(kind=hp), allocatable :: xn(:), yn(:), zn(:), xe(:), ye(:), zf(:)
-
-      integer :: n1dedges, n1d2dcontacts, start_index
-      integer, allocatable :: contacttype(:), idomain1d(:), iglobal_s1d(:)
-      integer, allocatable :: NETCELL_PERMUTATION(:)! backup_branchid(:), backup_chainage(:)
+      real(kind=dp) :: maxoffset
+      integer :: n1dedges, n1d2dcontacts, start_index, other_node
+      integer, dimension(:), allocatable :: contacttype, idomain1d, iglobal_s1d, kc_inverse
+      integer, dimension(:), allocatable :: backup_branchid, backup_chainage
+      real(kind=dp), allocatable :: branch_ids_chainages(:)
       type(tface), allocatable :: tempcell
+      logical :: found
 
       call readyy('Writing net data', 0d0)
 
@@ -11661,30 +11664,23 @@ contains
          NUMK1D = 0
          KC(:) = 0
          nump1d = nump1d2d - nump
-
          if (janetcell_ == 1 .and. nump1d > 0) then
-            allocate(NETCELL_permutation(nump1d))
-            do N1 = 1,nump1d
-            NETCELL_permutation(N1) = N1 + nump
-            enddo
-            ! Determine 1D net nodes directly from 1D net cells
-            do N1 = nump + 1, nump1d2d
-               numk1d = numk1d + 1
-               k1 = netcell(N1)%nod(1)
-               !if (k1 /= numk1d) then !netcells not in correct order
-               !   do N2 = N1 + 1, nump1d2d
-               !      k1 = netcell(n2)%nod(1)
-               !      if (k1 == numk1d) then
-               !         tempcell = netcell(N1)
-               !         netcell(N1) = netcell(N2)
-               !         netcell(N2) = tempcell
-               !         netcell_permutation(n1-nump) = N2
-               !         netcell_permutation(N2-nump) = N1
-               !         exit
-               !      end if
-               !   end do
-               !end if
 
+            !allocate(branch_ids_chainages(nump1d), permuted_node_ids(nump1d))
+            !maxoffset = maxval(meshgeom1d%nodeoffsets)+1
+            !do N1 = 1, nump1d
+            !   branch_ids_chainages(N1) = meshgeom1d%nodebranchidx(N1)*maxoffset + meshgeom1d%nodeoffsets(N1)
+            !end do
+            !! Sort nodes by first branchid then chainage
+            !call sort_index(branch_ids_chainages,permuted_node_ids)
+            backup_branchid = meshgeom1d%nodebranchidx
+            backup_chainage = meshgeom1d%nodeoffsets
+
+            ! Determine 1D net nodes directly from 1D net cells
+            do N1 = 1 + nump, nump1d2d
+               k1 = netcell(N1)%nod(1)
+
+               numk1d = numk1d + 1
                xn(numk1d) = xk(k1)
                yn(numk1d) = yk(k1)
                zn(numk1d) = zk(k1)
@@ -11692,16 +11688,12 @@ contains
                kc(k1) = -numk1d ! Remember new node number
             end do
 
-            !backup_branchid = meshgeom1d%nodebranchidx
-            !backup_chainage = meshgeom1d%nodeoffsets
             do L = 1, NUML1D
                if (kn(3, L) == 1 .or. kn(3, L) == 6) then
                   n1dedges = n1dedges + 1
                   K1 = KN(1, L)
                   K2 = KN(2, L)
 
-                  !meshgeom1d%nodebranchidx(n1dedges) = backup_branchid(abs(KC(K1)))
-                  !meshgeom1d%nodeoffsets(n1dedges) = backup_chainage(abs(KC(K1)))
                   edge_nodes(1, n1dedges) = abs(KC(K1))
                   edge_nodes(2, n1dedges) = abs(KC(K2))
                   edge_type(n1dedges) = KN(3, L)
@@ -11714,23 +11706,61 @@ contains
 
                   N1 = abs(lne(1, L))
                   N2 = abs(lne(2, L))
+                  K1 = netcell(N1)%nod(1)
+                  K2 = netcell(N2)%nod(1)
 
                   n1d2dcontacts = n1d2dcontacts + 1
                   if (N1 > nump .and. N2 <= nump) then ! First point of 1D link is 1D cell
-                     !N1 = NETCELL_PERMUTATION(N1-nump)
-                     contacts(1, n1d2dcontacts) = abs(KC(netcell(N1)%nod(1))) ! cell -> orig node -> new node
+                     contacts(1, n1d2dcontacts) = abs(KC(K1)) ! cell -> orig node -> new node
                      contacts(2, n1d2dcontacts) = N2 ! 2D cell number in network_data is the same in UGRID mesh2d numbering (see below).
                   else if (N2 > nump .and. N1 <= nump) then ! First point of 1D link is 1D cell
-                     !N2 = NETCELL_PERMUTATION(N2-nump)
-                     contacts(1, n1d2dcontacts) = abs(KC(netcell(N2)%nod(1))) ! cell -> orig node -> new node
+                     contacts(1, n1d2dcontacts) = abs(KC(K2)) ! cell -> orig node -> new node
                      contacts(2, n1d2dcontacts) = N1 ! 2D cell number in network_data is the same in UGRID mesh2d numbering (see below).
                   else
                      n1d2dcontacts = n1d2dcontacts - 1
                      cycle
                   end if
-
                   contacttype(n1d2dcontacts) = kn(3, L)
                end if
+            end do
+
+            if (.not. associated(meshgeom1d%nodeidx)) then ! assume that the nodes were put at the front in order during network reading.
+               allocate (meshgeom1d%nodeidx(nump1d))
+               meshgeom1d%nodeidx = [1:nump1d]
+            end if
+            allocate (kc_inverse(nump1d))
+            do N1 = 1, nump1d
+               k1 = abs(kc(meshgeom1d%nodeidx(N1)))
+               kc_inverse(k1) = n1
+               meshgeom1d%nodebranchidx(k1) = backup_branchid(n1)
+               meshgeom1d%nodeoffsets(k1) = backup_chainage(n1)
+            end do
+            do N1 = 2, nump1d - 1
+               if (meshgeom1d%nodebranchidx(n1 + 1) < meshgeom1d%nodebranchidx(n1)) then ! n1 has invalid branch order
+                  k1 = kc_inverse(n1)
+                  if (size(nod(k1)%lin) > 2) then !This node lies on a T junction and should be assigned to the first branch that finds it
+                     found = .false.
+                     do N2 = 1, size(nod(k1)%lin) !check all connected links
+                        other_node = kn(1, nod(k1)%lin(N2))
+                        if (other_node == k1) then
+                           other_node = kn(2, nod(k1)%lin(N2))
+                        end if
+                        if (backup_branchid(other_node) == meshgeom1d%nodebranchidx(n1 - 1)) then !This node can be connected to the "new" branch
+                           meshgeom1d%nodebranchidx(n1) = meshgeom1d%nodebranchidx(n1 - 1) ! re-assign this node to the other connecting branch
+                           meshgeom1d%nodeoffsets(n1) = meshgeom1d%nodeoffsets(n1 - 1) + dbdistance(xn(n1), yn(n1), xn(n1 - 1), yn(n1 - 1), jsferic, jasfer3D, dmiss)
+                           found = .true.
+                           exit
+                        end if
+                     end do
+                     if (.not. found) then ! The node cannot be connected to a nearby branch so it needs a new one.
+                        if (meshgeom1d%nodebranchidx(n1 + 1) - meshgeom1d%nodebranchidx(n1 - 1) > 1) then !there is space to insert a new branch
+                           meshgeom1d%nodebranchidx(n1) = meshgeom1d%nodebranchidx(n1 - 1) + 1
+                           meshgeom1d%nodeoffsets(n1) = 0
+                        end if
+                     end if
+                  end if
+               end if
+
             end do
 
          else ! not directly 1D netcell based, indirectly 1D netlink based
@@ -11841,56 +11871,6 @@ contains
                                         crs, -999, dmiss, start_index)
          end if
 
-      !! TODO: AvD: hier verder
-      !! Determine max nr of vertices and contour points
-         !
-      !! NOTE: numk2d = numk - numk1d does not necessarily hold, if input grid illegally connected a 2D net link and 1D netlink to one and the same net node.
-      !! Count 2D net nodes
-         !numNodes   = ndx1d
-         !numContPts = 0
-         !do i=1,ndx1d
-         !   numNodes   = max(numNodes,   size(netcell(ndx2d + i)%NOD))
-         !   numContPts = max(numContPts, size(netcell(ndx2d + i)%NOD))
-         !enddo
-         !
-         !if ( allocated(work2) ) deallocate( work2 )
-         !allocate( work2(numContPts,ndx1d) ) ; work2 = dmiss
-         !
-         !ierr = nf90_def_dim(mapids%ncid, 'nmesh1d_FlowElemContourPts', numContPts,    id_flowelemcontourptsdim)
-         !
-      !! Flow elem contours (plot help)
-      !! Todo: generalize x/y's to 2/3-D coords everywhere else [Avd]
-         !ierr = nf90_def_var(mapids%ncid, 'mesh1d_FlowElemContour_x', nf90_double, (/ id_flowelemcontourptsdim, mapids%id_tsp%meshids1d%dimids(mdim_node) /), id_flowelemcontourx)
-         !ierr = nf90_def_var(mapids%ncid, 'mesh1d_FlowElemContour_y', nf90_double, (/ id_flowelemcontourptsdim, mapids%id_tsp%meshids1d%dimids(mdim_node) /), id_flowelemcontoury)
-         !ierr = unc_addcoordatts(mapids%ncid, id_flowelemcontourx, id_flowelemcontoury, jsferic)
-         !ierr = nf90_put_att(mapids%ncid, id_flowelemcontourx, 'long_name',     'list of x-coordinates forming flow element')
-         !ierr = nf90_put_att(mapids%ncid, id_flowelemcontoury, 'long_name',     'list of y-coordinafltes forming flow element')
-         !ierr = nf90_put_att(mapids%ncid, id_flowelemcontourx, '_FillValue', dmiss)
-         !ierr = nf90_put_att(mapids%ncid, id_flowelemcontoury, '_FillValue', dmiss)
-         !
-         !ierr = nf90_put_att(mapids%ncid, mapids%id_tsp%meshids1d%varids(mid_nodex), 'bounds', 'mesh1d_FlowElemContour_x')
-         !ierr = nf90_put_att(mapids%ncid, mapids%id_tsp%meshids1d%varids(mid_nodey), 'bounds', 'mesh1d_FlowElemContour_y')
-         !
-         !ierr = nf90_enddef(mapids%ncid)
-         !
-         !do i=1,ndx1d
-         !   nn = size(nd(ndx2d + i)%x)
-         !   do n = 1,nn
-         !      work2(n,i)=nd(ndx2d + i)%x(n)
-         !   enddo
-         !enddo
-         !ierr = nf90_put_var(mapids%ncid, id_flowelemcontourx, work2(1:numContPts,1:ndx1d), (/ 1, 1 /), (/ numContPts, ndx1d /) )
-         !
-         !do i=1,ndx1d
-         !   nn = size(nd(ndx2d + i)%x)
-         !   do n = 1,nn
-         !      work2(n,i)=nd(ndx2d + i)%y(n)
-         !   enddo
-         !enddo
-         !ierr = nf90_put_var(mapids%ncid, id_flowelemcontoury, work2(1:numContPts,1:ndx1d), (/ 1, 1 /), (/ numContPts, ndx1d /) )
-         !ierr = nf90_redef(mapids%ncid)
-         !
-         !deallocate( work2 )
          !
          ! Add edge type variable (edge-flowlink relation)
          call write_edge_type_variable(ncid, id_tsp%meshids1d, mesh1dname, edge_type)
@@ -12015,8 +11995,6 @@ contains
                ierr = nf90_put_var(ncid, id_zf, zf)
             end if
          end if
-
-         ierr = nf90_redef(ncid) ! TODO: AvD: I know that all this redef is slow. Split definition and writing soon.
 
          !define 1d2dcontacts only after mesh2d is completly defined
          if (n1d2dcontacts > 0) then
@@ -12321,6 +12299,8 @@ contains
                                           meshgeom%nbranchgeometrynodes, meshgeom%nbranchlengths, jsferic, meshgeom%nodeX, meshgeom%nodeY)
             XK(numk_last + 1:numk_last + meshgeom%numnode) = meshgeom%nodeX
             YK(numk_last + 1:numk_last + meshgeom%numnode) = meshgeom%nodeY
+            allocate (meshgeom%nodeidx(meshgeom%numnode))
+            meshgeom%nodeidx = numk_last + [1:numk_last + meshgeom%numnode]
             network%numk = meshgeom%numnode
             ! construct network and administrate
 
