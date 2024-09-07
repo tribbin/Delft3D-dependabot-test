@@ -27,18 +27,27 @@
 !
 !-------------------------------------------------------------------------------
 
-!
-!
+module m_find1dcells
+   use network_data
+   use m_alloc
+   use m_flowgeom, only: xz, yz, ba
+   use gridoperations
+   use MessageHandling
+   use m_save_ugrid_state
+   
+   implicit none
+   
+   private
+   
+   public find1dcells
+   
+contains
 
 !> find one-dimensional net cells
 !>    it is assumed that kc has been allocated
 !>    it is assumed that findcells has already been called (for 2d cells)
    subroutine find1dcells()
-      use network_data
-      use m_alloc
-      use m_flowgeom, only: xz, yz, ba
-      use gridoperations
-      use MessageHandling
+
 #ifdef _OPENMP
       use omp_lib
 #endif
@@ -50,10 +59,7 @@
       logical :: Lisnew
       integer :: temp_threads
       integer :: ierror
-
       ierror = 1
-
-      nump1d2d = nump
 
       allocate (NC1_array(NUML1D), NC2_array(NUML1D))
 #ifdef _OPENMP
@@ -81,7 +87,8 @@
             KC(K1) = 1; KC(K2) = 1
          end if
       end do
-
+      
+      nump1d2d = nump
       do L = 1, NUML1D
          K1 = KN(1, L); K2 = KN(2, L)
          if (k1 == 0) cycle
@@ -98,48 +105,13 @@
                cycle
             end if
          end if
-
          if (nc1 /= 0 .and. nc1 == nc2) then
-            ! Both net nodes inside 2D cell, but assume that the first is
-            ! then the 1D net node (because unc_read_net_ugrid() always
-            ! sets the 1D side of 1D2D mesh contacts as the first net link
-            ! node kn(1,L)).
+            !Both net nodes inside 2D cell, but assume that the first is then the 1D net node.
             nc1 = 0
          end if
-
          LNN(L) = 0
-         if (NC1 == 0) then
-            if (KC(K1) == 1 .and. (NMK(K1) > 1 .or. (kn(3, l) == 1 .or. kn(3, l) == 6))) then ! NIEUWE 1d CELL
-               nump1d2d = nump1d2d + 1
-               KC(K1) = -nump1d2d ! MARKEREN ALS OUD
-               LNE(1, L) = -abs(KC(K1)) ! NEW 1D CELL flag 1D links through negative lne ref
-               LNN(L) = LNN(L) + 1
-            else if (KC(K1) /= 1) then
-               LNE(1, L) = -abs(KC(K1)) ! NEW 1D CELL flag 1D links through negative lne ref
-               LNN(L) = LNN(L) + 1
-            else
-               call mess(LEVEL_WARN, '1D2D link without valid 1D branch detected, discarding!')
-            end if
-         else
-            LNE(1, L) = NC1 ! ALREADY EXISTING 2D CELL
-            LNN(L) = LNN(L) + 1
-         end if
-         if (NC2 == 0) then
-            if (KC(K2) == 1 .and. (NMK(K2) > 1 .or. (kn(3, l) == 1 .or. kn(3, l) == 6))) then ! NIEUWE 1d CELL
-               nump1d2d = nump1d2d + 1
-               KC(K2) = -nump1d2d
-               LNE(2, L) = -abs(KC(K2)) ! NEW 1D CELL
-               LNN(L) = LNN(L) + 1
-            else if (KC(k2) /= 1) then
-               LNE(2, L) = -abs(KC(K2)) ! NEW 1D CELL
-               LNN(L) = LNN(L) + 1
-            else
-               call mess(LEVEL_WARN, '1D2D link without valid 1D branch detected, discarding!')
-            end if
-         else
-            LNE(2, L) = NC2 ! ALREADY EXISTING 2D CELL
-            LNN(L) = LNN(L) + 1
-         end if
+         call set_lne(NC1, K1, L, 1, nump1d2d)
+         call set_lne(NC2, K2, L, 2, nump1d2d)
       end do
 
 !     END COPY from flow_geominit
@@ -201,3 +173,45 @@
 
       return
    end subroutine find1dcells
+
+   logical function is_new_1D_cell(k, l)
+      integer, intent(in) :: k !>  netnode number
+      integer, intent(in) :: l !>  netlink number
+
+      is_new_1D_cell = .false.
+
+      if (KC(k) == 1) then !Node not yet touched
+         if (NMK(k) > 1 .or. (kn(3, l) == 1 .or. kn(3, l) == 6)) then
+            is_new_1D_cell = .true.
+         end if
+      end if
+   end function is_new_1D_cell
+
+   subroutine set_lne(NC, K, L, i_lne, nump1d2d)
+
+      integer, intent(in) :: NC !< 2D cell number
+      integer, intent(in) :: K !< new node number
+      integer, intent(in) :: L !< index in LNE array to set
+      integer, intent(in) :: i_lne !< index specifying if the left node (1) or right node (2) in LNE array is to be set
+      integer, intent(inout) :: nump1d2d !< 1D netnode counter (starts at nump)
+
+      if (NC == 0) then
+         if (is_new_1D_cell(K, l)) then ! NIEUWE 1d CELL
+            nump1d2d = nump1d2d + 1
+            KC(K) = -nump1d2d ! MARKEREN ALS OUD
+            LNE(i_lne, L) = -abs(KC(K)) ! NEW 1D CELL flag 1D links through negative lne ref
+            LNN(L) = LNN(L) + 1
+         else if (KC(K) /= 1) then
+            LNE(i_lne, L) = -abs(KC(K)) ! NEW 1D CELL flag 1D links through negative lne ref
+            LNN(L) = LNN(L) + 1
+         else
+            call mess(LEVEL_WARN, '1D2D link without valid 1D branch detected, discarding!')
+         end if
+      else
+         LNE(i_lne, L) = NC ! ALREADY EXISTING 2D CELL
+         LNN(L) = LNN(L) + 1
+      end if
+
+   end subroutine set_lne
+
+end module
