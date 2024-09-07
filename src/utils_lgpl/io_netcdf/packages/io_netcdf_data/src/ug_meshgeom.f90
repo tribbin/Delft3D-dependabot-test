@@ -63,7 +63,6 @@ module m_ug_meshgeom
 
       integer,                           pointer :: nedge_nodes(:,:)        => null()   !< Start-end node of each branch
       character(len=ug_idsLen),          pointer :: nbranchids(:)           => null()   !< Branch nodes ids
-      integer,                           pointer :: nodeidx(:)              => null()   !< node indices in main netnodes array corresponding to branchid/nodeoffset array
       character(len=ug_idsLongNamesLen), pointer :: nbranchlongnames(:)     => null()   !< Branch long names
       double precision,                  pointer :: nbranchlengths(:)       => null()   !< Branch lenghts
       integer,                           pointer :: nbranchgeometrynodes(:) => null()   !< Number of geometry points in each branch
@@ -73,6 +72,7 @@ module m_ug_meshgeom
 
       !Mesh1d variables
       integer,                           pointer :: nodebranchidx(:)  => null()           !< The branch index of each 1d mesh point
+      integer,                           pointer :: nodeidx(:)        => null()           !< node indices in main netnodes array corresponding to branchid/nodeoffset array
       double precision,                  pointer :: nodeoffsets(:)    => null()           !< The branch offset of each 1d mesh point
       integer,                           pointer :: edgebranchidx(:)  => null()           !< The branch index of each 1d mesh edge ! TODO: UNST-2716: also incorporate these two new fields in _c interface and C# wrappers.
       double precision,                  pointer :: edgeoffsets(:)    => null()           !< The branch offset of each 1d mesh edge

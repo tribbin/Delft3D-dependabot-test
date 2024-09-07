@@ -34,13 +34,13 @@ module m_find1dcells
    use gridoperations
    use MessageHandling
    use m_save_ugrid_state
-   
+
    implicit none
-   
+
    private
-   
+
    public find1dcells
-   
+
 contains
 
 !> find one-dimensional net cells
@@ -53,15 +53,15 @@ contains
 #endif
       implicit none
 
-      integer :: K1, K2, K3, L, N, NC1, NC2
+      integer :: k1, k2, k3, L, N, nc1, nc2
       integer :: i, ierr, k, kcell
-      integer, dimension(:), allocatable :: NC1_array, NC2_array
+      integer, dimension(:), allocatable :: nc1_array, nc2_array
       logical :: Lisnew
       integer :: temp_threads
       integer :: ierror
       ierror = 1
 
-      allocate (NC1_array(NUML1D), NC2_array(NUML1D))
+      allocate (nc1_array(NUML1D), nc2_array(NUML1D))
 #ifdef _OPENMP
       temp_threads = omp_get_max_threads() !> Save old number of threads
       call omp_set_num_threads(OMP_GET_NUM_PROCS()) !> Set number of threads to max for this O(N^2) operation
@@ -69,8 +69,8 @@ contains
       !$OMP PARALLEL DO
       do L = 1, NUML1D
          if (KN(1, L) /= 0 .and. kn(3, L) /= 1 .and. kn(3, L) /= 6) then
-            call INCELLS(Xk(KN(1, L)), Yk(KN(1, L)), NC1_array(L))
-            call INCELLS(Xk(KN(2, L)), Yk(KN(2, L)), NC2_array(L))
+            call INCELLS(Xk(KN(1, L)), Yk(KN(1, L)), nc1_array(L))
+            call INCELLS(Xk(KN(2, L)), Yk(KN(2, L)), nc2_array(L))
          end if
       end do
       !$OMP END PARALLEL DO
@@ -82,36 +82,26 @@ contains
       KC = 2 ! ONDERSCHEID 1d EN 2d NETNODES
 
       do L = 1, NUML
-         K1 = KN(1, L); K2 = KN(2, L); K3 = KN(3, L)
-         if (K3 >= 1 .and. K3 <= 7) then
-            KC(K1) = 1; KC(K2) = 1
+         k1 = KN(1, L); k2 = KN(2, L); k3 = KN(3, L)
+         if (k3 >= 1 .and. k3 <= 7) then
+            KC(k1) = 1; KC(k2) = 1
          end if
       end do
-      
+
       nump1d2d = nump
-      do L = 1, NUML1D
-         K1 = KN(1, L); K2 = KN(2, L)
-         if (k1 == 0) cycle
-         NC1 = 0; NC2 = 0
-         if (kn(3, L) /= 1 .and. kn(3, L) /= 6) then !These link types are allowed to have no 2D cells
-            if (NMK(K1) == 1) then
-               NC1 = NC1_array(L) ! IS INSIDE 2D CELLS()
+      do i = 1,2
+         do L = 1, NUML1D
+            k1 = KN(1, L); k2 = KN(2, L)
+            if (k1 == 0) cycle
+            nc1 = set_N(L,k1,nc1_array)
+            nc2 = set_N(L,k2,nc2_array)
+            if (nc1 /= 0 .and. nc1 == nc2) then !Both net nodes inside 2D cell, but assume that the first is then the 1D net node.
+               nc1 = 0
             end if
-            if (NMK(K2) == 1) then
-               NC2 = NC2_array(L) ! IS INSIDE 2D CELLS()
-            end if
-            if (NC1 == 0 .and. NC2 == 0) then
-               call mess(LEVEL_WARN, '1D2D link without valid 2D flowcell detected, discarding!')
-               cycle
-            end if
-         end if
-         if (nc1 /= 0 .and. nc1 == nc2) then
-            !Both net nodes inside 2D cell, but assume that the first is then the 1D net node.
-            nc1 = 0
-         end if
-         LNN(L) = 0
-         call set_lne(NC1, K1, L, 1, nump1d2d)
-         call set_lne(NC2, K2, L, 2, nump1d2d)
+            LNN(L) = 0
+            call set_lne(nc1, k1, L, 1, nump1d2d)
+            call set_lne(nc2, k2, L, 2, nump1d2d)
+         end do
       end do
 
 !     END COPY from flow_geominit
@@ -196,16 +186,17 @@ contains
       integer, intent(inout) :: nump1d2d !< 1D netnode counter (starts at nump)
 
       if (NC == 0) then
-         if (is_new_1D_cell(K, l)) then ! NIEUWE 1d CELL
-            nump1d2d = nump1d2d + 1
-            KC(K) = -nump1d2d ! MARKEREN ALS OUD
-            LNE(i_lne, L) = -abs(KC(K)) ! NEW 1D CELL flag 1D links through negative lne ref
-            LNN(L) = LNN(L) + 1
-         else if (KC(K) /= 1) then
-            LNE(i_lne, L) = -abs(KC(K)) ! NEW 1D CELL flag 1D links through negative lne ref
-            LNN(L) = LNN(L) + 1
-         else
-            call mess(LEVEL_WARN, '1D2D link without valid 1D branch detected, discarding!')
+         !> Nodes need to be found in the correct order. This is why we do 2 passes.
+         if (meshgeom1d%nodebranchidx(k) == meshgeom1d%nodebranchidx(nump1d2d + 1) .and. meshgeom1d%nodeoffsets(k) == meshgeom1d%nodeoffsets(nump1d2d + 1)) then
+            if (is_new_1D_cell(K, l)) then ! NIEUWE 1d CELL
+               nump1d2d = nump1d2d + 1
+               KC(K) = -nump1d2d ! MARKEREN ALS OUD
+               LNE(i_lne, L) = -abs(KC(K)) ! NEW 1D CELL flag 1D links through negative lne ref
+               LNN(L) = LNN(L) + 1
+            else if (KC(K) /= 1) then
+               LNE(i_lne, L) = -abs(KC(K)) ! NEW 1D CELL flag 1D links through negative lne ref
+               LNN(L) = LNN(L) + 1
+            end if
          end if
       else
          LNE(i_lne, L) = NC ! ALREADY EXISTING 2D CELL
@@ -213,5 +204,19 @@ contains
       end if
 
    end subroutine set_lne
-
+   
+   integer pure function set_N(L,K,NC_array)
+   integer, intent(in) :: L !< current link
+   integer, dimension(:), intent(in) :: NC_array
+   integer, intent(in) :: K !< node (attached to link)
+   
+         set_N = 0
+         if (kn(3, L) /= 1 .and. kn(3, L) /= 6) then !These link types are allowed to have no 2D cells
+            if (NMK(K) == 1) then
+               set_N = NC_array(L) ! IS INSIDE 2D CELLS()
+            end if
+         end if
+         
+   end function set_N
+   
 end module
