@@ -453,6 +453,10 @@ contains
             return
          end if
          call prop_get(node_ptr, 'Lateral', 'numCoordinates', num_coordinates)
+         if (num_coordinates <= 0) then
+            call mess(LEVEL_WARN, 'Lateral '''//trim(loc_id)//''': numCoordinates must be greater than 0.')
+            return
+         end if
          allocate (x_coordinates(num_coordinates), stat=ierr)
          allocate (y_coordinates(num_coordinates), stat=ierr)
          call prop_get(node_ptr, 'Lateral', 'xCoordinates', x_coordinates, num_coordinates)
