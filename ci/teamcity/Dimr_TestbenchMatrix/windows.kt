@@ -12,7 +12,9 @@ import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import testbenchMatrix.Trigger
 
 object Windows : BuildType({
+
     name = "Windows"
+    buildNumberPattern = "%build.revisions.revision%"
 
     val filePath = "${DslContext.baseDir}/dimr_testbench_table.csv"
     val lines = File(filePath).readLines()

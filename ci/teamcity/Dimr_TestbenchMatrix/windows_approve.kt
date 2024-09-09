@@ -5,7 +5,9 @@ import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.triggers.finishBuildTrigger
 
 object WindowsApprove : BuildType({
+
     name = "Windows Approve"
+    buildNumberPattern = "%build.revisions.revision%"
 
     params {
         param("teamcity_user", "svc_dimr_approve_windows")

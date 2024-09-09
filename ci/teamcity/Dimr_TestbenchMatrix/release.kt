@@ -4,8 +4,8 @@ import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.approval
 
 object Release : BuildType({
-    name = "Release"
 
+    name = "Release"
     buildNumberPattern = "%build.revisions.revision%"
     maxRunningBuilds = 1
 

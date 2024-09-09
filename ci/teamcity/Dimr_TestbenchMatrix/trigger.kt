@@ -9,7 +9,9 @@ import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 
 object Trigger : BuildType({
+
     name = "Trigger"
+    buildNumberPattern = "%build.revisions.revision%"
 
     vcs {
         root(DslContext.settingsRoot)
