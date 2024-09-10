@@ -11502,7 +11502,7 @@ contains
       use network_data, xe_no => xe, ye_no => ye
       use m_flowgeom, only: ndx2d, ndxi
       use m_partitioninfo, only: idomain, ndomains, iglobal_s, Nglobal_s
-      use m_sferic, only: jsferic, jasfer3d
+      use m_sferic, only: jsferic
       use m_missing, only: dmiss
       use netcdf
       use m_alloc
@@ -11529,18 +11529,12 @@ contains
       integer, allocatable :: edge_nodes(:, :), face_nodes(:, :), edge_type(:), contacts(:, :)
 
       integer :: ierr
-      integer :: i, k, k1, k2, numl2d, numk1d, numk2d, nump1d, L, Lnew, nv, n1, n2, n3, n4, n
+      integer :: i, k, k1, k2, numl2d, numk1d, numk2d, nump1d, L, Lnew, nv, n1, n2, n
       integer :: jaInDefine
       integer :: id_zf
-      real :: x, y
       real(kind=hp), allocatable :: xn(:), yn(:), zn(:), xe(:), ye(:), zf(:)
-      real(kind=dp) :: maxoffset
-      integer :: n1dedges, n1d2dcontacts, start_index, other_node, newbranchid
-      integer, dimension(:), allocatable :: contacttype, idomain1d, iglobal_s1d, kc_inverse
-      integer, dimension(:), allocatable :: backup_branchid, backup_chainage
-      real(kind=dp), allocatable :: branch_ids_chainages(:)
-      type(tface), allocatable :: tempcell
-      logical :: found
+      integer :: n1dedges, n1d2dcontacts, start_index
+      integer, dimension(:), allocatable :: contacttype, idomain1d, iglobal_s1d
 
       call readyy('Writing net data', 0d0)
 
@@ -11670,19 +11664,6 @@ contains
          nump1d = nump1d2d - nump
          if (janetcell_ == 1 .and. nump1d > 0) then
 
-            !allocate(branch_ids_chainages(nump1d), permuted_node_ids(nump1d))
-            !maxoffset = maxval(meshgeom1d%nodeoffsets)+1
-            !do N1 = 1, nump1d
-            !   branch_ids_chainages(N1) = meshgeom1d%nodebranchidx(N1)*maxoffset + meshgeom1d%nodeoffsets(N1)
-            !end do
-            !! Sort nodes by first branchid then chainage
-            !call sort_index(branch_ids_chainages,permuted_node_ids)
-            !backup_branchid = meshgeom1d%nodebranchidx
-            !backup_chainage = meshgeom1d%nodeoffsets
-            !if (.not. associated(meshgeom1d%nodeidx)) then ! assume that the nodes were put at the front in order during network reading.
-            !   allocate (meshgeom1d%nodeidx(nump1d))
-            !   meshgeom1d%nodeidx = [1:nump1d]
-            !end if
             ! Determine 1D net nodes directly from 1D net cells
             do N1 = 1 + nump, nump1d2d
                k1 = netcell(N1)%nod(1)
@@ -11730,42 +11711,6 @@ contains
                   contacttype(n1d2dcontacts) = kn(3, L)
                end if
             end do
-            
-            !allocate (kc_inverse(nump1d))
-            !do N1 = 1, nump1d
-            !   k1 = abs(kc(meshgeom1d%nodeidx(N1)))
-            !   kc_inverse(k1) = n1
-            !   meshgeom1d%nodebranchidx(k1) = backup_branchid(n1)
-            !   meshgeom1d%nodeoffsets(k1) = backup_chainage(n1)
-            !end do
-            !do N1 = 2, nump1d - 1
-            !   if (meshgeom1d%nodebranchidx(n1 + 1) < meshgeom1d%nodebranchidx(n1)) then ! n1 has invalid branch order
-            !      k1 = kc_inverse(n1)
-            !      if (size(nod(k1)%lin) > 2) then !This node lies on a T junction and should be assigned to the first branch that finds it
-            !         found = .false.
-            !         do N2 = 1, size(nod(k1)%lin) !check all connected links
-            !            other_node = kn(1, nod(k1)%lin(N2))
-            !            if (other_node == k1) then
-            !               other_node = kn(2, nod(k1)%lin(N2))
-            !            end if
-            !            if (backup_branchid(other_node) == meshgeom1d%nodebranchidx(n1 - 1)) then !This node can be connected to the "new" branch
-            !               meshgeom1d%nodebranchidx(n1) = meshgeom1d%nodebranchidx(n1 - 1) ! re-assign this node to the other connecting branch
-            !               meshgeom1d%nodeoffsets(n1) = meshgeom1d%nodeoffsets(n1 - 1) + dbdistance(xn(n1), yn(n1), xn(n1 - 1), yn(n1 - 1), jsferic, jasfer3D, dmiss)
-            !               found = .true.
-            !               exit
-            !            end if
-            !         end do
-            !         if (.not. found) then ! The node cannot be connected to a nearby branch so it needs a new one.
-            !            if (meshgeom1d%nodebranchidx(n1 + 1) - meshgeom1d%nodebranchidx(n1 - 1) > 1) then !there is space to insert a new branch
-            !               newbranchid = meshgeom1d%nodebranchidx(n1 - 1) + 1
-            !               meshgeom1d%nodebranchidx(n1) = newbranchid
-            !               meshgeom1d%nodeoffsets(n1) = 0
-            !               meshgeom1d%nbranchgeometrynodes(n1) = 2
-            !            end if
-            !         end if
-            !      end if
-            !   end if
-            !end do
 
          else ! not directly 1D netcell based, indirectly 1D netlink based
 
