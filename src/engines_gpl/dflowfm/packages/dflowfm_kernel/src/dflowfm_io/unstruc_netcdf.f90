@@ -11510,7 +11510,6 @@ contains
       use m_save_ugrid_state
       use gridoperations
       use fm_location_types
-      use stdlib_sorting, only: sort_index
       use m_find1dcells, only: find1dcells
 
       implicit none
@@ -11945,6 +11944,8 @@ contains
             end if
          end if
 
+         ierr = nf90_redef(ncid) ! TODO: AvD: I know that all this redef is slow. Split definition and writing soon.
+         
          !define 1d2dcontacts only after mesh2d is completly defined
          if (n1d2dcontacts > 0) then
             ierr = ug_def_mesh_contact(ncid, id_tsp%meshcontacts, trim(contactname), n1d2dcontacts, id_tsp%meshids1d, id_tsp%meshids2d, UG_LOC_NODE, UG_LOC_FACE, start_index)
@@ -12248,8 +12249,6 @@ contains
                                           meshgeom%nbranchgeometrynodes, meshgeom%nbranchlengths, jsferic, meshgeom%nodeX, meshgeom%nodeY)
             XK(numk_last + 1:numk_last + meshgeom%numnode) = meshgeom%nodeX
             YK(numk_last + 1:numk_last + meshgeom%numnode) = meshgeom%nodeY
-            allocate (meshgeom%nodeidx(meshgeom%numnode))
-            meshgeom%nodeidx = numk_last + [1:numk_last + meshgeom%numnode]
             network%numk = meshgeom%numnode
             ! construct network and administrate
 
