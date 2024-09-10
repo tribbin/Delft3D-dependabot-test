@@ -5,7 +5,9 @@ import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import jetbrains.buildServer.configs.kotlin.triggers.finishBuildTrigger
 
 object LinuxApprove : BuildType({
+
     name = "Linux Approve"
+    buildNumberPattern = "%build.revisions.revision%"
 
     params {
         param("teamcity_user", "svc_dimr_approve_linux")
