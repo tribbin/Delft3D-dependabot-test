@@ -12,11 +12,14 @@ import jetbrains.buildServer.configs.kotlin.buildSteps.script
 import testbenchMatrix.Trigger
 
 object Windows : BuildType({
+
     name = "Windows"
+    buildNumberPattern = "%build.revisions.revision%"
 
     val filePath = "${DslContext.baseDir}/dimr_testbench_table.csv"
     val lines = File(filePath).readLines()
-    val configs = lines.drop(1).map { line ->
+    val windowsLines = lines.filter({ line -> line.contains("win64")})
+    val configs = windowsLines.drop(1).map { line ->
         line.split(",")[1]
     }
 
