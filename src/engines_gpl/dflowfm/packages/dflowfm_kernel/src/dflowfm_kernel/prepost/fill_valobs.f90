@@ -60,7 +60,7 @@ subroutine fill_valobs()
    double precision, external :: setrhofixedp
    double precision, allocatable :: ueux(:)
    double precision, allocatable :: ueuy(:)
-   double precision, allocatable :: work(:) !< Work array
+   double precision, allocatable :: vius(:) !< Flowlink-averaged horizontal viscosity (viu) at s-point
 
    kmx_const = kmx
    nlyrs = 0
@@ -117,6 +117,13 @@ subroutine fill_valobs()
          allocate (poros(1:stmpar%morlyr%settings%nlyr))
          poros = dmiss
       end if
+   end if
+
+   if (jahistur > 0) then
+      if (.not. allocated(vius)) then
+         allocate (vius(ndkx))
+      end if
+      call linkstocenterstwodoubles(vius, real(vicLu, kind=8))
    end if
 
    valobs = DMISS
@@ -353,11 +360,7 @@ subroutine fill_valobs()
                valobs(i, IPNT_TEM1 + klay - 1) = constituents(itemp, kk)
             end if
             if (jahistur > 0) then
-               if (.not. allocated(work)) then
-                  allocate (work(ndkx))
-               end if
-               call linkstocenterstwodoubles(work, real(vicLu, kind=8))
-               valobs(i, IPNT_VIU + klay - 1) = work(kk)
+               valobs(i, IPNT_VIU + klay - 1) = vius(kk)
             end if
             if ((jasal > 0 .or. jatem > 0 .or. jased > 0) .and. jahisrho > 0) then
                if (density_is_pressure_dependent()) then
