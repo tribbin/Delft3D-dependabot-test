@@ -45,6 +45,7 @@ subroutine fill_valobs()
    use Timers
    use m_alloc
    use fm_statistical_output, only: model_is_3d
+   use precision, only: dp
 
    implicit none
 
@@ -123,7 +124,7 @@ subroutine fill_valobs()
       if (.not. allocated(vius)) then
          allocate (vius(ndkx))
       end if
-      call linkstocenterstwodoubles(vius, real(vicLu, kind=8))
+      call linkstocenterstwodoubles(vius, real(vicLu, kind=dp))
    end if
 
    valobs = DMISS
