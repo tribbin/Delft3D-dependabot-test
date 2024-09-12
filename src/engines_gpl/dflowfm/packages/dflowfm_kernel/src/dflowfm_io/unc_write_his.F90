@@ -993,11 +993,11 @@ contains
       call unc_put_his_structure_names(ihisfile, jahisgate, id_gate_id, gate_ids)
 
       if (jaoldstr == 1) then
-         structure_names = cgen_ids(1:ncgensg)
+         structure_names = [(cgen_ids(i), integer :: i=1, ncgensg)]
       else if (network%sts%numGeneralStructures > 0) then
          structure_names = [(trimexact(network%sts%struct(network%sts%generalStructureIndices(i))%id, strlen_netcdf), integer :: i=1, ngenstru)]
       else
-         structure_names = cgen_ids(genstru2cgen)
+         structure_names = [(cgen_ids(genstru2cgen(i)), integer :: i=1, ngenstru)]
       end if
       call unc_put_his_structure_names(ihisfile, jahiscgen, id_genstru_id, structure_names)
 
@@ -1026,7 +1026,7 @@ contains
 
       call unc_put_his_structure_names(ihisfile, jahissourcesink, id_srcname, srcname(1:numsrc))
 
-      structure_names = cgen_ids(gate2cgen(1:ngategen))
+      structure_names = [(cgen_ids(gate2cgen(i)), integer :: i=1, ngategen)]
       call unc_put_his_structure_names(ihisfile, jahisgate, id_gategen_id, structure_names)
 
       call unc_put_his_structure_names(ihisfile, jahislateral, id_lat_id, lat_ids(1:numlatsg))
