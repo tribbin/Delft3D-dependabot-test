@@ -15,8 +15,8 @@ target_compile_options(additional_compiler_warnings INTERFACE
 )
 
 add_library(compiler_warnings_as_errors INTERFACE)
-set(intel_windows_warning_error_flag /warn:errors /warn:stderrors)
-set(intel_linux_warning_error_flag "SHELL:-warn errors" "SHELL:-warn stderrors")
+set(intel_windows_warning_error_flag /warn:errors)
+set(intel_linux_warning_error_flag "SHELL:-warn errors")
 set(gcc_warning_error_flag -Werror)
 target_compile_options(compiler_warnings_as_errors INTERFACE
                        "$<$<AND:$<COMPILE_LANGUAGE:Fortran>,$<Fortran_COMPILER_ID:Intel,IntelLLVM>>:$<IF:$<BOOL:${WIN32}>,${intel_windows_warning_error_flag},${intel_linux_warning_error_flag}>>"
