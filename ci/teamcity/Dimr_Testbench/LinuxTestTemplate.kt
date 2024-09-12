@@ -9,14 +9,16 @@ import jetbrains.buildServer.configs.kotlin.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.triggers.vcs
 import jetbrains.buildServer.configs.kotlin.buildSteps.script
 
-import testbenchMatrix.Trigger
+import Testbench.LinuxBuild
 
-object Linux : BuildType({
+object LinuxTest : template({
 
-    name = "Linux"
-    buildNumberPattern = "%dep.${Trigger.id}.build.revisions.short%"
+    name = "LinuxManual"
+    buildNumberPattern = "%dep.${Build.id}.build.revisions.short%"
 
     val filePath = "${DslContext.baseDir}/dimr_testbench_table.csv"
+    val headers = File(filePath).readLine()
+    val branchIndex = headers.split(",").index("%branch%")
     val lines = File(filePath).readLines()
     val linuxLines = lines.filter({ line -> line.contains("lnx64")})
     val configs = linuxLines.map { line ->
@@ -35,6 +37,13 @@ object Linux : BuildType({
         )
     }
 
+    dependencies {
+        snapshot(LinuxBuild) {
+            onDependencyFailure = FailureAction.CANCEL
+            onDependencyCancel = FailureAction.CANCEL
+        }
+    }
+
     features {
         matrix {
             id = "matrix"
@@ -49,7 +58,6 @@ object Linux : BuildType({
                     token = "%gitlab_private_access_token%"
                 }
                 filterSourceBranch = "+:*"
-                ignoreDrafts = true
             }
         }
     }
