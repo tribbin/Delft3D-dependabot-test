@@ -38,6 +38,7 @@
      use geometry_module, only: dbpinpol
      use gridoperations
      use m_readyy
+     use m_set_nod_adm
 
      implicit none
      

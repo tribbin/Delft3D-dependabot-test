@@ -53,6 +53,7 @@
     use m_curvature, only: get_curvature
     use m_xbeach_netcdf, only: xbeach_mombalance
     use mass_balance_areas_routines, only: comp_bedload_fluxmba
+    use m_set_kbot_ktop
 
     implicit none
 

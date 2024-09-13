@@ -39,6 +39,7 @@ contains
       use m_locatora
       use m_dproject
       use m_inflowcell
+      use m_disdis
 
       integer :: ma
       integer :: na

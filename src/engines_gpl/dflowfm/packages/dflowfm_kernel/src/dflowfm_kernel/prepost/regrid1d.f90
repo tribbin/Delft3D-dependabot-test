@@ -38,6 +38,7 @@
       use m_polygon
       use m_missing
       use gridoperations
+      use m_set_nod_adm
 
       implicit none
       integer :: jaregrid

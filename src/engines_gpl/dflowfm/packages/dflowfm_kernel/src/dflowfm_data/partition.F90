@@ -232,19 +232,6 @@ module m_partitioninfo
    double precision, allocatable :: reducebuf(:) !< work array for mpi-reduce
    integer :: nreducebuf !< size of work array 'reducebuf'
 
-!! we need interfaces to getkbotktop and getLbotLtop for the function pointers
-! interface
-!    subroutine getkbotktop(n,kb,kt)
-!      integer :: n, kb, kt
-!    end subroutine getkbotktop
-! end interface
-!
-! interface
-!    subroutine getLbotLtop(n,Lb,Lt)
-!      integer :: n, Lb, Lt
-!    end subroutine getLbotLtop
-! end interface
-
 !   for test solver:  Schwarz method with Robin-Robin coupling
    integer :: nbndint ! number of interface links
    integer, allocatable :: kbndint(:, :) ! interface administration, similar to kbndz, etc., dim(3,nbndint)

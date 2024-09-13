@@ -45,6 +45,7 @@
     use unstruc_display
     use m_sediment
     use geometry_module, only: pinpok, dbpinpol
+    use m_set_kbot_ktop
 
     implicit none
     double precision, intent(in) :: xp, yp !< Clicked point, which flow node to drop. If a polygon is active, drop all contained points, independent of xp, yp.

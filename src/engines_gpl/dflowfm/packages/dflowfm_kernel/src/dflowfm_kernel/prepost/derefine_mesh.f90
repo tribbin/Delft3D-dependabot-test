@@ -39,6 +39,7 @@ subroutine derefine_mesh(xp, yp, Lconfirm)
    use m_missing, only: jins, dmiss
    use gridoperations
    use m_qnerror
+   use m_makenetnodescoding
 
    implicit none
 

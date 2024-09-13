@@ -50,6 +50,7 @@ subroutine transport() ! transport for now, advect salinity and add
    use m_dlimitercentral
    use m_dslim
    use m_get_kbot_ktop
+   use m_get_Lbot_Ltop
    
    implicit none
 

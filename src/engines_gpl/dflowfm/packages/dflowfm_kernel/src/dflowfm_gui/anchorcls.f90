@@ -33,6 +33,7 @@
       subroutine ANCHORCLS()
          use unstruc_colors
          use m_locatora
+         use m_disdis
 
          implicit none
 !     ZET ANCHOR NA CLEARSCREEN

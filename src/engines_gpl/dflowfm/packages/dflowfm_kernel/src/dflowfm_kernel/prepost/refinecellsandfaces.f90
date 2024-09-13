@@ -43,6 +43,8 @@
      use fm_external_forcings_data, only: transformcoef
      use gridoperations
      use m_qnerror
+     use m_set_nod_adm
+     use m_dlinedis2
 
      implicit none
 
