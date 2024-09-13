@@ -1,10 +1,11 @@
-package _Self.buildTypes
+package testbench
 
 import jetbrains.buildServer.configs.kotlin.*
 
 object LinuxAll : BuildType({
-    templates(LinuxTest)
+
     name = "Linux (all)"
+    templates(LinuxTestTemplate)
 
     params {
         param("branch", "all")
