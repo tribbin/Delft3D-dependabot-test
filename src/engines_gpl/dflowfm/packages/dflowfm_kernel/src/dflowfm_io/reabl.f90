@@ -35,6 +35,7 @@
     use M_samples
     use m_missing
     use m_delsam
+    use m_reasam
     implicit none
     integer :: mout
     character(len=256) :: rec

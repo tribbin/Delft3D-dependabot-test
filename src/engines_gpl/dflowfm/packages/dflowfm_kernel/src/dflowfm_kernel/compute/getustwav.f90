@@ -37,6 +37,7 @@ subroutine getustwav(LL, z00, fw, ustw2, csw, snw, Dfu, Dfuc, deltau, costu, uor
    use m_sferic
    use m_physcoef
    use m_xbeach_data, only: R, cwav, gammaxxb, roller
+   use m_get_Lbot_Ltop
    implicit none
    integer, intent(in) :: LL
    double precision, intent(in) :: z00 ! current only z0

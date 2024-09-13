@@ -37,6 +37,7 @@
       use unstruc_display
       use unstruc_opengl
       use m_drawthis
+      use m_dispos
       implicit none
 
       integer :: metdraw
