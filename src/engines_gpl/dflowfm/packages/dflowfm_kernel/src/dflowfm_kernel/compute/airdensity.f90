@@ -63,7 +63,7 @@ contains
       real(kind=hp), intent(in) :: p(:) !< total atmospheric pressure (Pa)
       real(kind=hp), intent(in) :: T(:) !< temperature [degrees_Celsius]
       real(kind=hp), intent(in) :: T_dewpoint(:) !< dewpoint [degrees_Celsius]
-      real(kind=hp), intent(out) :: air_density(:) !< air density [kg m-1]
+      real(kind=hp), intent(inout) :: air_density(:) !< air density [kg m-3]
       integer, intent(out) :: ierror !< error (1) or not (0)
 
       real(kind=hp), allocatable :: e_sat(:) !< water vapour saturation pressure
