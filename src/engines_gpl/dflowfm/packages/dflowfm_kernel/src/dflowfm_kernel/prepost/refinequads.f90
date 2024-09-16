@@ -37,6 +37,7 @@
      use m_readyy
      use m_delpol
      use m_copynetboundstopol
+     use m_set_nod_adm
      implicit none
      integer :: jaddrand
      integer :: k, KMOD

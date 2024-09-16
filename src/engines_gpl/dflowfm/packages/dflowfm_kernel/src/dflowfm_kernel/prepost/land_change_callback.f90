@@ -35,6 +35,7 @@
 subroutine land_change_callback()
    use m_flowgeom
    use m_flow
+   use m_set_kbot_ktop
    implicit none
 
    hs = s1 - bl

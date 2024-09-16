@@ -44,6 +44,7 @@
      use m_wall_clock_time
      use m_delpol
      use m_reapol
+     use m_set_nod_adm
      implicit none
 
      integer, intent(in) :: n12 !< type of operation (1, 2, 3, 4, 5), see docs below.

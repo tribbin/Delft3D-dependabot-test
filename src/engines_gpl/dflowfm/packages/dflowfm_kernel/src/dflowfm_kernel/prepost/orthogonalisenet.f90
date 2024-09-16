@@ -51,6 +51,7 @@ subroutine ORTHOGONALISENET(jarerun)
    use m_readyy
    use m_qnerror
    use m_delsam
+   use m_makenetnodescoding
 
    implicit none
 

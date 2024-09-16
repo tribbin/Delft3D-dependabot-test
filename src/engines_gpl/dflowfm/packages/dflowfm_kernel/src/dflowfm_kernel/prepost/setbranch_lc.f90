@@ -34,6 +34,7 @@
      use M_NETW
      use gridoperations
      use m_okay
+     use m_set_nod_adm
 
      implicit none
 

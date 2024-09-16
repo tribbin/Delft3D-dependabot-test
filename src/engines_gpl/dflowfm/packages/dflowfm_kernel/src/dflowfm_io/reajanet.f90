@@ -33,6 +33,7 @@
       subroutine REAJANET(MNET, JA, JADOORLADEN)
          use m_netw
          use gridoperations
+         use m_set_nod_adm
 
          implicit none
          integer :: MNET, JA, JADOORLADEN

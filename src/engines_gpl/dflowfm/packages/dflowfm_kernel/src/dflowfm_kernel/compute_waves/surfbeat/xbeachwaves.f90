@@ -404,6 +404,7 @@ subroutine xbeach_wave_init()
    use network_data
    use m_flow, only: hs, ucx, ucy
    use m_waves, only: rlabda
+   use m_makenetnodescoding
 
    implicit none
 
