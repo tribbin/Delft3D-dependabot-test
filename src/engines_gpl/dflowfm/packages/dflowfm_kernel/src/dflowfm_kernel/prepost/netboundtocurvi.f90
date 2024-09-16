@@ -43,6 +43,7 @@ subroutine netboundtocurvi(kp)
    use gridoperations
    use m_qnerror
    use m_delpol
+   use m_dlinedis2
 
    implicit none
 

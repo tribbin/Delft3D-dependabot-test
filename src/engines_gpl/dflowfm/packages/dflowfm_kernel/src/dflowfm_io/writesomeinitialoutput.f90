@@ -43,6 +43,7 @@ subroutine writesomeinitialoutput()
    use unstruc_model, only: md_ident
    use geometry_module, only: dbdistance
    use gridoperations, only: network_dimensions_message
+   use m_reasam
 
    implicit none
    integer :: k, mbalat, mwrong, L, msam, n, nf, jacheckba = 0

@@ -38,6 +38,7 @@
      use m_sferic, only: jsferic, jasfer3D
      use m_mergenodes
      use gridoperations
+     use m_set_nod_adm
 
      implicit none
      integer :: ins

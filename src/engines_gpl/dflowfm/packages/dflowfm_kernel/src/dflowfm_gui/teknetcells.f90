@@ -44,6 +44,8 @@
       use m_vfac
       use m_drawthis
       use m_halt2
+      use m_makenetnodescoding
+      use m_set_nod_adm
 
       implicit none
 

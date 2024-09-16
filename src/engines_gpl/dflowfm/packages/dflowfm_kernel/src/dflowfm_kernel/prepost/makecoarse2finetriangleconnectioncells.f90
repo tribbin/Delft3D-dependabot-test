@@ -36,6 +36,7 @@
      use m_missing, only: dxymis
      use geometry_module, only: dcosphi
      use gridoperations
+     use m_set_nod_adm
 
      implicit none
      integer :: N3(6)
