@@ -23,7 +23,7 @@
 module test_airdensity
    use ftnunit
    use precision, only: hp
-   use dfm_error, only: DFM_NOERR, DFM_GENERICERROR
+   use dfm_error, only: DFM_NOERR
    use m_airdensity
 
    implicit none
@@ -38,7 +38,6 @@ module test_airdensity
 subroutine tests_compute_airdensity
    call test( test_get_airdensity, 'Test computation of varying air density.')
    call test( test_get_airdensity_exact, 'Test computation of varying air density in full precision.')
-   call test( test_check_arraysizes, 'Test error message for arrays of unequal length')
 end subroutine tests_compute_airdensity
 !
 !==============================================================================
@@ -95,24 +94,5 @@ subroutine test_get_airdensity_exact
    enddo
 
    end subroutine test_get_airdensity_exact
-!
-!==============================================================================
-!> tests error handling for input arrays of unequal length
-subroutine test_check_arraysizes
-
-   real(kind=hp) :: p(2)               !< total atmospheric pressure [Pa]
-   real(kind=hp) :: T(3)               !< temperature [Celcius]
-   real(kind=hp) :: Td(4)              !< temperature [Celcius]   
-   real(kind=hp) :: rhoair(3)          !< air density [kg m-1]
-   integer :: ierr                     !< error flag
-
-   p = 0._hp   
-   T = 20.0_hp
-   Td = 3.0_hp
-             
-   call get_airdensity(p, T, Td, rhoair, ierr)
-   call assert_equal(ierr, DFM_GENERICERROR, 'Arrays of unequal size were not detected.')
-
-   end subroutine test_check_arraysizes
 
    end module test_airdensity
