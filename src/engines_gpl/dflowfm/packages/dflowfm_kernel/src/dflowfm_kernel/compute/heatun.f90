@@ -76,7 +76,7 @@ else
     afrac = 1d0
 endif
 
-presn   = 1d-2*paver                 ! Air pressure (mbar)
+presn   = 1d-2*BACKGROUNDAIRPRESSURE ! Air pressure (mbar)
 rhumn   = 1d-2*backgroundhumidity    ! ( )
 cloun   = 1d-2*backgroundcloudiness  ! ( )
 ce      = Dalton                     ! Dalton  number = 1.50e-3 (Gill, 1982)           evaporative flux

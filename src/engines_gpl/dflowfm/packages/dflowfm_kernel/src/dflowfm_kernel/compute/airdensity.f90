@@ -77,7 +77,7 @@ contains
 
       nelem = size(air_density)
       if (nelem /= size(p) .or. nelem /= size(T)) then
-         call mess(LEVEL_ERROR, 'Programming error, please report: Size of arrays in airdensity::get_airdensity do no match, computation of air density is not possible.')
+         call mess(LEVEL_ERROR, 'Programming error, please report: Size of arrays in m_airdensity::get_airdensity do no match, computation of air density is not possible.')
          ierror = 1
          return
       end if

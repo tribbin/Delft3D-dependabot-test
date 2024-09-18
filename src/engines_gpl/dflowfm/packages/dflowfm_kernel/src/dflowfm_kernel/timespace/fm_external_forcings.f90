@@ -113,7 +113,7 @@ contains
       use m_flowgeom, only: ln, lnx, ndx
       use precision_basics
       use m_flowparameters, only: eps10
-      use m_physcoef, only: backgroundairpressure
+      use m_physcoef, only: BACKGROUNDAIRPRESSURE
       use dfm_error
 
       double precision, intent(in) :: time_in_seconds !< Current time when setting wind data
@@ -225,7 +225,7 @@ contains
       if (item_atmosphericpressure /= ec_undef_int) then
          do k = 1, ndx
             if (comparereal(patm(k), dmiss, eps10) == 0) then
-               patm(k) = backgroundairpressure
+               patm(k) = BACKGROUNDAIRPRESSURE
             end if
          end do
       end if
