@@ -90,6 +90,7 @@ contains
          end if
       end do
 
+      ! Create branch node index array and inverse.
       nump1d = size(meshgeom1d%nodebranchidx) !< Old number of nodes contained in meshgeom1d
       if (.not. associated(meshgeom1d%nodeidx)) then ! assume that the nodes were put at the front in order during network reading.
          allocate (meshgeom1d%nodeidx(nump1d))
@@ -99,26 +100,11 @@ contains
       do i = 1, nump1d
          meshgeom1d%nodeidx_inverse(meshgeom1d%nodeidx(i)) = i
       end do
-
-      preserve_branch_order = .true.
-      nump1d2d = nump
-      do i = 1, 2 ! Two passes, first we skip all the links that don't fit the branch order.
-         do L = 1, NUML1D
-            k1 = KN(1, L); k2 = KN(2, L)
-            if (k1 == 0) cycle
-            left_node = get_2D_node(L, k1, left_2D_nodes)
-            right_node = get_2D_node(L, k2, right_2D_nodes)
-            if (left_node /= 0 .and. left_node == right_node) then !Both net nodes inside 2D cell, but assume that the first is then the 1D net node.
-               left_node = 0
-            end if
-            LNN(L) = 0
-            call set_lne(left_node, k1, L, 1, nump1d2d, preserve_branch_order)
-            call set_lne(right_node, k2, L, 2, nump1d2d, preserve_branch_order)
-         end do
-         preserve_branch_order = .false.
-      end do
-
-!     END COPY from flow_geominit
+      
+     nump1d2d = nump !> start from 2D cells
+     !> two passes, second one in case branch order cannot be preserved.
+     call construct_lne_array(lne, nump1d2d, left_2D_nodes, right_2D_nodes, preserve_branch_order=.true.)
+     call construct_lne_array(lne, nump1d2d, left_2D_nodes, right_2D_nodes, preserve_branch_order=.false.)
 
 !     fill 1D netcell administration and set cell centers
       call realloc(xzw, nump1d2d)
@@ -194,8 +180,9 @@ contains
 
    !> Check for a new cell and set the global LNE array that administrates link-node connectivity.
    !  Will skip any cell that doesn't match the branch order + chainage sequence.
-   subroutine set_lne(NC, K, L, i_lne, nump1d2d, preserve_branch_order)
+   subroutine set_lne(LNE, NC, K, L, i_lne, nump1d2d, preserve_branch_order)
       use precision_basics, only: comparereal
+      integer, dimension(:,:), intent(inout) :: LNE !< link-node connectivity array, shape (2,numlinks). left and right node that a netlink connects. 
       integer, intent(in) :: NC !< 2D cell number
       integer, intent(in) :: K !< new node number
       integer, intent(in) :: L !< index in LNE array to set
@@ -203,23 +190,23 @@ contains
       integer, intent(inout) :: nump1d2d !< 1D netnode counter (starts at nump)
       logical, intent(in) :: preserve_branch_order !< flag specifying whether branch order must be preserved
       logical :: branches_first
-      integer :: k_inv, next_index
+      integer :: next_found_node, next_branch_node
 
       if (NC == 0) then
          branches_first = .true.
-         if (preserve_branch_order) then
-            k_inv = meshgeom1d%nodeidx_inverse(k)
-            next_index = nump1d2d - nump + 1
-            if (k_inv /= 0 .and. next_index <= size(meshgeom1d%nodebranchidx)) then
-               if (meshgeom1d%nodebranchidx(k_inv) == meshgeom1d%nodebranchidx(next_index) .and. &
-                   comparereal(meshgeom1d%nodeoffsets(k_inv), meshgeom1d%nodeoffsets(next_index), 1d-6) == 0) then
+         if (preserve_branch_order) then 
+            ! if the branch order is to be preserved, check if the next found node matches the next node in the branchorder.
+            next_found_node = meshgeom1d%nodeidx_inverse(k)
+            next_branch_node = nump1d2d - nump + 1
+            if (next_found_node /= 0 .and. next_branch_node <= size(meshgeom1d%nodebranchidx)) then
+               if (meshgeom1d%nodebranchidx(next_found_node) == meshgeom1d%nodebranchidx(next_branch_node) .and. &
+                   comparereal(meshgeom1d%nodeoffsets(next_found_node), meshgeom1d%nodeoffsets(next_branch_node), 1d-6) == 0) then
                   branches_first = .true.
                else
                   branches_first = .false.
                end if
             end if
          end if
-         !> Nodes need to be found in the correct order. This is why we do 2 passes.
          if (is_new_1D_cell(K, l) .and. branches_first) then ! NIEUWE 1d CELL
             nump1d2d = nump1d2d + 1
             KC(K) = -nump1d2d ! MARKEREN ALS OUD
@@ -245,10 +232,36 @@ contains
       get_2D_node = 0
       if (kn(3, L) /= IFLTP_1D .and. kn(3, L) /= 6) then !These link types are allowed to have no 2D cells
          if (NMK(K) == 1) then
-            get_2D_node = node_array(L) ! IS INSIDE 2D CELLS()
+            get_2D_node = node_array(L)
          end if
       end if
 
    end function get_2D_node
+   
+   !> Loop through all netlinks and fill the link-node connectivity array.
+   subroutine construct_lne_array(lne, nump1d2d, left_2D_nodes, right_2D_nodes, preserve_branch_order)
+   integer, dimension(:,:), intent(inout) :: lne !< link-node connectivity array, shape (2,numlinks). left and right node that a netlink connects. 
+   integer, intent(out) :: nump1d2d !> total number of nodes, 2D nodes (nump) + 1D nodes (nump1d) 
+   integer, dimension(:), intent(in) :: left_2D_nodes !< 2D-node numbers belonging to the left side of the lne array. 0 if not a 2D node.
+   integer, dimension(:), intent(in) :: right_2D_nodes !< 2D-node numbers belonging to the right side of the lne array. 0 if not a 2D node.
+   logical, intent(in) :: preserve_branch_order !< whether the 1D nodes need to be found in the branch order or not.
+   
+   integer :: L, k1, k2, left_node, right_node
+   
+      do L = 1, NUML1D
+         k1 = KN(1, L); k2 = KN(2, L)
+         if (k1 == 0) cycle
+         left_node = get_2D_node(L, k1, left_2D_nodes)
+         right_node = get_2D_node(L, k2, right_2D_nodes)
+         if (left_node /= 0 .and. left_node == right_node) then !Both net nodes inside 2D cell, but assume that the first is then the 1D net node.
+            left_node = 0
+         end if
+         LNN(L) = 0
+         call set_lne(lne, left_node, k1, L, 1, nump1d2d, preserve_branch_order)
+         call set_lne(lne, right_node, k2, L, 2, nump1d2d, preserve_branch_order)
+      end do
+      
+      end subroutine construct_lne_array
+
 
 end module
