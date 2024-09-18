@@ -138,8 +138,8 @@ module m_physcoef
    double precision :: viskinair !< kinematic  viscosity
    double precision :: backgroundwatertemperature !< background water temp (C)
    double precision :: backgroundsalinity !< background salinity (ppt)
-   double precision, parameter :: BACKGROUND_AIRPRESSURE = 101325d0 !< background air pressure (Pa)
-   double precision, parameter :: BACKGROUND_AIRTEMPERATURE = 20d0 !< background air temperature (degrees Celsius)
+   double precision, parameter :: BACKGROUND_AIR_PRESSURE = 101325d0 !< background air pressure (Pa)
+   double precision, parameter :: BACKGROUND_AIR_TEMPERATURE = 20d0 !< background air temperature (degrees Celsius)
    double precision, parameter :: BACKGROUND_CLOUDINESS = 50d0 !< (%) cloudiness for non-specified points
    double precision, parameter :: BACKGROUND_HUMIDITY = 50d0 !< (%) relative humidity for non-specified points
    double precision :: secchidepth !< (m) secchidepth

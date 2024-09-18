@@ -44,7 +44,7 @@ submodule(fm_external_forcings) fm_external_forcings_update
    use m_airdensity, only: get_airdensity
    use dfm_error
    use m_laterals, only: numlatsg
-   use m_physcoef, only: BACKGROUND_AIRPRESSURE
+   use m_physcoef, only: BACKGROUND_AIR_PRESSURE
    implicit none
 
    integer, parameter :: HUMIDITY_AIRTEMPERATURE_CLOUDINESS = 1
@@ -69,7 +69,7 @@ contains
    !> set field oriented boundary conditions
    module subroutine set_external_forcings(time_in_seconds, initialization, iresult)
       use m_set_frcu_mor
-      use m_physcoef, only: BACKGROUND_AIRPRESSURE
+      use m_physcoef, only: BACKGROUND_AIR_PRESSURE
       double precision, intent(in) :: time_in_seconds !< Time in seconds
       logical, intent(in) :: initialization !< initialization phase
       integer, intent(out) :: iresult !< Integer error status: DFM_NOERR==0 if succesful.
@@ -79,10 +79,10 @@ contains
       success = .true.
 
       if (allocated(patm)) then
-         ! Set initial value to BACKGROUND_AIRPRESSURE with each update.
+         ! Set initial value to BACKGROUND_AIR_PRESSURE with each update.
          ! This may be overridden later by spatially varying air pressure values.
          ! The same initial/reference value is needed since pressure differences/drops are defined in .spw files.
-         patm(:) = BACKGROUND_AIRPRESSURE
+         patm(:) = BACKGROUND_AIR_PRESSURE
       end if
 
       call retrieve_icecover(time_in_seconds)
