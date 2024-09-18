@@ -79,10 +79,14 @@ contains
       success = .true.
 
       if (allocated(patm)) then
-         ! Set initial value to BACKGROUND_AIR_PRESSURE with each update.
-         ! This may be overridden later by spatially varying air pressure values.
-         ! The same initial/reference value is needed since pressure differences/drops are defined in .spw files.
-         patm(:) = BACKGROUND_AIR_PRESSURE
+         ! Set the initial value to PavBnd (if provided by user) or BACKGROUND_AIR_PRESSURE with each update.
+         ! An initial/reference value is required since .spw files may contain pressure drops/differences.
+         ! patm may later be overridden by spatially varying air pressure values.
+         if (PavBnd > 0) then
+            patm(:) = PavBnd
+         else
+            patm(:) = BACKGROUND_AIR_PRESSURE
+         end if
       end if
 
       call retrieve_icecover(time_in_seconds)
