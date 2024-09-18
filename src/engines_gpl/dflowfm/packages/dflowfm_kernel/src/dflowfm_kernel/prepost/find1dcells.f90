@@ -100,11 +100,11 @@ contains
       do i = 1, nump1d
          meshgeom1d%nodeidx_inverse(meshgeom1d%nodeidx(i)) = i
       end do
-      
-     nump1d2d = nump !> start from 2D cells
-     !> two passes, second one in case branch order cannot be preserved.
-     call construct_lne_array(lne, nump1d2d, left_2D_nodes, right_2D_nodes, preserve_branch_order=.true.)
-     call construct_lne_array(lne, nump1d2d, left_2D_nodes, right_2D_nodes, preserve_branch_order=.false.)
+
+      nump1d2d = nump !> start from 2D cells
+      !> two passes, second one in case branch order cannot be preserved.
+      call construct_lne_array(lne, nump1d2d, left_2D_nodes, right_2D_nodes, preserve_branch_order=.true.)
+      call construct_lne_array(lne, nump1d2d, left_2D_nodes, right_2D_nodes, preserve_branch_order=.false.)
 
 !     fill 1D netcell administration and set cell centers
       call realloc(xzw, nump1d2d)
@@ -182,7 +182,7 @@ contains
    !  Will skip any cell that doesn't match the branch order + chainage sequence.
    subroutine set_lne(LNE, NC, K, L, i_lne, nump1d2d, preserve_branch_order)
       use precision_basics, only: comparereal
-      integer, dimension(:,:), intent(inout) :: LNE !< link-node connectivity array, shape (2,numlinks). left and right node that a netlink connects. 
+      integer, dimension(:, :), intent(inout) :: LNE !< link-node connectivity array, shape (2,numlinks). left and right node that a netlink connects.
       integer, intent(in) :: NC !< 2D cell number
       integer, intent(in) :: K !< new node number
       integer, intent(in) :: L !< index in LNE array to set
@@ -194,7 +194,7 @@ contains
 
       if (NC == 0) then
          branches_first = .true.
-         if (preserve_branch_order) then 
+         if (preserve_branch_order) then
             ! if the branch order is to be preserved, check if the next found node matches the next node in the branchorder.
             next_found_node = meshgeom1d%nodeidx_inverse(k)
             next_branch_node = nump1d2d - nump + 1
@@ -226,7 +226,7 @@ contains
    !> if the link is not type 1 or 6, checks the previously filled node_array for the 2D cell value
    integer pure function get_2D_node(L, K, node_array)
       integer, intent(in) :: L !< current link
-      integer, dimension(:), intent(in) :: node_array !< array of previously found 2D nodes. 
+      integer, dimension(:), intent(in) :: node_array !< array of previously found 2D nodes.
       integer, intent(in) :: K !< node (attached to link)
 
       get_2D_node = 0
@@ -237,17 +237,17 @@ contains
       end if
 
    end function get_2D_node
-   
+
    !> Loop through all netlinks and fill the link-node connectivity array.
    subroutine construct_lne_array(lne, nump1d2d, left_2D_nodes, right_2D_nodes, preserve_branch_order)
-   integer, dimension(:,:), intent(inout) :: lne !< link-node connectivity array, shape (2,numlinks). left and right node that a netlink connects. 
-   integer, intent(out) :: nump1d2d !> total number of nodes, 2D nodes (nump) + 1D nodes (nump1d) 
-   integer, dimension(:), intent(in) :: left_2D_nodes !< 2D-node numbers belonging to the left side of the lne array. 0 if not a 2D node.
-   integer, dimension(:), intent(in) :: right_2D_nodes !< 2D-node numbers belonging to the right side of the lne array. 0 if not a 2D node.
-   logical, intent(in) :: preserve_branch_order !< whether the 1D nodes need to be found in the branch order or not.
-   
-   integer :: L, k1, k2, left_node, right_node
-   
+      integer, dimension(:, :), intent(inout) :: lne !< link-node connectivity array, shape (2,numlinks). left and right node that a netlink connects.
+      integer, intent(out) :: nump1d2d !> total number of nodes, 2D nodes (nump) + 1D nodes (nump1d)
+      integer, dimension(:), intent(in) :: left_2D_nodes !< 2D-node numbers belonging to the left side of the lne array. 0 if not a 2D node.
+      integer, dimension(:), intent(in) :: right_2D_nodes !< 2D-node numbers belonging to the right side of the lne array. 0 if not a 2D node.
+      logical, intent(in) :: preserve_branch_order !< whether the 1D nodes need to be found in the branch order or not.
+
+      integer :: L, k1, k2, left_node, right_node
+
       do L = 1, NUML1D
          k1 = KN(1, L); k2 = KN(2, L)
          if (k1 == 0) cycle
@@ -260,8 +260,7 @@ contains
          call set_lne(lne, left_node, k1, L, 1, nump1d2d, preserve_branch_order)
          call set_lne(lne, right_node, k2, L, 2, nump1d2d, preserve_branch_order)
       end do
-      
-      end subroutine construct_lne_array
 
+   end subroutine construct_lne_array
 
 end module
