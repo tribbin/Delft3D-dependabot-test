@@ -62,6 +62,7 @@ module bmi
    use m_longculverts
    use m_nearfield
    use m_VolumeTables, only: vltb, vltbonlinks, ndx1d
+   use m_update_land_nodes
 
    implicit none
 
