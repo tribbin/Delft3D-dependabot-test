@@ -34,7 +34,7 @@ module m_find1dcells
    use gridoperations
    use MessageHandling
    use m_save_ugrid_state
-
+   use m_inquire_flowgeom
    implicit none
 
    private
@@ -52,9 +52,9 @@ contains
 #endif
       implicit none
 
-      integer :: k1, k2, k3, L, N, nc1, nc2
+      integer :: k1, k2, k3, L, N, left_node, right_node, new_node
       integer :: i, ierr, k, kcell
-      integer, dimension(:), allocatable :: nc1_array, nc2_array
+      integer, dimension(:), allocatable :: left_2D_nodes, right_2D_nodes
       logical :: Lisnew
       integer :: temp_threads
       integer :: ierror
@@ -63,16 +63,16 @@ contains
       logical :: preserve_branch_order
       ierror = 1
 
-      allocate (nc1_array(NUML1D), nc2_array(NUML1D))
+      allocate (left_2D_nodes(NUML1D), right_2D_nodes(NUML1D))
 #ifdef _OPENMP
       temp_threads = omp_get_max_threads() !> Save old number of threads
       call omp_set_num_threads(OMP_GET_NUM_PROCS()) !> Set number of threads to max for this O(N^2) operation
 #endif
       !$OMP PARALLEL DO
       do L = 1, NUML1D
-         if (KN(1, L) /= 0 .and. kn(3, L) /= 1 .and. kn(3, L) /= 6) then
-            call INCELLS(Xk(KN(1, L)), Yk(KN(1, L)), nc1_array(L))
-            call INCELLS(Xk(KN(2, L)), Yk(KN(2, L)), nc2_array(L))
+         if (KN(1, L) /= 0 .and. kn(3, L) /= IFLTP_1D .and. kn(3, L) /= 6) then
+            call INCELLS(Xk(KN(1, L)), Yk(KN(1, L)), left_2D_nodes(L))
+            call INCELLS(Xk(KN(2, L)), Yk(KN(2, L)), right_2D_nodes(L))
          end if
       end do
       !$OMP END PARALLEL DO
@@ -97,7 +97,7 @@ contains
       end if
       allocate (meshgeom1d%nodeidx_inverse(size(kc)))
       do i = 1, nump1d
-         meshgeom1d%nodeidx_inverse(meshgeom1d%nodeidx(i)) = i !Use KC0 as inverse mapping array for branch nodes
+         meshgeom1d%nodeidx_inverse(meshgeom1d%nodeidx(i)) = i
       end do
 
       preserve_branch_order = .true.
@@ -106,14 +106,14 @@ contains
          do L = 1, NUML1D
             k1 = KN(1, L); k2 = KN(2, L)
             if (k1 == 0) cycle
-            nc1 = set_N(L, k1, nc1_array)
-            nc2 = set_N(L, k2, nc2_array)
-            if (nc1 /= 0 .and. nc1 == nc2) then !Both net nodes inside 2D cell, but assume that the first is then the 1D net node.
-               nc1 = 0
+            left_node = get_2D_node(L, k1, left_2D_nodes)
+            right_node = get_2D_node(L, k2, right_2D_nodes)
+            if (left_node /= 0 .and. left_node == right_node) then !Both net nodes inside 2D cell, but assume that the first is then the 1D net node.
+               left_node = 0
             end if
             LNN(L) = 0
-            call set_lne(nc1, k1, L, 1, nump1d2d, preserve_branch_order)
-            call set_lne(nc2, k2, L, 2, nump1d2d, preserve_branch_order)
+            call set_lne(left_node, k1, L, 1, nump1d2d, preserve_branch_order)
+            call set_lne(right_node, k2, L, 2, nump1d2d, preserve_branch_order)
          end do
          preserve_branch_order = .false.
       end do
@@ -135,12 +135,12 @@ contains
 
       do k = 1, numk
          if (kc(k) < 0) then ! 1d cell
-            nc1 = -kc(k) ! cell number
-            N = netcell(nc1)%N
+            new_node = -kc(k) ! cell number
+            N = netcell(new_node)%N
 !           check if this node is new in this cell
             Lisnew = .true.
             do i = 1, N
-               if (netcell(nc1)%nod(i) == k) then
+               if (netcell(new_node)%nod(i) == k) then
                   Lisnew = .false.
                   exit
                end if
@@ -148,11 +148,11 @@ contains
             if (Lisnew) then ! new node for this cell
                N = N + 1
                if (N > 1) then
-                  call realloc(netcell(nc1)%NOD, N, stat=ierr, keepExisting=.true., fill=0)
-                  call realloc(netcell(nc1)%LIN, N, stat=ierr, keepExisting=.true., fill=0)
+                  call realloc(netcell(new_node)%NOD, N, stat=ierr, keepExisting=.true., fill=0)
+                  call realloc(netcell(new_node)%LIN, N, stat=ierr, keepExisting=.true., fill=0)
                end if
-               netcell(nc1)%N = N
-               netcell(nc1)%nod(N) = k
+               netcell(new_node)%N = N
+               netcell(new_node)%nod(N) = k
             end if
          end if
       end do
@@ -186,13 +186,14 @@ contains
       is_new_1D_cell = .false.
 
       if (KC(k) == 1) then !Node not yet touched
-         if (NMK(k) > 1 .or. (kn(3, l) == 1 .or. kn(3, l) == 6)) then
+         if (NMK(k) > 1 .or. (kn(3, l) == IFLTP_1D .or. kn(3, l) == 6)) then
             is_new_1D_cell = .true.
          end if
       end if
    end function is_new_1D_cell
 
-   !> Check for a new cell and set the LNE array. Will skip any cell that doesn't match the branch order + chainage sequence.
+   !> Check for a new cell and set the global LNE array that administrates link-node connectivity.
+   !  Will skip any cell that doesn't match the branch order + chainage sequence.
    subroutine set_lne(NC, K, L, i_lne, nump1d2d, preserve_branch_order)
       use precision_basics, only: comparereal
       integer, intent(in) :: NC !< 2D cell number
@@ -235,19 +236,19 @@ contains
 
    end subroutine set_lne
 
-   !> if the link is not type 1 or 6, checks the previously filled NC_array for the 2D cell value
-   integer pure function set_N(L, K, NC_array)
+   !> if the link is not type 1 or 6, checks the previously filled node_array for the 2D cell value
+   integer pure function get_2D_node(L, K, node_array)
       integer, intent(in) :: L !< current link
-      integer, dimension(:), intent(in) :: NC_array
+      integer, dimension(:), intent(in) :: node_array !< array of previously found 2D nodes. 
       integer, intent(in) :: K !< node (attached to link)
 
-      set_N = 0
-      if (kn(3, L) /= 1 .and. kn(3, L) /= 6) then !These link types are allowed to have no 2D cells
+      get_2D_node = 0
+      if (kn(3, L) /= IFLTP_1D .and. kn(3, L) /= 6) then !These link types are allowed to have no 2D cells
          if (NMK(K) == 1) then
-            set_N = NC_array(L) ! IS INSIDE 2D CELLS()
+            get_2D_node = node_array(L) ! IS INSIDE 2D CELLS()
          end if
       end if
 
-   end function set_N
+   end function get_2D_node
 
 end module
