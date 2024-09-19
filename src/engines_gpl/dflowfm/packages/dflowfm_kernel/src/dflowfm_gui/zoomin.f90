@@ -41,6 +41,9 @@ contains
       use m_dproject
       use m_botlin
       use m_readlocator
+      use m_box_nop
+      use m_set_col
+      use m_help
 
       double precision :: aspect, dx, dy, xln, yln, xl, yl, X1B, Y1B, X2B, Y2B, xl2, yl2
       integer :: k, nlevel, jadraw, nput, nnn, ja, key

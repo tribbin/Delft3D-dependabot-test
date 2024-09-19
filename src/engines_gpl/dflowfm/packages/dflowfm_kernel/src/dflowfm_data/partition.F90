@@ -74,6 +74,7 @@ module m_partitioninfo
    use gridoperations, only: dlinkangle
    use m_qnerror
    use m_delpol
+   use m_find1dcells, only: find1dcells
 
 #ifdef HAVE_MPI
    use mpi, only: NAMECLASH_MPI_COMM_WORLD => MPI_COMM_WORLD ! Apparently PETSc causes a name clash, see commit #28532.
@@ -6669,42 +6670,6 @@ subroutine update_ghostboundvals(itype, NDIM, N, var, jacheck, ierror)
 
    return
 end subroutine update_ghostboundvals
-
-! =================================================================================================
-! =================================================================================================
-subroutine fill_reduce_buffer(vals, nvals)
-   use m_partitioninfo
-   implicit none
-   integer :: i
-   integer, intent(in) :: nvals
-   double precision, dimension(1:nvals) :: vals
-
-   if (jampi == 0) then
-      return
-   end if
-
-   do i = 1, nvals
-      reducebuf(nreducebuf + i) = vals(i)
-   end do
-   nreducebuf = nreducebuf + nvals
-
-end subroutine fill_reduce_buffer
-
-! =================================================================================================
-! =================================================================================================
-subroutine subsitute_reduce_buffer(vals, nvals)
-   use m_partitioninfo
-   implicit none
-   integer :: i
-   integer, intent(in) :: nvals
-   double precision, dimension(1:nvals) :: vals
-
-   nreducebuf = nreducebuf - nvals
-   do i = 1, nvals
-      vals(i) = reducebuf(nreducebuf + i)
-   end do
-
-end subroutine subsitute_reduce_buffer
 
 ! =================================================================================================
 ! =================================================================================================
