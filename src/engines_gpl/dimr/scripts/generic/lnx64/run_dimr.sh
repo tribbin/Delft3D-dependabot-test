@@ -157,7 +157,7 @@ export PROC_DEF_DIR
 # On Deltares systems only:
 if [ -f "/opt/apps/deltares/.nl" ]; then
     # Try the following module load
-    module load intelmpi/2021.13.0 &>/dev/null
+    module load intelmpi
 
     # If not defined yet: Define I_MPI_FABRICS and FI_PROVIDER with proper values for Deltares systems
     [ ! -z "$I_MPI_FABRICS" ] && echo "I_MPI_FABRICS is already defined" || export I_MPI_FABRICS=shm
