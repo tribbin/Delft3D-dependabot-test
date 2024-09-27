@@ -57,8 +57,10 @@ def main():
         print(f"Error: The file {log_file_path} does not exist.")
         sys.exit(-1)
 
+    log_text: Optional[str] = None
+
     if log_file_path.suffix in {'.html', '.htm'}:
-        log_text = extract_text_from_last_pre_tag(str(log_file_path))
+        log_text = extract_text_from_last_pre_tag(log_file_path)
         if log_text is None:
             print("Error: No <pre> tags found within <body> of html file.")
             sys.exit(-1)
