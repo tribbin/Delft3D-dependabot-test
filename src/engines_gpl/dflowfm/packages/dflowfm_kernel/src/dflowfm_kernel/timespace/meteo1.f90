@@ -1167,18 +1167,6 @@ contains
          end do
          k1 = k1 + 1
       end do
-
-!  deallocate
-      if (allocated(wshaec)) deallocate (wshaec)
-      if (allocated(wshsec)) deallocate (wshsec)
-      if (allocated(a)) deallocate (a)
-      if (allocated(b)) deallocate (b)
-
-      if (allocated(llnh)) deallocate (llnh)
-      if (allocated(llnk)) deallocate (llnk)
-      if (allocated(avhs1)) deallocate (avhs1)
-      if (allocated(self1)) deallocate (self1)
-
    end subroutine selfattraction
 
    subroutine loadlovenumber(llnh, llnk)
@@ -4741,12 +4729,6 @@ contains
 
          end if
       end do
-
-      deallocate (xs)
-      deallocate (ys)
-      deallocate (zs)
-      deallocate (kcss)
-
    end subroutine triint_z1D
    !
    !
