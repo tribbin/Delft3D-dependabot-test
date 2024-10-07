@@ -1085,35 +1085,21 @@ contains
 
       ! Local parameters
       double precision, parameter :: Me = 5.9726d24, R = 6371d3, g = 9.81d0, pi = 4d0 * atan(1.0), rhow = 1.0240164d3, rhoe = 3d0 * Me / (4d0 * pi * R * R * R)
-      integer :: nlat, nlon, n15, lsave, lwork, ldwork, lwk, liwk, lshaec, lshsec
+      integer :: nlat, nlon, lsave
       integer :: i, j, ierror, isym, nt, l, mdab, ndab, k1
-!   double precision, dimension(0:1024) :: llnh, llnk
       double precision, dimension(:), allocatable :: llnh, llnk
-      double precision, dimension(:), allocatable :: work, wk, iwk, wshaec, wshsec
-      double precision, dimension(:), allocatable :: dwork
+      double precision, dimension(:), allocatable :: wshaec, wshsec
       double precision, dimension(:, :), allocatable :: a, b
-!   double precision, dimension(0:180,0:359) :: avhs1, self1
       double precision, dimension(:, :), allocatable :: avhs1, self1
 
       ! Initialisation
       nlat = 181
       nlon = 360
-      n15 = nlon + 15
-      lsave = nlat * (nlat + 1) + 3 * ((nlat - 2) * (2 * nlat - nlat - 1) + n15)
-      lshaec = lsave
-      lshsec = lsave
-      lwork = (nlat + 1) * (nlon + 3 * nlat) + nlat * (2 * nlat + 1)
-      ldwork = nlat + 1
-      lwk = 46 * nlat * (nlon + 1)
-      liwk = 14 * nlat * (nlon + 1)
+      lsave = nlat * (nlat + 1) + 3 * ((nlat - 2) * (2 * nlat - nlat - 1) + nlon + 15)
       mdab = nlat
       ndab = nlat
 
 !  allocate
-      allocate (work(1:lwork))
-      allocate (dwork(1:ldwork))
-      allocate (wk(1:lwk))
-      allocate (iwk(1:liwk))
       allocate (wshaec(1:lsave))
       allocate (wshsec(1:lsave))
       allocate (a(1:mdab, 1:ndab))
@@ -1182,30 +1168,7 @@ contains
          k1 = k1 + 1
       end do
 
-      !Create output file
-!   open (newunit=filsal, file='d:\output_SALtide2.txt',status='unknown',position='append')
-!   open (newunit=filtide, file='d:\output_tide2.txt',status='unknown',position='append')
-!   do i=1,nlat
-!            do j=1,nlon
-!                write(filsal,fmt=*) self1(i-1,j-1)/g
-!                write(filtide,fmt=*) avhs1(i-1,j-1)
-!            enddo
-!   enddo
-!   close(filsal)
-!   close(filtide)
-      !  open (newunit=filavhs, file='d:\output_avhs.txt',status='unknown',position='append')
-      !  do i=i1,i2
-      !           do j=j1,j2
-      !               write(filavhs,fmt=*) avhs(i,j)
-      !           enddo
-      !  enddo
-      !  close(filavhs)
-
 !  deallocate
-      if (allocated(work)) deallocate (work)
-      if (allocated(dwork)) deallocate (dwork)
-      if (allocated(wk)) deallocate (wk)
-      if (allocated(iwk)) deallocate (iwk)
       if (allocated(wshaec)) deallocate (wshaec)
       if (allocated(wshsec)) deallocate (wshsec)
       if (allocated(a)) deallocate (a)
