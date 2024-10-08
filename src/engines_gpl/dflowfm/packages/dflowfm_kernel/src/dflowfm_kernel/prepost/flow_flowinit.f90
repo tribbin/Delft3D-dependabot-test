@@ -1227,7 +1227,7 @@ contains
 
 !> set wave modelling
    subroutine set_wave_modelling()
-      use m_flowparameters, only: jawave, flowWithoutWaves, waveforcing
+      use m_flowparameters, only: jawave, flowWithoutWaves, waveforcing, jawavestokes
       use m_flow, only: hs, hu, kmx
       use mathconsts, only: sqrt2_hp
       use m_waves                !only : hwavcom, hwav, gammax, twav, phiwav, ustokes, vstokes
@@ -1302,7 +1302,7 @@ contains
          hs = max(hs, 0d0)
          hwav = min(hwavcom, gammax * hs)
          call wave_uorbrlabda()
-         if (kmx == 0) then
+         if (kmx == 0 .and. jawavestokes > 0) then
             do link = 1, lnx
                left_node = ln(1, link)
                right_node = ln(2, link)
@@ -1315,6 +1315,9 @@ contains
                ustokes(link) = ustt * (csu(link) * csw + snu(link) * snw)
                vstokes(link) = ustt * (-snu(link) * csw + csu(link) * snw)
             end do
+          end if
+          !
+          if (kmx == 0) then
             call tauwave()
          end if
       end if
