@@ -1343,7 +1343,7 @@ subroutine rddredge(dredgepar, dad_ptr, sedpar, lfbedfrm, morpar, lundia, julref
                    write(lundia,'(a,i0,a)') '  Dump distribution           : ', pdredge%dumpdistr,' ('//trim(stringval)//')'
                    !
                    do j = ilink, cntlink
-                      write(lundia,'(2a)') '  Dump at                   : ', trim(dump_areas(link_def(j,2)))
+                      write(lundia,'(2a)') '  Dump at                     : ', trim(dump_areas(link_def(j,2)))
                    enddo
                    !
                    ! To be checked futher down: unique relation and capacity limitation
