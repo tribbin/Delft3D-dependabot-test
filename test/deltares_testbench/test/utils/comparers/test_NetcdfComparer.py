@@ -8,6 +8,7 @@ import os
 
 import netCDF4 as nc
 import pytest
+from netCDF4 import chartostring
 
 import src.utils.comparers.netcdf_comparer as nccmp
 from src.config.file_check import FileCheck
@@ -81,3 +82,33 @@ class TestNetcdfComparer:
         time_description = "seconds since 2015-11-01 00:00:00"
         datum = nccmp.DateTimeDelta(time_description)
         assert datum.date_time == datetime.datetime(2015, 11, 1, 0, 0)
+
+    def test_strings_are_equal(self) -> None:
+        fc = FileCheck()
+        pm = Parameter()
+        pm.name = "pump_name"
+
+        fc.name = "same_pump_names.nc"
+        fc.type = FileType.NETCDF
+        fc.parameters = {"pump_name": [pm]}
+        comparer = nccmp.NetcdfComparer(enable_plotting=False)
+        logger = TestLogger()
+        path = os.path.join("test")
+        results = comparer.compare(self.lp, self.rp, fc, path, logger)
+        resultstruc = results[0][3]
+        assert resultstruc.passed
+
+    def test_strings_are_not_equal(self) -> None:
+        fc = FileCheck()
+        pm = Parameter()
+        pm.name = "pump_name"
+
+        fc.name = "other_pump_names.nc"
+        fc.type = FileType.NETCDF
+        fc.parameters = {"pump_name": [pm]}
+        comparer = nccmp.NetcdfComparer(enable_plotting=False)
+        logger = TestLogger()
+        path = os.path.join("test")
+        results = comparer.compare(self.lp, self.rp, fc, path, logger)
+        resultstruc = results[0][3]
+        assert not resultstruc.passed
