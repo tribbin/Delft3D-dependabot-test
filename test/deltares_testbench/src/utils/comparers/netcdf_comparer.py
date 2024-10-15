@@ -290,6 +290,7 @@ class NetcdfComparer(IComparer):
         right_strings = chartostring(nc_var.right[:])
         result = ComparisonResult()
         result.passed = np.array_equal(left_strings, right_strings)
+        result.result = "OK" if result.passed else "NOK"
         return result
 
     def _compare_floats(

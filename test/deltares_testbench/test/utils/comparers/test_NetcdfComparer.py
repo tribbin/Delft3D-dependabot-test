@@ -96,6 +96,7 @@ class TestNetcdfComparer:
         results = comparer.compare(self.lp, self.rp, fc, path, logger)
         resultstruc = results[0][3]
         assert resultstruc.passed
+        assert resultstruc.result == "OK"
 
     def test_strings_are_not_equal(self) -> None:
         fc = FileCheck()
@@ -111,3 +112,4 @@ class TestNetcdfComparer:
         results = comparer.compare(self.lp, self.rp, fc, path, logger)
         resultstruc = results[0][3]
         assert not resultstruc.passed
+        assert resultstruc.result == "NOK"
