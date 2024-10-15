@@ -2012,7 +2012,7 @@ contains
          case ("gateopeningwidth")
             x = c_loc(zcgen((item_index - 1) * 3 + 3))
             return
-         case ("horizontal_opening_direction", "gateopeninghorizontaldirection")
+         case ("gateopeninghorizontaldirection")
             ! TODO: RTC: AvD: get this from gate/genstru params
             return
          end select
