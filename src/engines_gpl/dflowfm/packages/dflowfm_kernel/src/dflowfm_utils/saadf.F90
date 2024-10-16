@@ -2232,7 +2232,7 @@ contains
       integer, intent(in) :: n, incx
       double precision, intent(in) :: dx_2(:, :)
 
-      double precision :: dx(n)
+      double precision, allocatable, dimension(:) :: dx
       dx = reshape(dx_2, [n])
       dnrm2XXX_2 = dnrm2XXX_1(n, dx, incx)
    end function dnrm2XXX_2
@@ -2837,12 +2837,12 @@ contains
 !-----------------------------------------------------------------------
    end
 !-----------------------------------------------------------------------
-   subroutine dnscsr(nrow, ncol, nzmax, dns, ndns, a, ja, ia, ierr)
+   subroutine dnscsr(nrow, ncol, nzmax, dns, a, ja, ia, ierr)
       use precision_basics, only: dp
 
-      integer, intent(in) :: nrow, ncol, ndns, nzmax
+      integer, intent(in) :: nrow, ncol, nzmax
       integer, intent(out) :: ierr
-      real(dp), intent(inout) :: dns(ndns, *), a(:)
+      real(dp), intent(inout) :: dns(:, :), a(:)
       integer, intent(inout) :: ia(:), ja(:)
       integer :: next, i, j
 !-----------------------------------------------------------------------
@@ -4915,7 +4915,7 @@ contains
 
       integer, intent(in) :: n, nabd
       integer, intent(out) :: ierr
-      real(dp), intent(inout) :: a(:), abd(nabd, *)
+      real(dp), intent(inout) :: a(:), abd(:,:)
       integer, intent(inout) :: ia(n + 1), ja(:), len, lowd
       real(dp) :: t
       integer :: i, j, irow, ml, mu, ko
