@@ -167,10 +167,8 @@
        end do
     end if
 
-    if ((jawave == 3 .or. jawave == 6) .and. .not. flowWithoutWaves) then
+    if ((jawave == 3 .or. jawave >= 6) .and. .not. flowWithoutWaves) then
        ! if a SWAN computation is performed, add wave forces to adve
-       ! This part is mainly based on the wave forces formulation (wsu) of Delft3D (cucnp.f90)
-
        if (kmx == 0) then ! 2D
           do L = 1, lnx
              wfac = 1d0
