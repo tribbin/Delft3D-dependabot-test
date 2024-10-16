@@ -126,5 +126,3 @@ add_library(spherepack ${sources})
 set_target_properties(spherepack PROPERTIES FOLDER third_party_open/spherepack)
 
 target_link_libraries(spherepack PRIVATE no_compiler_warnings)
-target_compile_options(spherepack PRIVATE "$<$<CONFIG:Debug>:${check_pointers_flag}>")
-target_compile_options(spherepack PRIVATE "$<$<CONFIG:Debug>:${floating_point_exception_flag}>")

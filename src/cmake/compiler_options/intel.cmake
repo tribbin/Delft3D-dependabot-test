@@ -43,7 +43,7 @@ if (WIN32)
     set(debug_information_flag                /Z7)
 
     # Set debug flags:
-    string(APPEND CMAKE_Fortran_FLAGS_DEBUG " ${check_stack_flag} ${check_bounds_flag} ${traceback_flag} ${debug_information_flag}")
+    string(APPEND CMAKE_Fortran_FLAGS_DEBUG " ${check_stack_flag} ${check_bounds_flag} ${traceback_flag} ${debug_information_flag} ${check_pointers_flag} ${floating_point_exception_flag}")
     string(APPEND CMAKE_Fortran_FLAGS_RELWITHDEBINFO " ${debug_information_flag}")
 
     # To prevent Visual Studio compilation failures when trying to write the manifest file
@@ -96,7 +96,7 @@ if (UNIX)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
     # Set debug flags:
-    string(APPEND CMAKE_Fortran_FLAGS_DEBUG " ${check_uninit_flag} ${check_stack_flag} ${check_bounds_flag} ${traceback_flag}")
+    string(APPEND CMAKE_Fortran_FLAGS_DEBUG " ${check_uninit_flag} ${check_stack_flag} ${check_bounds_flag} ${traceback_flag} ${check_pointers_flag} ${floating_point_exception_flag}")
 endif(UNIX)
 
 set(qauto_threaded_flags ${automatic_local_variable_storage_flag} ${generate_reentrancy_threaded_flag})
