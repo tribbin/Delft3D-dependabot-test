@@ -44,6 +44,7 @@
     if (allocated(wcx2)) deallocate (wcx2)
     if (allocated(wcy2)) deallocate (wcy2)
     if (allocated(wcL)) deallocate (wcL)
+    if (allocated(wcxy)) deallocate (wcxy)
 
     allocate (wcx1(lnx), stat=ierr); 
     call aerr('wcx1(lnx)', ierr, lnx)
@@ -55,5 +56,9 @@
     call aerr('wcy2(lnx)', ierr, lnx)
     allocate (wcL(2, Lnx), stat=ierr); 
     call aerr('wcL  (2,Lnx)', ierr, 2 * Lnx)
-
+    allocate (wcxy(2, ndx), stat=ierr); 
+    call aerr('wcxy (2,ndx)', ierr, 2 * ndx)
+    allocate (wc(ndx), stat=ierr); 
+    call aerr('wc     (ndx)', ierr, ndx)
+    
  end subroutine allocate_linktocenterweights

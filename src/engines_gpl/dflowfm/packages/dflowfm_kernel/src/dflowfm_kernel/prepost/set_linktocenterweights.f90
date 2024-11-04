@@ -40,15 +40,11 @@
     implicit none
 
     double precision :: wud, wuL1, wuL2, cs, sn
-    integer :: L, ierr, n, kk, n12, lnxmax
+    integer :: L, n, kk, n12, lnxmax
     integer :: k1, k2, LL
     integer :: ilongc, L1dlink
 
     double precision :: aa1, wcw, alf
-    double precision, allocatable :: wwL(:)
-
-    double precision, allocatable :: wcxy(:, :) ! center weight factors (2,ndx) , only for normalising
-    double precision, allocatable :: wc(:) ! center weight factors (ndx)   , only for normalising
 
     double precision, external :: lin2nodx, lin2nody
 
@@ -58,11 +54,8 @@
     wcy2 = 0
     wcL = 0
     
-    if (allocated(wcxy)) deallocate (wcxy)
-    allocate (wcxy(2, ndx), stat=ierr); wcxy = 0
-    call aerr('wcxy (2,ndx)', ierr, 2 * ndx)
-    allocate (wc(ndx), stat=ierr); wc = 0
-    call aerr('wc     (ndx)', ierr, ndx)
+    wcxy = 0
+    wc = 0
 
     do L = 1, lnx
 
