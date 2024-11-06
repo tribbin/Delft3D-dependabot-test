@@ -46,7 +46,7 @@
       double precision, intent(out) :: ustbLL, cfuhiLL, hdzb, z00
       double precision, intent(out) :: cfuhi3D ! 3D bedfriction coeffient, advi(Lb) = advi(Lb) + cfuhi3D
 
-      integer :: ifrctyp, L
+      integer :: friction_type, L
       double precision :: frcn, sqcf, cz, umod, u1Lb, gsx, ustw2, ustc2, fw, cdrag, abscos, dfuc, costu
       double precision :: taubpuLL ! taubpu = umod*ag/C2 or ypar*(taucur+tauwav)/rho/umod or ustar*ustar/u
       double precision :: taubxuLL ! taubxu = ymxpar*(taucur+tauwav)
@@ -71,7 +71,7 @@
 
       frcn = frcu(LL)
       if (frcn == 0d0) return
-      ifrctyp = ifrcutp(LL)
+      friction_type = ifrcutp(LL)
 
       if (hu(LL) < trsh_u1Lb) then
          gsx = ag * (s1(ln(2, LL)) - s1(ln(1, LL))) * dxi(LL)
@@ -81,9 +81,9 @@
 
 10    continue
 
-      if (ifrctyp < 10) then
+      if (friction_type < 10) then
          if (frcn > 0d0) then
-            call getczz0(hu(LL), frcn, ifrctyp, cz, z00)
+            call getczz0(hu(LL), frcn, friction_type, cz, z00)
 
             hdzb = 0.5d0 * hu(Lb) + c9of1 * z00 ! half bottom layer plus 9z0
 
@@ -259,7 +259,7 @@
             z0urou(LL) = z0ucur(LL) ! morfo, bedforms, trachytopes
          end if
 
-      else if (ifrctyp == 10) then ! Hydraulically smooth, glass etc
+      else if (friction_type == 10) then ! Hydraulically smooth, glass etc
          nit = 0
          u1Lb = u1(Lb)
          umod = sqrt(u1Lb * u1Lb + v(Lb) * v(Lb))
@@ -313,7 +313,7 @@
          !     advi(Lb) = advi(Lb) +  cfuhiLL*umod                        ! g / (H.C.C) = (g.K.K) / (A.A) travels in cfuhi
          cfuhi3D = cfuhiLL * umod
 
-      else if (ifrctyp == 11) then ! Noslip
+      else if (friction_type == 11) then ! Noslip
 
          !    advi(Lb) = advi(Lb) +  2d0*(vicwwu(Lb)+vicouv)/hu(Lb)**2
          cfuhi3D = 2d0 * (vicwwu(Lb) + vicoww) / hu(Lb)**2

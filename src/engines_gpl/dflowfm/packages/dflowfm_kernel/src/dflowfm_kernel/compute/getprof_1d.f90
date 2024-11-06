@@ -58,7 +58,7 @@ subroutine getprof_1D(L, hprL, area, width, japerim, calcConv, perim)
 
    double precision :: frcn, cz, cf, conv, af_sub(3), perim_sub(3), cz_sub(3)
    double precision :: q_sub(3) ! discharge per segment
-   integer :: LL, ka, kb, itp, itpa, ifrctyp, ibndsect
+   integer :: LL, ka, kb, itp, itpa, friction_type, ibndsect
    integer :: k1, k2
    integer :: jacustombnd1d
    double precision :: u1L, q1L, s1L, dpt, factor, maxflowwidth
@@ -173,7 +173,7 @@ subroutine getprof_1D(L, hprL, area, width, japerim, calcConv, perim)
       itp = prof1D(3, LL)
       if (japerim == 1) then
          frcn = frcu(LL)
-         ifrctyp = ifrcutp(LL)
+         friction_type = ifrcutp(LL)
       end if
    else
       ka = -prof1D(1, LL); kb = -prof1D(2, LL)
@@ -187,10 +187,10 @@ subroutine getprof_1D(L, hprL, area, width, japerim, calcConv, perim)
          if (profiles1D(ka)%frccf /= dmiss .and. profiles1D(kb)%frccf /= dmiss .and. &
              profiles1D(ka)%frctp == profiles1D(kb)%frctp) then
             frcn = (1d0 - alfa) * profiles1D(ka)%frccf + alfa * profiles1D(kb)%frccf
-            ifrctyp = profiles1D(ka)%frctp
+            friction_type = profiles1D(ka)%frctp
          else
             frcn = frcu(LL)
-            ifrctyp = ifrcutp(LL)
+            friction_type = ifrcutp(LL)
          end if
       end if
 
@@ -208,7 +208,7 @@ subroutine getprof_1D(L, hprL, area, width, japerim, calcConv, perim)
    else if (abs(itp) == 3) then ! rectan, peri=wu
       call rectan2D(hpr, profw, profh, area, width, japerim, perim)
    else if (abs(itp) == 100 .or. abs(itp) == 101) then !                          itp >= 100, yzprof
-      call yzprofile(hpr, ka, itp, area, width, japerim, frcn, ifrctyp, perim, cf)
+      call yzprofile(hpr, ka, itp, area, width, japerim, frcn, friction_type, perim, cf)
    end if
 
    if (ka /= 0 .and. kb /= ka) then ! interpolate in profiles
@@ -220,7 +220,7 @@ subroutine getprof_1D(L, hprL, area, width, japerim, calcConv, perim)
          ! doe hier backup cf
          if (frcn > 0) then
             hydrad = area / perim ! hydraulic radius
-            cz = get_chezy(hydrad, frcn, u1(L), v(L), ifrctyp)
+            cz = get_chezy(hydrad, frcn, u1(L), v(L), friction_type)
             cf = ag / (hydrad * cz * cz) ! see note on 2D conveyance in sysdoc5
          else
             cf = 0d0
@@ -234,7 +234,7 @@ subroutine getprof_1D(L, hprL, area, width, japerim, calcConv, perim)
       else if (abs(itp) == 3) then ! rectan, peri=wu
          call rectan2D(hpr, profw, profh, area2, width2, japerim, perim2)
       else if (abs(itp) == 100 .or. abs(itp) == 101) then ! >= 10, conveyance approach
-         call yzprofile(hpr, kb, itp, area2, width2, japerim, frcn, ifrctyp, perim2, cf2)
+         call yzprofile(hpr, kb, itp, area2, width2, japerim, frcn, friction_type, perim2, cf2)
       end if
       area = (1d0 - alfa) * area + alfa * area2
       width = (1d0 - alfa) * width + alfa * width2
@@ -267,7 +267,7 @@ subroutine getprof_1D(L, hprL, area, width, japerim, calcConv, perim)
 
          if (frcn > 0) then
             hydrad = area / perim ! hydraulic radius
-            cz = get_chezy(hydrad, frcn, u1(L), v(L), ifrctyp)
+            cz = get_chezy(hydrad, frcn, u1(L), v(L), friction_type)
             cfuhi(L) = ag / (hydrad * cz * cz) ! see note on 2D conveyance in sysdoc5
          else
             cfuhi(L) = 0d0
@@ -275,7 +275,7 @@ subroutine getprof_1D(L, hprL, area, width, japerim, calcConv, perim)
 
          if (jagrounlay > 0) then
             if (grounlay(LL) > 0) then
-               czg = get_chezy(hydrad, frcuni1Dgrounlay, u1(L), v(L), ifrctyp)
+               czg = get_chezy(hydrad, frcuni1Dgrounlay, u1(L), v(L), friction_type)
                alfg = wigr(LL) / perim
                cfuhi(L) = (ag / hydrad) * (alfg / czg**2 + (1d0 - alfg) / cz**2)
             end if

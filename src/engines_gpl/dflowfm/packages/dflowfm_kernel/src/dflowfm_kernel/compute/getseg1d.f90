@@ -30,13 +30,13 @@
 !
 !
 
-subroutine getseg1D(hpr, wu2, dz, ai, frcn, ifrctyp, wid, ar, conv, perim, jaconv) ! copy of above routine dressed out for 1D
+subroutine getseg1D(hpr, wu2, dz, ai, frcn, friction_type, wid, ar, conv, perim, jaconv) ! copy of above routine dressed out for 1D
    use m_get_chezy, only: get_chezy
    use m_flow, only: u1, v
    implicit none
    double precision, intent(in) :: hpr, wu2, dz, ai, frcn
    double precision, intent(out) :: wid, ar, conv, perim !
-   integer, intent(in) :: ifrctyp, jaconv
+   integer, intent(in) :: friction_type, jaconv
    double precision :: d83 = 2.666666d0, d16 = 0.166666d0, d23 = 0.666666d0
    double precision :: hp2, Cz, cman, hav
    double precision :: d38 = 0.375d0, d14 = 0.25d0
@@ -72,7 +72,7 @@ subroutine getseg1D(hpr, wu2, dz, ai, frcn, ifrctyp, wid, ar, conv, perim, jacon
       end if
 
    else if (jaconv >= 2) then ! 1D analytic conveyance type
-      if (ifrctyp == 1) then
+      if (friction_type == 1) then
          cman = frcn
       else
          if (ai < 1d-3) then
@@ -82,7 +82,7 @@ subroutine getseg1D(hpr, wu2, dz, ai, frcn, ifrctyp, wid, ar, conv, perim, jacon
          else
             hav = hpr - 0.5d0 * dz
          end if
-         Cz = get_chezy(hav, frcn, u1(L), v(L), ifrctyp)
+         Cz = get_chezy(hav, frcn, u1(L), v(L), friction_type)
          cman = hav**d16 / Cz
       end if
 

@@ -32,13 +32,13 @@
 module m_get_prof2d
    implicit none
 contains
- subroutine getprof2D(hpr, wu2, dz, ai, frcn, ifrctyp, wid, ar, aconv, jaconv, beta, deltaa, hyr)
+ subroutine getprof2D(hpr, wu2, dz, ai, frcn, friction_type, wid, ar, aconv, jaconv, beta, deltaa, hyr)
     use m_flow, only: slotw2D, u1, v
     use m_get_chezy, only: get_chezy
 
     double precision, intent(in) :: hpr, wu2, dz, ai, frcn
     double precision, intent(out) :: wid, ar, aconv ! aconv = (a/conv)**2
-    integer, intent(in) :: ifrctyp, jaconv
+    integer, intent(in) :: friction_type, jaconv
     double precision :: d83 = 2.666666d0, d16 = 0.166666d0, d23 = 0.666666d0, d43 = 1.333333d0
     double precision :: hp2, Cz, cman, per, hyr, hav, conv, beta, deltaa
     double precision :: d38 = 0.375d0, d311 = 0.27272727d0, hpr83, hp283
@@ -76,11 +76,11 @@ contains
        aconv = 0d0; return
     else if (jaconv == 1) then ! hydraulic radius type
 
-       Cz = get_chezy(hyr, frcn, u1(L), v(L), ifrctyp)
+       Cz = get_chezy(hyr, frcn, u1(L), v(L), friction_type)
        aconv = 1d0 / (Cz * Cz * hyr)
 
     else if (jaconv >= 2) then ! 1D analytic conveyance type
-       if (ifrctyp == 1) then
+       if (friction_type == 1) then
           cman = frcn
        else
           if (ai < 1d-3) then
@@ -90,7 +90,7 @@ contains
           else
              hav = hpr - 0.5d0 * dz
           end if
-          Cz = get_chezy(hav, frcn, u1(L), v(L), ifrctyp)
+          Cz = get_chezy(hav, frcn, u1(L), v(L), friction_type)
           cman = hav**d16 / Cz
        end if
 

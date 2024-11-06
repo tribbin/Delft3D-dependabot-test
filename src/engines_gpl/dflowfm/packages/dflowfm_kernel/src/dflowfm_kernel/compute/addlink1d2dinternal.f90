@@ -42,7 +42,7 @@
 
     integer :: japerim, L
 
-    integer :: k1, k2, jaconv, ifrctyp
+    integer :: k1, k2, jaconv, friction_type
     double precision :: hpr1, ar1, wid1, hpr2, ar2, wid2, aru, widu, aconvu
     double precision :: dx1, dx2, frcn, BL1, BL2, b21, wu2, ai
     double precision :: beta, deltaa, hyr, Cz
@@ -86,11 +86,11 @@
 
           hpr1 = get_hpr_nostruc(L)
           frcn = frcu(L)
-          ifrctyp = ifrcutp(L)
+          friction_type = ifrcutp(L)
           if (jaconveyance2D > 0) then
 
              jaconv = min(2, jaconveyance2D)
-             call getprof2d(hpr1, wu2, b21, ai, frcn, ifrctyp, widu, aru, aconvu, jaconv, beta, deltaa, hyr)
+             call getprof2d(hpr1, wu2, b21, ai, frcn, friction_type, widu, aru, aconvu, jaconv, beta, deltaa, hyr)
 
              if (frcn > 0) then
                 cfuhi(L) = aifu(L) * ag * aconvu
@@ -101,7 +101,7 @@
           else
              au(L) = hpr1 * wu(L)
              if (frcn > 0) then
-                Cz = get_chezy(hu(L), frcn, u1(L), v(L), ifrctyp)
+                Cz = get_chezy(hu(L), frcn, u1(L), v(L), friction_type)
                 cfuhi(L) = ag / (hu(L) * Cz * Cz)
              else
                 cfuhi(L) = 0d0

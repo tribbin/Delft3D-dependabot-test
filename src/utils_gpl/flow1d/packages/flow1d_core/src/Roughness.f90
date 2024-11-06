@@ -107,19 +107,20 @@ module m_Roughness
       integer                                           :: roughnessFileMajorVersion      !< current major version number of the roughness ini files
    end type t_RoughnessSet
 
-   integer, parameter, public                           :: R_FunctionConstant = 0      !< Constant type roughness function
-   integer, parameter, public                           :: R_FunctionDischarge = 1     !< Discharge dependent roughness 
-   integer, parameter, public                           :: R_FunctionLevel = 2         !< Water level dependent roughness
-   integer, parameter, public                           :: R_FunctionTimeSeries = 3    !< Time dependent roughness
-   integer, parameter, public                           :: R_Chezy = 0                 !< Chezy type roughness
-   integer, parameter, public                           :: R_Manning = 1               !< Manning  roughness formula
-   integer, parameter, public                           :: R_Nikuradse = 7             !< Nikuradse roughness formula
-   integer, parameter, public                           :: R_Strickler = 8             !< Strickler roughness formula
-   integer, parameter, public                           :: R_WhiteColebrook = 3        !< White Colebrook roughness formula
-   integer, parameter, public                           :: R_BosBijkerk = 9            !< Bos en Bijkerk roughness formula 
-   double precision, parameter, public                  :: sixth = 1.d0/6.d0           !< 1/6
-   double precision, parameter, public                  :: third = 1.d0/3.d0           !< 1/3
-   double precision, parameter, public                  :: chlim = 0.001d0             !< Lowest Chezy value
+   integer, parameter, public :: R_FunctionConstant = 0 !< Constant type roughness function
+   integer, parameter, public :: R_FunctionDischarge = 1 !< Discharge dependent roughness
+   integer, parameter, public :: R_FunctionLevel = 2 !< Water level dependent roughness
+   integer, parameter, public :: R_FunctionTimeSeries = 3 !< Time dependent roughness
+   integer, parameter, public :: R_CHEZY = 0 !< Chezy type roughness
+   integer, parameter, public :: R_MANNING = 1 !< Manning  roughness formula
+   integer, parameter, public :: R_WALL_LAW_NIKURADSE = 2 !< Wall Law Nikuradse roughness formula (adjusted form)
+   integer, parameter, public :: R_WHITE_COLEBROOK = 3 !< White Colebrook roughness formula
+   integer, parameter, public :: R_NIKURADSE = 7 !< Nikuradse roughness formula
+   integer, parameter, public :: R_STRICKLER = 8 !< Strickler roughness formula
+   integer, parameter, public :: R_BOS_BIJKERK = 9 !< Bos en Bijkerk roughness formula
+   double precision, parameter, public :: sixth = 1.0_dp/6.0_dp !< 1/6
+   double precision, parameter, public :: third = 1.0_dp/3.0_dp !< 1/3
+   double precision, parameter, public :: chlim = 0.001_dp !< Lowest Chezy value
 
 contains
    
@@ -200,7 +201,7 @@ subroutine deallocRoughness(rgs)
 end subroutine deallocRoughness
 
    !> Converts a friction type as text string into the integer parameter constant.
-   !! E.g. R_Manning, etc. If input string is invalid, -1 is returned.
+   !! E.g. R_MANNING, etc. If input string is invalid, -1 is returned.
    subroutine frictionTypeStringToInteger(sfricType, ifricType)
       use string_module, only:str_tolower
       implicit none
@@ -209,19 +210,19 @@ end subroutine deallocRoughness
       
       select case (trim(str_tolower(sfricType)))
          case ('chezy')
-            ifricType = R_Chezy
+            ifricType = R_CHEZY
          case ('manning')
-            ifricType = R_Manning
+            ifricType = R_MANNING
          case ('walllawnikuradse')
             ifricType = 2 ! TODO: JN: White-Colebrook $k_n$ (m) -- Delft3D style not available yet, no PARAMETER.
          case ('whitecolebrook')
-            ifricType = R_WhiteColebrook
+            ifricType = R_WHITE_COLEBROOK
          case ('stricklernikuradse')
-            ifricType = R_Nikuradse
+            ifricType = R_NIKURADSE
          case ('strickler')
-            ifricType = R_Strickler
+            ifricType = R_STRICKLER
          case ('debosbijkerk')
-            ifricType = R_BosBijkerk
+            ifricType = R_BOS_BIJKERK
          case default
             ifricType = -1
       end select
@@ -230,7 +231,7 @@ end subroutine deallocRoughness
    end subroutine frictionTypeStringToInteger
    
    !> Converts a friction integer type to a text string 
-   !! E.g. 'Manning' -> R_Manning, etc. 
+   !! E.g. 'Manning' -> R_MANNING, etc.
    function frictionTypeIntegerToString(ifricType)
       use string_module, only:str_lower
       implicit none
@@ -238,19 +239,19 @@ end subroutine deallocRoughness
       character(:), allocatable :: frictionTypeIntegerToString
       
       select case (ifricType)
-         case(R_Chezy)
+         case(R_CHEZY)
             frictionTypeIntegerToString = 'Chezy'
-         case(R_Manning)
+         case(R_MANNING)
             frictionTypeIntegerToString = 'Manning'
-         case(2)
+         case(R_WALL_LAW_NIKURADSE)
             frictionTypeIntegerToString = 'WallLawNikuradse'
-         case(R_WhiteColebrook)
+         case(R_WHITE_COLEBROOK)
             frictionTypeIntegerToString = 'WhiteColebrook'
-         case(R_Nikuradse)
+         case(R_NIKURADSE)
             frictionTypeIntegerToString = 'StricklerNikuradse'
-         case(R_Strickler)
+         case(R_STRICKLER)
             frictionTypeIntegerToString = 'Strickler'
-         case(R_BosBijkerk)
+         case(R_BOS_BIJKERK)
             frictionTypeIntegerToString = 'deBosBijkerk'
          case default
             frictionTypeIntegerToString = 'unknown'
@@ -294,7 +295,7 @@ double precision function GetChezy(frictType, cpar, rad, dep, u)
    double precision, intent(in)   :: rad                   !< hydraulic radius
    double precision, intent(in)   :: cpar                  !< parameter value
    double precision, intent(in)   :: u                     !< velocity
-   integer,          intent(in)   :: frictType             !< friction type (e.g., R_Manning, etc.)
+   integer,          intent(in)   :: frictType             !< friction type (e.g., R_MANNING, etc.)
    !
    !     Declaration of Parameters:
    !

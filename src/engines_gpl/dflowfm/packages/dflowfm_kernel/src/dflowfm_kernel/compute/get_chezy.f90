@@ -31,48 +31,52 @@
 !
 module m_get_chezy
    implicit none
+
    private
 
    public :: get_chezy
 contains
-!> Get the Chezy coefficient
-!! This routine is not safe for frcn == 0
-   pure function get_chezy(h1, frcn, perpendicular_velocity, tangential_velocity, ifrctyp) result(chezy)
+   !> Get the Chezy coefficient
+   !! This routine is not safe for friction_coef == 0
+   pure function get_chezy(radius, friction_coef, perpendicular_velocity, tangential_velocity, friction_type) result(chezy)
+      use m_roughness, only: R_CHEZY, R_MANNING, R_WALL_LAW_NIKURADSE, R_WHITE_COLEBROOK
       use m_physcoef, only: sag, vonkar, ee
       use m_hydraulicallysmooth, only: hydraulicallysmooth
       use precision, only: dp
 
-      real(kind=dp), intent(in) :: h1 !< hydraulic radius
-      real(kind=dp), intent(in) :: frcn !< friction coeff
+      real(kind=dp), intent(in) :: radius !< hydraulic radius
+      real(kind=dp), intent(in) :: friction_coef !< friction coeff
       real(kind=dp), intent(in) :: perpendicular_velocity !< velocity perpendicular to the cell edge
       real(kind=dp), intent(in) :: tangential_velocity !< velocity tangential to the cell edge
-      integer, intent(in) :: ifrctyp !< friction type
+      integer, intent(in) :: friction_type !< friction type
       real(kind=dp) :: chezy !< Computed Chezy coefficient
 
-      real(kind=dp) :: h0
+      real(kind=dp) :: floored_radius
       real(kind=dp) :: hurou, sqcf, z0, umod
       real(kind=dp), parameter :: sixth = 1.0_dp / 6.0_dp
 
-      h0 = max(h1, 1e-4_dp)
-      if (ifrctyp == 0) then ! Chezy type
-         chezy = frcn
-      else if (ifrctyp == 2) then ! White Colebrook Delft3
-         z0 = min(frcn / 30.0_dp, h0 * 0.3_dp)
-         sqcf = vonkar / log(h0 / (ee * z0))
+      floored_radius = max(radius, 1e-4_dp)
+
+      select case (friction_type)
+      case (R_CHEZY)
+         chezy = friction_coef
+      case (R_MANNING, 4, 5, 6) ! manning, just testing implicitness in furu
+         chezy = (floored_radius**sixth) / friction_coef
+      case (R_WALL_LAW_NIKURADSE)
+         z0 = min(friction_coef / 30.0_dp, floored_radius * 0.3_dp)
+         sqcf = vonkar / log(floored_radius / (ee * z0))
          chezy = sag / sqcf
-      else if (ifrctyp == 3) then ! White Colebrook WAQUA
-         hurou = max(0.5_dp, h0 / frcn)
+      case (R_WHITE_COLEBROOK)
+         hurou = max(0.5_dp, floored_radius / friction_coef)
          chezy = 18.0_dp * log10(12.0_dp * hurou)
-      else if (ifrctyp == 1 .or. ifrctyp == 4 .or. ifrctyp == 5 .or. ifrctyp == 6) then ! manning, just testing implicitness in furu
-         chezy = (h0**sixth) / frcn
-      else
+      case default
          umod = norm2([perpendicular_velocity, tangential_velocity])
-         sqcf = hydraulicallysmooth(umod, h0)
+         sqcf = hydraulicallysmooth(umod, floored_radius)
          if (sqcf > 0.0_dp) then
             chezy = sag / sqcf
          else
             chezy = 0.0_dp
          end if
-      end if
+      end select
    end function get_chezy
 end module m_get_chezy

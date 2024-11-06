@@ -30,7 +30,7 @@
 !
 !
 
-subroutine yzprofile(hpr, ka, itp, area, width, japerim, frcn, ifrctyp, perim, cfhi)
+subroutine yzprofile(hpr, ka, itp, area, width, japerim, frcn, friction_type, perim, cfhi)
    use m_profiles
    use m_physcoef, only: ag
    implicit none
@@ -48,7 +48,7 @@ subroutine yzprofile(hpr, ka, itp, area, width, japerim, frcn, ifrctyp, perim, c
    double precision :: frcn ! user defined friction coefficient
    double precision :: bl1, bl2, b21 ! bottom levels segment, b21, diff of bl1,bl2, always > 0
    double precision :: wu2, ai, aconv, per
-   integer :: ifrctyp ! user defined frcition type
+   integer :: friction_type ! user defined frcition type
    integer :: k, numseg, jac
 
    numseg = size(profiles1D(ka)%y) - 1
@@ -77,7 +77,7 @@ subroutine yzprofile(hpr, ka, itp, area, width, japerim, frcn, ifrctyp, perim, c
          b21 = BL2 - BL1
          wu2 = abs(profiles1D(ka)%y(k) - profiles1D(ka)%y(k + 1))
          ai = b21 / wu2
-         call getseg1D(hpr2, wu2, b21, ai, frcn, ifrctyp, wid, ar, conv, per, jac)
+         call getseg1D(hpr2, wu2, b21, ai, frcn, friction_type, wid, ar, conv, per, jac)
          width = width + wid
          area = area + ar
          if (jac == 2) then
