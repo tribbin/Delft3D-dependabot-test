@@ -15276,6 +15276,22 @@ contains
 
       n1d2dcontacts = 0
 
+      if (jafullgridoutput == 0) then
+         unc_writeopts = ior(unc_writeopts, UG_WRITE_LYRVAR)
+      else
+         unc_writeopts = iand(unc_writeopts, not(UG_WRITE_LYRVAR))
+      end if
+
+      waterlevelname = 's1'
+      bldepthname = 'bldepth'
+      if (layer_type == LAYERTYPE_OCEAN_SIGMA_Z .or. layer_type == LAYERTYPE_OCEAN_SIGMA) then
+         if (jafou_) then
+            waterlevelname = 's1max'
+         end if
+      end if
+
+      ! note: unc_writeopts, waterlevelname, and bldepthname are module variables
+      ! and as such implicitly passed to unc_write_1D_flowgeom_ugrid
       call unc_write_1D_flowgeom_ugrid(id_tsp, ncid, jabndnd_, jafou_, ja2D_, layer_count, layer_type, layer_zs, interface_zs, contacts, contacttype, n1d2dcontacts)
       numk2d = 0
       ndx1d = ndxi - ndx2d
@@ -15349,20 +15365,6 @@ contains
          ! face_nodes does not need to be re-mapped: 2d cells come first
          ! TODO: AvD: lnx1d+1:lnx includes open bnd links, which may *also* be 1D boundaries (don't want that in mesh2d)
          ! note edge_faces does not need re-indexing, cell number are flow variables and 2d comes first
-
-         if (jafullgridoutput == 0) then
-            unc_writeopts = ior(unc_writeopts, UG_WRITE_LYRVAR)
-         else
-            unc_writeopts = iand(unc_writeopts, not(UG_WRITE_LYRVAR))
-         end if
-
-         waterlevelname = 's1'
-         bldepthname = 'bldepth'
-         if (layer_type == LAYERTYPE_OCEAN_SIGMA_Z .or. layer_type == LAYERTYPE_OCEAN_SIGMA) then
-            if (jafou_) then
-               waterlevelname = 's1max'
-            end if
-         end if
 
          ierr = ug_write_mesh_arrays(ncid, id_tsp%meshids2d, mesh2dname, 2, UG_LOC_EDGE + UG_LOC_FACE, numk2d, numl2d, ndx2d, numNodes, &
                                      edge_nodes, face_nodes, edge_faces, null(), null(), x2dn, y2dn, xue, yue, xz(1:ndx2d), yz(1:ndx2d), &
