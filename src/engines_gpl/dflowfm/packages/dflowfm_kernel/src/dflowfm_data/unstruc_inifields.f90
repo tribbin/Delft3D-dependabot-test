@@ -1905,16 +1905,16 @@ contains
       real(kind=dp), intent(in) :: bandwith_lower_limit, bandwith_upper_limit !< The lower and upper limit of the bandwith.
       character(len=*), intent(in) :: operand !< The operand to be used for filling the field values.
 
-      real(kind=dp) :: zb, zt, zz
+      real(kind=dp) :: lower_limit, upper_limit, level_at_pressure_point
       integer :: n, k, kb, kt
 
-      zb = -huge(1.0_dp)
-      zt = huge(1.0_dp)
+      lower_limit = -huge(1.0_dp)
+      upper_limit = huge(1.0_dp)
       if (bandwith_lower_limit /= dmiss) then
-         zb = bandwith_lower_limit
+         lower_limit = bandwith_lower_limit
       end if
       if (bandwith_upper_limit /= dmiss) then
-         zt = bandwith_upper_limit
+         upper_limit = bandwith_upper_limit
       end if
       do n = 1, ndx
          if (input_array_2d(n) /= dmiss) then
@@ -1923,8 +1923,8 @@ contains
             else
                kb = kbot(n); kt = ktop(n)
                do k = kb, kt
-                  zz = 0.5_dp * (zws(k) + zws(k - 1))
-                  if (zz > zb .and. zz < zt) then
+                  level_at_pressure_point = 0.5_dp * (zws(k) + zws(k - 1))
+                  if (level_at_pressure_point > lower_limit .and. level_at_pressure_point < upper_limit) then
                      call operate(output_array_3d(first_index, k), input_array_2d(n), operand)
                   end if
                end do
