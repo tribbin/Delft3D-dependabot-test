@@ -228,6 +228,9 @@
 
     end do
 
+    if (ja_Perot_weight_update == 0) then 
+       deallocate (wcnxy, acn, jacorner)    
+    end if 
 
  end subroutine set_linktocornerweights
 
