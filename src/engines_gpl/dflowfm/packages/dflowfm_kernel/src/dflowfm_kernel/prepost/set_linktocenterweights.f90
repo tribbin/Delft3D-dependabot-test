@@ -37,6 +37,7 @@
     use m_flowgeom
     use m_sferic
     use m_longculverts
+    use m_flowparameters, only: ja_Perot_weight_update
     implicit none
 
     double precision :: wud, wuL1, wuL2, cs, sn
@@ -199,7 +200,7 @@
     do L = 1, lnx
        k1 = ln(1, L); k2 = ln(2, L)
        if (abs(kcu(L)) == 2 .or. abs(kcu(L)) == 4) then ! 2D links and 1D2D lateral links
-          if (kfs(K1) == 0) then ! kfs temporarily used as cutcell flag, set in cutcelwu
+          if (kfs_cutcell(K1) == 0) then ! kfs temporarily used as cutcell flag, set in cutcelwu
              wcx1(L) = wcx1(L) * bai(k1)
              wcy1(L) = wcy1(L) * bai(k1)
           else
@@ -207,7 +208,7 @@
              if (wcxy(2, k1) /= 0) wcy1(L) = wcy1(L) / wcxy(2, k1)
           end if
 
-          if (kfs(K2) == 0) then
+          if (kfs_cutcell(K2) == 0) then
              wcx2(L) = wcx2(L) * bai(k2)
              wcy2(L) = wcy2(L) * bai(k2)
           else
@@ -225,9 +226,12 @@
 
     end do
 
-    deallocate (wcxy, wc)
-    if (allocated(wwL)) deallocate (wwL)
-
-    kfs = 0
+    if (ja_Perot_weight_update == 0) then 
+       deallocate (wcxy)
+       deallocate (wc)
+       if (allocated(wwL)) then 
+          deallocate (wwL)
+       end if 
+    end if 
 
  end subroutine set_linktocenterweights

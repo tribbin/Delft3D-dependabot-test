@@ -37,7 +37,7 @@
     use timers
     use m_flowgeom, only: jaFlowNetChanged, ndx, lnx, ndx2d, ndxi, wcl, ln
     use waq, only: reset_waq
-    use m_flow, only: kmx, kmxn, jasecflow, iperot, taubxu, ucxq, ucyq, fvcoro, vol1
+    use m_flow, only: kmx, kmxn, jasecflow, iPerot, taubxu, ucxq, ucyq, fvcoro, vol1
     use m_flowtimes
     use m_laterals, only: numlatsg
     use network_data, only: NETSTAT_CELLS_DIRTY
@@ -327,7 +327,7 @@
     end if
     call timstop(handle_extra(16)) ! netlink tree 1
 
-    if (iperot == -1) then
+    if (iPerot == -1) then
        call reconst2ndini()
     end if
 

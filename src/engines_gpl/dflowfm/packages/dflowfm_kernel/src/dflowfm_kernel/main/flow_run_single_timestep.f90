@@ -97,6 +97,10 @@ subroutine flow_run_single_timestep(key, iresult) ! do only 1 flow timestep
       iresult = DFM_NOERR
    end if
 
+   if (ja_Perot_weight_update == 1) then
+      call set_linktocenterweights()
+   end if    
+
    return ! Return with success
 
 888 continue

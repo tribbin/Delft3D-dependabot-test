@@ -136,7 +136,7 @@
             if (hs(k) > 0d0) then
                ucxq_mor(k) = ucxq_mor(k) / hs(k)
                ucyq_mor(k) = ucyq_mor(k) / hs(k)
-               if (iperot == 2) then
+               if (iPerot == 2) then
                   ucx_mor(k) = ucxq_mor(k)
                   ucy_mor(k) = ucyq_mor(k)
                end if
@@ -156,7 +156,7 @@
                      ucxq_mor(k) = ucxq_mor(k) / dzz
                      ucyq_mor(k) = ucyq_mor(k) / dzz
                   end if
-                  if (iperot == 2) then
+                  if (iPerot == 2) then
                      ucx_mor(k) = ucxq_mor(k)
                      ucy_mor(k) = ucyq_mor(k)
                   end if

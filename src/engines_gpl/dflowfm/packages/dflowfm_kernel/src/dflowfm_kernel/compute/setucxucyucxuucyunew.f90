@@ -57,7 +57,7 @@
     ! keep track of depth averaged flow velocity
     make2dh = (kmx < 1) .or. (kmx > 0 .and. (jasedtrails > 0 .or. jamapucmag > 0 .or. jamapucvec > 0))
 
-    if (iperot /= -1) then
+    if (iPerot /= -1) then
        ucx = 0d0; ucy = 0d0
 
        if (make2dh) then ! original 2D coding

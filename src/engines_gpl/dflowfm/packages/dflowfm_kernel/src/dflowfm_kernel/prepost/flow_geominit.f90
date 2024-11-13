@@ -319,6 +319,9 @@
     if (allocated(kfs)) deallocate (kfs)
     allocate (kfs(ndx)); kfs = 0
 
+    if (allocated(kfs_cutcell)) deallocate (kfs_cutcell)
+    allocate (kfs_cutcell(ndx)); kfs_cutcell = 0
+
     ! Reallocate circumcenters with extra space for 1D nodes, but keep existing 2D data.
     call realloc(xz, ndx)
     call realloc(yz, ndx)

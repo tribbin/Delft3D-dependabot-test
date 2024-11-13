@@ -61,7 +61,7 @@
              ds = ag * dxi(L) * (s0(k2) - s0(k1))
              u1(L) = (u1(L) * (1d0 - das) + u0(L) * das - dta * (adve(L) + ds)) / (1d0 + dta * advi(L))
           end do
-          if (iperot == -1) then
+          if (iPerot == -1) then
              call reconst2nd()
           end if
           call setucxucyucxuucyunew()

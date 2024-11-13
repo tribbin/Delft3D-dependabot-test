@@ -51,7 +51,7 @@
     double precision, external :: nod2linx, nod2liny
     double precision, external :: lin2nodx, lin2nody
 
-    if (iperot /= -1) then
+    if (iPerot /= -1) then
        ucxq = 0d0; ucyq = 0d0 ! zero arrays
        ucx = 0d0; ucy = 0d0
 
@@ -157,7 +157,7 @@
              if (hs(k) > 0d0) then
                 ucxq(k) = ucxq(k) / hs(k)
                 ucyq(k) = ucyq(k) / hs(k)
-                if (iperot == 2) then
+                if (iPerot == 2) then
                    ucx(k) = ucxq(k)
                    ucy(k) = ucyq(k)
                 end if
@@ -179,7 +179,7 @@
                       ucxq(k) = ucxq(k) / dzz
                       ucyq(k) = ucyq(k) / dzz
                    end if
-                   if (iperot == 2) then
+                   if (iPerot == 2) then
                       ucx(k) = ucxq(k)
                       ucy(k) = ucyq(k)
                    end if

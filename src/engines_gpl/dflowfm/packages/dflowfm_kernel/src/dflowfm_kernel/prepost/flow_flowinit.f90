@@ -769,7 +769,7 @@ contains
 
 !> Load restart file (*_map.nc) assigned in the *.mdu file OR read a *.rst file
    subroutine load_restart_file(file_exist, error)
-      use m_flowparameters, only: jased, iperot
+      use m_flowparameters, only: jased, iPerot
       use m_flow, only: hs, s1, ucxyq_read_rst
       use m_flowgeom, only: bl
       use m_sediment, only: stm_included
@@ -813,7 +813,7 @@ contains
             end if
 
             hs(:) = s1(:) - bl(:)
-            if (iperot == NOT_DEFINED) then
+            if (iPerot == NOT_DEFINED) then
                call reconst2nd()
             end if
             call fill_onlyWetLinks()
