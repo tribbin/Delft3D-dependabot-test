@@ -33,9 +33,13 @@
 module m_setlinktocornerweights
 
    implicit none
-
+    
    private
 
+    double precision :: ax, ay, wuL, wud, csa, sna
+    integer :: k, L, ierr, nx
+    integer :: k1, k2, k3, k4
+    integer :: ka, kb, LL
    public :: setlinktocornerweights
 
 contains
@@ -208,6 +212,20 @@ contains
             nrcnw = nrcnw + 1 ! cnw = cornerwall point (netnode)
          end if
       end do
+    
+    if (nrcnw > size(kcnw)) then 
+       if (allocated(cscnw)) deallocate (cscnw, sncnw, kcnw, nwalcnw, sfcnw)
+       allocate (cscnw(nrcnw), stat=ierr); 
+       call aerr('cscnw(nrcnw)', ierr, nrcnw)
+       allocate (sncnw(nrcnw), stat=ierr); 
+       call aerr('sncnw(nrcnw)', ierr, nrcnw)
+       allocate (kcnw(nrcnw), stat=ierr); 
+       call aerr(' kcnw(nrcnw)', ierr, nrcnw)
+       allocate (nwalcnw(2, nrcnw), stat=ierr); 
+       call aerr(' nwalcnw(2,nrcnw)', ierr, 2 * nrcnw)
+       allocate (sfcnw(nrcnw), stat=ierr); 
+       call aerr(' sfcnw(nrcnw)', ierr, nrcnw)
+    endif 
 
       if (allocated(cscnw)) deallocate (cscnw, sncnw, kcnw, nwalcnw, sfcnw)
       allocate (cscnw(nrcnw), stat=ierr); cscnw = 0
