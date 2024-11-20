@@ -137,9 +137,9 @@ contains
 
       use MessageHandling, only: LEVEL_INFO, LEVEL_WARN, mess
 
-      character(len=*), intent(in) :: base_name !< base_name to construct the name of the caching file (typically md_ident).
+      character(len=*), intent(in) :: base_name !< base_name to construct the name of the cache file (typically md_ident).
       character(len=*), intent(in) :: net_file !< Full name of the network file
-      logical, intent(inout) :: use_caching !< Use the cache file if true
+      logical, intent(inout) :: use_caching !< Use the cache file if true. Might be reset to false if some errors forbid the use of caching.
 
       integer :: lun
       integer :: ierr

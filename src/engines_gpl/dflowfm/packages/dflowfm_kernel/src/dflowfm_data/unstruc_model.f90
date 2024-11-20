@@ -849,6 +849,8 @@ contains
       if (iarg_usecaching /= -1) then
          if (iarg_usecaching == 0) then
             md_usecaching = .false.
+         else if (iarg_usecaching == 1) then
+            md_usecaching = .true.
          end if
       end if
 
