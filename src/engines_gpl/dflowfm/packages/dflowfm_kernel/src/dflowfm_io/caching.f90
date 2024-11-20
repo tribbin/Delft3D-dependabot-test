@@ -52,7 +52,7 @@ module unstruc_caching
 
    ! History CachingFormatVersion:
 
-   ! 1.00 (Until 2024-11-14): Being cached are observations, fixed weirs, cross sections and dry_points_and_area.
+   ! 1.00 (Until Nov 2024): The cached items include observations, fixed weirs, cross sections and dry_points_and_area.
 
    logical, private :: cache_success
 
@@ -133,20 +133,20 @@ contains
    end function cacheRetrieved
 
 !> Load the information from the caching file - if any.
-   subroutine loadCachingFile(base_name, net_file, use_caching)
+   subroutine load_caching_file(base_name, net_file, use_caching)
 
       use MessageHandling, only: LEVEL_INFO, LEVEL_WARN, mess
 
       character(len=*), intent(in) :: base_name !< base_name to construct the name of the caching file (typically md_ident).
       character(len=*), intent(in) :: net_file !< Full name of the network file
-      integer,          intent(in) :: use_caching !< Use the cache file if possible (1) or not (0)
+      logical, intent(inout) :: use_caching !< Use the cache file if true
 
       integer :: lun
       integer :: ierr
       integer :: number, number_links, number_nodes, number_netcells
       integer :: version_major, version_minor
-      character(len=30)  :: version_file
-      character(len=20)  :: key
+      character(len=30) :: version_file
+      character(len=20) :: key
       character(len=256) :: file_name
       character(len=256) :: msgbuf
       character(len=md5length) :: md5checksum
@@ -154,19 +154,21 @@ contains
 
       cache_success = .false.
 
-      if (use_caching /= 1) then
+      if (.not. use_caching) then
          call mess(LEVEL_INFO, 'Not using cache file.')
          return
       end if
 
       !
-      ! Determine the MD5 checksum of the network file to use for creating new cache file 
+      ! Determine the MD5 checksum of the network file to use for creating new cache file
       ! and/or for checking compatibility of existing cache file:
       !
       call md5file(net_file, md5current, success)
       if (.not. success) then
          close (lun)
-         call mess(LEVEL_WARN, 'Fail to read MD5 checksum of the network file. Proceed with normal initialization.')
+         call mess(LEVEL_WARN, 'Failed to read MD5 checksum of the network file '//trim(net_file) &
+                   //', caching is not possible. Proceeding with normal initialization.')
+         use_caching = .false.
          return
       end if
 
@@ -177,10 +179,9 @@ contains
 
       !
       ! Apparently there is no caching file, so return without further processing
-      ! But for writing the caching file later, determine the checksum now
       !
       if (ierr /= 0) then
-         call mess(LEVEL_INFO, 'No cache file is available initially. Proceed with normal initialization.')
+         call mess(LEVEL_INFO, 'No cache file available initially. Proceeding with normal initialization.')
          return
       end if
 
@@ -190,29 +191,31 @@ contains
       read (lun, iostat=ierr) version_file, md5checksum
 
       if (ierr /= 0) then
-         call mess(LEVEL_WARN, 'Fail to read cache file. Proceed with normal initialization.')
+         call mess(LEVEL_WARN, 'Failed to read cache file. Proceeding with normal initialization.')
          close (lun)
          return
       end if
 
-      if (index(version_file, version_string_prefix) > 0) then
-         version_file = adjustl(version_file(len_trim(version_string_prefix)+1:))
+      if (index(version_file, version_string_prefix) == 1) then
+         version_file = adjustl(version_file(len_trim(version_string_prefix) + 1:))
          call get_version_major_minor_integer(version_file, version_major, version_minor, success)
          if (.not. success) then
             close (lun)
-            call mess(LEVEL_WARN, 'Fail to read major and minor version from cache file. Proceed with normal initialization.')
+            call mess(LEVEL_WARN, 'Failed to read major and minor version from cache file. Proceeding with normal initialization.')
             return
          end if
          if (version_major /= CacheFormatMajorVersion .or. version_minor /= CacheFormatMinorVersion) then
             close (lun)
-            write (msgbuf, '(a,i0,".",i2.2,a,i0,".",i2.2,a)') 'Unsupported cache format detected: v', version_major, version_minor, '. Current format: v', CacheFormatMajorVersion, CacheFormatMinorVersion, '. Proceed with normal initialization.'
+            write (msgbuf, '(a,i0,".",i2.2,a,i0,".",i2.2,a)') 'Cache format mismatch. Cache file contains: v', version_major, &
+               version_minor, '. Current format is: v', CacheFormatMajorVersion, CacheFormatMinorVersion, &
+               ' (must be equal). Proceeding with normal initialization.'
             call mess(LEVEL_WARN, msgbuf)
             return
          end if
       else
          close (lun)
-         call mess(LEVEL_WARN, 'Fail to read version information from cache file. Proceed with normal initialization.')
-         return          
+         call mess(LEVEL_WARN, 'Failed to read version information from cache file. Proceeding with normal initialization.')
+         return
       end if
 
       !
@@ -220,7 +223,7 @@ contains
       !
       if (md5checksum /= md5current) then
          close (lun)
-         call mess(LEVEL_WARN, 'The MD5 checksum of the cache file does not match the network file. Proceed with normal initialization.')
+         call mess(LEVEL_WARN, 'The MD5 checksum of the cache file does not match the network file. Proceeding with normal initialization.')
          return
       end if
 
@@ -231,7 +234,7 @@ contains
       read (lun, iostat=ierr) key, number
 
       if (ierr /= 0 .or. key /= section(key_obs)) then
-         call mess(LEVEL_WARN, 'Fail to load observation locations from cache file (1). Proceed with normal initialization.')
+         call mess(LEVEL_WARN, 'Failed to load observation locations from cache file (none present). Proceeding with normal initialization.')
          close (lun)
          return
       end if
@@ -247,7 +250,7 @@ contains
       end if
 
       if (ierr /= 0) then
-         call mess(LEVEL_WARN, 'Fail to load observation locations from cache file (2). Proceed with normal initialization.')
+         call mess(LEVEL_WARN, 'Failed to load observation locations from cache file (invalid data). Proceeding with normal initialization.')
          close (lun)
          return
       end if
@@ -259,7 +262,7 @@ contains
       read (lun, iostat=ierr) key, number, number_links
 
       if (ierr /= 0 .or. key /= section(key_fixed_weirs)) then
-         call mess(LEVEL_WARN, 'Fail to load fixed weirs from cache file (1). Proceed with normal initialization.')
+         call mess(LEVEL_WARN, 'Failed to load fixed weirs from cache file (none present). Proceeding with normal initialization.')
          close (lun)
          return
       end if
@@ -275,7 +278,7 @@ contains
       end if
 
       if (ierr /= 0) then
-         call mess(LEVEL_WARN, 'Fail to load fixed weirs from cache file (2). Proceed with normal initialization.')
+         call mess(LEVEL_WARN, 'Failed to load fixed weirs from cache file (invalid data). Proceeding with normal initialization.')
          close (lun)
          return
       end if
@@ -287,7 +290,7 @@ contains
       read (lun, iostat=ierr) key, number, number_links
 
       if (ierr /= 0 .or. key /= section(key_cross_sections)) then
-         call mess(LEVEL_WARN, 'Fail to load cross sections from cache file (1). Proceed with normal initialization.')
+         call mess(LEVEL_WARN, 'Failed to load cross sections from cache file (none present). Proceeding with normal initialization.')
          close (lun)
          return
       end if
@@ -297,7 +300,7 @@ contains
       allocate (cache_ipol(number_links))
       call loadCachedSections(lun, cache_linklist, cache_ipol, cache_cross_sections, ierr)
       if (ierr /= 0) then
-         call mess(LEVEL_WARN, 'Fail to load cross sections from cache file (2). Proceed with normal initialization.')
+         call mess(LEVEL_WARN, 'Failed to load cross sections from cache file (invalid data). Proceeding with normal initialization.')
          close (lun)
          return
       end if
@@ -307,7 +310,7 @@ contains
       !
       read (lun, iostat=ierr) key, cached_nump_dry, cached_nump1d2d_dry, number_nodes, number_links, number_netcells
       if (ierr /= 0 .or. key /= section(key_dry_points_and_areas)) then
-         call mess(LEVEL_WARN, 'Fail to load dry points and areas from cache file (1). Proceed with normal initialization.')
+         call mess(LEVEL_WARN, 'Failed to load dry points and areas from cache file (none present). Proceeding with normal initialization.')
          close (lun)
          return
       end if
@@ -320,14 +323,14 @@ contains
       allocate (cached_yz_dry(number_nodes))
       read (lun, iostat=ierr) cached_bottom_area_dry, cached_lne_dry, cached_lnn_dry, cached_xz_dry, cached_yz_dry, cached_xzw_dry, cached_yzw_dry
       if (ierr /= 0) then
-         call mess(LEVEL_WARN, 'Fail to load dry points and areas from cache file (2). Proceed with normal initialization.')
+         call mess(LEVEL_WARN, 'Failed to load dry points and areas from cache file (invalid data). Proceeding with normal initialization.')
          close (lun)
          return
       end if
       allocate (cached_netcell_dry(number_netcells))
       call load_netcell(lun, number_netcells, cached_netcell_dry, ierr)
       if (ierr /= 0) then
-         call mess(LEVEL_WARN, 'Fail to load dry points and areas from cache file (3). Proceed with normal initialization.')
+         call mess(LEVEL_WARN, 'Failed to load dry points and areas from cache file (invalid netcell). Proceeding with normal initialization.')
          close (lun)
          return
       end if
@@ -338,7 +341,7 @@ contains
       close (lun)
       cache_success = .true.
 
-   end subroutine loadCachingFile
+   end subroutine load_caching_file
 
 !> Load cached netcell from a caching file.
    subroutine load_netcell(lun, number_netcell, netcell, ierr)
@@ -443,21 +446,20 @@ contains
    end subroutine saveLinklist
 
 !> Store the grid-based information in the caching file.
-   subroutine storeCachingFile(base_name, use_caching)
+   subroutine store_caching_file(base_name, use_caching)
       use MessageHandling, only: LEVEL_INFO, mess
       character(len=*), intent(in) :: base_name !< base_name to construct the name of the caching file (typically md_ident).
-      integer, intent(in) :: use_caching !< Write the caching file (1) or not (0) - in accordance with the user setting
+      logical, intent(in) :: use_caching !< Write the caching file if true - in accordance with the user setting
 
       integer :: lun
       integer :: ierr
       character(len=256) :: file_name
-      character(len=30)  :: version_string
-
+      character(len=30) :: version_string
 
       !
       ! If no caching should be used, dispense with writing the caching file
       !
-      if (use_caching /= 1) then
+      if (.not. use_caching) then
          return
       end if
 
@@ -465,7 +467,7 @@ contains
       ! If cache files already exist and have been loaded successfully, no need to rewrite them
       !
       if (cache_success) then
-          return
+         return
       end if
 
       file_name = trim(base_name)//'.cache'
@@ -481,7 +483,7 @@ contains
       ! Store version string and checksum (already determined at start-up)
       !
       write (version_string, '(a,i0,".",i2.2)') version_string_prefix, CacheFormatMajorVersion, CacheFormatMinorVersion
-      call mess(LEVEL_INFO,'Writing cache file: '//trim(file_name)//', version: '//trim(version_string))
+      call mess(LEVEL_INFO, 'Writing cache file: '//trim(file_name)//', version: '//trim(version_string))
       write (lun) version_string, md5current
 
       !
@@ -528,7 +530,7 @@ contains
       !
       close (lun)
 
-   end subroutine storeCachingFile
+   end subroutine store_caching_file
 
 !> Store netcell to a caching file.
    subroutine store_netcell(lun, netcell)
