@@ -30,6 +30,7 @@
 !
 !
 module wave_boundary_update_module
+   use precision, only: dp
    use wave_boundary_datastore
    !
    implicit none
@@ -79,7 +80,7 @@ module wave_boundary_update_module
       integer, dimension(:), pointer :: WDindex ! Index of wave train component locations on wave directional bin axis
       integer, dimension(:), pointer :: PRindex ! Index of wave train components to be phase-resolved (rather than
       ! using energy balance)
-      double complex, dimension(:, :), pointer :: CompFn ! Fourier components of the wave trains
+      complex(kind=dp), dimension(:, :), pointer :: CompFn ! Fourier components of the wave trains
       character(1024) :: Efilename, qfilename, nhfilename
       real(dp), dimension(:, :), pointer :: zsits ! time series of total surface elevation for nonhspectrum==1
       real(dp), dimension(:, :), pointer :: uits ! time series of depth-averaged horizontal east velocity nonhspectrum==1 or swkhmin>0
