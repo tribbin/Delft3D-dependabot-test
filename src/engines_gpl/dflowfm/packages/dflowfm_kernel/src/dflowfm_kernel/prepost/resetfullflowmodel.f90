@@ -33,6 +33,7 @@
  !> Resets the current flow- and time-state, as well as all related (phys) parameters.
  !! To be called prior to loading a new MDU and upon program startup.
  subroutine resetFullFlowModel()
+    use m_reset_sedtra, only: reset_sedtra
     use timers
     use m_wind
     use m_physcoef
@@ -47,7 +48,7 @@
     use unstruc_netcdf
     use unstruc_model
     use unstruc_display
-    use m_observations
+    use m_observations, only: deleteobservations
     use m_monitoring_crosssections
     use m_thindams
     use m_fixedweirs

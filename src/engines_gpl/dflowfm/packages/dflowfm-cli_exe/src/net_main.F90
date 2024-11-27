@@ -68,7 +68,7 @@ program unstruc
    use unstruc_model
    use netcdf
    use properties
-   use m_observations
+   use m_observations_data
    use unstruc_netcdf
    use unstruc_messages
    use UNSTRUC_DISPLAY
@@ -97,6 +97,7 @@ program unstruc
    use m_editsplines
    use m_editsam
    use m_editnetw
+   use m_read_commandline, only: read_commandline
    
    implicit none
 
@@ -116,7 +117,6 @@ program unstruc
    character(len=maxnamelen) :: md_classmapfile_base !< storing the user-defined class map file
 
    integer, external :: iget_jaopengl
-   integer, external :: read_commandline
    integer, external :: flow_modelinit
 
    double precision :: tstartall, tstopall ! just checking...

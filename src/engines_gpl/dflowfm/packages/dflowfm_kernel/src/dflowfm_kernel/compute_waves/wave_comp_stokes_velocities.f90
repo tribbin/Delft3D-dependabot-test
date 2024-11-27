@@ -30,6 +30,16 @@
 !
 !
 
+module m_wave_comp_stokes_velocities
+
+implicit none
+
+private
+
+public :: wave_comp_stokes_velocities
+
+contains
+
    subroutine wave_comp_stokes_velocities()
       use m_flowparameters
       use m_flowgeom
@@ -115,7 +125,7 @@
             k1 = ln(1, L) ! buiten
             k2 = ln(2, L) ! binnen
             !
-            huL = hs(k2)
+            huL = hu(L) ! despite hu(L)>epshu, hs(k2) can still be 0.0 on inflow bnd
             hwavL = hwav(k2)
             gammal = hwavL / huL
             if (gammal > 1.d0) then
@@ -150,3 +160,5 @@
 1234  continue
       return
    end subroutine wave_comp_stokes_velocities
+
+end module m_wave_comp_stokes_velocities

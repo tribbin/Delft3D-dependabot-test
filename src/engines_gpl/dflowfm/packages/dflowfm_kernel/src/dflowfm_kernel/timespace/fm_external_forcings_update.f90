@@ -57,7 +57,7 @@ submodule(fm_external_forcings) fm_external_forcings_update
    logical :: l_set_frcu_mor = .false.
    logical :: first_time_wind
 
-   logical, external :: flow_initwaveforcings_runtime, flow_trachy_needs_update
+   logical, external :: flow_initwaveforcings_runtime
    character(len=255) :: tmpstr
    type(c_time) :: ecTime !< Time in EC-module
 
@@ -68,6 +68,11 @@ contains
 
    !> set field oriented boundary conditions
    module subroutine set_external_forcings(time_in_seconds, initialization, iresult)
+      use m_update_zcgen_widths_and_heights, only: update_zcgen_widths_and_heights
+      use m_update_pumps_with_levels, only: update_pumps_with_levels
+      use m_heatu
+      use m_flow_trachyupdate
+      use m_flow_trachy_needs_update
       use m_set_frcu_mor
       use m_physcoef, only: BACKGROUND_AIR_PRESSURE
       double precision, intent(in) :: time_in_seconds !< Time in seconds
@@ -334,7 +339,8 @@ contains
 !> set_wave_parameters
    subroutine set_wave_parameters(initialization)
       use ieee_arithmetic, only: ieee_is_nan
-
+      use m_compute_wave_parameters, only: compute_wave_parameters
+      
       logical, intent(in) :: initialization !< initialization phase
 
       logical :: all_wave_variables !< flag indicating whether _all_ wave variables should be mirrored at the boundary
@@ -390,16 +396,17 @@ contains
             ! Correct for this by setting values to zero
             do k = 1, ndx
                if (isnan(hwavcom(k))) then ! one check should be enough, everything is collocated
-                  hwavcom = 0d0
-                  twavcom = 0d0
-                  sxwav = 0d0
-                  sywav = 0d0
-                  sbxwav = 0d0
-                  sbywav = 0d0
-                  dsurf = 0d0
-                  dwcap = 0d0
-                  mxwav = 0d0
-                  mywav = 0d0
+                  hwavcom(k) = 0d0
+                  twavcom(k) = 0d0
+                  sxwav(k) = 0d0
+                  sywav(k) = 0d0
+                  sbxwav(k) = 0d0
+                  sbywav(k) = 0d0
+                  dsurf(k) = 0d0
+                  dwcap(k) = 0d0
+                  mxwav(k) = 0d0
+                  mywav(k) = 0d0
+                  phiwav(k) = 270d0
                end if
             end do
             phiwav = convert_wave_direction_from_nautical_to_cartesian(phiwav)

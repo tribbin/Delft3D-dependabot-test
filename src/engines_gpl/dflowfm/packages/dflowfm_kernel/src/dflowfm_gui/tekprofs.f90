@@ -30,14 +30,23 @@
 !
 !
 
+module m_tekprofs
+
+implicit none
+
+contains
+
   subroutine tekprofs() ! and initialise some turb pars
+     use m_tekprofpoint
+     use m_tekfn
+     use m_setwor
      use m_getvminmax
      use m_fullscreen
      use m_flow
      use m_flowgeom
      use m_wearelt
      use M_RAAITEK
-     use m_observations
+     use m_observations_data
      use m_missing
      use m_polygon
      use m_wind
@@ -51,6 +60,7 @@
      use m_depmax2, only: vmax=>vmax2, vmin=>vmin2
      use m_get_kbot_ktop
      use m_get_czz0
+     use m_setrho, only: setrhofixedp
 
      implicit none
 
@@ -61,7 +71,6 @@
      double precision :: h0, b0, z00, zinc, cz, ustbref, ustwref, zint, z1, dz2, zz
      double precision :: tkebot, tkesur, tkewin
      double precision :: epsbot, epssur, dzkap, sqcf, ulx, sg, drhodz, rhomea, rhop0, prsappr
-     double precision, external :: densfm, setrhofixedp
      double precision :: VMAX2, VMIN2
      integer :: is, Ls, LLs, Lbs, Lts
      integer :: jabruv
@@ -440,3 +449,5 @@
      call tekprofpoint()
 
   end subroutine tekprofs
+
+end module m_tekprofs

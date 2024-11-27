@@ -30,20 +30,31 @@
 !
 !
 
+module m_compute_wave_parameters
+use m_wave_uorbrlabda, only: wave_uorbrlabda
+use m_wave_comp_stokes_velocities, only: wave_comp_stokes_velocities
+use m_tauwavehk, only: tauwavehk
+
+
+implicit none
+
+private
+
+public :: compute_wave_parameters
+
+contains
+
    ! compute uorb, rlabda for input in other subroutines
    subroutine compute_wave_parameters()
       use m_xbeach_data
       use m_waves
-      use m_flow
-      use m_flowgeom
-      use m_sferic
-      use m_flowtimes
+      use m_flow, only: jawave, s1, kmx, jawavestokes, hu, flowwithoutwaves, epshu, wx, wy, ag, hs, waveforcing
+      use m_flowgeom, only: bl, lnx, ln, csu, snu, ndx
+   !   use m_sferic
+   !   use m_flowtimes
       use mathconsts, only: sqrt2_hp
-      use m_transform_wave_physics
-
-      use unstruc_display
-
-      implicit none
+      use m_transform_wave_physics, only: transform_wave_physics_hp
+   !   use unstruc_display
 
       integer :: k1, k2, k, L
       integer :: ierror
@@ -54,7 +65,7 @@
       if (jawave < 3 .and. .not. flowWithoutWaves) then ! Every timestep, not only at getfetch updates, as waterdepth changes
          ! get ustokes, vstokes for 2D, else in update_verticalprofiles getustwav
          hwav = min(hwav, gammax * max(s1 - bl, 0d0))
-         if (kmx == 0) then
+         if (kmx == 0 .and. jawavestokes > 0) then
             do L = 1, lnx
                k1 = ln(1, L); k2 = ln(2, L)
                hh = hu(L); 
@@ -75,8 +86,9 @@
                end if
             end do
          end if
-         ! get uorb, rlabda
+         !
          call wave_uorbrlabda()
+
       end if
 
       ! SWAN
@@ -132,7 +144,7 @@
          do k = 1, ndx
             hwav(k) = min(hwavuni, gammax * (s1(k) - bl(k)))
          end do
-         if (kmx == 0) then
+         if (kmx == 0 .and. jawavestokes > 0) then
             do L = 1, lnx
                k1 = ln(1, L); k2 = ln(2, L)
                hh = hu(L); 
@@ -147,8 +159,10 @@
                   vstokes(L) = ustt * (-snu(L) * cs + csu(L) * sn)
                end if
             end do
-            call wave_uorbrlabda()
          end if
+         !
+         call wave_uorbrlabda()
+         !
       end if
 
       ! shortcut to switch off stokes influence
@@ -159,3 +173,5 @@
 1234  continue
       return
    end subroutine compute_wave_parameters
+
+end module m_compute_wave_parameters

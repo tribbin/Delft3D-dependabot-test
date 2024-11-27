@@ -30,10 +30,20 @@
 !
 !
 
+module m_wricom
+
+implicit none
+
+private
+
+public :: wricom
+
+contains
+
 subroutine wricom(tim)
    use m_flow
    use m_flowtimes
-   use m_observations
+   use m_observations_data
    use unstruc_netcdf
    use unstruc_model
    use unstruc_files, only: defaultFilename
@@ -87,3 +97,5 @@ subroutine wricom(tim)
 
    ierr = nf90_close(comids%ncid) ! Flush file
 end subroutine wricom
+
+end module m_wricom

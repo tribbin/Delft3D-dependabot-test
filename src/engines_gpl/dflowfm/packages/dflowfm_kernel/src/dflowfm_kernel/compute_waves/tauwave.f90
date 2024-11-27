@@ -30,7 +30,18 @@
 !
 !
 
+module m_tauwave
+
+implicit none
+
+private
+
+public :: tauwave
+
+contains
+
    subroutine tauwave()
+      use m_getymxpar, only: getymxpar
       use m_sferic
       use m_flowparameters
       use m_flow, only: rhomean, ag, hu, jaconveyance2D, u1, v, frcu, ifrcutp, z0urou, cfuhi, ifrctypuni, frcuni, taubxu, taubu
@@ -162,7 +173,7 @@
             !
             if (jawave > 0) then
                if (modind < 9) then
-                  cfwavhi(L) = tauwci / umod / rhoL / huL ! combined w+c friction factor for furu 2d
+                  cfwavhi(L) = tauwci / umod / umod / rhoL / huL ! combined w+c friction factor for furu 2d
                elseif (modind == 9) then
                   uorbhs = sqrt(2.0d0) * uorbu
                   hrmsu = ac1 * hwav(k1) + ac2 * hwav(k2)
@@ -173,7 +184,7 @@
                   u11 = umax / sqrt(ag * huL)
                   a11 = -0.0049d0 * t1**2 - 0.069d0 * t1 + 0.2911d0
                   raih = max(0.5d0, -5.25d0 - 6.1d0 * tanh(a11 * u11 - 1.76d0))
-                  rmax = max(0.62d0, min(0.75, -2.5d0 * huL / max(rlabdau, 1.0d-20) + 0.85d0))
+                  rmax = max(0.62d0, min(0.75d0, -2.5d0 * huL / max(rlabdau, 1.0d-20) + 0.85d0))
                   uon = umax * (0.5d0 + (rmax - 0.5d0) * tanh((raih - 0.5d0) / (rmax - 0.5d0)))
                   uoff = umax - uon
                   uon = max(1.0d-5, uon)
@@ -191,7 +202,7 @@
                   ka = ksc * exp(gamma * uratio)
                   ka = min(ka, 10d0 * ksc, 0.2d0 * huL)
                   ca = 18d0 * log10(12d0 * huL / max(ka, waveps))
-                  cfhi_vanrijn(L) = umod / huL * ag / (ca**2)
+                  cfhi_vanrijn(L) = ag / (ca**2) / huL
                   taubu(L) = ag / ca / ca * rhoL * umod * (u1(L) + ustokes(L))
                end if
             end if
@@ -206,7 +217,7 @@
             cwall = 1d0 / (cf**2)
             taubu(L) = cwall * rhoL * umod * (u1(L) + ustokes(L))
             taubxu(L) = cwall * rhoL * umod * umod
-            cfwavhi(L) = cfuhi(L) * umod ! modind = 0 when running waves. Removed modind>0 statement in furu
+            cfwavhi(L) = cfuhi(L)
          else if (modind == 10) then
             umod = sqrt((u1(L) - ustokes(L))**2 + (v(L) - vstokes(L))**2 + (1.16d0 * uorbu * fsqrtt)**2)
             z0urou(L) = huL * exp(-1d0 - vonkar * cz / sag)
@@ -230,3 +241,5 @@
       end do
       !
    end subroutine tauwave
+
+end module m_tauwave

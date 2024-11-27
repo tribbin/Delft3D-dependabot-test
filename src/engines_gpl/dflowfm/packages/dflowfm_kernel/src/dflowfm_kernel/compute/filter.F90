@@ -29,6 +29,14 @@
 
 ! filter
 
+module m_filter
+use m_solversettings, only: solversettings
+
+
+implicit none
+
+contains
+
 #include "blasfm.h"
 
 !> initialize filter
@@ -36,7 +44,7 @@ subroutine ini_filter(jafilter, filterorder, jacheckmonitor, ierr)
    use m_flowgeom, only: Lnx, ln, ln2lne, nd, lne2ln, dx, wu, ba, ban, lncn, xu, yu, csu, snu
    use network_data, only: nmk, kn, nod, nb, kc
    use m_flow, only: Lnkx, kmx
-   use m_filter
+   use m_filter_data
    use m_solver
    use m_alloc
    use unstruc_messages
@@ -47,6 +55,8 @@ subroutine ini_filter(jafilter, filterorder, jacheckmonitor, ierr)
    use m_qnerror
    use m_writematrix
    use m_makenetnodescoding
+   use m_saadf, only: amub_countonly, amub
+   use m_saad, only: allocSolver
    implicit none
 
    integer, intent(in) :: jafilter !< explicit (1), implicit (2), or no filter (0)
@@ -385,7 +395,8 @@ end subroutine ini_filter
 
 ! clean-up filter
 subroutine dealloc_filter
-   use m_filter
+   use m_filter_data
+   use m_saad, only: deallocSolver
    implicit none
 
    call deallocSolver(solver_filter)
@@ -459,12 +470,12 @@ end subroutine add_rowelem
 !> compute filter predictor (sigma only)
 !>  (I-Delta t F) u^* = u^n
 subroutine comp_filter_predictor()
-   use m_filter
+   use m_filter_data
    use m_flowgeom, only: Lnx
    use m_flow, only: kmx, u0, plotlin, adve
    use m_flowtimes, only: Dts
    use unstruc_messages
-   use m_saad, only: jasafe ! for amux
+   use m_saad, only: jasafe, amuxXXX, solveSystem
    use m_partitioninfo, only: jampi, update_ghosts, ITYPE_U, reduce_int1_max
    use m_timer
    use m_get_Lbot_Ltop
@@ -705,7 +716,7 @@ end subroutine comp_filter_predictor
 !> get maximum filter time step mulitplied with filter coefficient
 subroutine get_dtmaxeps()
    use m_flowgeom, only: Lnx
-   use m_filter
+   use m_filter_data
    implicit none
 
    double precision :: diag, offdiag
@@ -757,7 +768,7 @@ end subroutine get_dtmaxeps
 !> determine typical mesh width
 subroutine get_Deltax()
    use m_flowgeom, only: Dx, csu, snu, Lnx
-   use m_filter
+   use m_filter_data
    implicit none
 
    double precision :: dinpr
@@ -795,7 +806,7 @@ subroutine comp_checkmonitor()
    use m_flowgeom, only: Lnx, Dx, wu, ba, ln
    use m_flow, only: qw, kmx, Lbot, Ltop
    use m_turbulence, only: ln0
-   use m_filter
+   use m_filter_data
    use m_partitioninfo
    use m_get_Lbot_Ltop
    implicit none
@@ -857,7 +868,7 @@ end subroutine comp_checkmonitor
 subroutine get_filter_coeff()
    use m_flowgeom, only: Lnx, ln, nd, acL, wcx1, wcx2, wcy1, wcy2, csu, snu
    use m_flow, only: qa, vol1, kmx, vicLu, hu, Lbot, Ltop
-   use m_filter, only: iLvec, jLvec, ALvec, eps, order, Deltax
+   use m_filter_data, only: iLvec, jLvec, ALvec, eps, order, Deltax
    use m_get_Lbot_Ltop
 
    double precision, dimension(kmx) :: eps1 ! first-order filter coefficient
@@ -1016,3 +1027,5 @@ subroutine get_filter_coeff()
 
    return
 end subroutine get_filter_coeff
+
+end module m_filter

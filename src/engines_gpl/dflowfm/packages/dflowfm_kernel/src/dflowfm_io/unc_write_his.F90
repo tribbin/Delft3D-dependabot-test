@@ -86,7 +86,7 @@ contains
       use m_flowtimes
       use m_flow
       use m_flowgeom
-      use m_observations
+      use m_observations_data
       use m_monitoring_crosssections
       use m_monitoring_runupgauges
       use m_missing
@@ -111,7 +111,7 @@ contains
       use m_fm_wq_processes, only: wq_user_outputs => outputs, noout_statt, noout_state, noout_user, jawaqproc
       use string_module
       use m_dad
-      use m_filter, only: checkmonitor
+      use m_filter_data, only: checkmonitor
       use m_alloc
       use unstruc_channel_flow, only: network
       use simple_geometry, only: sgeom_def_geometry_variables
@@ -127,6 +127,7 @@ contains
       use m_output_config
       use MessageHandling, only: err, mess, LEVEL_WARN, LEVEL_ERROR
       use m_ug_nc_attribute, only: ug_nc_attribute
+      use unstruc_channel_flow, only: network
 
       implicit none
 
@@ -373,19 +374,33 @@ contains
          ierr = unc_def_his_structure_static_vars(ihisfile, ST_GATE, jahisgate, ngatesg, 'none', 0, id_strlendim, &
                                                   id_gatedim, id_gate_id)
 
-         if (jahisgate > 0 .and. ngategen > 0) then
-            ! Define geometry related variables
+         if (jahisgate > 0) then
             nNodeTot = 0
-            do n = 1, ngategen
-               i = gate2cgen(n)
-               nlinks = L2cgensg(i) - L1cgensg(i) + 1
-               if (nlinks > 0) then
-                  nNodes = nlinks + 1
-               else if (nlinks == 0) then
-                  nNodes = 0
-               end if
-               nNodeTot = nNodeTot + nNodes
-            end do
+            if (network%sts%numGates > 0) then ! new gate
+               do n = 1, network%sts%numGates
+                  associate(pstru => network%sts%struct(network%sts%gateIndices(n)))
+                     nlinks = pstru%numlinks
+                     if (nlinks > 0) then
+                        nNodes = nlinks + 1
+                     else if (nlinks == 0) then
+                        nNodes = 0
+                     end if
+                     nNodeTot = nNodeTot + nNodes
+                  end associate
+               end do
+            else
+               ! Define geometry related variables
+               do n = 1, ngategen
+                  i = gate2cgen(n)
+                  nlinks = L2cgensg(i) - L1cgensg(i) + 1
+                  if (nlinks > 0) then
+                     nNodes = nlinks + 1
+                  else if (nlinks == 0) then
+                     nNodes = 0
+                  end if
+                  nNodeTot = nNodeTot + nNodes
+               end do
+            end if
          end if
          ierr = unc_def_his_structure_static_vars(ihisfile, ST_GATEGEN, jahisgate, ngategen, 'line', nNodeTot, id_strlendim, &
                                                   id_gategendim, id_gategen_id, id_gategengeom_node_count, id_gategengeom_node_coordx, id_gategengeom_node_coordy, &
@@ -1145,7 +1160,7 @@ contains
 
       !> Write (put) the lat/lon-coordinate variables for the station type.
       function unc_put_his_station_coord_vars_latlon(ihisfile, numobs, nummovobs, id_statlat, id_statlon, it_his) result(ierr)
-         use m_observations, only: xobs, yobs
+         use m_observations_data, only: xobs, yobs
          use dfm_error, only: DFM_NOERR
 
          integer, intent(in) :: ihisfile !< NetCDF id of already open dataset
@@ -1306,7 +1321,7 @@ contains
       !> Write (put) the geometry x/y-coordinate variables for the station type.
       function unc_put_his_station_geom_coord_vars_xy(ihisfile, numobs, it_his, id_geom_node_count, id_geom_node_coordx, id_geom_node_coordy, &
                                                       add_latlon, id_geom_node_coordlon, id_geom_node_coordlat) result(ierr)
-         use m_observations, only: xobs, yobs
+         use m_observations_data, only: xobs, yobs
          use dfm_error, only: DFM_NOERR
 
          integer, intent(in) :: ihisfile !< NetCDF id of already open dataset
@@ -1464,7 +1479,7 @@ contains
       use m_monitoring_crosssections, only: crs, ncrs
       use m_monitoring_runupgauges, only: rug, num_rugs
       use string_module, only: trimexact
-      use m_observations, only: numobs, nummovobs, namobs
+      use m_observations_data, only: numobs, nummovobs, namobs
       integer, intent(in) :: ncid !< NetCDF id of already open dataset
 
       character(len=strlen_netcdf), dimension(:), allocatable :: structure_names
@@ -1539,9 +1554,16 @@ contains
       structure_names = [(srcname(i), integer :: i=1, numsrc)]
       call unc_put_his_structure_names(ncid, jahissourcesink, id_srcname, structure_names)
 
-      indices = [(gate2cgen(i), integer :: i=1, ngategen)]
-      structure_names = [(cgen_ids(indices(i)), integer :: i=1, ngategen)]
+      if (network%sts%numGates> 0) then
+         indices = [(network%sts%gateIndices(i), integer :: i=1, ngategen)]
+         structure_names = [(trimexact(network%sts%struct(network%sts%gateIndices(i))%id, strlen_netcdf), integer :: i=1, ngategen)]
+      else
+         indices = [(gate2cgen(i), integer :: i=1, ngategen)]
+         structure_names = [(cgen_ids(indices(i)), integer :: i=1, ngategen)]
+      end if
+
       call unc_put_his_structure_names(ncid, jahisgate, id_gategen_id, structure_names)
+
 
       structure_names = [(lat_ids(i), integer :: i=1, numlatsg)]
       call unc_put_his_structure_names(ncid, jahislateral, id_lat_id, structure_names)

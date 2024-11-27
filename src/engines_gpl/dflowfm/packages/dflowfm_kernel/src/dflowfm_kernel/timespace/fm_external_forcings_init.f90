@@ -297,7 +297,7 @@ contains
                   end if
                end if
                call register_quantity_pli_combination(quantity, location_file)
-               if (filetype == node_id .or. quantity == 'qhbnd') then
+               if (filetype == NODE_ID .or. quantity == 'qhbnd') then
                   select case (quantity)
                   case ('waterlevelbnd')
                      target_index = itpenzr(ib)
@@ -305,7 +305,7 @@ contains
                   case ('qhbnd')
                      ibqh = ibqh + 1
                      target_index = (/ibqh/)
-                     if (filetype /= node_id) then
+                     if (filetype /= NODE_ID) then
                         location_file = qhpliname(ibqh)
                      end if
 
@@ -321,7 +321,7 @@ contains
                      ! so, also do *not* connect it as a spacetimerelation here.
                      is_successful = .true. ! No failure: boundaries are allowed to remain disconnected.
                   else
-                     is_successful = addtimespacerelation_boundaries(quantity, location_file, filetype=node_id, method=method, &
+                     is_successful = addtimespacerelation_boundaries(quantity, location_file, filetype=NODE_ID, method=method, &
                                                                      operand=oper, forcing_file=forcing_file, targetindex=target_index(1))
                   end if
                else
@@ -488,7 +488,7 @@ contains
 
    !> Read lateral blocks from new external forcings file and makes required initialisations
    function init_lateral_forcings(node_ptr, base_dir, block_number, major) result(is_successful)
-      use messageHandling, only: err_flush, msgbuf
+      use messageHandling, only: err_flush, msgbuf, mess, LEVEL_ERROR, LEVEL_INFO
       use string_module, only: str_tolower
       use tree_data_types, only: tree_data
       use m_laterals, only: qplat, lat_ids, n1latsg, n2latsg, ILATTP_1D, ILATTP_2D, ILATTP_ALL, kclat, numlatsg, nnlat, nlatnd, apply_transport
@@ -590,8 +590,10 @@ contains
       if (is_read) then
          jaqin = 1
          lat_ids(numlatsg) = loc_id
+         call mess(LEVEL_INFO, 'Succesfully added lateral '//trim(loc_id)//'.')
       else
          is_successful = .false.
+         call mess(LEVEL_ERROR, 'Lateral discharge information at '//trim(loc_id)//' could not be read from '//trim(rec)//'.')
          return
       end if
 

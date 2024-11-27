@@ -30,13 +30,18 @@
 !
 !
 
-      !SUBROUTINE SPLINESFROMLANDBOUNDARY()
-      !USE M_SPLINES
-      !USE M_GRIDSETTINGS
-      !use m_missing
-      !
-      !END SUBROUTINE SPLINESFROMLANDBOUNDARY
+module m_curvilineargridinpolygon
+
+implicit none
+
+private
+
+public :: curvilineargridinpolygon
+
+contains
+
       subroutine curvilinearGRIDinpolygon()
+         use m_accumulatedistance, only: accumulatedistance
          use m_rcirc
          use M_POLYGON
          use M_SAMPLES
@@ -50,10 +55,8 @@
          use m_drawthis
          use m_qnerror
          use m_increase_grid
-         implicit none
 
          double precision :: atpfo
-         double precision :: dp
          double precision :: dpok1
          double precision :: ff
          integer :: ierr
@@ -183,10 +186,10 @@
 
             TXO = DPO(N2) - DPO(N1); DXO = TXO / (MAXP - 1)
 
-            DP = DPO(N1); DPA = 0d0
+            DPA = 0d0
             do K = 1, MAXP
-               DPA(K) = DP
-               DP = DP + DXO
+               DPA(K) = DPO(N1)
+               DPO(N1) = DPO(N1) + DXO
             end do
             if (N == 3 .or. N == 4) then
                call ANDERSOM(DPA, MAXP)
@@ -271,3 +274,5 @@
          deallocate (DPA, XPA, YPA, DPO, XPO, YPO, XH, YH)
 
       end subroutine curvilinearGRIDinpolygon
+
+end module m_curvilineargridinpolygon

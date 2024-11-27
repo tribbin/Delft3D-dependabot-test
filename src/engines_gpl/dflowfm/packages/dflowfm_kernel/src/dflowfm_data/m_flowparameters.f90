@@ -526,7 +526,8 @@ module m_flowparameters
    integer :: jamapucmag !< velocity vector magnitude to map file, 0: no, 1: yes
    integer :: jamapucqvec !< velocity vectors (discharge based) to map file, 0: no, 1: yes
    integer :: jamapww1 !< upward velocity on flow link to map file, 0: no, 1: yes
-   integer :: jamapnumlimdt !< num limdt to map file, 0: no, 1: yes
+   integer :: jamapnumlimdt !< Write the total number of times a cell was Courant limiting to map file, 0: no, 1: yes
+   logical :: write_numlimdt_file !< Write the total number of times a cell was Courant limiting to <run_id>_numlimdt.xyz file 
    integer :: jamaptaucurrent !< shear stress to map file, 0: no, 1: yes
    integer :: jamapz0 !< roughness heights to map file, 0: no, 1: yes
    integer :: jamap_chezy_elements !< chezy roughness in flow elements to map file, 0: no, 1: yes
@@ -560,17 +561,6 @@ module m_flowparameters
    integer :: jamapwav_hwav !< output waves to map file for variable hwav,   0: no, 1: yes
    integer :: jamapwav_twav !< output waves to map file for variable twav,   0: no, 1: yes
    integer :: jamapwav_phiwav !< output waves to map file for variable phiwav, 0: no, 1: yes
-   integer :: jamapwav_sxwav !< output waves to map file for variable sxwav,  0: no, 1: yes
-   integer :: jamapwav_sywav !< output waves to map file for variable sywav,  0: no, 1: yes
-   integer :: jamapwav_sbxwav !< output waves to map file for variable sxbwav, 0: no, 1: yes
-   integer :: jamapwav_sbywav !< output waves to map file for variable sybwav, 0: no, 1: yes
-   integer :: jamapwav_mxwav !< output waves to map file for variable mxwav,  0: no, 1: yes
-   integer :: jamapwav_mywav !< output waves to map file for variable mywav,  0: no, 1: yes
-   integer :: jamapwav_dsurf !< output waves to map file for variable dsurf,  0: no, 1: yes
-   integer :: jamapwav_dwcap !< output waves to map file for variable dwcap,  0: no, 1: yes
-   integer :: jamapwav_distot !< output waves to map file for variable distot, 0: no, 1: yes
-   integer :: jamapwav_uorb !< output waves to map file for variable uorb,   0: no, 1: yes
-
    integer :: jamapdtcell !< output time steps per cell based on CFL
    integer :: jamapTimeWetOnGround !< output to map file the cumulative time when water is above ground level, 0: no, 1: yes
    integer :: jamapFreeboard !< output freeboard to map file, 0: no, 1: yes
@@ -1020,6 +1010,7 @@ contains
       jamapucqvec = 0
       jamapww1 = 1
       jamapnumlimdt = 1
+      write_numlimdt_file = .false.
       jamaptaucurrent = 1
       jamapz0 = 0
       jamap_chezy_elements = 0

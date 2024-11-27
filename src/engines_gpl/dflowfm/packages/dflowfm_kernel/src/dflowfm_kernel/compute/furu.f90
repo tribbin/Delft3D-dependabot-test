@@ -30,7 +30,20 @@
 !
 !
 
+module m_furu
+use m_update_verticalprofiles, only: update_verticalprofiles
+use m_getustbcfuhi
+use m_furu_structures
+use m_furusobekstructures
+
+
+implicit none
+
+contains
+
  subroutine furu() ! set fu, ru and kfs
+    use m_fixedweirfriction2d
+    use m_filter
     use m_flow ! substitue u1 and q1
     use m_flowgeom
     use timers
@@ -46,6 +59,7 @@
     use m_flowparameters, only: ifixedWeirScheme1d2d
     use fm_manhole_losses, only: calculate_manhole_losses
     use m_get_Lbot_Ltop
+    use m_ispumpon
 
     implicit none
 
@@ -66,7 +80,6 @@
 
     integer :: jaustarintsave
     double precision :: sqcfi
-    integer :: ispumpon
 
     fsqrtt = sqrt(0.5d0)
     call timstrt('Furu', handle_furu)
@@ -160,13 +173,12 @@
 
 10           continue
 
-             !if (jawave==3 .or. (jawave==4 .and. swave==1) .or. jawave==6 .and. .not. flowWithoutWaves) then                ! Delft3D-Wave Stokes-drift correction
              if (jawave > 0 .and. .not. flowWithoutWaves) then ! Delft3D-Wave Stokes-drift correction
 
                 if (modind < 9) then
-                   frL = cfwavhi(L)
+                   frL = cfwavhi(L) * hypot(u1L - ustokes(L), v(L) - vstokes(L))
                 elseif (modind == 9) then
-                   frL = cfhi_vanrijn(L) ! g/ca**2*umod/h/rho
+                   frL = cfhi_vanrijn(L) * hypot(u1L - ustokes(L), v(L) - vstokes(L))
                 elseif (modind == 10) then ! Ruessink 2003
                    uorbL = .5d0 * (uorb(k1) + uorb(k2))
                    frL = cfuhi(L) * sqrt((u1L - ustokes(L))**2 + (v(L) - vstokes(L))**2 + (1.16d0 * uorbL * fsqrtt)**2)
@@ -354,7 +366,7 @@
 
     call furusobekstructures()
 
-    if (jawave == 3 .or. jawave == 6 .and. .not. flowWithoutWaves) then
+    if (jawave == 3 .or. jawave >= 6 .and. .not. flowWithoutWaves) then
        if (kmx == 0) then
           !   add wave-induced mass fluxes on boundaries to convert euler input to GLM
           do L = Lnxi + 1, Lnx
@@ -401,3 +413,5 @@
 
  end subroutine furu
 
+
+end module m_furu
