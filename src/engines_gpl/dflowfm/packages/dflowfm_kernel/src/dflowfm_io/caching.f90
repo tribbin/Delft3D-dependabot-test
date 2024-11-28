@@ -355,7 +355,11 @@ contains
       if (number_thin_dams > 0) then
          allocate (cached_thin_dams(number_thin_dams))
          call load_thin_dams(lun, number_thin_dams, cached_thin_dams, ierr)
-         call mess(LEVEL_WARN, 'Failed to load thin dams from cache file (invalid data). Proceeding with normal initialization.')
+         if (ierr /= 0) then
+            call mess(LEVEL_WARN, 'Failed to load thin dams from cache file (invalid data). Proceeding with normal initialization.')
+            close (lun)
+            return
+         end if
       end if
       !
       ! All cached values were loaded, so all is well
