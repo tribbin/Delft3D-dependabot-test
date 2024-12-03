@@ -30,6 +30,16 @@
 !
 !
 
+module m_setwavfu
+
+implicit none
+
+private
+
+public :: setwavfu
+
+contains
+
    !> subroutine to compute wave forces
    subroutine setwavfu()
       use unstruc_messages
@@ -185,3 +195,5 @@
 1234  continue
       return
    end subroutine setwavfu
+
+end module m_setwavfu
