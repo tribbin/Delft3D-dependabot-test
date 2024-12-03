@@ -52,7 +52,7 @@ contains
 
       integer :: L, LL, k1, k2, k, ku, kd, kku, ku2, is, ip, Lb, Lt, kkua, kkub
       integer :: n12, ib
-      real(kind=dp) :: half, sl1, sl2, sl3, cf, ucxku, ucyku, ds, ql, qds, ds1x, ds1y, ds2x, ds2y
+      real(kind=dp) :: half, sl1, sl2, sl3, cf, ucxku, ucyku, ds1x, ds1y, ds2x, ds2y
       real(kind=dp) :: dsx, dsy
 
       real(kind=dp), external :: nod2linx, nod2liny
@@ -64,7 +64,7 @@ contains
 
          !$OMP PARALLEL DO                                                             &
          !$OMP PRIVATE(L, LL, k1, k2, k, kd, is, half, ip, n12, ib, kku, ku, ku2)      &
-         !$OMP PRIVATE(sl1, sl2, sl3, cf, ucxku, ucyku, ds1x, ds1y, ds2x, ds2y, ds, ql, qds, dsx, dsy )
+         !$OMP PRIVATE(sl1, sl2, sl3, cf, ucxku, ucyku, ds1x, ds1y, ds2x, ds2y, dsx, dsy )
 
          do L = 1, lnx ! upwind (supq) + limited high order (dsq)
 

@@ -56,9 +56,11 @@ contains
       integer :: i, ierr, k, kcell
       integer, dimension(:), allocatable :: left_2D_cells, right_2D_cells
       logical :: Lisnew
-      integer :: temp_threads
       integer :: ierror
       integer :: nump1d, nump1d_i
+#ifdef _OPENMP
+	  integer :: temp_threads
+#endif
       ierror = 1
 
       allocate (left_2D_cells(NUML1D), right_2D_cells(NUML1D))

@@ -354,7 +354,7 @@ contains
       if (kmx == 0) then
 
          !$OMP PARALLEL DO                                                                   &
-         !$OMP PRIVATE(L, advel,k1,k2,iadvL,qu1,qu2,volu,ai,ae,iad,volui,abh,hh,v12t,ku,kd,isg,n12, ucxku, ucyku, ucin, fdx, vol_k1, vol_k2, u_ene, u_mom, am, qv)
+         !$OMP PRIVATE(L, advel,k1,k2,iadvL,qu1,qu2,volu,ai,ae,iad,volui,abh,v12t,ku,kd,isg,n12, ucxku, ucyku, ucin, fdx, vol_k1, vol_k2, u_ene, u_mom, am, qv)
 
          do L = 1, lnx
 

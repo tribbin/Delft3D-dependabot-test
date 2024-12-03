@@ -73,10 +73,10 @@ contains
 
       implicit none
 
-      real(kind=dp) :: tetm1, dzc1, dzc2, zb1, zb2, tkedisL
+      real(kind=dp) :: tetm1, dzc1, dzc2, tkedisL
       real(kind=dp) :: vicu, vicd, difu, difd, dzdz1, dzdz2, sourtu, sinktu, drhodz
-      real(kind=dp) :: zz, z00, ac1, ac2, tkebot, tkesur, epsbot, epssur, volu
-      real(kind=dp) :: hdzb, dtiL, adv, omega1, omega2, omegu, drhodz1, drhodz2
+      real(kind=dp) :: zz, z00, ac1, ac2, tkebot, tkesur, epsbot, epssur
+      real(kind=dp) :: hdzb, dtiL, adv, omegu, drhodz1, drhodz2
       real(kind=dp) :: dzu(kmxx), dzw(kmxx), womegu(kmxx), pkwav(kmxx)
       real(kind=dp) :: gradk, gradt, grad, gradd, gradu, volki, arLL, qqq, faclax, zf
       real(kind=dp) :: wk, wke, vk, um, tauinv, tauinf, xlveg, rnv, diav, ap1, alf, c2esqcmukep, teps, tkin
@@ -96,7 +96,7 @@ contains
 !    vicwwu = vicoww
 
          !$OMP PARALLEL DO                                     &
-         !$OMP PRIVATE(LL,Lb,Lt,kxL,dzu,L,k,hdzb,z00,ac1,ac2,n1,n2,zb1,zb2,k1,k2,omega1,omega2,volu,womegu,cfuhi3D)
+         !$OMP PRIVATE(LL,Lb,Lt,kxL,dzu,L,k,hdzb,z00,ac1,ac2,n1,n2,k1,k2,womegu,cfuhi3D)
 
          do LL = 1, lnx
 

@@ -67,8 +67,8 @@ contains
 
       integer :: L, k, k1, k2, kb, n
 
-      real(kind=dp) :: qb, wsemx, dgrlay, dtvi, hsk, dmorfax
-      integer :: j, kj, ki, jastep, kk
+      real(kind=dp)n :: qb, wsemx, dgrlay, dtvi, hsk, dmorfax
+      integer :: j, ki, jastep, kk
       integer :: LL, Lb, Lt, kt, km
 
       real(kind=dp) :: flx(mxgr) !< sed erosion flux (kg/s)                 , dimension = mxgr
@@ -275,7 +275,7 @@ contains
             jastep = 1 ! 1 = first hor. transport, then limiting
 
             !$OMP PARALLEL DO    &
-            !$OMP PRIVATE(k,flx,seq,wse,hsk,dtvi,wsemx,j,qb,kj,dgrlay,kb) &
+            !$OMP PRIVATE(k,flx,seq,wse,hsk,dtvi,wsemx,j,qb,dgrlay,kb) &
             !$OMP REDUCTION(+:dvolbot)
             do k = 1, ndxi
                kb = kbot(k)

@@ -47,7 +47,7 @@
          integer, intent(out) :: jout !< index of first node of poly segment on which the point is projected
          real(kind=dp), intent(out) :: rLout !< scaled distance of projected point to node jout
 
-         integer :: j, ja, ina, inb, ithread
+         integer :: j, ja, ina, inb
          logical :: Ldoit
          real(kind=dp) :: xa, ya, xb, yb, dis, xn, yn, rL, rLdum
 
@@ -68,7 +68,7 @@
 !
 
 !$OMP PARALLEL DO    &
-!$OMP PRIVATE(j,ja,ina,inb,Ldoit,xa,ya,xb,yb,dis,xn,yn,rL,rLdum,ithread)
+!$OMP PRIVATE(j,ja,ina,inb,Ldoit,xa,ya,xb,yb,dis,xn,yn,rL,rLdum)
          do J = JSTART, JEND - 1
             Xa = XLAN(J)
             Ya = YLAN(J)
