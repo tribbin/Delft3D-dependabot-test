@@ -85,10 +85,4 @@ object WindowsBuild : BuildType({
             stopBuildOnFailure = true
         }
     }
-
-    requirements {
-        equals("env.VS2019INSTALLDIR", """C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional""")
-        doesNotExist("env.IFORT_COMPILER24")
-        exists("env.IFORT_COMPILER23")
-    }
 })
