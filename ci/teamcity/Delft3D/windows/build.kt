@@ -85,4 +85,12 @@ object WindowsBuild : BuildType({
             stopBuildOnFailure = true
         }
     }
+
+    features {
+        dockerSupport {
+            loginToRegistry = on {
+                dockerRegistryId = "PROJECT_EXT_225"
+            }
+        }
+    }
 })
