@@ -83,20 +83,9 @@ object WindowsBuildEnvironment : BuildType({
 
     triggers {
         vcs {
-            triggerRules = """
-                +:ci/dockerfiles/**
-            """.trimIndent()
-            branchFilter = """
-                +:<default>
-            """.trimIndent()
+            triggerRules = "+:ci/dockerfiles/**".trimIndent()
+            branchFilter = "+:<default>".trimIndent()
             param("trigger.type", "vcs")
-        }
-        vcs {
-            branchFilter = """
-                +:refs/tags/*
-            """.trimIndent()
-            param("trigger.type", "vcs")
-            param("container.tag", "%teamcity.build.branch%")
         }
         schedule {
             schedulingPolicy = weekly {
