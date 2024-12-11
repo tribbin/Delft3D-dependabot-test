@@ -32,6 +32,8 @@
 
 !>  grow gridlayers from a net boundary
 subroutine netboundtocurvi(kp)
+   use m_flippo, only: flippo
+   use precision, only: dp
    use m_change_spline2curvi_param
    use m_polygon
    use m_grid
@@ -52,13 +54,13 @@ subroutine netboundtocurvi(kp)
 
    integer, intent(in) :: kp !< clicked node
 
-   double precision, dimension(:), allocatable :: edgevel
+   real(kind=dp), dimension(:), allocatable :: edgevel
 
    integer, dimension(:), allocatable :: ifront
 
-   double precision :: dt, dwidthloc
+   real(kind=dp) :: dt, dwidthloc
 
-   double precision :: crs, dis, xn, yn, rL
+   real(kind=dp) :: crs, dis, xn, yn, rL
 
    integer :: i, ic, j, jc, k1, k2, k3, L, Lloc, kother
    integer :: istop, ierror, jacancelled

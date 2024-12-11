@@ -31,7 +31,10 @@
 !
 
    subroutine RELINK()
+      use m_dselectinp, only: dselectinp
+      use precision, only: dp
 
+      use m_dellinksinpol, only: dellinksinpol
       use m_netw
       use m_ec_triangle
       use gridoperations
@@ -44,7 +47,7 @@
 
       implicit none
 
-      double precision :: af
+      real(kind=dp) :: af
       integer :: ierr
       integer :: ja
       integer :: k
@@ -62,7 +65,7 @@
       integer :: nn
 
       integer, allocatable :: KIN(:)
-      double precision, allocatable :: X(:), Y(:)
+      real(kind=dp), allocatable :: X(:), Y(:)
 
       allocate (KIN(NUMK), X(NUMK), Y(NUMK), STAT=IERR)
       call AERR('KIN(NUMK), X(NUMK), Y(NUMK)', IERR, 3 * NUMK)
