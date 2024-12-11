@@ -3,7 +3,8 @@ package Delft3D.windows
 import jetbrains.buildServer.configs.kotlin.*
 import jetbrains.buildServer.configs.kotlin.buildFeatures.*
 import jetbrains.buildServer.configs.kotlin.buildSteps.*
-import jetbrains.buildServer.configs.kotlin.triggers.vcs
+import jetbrains.buildServer.configs.kotlin.triggers.*
+import jetbrains.buildServer.configs.kotlin.triggers.schedule
 
 
 import Delft3D.template.*
@@ -76,8 +77,7 @@ object WindowsBuildEnvironment : BuildType({
                     containers.deltares.nl/delft3d-dev/delft3d-buildtools-windows:%build.vcs.number%
                 """.trimIndent()
             }
-            executionMode = ExecutionMode.RUN_ON_SUCCESS
-            enabled = "%trigger.type% != 'schedule'"
+            enabled = "%trigger.type%" == "vcs"
         }
     }
 
@@ -86,14 +86,23 @@ object WindowsBuildEnvironment : BuildType({
             triggerRules = """
                 +:ci/dockerfiles/**
             """.trimIndent()
+            branchFilter = """
+                +:<default>
+                +:refs/tags/*
+            """.trimIndent()
+            param("trigger.type", "vcs")
+            param("container.tag", "%teamcity.build.branch%")
+        }
         schedule {
-            schedulingPolicy = cron("0 0 * * 0") // This cron expression runs the job every Sunday at midnight
+            schedulingPolicy = weekly {
+                dayOfWeek = ScheduleTrigger.DAY.Sunday
+                hour = 0
+                minute = 0
+            }
             branchFilter = "+:<default>"
             triggerBuild = always()
             withPendingChangesOnly = false
-            parameters {
-                param("trigger.type", "schedule")
-            }
+            param("trigger.type", "schedule")
         }
     }
 
