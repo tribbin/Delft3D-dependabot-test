@@ -82,6 +82,7 @@ contains
       end if
 
       facmax = 0.25d0 * sag * rhomean * gammaloc**2
+      !facmax = 0.25d0 * sag * gammaloc**2
 
       wavfu = 0d0
       wavfv = 0d0
@@ -124,12 +125,14 @@ contains
                wavfu(L) = wavfu_loc + wavfbu_loc
                wavfv(L) = wavfv_loc + wavfbv_loc
             end if
-            wavfu(L) = wavfu(L) * min(huvli(L), hminlwi) / rhomean ! Dimensions [m/s^2]
-            wavfv(L) = wavfv(L) * min(huvli(L), hminlwi) / rhomean
             !
             if (abs(wavfu(L)) > 100d0) then
                 continue
             end if
+            !
+            wavfu(L) = wavfu(L) * min(huvli(L), hminlwi) / rhomean ! Dimensions [m/s^2]
+            wavfv(L) = wavfv(L) * min(huvli(L), hminlwi) / rhomean
+            !
          end do
       else ! kmx>0
          do LL = 1, lnx

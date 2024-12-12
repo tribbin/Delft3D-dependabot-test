@@ -40,6 +40,7 @@ module m_ec_converter
    use m_ec_parameters
    use m_ec_spatial_extrapolation
    use time_class
+   use, intrinsic :: ieee_arithmetic
 
    implicit none
 
@@ -512,6 +513,10 @@ contains
                y1 = maxval(targetElementSet%y)
                do jj = 1, n_cols - 1
                   do ii = 1, n_rows - 1
+                     if (isnan(sx_2D(jj, ii)) .or. isnan(sx_2D(jj + 1, ii)) .or. isnan(sx_2D(jj, ii + 1)) .or. isnan(sx_2D(jj + 1, ii + 1)) .or. &
+                        isnan(sy_2D(jj, ii)) .or. isnan(sy_2D(jj + 1, ii)) .or. isnan(sy_2D(jj, ii + 1)) .or. isnan(sy_2D(jj + 1, ii + 1))) then
+                        cycle
+                     end if
                      cx = (sx_2D(jj, ii) + sx_2D(jj + 1, ii) + sx_2D(jj, ii + 1) + sx_2D(jj + 1, ii + 1)) / 4.0
                      cy = (sy_2D(jj, ii) + sy_2D(jj + 1, ii) + sy_2D(jj, ii + 1) + sy_2D(jj + 1, ii + 1)) / 4.0
                      r2 = (max( &
@@ -2314,6 +2319,11 @@ contains
       real(hp) :: maxangle
       real(hp) :: delta
       real(hp) :: weightfac
+      
+      if (isnan(var1) .or. isnan(var2)) then
+         cyclic_interpolation = ieee_value(0.0_hp, ieee_quiet_nan)
+         return
+      end if
 
       minangle = var1
       maxangle = var2
@@ -3160,7 +3170,7 @@ contains
                               targetvalsin = targetvalsin + sinwd(2, 2) * indexWeight%weightFactors(3, j)
                               targetvalsin = targetvalsin + sinwd(1, 2) * indexWeight%weightFactors(4, j)
                               targetValues(j) = atan2d(targetvalsin, targetvalcos)
-                              if (targetValues(j) < 0d0) then
+                              if (.not. isnan(targetValues(j)) .and. targetValues(j) < 0d0) then
                                  targetValues(j) = targetValues(j) + 360d0
                               end if
                            else
