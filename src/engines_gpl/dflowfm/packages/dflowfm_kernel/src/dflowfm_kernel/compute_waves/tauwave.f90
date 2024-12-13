@@ -47,7 +47,7 @@ contains
       use m_flowparameters
       use m_flow, only: rhomean, ag, hu, jaconveyance2D, u1, v, frcu, ifrcutp, z0urou, cfuhi, ifrctypuni, frcuni, taubxu, taubu
       use m_flowgeom
-      use m_physcoef, only: rhomean, ee, sag, vonkar
+      use m_physcoef, only: rhomean, sag, vonkar
       use m_waves
       use m_bedform, only: bfmpar
       use m_vegetation
@@ -55,6 +55,7 @@ contains
       use unstruc_messages
       use unstruc_display
       use m_get_chezy, only: get_chezy
+      use mathconsts, only: ee
 
       implicit none
 

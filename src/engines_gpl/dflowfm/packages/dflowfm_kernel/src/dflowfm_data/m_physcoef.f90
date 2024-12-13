@@ -73,7 +73,6 @@ module m_physcoef
    real(kind=dp) :: wall_z0 !< z0 for vertical walls, ~= Ks/30    (m)
                                               !! z0 for bottom follows from friction_type==3 and z0=frcuni
    real(kind=dp) :: z0 !< z0
-   real(kind=dp), parameter :: ee = exp(1.0_dp) !< natural e
 
    real(kind=dp) :: vicouv !< constant horizontal eddy viscosity   (m2/s) mom
    real(kind=dp) :: dicouv !< constant horizontal eddy diffusivity (m2/s) sal, sed

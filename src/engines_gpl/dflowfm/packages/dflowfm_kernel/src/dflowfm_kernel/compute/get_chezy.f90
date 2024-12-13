@@ -40,7 +40,8 @@ contains
    !! This routine is not safe for friction_coef == 0
    pure function get_chezy(radius, friction_coef, perpendicular_velocity, tangential_velocity, friction_type) result(chezy)
       use m_roughness, only: R_CHEZY, R_MANNING, R_WALL_LAW_NIKURADSE, R_WHITE_COLEBROOK
-      use m_physcoef, only: sag, vonkar, ee
+      use m_physcoef, only: sag, vonkar
+      use mathconsts, only: ee
       use m_hydraulicallysmooth, only: hydraulicallysmooth
       use precision, only: dp
 

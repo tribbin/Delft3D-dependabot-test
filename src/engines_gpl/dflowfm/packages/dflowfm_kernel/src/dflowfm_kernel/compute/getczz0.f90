@@ -34,7 +34,8 @@ module m_get_czz0
 contains
    subroutine getczz0(h1, frcn, friction_type, cz, z0) ! basic get z0 (m),  this routine is not safe for frcn == 0
       use precision, only: dp
-      use m_physcoef, only: sag, vonkar, ee
+      use m_physcoef, only: sag, vonkar
+      use mathconsts, only: ee
       use m_flowparameters, only: epshu
 
       real(kind=dp), intent(in) :: h1
