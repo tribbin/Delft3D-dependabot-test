@@ -490,7 +490,7 @@ contains
 
       success_copy = success
       success = success .and. ecGetValues(ecInstancePtr, item, ecTime)
-      if (jawave == 6) success = success_copy
+      if (flowwithoutwaves) success = success_copy           ! used to be jawave=6, but this is only real use case
 
    end subroutine get_values_and_consider_jawave6
 
