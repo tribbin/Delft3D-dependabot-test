@@ -9,7 +9,7 @@ import Delft3D.template.*
 
 import Delft3D.verschilanalyse.*
 
-version = "2024.03"
+version = "2024.12"
 
 project {
     params {
