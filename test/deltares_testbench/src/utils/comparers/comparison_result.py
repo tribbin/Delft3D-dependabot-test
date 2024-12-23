@@ -11,7 +11,10 @@ class ComparisonResult:
     def __init__(self, error: bool = False) -> None:
         self.passed = None
         self.error = error
-        self.result = ""
+        if self.error:
+            self.result = "ERROR"
+        else:
+            self.result = "NOK"
         self.max_abs_diff = 0.0
         self.max_abs_diff_values = (0.0, 0.0)  # Left and right.
         self.max_abs_diff_coordinates = ()
