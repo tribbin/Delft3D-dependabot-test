@@ -57,6 +57,7 @@ contains
       use geometry_module, only: half
       use m_reapol
       use m_is_1d_boundary_candidate, only: is_1d_boundary_candidate
+      use m_filez, only: oldfil, doclose
 
       integer :: i, k, k1, k2, L, Lf, lb, nn, ierr, k3, k4, id, istart, num1d2d, kL, kR, mpliz
 

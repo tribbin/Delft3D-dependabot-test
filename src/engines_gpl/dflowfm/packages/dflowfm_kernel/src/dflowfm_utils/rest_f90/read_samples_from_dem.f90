@@ -49,6 +49,7 @@ contains
          use m_drawthis
          use m_readyy
          use m_get_samples_boundingbox
+         use m_filez, only: message
 
          character(len=*), intent(in) :: filnam
          integer, intent(in) :: jadoorladen

@@ -51,6 +51,7 @@ contains
     use m_qnerror
     use m_reapol
     use m_reasam
+    use m_filez, only: doclose
 
     integer :: minp, ierr
     character FILNAM * 86

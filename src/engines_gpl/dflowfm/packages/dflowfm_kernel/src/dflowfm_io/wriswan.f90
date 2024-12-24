@@ -33,7 +33,6 @@
 module m_wriswan
 use m_triangulate_quadsandmore, only: triangulate_quadsandmore
 
-
    implicit none
 
    private
@@ -51,8 +50,7 @@ contains
       use geometry_module, only: dbdistance, cross, normaloutchk
       use m_sferic, only: jsferic, jasfer3D
       use gridoperations
-
-      implicit none
+      use m_filez, only: doclose, newfil
 
       integer :: MNET
       character(len=*) :: filnam

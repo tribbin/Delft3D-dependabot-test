@@ -48,6 +48,7 @@ contains
     use m_partitioninfo
     use m_samples
     use m_find_flownode, only: find_nearest_flownodes
+    use m_filez, only: oldfil, doclose
 
     character(len=IdLen) :: name, nams
     logical :: jawel

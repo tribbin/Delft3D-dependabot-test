@@ -49,6 +49,7 @@ contains
          use M_MISSING
          use m_readyy
          use m_delpol
+         use m_filez, only: oldfil, doclose
 
          integer :: Mlist
          integer :: Marc

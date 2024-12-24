@@ -43,6 +43,8 @@ module subroutine SETCOLTABFILE(FILNAM, JASECOND)
    use unstruc_colors
    use m_depmax
    use m_depmax2
+   use m_filez, only: doclose
+
    implicit none
    integer :: ierror
    integer :: iblue

@@ -48,6 +48,7 @@ contains
     use m_reapol
     use m_get_kbot_ktop
     use m_get_zlayer_indices
+    use m_filez, only: oldfil
 
     integer :: ny
     real(kind=dp) :: xx(kmxx)

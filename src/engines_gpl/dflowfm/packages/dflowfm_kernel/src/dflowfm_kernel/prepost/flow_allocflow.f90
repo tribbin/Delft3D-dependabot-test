@@ -65,6 +65,7 @@ contains
     use m_qnerror
     use m_get_zlayer_indices
     use m_get_zlayer_indices_bobL
+    use m_filez, only: oldfil
 
     integer :: ierr, n, k, mxn, j, kk, LL, L, k1, k2, k3, n1, n2, n3, n4, kb1, kb2, numkmin, numkmax, kbc1, kbc2
     integer :: nlayb, nrlay, nlayb1, nrlay1, nlayb2, nrlay2, Lb, Lt, mx, ltn, mpol, Lt1, Lt2, Ldn

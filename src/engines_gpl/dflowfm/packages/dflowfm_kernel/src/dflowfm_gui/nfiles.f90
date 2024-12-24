@@ -103,6 +103,7 @@ contains
       use m_wricrs, only: wricrs
       use m_reapol_nampli, only: reapol_nampli
       use m_realan, only: realan
+      use m_filez, only: doclose, newfil, message
 
       integer :: NUM, NWHAT, KEY
       integer :: ja, ierr

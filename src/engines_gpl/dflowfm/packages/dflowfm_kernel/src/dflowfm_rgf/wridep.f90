@@ -43,6 +43,7 @@ contains
       subroutine WRIDEP(MMDD, ZC, M1, N1, MC, NC, mmax, nmax)
          use precision, only: dp
          use m_readyy
+         use m_filez, only: doclose
 
          integer :: MMDD, M1, N1, MC, NC, mmax, nmax, n, m
          real(kind=dp) :: ZC(mmax, nmax)

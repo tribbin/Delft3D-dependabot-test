@@ -41,13 +41,15 @@ public :: getdimensions
 contains
 
       subroutine GETDIMENSIONS(MXD, NXD, MXLN, NSX)
+         use m_filez, only: oldfil, thisisanumber, doclose
+
          integer :: mout
          integer :: mxd
          integer :: mxln
          integer :: nsx
          integer :: nxd
          character GETAL * 100
-         logical THISISANUMBER, JAWEL
+         logical JAWEL
 
          MXD = 500 ! ROOSTERS EN SPLINES M-RICHTING
          NXD = 500 ! ROOSTERS EN SPLINES N-RICHTING

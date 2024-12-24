@@ -259,6 +259,8 @@ contains
  subroutine ijtrue(i, j)
     use m_reduce
     use m_alloc
+    use m_filez, only: error
+
     implicit none
     integer, intent(in) :: i !< First node number
     integer, intent(in) :: j !< Second node number
@@ -634,6 +636,7 @@ contains
     use m_netw, only: xzw, yzw
     use unstruc_model, only: md_ident
     use m_qnerror
+    use m_filez, only: doclose, newfil
 
     implicit none
     integer :: ndx, its
@@ -2199,6 +2202,8 @@ contains
  subroutine writematrix_matlab()
     use m_reduce
     use m_partitioninfo
+    use m_filez, only: doclose, newfil
+
     implicit none
     integer :: mout, n, i, jj, j, ntot
 

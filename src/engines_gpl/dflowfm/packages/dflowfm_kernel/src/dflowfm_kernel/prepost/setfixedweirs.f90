@@ -66,6 +66,7 @@ subroutine setfixedweirs()
    use m_readyy
    use m_wall_clock_time
    use m_find_crossed_links_kdtree2
+   use m_filez, only: oldfil, doclose, newfil
 
    integer :: k, kk, n1, n2, n, L, LL, jacros, minp, kint, ierr, nh, nhh, i, Lf
    integer :: jaweir, Lastfoundk, kf, kL, Lnt, nna, nnb, k3, k4

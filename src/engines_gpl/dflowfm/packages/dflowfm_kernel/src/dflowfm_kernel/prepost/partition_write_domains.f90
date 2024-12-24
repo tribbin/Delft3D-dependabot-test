@@ -57,6 +57,7 @@ contains
       use system_utils, only: find_last_slash
       use m_qnerror
       use m_wripol
+      use m_filez, only: newfil
 
       character(len=*), intent(in) :: netfilename !< filename of whole network
       integer, intent(in) :: icgsolver !< intended solver

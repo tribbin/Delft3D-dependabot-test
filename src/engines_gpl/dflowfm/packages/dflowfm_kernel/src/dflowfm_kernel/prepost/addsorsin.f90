@@ -57,6 +57,7 @@ contains
       use MessageHandling, only: IdLen
       use m_find_flownode, only: find_nearest_flownodes
       use m_reapol
+      use m_filez, only: oldfil
 
       character(len=*), intent(in) :: filename
       real(kind=dp), intent(in) :: area

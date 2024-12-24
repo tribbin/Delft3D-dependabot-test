@@ -62,6 +62,7 @@ contains
       use m_reapol
       use m_delsam
       use m_reasam
+      use m_filez, only: oldfil
 
       character(*), intent(inout) :: dryptsfilelist !< List of file names to process for deleting dry parts. (Supported formats: .xyz, .pol)
       integer, intent(in) :: jaconfirm !< Whether (1) or not (0) to interactively prompt for inclusion of each individual file from the list.

@@ -27,38 +27,32 @@
 !
 !-------------------------------------------------------------------------------
 
-!
-!
 
-module m_readxymis
+!> Performs a clean program stop upon errors.
+!! This routine is automatically called from the MessageHandling module.
+subroutine unstruc_errorhandler(level)
+   use unstruc_messages, only: threshold_abort
+   use unstruc_files, only: mdia, close_all_files
+   use dfm_error, only: dfm_genericerror
+#ifdef HAVE_MPI
+   use mpi
+   use m_partitioninfo, only: DFM_COMM_ALLWORLD, jampi
+#endif
+   implicit none
+   integer, intent(in) :: level
+   integer :: ierr
 
-implicit none
+   ierr = 0
 
-private
-
-public :: readxymis
-
-contains
-
-      subroutine READXYMIS(MINP)
-         use M_MISSING
-         use m_filez, only: readerror, zoekal, message
-         implicit none
-         integer :: ja
-         integer :: l
-         integer :: minp
-!     snelheidsdrempel
-         character REC * 132, TEX * 8
-         call ZOEKAL(MINP, REC, 'MISSING VALUE XY', JA)
-         XYMIS = 0d0
-         if (JA == 1) then
-            L = index(REC, 'XY') + 4
-            read (REC(L:), *, ERR=888) XYMIS
-            write (TEX, '(F8.3)') XYMIS
-            call MESSAGE('MISSING VALUE XY = ', TEX, ' ')
-         end if
-         return
-888      call READERROR('READING MISSING VALUE XY, BUT GETTING', REC, MINP)
-      end
-
-end module m_readxymis
+   if (level >= threshold_abort) then
+      call close_all_files()
+      close (mdia)
+      mdia = 0
+#ifdef HAVE_MPI
+      if (jampi == 1) then
+         call MPI_Abort(DFM_COMM_ALLWORLD, DFM_GENERICERROR, ierr)
+      end if
+#endif
+      stop
+   end if
+end subroutine unstruc_errorhandler

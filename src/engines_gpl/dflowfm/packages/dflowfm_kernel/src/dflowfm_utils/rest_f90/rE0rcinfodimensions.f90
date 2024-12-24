@@ -43,6 +43,7 @@ contains
       subroutine RE0RCINFODIMENSIONS(MINP, MMAX, NMAX, DX, X0, Y0)
          use precision, only: dp
          use m_readarcinfoheader
+         use m_filez, only: oldfil, zoekja, doclose, message, error
 
          real(kind=dp) :: dx
          integer :: ja

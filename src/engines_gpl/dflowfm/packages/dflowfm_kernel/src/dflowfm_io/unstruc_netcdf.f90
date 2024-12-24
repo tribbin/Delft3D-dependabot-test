@@ -14293,6 +14293,7 @@ contains
       use m_flowgeom, only: ndxi, lnx, ln, ndx
       use fm_external_forcings_data, only: ibnd_own, kbndz, ndxbnd_own, jaoldrstfile
       use m_wrisam
+      use m_filez, only: newfil
 
       character(len=*), intent(in) :: filename !< Name of NetCDF file.
       integer, intent(in) :: imapfile

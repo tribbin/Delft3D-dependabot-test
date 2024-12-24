@@ -51,6 +51,7 @@ subroutine read_samples_from_arcinfo(filnam, jadoorladen, japrompt) ! reaasc
    use m_drawthis
    use m_readyy
    use m_get_samples_boundingbox
+   use m_filez, only: oldfil, doclose, message
 
    character(len=*), intent(in) :: filnam !< Name of *.asc file.
    integer, intent(in) :: jadoorladen !< Whether or not (1/0) to keep the existing samples in the global set.

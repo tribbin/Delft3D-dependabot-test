@@ -298,6 +298,7 @@ contains
       use m_depmax2
       use m_datum
       use m_iget_jaopengl, only: iget_jaopengl
+      use m_filez, only: doclose, newfil
 
       character(len=*), intent(in) :: filename
 
@@ -1480,6 +1481,7 @@ subroutine tekwindvector()
    use messagehandling
    use m_drawthis
    use m_gtext
+   use m_filez, only: doclose, newfil
 
    implicit none
    real(kind=dp) :: xp, yp, vfw, ws, dyp, upot, ukin, ueaa

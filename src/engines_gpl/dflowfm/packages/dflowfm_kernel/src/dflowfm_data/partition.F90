@@ -1373,6 +1373,7 @@ contains
       use m_alloc
       use m_missing
       use m_wrildb
+      use m_filez, only: newfil
 
       implicit none
 
@@ -1753,6 +1754,7 @@ contains
       use m_polygon
       use m_alloc
       use m_reapol
+      use m_filez, only: oldfil
 
       implicit none
 

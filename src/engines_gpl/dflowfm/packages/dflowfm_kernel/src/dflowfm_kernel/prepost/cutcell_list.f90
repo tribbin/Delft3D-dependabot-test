@@ -62,6 +62,7 @@ contains
       use m_reapol
       use m_set_nod_adm
       use m_cutcells_sub, only: cutcells
+      use m_filez, only: oldfil, doclose, message
 
       integer, intent(in) :: n12 !< type of operation (1, 2, 3, 4, 5), see docs below.
       integer, intent(in) :: jamasks !< store masks and polygons (1), use stored masks and polygons (2), use stored masks masks and polygons and clear masks and polygons (3), do not use stored masks and polygons at all (0)

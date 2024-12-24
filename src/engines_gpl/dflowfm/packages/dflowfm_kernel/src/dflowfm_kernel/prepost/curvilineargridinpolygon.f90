@@ -61,6 +61,7 @@ contains
       use m_drawthis
       use m_qnerror
       use m_increase_grid
+      use m_filez, only: newfil
 
       real(kind=dp) :: atpfo
       real(kind=dp) :: dpok1

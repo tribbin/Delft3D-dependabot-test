@@ -432,6 +432,7 @@ contains
       use system_utils, only: split_filename
       use unstruc_files, only: resolvePath
       use m_qnerror
+      use m_filez, only: oldfil, doclose
 
       implicit none
 
@@ -2322,6 +2323,7 @@ contains
       use m_get_kbot_ktop
       use m_get_prof_1D
       use mathconsts, only: pi
+      use m_filez, only: doclose
 
       integer :: j, k, ierr, l, n, itp, kk, k1, k2, kb, kt, nstor, i, ja
       integer :: imba, needextramba, needextrambar
