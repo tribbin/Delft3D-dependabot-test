@@ -44,6 +44,7 @@ contains
     use m_flowgeom
     use m_flow
     use m_reduce
+    use m_filez, only: doclose, newfil
 
     call newfil(mdump, 'dump')
 

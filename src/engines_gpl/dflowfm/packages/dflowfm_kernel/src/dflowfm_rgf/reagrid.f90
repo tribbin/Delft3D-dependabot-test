@@ -76,6 +76,7 @@ contains
          use m_read_bar2pli
          use m_isitu
          use m_ecrrea
+         use m_filez, only: oldfil, doclose, newfil
 
          character(LEN=*) :: FILNAM
          integer :: MRGF, JA

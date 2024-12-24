@@ -45,6 +45,7 @@ subroutine connecthangingnodes()
    use m_flowgeom
    use m_missing
    use gridoperations
+   use m_filez, only: doclose, newfil
 
    integer :: mout, np, kk, k, kk3, kkx, lnu, km, kp
 

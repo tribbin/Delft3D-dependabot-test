@@ -3807,6 +3807,7 @@ contains
       use m_netw
       use m_commandline_option
       use m_reapol
+      use m_filez, only: newfil
 
       character(kind=c_char), intent(in) :: c_netfile_in(MAXSTRLEN)
       character(kind=c_char), intent(in) :: c_netfile_out(MAXSTRLEN)

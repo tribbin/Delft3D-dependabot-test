@@ -42,6 +42,8 @@ contains
 
       subroutine FAILSAVE()
          use m_wrinet
+         use m_filez, only: newfil
+
          implicit none
          integer :: MSAV
          call NEWFIL(MSAV, 'asave.net')

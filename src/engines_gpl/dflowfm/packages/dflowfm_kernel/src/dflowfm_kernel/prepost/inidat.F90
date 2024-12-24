@@ -289,6 +289,7 @@ contains
       use m_reagrid, only: reagrid
       use m_read_samples_from_arcinfo, only: read_samples_from_arcinfo
       use m_realan, only: realan
+      use m_filez, only: oldfil, doclose
 
       character inarg * (*), EXT * 4
       logical JAWEL
@@ -362,6 +363,7 @@ contains
       use unstruc_netcdf, only: unc_write_net
       use m_wripol
       use m_wrisam
+      use m_filez, only: newfil
 
       implicit none
       character inarg * (*), EXT * 4

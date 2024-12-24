@@ -44,6 +44,7 @@ contains
       use m_observations_data
       use m_flow
       use m_flowgeom
+      use m_filez, only: doclose, newfil
 
       implicit none
       integer :: mhis2, n, k, L1

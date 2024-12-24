@@ -53,6 +53,7 @@ contains
       use m_flowparameters
       use unstruc_colors
       use unstruc_model
+      use m_filez, only: oldfil
 
       character(len=76) :: filnam
 
@@ -516,6 +517,7 @@ contains
    end subroutine initGUI
 
    subroutine makeunstrucini(filnam, istat)
+      use m_filez, only: doclose, newfil
 
       implicit none
 

@@ -50,8 +50,7 @@ contains
       use m_missing
       use gridoperations
       use m_wripol
-
-      implicit none
+      use m_filez, only: newfil
 
       integer, intent(in) :: jausekc !<use existing kc (1), or not (0), kc=0 is inactive node, kc=-1 is active node on original netboundary, kc=1 is internal active node
 

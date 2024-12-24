@@ -666,6 +666,7 @@ contains
       use m_samples, only: NS, restoresam, savesam
       use MessageHandling, only: LEVEL_WARN, mess
       use m_reasam
+      use m_filez, only: oldfil
 
       implicit none
 
@@ -829,6 +830,7 @@ contains
       use dfm_error
       use m_set_bobs
       use m_flow_obsinit
+      use m_filez, only: oldfil
 
       implicit none
 
@@ -1658,6 +1660,7 @@ contains
       use m_rho_eckart, only: rho_eckart
       use m_corioliskelvin, only: corioliskelvin, oceaneddy
       use m_model_specific, only: equatorial, poiseuille
+      use m_filez, only: newfil
 
       implicit none
 

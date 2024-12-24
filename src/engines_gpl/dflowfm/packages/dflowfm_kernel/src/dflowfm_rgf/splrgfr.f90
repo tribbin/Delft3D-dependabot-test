@@ -64,6 +64,7 @@ contains
        use m_increase_grid
        use m_restore_grd
        use m_get_ij
+       use m_filez, only: newfil
 
        real(kind=dp), allocatable, dimension(:, :) :: xspc, yspc, xh, yh, tij
        real(kind=dp), allocatable, dimension(:) :: x1, x2, x3, x4, y1, y2, y3, y4

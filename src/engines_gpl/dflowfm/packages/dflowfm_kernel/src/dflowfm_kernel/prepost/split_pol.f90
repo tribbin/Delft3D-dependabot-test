@@ -48,6 +48,7 @@ contains
     use unstruc_messages
     use m_wrildb
     use m_addtopol, only: addtopol
+    use m_filez, only: doclose, newfil
 
     integer, intent(in) :: Ni
     integer, intent(in) :: Nj

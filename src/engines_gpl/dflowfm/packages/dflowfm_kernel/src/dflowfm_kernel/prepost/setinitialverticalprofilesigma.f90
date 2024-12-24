@@ -47,6 +47,7 @@ subroutine setinitialverticalprofilesigma(yy, ny, filename) ! polyfil
    use m_polygon
    use m_reapol
    use m_get_kbot_ktop
+   use m_filez, only: oldfil
 
    integer :: ny
    real(kind=dp) :: xx(kmxx), xxx(kmxx)

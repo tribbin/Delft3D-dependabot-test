@@ -54,6 +54,7 @@ subroutine flow_fourierinit()
    use m_flowtimes, only: tstart_user, tstop_user, ti_his, dt_user
    use unstruc_channel_flow, only: network
    use m_oned_functions, only: set_ground_level_for_1d_nodes, set_max_volume_for_1d_nodes
+   use m_filez, only: oldfil, doclose
 
    integer :: minp
    logical :: success

@@ -44,6 +44,7 @@ contains
       use precision, only: dp
       use m_flowtimes
       use time_module, only: seconds_to_datetimestring
+      use m_filez, only: oldfil, doclose, newfil
 
       logical :: jawel
       integer :: minp, mout, i, k

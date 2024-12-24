@@ -46,6 +46,7 @@ contains
     use m_flowtimes
     use m_partitioninfo
     use unstruc_model, only: md_ident
+    use m_filez, only: newfil
 
     real(kind=dp), intent(in) :: dtsc_loc
 

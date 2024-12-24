@@ -50,6 +50,7 @@ contains
          use m_readyy
          use m_qnerror
          use m_qn_read_error
+         use m_filez, only: doclose
 
          integer :: mpol
          integer, intent(in) :: jadoorladen !< Append to existing polygons (intended to read multiple crs files)

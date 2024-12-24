@@ -65,6 +65,7 @@ contains
          use m_readyy
          use m_firstlin
          use m_wripol
+         use m_filez, only: doclose, newfil
 
          real(kind=dp) :: half
          integer :: ipnt, n, i, j, nfirst

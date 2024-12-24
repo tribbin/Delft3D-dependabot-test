@@ -432,6 +432,7 @@ contains
       use m_reapol
       use m_set_nod_adm
       use m_realan, only: realan
+      use m_filez, only: oldfil
 
       character(*), intent(inout) :: filename !< Name of file to be read (in current directory or with full path).
 
@@ -2559,6 +2560,8 @@ contains
 
 !> Write a model definition to a file.
    subroutine writeMDUFile(filename, istat)
+      use m_filez, only: doclose, newfil
+
       character(*), intent(inout) :: filename !< Name of file to be read (in current directory or with full path).
       integer, intent(out) :: istat !< Return status (0=success)
 
@@ -4160,6 +4163,7 @@ contains
    subroutine set_output_time_vector(md_tvfil, ti_tv, ti_tv_rel)
 
       use m_flowtimes, only: tstop_user
+      use m_filez, only: oldfil
 
       implicit none
 

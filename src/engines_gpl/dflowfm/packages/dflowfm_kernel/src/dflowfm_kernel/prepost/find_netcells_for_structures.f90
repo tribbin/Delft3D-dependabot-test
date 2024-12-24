@@ -55,6 +55,7 @@ module subroutine find_netcells_for_structures(size_istrucells, nstrucells, istr
    use timespace, only: read1polylin
    use kdtree2Factory, only: treeglob
    use m_find_crossed_links_kdtree2, only: find_crossed_links_kdtree2
+   use m_filez, only: oldfil
 
    integer, intent(in) :: size_istrucells !< size of istrucells array
    integer, intent(inout) :: nstrucells !< Number of the netcells that are related to structures

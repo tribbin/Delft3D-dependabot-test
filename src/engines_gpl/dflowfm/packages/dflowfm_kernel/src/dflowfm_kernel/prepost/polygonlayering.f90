@@ -53,6 +53,7 @@ contains
     use m_ec_basic_interpolation, only: TRIINTfast
     use geometry_module
     use m_reapol
+    use m_filez, only: error
 
     integer :: mpol
     integer :: k, j, jstart, jend, ierr, jdla, ipoint, jakdtree, ndim, n, in, nspl, n1

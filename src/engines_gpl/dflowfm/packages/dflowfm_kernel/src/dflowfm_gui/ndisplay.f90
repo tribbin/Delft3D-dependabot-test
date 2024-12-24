@@ -63,6 +63,7 @@ contains
       use m_paramtext
       use m_tek_num_netcells
       use m_set_branch_lc
+      use m_filez, only: oldfil, doclose, message
 
       integer :: ium
       integer :: maxopt

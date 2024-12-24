@@ -27,11 +27,16 @@
 !
 !-------------------------------------------------------------------------------
 
+submodule(m_filez) m_filez_
+
+implicit none
+
+contains
 !
 !
 !> Opens an existing file for reading.
 !! When file does not exist or is already open, program stops with an error message.
-subroutine oldfil(minp, filename)
+module subroutine oldfil(minp, filename)
    use messagehandling, only: err, LEVEL_INFO, mess
    use unstruc_files, only: err_filenotexist, err_filealreadyopen, err_fileaccessdenied, maxnum, filenames, reg_file_open
    use string_module, only: find_first_char
@@ -95,7 +100,7 @@ subroutine oldfil(minp, filename)
 end subroutine oldfil
 
 !> Closes a filepointer with proper bookkeeping.
-subroutine doclose(minp)
+module subroutine doclose(minp)
    use unstruc_files, only: maxnum, lunfils, filenames, reg_file_close
    use messagehandling, only: LEVEL_INFO, mess
    implicit none
@@ -113,7 +118,7 @@ subroutine doclose(minp)
    minp = 0
 end subroutine doclose
 
-subroutine zoekal(minp, rec, text, ja)
+module subroutine zoekal(minp, rec, text, ja)
    use messagehandling, only: LEVEL_INFO, mess
    implicit none
    integer, intent(in) :: minp
@@ -137,7 +142,7 @@ end subroutine zoekal
 !> Opens a new file for writing (and reading).
 !! When file already exists, it will be overwritten.
 !! When access is denied, program stops with an error message.
-subroutine newfil(minp, filename)
+module subroutine newfil(minp, filename)
    use messagehandling, only: err, LEVEL_INFO, mess
    use unstruc_files, only: maxnum, err_filenotexist, err_filealreadyopen, err_fileaccessdenied, filenames, reg_file_open
    use string_module, only: find_first_char
@@ -190,7 +195,7 @@ subroutine newfil(minp, filename)
 
 end subroutine newfil
 
-subroutine newnewfil(minp, filename)
+module subroutine newnewfil(minp, filename)
    implicit none
    integer, intent(out) :: minp !< New file pointer to opened file.
    character(*), intent(in) :: filename !< Name of the file to open.
@@ -289,32 +294,19 @@ subroutine nummer12(rec, i1, i2, num)
       end if
    end do
 end subroutine nummer12
-function numbersonline(rec)
-!!--description-----------------------------------------------------------------
-! NONE
-!!--pseudo code and references--------------------------------------------------
-! NONE
-!!--declarations----------------------------------------------------------------
+    
+module function numbersonline(rec)
+
    implicit none
-!
-! Global variables
-!
+
    integer :: numbersonline
    character(len=*), intent(in) :: rec
-!
-!
-! Local variables
-!
+
    integer :: i
-   integer :: ifirstnum
-   integer :: ilastnum
    integer :: l1
    integer :: l2
    integer :: leeg
-!
-!
-!! executable statements -------------------------------------------------------
-!
+
    !
    numbersonline = 0
    leeg = 0
@@ -376,7 +368,7 @@ function empty(rec)
    empty = .true.
 end function empty
 
-subroutine zoekja(minp, rec, text, ja)
+module subroutine zoekja(minp, rec, text, ja)
    use messagehandling, only: LEVEL_INFO, mess
 
    implicit none
@@ -408,7 +400,7 @@ subroutine zoekja(minp, rec, text, ja)
    return
 end subroutine zoekja
 
-subroutine readandchecknextrecord(minp, rec, text, ja)
+module subroutine readandchecknextrecord(minp, rec, text, ja)
    use messagehandling, only: LEVEL_INFO, mess
    implicit none
    integer, intent(in) :: minp
@@ -472,7 +464,7 @@ subroutine zoekval(minp, key, val, ja)
    end if
 end subroutine zoekval
 
-subroutine zoekinteger(minp, key, val, ja)
+module subroutine zoekinteger(minp, key, val, ja)
    implicit none
    integer, intent(in) :: minp !< File pointer
    character(*), intent(in) :: key
@@ -493,7 +485,7 @@ subroutine zoekinteger(minp, key, val, ja)
 
 end subroutine zoekinteger
 
-subroutine zoekdouble(minp, key, val, ja)
+module subroutine zoekdouble(minp, key, val, ja)
    use precision, only: dp
    implicit none
    integer, intent(in) :: minp !< File pointer
@@ -518,7 +510,7 @@ end subroutine zoekdouble
 
 !> Searches for an optional keyword on current line and returns the text value.
 !! 'key=text'. Rewinds the file pointer to the original line.
-subroutine zoekopt(minp, value, key, ja)
+module subroutine zoekopt(minp, value, key, ja)
    implicit none
    integer, intent(out) :: ja !< Whether key was found or not.
    integer, intent(in) :: minp !< File pointer
@@ -553,36 +545,7 @@ subroutine zoekopt(minp, value, key, ja)
 
 end subroutine zoekopt
 
-!> Performs a clean program stop upon errors.
-!! This routine is automatically called from the MessageHandling module.
-subroutine unstruc_errorhandler(level)
-   use unstruc_messages, only: threshold_abort
-   use unstruc_files, only: mdia, close_all_files
-   use dfm_error, only: dfm_genericerror
-#ifdef HAVE_MPI
-   use mpi
-   use m_partitioninfo, only: DFM_COMM_ALLWORLD, jampi
-#endif
-   implicit none
-   integer, intent(in) :: level
-   integer :: ierr
-
-   ierr = 0
-
-   if (level >= threshold_abort) then
-      call close_all_files()
-      close (mdia)
-      mdia = 0
-#ifdef HAVE_MPI
-      if (jampi == 1) then
-         call MPI_Abort(DFM_COMM_ALLWORLD, DFM_GENERICERROR, ierr)
-      end if
-#endif
-      stop
-   end if
-end subroutine unstruc_errorhandler
-
-subroutine error(w1, w2, w3)
+module subroutine error(w1, w2, w3)
    use messagehandling, only: LEVEL_ERROR, mess
    implicit none
 
@@ -594,7 +557,7 @@ subroutine error(w1, w2, w3)
 
 end subroutine error
 
-function thisisanumber(rec)
+module function thisisanumber(rec)
    use string_module, only: find_first_char
 
    implicit none
@@ -667,7 +630,7 @@ function ilastnum(rec)
 end function ilastnum
 
 !> Error when reading incorrectly formatted data from file.
-subroutine readerror(w1, w2, minp)
+module subroutine readerror(w1, w2, minp)
    use messagehandling, only: LEVEL_ERROR, mess
    use unstruc_files, only: get_filename
    implicit none
@@ -681,7 +644,7 @@ subroutine readerror(w1, w2, minp)
 end subroutine readerror
 
 !> Error when a premature EOF is encountered.
-subroutine eoferror(minp)
+module subroutine eoferror(minp)
    use messagehandling, only: LEVEL_ERROR, mess
    use unstruc_files, only: get_filename
    implicit none
@@ -692,7 +655,7 @@ subroutine eoferror(minp)
    call mess(LEVEL_ERROR, 'unexpected end of file in ', trim(adjustl(fileName_loc)))
 end subroutine eoferror
 
-subroutine message(w1, w2, w3)
+module subroutine message(w1, w2, w3)
    use messagehandling, only: LEVEL_INFO, mess
    implicit none
 
@@ -702,3 +665,5 @@ subroutine message(w1, w2, w3)
    !
    call mess(LEVEL_INFO, w1, w2, w3)
 end subroutine message
+
+end submodule m_filez_

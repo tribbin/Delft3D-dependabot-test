@@ -49,6 +49,7 @@ contains
          use M_ARCINFO
          use M_MISSING
          use m_increase_grid
+         use m_filez, only: doclose
 
          integer :: Marc, JA
          integer :: i, j

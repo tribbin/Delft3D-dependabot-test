@@ -44,6 +44,7 @@ contains
      use string_module, only: find_first_char
      use unstruc_messages
      use unstruc_files
+     use m_filez, only: oldfil
 
      character(len=*), intent(in) :: FILNAM !< Name of file to be opened.
      integer, intent(out) :: lunid !< File unit of the opened file, 0 in case of error.
