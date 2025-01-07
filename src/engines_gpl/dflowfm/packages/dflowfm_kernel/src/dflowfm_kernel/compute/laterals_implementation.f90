@@ -174,35 +174,34 @@ contains
                   qlat = qqlat(i_layer, k1)
                   if (comparereal(qlat, 0._dp, eps10) > 0) then
                      if (kmx==0) then
-                     
                         transport_load(i_const, i_cell) = transport_load(i_const, i_cell) &
                                                        + delta_cell_volume * qlat * incoming_lat_concentration(i_layer, i_const, i_lateral)
                        
                      else 
                         cell_layer_index = kbot(i_cell) - 1 + i_layer
                         if (cell_layer_index <= kbot(i_cell)) then
+                           delta_cell_volume = 1._dp / max(cell_volume(cell_layer_index), dtol)
                            transport_load(i_const, cell_layer_index) = transport_load(i_const, cell_layer_index) &
                                                        + delta_cell_volume * qlat * incoming_lat_concentration(i_layer, i_const, i_lateral)
                         end if
                      end if
-                     
                   else
-                     ! Sink sign-convention: positive means flux going out of model, hence the negative sign here
-                     transport_sink(i_const, i_cell) = transport_sink(i_const, i_cell) - delta_cell_volume * qlat
-
-                     if (kmx>0) then
+                     if (kmx==0) then
+                        ! Sink sign-convention: positive means flux going out of model, hence the negative sign here
+                        transport_sink(i_const, i_cell) = transport_sink(i_const, i_cell) - delta_cell_volume * qlat
+                     else
                         cell_layer_index = kbot(i_cell) - 1 + i_layer
                         if (cell_layer_index <= kbot(i_cell)) then
+                           delta_cell_volume = 1._dp / max(cell_volume(cell_layer_index), dtol)
                            transport_sink(i_const, cell_layer_index) = transport_sink(i_const, cell_layer_index) - delta_cell_volume * qlat
                         end if
                      end if
-
                   end if
-                  continue
                end do
             end do
          end do
       end do
+
    end subroutine add_lateral_load_and_sink
 
    !> Compute water volume per layer in each lateral.

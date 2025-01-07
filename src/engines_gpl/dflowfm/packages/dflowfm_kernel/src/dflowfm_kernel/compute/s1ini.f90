@@ -233,7 +233,6 @@ contains
                         layer_index = min(kbot(k)-1+i_layer,ktop(k))
                         qin(layer_index) = qin(layer_index) + qqlat(i_layer, k1)
                      end if
-                     
                   end do
                end do
             end do
