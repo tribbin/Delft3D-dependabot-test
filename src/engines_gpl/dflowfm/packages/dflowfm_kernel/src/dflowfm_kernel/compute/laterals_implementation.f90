@@ -152,7 +152,7 @@ contains
    ! Add lateral input contribution to the load being transported
    module subroutine add_lateral_load_and_sink(transport_load, transport_sink, cell_volume, dtol)
       use m_transportdata, only: numconst
-      use m_flow, only: kbot, kmx
+      use m_flow, only: kbot, kmx, kmxn
       real(kind=dp), dimension(:, :), intent(inout) :: transport_load !< Load being transported into domain.
       !< Sign-convention: positive means load being transported into model.
       real(kind=dp), dimension(:, :), intent(inout) :: transport_sink !< Load being transported out.
@@ -161,7 +161,7 @@ contains
       real(kind=dp), intent(in) :: dtol !< cut off value for cell_volume, to prevent division by zero
 
       real(kind=dp) :: delta_cell_volume, qlat
-      integer :: i_const, i_lateral, i_cell, k1, i_layer, cell_layer_index
+      integer :: i_const, i_lateral, i_cell, k1, i_layer, cell_layer_index, index_active_bottom_layer
 
       do i_layer = 1, num_layers
          do i_const = 1, numconst
@@ -178,8 +178,9 @@ contains
                                                        + delta_cell_volume * qlat * incoming_lat_concentration(i_layer, i_const, i_lateral)
                        
                      else 
-                        cell_layer_index = kbot(i_cell) - 1 + i_layer
-                        if (cell_layer_index <= kbot(i_cell)) then
+                        index_active_bottom_layer = kmx - kmxn(i_cell) + 1
+                        if (i_layer >= index_active_bottom_layer) then
+                           cell_layer_index = kbot(i_cell) + i_layer - index_active_bottom_layer
                            delta_cell_volume = 1._dp / max(cell_volume(cell_layer_index), dtol)
                            transport_load(i_const, cell_layer_index) = transport_load(i_const, cell_layer_index) &
                                                        + delta_cell_volume * qlat * incoming_lat_concentration(i_layer, i_const, i_lateral)
@@ -190,8 +191,9 @@ contains
                         ! Sink sign-convention: positive means flux going out of model, hence the negative sign here
                         transport_sink(i_const, i_cell) = transport_sink(i_const, i_cell) - delta_cell_volume * qlat
                      else
-                        cell_layer_index = kbot(i_cell) - 1 + i_layer
-                        if (cell_layer_index <= kbot(i_cell)) then
+                        index_active_bottom_layer = kmx - kmxn(i_cell) + 1
+                        if (i_layer >= index_active_bottom_layer) then
+                           cell_layer_index = kbot(i_cell) + i_layer - index_active_bottom_layer
                            delta_cell_volume = 1._dp / max(cell_volume(cell_layer_index), dtol)
                            transport_sink(i_const, cell_layer_index) = transport_sink(i_const, cell_layer_index) - delta_cell_volume * qlat
                         end if
