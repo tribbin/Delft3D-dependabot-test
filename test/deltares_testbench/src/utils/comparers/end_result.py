@@ -13,14 +13,14 @@ class EndResult(Enum):
     def __lt__(self, other: "EndResult") -> bool:
         """Compare EndResult instances based on their order."""
         if not isinstance(other, EndResult):
-            return NotImplemented
+            raise ValueError(f"Cannot compare EndResult with {type(other)}")
         order = ["ERROR", "NOK", "OK"]
         return order.index(self.value) < order.index(other.value)
 
     def __eq__(self, other: "EndResult") -> bool:
         """Check if two EndResult instances are equal."""
         if not isinstance(other, EndResult):
-            return NotImplemented
+            raise ValueError(f"Cannot compare EndResult with {type(other)}")
         return self.value == other.value
 
     @classmethod
