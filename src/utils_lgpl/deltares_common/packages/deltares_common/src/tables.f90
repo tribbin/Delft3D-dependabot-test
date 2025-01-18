@@ -1353,11 +1353,8 @@ contains
       real(fp) :: alpha
       real(fp) :: extrapol
       !
-      real(fp) :: a
-      real(fp) :: b
-      real(fp) :: dr
-      real(fp) :: c, c1, c2
-      real(fp) :: s, s1, s2
+      real(fp) :: a1
+      real(fp) :: a2
       !
       integer :: i
       integer :: j
@@ -1523,17 +1520,23 @@ contains
                      values(i) = table%values(irec, j) * alpha + &
                                & table%values(irec + 1, j) * (1.0_fp - alpha)
                   else
-                     a = alpha
-                     b = 1.0_fp - alpha
-                     c1 = cosd(table%values(irec, j))
-                     c2 = cosd(table%values(irec + 1, j))
-                     s1 = sind(table%values(irec, j))
-                     s2 = sind(table%values(irec + 1, j))
-                     c = c1 * a + c2 * b
-                     s = s1 * a + s2 * b
-                     dr = atan2d(s, c)
-                     if (dr < 0.0) dr = dr + 360.0_fp
-                     values(i) = dr
+                     ! map to values between 0 and +360
+                     a1 = modulo(table%values(irec, j), 360.0_fp)
+                     a2 = modulo(table%values(irec + 1, j), 360.0_fp)
+
+                     ! check if angles are close enough as is
+                     if (abs(a1 - a2) < 180.0_fp) then
+                        ! linear interpolation okay using current values
+                     else
+                        ! shortest angle distance goes via 0/360
+                        ! change the largest angle to the equivalent negative angle
+                        if (a1 > 180.0_fp) then
+                           a1 = a1 - 360.0_fp
+                        else
+                           a2 = a2 - 360.0_fp
+                        end if
+                     end if
+                     values(i) = modulo(a1 * alpha + a2 * (1.0_fp - alpha), 360.0_fp)
                   end if
                end if
             end do
