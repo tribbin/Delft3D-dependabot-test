@@ -256,7 +256,7 @@ contains
         allitems%maxsize = 0
         procesdef%current_size = 0
         procesdef%maxsize = 0
-        procesdef%procesprops = 0
+        nullify(procesdef%procesprops)
         old_items%current_size = 0
         old_items%maxsize = 0
 
