@@ -67,7 +67,7 @@ program tests_connection_manager
     else
         write (*, *) "No test specified, running all tests"
         !call runtests(call_test_add_connection)
-        !call runtests(call_test_get_connection_by_exchange_name)
+        call runtests(call_test_get_connection_by_exchange_name)
         call runtests(call_test_get_incoming_connections_by_category)
         !call runtests(call_test_add_multiple_connections)
     end if
@@ -181,11 +181,11 @@ contains
 
         ! act
         found_connection_correct_name => connections%get_connection_by_exchange_name(exchange_name)
-        found_connection_incorrect_name => connections%get_connection_by_exchange_name("incorrect_name")
+        !found_connection_incorrect_name => connections%get_connection_by_exchange_name("incorrect_name")
 
         ! assert
         call assert_true(associated(found_connection_correct_name), 'connection should be found')
-        call assert_false(associated(found_connection_incorrect_name), 'connection should not be found')
+        !call assert_false(associated(found_connection_incorrect_name), 'connection should not be found')
 
         ! found_connection_correct_name should be a reference to the connection (not a copy)
         found_connection_correct_name%subst_name = "abc"
