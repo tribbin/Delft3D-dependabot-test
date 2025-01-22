@@ -1343,7 +1343,7 @@
         </checks>
     </testCase>
     <testCase name="e03_f01_c15_test015" ref="dwaq_default">
-        <path version="2024-01-11T13:20:00">e03_waq/f01_general/c15_test015</path>
+        <path version="2025-01-22T16:14:48.234000">e03_waq/f01_general/c15_test015</path>
         <checks>
             <file name="d3d-waq-test015.ada" type="NEFIS">
                 <parameters name="DELWAQ_RESULTS">
@@ -1560,7 +1560,7 @@
                     <parameter name="SUBST_010" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/>
                     <parameter name="SUBST_011" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/>
                     <parameter name="SUBST_012" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/>
-                    <parameter name="SUBST_013" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/>
+                    <!-- <parameter name="SUBST_013" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/> RhoWater not calculated anymore -->
                     <parameter name="SUBST_014" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/>
                     <parameter name="SUBST_015" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/>
                 </parameters>
@@ -1579,7 +1579,7 @@
                     <parameter name="SUBST_010" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/>
                     <parameter name="SUBST_011" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/>
                     <parameter name="SUBST_012" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/>
-                    <parameter name="SUBST_013" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/>
+                    <!-- <parameter name="SUBST_013" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/> RhoWater not calculated anymore -->
                     <parameter name="SUBST_014" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/>
                     <parameter name="SUBST_015" toleranceAbsolute="1.0e-04" toleranceRelative="1.0e-06"/>
                 </parameters>
@@ -2013,7 +2013,7 @@
         </checks>
     </testCase>
     <testCase name="e03_f01_c31_test031" ref="dwaq_default">
-        <path version="2024-01-11T13:20:00">e03_waq/f01_general/c31_test031</path>
+        <path version="2025-01-22T16:14:51.220000">e03_waq/f01_general/c31_test031</path>
         <checks>
             <file name="d3d-waq-test031.ada" type="NEFIS">
                 <parameters name="DELWAQ_RESULTS">
@@ -6913,7 +6913,7 @@
     </testCase>
     <testCase name="e03_f07_c02a_exercise_02a" ref="dwaq_default">
         <dependency version="2024-01-11T09:00:00" local_dir="f07_course_d3dfm_env_mod_c00_hydro">e03_waq/f07_course_d3dfm_env_mod/c00_hydro</dependency>
-        <path version="2024-01-11T13:20:00">e03_waq/f07_course_d3dfm_env_mod/c02a_exercise_02a/exercise2a.dsproj_data/Water_Quality_output</path>
+        <path version="2025-01-22T16:14:53.701000">e03_waq/f07_course_d3dfm_env_mod/c02a_exercise_02a/exercise2a.dsproj_data/Water_Quality_output</path>
         <checks>
             <file name="deltashell.ada" type="NEFIS">
                 <parameters name="DELWAQ_RESULTS">
@@ -6925,7 +6925,7 @@
     </testCase>
     <testCase name="e03_f07_c02b_exercise_02b" ref="dwaq_default">
         <dependency version="2024-01-11T09:00:00" local_dir="f07_course_d3dfm_env_mod_c00_hydro">e03_waq/f07_course_d3dfm_env_mod/c00_hydro</dependency>
-        <path version="2024-01-11T13:20:00">e03_waq/f07_course_d3dfm_env_mod/c02b_exercise_02b/exercise2b.dsproj_data/Water_Quality_output</path>
+        <path version="2025-01-22T16:14:56.245000">e03_waq/f07_course_d3dfm_env_mod/c02b_exercise_02b/exercise2b.dsproj_data/Water_Quality_output</path>
         <checks>
             <file name="deltashell.ada" type="NEFIS">
                 <parameters name="DELWAQ_RESULTS">
@@ -6937,7 +6937,7 @@
     </testCase>
     <testCase name="e03_f07_c03_exercise_03" ref="dwaq_default">
         <dependency version="2024-01-11T09:00:00" local_dir="f07_course_d3dfm_env_mod_c00_hydro">e03_waq/f07_course_d3dfm_env_mod/c00_hydro</dependency>
-        <path version="2024-01-11T13:20:00">e03_waq/f07_course_d3dfm_env_mod/c03_exercise_03/exercise3.dsproj_data/Water_Quality_output</path>
+        <path version="2025-01-22T16:14:59.044000">e03_waq/f07_course_d3dfm_env_mod/c03_exercise_03/exercise3.dsproj_data/Water_Quality_output</path>
         <checks>
             <file name="deltashell.ada" type="NEFIS">
                 <parameters name="DELWAQ_RESULTS">
@@ -7137,7 +7137,7 @@
         </checks>
     </testCase>
     <testCase name="e03_f10_c02_microphytobenthos" ref="dwaq_default">
-        <path version="2024-03-22T19:40:00">e03_waq/f10_additional_modules/c02_microphytobenthos</path>
+        <path version="2025-01-22T16:15:03.387000">e03_waq/f10_additional_modules/c02_microphytobenthos</path>
         <checks>
             <file name="mpb_dynamo.ada" type="NEFIS">
                 <parameters name="DELWAQ_RESULTS">
