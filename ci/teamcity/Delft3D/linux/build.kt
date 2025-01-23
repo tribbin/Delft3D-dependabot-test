@@ -72,24 +72,6 @@ object LinuxBuild : BuildType({
             dockerImagePlatform = ScriptBuildStep.ImagePlatform.Linux
             dockerRunParameters = "--rm"
         }
-        script {
-            name = "Copy ESMF binaries"
-            scriptContent = """
-                #!/usr/bin/env bash
-                . /usr/share/Modules/init/bash
-                
-                # Additional step to copy ESMF stuff needed by D-WAVES
-                module load esmf/7.0.0beta_intel2023.1.0
-                
-                ESMFRWG=`which ESMF_RegridWeightGen`
-                LIBESMF=`ldd ${'$'}{ESMFRWG} | grep libesmf.so | awk '{print ${'$'}3}'`
-                LIBCILKRTS=`ldd ${'$'}{ESMFRWG} | grep libcilkrts.so | awk '{print ${'$'}3}'`
-                
-                cp -rf ${'$'}{ESMFRWG}    build_%product%/install/bin &>/dev/null
-                cp -rf ${'$'}{LIBESMF}    build_%product%/install/lib &>/dev/null
-                cp -rf ${'$'}{LIBCILKRTS} build_%product%/install/lib &>/dev/null
-            """.trimIndent()
-        }
     }
 
     features {
