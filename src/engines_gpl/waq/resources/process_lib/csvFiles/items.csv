@@ -7834,7 +7834,7 @@ itemid,itemse,itemex,itemde,itemun,itemnm,itemag,itemda,itemwk,itemgr
 "VB08Age0ha","x"," ",   -999.000    ,"(tC/ha)             ","biomass at age = 0 for cohort 8                   ","volume    ","volume    "," ","                              "
 "NutLimVB08","x"," ",   -999.000    ,"(-)                 ","nutrient limitation for vegetation growth         ","volume    ","volume    "," ","                              "
 "dVB08     ","x"," ",   -999.000    ,"(gC/m3/d)           ","growth rate vegetation biomass cohort 8           ","volume    ","volume    "," ","                              "
-"SWSalCl   ","x"," ",    0.00000    ,"(-)                 ","option: 0.0 salinity simulated, 1.0 Cl simultated ","volume    ","volume    "," ","                              "
+"SWSalCl   ","x"," ",    1.00000    ,"(-)                 ","option: 1 convert to salinity (vv removed)        ","volume    ","volume    "," ","                              "
 "SWDisSi   ","x"," ",    0.00000    ,"(-)                 ","option: 0.0 2nd order diss., 1.0 1st order diss.  ","volume    ","volume    "," ","                              "
 "ku_dFdcN20","x"," ",   0.180000    ,"(1/d)               ","upper limit mineralization rate fast detr-N       ","volume    ","volume    "," ","                              "
 "kl_dFdcN20","x"," ",   0.120000    ,"(1/d)               ","lower limit mineralization rate fast detr-N       ","volume    ","volume    "," ","                              "

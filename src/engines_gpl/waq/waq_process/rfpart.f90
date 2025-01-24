@@ -52,13 +52,14 @@ contains
         !
         integer(kind = int_wp) :: ip1, ip2, ip3, ip4, ip5, ip6, ip7, ip8, ip9, ip10, &
                 ip11, ip12, ip13, ip14, ip15, ip16, ip17, ip18, &
-                ip19, ip20
+                ip19, ip20, ip21
         integer(kind = int_wp) :: iflux, iseg
 
         integer(kind = int_wp) :: lunrep
 
         real(kind = real_wp)   :: alk         ! alkalinity                                 [mole/m3]
         real(kind = real_wp)   :: sal         ! salinity                                      [g/kg]
+        real(kind = real_wp)   :: temp        ! temperature                                     [oC]
         real(kind = real_wp)   :: cecim1      ! cation exchange capacity of IM1            [eq/kgDW]
         real(kind = real_wp)   :: cecim2      ! cation exchange capacity of IM2            [eq/kgDW]
         real(kind = real_wp)   :: cecim3      ! cation exchange capacity of IM3            [eq/kgDW]
@@ -102,6 +103,7 @@ contains
         ip18 = ipoint(18)
         ip19 = ipoint(19)
         ip20 = ipoint(20)
+        ip21 = ipoint(21)
 
         iflux = 0
 
@@ -112,7 +114,6 @@ contains
                 ph = process_space_real(ip1)
                 alk = process_space_real(ip2)
                 sal = process_space_real(ip3)
-                ccl = chlorinity_from_sal( sal, 15.0_real_wp )  ! use 15 degrees as a fairly typical temperature
                 doc = process_space_real(ip4)
                 cecim1 = process_space_real(ip5)
                 cecim2 = process_space_real(ip6)
@@ -127,6 +128,8 @@ contains
                 nc = process_space_real(ip15)
                 oc = process_space_real(ip16)
                 iversn = nint (process_space_real(ip17))
+                temp = process_space_real(ip18)
+                ccl = chlorinity_from_sal( sal, temp )
 
                 if (alk < 1.0) alk = 1.0
                 if (ccl < 1.0) ccl = 1.0
@@ -206,6 +209,7 @@ contains
             ip18 = ip18 + increm (18)
             ip19 = ip19 + increm (19)
             ip20 = ip20 + increm (20)
+            ip21 = ip21 + increm (21)
 
         enddo
 

@@ -4798,6 +4798,7 @@ inpupr,inpuit,inpunm,inpude,inpudo,inpusx
 "RFPART_Cd ","CnRFKpCD  ",  15,"Y","x",1
 "RFPART_Cd ","CoRFKpCD  ",  16,"Y","x",1
 "RFPART_Cd ","SWRepro   ",  17,"Y","x",1
+"RFPART_Cd ","Temp      ",  18,"Y","x",1
 "RFPART_Cu ","pH        ",   1,"Y","x",1
 "RFPART_Cu ","ALK       ",   2,"Y","x",1
 "RFPART_Cu ","Salinity  ",   3,"N","x",1
@@ -4815,6 +4816,7 @@ inpupr,inpuit,inpunm,inpude,inpudo,inpusx
 "RFPART_Cu ","CnRFKpCu  ",  15,"Y","x",1
 "RFPART_Cu ","CoRFKpCu  ",  16,"Y","x",1
 "RFPART_Cu ","SWRepro   ",  17,"Y","x",1
+"RFPART_Cu ","Temp      ",  18,"Y","x",1
 "RFPART_Pb ","pH        ",   1,"Y","x",1
 "RFPART_Pb ","ALK       ",   2,"Y","x",1
 "RFPART_Pb ","Salinity  ",   3,"N","x",1
@@ -4832,6 +4834,7 @@ inpupr,inpuit,inpunm,inpude,inpudo,inpusx
 "RFPART_Pb ","CnRFKpPb  ",  15,"Y","x",1
 "RFPART_Pb ","CoRFKpPb  ",  16,"Y","x",1
 "RFPART_Pb ","SWRepro   ",  17,"Y","x",1
+"RFPART_Pb ","Temp      ",  18,"Y","x",1
 "RFPART_Zn ","pH        ",   1,"Y","x",1
 "RFPART_Zn ","ALK       ",   2,"Y","x",1
 "RFPART_Zn ","Salinity  ",   3,"N","x",1
@@ -4849,6 +4852,7 @@ inpupr,inpuit,inpunm,inpude,inpudo,inpusx
 "RFPART_Zn ","CnRFKpZn  ",  15,"Y","x",1
 "RFPART_Zn ","CoRFKpZn  ",  16,"Y","x",1
 "RFPART_Zn ","SWRepro   ",  17,"Y","x",1
+"RFPART_Zn ","Temp      ",  18,"Y","x",1
 "RFPART_Hg ","pH        ",   1,"Y","x",1
 "RFPART_Hg ","ALK       ",   2,"Y","x",1
 "RFPART_Hg ","Salinity  ",   3,"N","x",1
@@ -4866,6 +4870,7 @@ inpupr,inpuit,inpunm,inpude,inpudo,inpusx
 "RFPART_Hg ","CnRFKpHg  ",  15,"Y","x",1
 "RFPART_Hg ","CoRFKpHg  ",  16,"Y","x",1
 "RFPART_Hg ","SWRepro   ",  17,"Y","x",1
+"RFPART_Hg ","Temp      ",  18,"Y","x",1
 "RFPART_Ni ","pH        ",   1,"Y","x",1
 "RFPART_Ni ","ALK       ",   2,"Y","x",1
 "RFPART_Ni ","Salinity  ",   3,"N","x",1
@@ -4883,6 +4888,7 @@ inpupr,inpuit,inpunm,inpude,inpudo,inpusx
 "RFPART_Ni ","CnRFKpNi  ",  15,"Y","x",1
 "RFPART_Ni ","CoRFKpNi  ",  16,"Y","x",1
 "RFPART_Ni ","SWRepro   ",  17,"Y","x",1
+"RFPART_Ni ","Temp      ",  18,"Y","x",1
 "RFPART_Cr ","pH        ",   1,"Y","x",1
 "RFPART_Cr ","ALK       ",   2,"Y","x",1
 "RFPART_Cr ","Salinity  ",   3,"N","x",1
@@ -4900,6 +4906,7 @@ inpupr,inpuit,inpunm,inpude,inpudo,inpusx
 "RFPART_Cr ","CnRFKpCr  ",  15,"Y","x",1
 "RFPART_Cr ","CoRFKpCr  ",  16,"Y","x",1
 "RFPART_Cr ","SWRepro   ",  17,"Y","x",1
+"RFPART_Cr ","Temp      ",  18,"Y","x",1
 "RFPART_As ","pH        ",   1,"Y","x",1
 "RFPART_As ","ALK       ",   2,"Y","x",1
 "RFPART_As ","Salinity  ",   3,"N","x",1
@@ -4917,6 +4924,7 @@ inpupr,inpuit,inpunm,inpude,inpudo,inpusx
 "RFPART_As ","CnRFKpAs  ",  15,"Y","x",1
 "RFPART_As ","CoRFKpAs  ",  16,"Y","x",1
 "RFPART_As ","SWRepro   ",  17,"Y","x",1
+"RFPART_As ","Temp      ",  18,"Y","x",1
 "PartWK_Cd ","Cd        ",   1,"M","x",1
 "PartWK_Cd ","Cd-Dis    ",   2,"M"," ",1
 "PartWK_Cd ","Cd-Par    ",   3,"M"," ",1
