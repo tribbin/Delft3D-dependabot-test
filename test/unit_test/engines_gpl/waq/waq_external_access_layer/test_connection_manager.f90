@@ -175,6 +175,7 @@ contains
         type(connection_data), pointer :: found_connection_incorrect_name
         character(*), parameter :: exchange_name = "TO_DELWAQ|WASTE|1|FLOW"
 
+        nullify(found_connection_correct_name)
         nullify(found_connection_incorrect_name)
         
         ! arrange
