@@ -22,6 +22,8 @@ object TemplateDetermineProduct : Template({
                             product = "%teamcity.pullRequest.source.branch%".split("/")[0]
                         else:
                             product = "%teamcity.build.branch%".split("/")[0]
+                        if product == "main":
+                            product = "all"
                         print(f"##teamcity[setParameter name='product' value='{product}-testbench']")
                         print(f"##teamcity[buildNumber '{product}: %build.vcs.number%']")
                 """.trimIndent()
