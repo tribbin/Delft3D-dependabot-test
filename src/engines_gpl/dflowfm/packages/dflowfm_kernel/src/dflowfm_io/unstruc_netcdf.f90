@@ -1600,7 +1600,9 @@ contains
          ! Write work array.
          ! Internal 2dv horizontal flowlinks. Horizontal position: edges in 1d mesh. Vertical position: layer centers.
          if (id_var(1) > 0 .and. lnx1d > 0) then
-            ierr = nf90_put_var(ncid, id_var(1), workU3D(1:kmx, 1:lnx1d), start=(/1, 1, id_tsp%idx_curtime/), count=(/kmx, lnx1d, 1/))
+            if (size(id_tsp%edgetoln, 1) > 0) then
+               ierr = nf90_put_var(ncid, id_var(1), workU3D(1:kmx, id_tsp%edgetoln(:)), start=(/1, 1, id_tsp%idx_curtime/), count=(/kmx, size(id_tsp%edgetoln, 1), 1/))
+            end if
          end if
          lnx2d = lnx - lnx1d ! TODO: AvD: now also includes 1D bnds, dont want that.
          ! Internal and external 3d horizontal flowlinks (and 2dv external flowlinks). Horizontal position: edges in 2d mesh. Vertical position: layer centers.
