@@ -168,7 +168,7 @@ contains
                     !              switch for function out of range
 
                     call get_log_unit_number(lunrep)
-                    write(lunrep, *) 'Eerror in rfpart'
+                    write(lunrep, *) 'Error in rfpart'
                     write(lunrep, *) 'Invalid option for repro function partition coefficient'
                     write(lunrep, *) 'Option in input:', iversn
                     write(*, *) ' Error in rfpart'
