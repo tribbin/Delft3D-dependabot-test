@@ -84,7 +84,7 @@ Function ReadDioPlt (inDataSet, inName, IDEBUG, ITMSTP, IOUT1, &
 ! *** Read Dio dataset with RR data
 ! *********************************************************************
 
-    Use ReadLib
+    Use ReadLib_rtc
     Use Dh_Alloc
     use Dio_Plt_Rw
 
@@ -284,7 +284,7 @@ Function ReadDioPltExt (inDataSet, inName, IExtDataSet, &
 ! *********************************************************************
 
     use Dio_Plt_Rw
-    use ReadLib
+    use ReadLib_rtc
 
     implicit none
 
@@ -488,7 +488,7 @@ Function ReadDioPltExtSelection (Ievent, Itmstp, Idebug, Iout1, &
     Use MeasureModule
     Use OtherData
     Use NewTables_rtc
-    Use ReadLib
+    Use ReadLib_rtc
 
     implicit none
 
@@ -780,7 +780,7 @@ Function WriteDioPlt3B (outDataSet, Itmstp, NameFile, Iout1, Idebug) Result(RetV
     use LocationDataModule
     use MeasureModule
 
-    Use ReadLib
+    Use ReadLib_rtc
     Use Dh_Alloc
 
     use dio_plt_rw
@@ -883,7 +883,7 @@ Function WriteDioPltSbk (outDataSet, Itmstp, NameFile, Iout1, Idebug)  Result(Re
     use LocationDataModule
     use MeasureModule
 
-    Use ReadLib
+    Use ReadLib_rtc
     Use Dh_Alloc
     use dio_plt_rw
 

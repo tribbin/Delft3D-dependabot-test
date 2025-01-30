@@ -57,7 +57,7 @@
       Use NewTables_rtc
       Use MeasureModule
       Use OtherData
-      Use Readlib
+      Use Readlib_rtc
       Use DH_Alloc
       Use ExternalDLLModule
 

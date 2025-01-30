@@ -168,7 +168,7 @@
 
       LOGICAL            WithoutSobekCString
 
-! *** Variable to pass active language read from INI file to LanguageModule
+! *** Variable to pass active language read from INI file to LanguageModule_rtc
       Integer            ActiveLanguage
 
       Logical            OnMatlabErrorQuit

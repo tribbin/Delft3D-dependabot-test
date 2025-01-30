@@ -51,7 +51,7 @@
       Use LocationDataModule
       Use OtherData
       Use NewTables_rtc
-      Use ReadLib
+      Use ReadLib_rtc
 
       implicit none
       
