@@ -499,7 +499,7 @@ RUN --mount=type=cache,target=/var/cache/src/ <<"EOF-esmf"
 set -eo pipefail
 
 URL='https://github.com/esmf-org/esmf/archive/refs/tags/v8.8.0.tar.gz'
-BASEDIR=$(basename -s '.tar.gz' "$URL")
+BASEDIR='esmf-8.8.0'
 if [[ -d "/var/cache/src/${BASEDIR}" ]]; then
     echo "CACHED ${BASEDIR}"
 else
