@@ -13,6 +13,9 @@ FROM ${BUILDTOOLS_IMAGE_PATH} AS base
 
 FROM base AS compression-libs
 
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
+
 RUN --mount=type=cache,target=/var/cache/src/,id=compression-libs-${CACHE_ID_SUFFIX} <<"EOF-compression-libs"
 set -eo pipefail
 source /opt/intel/oneapi/setvars.sh
@@ -46,6 +49,9 @@ EOF-compression-libs
 
 FROM base AS uuid
 
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
+
 RUN --mount=type=cache,target=/var/cache/src/,id=uuid-${CACHE_ID_SUFFIX} <<"EOF-uuid"
 set -eo pipefail
 source /opt/intel/oneapi/setvars.sh
@@ -71,6 +77,9 @@ popd
 EOF-uuid
 
 FROM base AS metis
+
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
 
 RUN --mount=type=cache,target=/var/cache/src/,id=metis-${CACHE_ID_SUFFIX} <<"EOF-metis"
 set -eo pipefail
@@ -115,6 +124,9 @@ EOF-metis
 
 FROM base AS expat
 
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
+
 RUN --mount=type=cache,target=/var/cache/src/,id=expat-${CACHE_ID_SUFFIX} <<"EOF-expat"
 set -eo pipefail
 source /opt/intel/oneapi/setvars.sh
@@ -139,6 +151,9 @@ popd
 EOF-expat
 
 FROM base AS xerces-c
+
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
 
 RUN --mount=type=cache,target=/var/cache/src/,id=xerxes-c-${CACHE_ID_SUFFIX} <<"EOF-xerces-c"
 set -eo pipefail
@@ -171,6 +186,11 @@ EOF-xerces-c
 
 FROM base AS petsc
 
+ARG INTEL_ONEAPI_VERSION
+ARG INTEL_FORTRAN_COMPILER
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
+
 RUN --mount=type=cache,target=/var/cache/src/,id=petsc-${CACHE_ID_SUFFIX} <<"EOF-petsc"
 set -eo pipefail
 source /opt/intel/oneapi/setvars.sh
@@ -202,6 +222,9 @@ EOF-petsc
 
 FROM base AS curl
 
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
+
 COPY --from=compression-libs --link /usr/local/ /usr/local/
 
 RUN --mount=type=cache,target=/var/cache/src/,id=curl-${CACHE_ID_SUFFIX} <<"EOF-curl"
@@ -230,6 +253,9 @@ EOF-curl
 
 FROM base AS sqlite3
 
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
+
 COPY --from=compression-libs --link /usr/local/ /usr/local/
 
 RUN --mount=type=cache,target=/var/cache/src/,id=sqlite3-${CACHE_ID_SUFFIX} <<"EOF-sqlite3"
@@ -257,6 +283,9 @@ popd
 EOF-sqlite3
 
 FROM base AS tiff
+
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
 
 COPY --from=compression-libs --link /usr/local/ /usr/local/
 
@@ -291,6 +320,10 @@ EOF-tiff
 
 FROM base AS hdf5
 
+ARG INTEL_FORTRAN_COMPILER
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
+
 COPY --from=compression-libs --link /usr/local/ /usr/local/
 
 RUN --mount=type=cache,target=/var/cache/src/,id=hdf5-${CACHE_ID_SUFFIX} <<"EOF-hdf5"
@@ -323,6 +356,10 @@ popd
 EOF-hdf5
 
 FROM base AS netcdf
+
+ARG INTEL_FORTRAN_COMPILER
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
 
 COPY --from=hdf5 --link /usr/local/ /usr/local/
 COPY --from=curl --link /usr/local/ /usr/local/
@@ -394,6 +431,9 @@ EOF-netcdf-fortran
 
 FROM base AS proj
 
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
+
 COPY --from=tiff --link /usr/local/ /usr/local/
 COPY --from=sqlite3 --link /usr/local/ /usr/local/
 COPY --from=curl --link /usr/local/ /usr/local/
@@ -430,6 +470,9 @@ popd
 EOF-proj
 
 FROM base AS gdal
+
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
 
 COPY --from=expat --link /usr/local/ /usr/local/
 COPY --from=xerces-c --link /usr/local/ /usr/local/
@@ -473,6 +516,10 @@ popd
 EOF-gdal
 
 FROM base as esmf
+
+# Do not provide a debug option, since ESMF is an external application that we do not link to.
+ARG INTEL_FORTRAN_COMPILER
+ARG CACHE_ID_SUFFIX
 
 COPY --from=compression-libs --link /usr/local/ /usr/local/
 COPY --from=netcdf --link /usr/local/ /usr/local/
@@ -518,3 +565,4 @@ COPY --from=metis --link /usr/local /usr/local/
 COPY --from=petsc --link /usr/local/ /usr/local/
 COPY --from=netcdf --link /usr/local /usr/local/
 COPY --from=gdal --link /usr/local/ /usr/local/
+COPY --from=esmf --link /usr/local/ /usr/local/
