@@ -35,7 +35,7 @@ dnf update --assumeyes
 dnf install --assumeyes epel-release
 dnf config-manager --set-enabled powertools
 dnf install --assumeyes \
-    which binutils patchelf diffutils procps m4 make gcc-toolset-14-gcc \
+    which binutils patchelf diffutils procps m4 make \
     openssl openssl-devel wget perl python3 \
     intel-oneapi-compiler-dpcpp-cpp-${COMPILER_DPCPP_CPP_VERSION} \
     intel-oneapi-compiler-fortran-${COMPILER_FORTRAN_VERSION} \
@@ -43,8 +43,8 @@ dnf install --assumeyes \
     intel-oneapi-mpi-devel-${MPI_DEVEL_VERSION}
 
 if [[ $INTEL_ONEAPI_VERSION = "2023" ]]; then
-    # libtool does not compile otherwise
-    dnf install --assumeyes intel-oneapi-compiler-dpcpp-cpp-runtime-${COMPILER_DPCPP_CPP_VERSION}
+    # ifx: error #10417: Problem setting up the Intel(R) Compiler compilation environment. Requires 'install path' setting gathered from 'gcc'
+    dnf install --assumeyes gcc
     # For some reason, in oneapi 2023, the latest symlink is not set correctly.
     ln --symbolic --force --no-target-directory /opt/intel/oneapi/mpi/2021.13 /opt/intel/oneapi/mpi/latest
 fi
