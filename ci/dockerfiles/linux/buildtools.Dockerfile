@@ -47,7 +47,7 @@ elif [[ $INTEL_ONEAPI_VERSION = "2024" ]]; then
     dnf install --assumeyes \
     intel-oneapi-common-licensing-2024.2.1 \
     intel-oneapi-common-oneapi-vars-2024.2.1 \
-    intel-oneapi-common-vars-2024.2.1
+    intel-oneapi-common-vars-2024.2.1 \
     intel-oneapi-compiler-dpcpp-cpp-2024.2.1 \
     intel-oneapi-dpcpp-cpp-2024.2.1 \
     intel-oneapi-libdpstd-devel-2022.6.1 \
