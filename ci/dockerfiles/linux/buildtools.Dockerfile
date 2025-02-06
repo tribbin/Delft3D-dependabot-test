@@ -32,7 +32,7 @@ if [[ $INTEL_ONEAPI_VERSION = "2023" ]]; then
     intel-oneapi-common-licensing-2023.2.0 \
     intel-oneapi-common-vars-2023.2.0 \
     intel-oneapi-compiler-dpcpp-cpp-2023.2.1 \
-    intel-oneapi-libdpstd-devel-2022.2.0
+    intel-oneapi-libdpstd-devel-2022.2.0 \
     intel-oneapi-compiler-fortran-common-2023.2.1 \
     intel-oneapi-compiler-fortran-runtime-2023.2.1 \
     intel-oneapi-compiler-shared-2023.2.1 \
