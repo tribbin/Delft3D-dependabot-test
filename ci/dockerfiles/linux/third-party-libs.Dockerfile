@@ -568,8 +568,6 @@ EOF-esmf
 
 FROM base AS all
 
-#ENV LD_LIBRARY_PATH=/usr/local/lib:/opt/intel/oneapi/compiler/latest/lib
-
 COPY --from=uuid --link /usr/local /usr/local/
 COPY --from=metis --link /usr/local /usr/local/
 COPY --from=petsc --link /usr/local/ /usr/local/
