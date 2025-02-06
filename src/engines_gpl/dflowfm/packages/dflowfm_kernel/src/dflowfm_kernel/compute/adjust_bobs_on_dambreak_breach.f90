@@ -54,7 +54,7 @@ contains
 
       use m_flowgeom, only: bob, bob0
       use fm_external_forcings_data, only: kdambreak, activeDambreakLinks
-      use MessageHandling
+      use MessageHandling, only: msgbuf, LEVEL_WARN, SetMessage
 
       implicit none
 
