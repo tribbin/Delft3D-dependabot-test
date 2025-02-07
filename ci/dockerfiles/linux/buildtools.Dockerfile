@@ -27,19 +27,23 @@ dnf install --assumeyes \
     openssl openssl-devel wget perl python3
 
 if [[ $INTEL_ONEAPI_VERSION = "2023" ]]; then
-    ONEAPI_VERSION_FULL="2023.2.0"
+    COMMON_VARS_VERSION="2023.2.1"
+    COMPILER_DPCPP_CPP_VERSION="2023.2.1"
+    COMPILER_FORTRAN_VERSION="2023.2.1"
     MKL_DEVEL_VERSION="2023.2.0"
     MPI_DEVEL_VERSION="2021.10.0"
 elif [[ $INTEL_ONEAPI_VERSION = "2024" ]]; then
-    ONEAPI_VERSION_FULL="2024.2.1"
+    COMMON_VARS_VERSION="2024.2.1"
+    COMPILER_DPCPP_CPP_VERSION="2024.2.1"
+    COMPILER_FORTRAN_VERSION="2024.2.1"
     MKL_DEVEL_VERSION="2024.2.2"
     MPI_DEVEL_VERSION="2021.13.1"
 fi
 
 dnf install --assumeyes \
-    intel-oneapi-common-vars-${ONEAPI_VERSION_FULL} \
-    intel-oneapi-compiler-dpcpp-cpp-${ONEAPI_VERSION_FULL} \
-    intel-oneapi-compiler-fortran-${ONEAPI_VERSION_FULL} \
+    intel-oneapi-common-vars-${COMMON_VARS_VERSION} \
+    intel-oneapi-compiler-dpcpp-cpp-${COMPILER_DPCPP_CPP_VERSION} \
+    intel-oneapi-compiler-fortran-${COMPILER_FORTRAN_VERSION} \
     intel-oneapi-mkl-devel-${MKL_DEVEL_VERSION} \
     intel-oneapi-mpi-devel-${MPI_DEVEL_VERSION}
 
