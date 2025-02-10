@@ -217,6 +217,11 @@ if(NOT TARGET spherepack)
     add_subdirectory(${checkout_src_root}/${spherepack_module} spherepack)
 endif()
 
+#intel MPI & MKL
+if(NOT TARGET intelredist)
+    add_subdirectory(${checkout_src_root}/${intelredist_module} intelredist)
+endif()
+
 # Unit tests for dflowfm and io_netcdf
 # Only for the version without interacter
 if(NOT WITH_INTERACTER)
