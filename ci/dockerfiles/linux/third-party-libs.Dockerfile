@@ -372,7 +372,7 @@ set -eo pipefail
 source /opt/intel/oneapi/setvars.sh
 
 URL='https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.9.2.tar.gz'
-BASEDIR=$(basename -s '.tar.gz' "$URL")
+BASEDIR='netcdf-c-4.9.2'
 if [[ -d "/var/cache/src/${BASEDIR}" ]]; then
     echo "CACHED ${BASEDIR}"
 else
