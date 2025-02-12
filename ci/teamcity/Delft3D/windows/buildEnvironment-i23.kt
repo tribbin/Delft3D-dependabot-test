@@ -8,7 +8,7 @@ import jetbrains.buildServer.configs.kotlin.triggers.schedule
 import Delft3D.template.*
 import Delft3D.step.*
 
-object WindowsBuildEnvironmentI23 : BuildType({
+object WindowsBuildEnvironment : BuildType({
 
     templates(
         TemplateMergeRequest,
