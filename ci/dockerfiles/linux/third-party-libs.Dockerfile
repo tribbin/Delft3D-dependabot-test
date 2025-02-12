@@ -574,9 +574,6 @@ EOF-esmf
 
 FROM base AS all
 
-ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
-
 COPY --from=uuid --link /usr/local /usr/local/
 COPY --from=metis --link /usr/local /usr/local/
 COPY --from=petsc --link /usr/local/ /usr/local/
