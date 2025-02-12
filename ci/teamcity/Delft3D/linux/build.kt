@@ -71,6 +71,7 @@ object LinuxBuild : BuildType({
             dockerImage = "containers.deltares.nl/delft3d-dev/delft3d-third-party-libs:oneapi-%intel_oneapi_version%-%intel_fortran_compiler%-release"
             dockerImagePlatform = ScriptBuildStep.ImagePlatform.Linux
             dockerRunParameters = "--rm"
+            dockerPull = true
         }
         script {
             name = "Copy ESMF binaries"
