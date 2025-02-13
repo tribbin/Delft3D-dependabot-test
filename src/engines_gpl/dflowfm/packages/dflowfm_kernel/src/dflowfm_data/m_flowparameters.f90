@@ -644,6 +644,9 @@ module m_flowparameters
    ! parameter for secondary flow
    integer :: ispirparopt ! for visualization
 
+   integer, parameter :: PEROT_STATIC = 0 ! Initialise Perot weights once 
+   integer, parameter :: PEROT_UPDATE = 1 ! Initialise Perot weights every time-step
+   
 contains
 !> Sets ALL (scalar) variables in this module to their default values.
 !! For a reinit prior to flow computation, only call reset_flowparameters() instead.
@@ -673,9 +676,6 @@ contains
       ! 4 : uc*A*humx = sum(u dxa W hu ), humx = max(hu)
       ! 5 : uc*Vc     = sum(u dxa W hu ), Vc = dxa W hu based volume in cell
       ! 6 : as 5, also for Coriolis
-
-      integer, parameter :: PEROT_STATIC = 0 ! Initialise Perot weights once 
-      integer, parameter :: PEROT_UPDATE = 1 ! Initialise Perot weights every time-step
 
       ja_Perot_weight_update = PEROT_STATIC ! update Perot weights for 1D nodes (0: no (default), 1: yes)
 
