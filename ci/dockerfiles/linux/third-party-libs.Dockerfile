@@ -578,6 +578,7 @@ cat <<EOT > /root/.bashrc
 source /opt/intel/oneapi/setvars.sh
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+export FC=mpi${INTEL_FORTRAN_COMPILER} CXX=mpicxx CC=mpiicx
 EOT
 
 COPY --from=uuid --link /usr/local /usr/local/
