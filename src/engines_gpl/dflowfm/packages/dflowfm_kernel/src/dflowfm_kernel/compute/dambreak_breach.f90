@@ -45,8 +45,8 @@ module m_dambreak_breach
    public :: add_averaging_upstream_signal
    public :: add_averaging_downstream_signal
    
-   ! time varying, can be get/set via BMI interface
-   real(kind=dp), dimension(:), allocatable, target, public :: breachDepthDambreak !< the dambreak breach width (as a level)
+   ! time varying, values can be get via BMI interface
+   real(kind=dp), dimension(:), allocatable, target, public :: breachDepthDambreak !< the dambreak breach depth (as a level)
    real(kind=dp), dimension(:), allocatable, target, public :: breachWidthDambreak !< the dambreak breach width (as a level)
    real(kind=dp), dimension(:), allocatable, target, public :: waterLevelsDambreakUpStream !< the water levels computed each time step upstream
    real(kind=dp), dimension(:), allocatable, target, public :: waterLevelsDambreakDownStream !< the water levels computed each time step downstream
@@ -74,10 +74,11 @@ module m_dambreak_breach
 
    contains
 
+   !> allocate arrays and initialize variables
    subroutine allocate_and_initialize_dambreak_data(ndambreaksignals)
       use m_alloc, only: realloc
 
-      integer, intent(in) :: ndambreaksignals
+      integer, intent(in) :: ndambreaksignals !< number of dambreak signals
      
       call realloc(waterLevelsDambreakUpstream, ndambreaksignals)
       call realloc(waterLevelsDambreakDownstream, ndambreaksignals)
@@ -98,7 +99,7 @@ module m_dambreak_breach
 
    end subroutine allocate_and_initialize_dambreak_data
 
-   !< TODO UNST-8587:: add API documentation
+   !> TODO UNST-8587:: add API documentation
    subroutine update_dambreak_breach(startTime, deltaTime)
       use precision, only: dp
       use m_flowgeom, only: wu
@@ -276,7 +277,7 @@ module m_dambreak_breach
       end if
    end subroutine update_dambreak_breach
 
-   !< update the crest/bed levels for dambreak breach
+   !> update the crest/bed levels for dambreak breach
    subroutine adjust_bobs_on_dambreak_breach(width, maxwidth, crl, startingLink, L1, L2, strucid)
       use precision, only: dp
 
@@ -421,7 +422,7 @@ module m_dambreak_breach
    
    end subroutine add_dambreaklocation_upstream
 
-   !< store downstream dambreak information 
+   !> store downstream dambreak information 
    subroutine add_dambreaklocation_downstream(n_signal, k_node)
    
       integer, intent(in) :: n_signal !< number of current dambreak signal
@@ -433,7 +434,7 @@ module m_dambreak_breach
    
    end subroutine add_dambreaklocation_downstream
 
-   !< add upstream signal for averaging
+   !> add upstream signal for averaging
    subroutine add_averaging_upstream_signal(n_signal)
 
       integer, intent(in) :: n_signal !< number of current dambreak signal
@@ -443,7 +444,7 @@ module m_dambreak_breach
 
    end subroutine add_averaging_upstream_signal
 
-   !< add downstream signal for averaging
+   !> add downstream signal for averaging
    subroutine add_averaging_downstream_signal(n_signal)
 
       integer, intent(in) :: n_signal !< number of current dambreak signal
