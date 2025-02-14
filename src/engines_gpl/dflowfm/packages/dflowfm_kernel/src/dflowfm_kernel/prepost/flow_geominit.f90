@@ -941,7 +941,6 @@ contains
                   WU(L) = (1d0 - ALFA) * PROFILES1D(KA)%WIDTH + ALFA * PROFILES1D(KB)%WIDTH
                end if
             end if
-            hdx = 0.5d0 * dx(L)
          else
             wu(L) = dbdistance(xk(k3), yk(k3), xk(k4), yk(k4), jsferic, jasfer3D, dmiss) ! set 2D link width
          end if
@@ -984,6 +983,9 @@ contains
       do L = 1, lnx ! for all links, set area
          if (kcu(L) == 1 .or. kcu(L) == -1 .or. kcu(L) == 4 .or. kcu(L) == 5 .or. kcu(L) == 7) then
             ! TODO: UNST-6592: consider excluding ghost links here and do an mpi_allreduce sum later
+            hdx = 0.5d0 * dx(L)
+            k1 = ln(1, L)
+            k2 = ln(2, L)
             if (k1 > ndx2d) ba(k1) = ba(k1) + hdx * wu(L) ! todo, on 1d2d nodes, choose appropriate wu1DUNI = min ( wu1DUNI, intersected 2D face)
             if (k2 > ndx2d) ba(k2) = ba(k2) + hdx * wu(L)
          end if
@@ -993,16 +995,16 @@ contains
          k1 = ln(1, L); k2 = ln(2, L)
          ba(k1) = ba(k2) ! set bnd ba to that of inside point
       end do
+
+      do k = 1, mx1Dend
+         k1 = n1Dend(k)
+         ba(k1) = 2d0 * ba(k1)
+      end do
       
       if (jampi > 0) then
          ! WU of orphan 1D2D links must come from neighbouring partition.
          call update_ghosts(ITYPE_U, 1, lnx, wu, ierror, ignore_orientation=.true.)
       end if
-      
-      do k = 1, mx1Dend
-         k1 = n1Dend(k)
-         ba(k1) = 2d0 * ba(k1)
-      end do
 
       ! fraction of dist(nd1->edge) to link lenght dx
       call readyy('geominit', 0.94d0)
