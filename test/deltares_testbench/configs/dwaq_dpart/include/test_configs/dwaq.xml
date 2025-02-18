@@ -9660,7 +9660,7 @@
         </checks>
     </testCase>
     <testCase name="e03_f12_c30_mortality_salinity" ref="dwaq_default">
-        <path version="2025-02-18T18:00:00">e03_waq/f12_protist/c30_mortality_salinity</path>
+        <path version="2025-02-18T19:00:00">e03_waq/f12_protist/c30_mortality_salinity</path>
         <checks>
             <file name="dwaq/mortality_protist_salinity_his.nc" type="netCDF">
                 <parameters>
