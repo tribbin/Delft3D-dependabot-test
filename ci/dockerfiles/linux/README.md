@@ -41,15 +41,15 @@ image.
 ### Build
 From the delft3d repository root:
 ```bash
-docker build . -f ci/dockerfiles/linux/buildtools.Dockerfile -t localhost/buildtools:$TAG --build-arg INTEL_ONEAPI_VERSION=2024
+sudo docker build . -f ci/dockerfiles/linux/buildtools.Dockerfile -t localhost/buildtools:$TAG --build-arg INTEL_ONEAPI_VERSION=2024
 ```
 Note: Passing the build arguments is not necessary if the default value is required.
 
 ### Push
 ```bash
-docker tag localhost/buildtools:$TAG containers.deltares.nl/delft3d-dev/delft3d-buildtools:$TAG
-docker login --username=$USERNAME --password=$TOKEN containers.deltares.nl
-docker push containers.deltares.nl/delft3d-dev/delft3d-buildtools:$TAG
+sudo docker tag localhost/buildtools:$TAG containers.deltares.nl/delft3d-dev/delft3d-buildtools:$TAG
+sudo docker login --username=$USERNAME --password=$TOKEN containers.deltares.nl
+sudo docker push containers.deltares.nl/delft3d-dev/delft3d-buildtools:$TAG
 ```
 
 ### Links
@@ -120,7 +120,7 @@ The `BUILDTOOLS_IMAGE_TAG` ensures that the `third-party-libs` image is based on
 ### Build
 From the delft3d repository root:
 ```bash
-docker build . -f ci/dockerfiles/linux/third-party-libs.Dockerfile -t localhost/third-party-libs:$TAG \
+sudo docker build . -f ci/dockerfiles/linux/third-party-libs.Dockerfile -t localhost/third-party-libs:$TAG \
     --build-arg INTEL_ONEAPI_VERSION=2024 \
     --build-arg INTEL_FORTRAN_COMPILER=ifort \
     --build-arg DEBUG=0
@@ -129,9 +129,9 @@ Note: Passing the build arguments is not necessary if the default value is requi
 
 ### Push
 ```bash
-docker tag localhost/third-party-libs:$TAG containers.deltares.nl/delft3d-dev/delft3d-third-party-libs:$TAG
-docker login --username=$USERNAME --password=$TOKEN containers.deltares.nl
-docker push containers.deltares.nl/delft3d-dev/delft3d-third-party-libs:$TAG
+sudo docker tag localhost/third-party-libs:$TAG containers.deltares.nl/delft3d-dev/delft3d-third-party-libs:$TAG
+sudo docker login --username=$USERNAME --password=$TOKEN containers.deltares.nl
+sudo docker push containers.deltares.nl/delft3d-dev/delft3d-third-party-libs:$TAG
 ```
 
 ### Links
@@ -174,9 +174,9 @@ Note: Passing the build arguments is not necessary if the default value is requi
 
 ### Push
 ```bash
-docker tag localhost/dimrset:$TAG containers.deltares.nl/delft3d-dev/delft3d-dimrset:$TAG
-docker login --username=$USERNAME --password=$TOKEN containers.deltares.nl
-docker push containers.deltares.nl/delft3d-dev/delft3d-dimrset:$TAG
+sudo docker tag localhost/dimrset:$TAG containers.deltares.nl/delft3d-dev/delft3d-dimrset:$TAG
+sudo docker login --username=$USERNAME --password=$TOKEN containers.deltares.nl
+sudo docker push containers.deltares.nl/delft3d-dev/delft3d-dimrset:$TAG
 ```
 
 ### Links
@@ -190,8 +190,22 @@ was tested).
 
 Install docker on your Linux distribution. On Ubuntu, this is done by following
 [these steps to install docker using apt](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository).
+Then, log in to the repository locally. Go to containers.deltares.nl, log in, go to your user profile in the top right,
+and copy the CLI secret. Then, on Ubuntu run
+```bash
+sudo docker login --username=$USERNAME --password=$TOKEN containers.deltares.nl
+```
+where USERNAME is your e-mail address and TOKEN is the CLI secret that was copied from harbor.
 
-Check out the Delft3D repository in ubuntu. To build the `buildtools` and `third-party-libs` images locally, go to the Delft3D root and run
+Next, check out the Delft3D repository on Ubuntu. If you would like to build the Delft3D repo inside docker, but
+you have made no changes to the docker files, you can simply pull the pre-built containers to your machine.
+To receive the third-party-libs container, which is necessary for building Delft3D, you run
+```bash
+sudo docker pull containers.deltares.nl/delft3d-dev/delft3d-third-party-libs:oneapi-2024-ifx-release
+```
+
+If you have made changes to the dockerfiles, you may need to build the `buildtools` and `third-party-libs` images locally.
+Go to the Delft3D root and run
 ```bash
 sudo docker build . --file ci/dockerfiles/linux/buildtools.Dockerfile --tag localhost/buildtools:<BUILD_TOOLS_TAG> --build-arg INTEL_ONEAPI_VERSION=2024
 sudo docker build . --file ci/dockerfiles/linux/third-party-libs.Dockerfile --tag localhost/third-party-libs:<THIRD_PARTY_TAG> \
