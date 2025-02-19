@@ -50,6 +50,16 @@ object WindowsCollect : BuildType({
                 scriptArguments = "--srcdir x64 --output dimrset_version_x64.txt"
             }
         }
+        python {
+            name = "Verify (un)signed binaries and directory structure"
+            command = file {
+                filename = "ci/DIMRset_delivery/src/print_signing.py"
+                scriptArguments = "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools\\VsDevCmd.bat x64"
+            }
+            conditions {
+                equals("dep.${WindowsBuild.id}.product", "fm-suite")
+            }
+        }
     }
 
     failureConditions {

@@ -4,14 +4,10 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
-signtool = (
-    "C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x64\\signtool.exe"
-)
-
-developer_promt = "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\VsDevCmd.bat"
+signtool = "signtool.exe"
 
 
-def has_signtool() -> bool:
+def has_signtool(developer_promt) -> bool:
     try:
         result = subprocess.run(
             [
@@ -35,7 +31,7 @@ def has_signtool() -> bool:
         return False
 
 
-def get_signing_authority(filepath) -> str:
+def get_signing_authority(filepath, developer_promt) -> str:
     try:
         result = subprocess.run(
             [
@@ -70,10 +66,14 @@ def get_actual_files(directory) -> list:
 
 
 def check_signing_status(
-    file, directory, files_that_should_be_signed, files_that_should_not_be_signed
+    file,
+    directory,
+    files_that_should_be_signed,
+    files_that_should_not_be_signed,
+    developer_promt,
 ) -> tuple:
     filepath = os.path.join(directory, file)
-    signing_status = get_signing_authority(filepath)
+    signing_status = get_signing_authority(filepath, developer_promt)
     if file in files_that_should_be_signed:
         if signing_status == "Verified":
             return f"File is correctly signed: {file}", True
@@ -88,7 +88,10 @@ def check_signing_status(
 
 
 def is_signing_correct(
-    actual_files, files_that_should_be_signed, files_that_should_not_be_signed
+    actual_files,
+    files_that_should_be_signed,
+    files_that_should_not_be_signed,
+    developer_promt,
 ) -> bool:
     files_signed_correctly = True
 
@@ -100,6 +103,7 @@ def is_signing_correct(
                 directory,
                 files_that_should_be_signed,
                 files_that_should_not_be_signed,
+                developer_promt,
             )
             for file in actual_files
         ]
@@ -152,11 +156,12 @@ def is_directory_correct(actual_files, expected_files) -> bool:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <directory>")
+    if len(sys.argv) != 3:
+        print("Usage: python script.py <developer_promt> <directory>")
         sys.exit(1)
     else:
-        directory = sys.argv[1]
+        developer_promt = sys.argv[1]
+        directory = sys.argv[2]
         try:
             with open("ci/DIMRset_delivery/src/DIMRset-binaries.json", "r") as f:
                 files_to_check = json.load(f)
@@ -173,11 +178,12 @@ if __name__ == "__main__":
             print("Directory check failed: Missing or extra files detected.")
             sys.exit(1)
 
-        if has_signtool():
+        if has_signtool(developer_promt):
             if not is_signing_correct(
                 actual_files,
                 files_that_should_be_signed,
                 files_that_should_not_be_signed,
+                developer_promt,
             ):
                 print("Some files are not correctly signed")
                 sys.exit(1)
