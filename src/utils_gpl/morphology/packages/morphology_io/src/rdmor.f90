@@ -849,6 +849,15 @@ subroutine read_morphology_output_options(mor_ptr, moroutput, lsedtot, filmor, l
         error = .true.
         return
     end if
+    select case (moroutput%transptype)
+    case (0)
+        moroutput%transpunit = 'kg s-1 m-1'
+    case (1)
+        moroutput%transpunit = 'm3 s-1 m-1'
+    case (2)
+        moroutput%transpunit = 'm3 s-1 m-1'
+    end select
+    !
     call prop_get(mor_ptr, 'Output', 'BedTranspAtFlux'             , moroutput%sbuuvv)
     call prop_get(mor_ptr, 'Output', 'SuspTranspAtFlux'            , moroutput%ssuuvv)
     call prop_get(mor_ptr, 'Output', 'BedTranspDueToCurrentsAtZeta', moroutput%sbcuv)
