@@ -480,6 +480,10 @@ type morpar_type
                            !  3: 
     integer :: telform     !  switch for thickness of exchange layer
                            !  1: fixed (user-spec.) thickness
+    integer :: active_layer_diffusion !  switch for applying diffusion in the active layer model
+                                      !   0: no diffusion (default)
+                                      !   1: constant value inside polygon
+    
     !
     ! pointers
     !
@@ -515,6 +519,7 @@ type morpar_type
     logical :: bermslopetransport  !  Flag to turn on bermslope swash transport model
     logical :: bermslopebed        !  Flag to turn on bermslope swash transport model for bedload
     logical :: bermslopesus        !  Flag to turn on bermslope swash transport model for suspended load
+    logical :: any_active_layer_diffusion !  Flag set to true if any method for applying diffusion to the active layer is on
     
     !
     ! characters
@@ -1371,6 +1376,7 @@ subroutine nullmorpar(morpar)
     integer                              , pointer :: subiw
     integer                              , pointer :: ttlform
     integer                              , pointer :: telform
+    integer                              , pointer :: active_layer_diffusion
     real(hp)                             , pointer :: hydrt
     real(hp)                             , pointer :: hydrt0
     real(hp)                             , pointer :: morft
@@ -1442,6 +1448,7 @@ subroutine nullmorpar(morpar)
     logical                              , pointer :: oldmudfrac
     logical                              , pointer :: varyingmorfac
     logical                              , pointer :: multi
+    logical                              , pointer :: any_active_layer_diffusion
     logical                              , pointer :: eulerisoglm
     logical                              , pointer :: glmisoeuler
     logical                              , pointer :: l_suscor
@@ -1544,6 +1551,8 @@ subroutine nullmorpar(morpar)
     oldmudfrac          => morpar%oldmudfrac
     varyingmorfac       => morpar%varyingmorfac
     multi               => morpar%multi
+    any_active_layer_diffusion => morpar%any_active_layer_diffusion
+    active_layer_diffusion => morpar%active_layer_diffusion
     !
     bcmfilnam           => morpar%bcmfilnam
     flcomp              => morpar%flcomp
@@ -1670,6 +1679,8 @@ subroutine nullmorpar(morpar)
     oldmudfrac         = .false.
     varyingmorfac      = .false.
     multi              = .false.
+    any_active_layer_diffusion = .false.
+    active_layer_diffusion = 0
     !
     nullify(morpar%morbnd)
     nullify(morpar%cmpbnd)

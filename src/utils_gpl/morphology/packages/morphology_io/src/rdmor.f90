@@ -638,6 +638,13 @@ subroutine read_morphology_properties(mor_ptr, morpar, griddim, filmor, fmttmp, 
         end if
     endselect
     !
+    ! === flag for applying diffusion to active layer
+    !
+    call prop_get(mor_ptr, 'Morphology', 'IALDiff', morpar%active_layer_diffusion)
+    if (morpar%active_layer_diffusion>0) then
+        morpar%any_active_layer_diffusion=.true.
+    endif
+    
 	   
 end subroutine read_morphology_properties
 

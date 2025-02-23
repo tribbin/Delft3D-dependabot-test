@@ -93,6 +93,7 @@ contains
 
       real(kind=dp), parameter :: DAY2SEC = 86400.0d0 !< seconds in a day
       real(kind=dp), parameter :: H2SEC = 3600.0d0 !< seconds in an hour
+      logical, parameter :: ACTIVE_LAYER_DIFFUSION_ON = .true. !< 0=NO diffusion in active layer; 1=YES diffusion in active layer
       logical, parameter :: AVALANCHE_ON = .true.
       logical, parameter :: AVALANCHE_OFF = .false.
       logical, parameter :: SLOPECOR_ON = .true.
@@ -110,12 +111,14 @@ contains
       real(kind=dp) :: timhr
 
       logical, pointer :: cmpupd
+      logical, pointer :: any_active_layer_diffusion
 
    !!
    !! Point
    !!
 
       cmpupd => stmpar%morpar%cmpupd
+      any_active_layer_diffusion => stmpar%morpar%any_active_layer_diffusion
 
    !!
    !! Execute
@@ -218,6 +221,12 @@ contains
          ! Apply erosion and sedimentation to bookkeeping system
          !
          if (cmpupd) then
+            !
+            ! Diffuse fractions in active layer
+            !
+            if (any_active_layer_diffusion == ACTIVE_LAYER_DIFFUSION_ON) then
+               call fm_diffusion_active_layer() 
+            endif
             !
             ! Determine new thickness of transport layer
             !
@@ -2041,6 +2050,27 @@ contains
          sumflux = sumflux - flux
       end if
 
-   end subroutine fm_sumflux
+    end subroutine fm_sumflux
 
+    subroutine fm_diffusion_active_layer()
+      use precision, only: dp
+      
+   !!
+   !! I/O
+   !!
+
+      !real(kind=dp), intent(in) :: dtmor
+
+   !!
+   !! Local variables
+   !!
+
+      !integer :: nm
+
+   !!
+   !! Execute
+   !!
+      
+    end subroutine fm_diffusion_active_layer
+    
 end module m_fm_bott3d
