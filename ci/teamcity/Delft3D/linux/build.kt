@@ -84,15 +84,6 @@ object LinuxBuild : BuildType({
         }
     }
 
-    dependencies {
-        dependency(LinuxThirdPartyLibs) {
-            snapshot {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
-            }
-        }
-    }
-
     requirements {
         equals("teamcity.agent.jvm.os.name", "Linux")
     }
