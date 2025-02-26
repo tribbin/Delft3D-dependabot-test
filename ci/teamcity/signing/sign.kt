@@ -27,8 +27,8 @@ object Sign : BuildType({
             scriptMode = script {
                 // We cannot sing this binary, see: https://wiki.tcl-lang.org/page/SDX+under+Windows
                 content = """
-                    if (-Not (Test-Path -Path dont_sign)) {
-                        New-Item -ItemType Directory -Path dont_sign
+                    if (-Not (Test-Path -Path dont_sign\\bin)) {
+                        New-Item -ItemType Directory -Path dont_sign\\bin
                     }
                     Move-Item -Path to_sign\\bin\\tclkitsh852.exe -Destination dont_sign\\bin\\tclkitsh852.exe -Force
                 """.trimIndent()
