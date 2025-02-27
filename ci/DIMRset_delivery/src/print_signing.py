@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import subprocess
@@ -5,7 +6,6 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 
 signtool = "signtool.exe"
-file_structure_json = "ci/DIMRset_delivery/src/DIMRset-binaries.json"
 
 
 def is_signtool_available(developer_promt: str) -> bool:
@@ -255,52 +255,73 @@ def print_example_json_file_structure() -> None:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python script.py <developer_promt> <directory>")
+    parser = argparse.ArgumentParser(
+        description="Validate file structure and signing status of files in a directory."
+    )
+    parser.add_argument(
+        "expected_structure_json",
+        help="Json file with expected file structure.",
+        type=str,
+    )
+    parser.add_argument(
+        "developer_promt", help="Path to the vs studio developer promt", type=str
+    )
+    parser.add_argument("directory", help="Directiry to validate.", type=str)
+    if len(sys.argv) != 4:
+        print(
+            "Usage: python script.py <expected_structure_json> <developer_promt> <directory>"
+        )
+        sys.exit(1)
+
+    args = parser.parse_args()
+    file_structure_json = args.expected_structure_json
+    developer_promt = args.developer_promt
+    directory = args.directory
+
+    try:
+        with open(file_structure_json, "r") as f:
+            files_to_check = json.load(f)
+    except Exception as e:
+        print(f"Error loading JSON file: {e}")
+        sys.exit(1)
+    try:
+        files_that_should_be_signed = [
+            item["file"] for item in files_to_check["Signed"]
+        ]
+        files_that_should_not_be_signed = files_to_check["Not signed"]
+    except Exception as e:
+        print(f"Error parsing JSON file: {file_structure_json}")
+        print(f"Error: {e}")
+        print_example_json_file_structure()
+        sys.exit(1)
+    expected_files = files_that_should_be_signed + files_that_should_not_be_signed
+    actual_files = get_actual_files(directory)
+
+    if not validate_directory_contents(actual_files, expected_files):
+        print("Directory check failed: Missing or extra files detected.")
         sys.exit(1)
     else:
-        developer_promt = sys.argv[1]
-        directory = sys.argv[2]
-        try:
-            with open(file_structure_json, "r") as f:
-                files_to_check = json.load(f)
-        except Exception as e:
-            print(f"Error loading JSON file: {e}")
-            sys.exit(1)
-        try:
-            files_that_should_be_signed = [
-                item["file"] for item in files_to_check["Signed"]
-            ]
-            files_that_should_not_be_signed = files_to_check["Not signed"]
-        except Exception as e:
-            print(f"Error parsing JSON file: {file_structure_json}")
-            print(f"Error: {e}")
-            print_example_json_file_structure()
-            sys.exit(1)
-        expected_files = files_that_should_be_signed + files_that_should_not_be_signed
-        actual_files = get_actual_files(directory)
-
-        if not validate_directory_contents(actual_files, expected_files):
-            print("Directory check failed: Missing or extra files detected.")
-            sys.exit(1)
-
-        if is_signtool_available(developer_promt):
-            files_that_should_be_signed_with_issued_to = files_to_check["Signed"]
-            if not is_signing_correct(
-                actual_files,
-                files_that_should_be_signed_with_issued_to,
-                files_that_should_not_be_signed,
-                developer_promt,
-            ):
-                print("Some files are not correctly signed")
-                sys.exit(1)
-        else:
-            print(
-                "signtool is required to run this script. Please ensure it is installed and available in the PATH."
-            )
-            sys.exit(1)
-
         print(
-            "All files are correctly signed and the directory contains all expected files."
+            "Directory check passed: All expected files are present and in the right structure."
         )
-        sys.exit(0)
+
+    if not is_signtool_available(developer_promt):
+        print(
+            "signtool is required to run this script. Please ensure it is installed and available in the PATH."
+        )
+        sys.exit(1)
+    else:
+        files_that_should_be_signed_with_issued_to = files_to_check["Signed"]
+        if not is_signing_correct(
+            actual_files,
+            files_that_should_be_signed_with_issued_to,
+            files_that_should_not_be_signed,
+            developer_promt,
+        ):
+            print("Some files are not correctly signed")
+            sys.exit(1)
+
+    print(
+        "All files are correctly signed and the directory contains all expected files."
+    )
+    sys.exit(0)
