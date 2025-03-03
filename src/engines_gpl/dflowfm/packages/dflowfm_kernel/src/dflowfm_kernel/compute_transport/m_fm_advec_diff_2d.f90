@@ -104,8 +104,6 @@ module m_fm_advec_diff_2d
 
       allocate (dumL(1:lnkx), stat=ierror); dumL = 0.0
 
-      call realloc(const_sour, (/1, Ndx/), keepExisting=.true., fill=0d0)
-      call realloc(const_sink, (/1, Ndx/), keepExisting=.true., fill=0d0)
       call realloc(rhs, (/1, Ndx/), keepExisting=.true., fill=0d0)
 
       call realloc(sumhorflux, Ndx, keepExisting=.true., fill=0d0)
