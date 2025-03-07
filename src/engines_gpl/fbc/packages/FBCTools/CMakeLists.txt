@@ -91,22 +91,12 @@ include_directories("${PROJECT_SOURCE_DIR}/src/utilities")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     include_directories("${PROJECT_SOURCE_DIR}/thirdParty/xsd/xsd-3.3.0-i686-windows/libxsd")
-    if(${CMAKE_SIZEOF_VOID_P} MATCHES "8")
-        include_directories("${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-windows-vc-10.0/include")
-        link_directories("${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-windows-vc-10.0/lib/")
-    else()
-        include_directories("${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-windows-vc-10.0/include")
-        link_directories("${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-windows-vc-10.0/lib/")
-    endif()
+    include_directories("${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-windows-vc-10.0/include")
+    link_directories("${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-windows-vc-10.0/lib/")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     include_directories("${PROJECT_SOURCE_DIR}/thirdParty/xsd/xsd-3.3.0-x86_64-linux-gnu/libxsd")
-    if(${CMAKE_SIZEOF_VOID_P} MATCHES "8")
-        include_directories("${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-linux-gcc-3.4/include")
-        link_directories("${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-linux-gcc-3.4/lib/")
-    else()
-        include_directories("${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-linux-gcc-3.4/include")
-        link_directories("${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-linux-gcc-3.4/lib/")
-    endif()
+    include_directories("${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-linux-gcc-3.4/include")
+    link_directories("${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-linux-gcc-3.4/lib/")
 endif()
 
 # Add source folder (FBCTools_static target)
@@ -119,19 +109,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 # Define BMI library
     add_library(FBCTools_BMI SHARED src/rtcToolsBMI.cpp src/bmi.h ${PROJECT_SOURCE_DIR}/src/version.rc)
 
-# Define OpenMI library
-    add_library(FBCTools_OpenMI SHARED src/rtcToolsOpenMI.cpp ${PROJECT_SOURCE_DIR}/src/version.rc)
-
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 # Define FBCTools executable
     add_executable(FBCTools src/rtcTools.cpp)
 
 # Define BMI library
     add_library(FBCTools_BMI SHARED src/rtcToolsBMI.cpp src/bmi.h)
-
-# Define OpenMI library
-    add_library(FBCTools_OpenMI SHARED src/rtcToolsOpenMI.cpp)
-
 endif()
     
 # Link dependencies
@@ -153,132 +136,66 @@ endif()
 
 target_link_libraries(FBCTools LINK_PUBLIC ${LINK_LIBRARIES} ${Boost_LIBRARIES})
 target_link_libraries(FBCTools_BMI LINK_PUBLIC ${LINK_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(FBCTools_OpenMI LINK_PUBLIC ${LINK_LIBRARIES} ${Boost_LIBRARIES})
 
 target_include_directories(FBCTools PUBLIC ${Boost_LIBRARY_DIRS})
 target_include_directories(FBCTools_BMI PUBLIC ${Boost_LIBRARY_DIRS})
-target_include_directories(FBCTools_OpenMI PUBLIC ${Boost_LIBRARY_DIRS})
 
-# Install project files into output folder
-add_custom_command(TARGET FBCTools
-                   POST_BUILD
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/pi_diag.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/pi_modelparameters.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/pi_run.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/pi_sharedtypes.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/pi_state.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/pi_timeseries.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/rtcDataConfig.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/rtcObjectiveConfig.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/rtcRuntimeConfig.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/rtcSharedTypes.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/rtcStateConfig.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/rtcToolsConfig.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/xsd/treeVector.xsd ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/GPLv2.txt ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/LICENSE.txt ${DESTINATION_DIR}
-                   COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/release_notes.txt ${DESTINATION_DIR})
-
-# Install library dependencies into output folder
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    STRING(REGEX REPLACE "/" "\\\\" WINDOWS_FORMAT_PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR})
-    if(${CMAKE_SIZEOF_VOID_P} MATCHES "8")
-        add_custom_command(TARGET FBCTools
-                           POST_BUILD
-                           COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-windows-vc-10.0/bin/xerces-c_3_1.dll ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/vcomp/x64/vcomp100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcr/x64/msvcr100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcr140/x64/vcruntime140_1$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcp100/x64/msvcp100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR})
-    else()
-        add_custom_command(TARGET FBCTools
-                           POST_BUILD
-                           COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-windows-vc-10.0/bin/xerces-c_3_1.dll ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-windows-vc-10.0/bin/xerces-c_3_1D.dll ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/vcomp/x86/vcomp100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcr/x86/msvcr100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcp100/x86/msvcp100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR})
-    endif()
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    if(${CMAKE_SIZEOF_VOID_P} MATCHES "8")
-        add_custom_command(TARGET FBCTools
-                           POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-linux-gcc-3.4/lib/libxerces-c-3.1.so ${DESTINATION_DIR})
-    else()
-        add_custom_command(TARGET FBCTools
-                           POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-linux-gcc-3.4/lib/libxerces-c-3.1.so ${DESTINATION_DIR})
-    endif()
-    configure_file(src/RTCTools.sh.in src/RTCTools.sh)
-    add_custom_command(TARGET FBCTools
-                       POST_BUILD                      
-                       COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_BINARY_DIR}/src/RTCTools.sh ${DESTINATION_DIR})
-endif()
-
-# Optionally add OpenMI C# projects
-option(BUILD_OPENMI_DOTNET_INTERFACE "Build OpenMI .NET interface" OFF)
-if(${BUILD_OPENMI_DOTNET_INTERFACE})
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        include_external_msproject(RTCTools.OpenMI.Sdk.Backbone
-                                   ${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/thirdParty/Oatc.SDK_1.4.0.0/Oatc/src/csharp/Sdk/Backbone/RTCTools.OpenMI.Sdk.Backbone.csproj
-                                   TYPE FAE04EC0-301F-11D3-BF4B-00C04F79EFBC
-                                   PLATFORM AnyCPU)
-        include_external_msproject(RTCTools.OpenMI.Sdk.Buffer
-                                   ${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/thirdParty/Oatc.SDK_1.4.0.0/Oatc/src/csharp/Sdk/Buffer/RTCTools.OpenMI.Sdk.Buffer.csproj
-                                   TYPE FAE04EC0-301F-11D3-BF4B-00C04F79EFBC
-                                   PLATFORM AnyCPU
-                                   RTCTools.OpenMI.Sdk.Backbone)
-        include_external_msproject(RTCTools.OpenMI.Sdk.DevelopmentSupport
-                                   ${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/thirdParty/Oatc.SDK_1.4.0.0/Oatc/src/csharp/Sdk/DevelopmentSupport/RTCTools.OpenMI.Sdk.DevelopmentSupport.csproj
-                                   TYPE FAE04EC0-301F-11D3-BF4B-00C04F79EFBC
-                                   PLATFORM AnyCPU)
-        include_external_msproject(RTCTools.OpenMI.Sdk.Spatial
-                                   ${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/thirdParty/Oatc.SDK_1.4.0.0/Oatc/src/csharp/Sdk/Spatial/RTCTools.OpenMI.Sdk.Spatial.csproj
-                                   TYPE FAE04EC0-301F-11D3-BF4B-00C04F79EFBC
-                                   PLATFORM AnyCPU
-                                   RTCTools.OpenMI.Sdk.Backbone)
-        include_external_msproject(RTCTools.OpenMI.Sdk.Wrapper
-                                   ${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/thirdParty/Oatc.SDK_1.4.0.0/Oatc/src/csharp/Sdk/Wrapper/RTCTools.OpenMI.Sdk.Wrapper.csproj
-                                   TYPE FAE04EC0-301F-11D3-BF4B-00C04F79EFBC
-                                   PLATFORM AnyCPU
-                                   RTCTools.OpenMI.Sdk.Backbone RTCTools.OpenMI.Sdk.DevelopmentSupport RTCTools.OpenMI.Sdk.Spatial RTCTools.OpenMI.Sdk.Buffer)
-        include_external_msproject(Deltares.RTCTools.Net
-                                   ${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/src/Deltares.RtcTools.Net/Deltares.RtcTools.Net.csproj
-                                   TYPE FAE04EC0-301F-11D3-BF4B-00C04F79EFBC
-                                   PLATFORM AnyCPU
-                                   RTCTools.OpenMI.Sdk.Backbone RTCTools.OpenMI.Sdk.Buffer RTCTools.OpenMI.Sdk.DevelopmentSupport RTCTools.OpenMI.Sdk.Spatial RTCTools.OpenMI.Sdk.Wrapper)
-        include_external_msproject(Deltares.RTCToolsWrapper
-                                   ${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/src/Deltares.RtcToolsWrapper.csproj
-                                   TYPE FAE04EC0-301F-11D3-BF4B-00C04F79EFBC
-                                   PLATFORM AnyCPU
-                                   Deltares.RTCTools.Net)
-
-        add_dependencies(FBCTools Deltares.RTCToolsWrapper)
-
-        add_custom_command(TARGET FBCTools
-                           POST_BUILD
-                           COMMAND "${CMAKE_COMMAND}" -E copy "${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/thirdParty/Oatc.SDK_1.4.0.0/OpenMI.Standard/src/csharp/bin/OpenMI.Standard.dll" ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy "${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/thirdParty/Oatc.SDK_1.4.0.0/Oatc/src/csharp/Sdk/Backbone/obj/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/RTCTools.OpenMI.Sdk.Backbone.dll" ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy "${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/thirdParty/Oatc.SDK_1.4.0.0/Oatc/src/csharp/Sdk/Buffer/obj/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/RTCTools.OpenMI.Sdk.Buffer.dll" ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy "${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/thirdParty/Oatc.SDK_1.4.0.0/Oatc/src/csharp/Sdk/DevelopmentSupport/obj/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/RTCTools.OpenMI.Sdk.DevelopmentSupport.dll" ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy "${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/thirdParty/Oatc.SDK_1.4.0.0/Oatc/src/csharp/Sdk/Spatial/obj/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/RTCTools.OpenMI.Sdk.Spatial.dll" ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy "${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/thirdParty/Oatc.SDK_1.4.0.0/Oatc/src/csharp/Sdk/Wrapper/obj/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/RTCTools.OpenMI.Sdk.Wrapper.dll" ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy "${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/src/Deltares.RtcTools.Net/obj/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/Deltares.RtcTools.Net.dll" ${DESTINATION_DIR}
-                           COMMAND "${CMAKE_COMMAND}" -E copy "${PROJECT_SOURCE_DIR}/../FBCToolsOpenMI/src/obj/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>/Deltares.RtcToolsWrapper.dll" ${DESTINATION_DIR})
-    endif()
-endif()
+# # Install library dependencies into output folder
+# if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    # STRING(REGEX REPLACE "/" "\\\\" WINDOWS_FORMAT_PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR})
+    # if(${CMAKE_SIZEOF_VOID_P} MATCHES "8")
+        # add_custom_command(TARGET FBCTools
+                           # POST_BUILD
+                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-windows-vc-10.0/bin/xerces-c_3_1.dll ${DESTINATION_DIR}
+                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/vcomp/x64/vcomp100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
+                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcr/x64/msvcr100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
+                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcr140/x64/vcruntime140_1$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
+                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcp100/x64/msvcp100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR})
+    # else()
+        # add_custom_command(TARGET FBCTools
+                           # POST_BUILD
+                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-windows-vc-10.0/bin/xerces-c_3_1.dll ${DESTINATION_DIR}
+                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-windows-vc-10.0/bin/xerces-c_3_1D.dll ${DESTINATION_DIR}
+                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/vcomp/x86/vcomp100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
+                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcr/x86/msvcr100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
+                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcp100/x86/msvcp100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR})
+    # endif()
+# elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    # if(${CMAKE_SIZEOF_VOID_P} MATCHES "8")
+        # add_custom_command(TARGET FBCTools
+                           # POST_BUILD
+                           # COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-linux-gcc-3.4/lib/libxerces-c-3.1.so ${DESTINATION_DIR})
+    # else()
+        # add_custom_command(TARGET FBCTools
+                           # POST_BUILD
+                           # COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-linux-gcc-3.4/lib/libxerces-c-3.1.so ${DESTINATION_DIR})
+    # endif()
+    # configure_file(src/RTCTools.sh.in src/RTCTools.sh)
+    # add_custom_command(TARGET FBCTools
+                       # POST_BUILD                      
+                       # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_BINARY_DIR}/src/RTCTools.sh ${DESTINATION_DIR})
+# endif()
 
 #------------------------------
 # configure installer for linux
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install)
-  install(TARGETS FBCTools DESTINATION bin)
-  install(TARGETS FBCTools_BMI DESTINATION lib)
-  install(TARGETS FBCTools_OpenMI DESTINATION lib)
-  add_subdirectory("${PROJECT_SOURCE_DIR}/cmake/install" DFBC_install)
-endif()
-
-# TODO: copy tests from proprietary part of original RTCTools
-    # Add tests from proprietary repository
-    # add_subdirectory(${PROPRIETARY_REPOSITORY}/RTCTools/test proprietary-test)
+set(FBC_SUPPORT_FILES
+  ${PROJECT_SOURCE_DIR}/xsd/pi_diag.xsd
+  ${PROJECT_SOURCE_DIR}/xsd/pi_modelparameters.xsd
+  ${PROJECT_SOURCE_DIR}/xsd/pi_run.xsd
+  ${PROJECT_SOURCE_DIR}/xsd/pi_sharedtypes.xsd
+  ${PROJECT_SOURCE_DIR}/xsd/pi_state.xsd
+  ${PROJECT_SOURCE_DIR}/xsd/pi_timeseries.xsd
+  ${PROJECT_SOURCE_DIR}/xsd/rtcDataConfig.xsd
+  ${PROJECT_SOURCE_DIR}/xsd/rtcObjectiveConfig.xsd
+  ${PROJECT_SOURCE_DIR}/xsd/rtcRuntimeConfig.xsd
+  ${PROJECT_SOURCE_DIR}/xsd/rtcSharedTypes.xsd
+  ${PROJECT_SOURCE_DIR}/xsd/rtcStateConfig.xsd
+  ${PROJECT_SOURCE_DIR}/xsd/rtcToolsConfig.xsd
+  ${PROJECT_SOURCE_DIR}/xsd/treeVector.xsd
+  ${PROJECT_SOURCE_DIR}/GPLv2.txt
+  ${PROJECT_SOURCE_DIR}/LICENSE.txt
+  ${PROJECT_SOURCE_DIR}/release_notes.txt
+)
+  install(FILES ${FBC_SUPPORT_FILES} DESTINATION share/drtc)
+  install(TARGETS FBCTools RUNTIME DESTINATION bin)
+  install(TARGETS FBCTools_BMI RUNTIME DESTINATION lib)
