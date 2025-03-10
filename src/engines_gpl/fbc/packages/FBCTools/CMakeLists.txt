@@ -1,5 +1,5 @@
 # CMake settings
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.10.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros)
 
@@ -12,11 +12,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif()
 
-# Use C++11 if available
-include(set_cxx_norm)
-set_cxx_norm(CXX_NORM_CXX11 CXX_NORM_FLAGS)
-
-add_compile_options("${CXX_NORM_FLAGS}")
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Enable position independent code for libraries
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
@@ -51,16 +49,6 @@ if(MSVC)
 else()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -std=c++11 -lboost_filesystem -lboost_system -lboost_date_time") 
     set(CMAKE_C_FLAGS_RELEASE   "${CMAKE_C_FLAGS_RELEASE} -std=c++11 -lboost_filesystem -lboost_system -lboost_date_time")
-endif()
-
-# Optionally enable code coverage report generation
-option(GENERATE_COVERAGE_REPORT "Generate code coverage report" OFF)
-if(${GENERATE_COVERAGE_REPORT})
-    include(CodeCoverage)
-
-    add_compile_options("-g -O0 -fprofile-arcs -ftest-coverage")
-
-    setup_target_for_coverage(coverage ${CMAKE_CTEST_COMMAND} coverage)
 endif()
 
 # Add project include directories
@@ -124,6 +112,11 @@ target_link_libraries(FBCTools_BMI LINK_PUBLIC ${LINK_LIBRARIES} ${Boost_LIBRARI
 target_include_directories(FBCTools PUBLIC ${Boost_LIBRARY_DIRS})
 target_include_directories(FBCTools_BMI PUBLIC ${Boost_LIBRARY_DIRS})
 
+# Define how the files should be structured within Visual Studio
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${source_files})
+set_target_properties (FBCTools PROPERTIES FOLDER engines_gpl/fbc)
+set_target_properties (FBCTools_BMI PROPERTIES FOLDER engines_gpl/fbc)
+
 #------------------------------
 # configure installer for linux
 set(FBC_SUPPORT_FILES
@@ -144,3 +137,4 @@ set(FBC_SUPPORT_FILES
   install(FILES ${FBC_SUPPORT_FILES} DESTINATION share/drtc)
   install(TARGETS FBCTools RUNTIME DESTINATION bin)
   install(TARGETS FBCTools_BMI RUNTIME DESTINATION lib)
+  install(FILES ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-windows-vc-10.0/bin/xerces-c_3_1.dll DESTINATION lib)

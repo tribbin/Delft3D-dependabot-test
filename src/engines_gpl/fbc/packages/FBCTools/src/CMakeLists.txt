@@ -114,20 +114,6 @@ add_library(FBCTools_static STATIC
             ${utilitiesSRC}
             version.h
 )
-
+set_target_properties (FBCTools_static PROPERTIES FOLDER engines_gpl/fbc)
 target_link_libraries(FBCTools_static LINK_PUBLIC ${LINK_LIBRARIES} ${Boost_LIBRARIES})
 target_include_directories(FBCTools_static PUBLIC ${Boost_INCLUDE_DIR})
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    STRING(REGEX REPLACE "/" "\\\\" WINDOWS_FORMAT_PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR})
-    add_custom_command(PRE_BUILD
-                       OUTPUT ${PROJECT_SOURCE_DIR}/src/version.h
-                       COMMAND call del /F /Q ${WINDOWS_FORMAT_PROJECT_SOURCE_DIR}\\src\\version.h
-                       COMMAND call ${PROJECT_SOURCE_DIR}\\thirdParty\\version_number\\update_version.cmd ${PROJECT_SOURCE_DIR}\\src\\version.h ${PROJECT_SOURCE_DIR}\\src ${PROJECT_SOURCE_DIR}\\src\\version_number.ini
-                       DEPENDS version_number.ini)
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    add_custom_command(PRE_BUILD
-                       OUTPUT ${PROJECT_SOURCE_DIR}/src/version.h
-                       COMMAND sh ${PROJECT_SOURCE_DIR}/src/update_version.sh ${PROJECT_SOURCE_DIR}/src
-                       DEPENDS version_number.ini)
-endif()

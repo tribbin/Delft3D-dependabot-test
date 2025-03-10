@@ -91,6 +91,7 @@ set(rtc_kernel_module "${rtc_module_path}/rtc_kernel")
 set(fbc_module_path "${engines_gpl_path}/fbc/packages/FBCTools")
 
 # Install
+set(install_fbc_module cmake/install_fbc)
 set(install_dflowfm_module cmake/install_fm)
 set(install_waq_module cmake/install_waq)
 set(install_wave_module cmake/install_wave)
