@@ -6,22 +6,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros)
 # Project name
 project(FBCTools)
 
-# Set platform-dependent output folder
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
-        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/Debug")
-    else()
-        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/Release")
-    endif()
-    set(DESTINATION_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-else()
-    # Visual studio will have its own debug and release configuration
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
-    set(DESTINATION_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>")
-endif()
-
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   # when makeing a relocatable / standalone install make sure the libraries can be found in the install dir (or $ORIGIN)
   set(CMAKE_INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib")
@@ -139,42 +123,6 @@ target_link_libraries(FBCTools_BMI LINK_PUBLIC ${LINK_LIBRARIES} ${Boost_LIBRARI
 
 target_include_directories(FBCTools PUBLIC ${Boost_LIBRARY_DIRS})
 target_include_directories(FBCTools_BMI PUBLIC ${Boost_LIBRARY_DIRS})
-
-# # Install library dependencies into output folder
-# if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    # STRING(REGEX REPLACE "/" "\\\\" WINDOWS_FORMAT_PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR})
-    # if(${CMAKE_SIZEOF_VOID_P} MATCHES "8")
-        # add_custom_command(TARGET FBCTools
-                           # POST_BUILD
-                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-windows-vc-10.0/bin/xerces-c_3_1.dll ${DESTINATION_DIR}
-                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/vcomp/x64/vcomp100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
-                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcr/x64/msvcr100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
-                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcr140/x64/vcruntime140_1$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
-                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcp100/x64/msvcp100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR})
-    # else()
-        # add_custom_command(TARGET FBCTools
-                           # POST_BUILD
-                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-windows-vc-10.0/bin/xerces-c_3_1.dll ${DESTINATION_DIR}
-                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-windows-vc-10.0/bin/xerces-c_3_1D.dll ${DESTINATION_DIR}
-                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/vcomp/x86/vcomp100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
-                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcr/x86/msvcr100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR}
-                           # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_SOURCE_DIR}/thirdParty/msvcp100/x86/msvcp100$<$<CONFIG:Debug>:d>.dll ${DESTINATION_DIR})
-    # endif()
-# elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    # if(${CMAKE_SIZEOF_VOID_P} MATCHES "8")
-        # add_custom_command(TARGET FBCTools
-                           # POST_BUILD
-                           # COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86_64-linux-gcc-3.4/lib/libxerces-c-3.1.so ${DESTINATION_DIR})
-    # else()
-        # add_custom_command(TARGET FBCTools
-                           # POST_BUILD
-                           # COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/thirdParty/xerces/xerces-c-3.1.1-x86-linux-gcc-3.4/lib/libxerces-c-3.1.so ${DESTINATION_DIR})
-    # endif()
-    # configure_file(src/RTCTools.sh.in src/RTCTools.sh)
-    # add_custom_command(TARGET FBCTools
-                       # POST_BUILD                      
-                       # COMMAND "${CMAKE_COMMAND}" -E copy ${PROJECT_BINARY_DIR}/src/RTCTools.sh ${DESTINATION_DIR})
-# endif()
 
 #------------------------------
 # configure installer for linux
