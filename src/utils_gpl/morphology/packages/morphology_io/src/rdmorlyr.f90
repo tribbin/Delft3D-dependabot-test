@@ -99,11 +99,6 @@ contains
       real(fp), pointer :: minmass
       real(fp), pointer :: theulyr
       real(fp), pointer :: thlalyr
-      real(fp), dimension(:), pointer :: thexlyr
-      real(fp), dimension(:), pointer :: thtrlyr
-      real(fp), pointer :: ttlalpha
-      real(fp), pointer :: ttlmin
-      real(fp), dimension(:, :), pointer :: kdiff
       real(fp), dimension(:), pointer :: zdiff
       integer, pointer :: idiffusion
       integer, pointer :: active_layer_diffusion
@@ -116,31 +111,12 @@ contains
       integer, pointer :: nmub
       integer, pointer :: nfrac
       integer, pointer :: nlalyr
-      integer, pointer :: ttlform
-      integer, pointer :: telform
       integer, pointer :: updbaselyr
       integer, pointer :: IALDiff
-      type(handletype), pointer :: bcmfile
       type(cmpbndtype), dimension(:), pointer :: cmpbnd
-      character(256), pointer :: bcmfilnam
-      character(256), pointer :: flcomp
-      character(256), pointer :: ttlfil
-      character(256), pointer :: telfil
 !
 !! executable statements -------------------------------------------------------
 !
-      !lfbedfrm            => gdp%gdbedformpar%lfbedfrm
-      bed => morpar%bed
-      ttlalpha => morpar%ttlalpha
-      ttlmin => morpar%ttlmin
-      ttlform => morpar%ttlform
-      telform => morpar%telform
-      bcmfile => morpar%bcmfile
-      bcmfilnam => morpar%bcmfilnam
-      flcomp => morpar%flcomp
-      ttlfil => morpar%ttlfil
-      telfil => morpar%telfil
-      !
       istat = bedcomp_getpointer_integer(morlyr, 'IUnderLyr', iunderlyr)
       if (istat == 0) istat = bedcomp_getpointer_logical(morlyr, 'ExchLyr', exchlyr)
       if (istat == 0) istat = bedcomp_getpointer_integer(morlyr, 'NLaLyr', nlalyr)
@@ -426,183 +402,170 @@ contains
             !
             ! Diffusion coefficient
             !
-            istat = bedcomp_getpointer_realfp(morlyr, 'Kdiff', kdiff)
-            if (istat == 0) istat = bedcomp_getpointer_realfp(morlyr, 'Zdiff', zdiff)
-            if (istat /= 0) then
-               errmsg = 'Memory problem in RDMORLYR'
-               call write_error(errmsg, unit=lundia)
-               error = .true.
-               return
-            end if
-            !
-            fildiff = ''
-            call prop_get(mor_ptr, 'Underlayer', 'Diffusion', fildiff)
-            !
-            ! Intel 7.0 crashes on an inquire statement when file = ' '
-            !
-            if (fildiff == ' ') fildiff = 'dummyname'
-            inquire (file=fildiff, exist=ex)
-            if (.not. ex) then
-               txtput1 = 'Constant diffusion coefficient'
-               temp = 0.0_fp
-               call prop_get(mor_ptr, 'Underlayer', 'Diffusion', temp)
-               kdiff = temp
-               zdiff = 0.0_fp
-               write (lundia, '(2a,e20.4)') txtput1, ':', temp
-            else
-               txtput1 = 'Diffusion coefficient from file'
-               write (lundia, '(3a)') txtput1, ':', trim(fildiff)
+            associate(kdiff=>morlyr%settings%kdiff)
                !
-               call rdinidiff(lundia, fildiff, ndiff, kdiff, &
-                            & zdiff, griddim, error)
-               if (error) return
-            end if
+               fildiff = ''
+               call prop_get(mor_ptr, 'Underlayer', 'Diffusion', fildiff)
+               !
+               ! Intel 7.0 crashes on an inquire statement when file = ' '
+               !
+               if (fildiff == ' ') fildiff = 'dummyname'
+               inquire (file=fildiff, exist=ex)
+               if (.not. ex) then
+                  txtput1 = 'Constant diffusion coefficient'
+                  temp = 0.0_fp
+                  call prop_get(mor_ptr, 'Underlayer', 'Diffusion', temp)
+                  kdiff = temp
+                  zdiff = 0.0_fp
+                  write (lundia, '(2a,e20.4)') txtput1, ':', temp
+               else
+                  txtput1 = 'Diffusion coefficient from file'
+                  write (lundia, '(3a)') txtput1, ':', trim(fildiff)
+                  !
+                  call rdinidiff(lundia, fildiff, ndiff, kdiff, &
+                               & zdiff, griddim, error)
+                  if (error) return
+               end if
+            end associate !kdiff
          end if
          !
          ! Get the following pointers after allocating the memory for the arrays
          !
-         istat = bedcomp_getpointer_realfp(morlyr, 'ThTrLyr', thtrlyr)
-         if (istat /= 0) then
-            errmsg = 'Memory problem in RDMORLYR'
-            call write_error(errmsg, unit=lundia)
-            error = .true.
-            return
-         end if
          !
          txtput1 = 'Thickness transport layer'
-         call prop_get(mor_ptr, 'Underlayer', 'TTLForm', ttlform)
-         select case (ttlform)
-         case (1)
-            !
-            ! Transport layer thickness constant in time:
-            ! uniform or spatially varying thickness
-            !
-            ttlfil = ''
-            call prop_get(mor_ptr, 'Underlayer', 'ThTrLyr', ttlfil)
-            !
-            ! Intel 7.0 crashes on an inquire statement when file = ' '
-            !
-            if (ttlfil == ' ') ttlfil = 'dummyname'
-            inquire (file=ttlfil, exist=ex)
-            !
-            if (ex) then
-               !
-               ! read data from file
-               !
-               write (lundia, '(3a)') txtput1, ':', ttlfil
-               !
-               call depfil_stm(lundia, error, ttlfil, fmttmp, &
-                             & thtrlyr, 1, 1, griddim, errmsg)
-               if (error) then
-                  call write_error(errmsg, unit=lundia)
-                  errmsg = 'Unable to read transport layer thickness from '//trim(ttlfil)
-                  call write_error(errmsg, unit=lundia)
-                  return
-               end if
-            else
-               ttlfil = ' '
-               call prop_get(mor_ptr, 'Underlayer', 'ThTrLyr', thtrlyr(1))
-               if (thtrlyr(1) <= 0) then
-                  errmsg = 'ThTrLyr should be positive in '//trim(filmor)
-                  call write_error(errmsg, unit=lundia)
-                  error = .true.
-                  return
-               end if
-               do it = nmlb, nmub
-                  thtrlyr(it) = thtrlyr(1)
-               end do
-               !
-               write (lundia, '(2a,e20.4)') txtput1, ':', thtrlyr(1)
-            end if
-         case (2, 3)
-            !
-            ! Transport layer thickness proportional to
-            ! the water depth (2) or dune height (3)
-            !
-            call prop_get(mor_ptr, 'Underlayer', 'TTLAlpha', ttlalpha)
-            call prop_get(mor_ptr, 'Underlayer', 'TTLMin', ttlmin)
-            !
-            txtput2 = ' max(a*H,b)'
-            if (ttlform == 3) then
-               txtput2 = ' max(a*Hdune,b)'
-               if (.not. lfbedfrm) then
-                  errmsg = 'TTLForm=3 can only be used when dunes are computed'
-                  call write_error(errmsg, unit=lundia)
-                  error = .true.
-                  return
-               end if
-            end if
-            write (lundia, '(3a)') txtput1, ':', txtput2
-            txtput1 = '  a'
-            write (lundia, '(2a,e20.4)') txtput1, ':', ttlalpha
-            txtput1 = '  b'
-            write (lundia, '(2a,e20.4)') txtput1, ':', ttlmin
-         case default
-            errmsg = 'Invalid transport layer thickness option specified in '//trim(filmor)
-            call write_error(errmsg, unit=lundia)
-            error = .true.
-            return
-         end select
-         !
-         if (exchlyr) then
-            istat = bedcomp_getpointer_realfp(morlyr, 'ThExLyr', thexlyr)
-            if (istat /= 0) then
-               errmsg = 'Memory problem in RDMORLYR'
-               call write_error(errmsg, unit=lundia)
-               error = .true.
-               return
-            end if
-            !
-            txtput1 = 'Thickness exchange layer'
-            call prop_get(mor_ptr, 'Underlayer', 'TELForm', telform)
-            select case (telform)
+         associate(ttlform=>morpar%ttlform)
+            call prop_get(mor_ptr, 'Underlayer', 'TTLForm', ttlform)
+            select case (ttlform)
             case (1)
                !
-               ! Exchange layer thickness constant in time:
+               ! Transport layer thickness constant in time:
                ! uniform or spatially varying thickness
                !
-               telfil = ''
-               call prop_get(mor_ptr, 'Underlayer', 'ThExLyr', telfil)
-               !
-               ! Intel 7.0 crashes on an inquire statement when file = ' '
-               !
-               if (telfil == ' ') telfil = 'dummyname'
-               inquire (file=telfil, exist=ex)
-               !
-               if (ex) then
-                  write (lundia, '(3a)') txtput1, ':', telfil
+               associate (thtrlyr=>morlyr%settings%thtrlyr, ttlfil=>morpar%ttlfil)
+                  ttlfil = ''
+                  call prop_get(mor_ptr, 'Underlayer', 'ThTrLyr', ttlfil)
                   !
-                  ! read data from file
+                  ! Intel 7.0 crashes on an inquire statement when file = ' '
                   !
-                  call depfil_stm(lundia, error, telfil, fmttmp, &
-                                & thexlyr, 1, 1, griddim, errmsg)
-                  if (error) then
-                     call write_error(errmsg, unit=lundia)
-                     errmsg = 'Unable to read exchange layer thickness from '//trim(telfil)
-                     call write_error(errmsg, unit=lundia)
-                     return
+                  if (ttlfil == ' ') ttlfil = 'dummyname'
+                  inquire (file=ttlfil, exist=ex)
+                  !
+                  if (ex) then
+                     !
+                     ! read data from file
+                     !
+                     write (lundia, '(3a)') txtput1, ':', ttlfil
+                     !
+                     call depfil_stm(lundia, error, ttlfil, fmttmp, &
+                                   & thtrlyr, 1, 1, griddim, errmsg)
+                     if (error) then
+                        call write_error(errmsg, unit=lundia)
+                        errmsg = 'Unable to read transport layer thickness from '//trim(ttlfil)
+                        call write_error(errmsg, unit=lundia)
+                        return
+                     end if
+                  else
+                     ttlfil = ' '
+                     call prop_get(mor_ptr, 'Underlayer', 'ThTrLyr', thtrlyr(1))
+                     if (thtrlyr(1) <= 0) then
+                        errmsg = 'ThTrLyr should be positive in '//trim(filmor)
+                        call write_error(errmsg, unit=lundia)
+                        error = .true.
+                        return
+                     end if
+                     do it = nmlb, nmub
+                        thtrlyr(it) = thtrlyr(1)
+                     end do
+                     !
+                     write (lundia, '(2a,e20.4)') txtput1, ':', thtrlyr(1)
                   end if
-               else
-                  telfil = ' '
-                  call prop_get(mor_ptr, 'Underlayer', 'ThExLyr', thexlyr(1))
-                  if (thexlyr(1) <= 0) then
-                     errmsg = 'ThExLyr should be positive in '//trim(filmor)
-                     call write_error(errmsg, unit=lundia)
-                     error = .true.
-                     return
-                  end if
-                  do it = nmlb, nmub
-                     thexlyr(it) = thexlyr(1)
-                  end do
+               end associate !thtrlyr, ttlfil
+            case (2, 3)
+               !
+               ! Transport layer thickness proportional to
+               ! the water depth (2) or dune height (3)
+               !
+               associate(ttlalpha=>morpar%ttlalpha,ttlmin=>morpar%ttlmin)
+                  call prop_get(mor_ptr, 'Underlayer', 'TTLAlpha', ttlalpha)
+                  call prop_get(mor_ptr, 'Underlayer', 'TTLMin', ttlmin)
                   !
-                  write (lundia, '(2a,e20.4)') txtput1, ':', thexlyr(1)
-               end if
+                  txtput2 = ' max(a*H,b)'
+                  if (ttlform == 3) then
+                     txtput2 = ' max(a*Hdune,b)'
+                     if (.not. lfbedfrm) then
+                        errmsg = 'TTLForm=3 can only be used when dunes are computed'
+                        call write_error(errmsg, unit=lundia)
+                        error = .true.
+                        return
+                     end if
+                  end if
+                  write (lundia, '(3a)') txtput1, ':', txtput2
+                  txtput1 = '  a'
+                  write (lundia, '(2a,e20.4)') txtput1, ':', ttlalpha
+                  txtput1 = '  b'
+                  write (lundia, '(2a,e20.4)') txtput1, ':', ttlmin
+               end associate !ttlalpha, ttlmin
             case default
-               errmsg = 'Invalid exchange layer thickness option specified in '//trim(filmor)
+               errmsg = 'Invalid transport layer thickness option specified in '//trim(filmor)
                call write_error(errmsg, unit=lundia)
                error = .true.
                return
             end select
+         end associate !ttlform
+         !
+         if (exchlyr) then
+            associate(thexlyr=>morlyr%settings%thexlyr , telfil=>morpar%telfil, telform=>morpar%telform) 
+               txtput1 = 'Thickness exchange layer'
+               call prop_get(mor_ptr, 'Underlayer', 'TELForm', telform)
+               select case (telform)
+               case (1)
+                  !
+                  ! Exchange layer thickness constant in time:
+                  ! uniform or spatially varying thickness
+                  !
+                  telfil = ''
+                  call prop_get(mor_ptr, 'Underlayer', 'ThExLyr', telfil)
+                  !
+                  ! Intel 7.0 crashes on an inquire statement when file = ' '
+                  !
+                  if (telfil == ' ') telfil = 'dummyname'
+                  inquire (file=telfil, exist=ex)
+                  !
+                  if (ex) then
+                     write (lundia, '(3a)') txtput1, ':', telfil
+                     !
+                     ! read data from file
+                     !
+                     call depfil_stm(lundia, error, telfil, fmttmp, &
+                                   & thexlyr, 1, 1, griddim, errmsg)
+                     if (error) then
+                        call write_error(errmsg, unit=lundia)
+                        errmsg = 'Unable to read exchange layer thickness from '//trim(telfil)
+                        call write_error(errmsg, unit=lundia)
+                        return
+                     end if
+                  else
+                     telfil = ' '
+                     call prop_get(mor_ptr, 'Underlayer', 'ThExLyr', thexlyr(1))
+                     if (thexlyr(1) <= 0) then
+                        errmsg = 'ThExLyr should be positive in '//trim(filmor)
+                        call write_error(errmsg, unit=lundia)
+                        error = .true.
+                        return
+                     end if
+                     do it = nmlb, nmub
+                        thexlyr(it) = thexlyr(1)
+                     end do
+                     !
+                     write (lundia, '(2a,e20.4)') txtput1, ':', thexlyr(1)
+                  end if
+               case default
+                  errmsg = 'Invalid exchange layer thickness option specified in '//trim(filmor)
+                  call write_error(errmsg, unit=lundia)
+                  error = .true.
+                  return
+               end select
+            end associate !thexlyr, telfil, telform
          end if
          !
          ! Active-layer diffusion
@@ -749,6 +712,7 @@ contains
          ! Check boundary conditions
          !
          if (parname /= ' ') then
+            associate(bcmfile=>morpar%bcmfile,bcmfilnam=>morpar%bcmfilnam)    
             if (bcmfilnam /= ' ') then
                !
                ! Find entries in table
@@ -840,26 +804,29 @@ contains
                error = .true.
                return
             end if
+            end associate !bcmfile
          end if
       end do
       !
       ! Initial Bed Composition (Overrules)
       !
-      flcomp = ''
-      call prop_get(mor_ptr, 'Underlayer', 'IniComp', flcomp)
-      !
-      if (iunderlyr /= 2 .and. flcomp /= ' ') then
-         write (lundia, '(a)') 'WARNING: IniComp keyword only supported for IUnderLyr=2'
-         flcomp = ' '
-      end if
-      txtput1 = 'Initial bed composition'
-      if (flcomp == ' ') then
-         txtput2 = 'from sediment file'
-         write (lundia, '(2a,a20)') txtput1, ':', trim(txtput2)
-      else
-         txtput2 = 'from IniComp file -'
-         write (lundia, '(3a)') txtput1, ':', trim(flcomp)
-      end if
+      associate(flcomp=>morpar%flcomp)
+         flcomp = ''
+         call prop_get(mor_ptr, 'Underlayer', 'IniComp', flcomp)
+         !
+         if (iunderlyr /= 2 .and. flcomp /= ' ') then
+            write (lundia, '(a)') 'WARNING: IniComp keyword only supported for IUnderLyr=2'
+            flcomp = ' '
+         end if
+         txtput1 = 'Initial bed composition'
+         if (flcomp == ' ') then
+            txtput2 = 'from sediment file'
+            write (lundia, '(2a,a20)') txtput1, ':', trim(txtput2)
+         else
+            txtput2 = 'from IniComp file -'
+            write (lundia, '(3a)') txtput1, ':', trim(flcomp)
+         end if
+      end associate !flcomp
       !
       write (lundia, '(a)') '*** End    of underlayer input'
       write (lundia, *)
