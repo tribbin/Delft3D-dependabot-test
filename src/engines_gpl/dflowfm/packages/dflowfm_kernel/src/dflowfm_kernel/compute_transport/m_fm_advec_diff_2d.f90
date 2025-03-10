@@ -43,7 +43,7 @@ module m_fm_advec_diff_2d
     !> 2D advection-diffusion equation solver with sources and sinks of one constituent.
     !  It reworks the input to use the 3D computation of the fluxes, which is made for a  
     !  several constituents.
-    subroutine fm_advec_diff_2d(var, uadv, qadv, sour, sink, diff, limityp, ierror)
+    subroutine fm_advec_diff_2d(variable, advection_velocity, advection_discharge, source, sink, diffusion, limiter_type, ierror)
       use m_transport, only: dxiau
       use m_flowgeom, only: ndx, lnx, ln, ba 
       use m_flow, only: ndkx, lnkx, kbot, ktop, lbot, ltop, kmxn, kmxL
@@ -62,26 +62,26 @@ module m_fm_advec_diff_2d
       integer, parameter, dimension(NUMCONST) :: JAUPDATECONST = 1 !< flag for updating constituent (1) or not (0)
       
       !input/output
-      real(kind=dp), dimension(ndx),    intent(inout) :: var  !< variable to be tranported [unit]
-      real(kind=dp), dimension(lnx),    intent(in)    :: uadv !< flow-field face-normal velocities (`u1`) [m/s]
-      real(kind=dp), dimension(lnx),    intent(in)    :: qadv !< flow-field discharges (`q1`) [m^2/s]
-      real(kind=dp), dimension(ndx),    intent(in)    :: sour !< variable source [unit/s]
+      real(kind=dp), dimension(ndx),    intent(inout) :: variable  !< variable to be tranported [unit]
+      real(kind=dp), dimension(lnx),    intent(in)    :: advection_velocity !< flow-field face-normal velocities (`u1`) [m/s]
+      real(kind=dp), dimension(lnx),    intent(in)    :: advection_discharge !< flow-field discharges (`q1`) [m^2/s]
+      real(kind=dp), dimension(ndx),    intent(in)    :: source !< variable source [unit/s]
       real(kind=dp), dimension(ndx),    intent(in)    :: sink !< variable linear-term sink [1/s]
-      real(kind=dp), dimension(lnx),    intent(in)    :: diff !< diffusion coefficient [m/s^2]
-      integer, intent(in) :: limityp !< flag for limiter type (>0) or upwind (0)
+      real(kind=dp), dimension(lnx),    intent(in)    :: diffusion !< diffusion coefficient [m/s^2]
+      integer, intent(in) :: limiter_type !< flag for limiter type (>0) or upwind (0)
       integer, intent(out) :: ierror !< flag for error (1) or not (0)
 
       !local: counters
       integer :: k1, k2, l
 
       !local: first dimension is `NUMCONST`
-      real(kind=dp), dimension(:, :), allocatable :: fluxhor !horizontal fluxes 
-      real(kind=dp), dimension(:, :), allocatable :: fluxver !vertical fluxes
-      real(kind=dp), dimension(:, :), allocatable :: const_sour !variable source
-      real(kind=dp), dimension(:, :), allocatable :: const_sink !variable linear-term sink
-      real(kind=dp), dimension(:, :), allocatable :: const_var  !variable to be transported
-      real(kind=dp), dimension(:, :), allocatable :: const_diff !diffusion coefficient
-      real(kind=dp), dimension(:, :), allocatable :: rhs !right-hand side
+      real(kind=dp), dimension(:, :), allocatable :: horizontal_flux !horizontal fluxes 
+      real(kind=dp), dimension(:, :), allocatable :: vertical_flux !vertical fluxes
+      real(kind=dp), dimension(:, :), allocatable :: constituent_source !variable source
+      real(kind=dp), dimension(:, :), allocatable :: constituent_sink !variable linear-term sink
+      real(kind=dp), dimension(:, :), allocatable :: constituent_variable  !variable to be transported
+      real(kind=dp), dimension(:, :), allocatable :: constituent_diffusion !diffusion coefficient
+      real(kind=dp), dimension(:, :), allocatable :: right_hand_side !right-hand side
       
       real(kind=dp), dimension(:), allocatable :: dummy !dummy array used for scalar diffusion
       
@@ -90,11 +90,11 @@ module m_fm_advec_diff_2d
       integer, dimension(:), allocatable :: jahorupdate !mask for horizontal flux update: 1=yes, 0=no
       integer, dimension(:), allocatable :: ndeltasteps !number of substeps between updates
       
-      real(kind=dp), dimension(:), allocatable :: sqi !total outward-fluxes at flownodes. Used only if diffusion is limited (`jalimitdiff`=1)
-      real(kind=dp), dimension(:), allocatable :: sumhorflux !sum of horizontal fluxes
+      real(kind=dp), dimension(:), allocatable :: sum_flux_out !total outward-fluxes at flownodes. Used only if diffusion is limited (`jalimitdiff`=1)
+      real(kind=dp), dimension(:), allocatable :: sum_horizontal_flux !sum of horizontal fluxes
       real(kind=dp), dimension(:), allocatable :: dummy_ndx !only used if `limtyp`=6
       
-      real, dimension(:), allocatable :: duml !ATTENTION single precision
+      real, dimension(:), allocatable :: dummy_link !ATTENTION single precision
 
       !BEGIN
       
@@ -105,40 +105,40 @@ module m_fm_advec_diff_2d
       call realloc(jahorupdate, lnx, keepExisting=.true., fill=1) !update all horizontal fluxes
       call realloc(ndeltasteps, ndx, keepExisting=.true., fill=1) !it is only used if `NSUBSTEPS`>1, which is not the case.
 
-      call realloc(dummy , 1, keepExisting=.true., fill=0.0_dp) !no diffusion (it is not used anyway because we pass the optional input `const_diff`)
+      call realloc(dummy , 1, keepExisting=.true., fill=0.0_dp) !no diffusion (it is not used anyway because we pass the optional input `constituent_diffusion`)
       
-      call realloc(fluxhor, (/1, lnx/), keepExisting=.true., fill=0.0_dp)
+      call realloc(horizontal_flux, (/1, lnx/), keepExisting=.true., fill=0.0_dp)
       
-      call realloc(fluxver, (/1, ndx/), keepExisting=.true., fill=0.0_dp)
-      call realloc(rhs    , (/1, ndx/), keepExisting=.true., fill=0.0_dp)
+      call realloc(vertical_flux, (/1, ndx/), keepExisting=.true., fill=0.0_dp)
+      call realloc(right_hand_side    , (/1, ndx/), keepExisting=.true., fill=0.0_dp)
       
-      allocate (duml(1:lnkx), stat=ierror); duml = 0.0
+      allocate (dummy_link(1:lnkx), stat=ierror); dummy_link = 0.0
 
-      call realloc(sumhorflux, ndx, keepExisting=.true., fill=0.0_dp)
+      call realloc(sum_horizontal_flux, ndx, keepExisting=.true., fill=0.0_dp)
       call realloc(dummy_ndx , ndx, keepExisting=.true., fill=0.0_dp)
-      call realloc(sqi       , ndx, keepExisting=.true., fill=0.0_dp)
+      call realloc(sum_flux_out       , ndx, keepExisting=.true., fill=0.0_dp)
 
-      !construct `sqi`
+      !construct `sum_flux_out`
       do l = 1, lnx
          k1 = ln(1, l)
          k2 = ln(2, l)
-         sqi(k1) = sqi(k1) - min(qadv(l), 0.0_dp)
-         sqi(k2) = sqi(k2) + max(qadv(l), 0.0_dp)
+         sum_flux_out(k1) = sum_flux_out(k1) - min(advection_discharge(l), 0.0_dp)
+         sum_flux_out(k2) = sum_flux_out(k2) + max(advection_discharge(l), 0.0_dp)
       end do
 
       !reshape (we only have one constituent)
-      const_sour=RESHAPE(sour,shape=(/1, ndx/))
-      const_sink=RESHAPE(sink,shape=(/1, ndx/))
-      const_var=RESHAPE(var,shape=(/1, ndx/))
+      constituent_source=RESHAPE(source,shape=(/1, ndx/))
+      constituent_sink=RESHAPE(sink,shape=(/1, ndx/))
+      constituent_variable=RESHAPE(variable,shape=(/1, ndx/))
 
-      const_diff=RESHAPE(diff,shape=(/1, lnx/))
+      constituent_diffusion=RESHAPE(diffusion,shape=(/1, lnx/))
       
       call comp_dxiAu()
-      call comp_fluxhor3D(NUMCONST, limityp, ndx, lnx, uadv, qadv, sqi, ba, kbot, lbot, ltop, kmxn, kmxL, const_var, dummy, dummy, duml, NSUBSTEPS, jahorupdate, ndeltasteps, jaupdateconst, fluxhor, dummy_ndx, dummy_ndx, 1, dxiAu, difsedsp=const_diff)
-      call comp_sumhorflux(1, 0, lnkx, ndkx, lbot, ltop, fluxhor, sumhorflux)
-      call solve_2D(1, ndx, ba, kbot, ktop, sumhorflux, fluxver, const_sour, const_sink, 1, jaupdate, ndeltasteps, const_var, rhs)
+      call comp_fluxhor3d(NUMCONST, limiter_type, ndx, lnx, advection_velocity, advection_discharge, sum_flux_out, ba, kbot, lbot, ltop, kmxn, kmxL, constituent_variable, dummy, dummy, dummy_link, NSUBSTEPS, jahorupdate, ndeltasteps, jaupdateconst, horizontal_flux, dummy_ndx, dummy_ndx, 1, dxiAu, difsedsp=constituent_diffusion)
+      call comp_sumhorflux(1, 0, lnkx, ndkx, lbot, ltop, horizontal_flux, sum_horizontal_flux)
+      call solve_2D(1, ndx, ba, kbot, ktop, sum_horizontal_flux, vertical_flux, constituent_source, constituent_sink, 1, jaupdate, ndeltasteps, constituent_variable, right_hand_side)
 
-      var=RESHAPE(const_var,shape=(/ndx/))
+      variable=RESHAPE(constituent_variable,shape=(/ndx/))
       
    end subroutine fm_advec_diff_2d
 end module m_fm_advec_diff_2d
