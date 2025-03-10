@@ -115,5 +115,5 @@ add_library(FBCTools_static STATIC
             version.h
 )
 set_target_properties (FBCTools_static PROPERTIES FOLDER engines_gpl/fbc)
-target_link_libraries(FBCTools_static LINK_PUBLIC ${LINK_LIBRARIES} ${Boost_LIBRARIES})
-target_include_directories(FBCTools_static PUBLIC ${Boost_INCLUDE_DIR})
+target_link_libraries(FBCTools_static PRIVATE ${LINK_LIBRARIES} ${Boost_LIBRARIES})
+target_include_directories(FBCTools_static PRIVATE ${Boost_INCLUDE_DIR})

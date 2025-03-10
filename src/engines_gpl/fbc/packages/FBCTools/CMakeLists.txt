@@ -30,9 +30,17 @@ if(WIN32)
   # In windows use pre-compiled static libraries
   set(Boost_USE_STATIC_LIBS ON)
 endif()
+set(Boost_USE_RELEASE_LIBS ON)
+
 # version 1.65 is a minimum version
-find_package(Boost 1.65 REQUIRED COMPONENTS system filesystem)
-link_directories(${Boost_LIBRARY_DIRS})
+if(LINUX)
+   find_package(Boost 1.65 REQUIRED COMPONENTS system filesystem)
+else()
+   set(BOOST_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/thirdParty/boost)
+   set(BOOST_LIBRARY_DIR ${BOOST_ROOT}/stage/lib)
+endif()
+link_directories(${BOOST_LIBRARY_DIR})
+include_directories(${BOOST_ROOT})
 
 # Set warning levels
 if(MSVC)
@@ -106,12 +114,9 @@ if(${CMAKE_COMPILER_IS_GNUCXX})
     set(LINK_LIBRARIES ${LINK_LIBRARIES} gomp)
 endif()
 
-target_link_libraries(FBCTools LINK_PUBLIC ${LINK_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(FBCTools_BMI LINK_PUBLIC ${LINK_LIBRARIES} ${Boost_LIBRARIES})
-
-target_include_directories(FBCTools PUBLIC ${Boost_LIBRARY_DIRS})
-target_include_directories(FBCTools_BMI PUBLIC ${Boost_LIBRARY_DIRS})
-
+target_link_libraries(FBCTools PRIVATE ${LINK_LIBRARIES})
+target_link_libraries(FBCTools_BMI PRIVATE ${LINK_LIBRARIES})
+#target_link_libraries(FBCTools_BMI PRIVATE ${Boost_LIBRARIES})
 # Define how the files should be structured within Visual Studio
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${source_files})
 set_target_properties (FBCTools PROPERTIES FOLDER engines_gpl/fbc)
