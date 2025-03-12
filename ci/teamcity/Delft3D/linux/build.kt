@@ -33,7 +33,7 @@ object LinuxBuild : BuildType({
         param("intel_oneapi_version", "2024")
         param("intel_fortran_compiler", "ifx")
         param("generator", """"Unix Makefiles"""")
-        param("dockerThirdPartyImage" , "containers.deltares.nl/delft3d-dev/delft3d-third-party-libs:oneapi-%intel_oneapi_version%-%intel_fortran_compiler%-release")
+        param("dockerThirdPartyImage" , "containers.deltares.nl/delft3d-dev/delft3d-third-party-libs:UNST-8679-oneapi-%intel_oneapi_version%-%intel_fortran_compiler%-release")
         select("build_type", "Release", display = ParameterDisplay.PROMPT, options = listOf("Release", "Debug"))
         select("product", "auto-select", display = ParameterDisplay.PROMPT, options = listOf("auto-select", "all-testbench", "fm-suite", "d3d4-suite", "fm-testbench", "d3d4-testbench", "waq-testbench", "part-testbench", "rr-testbench", "wave-testbench", "swan-testbench"))
     }
