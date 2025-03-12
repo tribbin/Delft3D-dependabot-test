@@ -8,7 +8,9 @@ import jetbrains.buildServer.configs.kotlin.triggers.schedule
 import Delft3D.template.*
 import Delft3D.step.*
 
-object WindowsBuildEnvironment : BuildType({
+object WindowsBuildEnvironmentI24 : BuildType({
+
+    description = "Build-environment container image to build our Delf3D software in."
 
     templates(
         TemplateMergeRequest,
@@ -16,13 +18,12 @@ object WindowsBuildEnvironment : BuildType({
         TemplateMonitorPerformance
     )
 
-    name = "Delft3D build environment container"
+    name = "Delft3D build environment intel 2024 container"
     buildNumberPattern = "%build.vcs.number%"
-    description = "Delft3D Windows build container."
 
     params {
         param("trigger.type", "")
-        param("container.tag", "vs2019-oneapi2023")
+        param("container.tag", "vs2022-intel2024")
     }
 
     vcs {
@@ -39,13 +40,16 @@ object WindowsBuildEnvironment : BuildType({
             scriptMode = script {
                 content = """
                     # Define the source directory
-                    ${'$'}sourceDir = "\\dfs-trusted.directory.intra\dfs\Teamcity\Docker\Windows\dhydro-vs2019"
+                    ${'$'}sourceDir = "\\directory.intra\project\d-hydro\dsc-tools\toolchain2024"
                     
                     # Get the current working directory
                     ${'$'}destinationDir = Get-Location
                     
                     # Copy the files from the source to the destination
                     Copy-Item -Path ${'$'}sourceDir\* -Destination ${'$'}destinationDir -Recurse
+
+                    # List all the files in the destination directory
+                    Get-ChildItem -Path ${'$'}destinationDir -Recurse
                 """.trimIndent()
             }
         }
@@ -53,7 +57,7 @@ object WindowsBuildEnvironment : BuildType({
             name = "Docker build dhydro"
             commandType = build {
                 source = file {
-                    path = "ci/dockerfiles/windows/Dockerfile-dhydro"
+                    path = "ci/dockerfiles/windows/Dockerfile-dhydro-vs2022-i24"
                 }
                 contextDir = "ci/dockerfiles/windows"
                 platform = DockerCommandStep.ImagePlatform.Windows
@@ -68,8 +72,15 @@ object WindowsBuildEnvironment : BuildType({
             name = "Docker push"
             commandType = push {
                 namesAndTags = """
-                    containers.deltares.nl/delft3d-dev/delft3d-buildtools-windows:%container.tag%
                     containers.deltares.nl/delft3d-dev/delft3d-buildtools-windows:%build.vcs.number%
+                """.trimIndent()
+            }
+        }
+        dockerCommand {
+            name = "Docker push"
+            commandType = push {
+                namesAndTags = """
+                    containers.deltares.nl/delft3d-dev/delft3d-buildtools-windows:%container.tag%
                 """.trimIndent()
             }
             enabled = "%trigger.type%" == "vcs"

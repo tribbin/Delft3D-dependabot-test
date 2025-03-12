@@ -10,7 +10,7 @@ import java.io.File
 
 object LinuxThirdPartyLibs : BuildType({
     name = "Third-party libraries"
-    description = "Build the Delft3D Linux third-party-libs container image and push it to Harbor."
+    description = "Add third-party libraries to the build-environment container image to build our Delf3D software in."
 
     templates(
         TemplatePublishStatus,
@@ -23,9 +23,9 @@ object LinuxThirdPartyLibs : BuildType({
     }
 
     params {
-        param("intel_oneapi_version", "2023")
-        param("reverse.dep.${LinuxBuildTools.id}.intel_oneapi_version", "2023")
-        param("intel_fortran_compiler", "ifort")
+        param("intel_oneapi_version", "2024")
+        param("reverse.dep.${LinuxBuildTools.id}.intel_oneapi_version", "2024")
+        param("intel_fortran_compiler", "ifx")
         param("build_type", "release")
         param("harbor_repo", "containers.deltares.nl/delft3d-dev/delft3d-third-party-libs")
 
@@ -37,16 +37,18 @@ object LinuxThirdPartyLibs : BuildType({
         param("env.JIRA_ISSUE_ID", "")
     }
 
-    triggers {
-        vcs { // Only trigger builds when dockerfiles are modified.
-            triggerRules = """
-                +:ci/dockerfiles/linux/buildtools.Dockerfile
-                +:ci/dockerfiles/linux/third-party-libs.Dockerfile
-            """.trimIndent()
-            branchFilter = """
-                +:<default>
-                +:merge-requests/*
-            """.trimIndent()
+    if (DslContext.getParameter("environment") == "production") {
+        triggers {
+            vcs { // Only trigger builds when dockerfiles are modified.
+                triggerRules = """
+                    +:ci/dockerfiles/linux/buildtools.Dockerfile
+                    +:ci/dockerfiles/linux/third-party-libs.Dockerfile
+                """.trimIndent()
+                branchFilter = """
+                    +:<default>
+                    +:merge-requests/*
+                """.trimIndent()
+            }
         }
     }
 
@@ -80,11 +82,13 @@ object LinuxThirdPartyLibs : BuildType({
                 """.trimIndent()
             }
         }
-        dockerCommand {
-            name = "Push"
-            commandType = push {
-                namesAndTags = "%harbor_repo%:%env.IMAGE_TAG%"
-                removeImageAfterPush = true
+        if (DslContext.getParameter("environment") == "production") {
+            dockerCommand {
+                name = "Push"
+                commandType = push {
+                    namesAndTags = "%harbor_repo%:%env.IMAGE_TAG%"
+                    removeImageAfterPush = true
+                }
             }
         }
         dockerCommand {

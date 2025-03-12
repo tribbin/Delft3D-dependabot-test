@@ -136,8 +136,19 @@ if (UNIX)
     set(mpi_module_path ${mpi_include_path})
 
     #NetCDF
-    pkg_check_modules(NETCDF     REQUIRED IMPORTED_TARGET netcdf)
-    pkg_check_modules(NETCDF_FTN REQUIRED IMPORTED_TARGET netcdf-fortran)
+    pkg_check_modules(NETCDF     REQUIRED netcdf)
+    pkg_check_modules(NETCDF_FTN REQUIRED netcdf-fortran)
+
+    # Create two separate targets, because the targets created by pkg_check_modules with IMPORTED_TARGET
+    # mix variables for both static and dynamic linking of netcdf, and the C library is not explicitly
+    # linked by the Fortran target. Use the same names as on windows.
+    add_library(netcdf INTERFACE)
+    target_include_directories(netcdf INTERFACE ${NETCDF_INCLUDE_DIRS})
+    target_link_libraries(netcdf INTERFACE ${NETCDF_LINK_LIBRARIES})
+
+    add_library(netcdff INTERFACE)
+    target_include_directories(netcdff INTERFACE ${NETCDF_FTN_INCLUDE_DIRS})
+    target_link_libraries(netcdff INTERFACE ${NETCDF_FTN_LINK_LIBRARIES} netcdf)
 
     # Petsc
     pkg_check_modules(PETSC REQUIRED PETSc)
@@ -206,6 +217,7 @@ set(testbench-waq_configuration "WAQ-TESTBENCH")
 set(testbench-part_configuration "PART-TESTBENCH")
 set(testbench-wave_configuration "WAVE-TESTBENCH")
 set(testbench-tc_configuration "TC-TESTBENCH")
+set(testbench-qp_configuration "QP-TESTBENCH")
 
 # Combined (multi-component) configurations
 # For products that we release
@@ -234,7 +246,8 @@ if(NOT (${configuration_type} STREQUAL ${tests_configuration}
      OR ${configuration_type} STREQUAL ${testbench-waq_configuration}
      OR ${configuration_type} STREQUAL ${testbench-part_configuration}
      OR ${configuration_type} STREQUAL ${testbench-wave_configuration}
-     OR ${configuration_type} STREQUAL ${testbench-tc_configuration}))
+     OR ${configuration_type} STREQUAL ${testbench-tc_configuration}
+     OR ${configuration_type} STREQUAL ${testbench-qp_configuration}))
    message(FATAL_ERROR "${configuration_type} not recognized. CMake will abort solution generation now.")
 endif()
 
@@ -361,6 +374,12 @@ endif()
 if(${configuration_type} STREQUAL ${testbench-tc_configuration})
     message(STATUS "Generating solution for tc testbench ...")
     include(configurations/testbench/tc_configuration.cmake)
+endif()
+
+# QUICKPLOT configuration
+if(${configuration_type} STREQUAL ${testbench-qp_configuration})
+    message(STATUS "Generating solution for QUICKPLOT testbench ...")
+    include(configurations/testbench/qp_configuration.cmake)
 endif()
 
 ### Composed configurations for releases
