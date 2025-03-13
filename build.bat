@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 rem Default arguments.
 rem No default value means that the option is a flag that is either on or off.
 rem A variable that can have arguments requires a default value (can be "")
-set config=fm-suite
+set config=dflowfm
 set build=
 set vs=0
 set coverage=
@@ -433,7 +433,7 @@ rem =======================
     echo   dwaves            : D-Waves
     echo   flow2d3d          : Delft3D-FLOW
     echo   swan              : SWAN
-    echo   FBC               : FBC-tools
+    echo   fbc               : FBC-tools
     echo   tests
     echo   tools
     echo   tools_gpl
