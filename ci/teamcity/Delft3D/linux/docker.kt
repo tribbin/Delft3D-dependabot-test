@@ -63,7 +63,6 @@ object LinuxDocker : BuildType({
             name = "Set execute rights"
             scriptContent = """
                 chmod a+x dimrset/bin/*
-                chmod a+x intel/mpi/bin/*
             """.trimIndent()
         }
         dockerCommand {
