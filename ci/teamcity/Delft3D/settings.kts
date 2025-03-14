@@ -123,9 +123,10 @@ project {
     )
 
     buildType(Trigger)
-
+    buildType(CopyExamples)
     buildTypesOrder = arrayListOf(
-        Trigger
+        Trigger,
+        CopyExamples,
     )
 
     features {
