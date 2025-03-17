@@ -1,12 +1,11 @@
 import argparse
-import glob
 import shutil
 import sys
 from pathlib import Path
 
 EXAMPLES_DIR = Path("examples/dflowfm")
 # this dir is the source of thurth the scripts in the exampels dir in git should be removed
-LATEST_DIR = Path("src/scripts_lgpl/singularity")
+APPTAINER_DIR = Path("src/scripts_lgpl/singularity")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -46,19 +45,16 @@ if __name__ == "__main__":
             print(f"Failed to delete contents of directory - {dest_dir}: {e}")
             sys.exit(1)
 
-    print("Exclude over all run scripts")
-    run_all_examples_pattern = EXAMPLES_DIR / "run-all-examples-*"
-    for file in glob.glob(str(run_all_examples_pattern)):
-        try:
-            print(f"Removing file: {file}")
-            Path(file).unlink()
-        except OSError:
-            pass
-
     print("Copy files from the examples directory to the destination")
-    latest_scripts = ["run_native_h7.sh", "submit_singularity_h7.sh"]
+    h7_scripts = ["run_native_h7.sh", "submit_singularity_h7.sh"]
+    exclude_patterns = ["run-all-examples-*"]
+
     try:
         for src_file in EXAMPLES_DIR.rglob("*"):
+            if any(src_file.match(pattern) for pattern in exclude_patterns):
+                print(f"Excluding file: {src_file}")
+                continue
+
             dest_file = dest_dir / src_file.relative_to(EXAMPLES_DIR)
             if src_file.is_file():
                 dest_file.parent.mkdir(parents=True, exist_ok=True)
@@ -68,12 +64,13 @@ if __name__ == "__main__":
                 dest_file.mkdir(parents=True, exist_ok=True)
                 print(f"Creating directory: {dest_file}")
 
-        for dest_subdir in dest_dir.rglob("*"):
-            if dest_subdir.is_dir():
-                for file in LATEST_DIR.glob("*.sh"):
-                    if file.name in latest_scripts:
-                        print(f"Copying file: {file} to {dest_subdir}")
-                        shutil.copy2(file, dest_subdir)
+        for subdir in dest_dir.iterdir():
+            if subdir.is_dir():
+                for file in APPTAINER_DIR.glob("*.sh"):
+                    if file.name in h7_scripts:
+                        dest_file = subdir / file.name
+                        print(f"Copying file: {file} to {dest_file}")
+                        shutil.copy2(file, dest_file)
     except shutil.Error as e:
         print(f"Copy failed: {e}")
         sys.exit(1)
