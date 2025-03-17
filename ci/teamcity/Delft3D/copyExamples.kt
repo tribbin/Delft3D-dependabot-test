@@ -8,7 +8,7 @@ import Delft3D.linux.*
 import Delft3D.windows.*
 
 object CopyExamples : BuildType({
-    id("4e25e0dd-b295-4ee5-8dd1-512a8456dd62")
+    id("DHydro_ExampleCases_CopyDelft3dfmExampleCases")
     name = "Copy delft3dfm-example-cases"
     description = "Copy example files to P drive"
     buildNumberPattern = "%build.vcs.number%"
