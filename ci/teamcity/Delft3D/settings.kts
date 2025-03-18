@@ -7,6 +7,7 @@ import Delft3D.linux.containers.*
 import Delft3D.windows.*
 import Delft3D.template.*
 
+import Delft3D.ciUtilities.*
 import Delft3D.verschilanalyse.*
 
 version = "2024.12"
@@ -92,13 +93,24 @@ project {
         )
     }
 
+    subProject {
+        id("CiUtilities")
+        name = "CI utilities"
+        description = """
+            Build and test the utilities used in the Delft3D TeamCity project.
+        """.trimIndent()
+
+        buildType(TestPythonCiTools)
+    }
+
     subProject(VerschilanalyseProject)
 
     subProjectsOrder = arrayListOf(
         RelativeId("Linux"),
         RelativeId("Windows"),
-        VerschilanalyseProject,
-        RelativeId("Documentation")
+        RelativeId("Documentation"),
+        RelativeId("CiUtilities"),
+        VerschilanalyseProject
     )
 
     buildType(Trigger)
