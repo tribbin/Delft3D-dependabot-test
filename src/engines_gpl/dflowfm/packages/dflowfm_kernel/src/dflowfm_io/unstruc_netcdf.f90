@@ -18295,7 +18295,7 @@ contains
       integer, intent(in) :: id_internal_flow_node_data_var !< index of internal cells variable on netcdf file
       integer, intent(in) :: id_bnd_flow_node_data_var !< index of boundary cells variable on netcdf file
       integer, intent(in) :: itim !< time index on netcdf file
-      real(kind=dp), allocatable, intent(in) :: data_values(:) !< array for information at flow nodes {"location": "face", "shape": ["ndkx"]}
+      real(kind=dp), dimension(:), intent(in) :: data_values !< array for information at flow nodes {"location": "face", "shape": ["ndkx"]}
 
 !local
       integer :: ierr, ndxbnd
@@ -18332,10 +18332,10 @@ contains
       use m_get_kbot_ktop
       use m_get_layer_indices
 
-      real(kind=dp), allocatable, intent(in) :: data_values(:) !< array for information at flow nodes {"location": "face", "shape": ["ndkx"]}
+      real(kind=dp), dimension(:), intent(in) :: data_values !< array for information at flow nodes {"location": "face", "shape": ["ndkx"]}
       integer, intent(in) :: flow_node_index1 !< start index (1:ndx) for transfer of data from vector to matrix format
       integer, intent(in) :: flow_node_index2 !< end index (1:ndx) for transfer of data from vector to matrix format
-      real(kind=dp), intent(out) :: data_values_matrix(:, :) !< array for information at flow nodes as matrix {"location": "face", "shape": ["num_layers","ndx"]}
+      real(kind=dp), dimension(:, :), intent(out) :: data_values_matrix !< array for information at flow nodes as matrix {"location": "face", "shape": ["num_layers","ndx"]}
 
       integer :: k, kk, kb, kt, nlayb, nrlay
 

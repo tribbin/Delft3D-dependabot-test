@@ -1610,9 +1610,10 @@ contains
       use m_flow, only: kmxn, rho_read_rst
       use m_cell_geometry, only: ndx
       use m_sediment, only: stm_included
-      use m_turbulence, only: rhowat
+      use m_turbulence, only: rhowat, potential_density, in_situ_density
       use m_get_kbot_ktop, only: getkbotktop
-      use m_setrho, only: set_potential_density
+      use m_setrho, only: set_potential_density, set_pressure_dependent_density
+      use m_physcoef, only: density_is_pressure_dependent
 
       implicit none
 
@@ -1625,6 +1626,9 @@ contains
          do cell = 1, ndx
             if (.not. rho_read_rst) then
                call set_potential_density(potential_density, cell)
+               if (density_is_pressure_dependent()) then
+                  call set_pressure_dependent_density(in_situ_density, cell)
+               end if
             end if
             if (stm_included) then
                call getkbotktop(cell, bottom_cell, top_cell)
@@ -1633,12 +1637,6 @@ contains
                end do
             end if
          end do
-      end if
-      
-      if (density_is_pressure_dependent()) then
-          rho => in_situ_density
-      else
-          rho => potential_density
       end if
    end subroutine initialise_density_at_cell_centres
 

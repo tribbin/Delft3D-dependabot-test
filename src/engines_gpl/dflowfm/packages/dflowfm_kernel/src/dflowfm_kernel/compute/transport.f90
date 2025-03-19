@@ -53,7 +53,7 @@ contains
       use m_flow, only: density_is_pressure_dependent, jasal, maxitverticalforestersal, jatem, maxitverticalforestertem, limtyptm, &
                         limtypsed, iadvec, limtypmom, nbnds, kbnds, q1, kmxd, zbnds, salmax, kbndz, nbndu, kbndu, nbndsd, kbndsd, &
                         kmxl, nbndtm, kbndtm, zbndtm, nbndz, kbanz, kbanu, zbndsd, dvolbot, sam0tot, sam1tot, &
-                        vol1, eps10, saminbnd, samoutbnd, qsho, samerr, kmxn, rhowat, jabaroctimeint, jarhoxu, rho0, rho, jacreep, lbot, ltop, rhou, kbot, kmx, kplotordepthaveraged, sa1, ndkx, ktop, zws
+                        vol1, eps10, saminbnd, samoutbnd, qsho, samerr, kmxn, rhowat, jabaroctimeint, jarhoxu, rho0, potential_density, in_situ_density, rho, jacreep, lbot, ltop, rhou, kbot, kmx, kplotordepthaveraged, sa1, ndkx, ktop, zws
       use Timers, only: timstrt, timstop
       use m_sediment, only: jased, sedi, sed, dmorfac, tmorfspinup, jamorf, stm_included, jaceneqtr, blinc, ws, sed, sdupq, rhosed, rhobulkrhosed, grainlay, mxgr
       use m_netw, only: zk
@@ -68,7 +68,7 @@ contains
       integer :: L, k, k1, k2, kb, n
 
       real(kind=dp) :: qb, wsemx, dgrlay, dtvi, hsk, dmorfax
-      integer :: j, ki, jastep, kk
+      integer :: j, ki, jastep, cell_index_2d
       integer :: LL, Lb, Lt, kt, km
 
       real(kind=dp) :: flx(mxgr) !< sed erosion flux (kg/s)                 , dimension = mxgr
@@ -105,8 +105,8 @@ contains
             do L = Lb, Lt
                kb = ln(1, L); ki = ln(2, L)
                if (q1(L) >= 0 .or. keepstbndonoutflow == 1) then
-                  kk = kmxd * (k - 1) + L - Lb + 1
-                  constituents(isalt, kb) = zbnds(kk) ! inflow
+                  cell_index_2d = kmxd * (k - 1) + L - Lb + 1
+                  constituents(isalt, kb) = zbnds(cell_index_2d) ! inflow
                   salmax = max(salmax, constituents(isalt, kb))
                else
                   constituents(isalt, kb) = constituents(isalt, ki) ! outflow
@@ -132,8 +132,8 @@ contains
             do L = Lb, Lt
                kb = ln(1, L); ki = ln(2, L)
                if (q1(L) >= 0 .or. keepstbndonoutflow == 1) then
-                  kk = kmxd * (k - 1) + L - Lb + 1
-                  constituents(itemp, kb) = zbndTM(kk) ! inflow
+                  cell_index_2d = kmxd * (k - 1) + L - Lb + 1
+                  constituents(itemp, kb) = zbndTM(cell_index_2d) ! inflow
                else
                   constituents(itemp, kb) = constituents(itemp, ki) ! outflow
                end if
@@ -187,11 +187,11 @@ contains
          sam0tot = sam1tot
          sam1tot = 0.0_dp
 
-         !$OMP PARALLEL DO                &
-         !$OMP PRIVATE(kk,kb,kt,km,k)     &
+         !$OMP PARALLEL DO &
+         !$OMP PRIVATE(cell_index_2d,kb,kt,km,k) &
          !$OMP REDUCTION(+:sam1tot)
-         do kk = 1, ndxi
-            call getkbotktop(kk, kb, kt)
+         do cell_index_2d = 1, ndxi
+            call getkbotktop(cell_index_2d, kb, kt)
             if (kt < kb) cycle
             if (vol1(kb) < eps10) cycle
             km = kt - kb + 1
@@ -221,30 +221,29 @@ contains
          samerr = sam1tot - sam0tot !  - saminbnd + samoutbnd
       end if
 
-      !$OMP PARALLEL DO    &
-      !$OMP PRIVATE(kk)
-      do kk = 1, ndx
-         call set_potential_density(rho, kk)
+      !$OMP PARALLEL DO &
+      !$OMP PRIVATE(cell_index_2d)
+      do cell_index_2d = 1, ndx
+         call set_potential_density(potential_density, cell_index_2d)
       end do
       !$OMP END PARALLEL DO
 
       if (density_is_pressure_dependent()) then
-         ! rhop(:) = rho(:) ! the above, via set_potential_density(), calculated rho is the potential density (function of salinity and temperature)
-         !$OMP PARALLEL DO    &
-         !$OMP PRIVATE(kk)
-         do kk = 1, ndx
+         !$OMP PARALLEL DO &
+         !$OMP PRIVATE(cell_index_2d)
+         do cell_index_2d = 1, ndx
             ! calculate the in-situ density (function of salinity, temperature and pressure)
-            call set_pressure_dependent_density(kk)
+            call set_pressure_dependent_density(in_situ_density, cell_index_2d)
          end do
          !$OMP END PARALLEL DO
       end if
 
       if (stm_included) then
-         !$OMP PARALLEL DO             &
-         !$OMP PRIVATE(kk,kb,kt,k)
-         do kk = 1, ndx ! i5
-            call getkbotktop(kk, kb, kt)
-            do k = kt + 1, kb + kmxn(kk) - 1
+         !$OMP PARALLEL DO &
+         !$OMP PRIVATE(cell_index_2d,kb,kt,k)
+         do cell_index_2d = 1, ndx ! i5
+            call getkbotktop(cell_index_2d, kb, kt)
+            do k = kt + 1, kb + kmxn(cell_index_2d) - 1
                rhowat(k) = rhowat(kt) ! UNST-5170
             end do
          end do
@@ -282,7 +281,7 @@ contains
 
             jastep = 1 ! 1 = first hor. transport, then limiting
 
-            !$OMP PARALLEL DO    &
+            !$OMP PARALLEL DO &
             !$OMP PRIVATE(k,flx,seq,wse,hsk,dtvi,wsemx,j,qb,dgrlay,kb) &
             !$OMP REDUCTION(+:dvolbot)
             do k = 1, ndxi
@@ -337,18 +336,18 @@ contains
 
             sedi = 0.0_dp
 
-            !$OMP PARALLEL DO    &
-            !$OMP PRIVATE(kk,flx, seq, wse, hsk,n,k,dtvi,wsemx,j,qb,dgrlay,kb) &
+            !$OMP PARALLEL DO &
+            !$OMP PRIVATE(cell_index_2d,flx, seq, wse, hsk,n,k,dtvi,wsemx,j,qb,dgrlay,kb) &
             !$OMP REDUCTION(+:dvolbot)
 
-            do kk = 1, mxban
+            do cell_index_2d = 1, mxban
 
                flx = 0.0_dp
 
-               call getequilibriumtransportrates(kk, seq, wse, mxgr, hsk) ! get per netnode and store in small array seq
+               call getequilibriumtransportrates(cell_index_2d, seq, wse, mxgr, hsk) ! get per netnode and store in small array seq
 
-               n = nban(1, kk) ! net node
-               k = nban(2, kk) ! flow node
+               n = nban(1, cell_index_2d) ! net node
+               k = nban(2, cell_index_2d) ! flow node
                kb = kbot(k)
 
                if (vol1(kb) > 0 .and. hsk > 0) then
@@ -360,7 +359,7 @@ contains
                      if (Wse(j) > wsemx) then
                         Wse(j) = wsemx
                      end if
-                     qb = Wse(j) * banf(kk) ! (m3/s)
+                     qb = Wse(j) * banf(cell_index_2d) ! (m3/s)
                      flx(j) = qb * (seq(j) - sed(j, kb)) ! (m3/s).(kg/m3) = kg/s   , positive = erosion
 
                      !  if (zk(n) > skmx(n) ) then                           ! no flux if net point above max surrouding waterlevels
@@ -374,7 +373,7 @@ contains
                      if (jamorf == 1) then
                         grainlay(j, n) = grainlay(j, n) + dgrlay
                         zk(n) = zk(n) + dgrlay
-                        dvolbot = dvolbot + banf(kk) * dgrlay
+                        dvolbot = dvolbot + banf(cell_index_2d) * dgrlay
                      end if
 
                   end do
@@ -384,7 +383,7 @@ contains
             end do
             !$OMP END PARALLEL DO
 
-            !$OMP PARALLEL DO    &
+            !$OMP PARALLEL DO &
             !$OMP PRIVATE(k,j,kb)
             do k = 1, ndxi
                kb = kbot(k)
@@ -429,11 +428,11 @@ contains
 
       do k = 1, 0 !  ndxi ! for test selectiveZ.mdu
          if (xz(k) > 270) then
-            do kk = kbot(k), ktop(k)
-               if (zws(kk) < -5.0_dp) then
-                  constituents(isalt, kk) = 30.0_dp
+            do cell_index_2d = kbot(k), ktop(k)
+               if (zws(cell_index_2d) < -5.0_dp) then
+                  constituents(isalt, cell_index_2d) = 30.0_dp
                else
-                  constituents(isalt, kk) = 0.0_dp
+                  constituents(isalt, cell_index_2d) = 0.0_dp
                end if
             end do
          end if
