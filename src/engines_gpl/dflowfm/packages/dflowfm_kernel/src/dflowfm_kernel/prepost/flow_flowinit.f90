@@ -1606,7 +1606,6 @@ contains
 
 !> initialise_density_at_cell_centres
    subroutine initialise_density_at_cell_centres()
-      use m_flowparameters, only: jainirho
       use m_flow, only: kmxn, rho_read_rst
       use m_cell_geometry, only: ndx
       use m_sediment, only: stm_included
@@ -1621,23 +1620,20 @@ contains
       integer :: bottom_cell
       integer :: top_cell
       integer :: cell3D
-
-      if (jainirho == INITIALIZE) then
-         do cell = 1, ndx
-            if (.not. rho_read_rst) then
-               call set_potential_density(potential_density, cell)
-               if (density_is_pressure_dependent()) then
-                  call set_pressure_dependent_density(in_situ_density, cell)
-               end if
+      do cell = 1, ndx
+         if (.not. rho_read_rst) then
+            call set_potential_density(potential_density, cell)
+            if (density_is_pressure_dependent()) then
+               call set_pressure_dependent_density(in_situ_density, cell)
             end if
-            if (stm_included) then
-               call getkbotktop(cell, bottom_cell, top_cell)
-               do cell3D = top_cell + 1, bottom_cell + kmxn(cell) - 1
-                  rhowat(cell3D) = rhowat(top_cell) ! UNST-5170
-               end do
-            end if
-         end do
-      end if
+         end if
+         if (stm_included) then
+            call getkbotktop(cell, bottom_cell, top_cell)
+            do cell3D = top_cell + 1, bottom_cell + kmxn(cell) - 1
+               rhowat(cell3D) = rhowat(top_cell) ! UNST-5170
+            end do
+         end if
+      end do
    end subroutine initialise_density_at_cell_centres
 
 !> apply hardcoded specific input

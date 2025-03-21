@@ -201,7 +201,6 @@ contains
       call IFORMputINTEGER(2 * i, javiuplus3D); i = i + 1
       call IFORMputINTEGER(2 * i, jaqaisq1); i = i + 1
       call IFORMputdouble(2 * i, addksources, '(F7.3)'); i = i + 1
-      call IFORMputINTEGER(2 * i, jainirho); i = i + 1
       call IFORMputINTEGER(2 * i, jaLogprofatubndin); i = i + 1
       call IFORMputINTEGER(2 * i, javau); i = i + 1
       call IFORMputINTEGER(2 * i, jacomp); i = i + 1
@@ -267,7 +266,6 @@ contains
             call IFORMGETINTEGER(2 * i, javiuplus3D); i = i + 1
             call IFORMGETINTEGER(2 * i, jaqaisq1); i = i + 1
             call IFORMGETdouble(2 * i, addksources); i = i + 1
-            call IFORMGETINTEGER(2 * i, jainirho); i = i + 1
             call IFORMGETINTEGER(2 * i, jaLogprofatubndin); i = i + 1
             call IFORMGETINTEGER(2 * i, javau); i = i + 1
             call IFORMGETINTEGER(2 * i, jacomp); i = i + 1
