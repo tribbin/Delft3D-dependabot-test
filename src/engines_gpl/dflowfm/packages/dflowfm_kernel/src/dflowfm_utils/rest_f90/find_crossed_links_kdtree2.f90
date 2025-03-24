@@ -233,7 +233,7 @@ contains
       end do
 
       call sort_crossed_links(iLink, iPol, dSL, nLinks, numcrossedLinks)
-      
+
       call readyy(' ', -1d0)
 
       call mess(LEVEL_INFO, 'done')
@@ -249,7 +249,7 @@ contains
 
       return
    end subroutine find_crossed_links_kdtree2
-   
+
    subroutine sort_crossed_links(iLink, iPol, dSL, nLinks, numcrossedLinks)
       use stdlib_sorting, only: sort_index
       use precision, only: dp
@@ -259,13 +259,13 @@ contains
       real(kind=dp), dimension(nLinks), intent(inout) :: dSL !< polygon section cross location
       integer, intent(in) :: nLinks
       integer, intent(in) :: numcrossedLinks
-      
+
       integer, dimension(nLinks) :: new_index !< index of sorted iPol
       real(kind=dp), dimension(nLinks) :: dSL_copy !< copy of intersection length dSL
-      
-      integer :: L 
+
+      integer :: L
       integer :: Lp
-      integer :: k 
+      integer :: k
       integer :: n
       integer :: n_start
       integer :: n_end
@@ -288,5 +288,5 @@ contains
          end if
       end do
    end subroutine
-   
+
 end module m_find_crossed_links_kdtree2
