@@ -696,7 +696,7 @@ contains
       allocate (potential_density(ndkx), source=rhomean, stat=ierr)
       call aerr('potential_density (ndkx)', ierr, ndkx)
 
-      if (is_density_pressure_dependent) then
+      if (apply_thermobaricity) then
          if (allocated(in_situ_density)) then
             deallocate (in_situ_density)
          end if

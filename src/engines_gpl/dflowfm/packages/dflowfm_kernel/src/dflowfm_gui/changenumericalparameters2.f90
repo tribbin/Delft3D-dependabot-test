@@ -114,7 +114,7 @@ contains
       HELPM(i) = '0=no, 1 = yes                                               '; i = i + 1
       HELPM(i) = '0=no, 1 = yes                                               '; i = i + 1
       HELPM(i) = '0=centers, 1 = interfaces                                   '; i = i + 1
-      HELPM(i) = 'max nr of rho/pressure iterations, only for idensform > 10  '; i = i + 1
+      HELPM(i) = 'max nr of rho/pressure iterations, only for thermobaricity  '; i = i + 1
       HELPM(i) = 'default now 1, was 0, keyword will disappear in future      '; i = i + 1
 
       call SAVEKEYS()

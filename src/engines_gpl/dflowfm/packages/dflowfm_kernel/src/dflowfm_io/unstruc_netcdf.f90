@@ -5572,7 +5572,7 @@ contains
             end if
             if (jamaprho > 0) then
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_potential_density, nc_precision, UNC_LOC_S3D, 'rho', 'sea_water_potential_density', 'Flow element center potential density', 'kg m-3', jabndnd=jabndnd_)
-               if (is_density_pressure_dependent) then
+               if (apply_thermobaricity) then
                   ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_rho, nc_precision, UNC_LOC_S3D, 'density', 'sea_water_density', 'Flow element center mass density', 'kg m-3', jabndnd=jabndnd_)
                end if
             end if
@@ -6638,7 +6638,7 @@ contains
          end if
          if (jamaprho > 0) then
             ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_potential_density, UNC_LOC_S3D, potential_density, jabndnd=jabndnd_)
-            if (is_density_pressure_dependent) then
+            if (apply_thermobaricity) then
                ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_rho, UNC_LOC_S3D, in_situ_density, jabndnd=jabndnd_)
             end if
          end if
@@ -8275,7 +8275,7 @@ contains
                end if
                if (jamaprho > 0) then
                   ierr = nf90_def_var(imapfile, 'rho', nf90_double, [id_laydim(iid), id_flowelemdim(iid), id_timedim(iid)], id_potential_density(iid))
-                  if (is_density_pressure_dependent) then
+                  if (apply_thermobaricity) then
                      ierr = nf90_def_var(imapfile, 'density', nf90_double, [id_laydim(iid), id_flowelemdim(iid), id_timedim(iid)], id_rho(iid))
                   end if
                end if
@@ -8317,13 +8317,13 @@ contains
                if (jamaprho > 0) then
                   ierr = nf90_put_att(imapfile, id_potential_density(iid), 'coordinates', 'FlowElem_xcc FlowElem_ycc')
                   ierr = nf90_put_att(imapfile, id_potential_density(iid), 'standard_name', 'sea_water_potential_density')
-                  ierr = nf90_put_att(imapfile, id_potential_density(iid), 'long_name', 'flow mass potential density')
+                  ierr = nf90_put_att(imapfile, id_potential_density(iid), 'long_name', 'potential density')
                   ierr = nf90_put_att(imapfile, id_potential_density(iid), 'units', 'kg m-3')
                   ierr = nf90_put_att(imapfile, id_potential_density(iid), '_FillValue', dmiss)
-                  if (is_density_pressure_dependent) then
+                  if (apply_thermobaricity) then
                      ierr = nf90_put_att(imapfile, id_rho(iid), 'coordinates', 'FlowElem_xcc FlowElem_ycc')
                      ierr = nf90_put_att(imapfile, id_rho(iid), 'standard_name', 'sea_water_density')
-                     ierr = nf90_put_att(imapfile, id_rho(iid), 'long_name', 'flow mass density')
+                     ierr = nf90_put_att(imapfile, id_rho(iid), 'long_name', 'in-situ density')
                      ierr = nf90_put_att(imapfile, id_rho(iid), 'units', 'kg m-3')
                      ierr = nf90_put_att(imapfile, id_rho(iid), '_FillValue', dmiss)
                   end if
@@ -9155,7 +9155,7 @@ contains
             end if
             if (kmx > 0) then
                ierr = unc_add_gridmapping_att(imapfile, [id_ucz(iid), id_ucxa(iid), id_ucya(iid), id_ww1(iid), id_potential_density(iid)], jsferic)
-               if (is_density_pressure_dependent) then
+               if (apply_thermobaricity) then
                   ierr = unc_add_gridmapping_att(imapfile, [id_ucz(iid), id_ucxa(iid), id_ucya(iid), id_ww1(iid), id_rho(iid)], jsferic)
                end if
             end if
@@ -9480,7 +9480,7 @@ contains
             ierr = nf90_inq_varid(imapfile, 'ucya', id_ucya(iid))
             ierr = nf90_inq_varid(imapfile, 'ww1', id_ww1(iid))
             ierr = nf90_inq_varid(imapfile, 'rho', id_potential_density(iid))
-            if (is_density_pressure_dependent) then
+            if (apply_thermobaricity) then
                ierr = nf90_inq_varid(imapfile, 'density', id_rho(iid))
             end if
             if (iturbulencemodel >= 3) then
@@ -9979,7 +9979,7 @@ contains
                   end do
                end do
                ierr = nf90_put_var(imapfile, id_potential_density(iid), work1(1:kmx, 1:ndxndxi), start=[1, 1, itim], count=[kmx, ndxndxi, 1])
-               if (is_density_pressure_dependent) then
+               if (apply_thermobaricity) then
                   do kk = 1, ndxndxi
                      work1(:, kk) = dmiss ! For proper fill values in z-model runs.
                      call getkbotktop(kk, kb, kt)

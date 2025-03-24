@@ -127,6 +127,7 @@ contains
       use m_observations, only: read_moving_stations
       use m_solve_guus, only: reducept
       use m_upotukinueaa, only: upotukinueaa
+      use m_density_formulas, only: DENSITY_OPTION_UNIFORM
 
       implicit none
 
@@ -180,7 +181,7 @@ contains
       call initialize_sediment()
 
       if (jasal == OFF .and. jatem == OFF .and. jased == OFF) then
-         idensform = OFF
+         idensform = DENSITY_OPTION_UNIFORM
       end if
 
       volerror(:) = 0d0
@@ -1611,8 +1612,8 @@ contains
       use m_sediment, only: stm_included
       use m_turbulence, only: rhowat, potential_density, in_situ_density
       use m_get_kbot_ktop, only: getkbotktop
-      use m_setrho, only: set_potential_density, set_pressure_dependent_density
-      use m_physcoef, only: is_density_pressure_dependent
+      use m_density, only: set_potential_density, set_pressure_dependent_density
+      use m_physcoef, only: apply_thermobaricity
 
       implicit none
 
@@ -1620,10 +1621,11 @@ contains
       integer :: bottom_cell
       integer :: top_cell
       integer :: cell3D
+
       do cell = 1, ndx
          if (.not. rho_read_rst) then
             call set_potential_density(potential_density, cell)
-            if (is_density_pressure_dependent) then
+            if (apply_thermobaricity) then
                call set_pressure_dependent_density(in_situ_density, cell)
             end if
          end if
@@ -1655,7 +1657,7 @@ contains
       use m_ini_sferic
       use m_set_bobs
       use m_get_czz0
-      use m_density_formulas, only: rho_eckart
+      use m_density_formulas, only: density_eckart
       use m_corioliskelvin, only: corioliskelvin, oceaneddy
       use m_model_specific, only: equatorial, poiseuille
       use m_filez, only: newfil
@@ -1818,7 +1820,7 @@ contains
                call getkbotktop(k, kb, kt)
                do kk = kb, kt
                   sa1(kk) = 10d0
-                  rho1 = rho_eckart(sa1(kk), backgroundwatertemperature)
+                  rho1 = density_eckart(sa1(kk), backgroundwatertemperature)
                end do
             else
                !s1(k) = bl(k) + 0.5d0*( s1(k)-bl(k) )*sqrt(rho1/998.200)   ! rho = 1020 etc

@@ -47,13 +47,14 @@ contains
    !! high order limited terms to uqcx, uqcy
    subroutine transport()
       use precision, only: dp
-      use m_setrho, only: set_potential_density, set_pressure_dependent_density
+      use m_density, only: set_potential_density, set_pressure_dependent_density
       use m_getverticallyaveraged
       use m_flowgeom, only: ln, ndxi, lnxi, ndx, lnx, ba, mxban, nban, banf, ban, xz
-      use m_flow, only: is_density_pressure_dependent, jasal, maxitverticalforestersal, jatem, maxitverticalforestertem, limtyptm, &
+      use m_flow, only: apply_thermobaricity, jasal, maxitverticalforestersal, jatem, maxitverticalforestertem, limtyptm, &
                         limtypsed, iadvec, limtypmom, nbnds, kbnds, q1, kmxd, zbnds, salmax, kbndz, nbndu, kbndu, nbndsd, kbndsd, &
                         kmxl, nbndtm, kbndtm, zbndtm, nbndz, kbanz, kbanu, zbndsd, dvolbot, sam0tot, sam1tot, &
-                        vol1, eps10, saminbnd, samoutbnd, qsho, samerr, kmxn, rhowat, jabaroctimeint, jarhoxu, rho0, potential_density, in_situ_density, rho, jacreep, lbot, ltop, rhou, kbot, kmx, kplotordepthaveraged, sa1, ndkx, ktop, zws
+                        vol1, eps10, saminbnd, samoutbnd, qsho, samerr, kmxn, rhowat, jabaroctimeint, jarhoxu, &
+                        rho0, potential_density, in_situ_density, rho, jacreep, lbot, ltop, rhou, kbot, kmx, kplotordepthaveraged, sa1, ndkx, ktop, zws
       use Timers, only: timstrt, timstop
       use m_sediment, only: jased, sedi, sed, dmorfac, tmorfspinup, jamorf, stm_included, jaceneqtr, blinc, ws, sed, sdupq, rhosed, rhobulkrhosed, grainlay, mxgr
       use m_netw, only: zk
@@ -228,7 +229,7 @@ contains
       end do
       !$OMP END PARALLEL DO
 
-      if (is_density_pressure_dependent) then
+      if (apply_thermobaricity) then
          !$OMP PARALLEL DO &
          !$OMP PRIVATE(cell_index_2d)
          do cell_index_2d = 1, ndx

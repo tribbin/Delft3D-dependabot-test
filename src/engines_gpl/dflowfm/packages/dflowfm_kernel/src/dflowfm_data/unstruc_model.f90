@@ -268,7 +268,6 @@ module unstruc_model
    integer :: md_fou_step !< determines if fourier analysis is updated at the end of the user time step or comp. time step
 
    integer, private :: ifixedweirscheme_input !< input value of ifixedweirscheme in mdu file
-   integer, private :: idensform_input !< input value of idensform in mdu file
 
 contains
 
@@ -1367,8 +1366,8 @@ contains
       call prop_get(md_ptr, 'physics', 'Equili', jaequili) ! TODO: Ottevanger/Nabi: consider changing the name of these settings: add "spiral/secondary flow" into it.
 
       call prop_get(md_ptr, 'physics', 'idensform', idensform)
-      idensform_input = idensform
-      call prop_get(md_ptr, 'physics', 'thermobaricity', is_density_pressure_dependent)
+      call prop_get(md_ptr, 'physics', 'thermobaricity', apply_thermobaricity)
+      call validate_idensform(idensform, apply_thermobaricity)
 
       !call prop_get(md_ptr, 'physics', 'Baroczlaybed'   , jabaroczlaybed)
       !call prop_get(md_ptr, 'physics', 'Barocponbnd'    , jaBarocponbnd)
@@ -3172,7 +3171,7 @@ contains
          call prop_set(prop_ptr, 'numerics', 'Barocponbnd', jabarocponbnd, 'Use fix in barocp for zlaybed 0,1, 1=default)')
       end if
       if (writeall .or. Maxitpresdens /= 1) then
-         call prop_set(prop_ptr, 'numerics', 'Maxitpresdens', Maxitpresdens, 'Max nr of iterations in pressure-density coupling, only used if idensform > 10 )')
+         call prop_set(prop_ptr, 'numerics', 'Maxitpresdens', Maxitpresdens, 'Max nr of iterations in pressure-density coupling, only used if thermobaricity is true)')
       end if
       if (writeall .or. jarhointerfaces /= 0) then
          call prop_set(prop_ptr, 'numerics', 'Rhointerfaces', jarhointerfaces, 'Evaluate rho at interfaces, 0=org at centers, 1=at interfaces )')
@@ -3329,8 +3328,9 @@ contains
       call prop_set(prop_ptr, 'physics', 'wall_ks', wall_ks, 'Wall roughness type (0: free slip, 1: partial slip using wall_ks)')
       call prop_set(prop_ptr, 'physics', 'Rhomean', rhomean, 'Average water density (kg/m3)')
 
-      if (writeall .or. idensform_input /= 1) then
-         call prop_set(prop_ptr, 'physics', 'Idensform', idensform_input, 'Density calulation (0: uniform, 1: Eckart, 2: UNESCO, 3=UNESCO83, 13=3+pressure)')
+      if (writeall .or. idensform /= 2) then
+         call prop_set(prop_ptr, 'physics', 'Idensform', idensform, 'Density calulation (0: uniform, 1: Eckart, 2: UNESCO, 3: UNESCO83)')
+         call prop_set(prop_ptr, 'physics', 'thermobaricity', apply_thermobaricity, 'Include pressure effects on water density. Only works for idensform = 3 (UNESCO 83).')
       end if
 
       call prop_set(prop_ptr, 'physics', 'Ag', ag, 'Gravitational acceleration')
@@ -4249,4 +4249,28 @@ contains
 
    end subroutine set_output_time_vector
 
+   !> Validate the user input for the density formula
+   subroutine validate_idensform(idensform, thermobaricity)
+      use m_density_formulas, only: DENSITY_OPTION_UNIFORM, DENSITY_OPTION_ECKART, DENSITY_OPTION_UNESCO, &
+                                    DENSITY_OPTION_UNESCO83, DENSITY_OPTION_BAROCLINIC, DENSITY_OPTION_DELTARES_FLUME
+      integer, intent(in) :: idensform !< Density formula identifier
+      logical, intent(in) :: thermobaricity !< Whether the density formula are pressure dependent
+
+      if (thermobaricity) then
+         select case (idensform)
+         case (DENSITY_OPTION_UNESCO83)
+            return
+         case default
+            call mess(LEVEL_ERROR, 'Thermobaricity is only available for idensform = 3 (UNESCO 83)')
+         end select
+      end if
+      ! No thermobaricity
+      select case (idensform)
+      case (DENSITY_OPTION_UNIFORM, DENSITY_OPTION_ECKART, DENSITY_OPTION_UNESCO, &
+            DENSITY_OPTION_UNESCO83, DENSITY_OPTION_BAROCLINIC, DENSITY_OPTION_DELTARES_FLUME)
+         return
+      case default
+         call mess(LEVEL_ERROR, 'The variable idensform can only take the values 0 (uniform), 1 (Eckart), 2 (UNESCO), 3 (UNESCO 83), 5, or 6')
+      end select
+   end subroutine validate_idensform
 end module unstruc_model
