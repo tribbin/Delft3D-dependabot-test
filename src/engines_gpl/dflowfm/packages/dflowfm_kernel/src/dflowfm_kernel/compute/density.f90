@@ -89,7 +89,7 @@ contains
       real(kind=dp) :: density
 
       select case (idensform)
-      case (DENSITY_OPTION_UNESCO83) ! Unesco83 at surface
+      case (DENSITY_OPTION_UNESCO83)
          density = density_unesco83(salinity, temperature, pressure)
       case default
          call mess(LEVEL_ERROR, 'Unknown pressure-dependent density formula. Idensform = ', idensform)

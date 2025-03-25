@@ -37,11 +37,12 @@ module m_density_formulas
    integer, parameter, public :: DENSITY_OPTION_UNIFORM = 0 !< Uniform density
    integer, parameter, public :: DENSITY_OPTION_ECKART = 1 !< Carl Henry Eckart, 1958
    integer, parameter, public :: DENSITY_OPTION_UNESCO = 2 !< Unesco org
-   integer, parameter, public :: DENSITY_OPTION_UNESCO83 = 3 !< Unesco83 at surface
-   integer, parameter, public :: DENSITY_OPTION_BAROCLINIC = 5 !< baroclinic instability
-   integer, parameter, public :: DENSITY_OPTION_DELTARES_FLUME = 6 !< For Deltares flume experiment IJmuiden , Kees Kuipers saco code 1
+   integer, parameter, public :: DENSITY_OPTION_UNESCO83 = 3 !< Unesco83
+   integer, parameter, public :: DENSITY_OPTION_BAROCLINIC = 5 !< Baroclinic instability
+   integer, parameter, public :: DENSITY_OPTION_DELTARES_FLUME = 6 !< For Deltares flume experiment IJmuiden, Kees Kuipers saco code 1
 
    public :: density_unesco83, density_eckart, density_unesco, density_nacl, density_baroclinic
+   public :: derivate_density_to_salinity_eckart, derivate_density_to_temperature_eckart
 contains
 
    !> Calculate the density from the specific volume anomaly.
@@ -65,7 +66,7 @@ contains
    !! t = 40 deg c, p0= 10000 decibars.
    !! check value: sigma = 59.82037  kg/m**3. for s = 40 (ipss-78) ,
    !! t = 40 deg c, p0= 10000 decibars.
-   function density_unesco83(salinity, temperature, pressure) result(density)
+   pure function density_unesco83(salinity, temperature, pressure) result(density)
       use precision, only: dp
       implicit none
       real(kind=dp), intent(in) :: salinity
@@ -177,22 +178,72 @@ contains
       density = DR350 + dr35p - dvan + 1e3_dp ! rho=sigma+1e3
    end function density_unesco83
 
-   function density_eckart(salinity, temperature) result(density)
+   pure subroutine density_eckart_helper(salinity, temperature, clam0, cp1, clam1)
+      real(kind=dp), intent(in) :: salinity
+      real(kind=dp), intent(in) :: temperature
+      real(kind=dp), intent(out) :: clam0
+      real(kind=dp), intent(out) :: cp1
+      real(kind=dp), intent(out) :: clam1
+
+      real(kind=dp) :: cp0
+      real(kind=dp) :: clam
+
+      cp0 = 5890.0_dp + 38.00_dp * temperature - 0.3750_dp * temperature**2
+      clam = 1779.5_dp + 11.25_dp * temperature - 0.0745_dp * temperature**2
+      clam0 = 3.8_dp + 0.01_dp * temperature
+      cp1 = cp0 + 3.0_dp * salinity
+      clam1 = clam - clam0 * salinity
+   end subroutine density_eckart_helper
+
+   !> Calculate the water density from temperature and salinity using the Eckart formula.
+   pure function density_eckart(salinity, temperature) result(density)
       use precision, only: dp
-      real(kind=dp) :: salinity
-      real(kind=dp) :: temperature
+      real(kind=dp), intent(in) :: salinity
+      real(kind=dp), intent(in) :: temperature
       real(kind=dp) :: density
 
-      real(kind=dp) :: cp1, clam1
-      real(kind=dp) :: cp0, clam0, clam
+      real(kind=dp) :: cp1, clam1, clam0
 
-      cp0 = 5890.0d0 + 38.00d0 * temperature - 0.3750d0 * temperature**2
-      clam = 1779.5d0 + 11.25d0 * temperature - 0.0745d0 * temperature**2
-      clam0 = 3.8d0 + 0.01d0 * temperature
-      cp1 = cp0 + 3.0d0 * salinity
-      clam1 = clam - clam0 * salinity
-      density = 1000.0d0 * cp1 / (0.698d0 * cp1 + clam1)
+      real(kind=dp), parameter :: alph0 = 0.698_dp
+
+      call density_eckart_helper(salinity, temperature, clam0, cp1, clam1)
+      density = 1000.0_dp * cp1 / (alph0 * cp1 + clam1)
    end function density_eckart
+
+   !> Calculate the derivative of the water density to the salinity using the Eckart formula.
+   pure function derivate_density_to_salinity_eckart(salinity, temperature) result(derivative)
+      use precision, only: dp
+      real(kind=dp), intent(in) :: salinity
+      real(kind=dp), intent(in) :: temperature
+      real(kind=dp) :: derivative
+
+      real(kind=dp), parameter :: cp1ds = 3.0_dp
+      real(kind=dp), parameter :: alph0 = 0.698_dp
+
+      real(kind=dp) :: clam0, cp1, clam1, den
+
+      call density_eckart_helper(salinity, temperature, clam0, cp1, clam1)
+      den = (alph0 * cp1 + clam1)**2
+      derivative = 1000.0_dp * (cp1ds * clam1 + cp1 * clam0) / den
+   end function derivate_density_to_salinity_eckart
+
+   !> Calculate the derivative of the water density to the temperature using the Eckart formula.
+   pure function derivate_density_to_temperature_eckart(salinity, temperature) result(derivative)
+      use precision, only: dp
+      real(kind=dp), intent(in) :: salinity
+      real(kind=dp), intent(in) :: temperature
+      real(kind=dp) :: derivative
+
+      real(kind=dp), parameter :: alph0 = 0.698_dp
+
+      real(kind=dp) :: clam0, cp1, clam1, cp1dt, cladt, den
+
+      call density_eckart_helper(salinity, temperature, clam0, cp1, clam1)
+      den = (alph0 * cp1 + clam1)**2
+      cp1dt = 38.00_dp - 0.750_dp * temperature
+      cladt = 11.25_dp - 0.149_dp * temperature - 0.01_dp * salinity
+      derivative = 1000.0_dp * (cp1dt * clam1 - cp1 * cladt) / den
+   end function derivate_density_to_temperature_eckart
 
    !> Computes water density from temperature and salinity using equation of state (rhowat).
    !! Equation of state following UNESCO, (UNESCO, Algorithms for computation of fundamental
@@ -200,7 +251,7 @@ contains
    !! JvK and HK checked this on 12-05-2022, and we found that the correct reference is:
    !! Background papers and supporting data, on the international equation of state of seawater 1980, Unesco 1981
    !! (both years 1980 and 1981 are on cover), formula taken from page 20
-   function density_unesco(salinity, temperature) result(density)
+   pure function density_unesco(salinity, temperature) result(density)
       use precision, only: dp
       implicit none
       real(kind=dp), intent(in) :: salinity
@@ -227,7 +278,7 @@ contains
 
    !> Computes water density from temperature and salinity using equation of state (rhowat).
    !! Method used: Equation of state following Millero/Delft Hydraulics, valid for NaCl solutions
-   function density_nacl(salinity, temperature) result(density)
+   pure function density_nacl(salinity, temperature) result(density)
       real(kind=dp), intent(in) :: salinity
       real(kind=dp), intent(in) :: temperature
       real(kind=dp) :: density
@@ -238,7 +289,7 @@ contains
    end function density_nacl
 
    !> Baroclinic instability
-   function density_baroclinic(salinity) result(density)
+   pure function density_baroclinic(salinity) result(density)
       real(kind=dp), intent(in) :: salinity
       real(kind=dp) :: density
       density = 1025.0_dp + 0.78_dp * (salinity - 33.73_dp)

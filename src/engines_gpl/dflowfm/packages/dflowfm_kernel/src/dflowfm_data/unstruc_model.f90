@@ -36,14 +36,14 @@ module unstruc_model
    use m_setgrainsizes, only: setgrainsizes
    use precision, only: dp, hp, comparereal
    use tree_structures, only: tree_data, print_tree
-   use properties, only: prop_get, prop_file, tree_create, tree_destroy
    use messagehandling, only: LEVEL_INFO, LEVEL_WARN, LEVEL_ERROR, msgbuf, mess
    use m_globalparameters, only: t_filenames
    use time_module, only: ymd2modified_jul, datetimestring_to_seconds
    use dflowfm_version_module, only: getbranch_dflowfm
    use m_fm_icecover, only: ice_mapout
    use netcdf, only: nf90_double
-   use m_start_parameters, only: md_jaAutoStart, MD_NOAUTOSTART
+   use m_start_parameters, only: md_jaautostart, MD_NOAUTOSTART
+   use properties, only: prop_get, prop_file, tree_create, tree_destroy
 
    implicit none
 
@@ -690,7 +690,6 @@ contains
       use m_wind ! ,                  only : icdtyp, cdb, wdb,
       use network_data, only: zkuni, Dcenterinside, removesmalllinkstrsh, cosphiutrsh, circumcenter_method
       use m_sferic, only: anglat, anglon, jasfer3D
-      use m_physcoef
       use m_alloc
       use m_equatorial
       use m_netw, only: Makeorthocenters, strip_mesh
@@ -2591,7 +2590,7 @@ contains
       use m_wind
       use network_data, only: zkuni, Dcenterinside, removesmalllinkstrsh, cosphiutrsh, circumcenter_method
       use m_sferic, only: anglat, anglon, jsferic, jasfer3D
-      use m_physcoef
+      use m_physcoef, only: apply_thermobaricity
       use unstruc_netcdf, only: unc_writeopts, UG_WRITE_LATLON, UG_WRITE_NOOPTS, unc_nounlimited, unc_noforcedflush, unc_uuidgen, unc_metadatafile
       use dflowfm_version_module
       use m_equatorial
@@ -3330,8 +3329,8 @@ contains
 
       if (writeall .or. idensform /= 2) then
          call prop_set(prop_ptr, 'physics', 'Idensform', idensform, 'Density calulation (0: uniform, 1: Eckart, 2: UNESCO, 3: UNESCO83)')
-         call prop_set(prop_ptr, 'physics', 'thermobaricity', apply_thermobaricity, 'Include pressure effects on water density. Only works for idensform = 3 (UNESCO 83).')
       end if
+      call prop_set(prop_ptr, 'physics', 'thermobaricity', apply_thermobaricity, 'Include pressure effects on water density. Only works for idensform = 3 (UNESCO 83).')
 
       call prop_set(prop_ptr, 'physics', 'Ag', ag, 'Gravitational acceleration')
       call prop_set(prop_ptr, 'physics', 'TidalForcing', jatidep, 'Tidal forcing, if jsferic=1 (0: no, 1: yes)')
@@ -4250,13 +4249,13 @@ contains
    end subroutine set_output_time_vector
 
    !> Validate the user input for the density formula
-   subroutine validate_idensform(idensform, thermobaricity)
+   subroutine validate_idensform(idensform, apply_thermobaricity)
       use m_density_formulas, only: DENSITY_OPTION_UNIFORM, DENSITY_OPTION_ECKART, DENSITY_OPTION_UNESCO, &
                                     DENSITY_OPTION_UNESCO83, DENSITY_OPTION_BAROCLINIC, DENSITY_OPTION_DELTARES_FLUME
       integer, intent(in) :: idensform !< Density formula identifier
-      logical, intent(in) :: thermobaricity !< Whether the density formula are pressure dependent
+      logical, intent(in) :: apply_thermobaricity !< Whether the density formula are pressure dependent
 
-      if (thermobaricity) then
+      if (apply_thermobaricity) then
          select case (idensform)
          case (DENSITY_OPTION_UNESCO83)
             return
@@ -4270,7 +4269,7 @@ contains
             DENSITY_OPTION_UNESCO83, DENSITY_OPTION_BAROCLINIC, DENSITY_OPTION_DELTARES_FLUME)
          return
       case default
-         call mess(LEVEL_ERROR, 'The variable idensform can only take the values 0 (uniform), 1 (Eckart), 2 (UNESCO), 3 (UNESCO 83), 5, or 6')
+         call mess(LEVEL_ERROR, 'Unsupported value for keyword "idensform", see manual or .dia file for supported values.')
       end select
    end subroutine validate_idensform
 end module unstruc_model
