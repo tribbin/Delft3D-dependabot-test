@@ -1,37 +1,12 @@
 import shutil
 import sys
 from argparse import ArgumentParser, Namespace
-from enum import Enum
 from pathlib import Path
+
+from ci_tools.example_utils.logger import Logger, LogLevel
 
 EXAMPLES_DIR = Path("examples/dflowfm")
 APPTAINER_DIR = Path("src/scripts_lgpl/singularity")
-
-
-class LogLevel(Enum):
-    """Level of logging."""
-
-    NORMAL = 1
-    WARNING = 2
-    FAILURE = 3
-    ERROR = 4
-
-
-class Logger:
-    """Logger class to handle logging with optional TeamCity integration."""
-
-    def __init__(self, run_on_teamcity: bool = False) -> None:
-        self.run_on_teamcity = run_on_teamcity
-
-    def log(self, message: str, severity: LogLevel = LogLevel.NORMAL) -> None:
-        """Log a message with a severity level."""
-        if self.run_on_teamcity:
-            print(f"##teamcity[message text='{message}' status='{severity.name}']")
-        else:
-            if severity == LogLevel.NORMAL:
-                print(message)
-            else:
-                print(f"{severity.name}: {message}")
 
 
 def parse_arguments() -> Namespace:
@@ -53,7 +28,7 @@ def parse_arguments() -> Namespace:
     return arguments
 
 
-def create_destination_directory(dest_dir: str, logger: Logger) -> int:
+def create_destination_directory(dest_dir: Path, logger: Logger) -> int:
     """Create_destination_directory, if the directory is already there then make sure it is empty.
 
     Returns
@@ -72,7 +47,7 @@ def create_destination_directory(dest_dir: str, logger: Logger) -> int:
             logger.log(f"Unable to create directory - {dest_dir}", LogLevel.ERROR)
             return 1
     else:
-        logger.log(LogLevel.WARNING, "Directory exists, deleting contents...")
+        logger.log("Directory exists, deleting contents...", LogLevel.WARNING)
         try:
             for item in dest_dir.iterdir():
                 if item.is_file():
@@ -87,7 +62,7 @@ def create_destination_directory(dest_dir: str, logger: Logger) -> int:
     return 0
 
 
-def copy_examples(example_directory: Path, apptainer_directory: Path, dest_dir: str, logger: Logger) -> int:
+def copy_examples(example_directory: Path, apptainer_directory: Path, dest_dir: Path, logger: Logger) -> int:
     """Copy all files to the destination directory.
 
     Take example cases from example_directory and the apptainer scripts from the apptainer_directory.
