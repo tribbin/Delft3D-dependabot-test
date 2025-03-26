@@ -69,7 +69,7 @@ contains
       integer :: L, k, k1, k2, kb, n
 
       real(kind=dp) :: qb, wsemx, dgrlay, dtvi, hsk, dmorfax
-      integer :: j, ki, jastep, cell_index_2d
+      integer :: j, ki, jastep, cell_index_2d, cell_index_3d, kk
       integer :: LL, Lb, Lt, kt, km
 
       real(kind=dp) :: flx(mxgr) !< sed erosion flux (kg/s)                 , dimension = mxgr
@@ -106,8 +106,8 @@ contains
             do L = Lb, Lt
                kb = ln(1, L); ki = ln(2, L)
                if (q1(L) >= 0 .or. keepstbndonoutflow == 1) then
-                  cell_index_2d = kmxd * (k - 1) + L - Lb + 1
-                  constituents(isalt, kb) = zbnds(cell_index_2d) ! inflow
+                  kk = kmxd * (k - 1) + L - Lb + 1
+                  constituents(isalt, kb) = zbnds(kk) ! inflow
                   salmax = max(salmax, constituents(isalt, kb))
                else
                   constituents(isalt, kb) = constituents(isalt, ki) ! outflow
@@ -133,8 +133,8 @@ contains
             do L = Lb, Lt
                kb = ln(1, L); ki = ln(2, L)
                if (q1(L) >= 0 .or. keepstbndonoutflow == 1) then
-                  cell_index_2d = kmxd * (k - 1) + L - Lb + 1
-                  constituents(itemp, kb) = zbndTM(cell_index_2d) ! inflow
+                  kk = kmxd * (k - 1) + L - Lb + 1
+                  constituents(itemp, kb) = zbndTM(kk) ! inflow
                else
                   constituents(itemp, kb) = constituents(itemp, ki) ! outflow
                end if
@@ -189,7 +189,7 @@ contains
          sam1tot = 0.0_dp
 
          !$OMP PARALLEL DO &
-         !$OMP PRIVATE(cell_index_2d,kb,kt,km,k) &
+         !$OMP PRIVATE(cell_index_3d,kb,kt,km,k) &
          !$OMP REDUCTION(+:sam1tot)
          do cell_index_2d = 1, ndxi
             call getkbotktop(cell_index_2d, kb, kt)
@@ -197,8 +197,8 @@ contains
             if (vol1(kb) < eps10) cycle
             km = kt - kb + 1
 
-            do k = kb, kt
-               sam1tot = sam1tot + constituents(isalt, k) * vol1(k)
+            do cell_index_3d = kb, kt
+               sam1tot = sam1tot + constituents(isalt, cell_index_3d) * vol1(cell_index_3d)
             end do
          end do
          !$OMP END PARALLEL DO
@@ -242,10 +242,10 @@ contains
       if (stm_included) then
          !$OMP PARALLEL DO &
          !$OMP PRIVATE(cell_index_2d,kb,kt,k)
-         do cell_index_2d = 1, ndx ! i5
+         do cell_index_2d = 1, ndx
             call getkbotktop(cell_index_2d, kb, kt)
-            do k = kt + 1, kb + kmxn(cell_index_2d) - 1
-               rhowat(k) = rhowat(kt) ! UNST-5170
+            do cell_index_3d = kt + 1, kb + kmxn(cell_index_2d) - 1
+               rhowat(cell_index_3d) = rhowat(kt) ! UNST-5170
             end do
          end do
          !$OMP END PARALLEL DO
@@ -338,17 +338,17 @@ contains
             sedi = 0.0_dp
 
             !$OMP PARALLEL DO &
-            !$OMP PRIVATE(cell_index_2d,flx, seq, wse, hsk,n,k,dtvi,wsemx,j,qb,dgrlay,kb) &
+            !$OMP PRIVATE(kk,flx, seq, wse, hsk,n,k,dtvi,wsemx,j,qb,dgrlay,kb) &
             !$OMP REDUCTION(+:dvolbot)
 
-            do cell_index_2d = 1, mxban
+            do kk = 1, mxban
 
                flx = 0.0_dp
 
-               call getequilibriumtransportrates(cell_index_2d, seq, wse, mxgr, hsk) ! get per netnode and store in small array seq
+               call getequilibriumtransportrates(kk, seq, wse, mxgr, hsk) ! get per netnode and store in small array seq
 
-               n = nban(1, cell_index_2d) ! net node
-               k = nban(2, cell_index_2d) ! flow node
+               n = nban(1, kk) ! net node
+               k = nban(2, kk) ! flow node
                kb = kbot(k)
 
                if (vol1(kb) > 0 .and. hsk > 0) then
@@ -360,7 +360,7 @@ contains
                      if (Wse(j) > wsemx) then
                         Wse(j) = wsemx
                      end if
-                     qb = Wse(j) * banf(cell_index_2d) ! (m3/s)
+                     qb = Wse(j) * banf(kk) ! (m3/s)
                      flx(j) = qb * (seq(j) - sed(j, kb)) ! (m3/s).(kg/m3) = kg/s   , positive = erosion
 
                      !  if (zk(n) > skmx(n) ) then                           ! no flux if net point above max surrouding waterlevels
@@ -374,13 +374,10 @@ contains
                      if (jamorf == 1) then
                         grainlay(j, n) = grainlay(j, n) + dgrlay
                         zk(n) = zk(n) + dgrlay
-                        dvolbot = dvolbot + banf(cell_index_2d) * dgrlay
+                        dvolbot = dvolbot + banf(kk) * dgrlay
                      end if
-
                   end do
-
                end if
-
             end do
             !$OMP END PARALLEL DO
 
@@ -429,11 +426,11 @@ contains
 
       do k = 1, 0 !  ndxi ! for test selectiveZ.mdu
          if (xz(k) > 270) then
-            do cell_index_2d = kbot(k), ktop(k)
-               if (zws(cell_index_2d) < -5.0_dp) then
-                  constituents(isalt, cell_index_2d) = 30.0_dp
+            do cell_index_3d = kbot(k), ktop(k)
+               if (zws(cell_index_3d) < -5.0_dp) then
+                  constituents(isalt, cell_index_3d) = 30.0_dp
                else
-                  constituents(isalt, cell_index_2d) = 0.0_dp
+                  constituents(isalt, cell_index_3d) = 0.0_dp
                end if
             end do
          end if
