@@ -249,7 +249,15 @@
             "issuedTo": "Microsoft Corporation"
         },
         {
+            "file": "lib\\vcruntime140_1.dll",
+            "issuedTo": "Microsoft Corporation"
+        },
+        {
             "file": "lib\\msvcp90.dll",
+            "issuedTo": "Microsoft Corporation"
+        },
+        {
+            "file": "lib\\msvcp140_1.dll",
             "issuedTo": "Microsoft Corporation"
         },
         {
@@ -477,15 +485,7 @@
             "issuedTo": "Stichting Deltares"
         },
         {
-            "file": "lib\\hdf.dll",
-            "issuedTo": "Stichting Deltares"
-        },
-        {
             "file": "lib\\hdf5.dll",
-            "issuedTo": "Stichting Deltares"
-        },
-        {
-            "file": "lib\\hdf5_cpp.dll",
             "issuedTo": "Stichting Deltares"
         },
         {
@@ -493,19 +493,7 @@
             "issuedTo": "Stichting Deltares"
         },
         {
-            "file": "lib\\hdf5_hl_cpp.dll",
-            "issuedTo": "Stichting Deltares"
-        },
-        {
-            "file": "lib\\hdf5_tools.dll",
-            "issuedTo": "Stichting Deltares"
-        },
-        {
             "file": "lib\\iconv.dll",
-            "issuedTo": "Stichting Deltares"
-        },
-        {
-            "file": "lib\\jpeg.dll",
             "issuedTo": "Stichting Deltares"
         },
         {
@@ -533,10 +521,6 @@
             "issuedTo": "Stichting Deltares"
         },
         {
-            "file": "lib\\mfhdf.dll",
-            "issuedTo": "Stichting Deltares"
-        },
-        {
             "file": "lib\\pthreadGC2.dll",
             "issuedTo": "Stichting Deltares"
         },
@@ -554,10 +538,6 @@
         },
         {
             "file": "lib\\tecio.dll",
-            "issuedTo": "Stichting Deltares"
-        },
-        {
-            "file": "lib\\xdr.dll",
             "issuedTo": "Stichting Deltares"
         },
         {
