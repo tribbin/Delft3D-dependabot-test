@@ -2833,16 +2833,12 @@ contains
       character(len=*), optional, intent(in) :: anno !< Optional annotation/comment
       logical, optional, intent(out) :: success !< Returns whether the operation was successful
       logical :: success_
-      character(len=1) :: value_string
-      if (value) then
-         value_string = 'T'
-      else
-         value_string = 'F'
-      end if
+      integer :: integer_value
+      integer_value = merge(1, 0, value)
       if (present(anno)) then
-         call prop_set_string(tree, chapter, key, value_string, anno=anno, success=success_)
+         call prop_set_integer(tree, chapter, key, integer_value, anno=anno, success=success_)
       else
-         call prop_set_string(tree, chapter, key, value_string, success=success_)
+         call prop_set_integer(tree, chapter, key, integer_value, success=success_)
       end if
       if (present(success)) then
          success = success_

@@ -40,62 +40,62 @@ contains
    !> tests computation of varying air density
    subroutine test_unesco_83
       use precision, only: dp
-      use m_density_formulas, only: density_unesco83
+      use m_density_formulas, only: calculate_density_unesco83
       real(kind=dp) :: salinity, temperature, pressure
 
       salinity = 30.0_dp
       temperature = 30.0_dp
       pressure = 0.0_dp
-      call assert_comparable(density_unesco83(salinity, temperature, pressure), 1017.9854_dp, tolerance, '1')
+      call assert_comparable(calculate_density_unesco83(salinity, temperature, pressure), 1017.9854_dp, tolerance, '1')
 
       salinity = 30.0_dp
       temperature = 30.0_dp
       pressure = 1e5_dp
-      call assert_comparable(density_unesco83(salinity, temperature, pressure), 1018.0283_dp, tolerance, '2')
+      call assert_comparable(calculate_density_unesco83(salinity, temperature, pressure), 1018.0283_dp, tolerance, '2')
 
       salinity = 8.0_dp
       temperature = 10.0_dp
       pressure = 1e6_dp
-      call assert_comparable(density_unesco83(salinity, temperature, pressure), 1006.4180_dp, tolerance, '3')
+      call assert_comparable(calculate_density_unesco83(salinity, temperature, pressure), 1006.4180_dp, tolerance, '3')
 
       salinity = 0.0_dp
       temperature = 0.0_dp
       pressure = 0.0_dp
-      call assert_comparable(density_unesco83(salinity, temperature, pressure), 999.8426_dp, tolerance, '4')
+      call assert_comparable(calculate_density_unesco83(salinity, temperature, pressure), 999.8426_dp, tolerance, '4')
 
       salinity = 0.0_dp
       temperature = 0.0_dp
       pressure = 1e8_dp
-      call assert_comparable(density_unesco83(salinity, temperature, pressure), 1045.3371_dp, tolerance, '5')
+      call assert_comparable(calculate_density_unesco83(salinity, temperature, pressure), 1045.3371_dp, tolerance, '5')
 
       salinity = 40.0_dp
       temperature = 0.0_dp
       pressure = 0.0_dp
-      call assert_comparable(density_unesco83(salinity, temperature, pressure), 1032.1471_dp, tolerance, '6')
+      call assert_comparable(calculate_density_unesco83(salinity, temperature, pressure), 1032.1471_dp, tolerance, '6')
 
       salinity = 40.0_dp
       temperature = 0.0_dp
       pressure = 1e8_dp
-      call assert_comparable(density_unesco83(salinity, temperature, pressure), 1074.6498_dp, tolerance, '7')
+      call assert_comparable(calculate_density_unesco83(salinity, temperature, pressure), 1074.6498_dp, tolerance, '7')
 
       salinity = 0.0_dp
       temperature = 40.0_dp
       pressure = 0.0_dp
-      call assert_comparable(density_unesco83(salinity, temperature, pressure), 992.2204_dp, tolerance, '8')
+      call assert_comparable(calculate_density_unesco83(salinity, temperature, pressure), 992.2204_dp, tolerance, '8')
 
       salinity = 0.0_dp
       temperature = 40.0_dp
       pressure = 1e8_dp
-      call assert_comparable(density_unesco83(salinity, temperature, pressure), 1031.9486_dp, tolerance, '9')
+      call assert_comparable(calculate_density_unesco83(salinity, temperature, pressure), 1031.9486_dp, tolerance, '9')
 
       salinity = 40.0_dp
       temperature = 40.0_dp
       pressure = 0.0_dp
-      call assert_comparable(density_unesco83(salinity, temperature, pressure), 1021.6788_dp, tolerance, '10')
+      call assert_comparable(calculate_density_unesco83(salinity, temperature, pressure), 1021.6788_dp, tolerance, '10')
 
       salinity = 40.0_dp
       temperature = 40.0_dp
       pressure = 1e8_dp
-      call assert_comparable(density_unesco83(salinity, temperature, pressure), 1059.8204_dp, tolerance, '11')
+      call assert_comparable(calculate_density_unesco83(salinity, temperature, pressure), 1059.8204_dp, tolerance, '11')
    end subroutine test_unesco_83
 end module test_density_formulas

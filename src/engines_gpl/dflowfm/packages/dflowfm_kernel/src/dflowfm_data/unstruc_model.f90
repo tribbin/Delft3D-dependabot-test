@@ -1366,7 +1366,7 @@ contains
 
       call prop_get(md_ptr, 'physics', 'idensform', idensform)
       call prop_get(md_ptr, 'physics', 'thermobaricity', apply_thermobaricity)
-      call validate_idensform(idensform, apply_thermobaricity)
+      call validate_density_settings(idensform, apply_thermobaricity)
 
       !call prop_get(md_ptr, 'physics', 'Baroczlaybed'   , jabaroczlaybed)
       !call prop_get(md_ptr, 'physics', 'Barocponbnd'    , jaBarocponbnd)
@@ -1635,15 +1635,15 @@ contains
       call prop_get(md_ptr, 'waves', 'ftauw', ftauw) ! factor for adjusting wave related bottom shear stress
       call prop_get(md_ptr, 'waves', 'fbreak', fbreak) ! factor for adjusting wave breaking contribution to tke
       if (ftauw < 0.0_dp) then
-         call mess(LEVEL_WARN, 'unstruc_model::readMDUFile: ftauw<0.0_dp, reset to 0.0_dp. Bed shear stress due to waves switched off.')
+         call mess(LEVEL_WARN, 'unstruc_model::readMDUFile: ftauw<0.0, reset to 0.0. Bed shear stress due to waves switched off.')
          ftauw = 0.0_dp
       end if
       if (fwfac < 0.0_dp) then
-         call mess(LEVEL_WARN, 'unstruc_model::readMDUFile: fwfac<0.0_dp, reset to 0.0_dp. Wave streaming effect switched off.')
+         call mess(LEVEL_WARN, 'unstruc_model::readMDUFile: fwfac<0.0, reset to 0.0. Wave streaming effect switched off.')
          fwfac = 0.0_dp
       end if
       if (fbreak < 0.0_dp) then
-         call mess(LEVEL_WARN, 'unstruc_model::readMDUFile: fbreak<0.0_dp, reset to 0.0_dp. Wave breaking contribution to tke switched off.')
+         call mess(LEVEL_WARN, 'unstruc_model::readMDUFile: fbreak<0.0, reset to 0.0. Wave breaking contribution to tke switched off.')
          fbreak = 0.0_dp
       end if
 
@@ -2678,7 +2678,7 @@ contains
       call prop_set(prop_ptr, 'geometry', 'ProfdefFile', trim(md_profdeffile), 'Channel profile definition file *_profdefinition.def with definition for all profile numbers')
       call prop_set(prop_ptr, 'geometry', 'ProfdefxyzFile', trim(md_profdefxyzfile), 'Channel profile definition file _profdefinition.def with definition for all profile numbers')
       call prop_set(prop_ptr, 'geometry', 'IniFieldFile', trim(md_inifieldfile), 'Initial values and parameter fields file')
-      call prop_set(prop_ptr, 'geometry', 'UseCaching', merge(1, 0, md_usecaching), 'Use caching for geometrical/network-related items (0: no, 1: yes)')
+      call prop_set(prop_ptr, 'geometry', 'UseCaching', md_usecaching, 'Use caching for geometrical/network-related items (0: no, 1: yes)')
 
       call prop_set(prop_ptr, 'geometry', 'Uniformwidth1D', wu1Duni, 'Uniform width for channel profiles not specified by profloc')
       if (writeall .or. hh1Duni /= 3d3) then
@@ -2835,13 +2835,13 @@ contains
          call prop_set(prop_ptr, 'geometry', 'RenumberFlowNodes', jarenumber, 'Renumber the flow nodes (1: yes, 0: no)') ! hidden option for testing renumbering
       end if
       if (writeall .or. .not. dxDoubleAt1DEndNodes) then
-         call prop_set(prop_ptr, 'geometry', 'dxDoubleAt1DEndNodes', merge(1, 0, dxDoubleAt1DEndNodes), 'Extend 1D end nodes by 0.5 dx (1: yes, 0: no).')
+         call prop_set(prop_ptr, 'geometry', 'dxDoubleAt1DEndNodes', dxDoubleAt1DEndNodes, 'Extend 1D end nodes by 0.5 dx (1: yes, 0: no).')
       end if
       if (writeall .or. changeVelocityAtStructures) then
-         call prop_set(prop_ptr, 'geometry', 'ChangeVelocityAtStructures', merge(1, 0, changeVelocityAtStructures), 'Change the flow velocity at structures in the advection calculation')
+         call prop_set(prop_ptr, 'geometry', 'ChangeVelocityAtStructures', changeVelocityAtStructures, 'Change the flow velocity at structures in the advection calculation')
       end if
       if (writeall .or. .not. changeStructureDimensions) then
-         call prop_set(prop_ptr, 'geometry', 'ChangeStructureDimensions', merge(1, 0, changeStructureDimensions), 'Change the structure dimensions of (universal) weirs, orifices, bridges and general structures in case these dimensions exceed the dimensions of the channel')
+         call prop_set(prop_ptr, 'geometry', 'ChangeStructureDimensions', changeStructureDimensions, 'Change the structure dimensions of (universal) weirs, orifices, bridges and general structures in case these dimensions exceed the dimensions of the channel')
       end if
       if (writeall .or. (kmx > 0)) then
          call prop_set(prop_ptr, 'geometry', 'Kmx', kmx, 'Maximum number of vertical layers')
@@ -2916,10 +2916,10 @@ contains
 
       ! 1D Volume tables
       if (writeall .or. useVolumeTables) then
-         call prop_set(prop_ptr, 'volumeTables', 'useVolumeTables', merge(1, 0, useVolumeTables), 'Use 1D volume tables (0: no, 1: yes).')
+         call prop_set(prop_ptr, 'volumeTables', 'useVolumeTables', useVolumeTables, 'Use 1D volume tables (0: no, 1: yes).')
          if (useVolumeTables) then
             call prop_set(md_ptr, 'volumeTables', 'increment', tableIncrement, 'Desired increment for volume tables')
-            call prop_set(md_ptr, 'volumeTables', 'useVolumeTableFile', merge(1, 0, useVolumeTableFile), 'Use volume table file (0: no, 1: yes)')
+            call prop_set(md_ptr, 'volumeTables', 'useVolumeTableFile', useVolumeTableFile, 'Use volume table file (0: no, 1: yes)')
          end if
       end if
 
@@ -2937,7 +2937,7 @@ contains
          call prop_set(prop_ptr, 'numerics', 'maxNonlinearIterations', maxNonlinearIterations, 'Maximal iterations in non-linear iteration loop before a time step reduction is applied')
       end if
       if (writeall .or. setHorizontalBobsFor1d2d) then
-         call prop_set(prop_ptr, 'numerics', 'setHorizontalBobsFor1d2d', merge(1, 0, setHorizontalBobsFor1d2d), 'bobs are set to 2D bedlevel, to prevent incorrect storage in sewer system (0: no, 1:yes).')
+         call prop_set(prop_ptr, 'numerics', 'setHorizontalBobsFor1d2d', setHorizontalBobsFor1d2d, 'bobs are set to 2D bedlevel, to prevent incorrect storage in sewer system (0: no, 1:yes).')
       end if
       call prop_set(prop_ptr, 'numerics', 'Icoriolistype', icorio, '0=No, 5=default, 3,4 no weights, 5-10 Kleptsova hu/hs, 25-30 Ham hs/hu, odd: 2D hs/hu, even: hsk/huk ')
       call prop_set(prop_ptr, 'numerics', 'Newcorio', newcorio, '0=prior to 27-11-2019, 1=no normal forcing on open bnds, plus 12 variants )')
@@ -3071,7 +3071,7 @@ contains
 
       call prop_set(prop_ptr, 'numerics', 'Slopedrop2D', Slopedrop2D, 'Apply drop losses only if local bed slope > Slopedrop2D, (<=0: no drop losses)')
 
-      call prop_set(prop_ptr, 'numerics', 'Drop1D', merge(1, 0, Drop1D), 'Apply drop losses in 1D (0: no, 1:yes)')
+      call prop_set(prop_ptr, 'numerics', 'Drop1D', Drop1D, 'Apply drop losses in 1D (0: no, 1:yes)')
 
       if (writeall .or. Drop3D /= 1.0_dp) then
          call prop_set(prop_ptr, 'numerics', 'Drop3D', Drop3D, 'Apply droplosses in 3D if z upwind below bob + 2/3 hu*drop3D')
@@ -3327,9 +3327,7 @@ contains
       call prop_set(prop_ptr, 'physics', 'wall_ks', wall_ks, 'Wall roughness type (0: free slip, 1: partial slip using wall_ks)')
       call prop_set(prop_ptr, 'physics', 'Rhomean', rhomean, 'Average water density (kg/m3)')
 
-      if (writeall .or. idensform /= 2) then
-         call prop_set(prop_ptr, 'physics', 'Idensform', idensform, 'Density calulation (0: uniform, 1: Eckart, 2: UNESCO, 3: UNESCO83)')
-      end if
+      call prop_set(prop_ptr, 'physics', 'Idensform', idensform, 'Density calulation (0: uniform, 1: Eckart, 2: UNESCO, 3: UNESCO83)')
       call prop_set(prop_ptr, 'physics', 'thermobaricity', apply_thermobaricity, 'Include pressure effects on water density. Only works for idensform = 3 (UNESCO 83).')
 
       call prop_set(prop_ptr, 'physics', 'Ag', ag, 'Gravitational acceleration')
@@ -3818,7 +3816,7 @@ contains
       call prop_set(prop_ptr, 'output', 'NcMapDataPrecision', trim(md_nc_map_precision), 'Precision for NetCDF data in map files (double or single)')
       call prop_set(prop_ptr, 'output', 'NcHisDataPrecision', trim(md_nc_his_precision), 'Precision for NetCDF data in his files (double or single)')
 
-      call prop_set(prop_ptr, 'output', 'NcCompression', merge(1, 0, md_nccompress), 'Whether or not (1/0) to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4')
+      call prop_set(prop_ptr, 'output', 'NcCompression', md_nccompress, 'Whether or not (1/0) to apply compression to NetCDF output files - NOTE: only works when NcFormat = 4')
 
       if (writeall .or. unc_nounlimited /= 0) then
          call prop_set(prop_ptr, 'output', 'NcNoUnlimited', unc_nounlimited, 'Write full-length time-dimension instead of unlimited dimension (1: yes, 0: no). (Might require NcFormat=4.)')
@@ -3837,7 +3835,7 @@ contains
          call prop_set(prop_ptr, 'output', 'NcWriteLatLon', ibuf, 'Write extra lat-lon coordinates for all projected coordinate variables in each NetCDF file (for CF-compliancy).')
       end if
       if (writeall .or. write_numlimdt_file) then
-         call prop_set(prop_ptr, 'output', 'Wrixyz_numlimdt', merge(1, 0, write_numlimdt_file), &
+         call prop_set(prop_ptr, 'output', 'Wrixyz_numlimdt', write_numlimdt_file, &
                        'Write the total number of times a cell was Courant limiting to <run_id>_numlimdt.xyz file (1: yes, 0: no).')
       end if
       if (writeall .or. len_trim(unc_metadatafile) > 0) then
@@ -4249,7 +4247,7 @@ contains
    end subroutine set_output_time_vector
 
    !> Validate the user input for the density formula
-   subroutine validate_idensform(idensform, apply_thermobaricity)
+   subroutine validate_density_settings(idensform, apply_thermobaricity)
       use m_density_formulas, only: DENSITY_OPTION_UNIFORM, DENSITY_OPTION_ECKART, DENSITY_OPTION_UNESCO, &
                                     DENSITY_OPTION_UNESCO83, DENSITY_OPTION_BAROCLINIC, DENSITY_OPTION_DELTARES_FLUME
       integer, intent(in) :: idensform !< Density formula identifier
@@ -4271,5 +4269,5 @@ contains
       case default
          call mess(LEVEL_ERROR, 'Unsupported value for keyword "idensform", see manual or .dia file for supported values.')
       end select
-   end subroutine validate_idensform
+   end subroutine validate_density_settings
 end module unstruc_model

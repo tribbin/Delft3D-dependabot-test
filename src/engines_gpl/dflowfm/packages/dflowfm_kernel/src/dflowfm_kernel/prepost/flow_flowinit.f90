@@ -1654,7 +1654,7 @@ contains
       use m_ini_sferic
       use m_set_bobs
       use m_get_czz0
-      use m_density_formulas, only: density_eckart
+      use m_density_formulas, only: calculate_density_eckart
       use m_corioliskelvin, only: corioliskelvin, oceaneddy
       use m_model_specific, only: equatorial, poiseuille
       use m_filez, only: newfil
@@ -1817,7 +1817,7 @@ contains
                call getkbotktop(k, kb, kt)
                do kk = kb, kt
                   sa1(kk) = 10d0
-                  rho1 = density_eckart(sa1(kk), backgroundwatertemperature)
+                  rho1 = calculate_density_eckart(sa1(kk), backgroundwatertemperature)
                end do
             else
                !s1(k) = bl(k) + 0.5d0*( s1(k)-bl(k) )*sqrt(rho1/998.200)   ! rho = 1020 etc
