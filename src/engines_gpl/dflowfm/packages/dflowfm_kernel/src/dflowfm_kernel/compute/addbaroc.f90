@@ -91,25 +91,11 @@ contains
          d2 = (dz2(Lt - Lb + 1) + dz2(Lt - Lb))
          fzu2 = dz2(Lt - Lb + 1) / d2; fzd2 = 1d0 - fzu2
 
-         if (jabaroctimeint == 2) then ! extrapolate rho at n+0.5
-            r1d = (2d0 - fzu1) * (1.5d0 * rho(k1) - 0.5d0 * rho0(k1)) - fzd1 * (1.5d0 * rho(k1 - 1) - 0.5d0 * rho0(k1 - 1)) - rhomean
-            r2d = (2d0 - fzu2) * (1.5d0 * rho(k2) - 0.5d0 * rho0(k2)) - fzd2 * (1.5d0 * rho(k2 - 1) - 0.5d0 * rho0(k2 - 1)) - rhomean
-         else
-            r1d = (2d0 - fzu1) * rho(k1) - fzd1 * rho(k1 - 1) - rhomean
-            r2d = (2d0 - fzu2) * rho(k2) - fzd2 * rho(k2 - 1) - rhomean
-         end if
-
-         ! r1d = 1.5d0*rho(k1) - 0.5d0*rho(k1-1) - rhomean
-         ! r2d = 1.5d0*rho(k2) - 0.5d0*rho(k2-1) - rhomean
-
+         r1d = (2d0 - fzu1) * rho(k1) - fzd1 * rho(k1 - 1) - rhomean
+         r2d = (2d0 - fzu2) * rho(k2) - fzd2 * rho(k2 - 1) - rhomean
       else
-         if (jabaroctimeint == 2) then ! extrapolate rho at n+0.5
-            r1d = 1.5d0 * rho(k1) - 0.5d0 * rho0(k1) - rhomean
-            r2d = 1.5d0 * rho(k2) - 0.5d0 * rho0(k2) - rhomean
-         else
-            r1d = rho(k1) - rhomean
-            r2d = rho(k2) - rhomean
-         end if
+         r1d = rho(k1) - rhomean
+         r2d = rho(k2) - rhomean
       end if
 
       z1d = zws(k1); z2d = zws(k2)
@@ -134,33 +120,17 @@ contains
          if (L > Lb) then
             fzu1 = dz1(L - Lb + 1) / (dz1(L - Lb + 1) + dz1(L - Lb)); fzd1 = 1d0 - fzu1
             fzu2 = dz2(L - Lb + 1) / (dz2(L - Lb + 1) + dz2(L - Lb)); fzd2 = 1d0 - fzu2
-            if (jabaroctimeint == 2) then ! extrapolate rho at n+0.5
-               r1d = fzu1 * (1.5d0 * rho(k1) - 0.5d0 * rho0(k1)) + fzd1 * (1.5d0 * rho(k1 - 1) - 0.5d0 * rho0(k1 - 1)) - rhomean
-               r2d = fzu2 * (1.5d0 * rho(k2) - 0.5d0 * rho0(k2)) + fzd2 * (1.5d0 * rho(k2 - 1) - 0.5d0 * rho0(k2 - 1)) - rhomean
-            else
-               r1d = fzu1 * rho(k1) + fzd1 * rho(k1 - 1) - rhomean
-               r2d = fzu2 * rho(k2) + fzd2 * rho(k2 - 1) - rhomean
-            end if
-
+            r1d = fzu1 * rho(k1) + fzd1 * rho(k1 - 1) - rhomean
+            r2d = fzu2 * rho(k2) + fzd2 * rho(k2 - 1) - rhomean
          else
             if (Lt > Lb) then
                fzu1 = dz1(L - Lb + 2) / (dz1(L - Lb + 1) + dz1(L - Lb + 2)); fzd1 = 1d0 - fzu1
                fzu2 = dz2(L - Lb + 2) / (dz2(L - Lb + 1) + dz2(L - Lb + 2)); fzd2 = 1d0 - fzu2
-               if (jabaroctimeint == 2) then ! extrapolate rho at n+0.5
-                  r1d = (2d0 - fzd1) * (1.5d0 * rho(k1) - 0.5d0 * rho0(k1)) - fzu1 * (1.5d0 * rho(k1 + 1) - 0.5d0 * rho0(k1 + 1)) - rhomean
-                  r2d = (2d0 - fzd2) * (1.5d0 * rho(k2) - 0.5d0 * rho0(k2)) - fzu2 * (1.5d0 * rho(k2 + 1) - 0.5d0 * rho0(k2 + 1)) - rhomean
-               else
-                  r1d = (2d0 - fzd1) * rho(k1) - fzu1 * rho(k1 + 1) - rhomean
-                  r2d = (2d0 - fzd2) * rho(k2) - fzu2 * rho(k2 + 1) - rhomean
-               end if
+               r1d = (2d0 - fzd1) * rho(k1) - fzu1 * rho(k1 + 1) - rhomean
+               r2d = (2d0 - fzd2) * rho(k2) - fzu2 * rho(k2 + 1) - rhomean
             else
-               if (jabaroctimeint == 2) then ! extrapolate rho at n+0.5
-                  r1d = 1.5d0 * rho(k1) - 0.5d0 * rho0(k1) - rhomean
-                  r2d = 1.5d0 * rho(k2) - 0.5d0 * rho0(k2) - rhomean
-               else
-                  r1d = rho(k1) - rhomean
-                  r2d = rho(k2) - rhomean
-               end if
+               r1d = rho(k1) - rhomean
+               r2d = rho(k2) - rhomean
             end if
          end if
 
@@ -196,12 +166,7 @@ contains
       do L = Lt, Lb, -1
          if (rhovol(L - Lb + 1) > 0d0) then
             barocl = ag * gradpu(L - Lb + 1) / rhovol(L - Lb + 1) !  + barotr
-            if (jabaroctimeint == 3) then ! Adams bashford
-               adve(L) = adve(L) - 1.5d0 * barocl + 0.5d0 * dpbdx0(L)
-               dpbdx0(L) = barocL
-            else
-               adve(L) = adve(L) - barocl
-            end if
+            adve(L) = adve(L) - barocl
          end if
       end do
 

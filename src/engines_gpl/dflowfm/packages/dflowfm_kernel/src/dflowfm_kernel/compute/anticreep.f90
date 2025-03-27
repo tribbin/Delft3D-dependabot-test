@@ -282,14 +282,8 @@ contains
                exit
             end if
          end do
-         if (jabaroctimeint <= 1) then ! explicit
-            adve(LL) = adve(LL) + dpbdx / dx(L) !   to compensate for not dividing by dx above
-         else
-            adve(LL) = adve(LL) + (1.5d0 * dpbdx - 0.5d0 * dpbdx0(LL)) / dx(L) !   to compensate for not dividing by dx above
-         end if
-         if (abs(jabaroctimeint) >= 2) then
-            dpbdx0(LL) = dpbdx
-         end if
+         adve(LL) = adve(LL) + dpbdx / dx(L) !   to compensate for not dividing by dx above
+         dpbdx0(LL) = dpbdx
 
          do kf = kfmax1, 1, -1
             farea = -max(point(kf) - ztop, 0d0) & ! to find the flux area between the flux pieces and the sigma layer
@@ -305,10 +299,6 @@ contains
          dsalL(LL) = dsalL(LL) / (ztop - zbot)
          dtemL(LL) = dtemL(LL) / (ztop - zbot)
       end do
-
-      if (abs(jabaroctimeint) >= 2) then
-         jabaroctimeint = abs(jabaroctimeint)
-      end if
 
       deallocate (polal, pocol, polar, pocor)
       deallocate (poflu, kicol, kicor)

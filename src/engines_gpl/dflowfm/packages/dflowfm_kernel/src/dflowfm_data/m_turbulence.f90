@@ -117,7 +117,6 @@ module m_turbulence
    real(kind=dp), allocatable, dimension(:), target :: in_situ_density ! Pressure dependent water density at cell centres (kg/m3)
    real(kind=dp), allocatable, dimension(:), target :: potential_density ! Potential water density at cell centres (kg/m3)
    real(kind=dp), dimension(:), pointer :: rho ! Water density at cell centres (kg/m3)
-   real(kind=dp), allocatable, dimension(:) :: rho0 ! Water density at cell centres (kg/m3), previous time step
    real(kind=dp), allocatable, dimension(:) :: rhosww ! deviatoric density at vertical interfaces, w points (kg/m3)
    real(kind=dp), allocatable, dimension(:) :: rhowat ! density at cell centres (kg/m3), only salt and temp
    real(kind=dp), allocatable, dimension(:) :: dpbdx0 ! previous step baroclinic pressure gradient, at u points

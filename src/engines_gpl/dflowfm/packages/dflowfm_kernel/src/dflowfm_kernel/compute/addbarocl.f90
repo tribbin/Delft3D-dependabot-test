@@ -368,47 +368,22 @@ contains
       integer :: L
       real(kind=dp) :: barocL, ft
 
-      ! this last piece is identical to addbaroc2, that will be removed at some moment
-      if (jabaroctimeint == 3) then ! original AB implementation
-
-         do L = Lb, Lt
-            if (rhovol(L - Lb + 1) > 0d0) then
-               barocl = ag * gradpu(L - Lb + 1) / rhovol(L - Lb + 1) !
-               adve(L) = adve(L) - 1.5d0 * barocl + 0.5d0 * dpbdx0(L)
-               dpbdx0(L) = barocL
-            end if
-         end do
-
-      else if (abs(jabaroctimeint) == 4) then ! AB + better drying flooding
-
-         ft = 0.5d0 * dts / dtprev
-         do L = Lb, Lt
-            if (rhovol(L - Lb + 1) > 0d0) then
-               barocl = ag * gradpu(L - Lb + 1) / rhovol(L - Lb + 1)
-               if (dpbdx0(L) /= 0d0) then
-                  adve(L) = adve(L) - (1d0 + ft) * barocl + ft * dpbdx0(L)
-               else
-                  adve(L) = adve(L) - barocl
-               end if
-               dpbdx0(L) = barocL
-            end if
-         end do
-
-         do L = Lt + 1, Lb + kmxL(LL) - 1
-            dpbdx0(L) = 0d0
-         end do
-
-      else
-
-         do L = Lb, Lt
-            if (rhovol(L - Lb + 1) > 0d0) then
-               barocl = ag * gradpu(L - Lb + 1) / rhovol(L - Lb + 1) !  Explicit
+      ! This is identical to addbaroc2, that will be removed at some moment
+      ft = 0.5d0 * dts / dtprev
+      do L = Lb, Lt
+         if (rhovol(L - Lb + 1) > 0d0) then
+            barocl = ag * gradpu(L - Lb + 1) / rhovol(L - Lb + 1)
+            if (dpbdx0(L) /= 0d0) then
+               adve(L) = adve(L) - (1d0 + ft) * barocl + ft * dpbdx0(L)
+            else
                adve(L) = adve(L) - barocl
             end if
-         end do
+            dpbdx0(L) = barocL
+         end if
+      end do
 
-      end if
-
+      do L = Lt + 1, Lb + kmxL(LL) - 1
+         dpbdx0(L) = 0d0
+      end do
    end subroutine barocLtimeint
-
 end module m_addbarocl

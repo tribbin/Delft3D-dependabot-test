@@ -390,12 +390,6 @@ module m_flowparameters
    integer, parameter :: FLOW_SOLVER_FM = 1
    integer, parameter :: FLOW_SOLVER_SRE = 2
 
-   integer :: jabaroctimeint !< time integration baroclini pressure, 1 = Euler, abs() = 2; rho at n+1/2, 3: AdamsB
-
-   integer :: jabarocterm !< 1 or 2 for original or revised term, we only document the revised term, keep org for backw. comp.
-
-   integer :: jaorgbarockeywords !< default=0=new, 1=org
-
    integer :: jatransportautotimestepdiff = 0 ! Auto Timestep in Transport module, 0 = limitation of diffusion, but no limitation of time-step due to diffusion, 1 = no limitation of diffusion, but limitation of time step due to diffusion, 2: no limitation of diffusion and no limitation of time step due to diffusion
 
    integer :: implicitdiffusion2D = 0 ! Auto Timestep in Transport module, 0 = limitation of diffusion, but no limitation of time-step due to diffusion, 1 = no limitation of diffusion, but limitation of time step due to diffusion, 2: no limitation of diffusion and no limitation of time step due to diffusion
@@ -932,9 +926,6 @@ contains
       jastructurelayersactive = 1
       JaZerozbndinflowadvection = 0
       md_flow_solver = 'generic1d2d3d'
-      jabaroctimeint = -4 !< time integration baroclini pressure, 1 = expl., 2=AB rho , 3 = AB barocterm, 4=3dryfloodproof 5 = advect rho (n+1/2)
-      jabarocterm = 4 !  revised baroc term
-      jaorgbarockeywords = 0
 
       jaanalytic = 0 !< analytic solution available in black sideview => do not also show computed surface in black
       jaustarint = 1 !< 1=integral bed layer velocity,  0=velocity at half bed layer

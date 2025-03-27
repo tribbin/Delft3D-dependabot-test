@@ -714,31 +714,18 @@ contains
       end if
 
       if (jasal > 0 .or. jatem > 0 .or. jased > 0 .or. stm_included) then
-         if (abs(jabaroctimeint) >= 2) then
-            if (jacreep == 1 .or. abs(jabaroctimeint) == 3 .or. abs(jabaroctimeint) == 4) then
-               if (allocated(dpbdx0)) deallocate (dpbdx0)
-               allocate (dpbdx0(lnkx), stat=ierr)
-               call aerr('dpbdx0 (lnkx)', ierr, lnkx); dpbdx0 = 0d0
-            end if
+         if (allocated(dpbdx0)) deallocate (dpbdx0)
+         allocate (dpbdx0(lnkx), stat=ierr)
+         call aerr('dpbdx0 (lnkx)', ierr, lnkx); dpbdx0 = 0d0
 
-            if (jacreep /= 1 .and. abs(jabaroctimeint) == 2 .or. abs(jabaroctimeint) == 5) then
-               if (allocated(rho0)) deallocate (rho0)
-               allocate (rho0(ndkx), stat=ierr)
-               call aerr('rho0 (ndkx)', ierr, ndkx); rho0 = rhomean
-            end if
+         if (allocated(rvdn)) deallocate (rvdn, grn)
+         allocate (rvdn(ndkx), grn(ndkx), stat=ierr); rvdn = 0d0; grn = 0d0
+         call aerr('rvdn(ndkx), grn(ndkx)', ierr, 2 * ndkx)
 
-         end if
-
-         if (jabarocterm >= 4) then
-            if (allocated(rvdn)) deallocate (rvdn, grn)
-            allocate (rvdn(ndkx), grn(ndkx), stat=ierr); rvdn = 0d0; grn = 0d0
-            call aerr('rvdn(ndkx), grn(ndkx)', ierr, 2 * ndkx)
-
-            if (jarhointerfaces == 1) then
-               if (allocated(rhosww)) deallocate (rhosww)
-               allocate (rhosww(ndkx), stat=ierr)
-               call aerr('rhosww(ndkx)', ierr, ndkx); rhosww = 0d0
-            end if
+         if (jarhointerfaces == 1) then
+            if (allocated(rhosww)) deallocate (rhosww)
+            allocate (rhosww(ndkx), stat=ierr)
+            call aerr('rhosww(ndkx)', ierr, ndkx); rhosww = 0d0
          end if
 
       end if

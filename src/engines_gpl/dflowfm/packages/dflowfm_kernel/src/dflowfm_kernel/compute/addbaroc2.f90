@@ -49,17 +49,9 @@ contains
       integer :: LL, Lb, Lt
 
       real(kind=dp) :: gradpu(kmxx), rhovol(kmxx), dz1(kmxx), dz2(kmxx)
-      real(kind=dp) :: z1u, z1d, z2u, z2d, p1u, p1d, p2u, p2d, r1u, r1d, r2u, r2d, dz3, d2
-      real(kind=dp) :: barocl, alf1, alf2, alf3, gr1, gr2, gr3, hdx, fzu1, fzd1, fzu2, fzd2, dzz, dxx, rvd, vv, rvv, r
+      real(kind=dp) :: z1u, z1d, z2u, z2d, p1u, p1d, p2u, p2d, r1u, r1d, r2u, r2d, d2
+      real(kind=dp) :: barocl, alf1, alf2, gr1, gr2, gr3, hdx, fzu1, fzd1, fzu2, fzd2, dzz, dxx, rvd, vv, rvv, r
       integer :: k1, k2, L
-
-      ! rho = rhomean
-      ! do L = Lb, Lt
-      !    k1 = ln(1,L)
-      !    rho(k1) = rhomean + 0.5d0*(zws(k1) + zws(k1-1))
-      !    k2 = ln(2,L)
-      !    rho(k2) = rhomean + 0.5d0*(zws(k2) + zws(k2-1))
-      ! enddo
 
       if (kmx == 0) then
          k1 = ln(1, LL); k2 = ln(2, LL)
@@ -93,53 +85,20 @@ contains
 
          d2 = (dz2(Lt - Lb + 1) + dz2(Lt - Lb))
          fzu2 = dz2(Lt - Lb + 1) / d2; fzd2 = 1d0 - fzu2
-
-         if (jabaroctimeint == 2) then ! extrapolate rho at n+0.5
-            r1d = (2d0 - fzu1) * (1.5d0 * rho(k1) - 0.5d0 * rho0(k1)) - fzd1 * (1.5d0 * rho(k1 - 1) - 0.5d0 * rho0(k1 - 1)) - rhomean
-            r2d = (2d0 - fzu2) * (1.5d0 * rho(k2) - 0.5d0 * rho0(k2)) - fzd2 * (1.5d0 * rho(k2 - 1) - 0.5d0 * rho0(k2 - 1)) - rhomean
-         else
-            r1d = (2d0 - fzu1) * rho(k1) - fzd1 * rho(k1 - 1) - rhomean
-            r2d = (2d0 - fzu2) * rho(k2) - fzd2 * rho(k2 - 1) - rhomean
-         end if
-
-         ! r1d = 1.5d0*rho(k1) - 0.5d0*rho(k1-1) - rhomean
-         ! r2d = 1.5d0*rho(k2) - 0.5d0*rho(k2-1) - rhomean
-
+         r1d = (2d0 - fzu1) * rho(k1) - fzd1 * rho(k1 - 1) - rhomean
+         r2d = (2d0 - fzu2) * rho(k2) - fzd2 * rho(k2 - 1) - rhomean
       else
-         if (jabaroctimeint == 2) then ! extrapolate rho at n+0.5
-            r1d = 1.5d0 * rho(k1) - 0.5d0 * rho0(k1) - rhomean
-            r2d = 1.5d0 * rho(k2) - 0.5d0 * rho0(k2) - rhomean
-         else
-            r1d = rho(k1) - rhomean
-            r2d = rho(k2) - rhomean
-         end if
+         r1d = rho(k1) - rhomean
+         r2d = rho(k2) - rhomean
       end if
 
       z1d = zws(k1); z2d = zws(k2)
       p1d = 0d0; p2d = 0d0
 
-      ! barotr = ag*(z2d - z1d) / dx(LL)
-      ! r1d = abs(z1d) ; r2d = abs(z2d)  ! forced horizontal
-
       gradpu(1:Lt - Lb + 1) = 0d0
       rhovol(1:Lt - Lb + 1) = 0d0
       dxx = dx(LL)
       hdx = 0.5d0 * dxx
-
-      if (jabarocterm == 3) then
-         gr3 = 0d0
-         if (z1d > z2d) then ! baroclinic contribution at free surface
-            dz3 = z1d - z2d
-            alf3 = r2d - r1d
-            gr3 = p1d * dz3 + 0.5d0 * r1d * dz3 * dz3 + alf3 * dz3 * dz3 / 6d0
-         else if (z1d < z2d) then
-            dz3 = z2d - z1d
-            alf3 = r1d - r2d
-            gr3 = p2d * dz3 + 0.5d0 * r2d * dz3 * dz3 + alf3 * dz3 * dz3 / 6d0
-            gr3 = -gr3
-         end if
-         gradpu(Lt - Lb + 1) = gradpu(Lt - Lb + 1) - gr3
-      end if
 
       rvd = 0d0
       do L = Lt, Lb, -1
@@ -153,32 +112,17 @@ contains
          if (L > Lb) then
             fzu1 = dz1(L - Lb + 1) / (dz1(L - Lb + 1) + dz1(L - Lb)); fzd1 = 1d0 - fzu1
             fzu2 = dz2(L - Lb + 1) / (dz2(L - Lb + 1) + dz2(L - Lb)); fzd2 = 1d0 - fzu2
-            if (jabaroctimeint == 2) then ! extrapolate rho at n+0.5
-               r1d = fzu1 * (1.5d0 * rho(k1) - 0.5d0 * rho0(k1)) + fzd1 * (1.5d0 * rho(k1 - 1) - 0.5d0 * rho0(k1 - 1)) - rhomean
-               r2d = fzu2 * (1.5d0 * rho(k2) - 0.5d0 * rho0(k2)) + fzd2 * (1.5d0 * rho(k2 - 1) - 0.5d0 * rho0(k2 - 1)) - rhomean
-            else
-               r1d = fzu1 * rho(k1) + fzd1 * rho(k1 - 1) - rhomean
-               r2d = fzu2 * rho(k2) + fzd2 * rho(k2 - 1) - rhomean
-            end if
+            r1d = fzu1 * rho(k1) + fzd1 * rho(k1 - 1) - rhomean
+            r2d = fzu2 * rho(k2) + fzd2 * rho(k2 - 1) - rhomean
          else
             if (Lt > Lb) then
                fzu1 = dz1(L - Lb + 2) / (dz1(L - Lb + 1) + dz1(L - Lb + 2)); fzd1 = 1d0 - fzu1
                fzu2 = dz2(L - Lb + 2) / (dz2(L - Lb + 1) + dz2(L - Lb + 2)); fzd2 = 1d0 - fzu2
-               if (jabaroctimeint == 2) then ! extrapolate rho at n+0.5
-                  r1d = (2d0 - fzd1) * (1.5d0 * rho(k1) - 0.5d0 * rho0(k1)) - fzu1 * (1.5d0 * rho(k1 + 1) - 0.5d0 * rho0(k1 + 1)) - rhomean
-                  r2d = (2d0 - fzd2) * (1.5d0 * rho(k2) - 0.5d0 * rho0(k2)) - fzu2 * (1.5d0 * rho(k2 + 1) - 0.5d0 * rho0(k2 + 1)) - rhomean
-               else
-                  r1d = (2d0 - fzd1) * rho(k1) - fzu1 * rho(k1 + 1) - rhomean
-                  r2d = (2d0 - fzd2) * rho(k2) - fzu2 * rho(k2 + 1) - rhomean
-               end if
+               r1d = (2d0 - fzd1) * rho(k1) - fzu1 * rho(k1 + 1) - rhomean
+               r2d = (2d0 - fzd2) * rho(k2) - fzu2 * rho(k2 + 1) - rhomean
             else
-               if (jabaroctimeint == 2) then ! extrapolate rho at n+0.5
-                  r1d = 1.5d0 * rho(k1) - 0.5d0 * rho0(k1) - rhomean
-                  r2d = 1.5d0 * rho(k2) - 0.5d0 * rho0(k2) - rhomean
-               else
-                  r1d = rho(k1) - rhomean
-                  r2d = rho(k2) - rhomean
-               end if
+               r1d = rho(k1) - rhomean
+               r2d = rho(k2) - rhomean
             end if
          end if
 
@@ -200,72 +144,32 @@ contains
          p2d = p2u + r2u * dzz + 0.5d0 * alf2 * dzz ! alf2 ipv alf1
          gr2 = p2u * dzz + 0.5d0 * r2u * dzz * dzz + alf2 * dzz * dzz / 6d0 ! your right wall
 
-         if (jabarocterm == 3) then
-            gr3 = 0d0; dz3 = 0d0
-            if (z1d > z2d) then
-               dz3 = z1d - z2d
-               alf3 = r2d - r1d
-               gr3 = p1d * dz3 + 0.5d0 * r1d * dz3 * dz3 + alf3 * dz3 * dz3 / 6d0 ! your own floor
-            else if (z1d < z2d) then
-               dz3 = z2d - z1d
-               alf3 = r1d - r2d
-               gr3 = p2d * dz3 + 0.5d0 * r2d * dz3 * dz3 + alf3 * dz3 * dz3 / 6d0 ! your own floor (kg/m)
-               gr3 = -gr3
-            end if
-         else
-            vv = 0.5d0 * (dz1(L - Lb + 1) + dz2(L - Lb + 1)) ! integrate rho volume
-            r = 0.25d0 * (r1u + r1d + r2u + r2d)
-            rvv = r * vv
-            rvd = rvd + rvv
-            gr3 = rvd * (z1d - z2d)
-         end if
+         vv = 0.5d0 * (dz1(L - Lb + 1) + dz2(L - Lb + 1)) ! integrate rho volume
+         r = 0.25d0 * (r1u + r1d + r2u + r2d)
+         rvv = r * vv
+         rvd = rvd + rvv
+         gr3 = rvd * (z1d - z2d)
 
          gradpu(L - Lb + 1) = gradpu(L - Lb + 1) + gr1 - gr2 + gr3
          if (L > Lb) then
             gradpu(L - Lb) = gradpu(L - Lb) - gr3 ! ceiling of ff# downstairs neighbours
          end if
-
       end do
 
-      if (jabaroctimeint == 3) then ! original AB implementation
-
-         do L = Lb, Lt
-            if (rhovol(L - Lb + 1) > 0d0) then
-               barocl = ag * gradpu(L - Lb + 1) / rhovol(L - Lb + 1) !
+      do L = Lb, Lt
+         if (rhovol(L - Lb + 1) > 0d0) then
+            barocl = ag * gradpu(L - Lb + 1) / rhovol(L - Lb + 1)
+            if (dpbdx0(L) /= 0d0) then
                adve(L) = adve(L) - 1.5d0 * barocl + 0.5d0 * dpbdx0(L)
-               dpbdx0(L) = barocL
-            end if
-         end do
-
-      else if (abs(jabaroctimeint) == 4) then ! AB + better drying flooding
-
-         do L = Lb, Lt
-            if (rhovol(L - Lb + 1) > 0d0) then
-               barocl = ag * gradpu(L - Lb + 1) / rhovol(L - Lb + 1)
-               if (dpbdx0(L) /= 0d0) then
-                  adve(L) = adve(L) - 1.5d0 * barocl + 0.5d0 * dpbdx0(L)
-               else
-                  adve(L) = adve(L) - barocl
-               end if
-               dpbdx0(L) = barocL
-            end if
-         end do
-
-         do L = Lt + 1, Lb + kmxL(LL) - 1
-            dpbdx0(L) = 0d0
-         end do
-
-      else
-
-         do L = Lb, Lt
-            if (rhovol(L - Lb + 1) > 0d0) then
-               barocl = ag * gradpu(L - Lb + 1) / rhovol(L - Lb + 1) !  Explicit
+            else
                adve(L) = adve(L) - barocl
             end if
-         end do
+            dpbdx0(L) = barocL
+         end if
+      end do
 
-      end if
-
+      do L = Lt + 1, Lb + kmxL(LL) - 1
+         dpbdx0(L) = 0d0
+      end do
    end subroutine addbaroc2
-
 end module m_addbaroc2
