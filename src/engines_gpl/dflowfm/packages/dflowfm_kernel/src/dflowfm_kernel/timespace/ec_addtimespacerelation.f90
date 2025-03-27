@@ -180,8 +180,6 @@ contains
       ! Convert ext file names to accepted Unstruc names.
       ! =================================================
       ! Name conversion: (targetname=qidname==name for all names, except name=tracerbndfoo --> qidname=tracerbnd)
-      ! TODO: UNST-XXXX: the fall-through sequence below has unwanted side-effect that get_tracername result gets overwritten
-      ! by the subsequent get_*name() calls. This has been in for years (and working well!), so we need to carefully refactor this.
       qidname = name
       call get_tracername(name, trname, qidname)
       call get_sedfracname(name, sfname, qidname)

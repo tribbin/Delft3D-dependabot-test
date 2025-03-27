@@ -134,7 +134,7 @@ contains
 
    !> Add a source-sink to the model.
    subroutine addsorsin(name, x_points, y_points, z_source, z_sink, area, ierr)
-      use fm_external_forcings_data
+      use fm_external_forcings_data, only: numsrc, xsrc, ysrc, nxsrc, ksrc, zsrc, zsrc2, arsrc, cssrc, snsrc, srcname
       use m_GlobalParameters, only: INDTP_ALL
 
       use messagehandling, only: msgbuf, warn_flush
