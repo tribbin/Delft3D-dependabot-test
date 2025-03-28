@@ -3787,9 +3787,7 @@ contains
       ierr = nf90_put_att(ncid, netids%varids(ntid_1dbranchtype), 'mesh', prefix)
       ierr = nf90_put_att(ncid, netids%varids(ntid_1dbranchtype), 'location', 'edge')
 
-      if (wasInDefine == 0) then
-         ierr = nf90_enddef(ncid)
-      end if
+      ierr = ncu_restore_mode(ncid, wasInDefine)
 
    end function ug_create_1d_network_v1
 
@@ -3937,9 +3935,7 @@ contains
          end if
       end if
 
-      if (wasInDefine == 0) then
-         ierr = nf90_enddef(ncid)
-      end if
+      ierr = ncu_restore_mode(ncid, wasInDefine)
 
    end function ug_create_1d_mesh_v2
 
@@ -3998,9 +3994,7 @@ contains
          ierr = nf90_put_att(ncid, meshids%varids(mid_face_longnames), 'long_name', 'Long name of mesh faces')
       end if
 
-      if (wasInDefine == 0) then
-         ierr = nf90_enddef(ncid)
-      end if
+      ierr = ncu_restore_mode(ncid, wasInDefine)
 
    end function ug_def_mesh_ids
 
@@ -4085,9 +4079,7 @@ contains
       ierr = nf90_put_att(ncid, contactids%varids(cid_compositemesh), 'meshes', trim(mesh1)//' '//trim(mesh2))
       ierr = nf90_put_att(ncid, contactids%varids(cid_compositemesh), 'mesh_contact', prefix)
 
-      if (wasInDefine == 0) then
-         ierr = nf90_enddef(ncid)
-      end if
+      ierr = ncu_restore_mode(ncid, wasInDefine)
 
    end function ug_def_mesh_contact
 !> Writes edge nodes
