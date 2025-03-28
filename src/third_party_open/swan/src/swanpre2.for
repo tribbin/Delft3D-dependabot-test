@@ -3902,6 +3902,7 @@
       USE SWCOMM3                                                         40.41
       USE SWCOMM4                                                         40.41
       USE M_BNDSPEC                                                       40.31
+      USE M_PARALL                                                        42.10
       use HRextensions, only: swn_hre_bcnccf
 !
       IMPLICIT NONE

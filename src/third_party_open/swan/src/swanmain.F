@@ -8850,7 +8850,7 @@
         IF (INODE.EQ.MASTER) THEN
 ! A VERY iffy test on whether the opened file is a netcdf file
           IF ( IFLNDF(IGR1) < 0 ) THEN
-            CALL swn_hre_readarray(IFLNDF, ARR, MXG, MYG, IFLTIM, IFLFAC,
+           CALL swn_hre_readarray(IFLNDF, ARR, MXG, MYG, IFLTIM, IFLFAC,
      &                IGR1, '')
           ELSE
             CALL INAR2D( ARR, MXG(IGR1), MYG(IGR1),                        40.31 40.02

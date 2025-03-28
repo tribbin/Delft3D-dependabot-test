@@ -289,7 +289,6 @@
       LOGICAL                     :: LORQ=.FALSE.
                                                                           BJXX
       LOGICAL, SAVE :: SwanBndStruc_done =.FALSE.                         BJXX
-      LOGICAL, SAVE :: RUNMADE           =.FALSE.                         BJXX
 !
 !  8. Subroutines and functions used
 !
@@ -410,7 +409,6 @@
       ENDIF                                                               BJXX
       END SUBROUTINE DESTRUCTOR_ORQ                                       BJXX
                                                                           BJXX
-      CONTAINS
 !
       RECURSIVE SUBROUTINE DELETEOPS ( OPS )
 
@@ -925,7 +923,6 @@
       NULLIFY(BGP%NEXTBGP)                                                BJXX
       END SUBROUTINE DESTRUCTOR_BGPDAT                                    BJXX
                                                                           BJXX
-      CONTAINS
 !
       RECURSIVE SUBROUTINE DELETEBSPC ( BSPC )
 
