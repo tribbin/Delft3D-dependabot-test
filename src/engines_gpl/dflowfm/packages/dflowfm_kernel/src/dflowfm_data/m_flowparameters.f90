@@ -100,8 +100,6 @@ module m_flowparameters
 
    real(kind=dp) :: Corioadamsbashfordfac = 0.5d0 !< Coriolis Adams Bashforth , 0d0 = explicit, 0.5 = AB
 
-   real(kind=dp) :: Barocadamsbashfordfac = .5d0 !< Baroclinic Adams Bashforth , 0d0 = explicit, 0.5 = AB
-
    real(kind=dp) :: hhtrshcor !< if > 0 safety for hu/hs in corio for now, ==0
 
    real(kind=dp) :: trshcorio !< below this depth coriolis force scaled down linearly to 0
