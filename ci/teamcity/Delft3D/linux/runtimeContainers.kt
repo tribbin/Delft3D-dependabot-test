@@ -7,7 +7,7 @@ import Delft3D.template.*
 import Delft3D.step.*
 import Delft3D.linux.containers.*
 
-object LinuxRunEnvironmentContainers : BuildType({
+object LinuxRuntimeContainers : BuildType({
 
     description = "Build two separate container images: one for running the Delft3D software and the other for executing its tests."
 
@@ -17,7 +17,7 @@ object LinuxRunEnvironmentContainers : BuildType({
         TemplateMonitorPerformance
     )
 
-    name = "Run-environment Containers"
+    name = "Runtime-environment Containers"
     buildNumberPattern = "%dep.${LinuxBuild.id}.product%: %build.vcs.number%"
 
     vcs {
@@ -66,16 +66,16 @@ object LinuxRunEnvironmentContainers : BuildType({
             """.trimIndent()
         }
         dockerCommand {
-            name = "Docker build run-environment image"
+            name = "Docker build runtime-environment image"
             commandType = build {
                 source = file {
-                    path = "ci/teamcity/Delft3D/linux/docker/runEnvironment.Dockerfile"
+                    path = "ci/teamcity/Delft3D/linux/docker/runtimeEnvironment.Dockerfile"
                 }
                 contextDir = "."
                 platform = DockerCommandStep.ImagePlatform.Linux
                 namesAndTags = """
-                    run-environment
-                    containers.deltares.nl/delft3d/delft3d-run-environment:alma8-%build.vcs.number%
+                    runtime-environment
+                    containers.deltares.nl/delft3d/delft3d-runtime-environment:alma8-%build.vcs.number%
                 """.trimIndent()
                 commandArgs = """
                     --pull
@@ -105,7 +105,7 @@ object LinuxRunEnvironmentContainers : BuildType({
             name = "Docker push"
             commandType = push {
                 namesAndTags = """
-                    containers.deltares.nl/delft3d/delft3d-run-environment:alma8-%build.vcs.number%
+                    containers.deltares.nl/delft3d/delft3d-runtime-environment:alma8-%build.vcs.number%
                     containers.deltares.nl/delft3d/test/delft3d-test-environment:alma8-%build.vcs.number%
                 """.trimIndent()
             }

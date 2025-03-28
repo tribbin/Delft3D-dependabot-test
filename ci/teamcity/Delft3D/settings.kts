@@ -53,12 +53,12 @@ project {
         }
         buildType(LinuxBuild)
         buildType(LinuxCollect)
-        buildType(LinuxRunEnvironmentContainers)
+        buildType(LinuxRuntimeContainers)
         buildType(LinuxTest)
         buildTypesOrder = arrayListOf(
             LinuxBuild,
             LinuxCollect,
-            LinuxRunEnvironmentContainers,
+            LinuxRuntimeContainers,
             LinuxTest
         )
     }
