@@ -83,6 +83,7 @@ contains
       integer :: iL, numcrossedLinks, ii, LLL, LLLa, nx
       integer :: mout, jatabellenboekorvillemonte
       integer :: ierror
+      integer :: num_intersections
 
       integer :: jakdtree = 1
       character(len=5) :: sd
@@ -174,12 +175,13 @@ contains
       end if
 
       kint = max(lnxi / 1000, 1)
+      num_intersections = MAX(NPL, lnx)
 
       call wall_clock_time(t_extra(1, 3))
-      allocate (iLink(NPL))
-      allocate (iLcr(NPL)); Ilcr = 0
-      allocate (ipol(NPL))
-      allocate (dSL(NPL))
+      allocate (iLink(num_intersections))
+      allocate (iLcr(num_intersections)); Ilcr = 0
+      allocate (ipol(num_intersections))
+      allocate (dSL(num_intersections))
       if (cache_retrieved()) then
          ierror = 0
          call copy_cached_fixed_weirs(npl, xpl, ypl, numcrossedLinks, iLink, iPol, dSL, success)
@@ -187,7 +189,7 @@ contains
          success = .false.
       end if
       if (.not. success) then
-         call find_crossed_links_kdtree2(treeglob, NPL, XPL, YPL, 2, NPL, 2, numcrossedLinks, iLink, iPol, dSL, ierror)
+         call find_crossed_links_kdtree2(treeglob, NPL, XPL, YPL, 2, num_intersections, 2, numcrossedLinks, iLink, iPol, dSL, ierror)
          call cache_fixed_weirs(npl, xpl, ypl, numcrossedLinks, iLink, iPol, dSL)
       end if
       call wall_clock_time(t_extra(2, 3))
