@@ -114,7 +114,7 @@ program unstruc
    use m_inidat, only: inidat
    use m_iset_jaopengl, only: iset_jaopengl
    use m_resetb, only: resetb
-
+   
    implicit none
 
    integer :: KEY
