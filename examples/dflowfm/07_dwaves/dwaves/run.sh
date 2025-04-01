@@ -1,4 +1,4 @@
 #!/bin/bash
 
-../../src/bin/run_dwaves.sh obw.mdw
+../../../../build_dwaves/install/bin/run_dwaves.sh obw.mdw
 
