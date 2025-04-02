@@ -1351,7 +1351,7 @@ contains
       call prop_get(md_ptr, 'physics', 'VillemonteCD2', VillemonteCD2)
 
       call prop_get(md_ptr, 'physics', 'Rhomean', rhomean)
-      call prop_get(md_ptr, 'physics', 'Ag', ag); sag = sqrt(ag)
+      call prop_get(md_ptr, 'physics', 'Ag', ag)
 
       call prop_get(md_ptr, 'physics', 'Salinity', jasal)
       call prop_get(md_ptr, 'physics', 'InitialSalinity', salini)
@@ -1407,9 +1407,6 @@ contains
 
       call prop_get(md_ptr, 'physics', 'Backgroundsalinity', Backgroundsalinity)
       call prop_get(md_ptr, 'physics', 'Backgroundwatertemperature', Backgroundwatertemperature)
-      ! Set molecular viscosity
-      vismol = 4.0_dp / (20.0_dp + backgroundwatertemperature) * 1.0e-5_dp ! Van Rijn, 1993, from iniphys.f90
-
       call prop_get(md_ptr, 'physics', 'NFEntrainmentMomentum', NFEntrainmentMomentum)
 
       md_dambreak_widening_method = ''
@@ -2492,6 +2489,12 @@ contains
             istat = ierror
          end if
       end if
+
+      ! calculate derived coefficients taking into account data from MDU file
+      call calculate_derived_physcoef()
+      call calculate_derived_coefficients_heatfluxes()
+      call calculate_derived_coefficients_turbulence()
+
    end subroutine readMDUFile
 
 !> helper routine to read the class boundaries
