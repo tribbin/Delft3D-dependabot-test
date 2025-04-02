@@ -3343,7 +3343,9 @@ contains
          else
             line = 'GEN3'
          end if
-         line = trim(line) // ' DRAG WU'
+         if (sr%windgrowth) then
+             line = trim(line) // ' DRAG WU'
+         end if
       else
       end if
       write (luninp, '(1X,A)') line
@@ -3383,9 +3385,9 @@ contains
               & ' nu=', sr%viscmud
       end if
       if (sr%triads) then
-         line(1:6) = 'TRIAD '
-         write (line(15:41), '(a,F7.4,a,F7.4)') 'trfac=', sr%cftriad1, ' cutfr=', sr%cftriad2
-         line(44:66) = ' urcrit=0.2 urslim=0.01'
+         line(1:16) = 'TRIAD itriad=11 '
+         write (line(17:43), '(a,F7.4,a,F7.4)') 'trfac=', sr%cftriad1, ' cutfr=', sr%cftriad2
+         line(46:68) = ' urcrit=0.2 urslim=0.01'
          write (luninp, '(1X,A)') line
          line = ' '
       end if
