@@ -216,12 +216,12 @@ def validate_directory_contents(
     extra_files = set(actual_files) - set(expected_files)
 
     if missing_files:
-        print("Missing files:")
+        print("\nMissing files:")
         for file in missing_files:
             print(file)
 
     if extra_files:
-        print("Extra files:")
+        print("\nExtra files:")
         for file in extra_files:
             print(file)
 
