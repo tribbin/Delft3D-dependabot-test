@@ -285,7 +285,7 @@ contains
 
          ! if ( (zc > bobL .and. zc > zcrest(L)) .or. ( (ifixedweirscheme == 8 .or. ifixedweirscheme == 9) .and. ifirstweir(L) == 1) ) then   ! For Villemonte and Tabellenboek fixed weirs under bed level are also possible
 
-         if (((comparereal(zc, bobL) == 1 .or. include_fixed_weir_below_bob) .and. comparereal(zc, zcrest(L)) == 1) .or. ifirstweir(L) == 1) then ! For Villemonte and Tabellenboek fixed weirs under bed level are also possible
+         if (((zc > bobL .or. include_fixed_weir_below_bob) .and. zc > zcrest(L)) .or. ifirstweir(L) == 1) then ! For Villemonte and Tabellenboek fixed weirs under bed level are also possible
 
             ! Set whether this is the first time that for this link weir values are set:
             ! As a result, only the first fixed weir under the bed level is used
@@ -462,7 +462,7 @@ contains
                !
                ! check whether crestlevel is higher
                !
-               if (comparereal(zc, zcrest(L)) == 1) then
+               if (zc > zcrest(L)) then
                   zcrest(L) = zc
              !! write (msgbuf,'(a,i5,f10.3)') 'Higher crest level: ', L,  zcrest(L); call msg_flush()
                end if
