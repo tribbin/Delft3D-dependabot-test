@@ -81,7 +81,7 @@ contains
       integer, dimension(:), allocatable :: iLcr ! link crossed yes no
       integer, dimension(:), allocatable :: iPol
 
-      integer :: iL, numcrossedLinks, ii, LLL, LLLa, nx
+      integer :: iL, intersection_count, ii, LLL, LLLa, nx
       integer :: mout, jatabellenboekorvillemonte
       integer :: ierror
       integer :: num_intersections
@@ -185,23 +185,23 @@ contains
       allocate (dSL(num_intersections))
       if (cache_retrieved()) then
          ierror = 0
-         call copy_cached_fixed_weirs(npl, xpl, ypl, numcrossedLinks, iLink, iPol, dSL, success)
+         call copy_cached_fixed_weirs(npl, xpl, ypl, intersection_count, iLink, iPol, dSL, success)
       else
          success = .false.
       end if
       if (.not. success) then
-         call find_crossed_links_kdtree2(treeglob, NPL, XPL, YPL, 2, num_intersections, 2, numcrossedLinks, iLink, iPol, dSL, ierror)
-         call cache_fixed_weirs(npl, xpl, ypl, numcrossedLinks, iLink, iPol, dSL)
+         call find_crossed_links_kdtree2(treeglob, NPL, XPL, YPL, 2, num_intersections, 2, intersection_count, iLink, iPol, dSL, ierror)
+         call cache_fixed_weirs(npl, xpl, ypl, intersection_count, iLink, iPol, dSL)
       end if
       call wall_clock_time(t_extra(2, 3))
 
       call wall_clock_time(t_extra(1, 4))
-      if (ierror == 0) then
-         do iL = 1, numcrossedlinks
+      if (ierror == 0) then ! find_crossed_links_kdtree2 succeeded 
+         do iL = 1, intersection_count
             L = iLink(il)
             iLcr(L) = 1
          end do
-      else
+      else                  ! find_crossed_links_kdtree2 did not succeed
          n = 0; Lastfoundk = 0
          do L = 1, lnxi
 
@@ -246,8 +246,8 @@ contains
             end do iloop
 
          end do
-         numcrossedlinks = n
-         call sort_crossed_links(iLink, iPol, dSL, Lnx, numcrossedLinks)
+         intersection_count = n
+         call sort_crossed_links(iLink, iPol, dSL, Lnx, intersection_count)
       end if
       call wall_clock_time(t_extra(2, 4))
 
@@ -264,7 +264,7 @@ contains
       call mess(LEVEL_INFO, trim(mesg))
 
       nh = 0
-      do iL = 1, numcrossedlinks
+      do iL = 1, intersection_count
 
          L = ilink(iL)
          k = ipol(iL)
@@ -647,7 +647,7 @@ contains
       call readyy(' ', -1d0)
 
       if (ifixedweirscheme1D2D > 0) then
-         call find_1d2d_fixedweirs(iLink, numcrossedLinks)
+         call find_1d2d_fixedweirs(iLink, intersection_count)
       end if
 
 1234  continue

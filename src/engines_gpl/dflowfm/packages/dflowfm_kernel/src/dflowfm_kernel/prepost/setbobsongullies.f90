@@ -58,7 +58,7 @@ contains
       use m_filez, only: oldfil
 
       integer :: i, k, L, n1, n2, nt, minp, lastfoundk, kL, kint, kf, jacros
-      integer :: iL, numLL, numcrossedLinks, ierror, jakdtree = 1, ja2pt
+      integer :: iL, numLL, intersection_count, ierror, jakdtree = 1, ja2pt
       real(kind=dp) :: SL, SM, XCR, YCR, CRP, Xa, Ya, Xb, Yb, zc, af, width
       real(kind=dp), allocatable :: dSL(:)
       integer, allocatable :: iLink(:), iPol(:)
@@ -77,8 +77,8 @@ contains
       if (jakdtree == 1) then
          call wall_clock_time(t0)
          allocate (iLink(Lnx), ipol(Lnx), dSL(Lnx))
-         call find_crossed_links_kdtree2(treeglob, NPL, XPL, YPL, 2, numL, 0, numcrossedLinks, iLink, iPol, dSL, ierror)
-         numLL = numcrossedLinks
+         call find_crossed_links_kdtree2(treeglob, NPL, XPL, YPL, 2, numL, 0, intersection_count, iLink, iPol, dSL, ierror)
+         numLL = intersection_count
          if (ierror /= 0) then !   check if kdtree was succesfull, disable if not so
             deallocate (iLink, ipoL, dSL)
             jakdtree = 0

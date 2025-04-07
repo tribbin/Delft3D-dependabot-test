@@ -339,7 +339,7 @@ contains
          integer, dimension(:), allocatable :: polynum
          integer, dimension(:), allocatable :: polysec
 
-         integer :: numcrossedlinks
+         integer :: intersection_count
          integer :: i, j, L, num
          integer :: ierror
          real(kind=dp) :: t0, t1
@@ -390,19 +390,19 @@ contains
          end do
 
 !       find crossed links
-         call find_crossed_links_kdtree2(kdtree, num, x, y, 3, numL, 1, numcrossedlinks, iLink, iPol, dsL, ierror)
+         call find_crossed_links_kdtree2(kdtree, num, x, y, 3, numL, 1, intersection_count, iLink, iPol, dsL, ierror)
          deallocate (x, y)
          if (ierror /= 0) goto 1234
 
 !       (re)alloc
          call realloc(idxL, numL + 1, keepExisting=.false., fill=0)
-         call realloc(jdxL, numcrossedlinks + 1, keepExisting=.false., fill=0)
-         call realloc(pdxL, numcrossedlinks + 1, keepExisting=.false., fill=0)
+         call realloc(jdxL, intersection_count + 1, keepExisting=.false., fill=0)
+         call realloc(pdxL, intersection_count + 1, keepExisting=.false., fill=0)
 
 !       count number of intersections per netlink
          allocate (numcrossed(numL))
          numcrossed = 0
-         do i = 1, numcrossedlinks
+         do i = 1, intersection_count
             L = iLink(i)
             numcrossed(L) = numcrossed(L) + 1
          end do
@@ -414,7 +414,7 @@ contains
          end do
 
          numcrossed = 0
-         do i = 1, numcrossedlinks
+         do i = 1, intersection_count
             L = iLink(i)
             num = idxL(L) + numcrossed(L)
             j = iPol(i)

@@ -65,7 +65,7 @@ contains
       real(kind=dp) :: t0, t1
       character(len=128) :: mesg
       integer :: ierror ! error (1) or not (0)
-      integer :: numcrossedLinks
+      integer :: intersection_count
       integer :: isactive
       integer :: ic, iL, L, LL, NPL_prev
       integer :: jakdtree ! use kdtree (1) or not (0)
@@ -114,7 +114,7 @@ contains
                end if
             end do
 
-            call find_crossed_links_kdtree2(treeglob, NPL, xpl, ypl, 1, numL, 0, numcrossedlinks, iLink, iPol, dSL, ierror)
+            call find_crossed_links_kdtree2(treeglob, NPL, xpl, ypl, 1, numL, 0, intersection_count, iLink, iPol, dSL, ierror)
             if (ierror /= 0) then
                !          disable kdtree
                jakdtree = 0
@@ -124,7 +124,7 @@ contains
                   thd(ic)%lnx = 0
                end do
 
-               do iL = 1, numcrossedlinks
+               do iL = 1, intersection_count
 !               get link number
                   L = iLink(iL)
 !               get thin dam number
@@ -139,7 +139,7 @@ contains
                         end if
                      end do
                   end if
-               end do ! do iL=1,numcrossedlinks
+               end do ! do iL=1,intersection_count
             end if
 
             call wall_clock_time(t1)

@@ -36,7 +36,7 @@ contains
 ! the following subroutines use kdtree2
 !---------------------------------------------------------------
 !> find links crossed by polyline with kdtree2
-   subroutine find_crossed_links_kdtree2(treeinst, NPL, xpl, ypl, itype, nLinks, jaboundarylinks, numcrossedLinks, iLink, iPol, dSL, ierror)
+   subroutine find_crossed_links_kdtree2(treeinst, NPL, xpl, ypl, itype, n_links_polyline_nodes, jaboundarylinks, intersection_count, iLink, iPol, dSL, ierror)
       use precision, only: dp
       use network_data, only: numL, kn, xk, yk
       use m_flowgeom
@@ -54,15 +54,15 @@ contains
       integer, intent(in) :: NPL !< polyline length
       real(kind=dp), dimension(NPL), intent(in) :: xpl, ypl !< polyline node coordinates
       integer, intent(in) :: itype !< netlinks (1: cross with dual link, 3: cross with netlink itself) or flowlinks(2)
-      integer, intent(in) :: nLinks !< number of links ( Lnx for flowlinks, numL for netlinks)
+      integer, intent(in) :: n_links_polyline_nodes !< array_size e.g. number of links ( Lnx for flowlinks, numL for netlinks) or npl for number of polyline nodes
       integer, intent(in) :: jaboundarylinks !< include boundary links:
       !< (0) do not include boundary links
       !< (1) include all boundary links
       !< (2) include only 2d boundary links
-      integer, intent(out) :: numcrossedLinks !< number of crossed flowlinks
-      integer, dimension(nLinks), intent(inout) :: iLink !< crossed flowlinks
-      integer, dimension(nLinks), intent(inout) :: iPol !< polygon section
-      real(kind=dp), dimension(nLinks), intent(inout) :: dSL !< polygon section cross location
+      integer, intent(out) :: intersection_count !< number of link intersections
+      integer, dimension(n_links_polyline_nodes), intent(inout) :: iLink !< crossed flowlinks
+      integer, dimension(n_links_polyline_nodes), intent(inout) :: iPol !< polygon section
+      real(kind=dp), dimension(n_links_polyline_nodes), intent(inout) :: dSL !< polygon section cross location
 
       integer, intent(out) :: ierror !< ierror (1) or not (0)
 
@@ -85,7 +85,7 @@ contains
 
       ierror = 1
 
-      numcrossedLinks = 0
+      intersection_count = 0
 
       if (NPL < 1) goto 1234 ! nothing to do
 
@@ -219,20 +219,20 @@ contains
             call crossinbox(XPL(k), YPL(k), XPL(k + 1), YPL(k + 1), Xa, Ya, Xb, Yb, jacros, SL, SM, XCR, YCR, CRP, jsferic, dmiss)
 
             if (jacros == 1) then
-               numcrossedLinks = numcrossedLinks + 1
+               intersection_count = intersection_count + 1
 
-               if (numcrossedLinks > ubound(iLink, 1)) then
+               if (intersection_count > ubound(iLink, 1)) then
                   call mess(LEVEL_ERROR, 'find_crossed_links_kdtree2: array size too small')
                end if
 
-               iLink(numcrossedLinks) = L
-               iPol(numcrossedLinks) = k
-               dSL(numcrossedLinks) = SL
+               iLink(intersection_count) = L
+               iPol(intersection_count) = k
+               dSL(intersection_count) = SL
             end if
          end do
       end do
 
-      call sort_crossed_links(iLink, iPol, dSL, nLinks, numcrossedLinks)
+      call sort_crossed_links(iLink, iPol, dSL, n_links_polyline_nodes, intersection_count)
 
       call readyy(' ', -1d0)
 
@@ -250,18 +250,19 @@ contains
       return
    end subroutine find_crossed_links_kdtree2
 
-   subroutine sort_crossed_links(iLink, iPol, dSL, nLinks, numcrossedLinks)
+   !> sort intersections of crossed_links such on links and subsequently polygon index
+   subroutine sort_crossed_links(iLink, iPol, dSL, n_links_polyline_nodes, intersection_count)
       use stdlib_sorting, only: sort_index
       use precision, only: dp
 
-      integer, dimension(nLinks), intent(in) :: iLink !< crossed flowlinks
-      integer, dimension(nLinks), intent(inout) :: iPol !< polygon section
-      real(kind=dp), dimension(nLinks), intent(inout) :: dSL !< polygon section cross location
-      integer, intent(in) :: nLinks
-      integer, intent(in) :: numcrossedLinks
+      integer, dimension(n_links_polyline_nodes), intent(in) :: iLink !< crossed flowlinks
+      integer, dimension(n_links_polyline_nodes), intent(inout) :: iPol !< polygon section
+      real(kind=dp), dimension(n_links_polyline_nodes), intent(inout) :: dSL !< polygon section cross location
+      integer, intent(in) :: n_links_polyline_nodes  !< array_size e.g. number of links ( Lnx for flowlinks, numL for netlinks) or npl for number of polyline nodes
+      integer, intent(in) :: intersection_count !< number of link intersections
 
-      integer, dimension(nLinks) :: new_index !< index of sorted iPol
-      real(kind=dp), dimension(nLinks) :: dSL_copy !< copy of intersection length dSL
+      integer, dimension(n_links_polyline_nodes) :: new_index !< index of sorted iPol
+      real(kind=dp), dimension(n_links_polyline_nodes) :: dSL_copy !< copy of intersection length dSL
 
       integer :: k
       integer :: n
@@ -270,8 +271,8 @@ contains
 
       dSL_copy = dSL
       n_start = 1
-      do n = 1, numcrossedLinks
-         do n_end = n_start, numcrossedLinks - 1
+      do n = 1, intersection_count
+         do n_end = n_start, intersection_count - 1
             if (iLink(n_end + 1) > iLink(n_start)) then
                exit
             end if
@@ -281,7 +282,7 @@ contains
             dSL(k) = dSL_copy(n_start - 1 + new_index(k))
          end do
          n_start = n_end + 1
-         if (n_start > numcrossedLinks) then
+         if (n_start > intersection_count) then
             exit
          end if
       end do

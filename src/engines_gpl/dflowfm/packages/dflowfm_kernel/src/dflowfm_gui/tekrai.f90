@@ -102,7 +102,7 @@ contains
       real(kind=dp) :: zz1, zz2, xz1, xz2
       real(kind=dp) :: xmn, xmx, ymx, zmx, zmx2, bot, top, xx, yy, bup, xxu, zzu
       real(kind=dp) :: xp(4), yp(4), zp(4), xxmn, xxmx, zn, dlay, dl, xp1, yp1, qsrck
-      integer :: mx, kb, kt, Lb, Lt, LL, kplotfrombedorsurfacesav, ierror, numcrossedlinks, japol = 0
+      integer :: mx, kb, kt, Lb, Lt, LL, kplotfrombedorsurfacesav, ierror, intersection_count, japol = 0
 
       real(kind=dp), allocatable :: plotlin2(:)
       integer, allocatable :: ip(:), ip2(:)
@@ -116,8 +116,8 @@ contains
          if (japol == 0) then
             kc = 0
             allocate (iLink(Lnx), ipol(Lnx), dSL(Lnx))
-            call find_crossed_links_kdtree2(treeglob, NPL, XPL, YPL, 4, Lnx, 1, numcrossedLinks, iLink, iPol, dSL, ierror)
-            do LL = 1, numcrossedlinks
+            call find_crossed_links_kdtree2(treeglob, NPL, XPL, YPL, 4, Lnx, 1, intersection_count, iLink, iPol, dSL, ierror)
+            do LL = 1, intersection_count
                L = ilink(LL)
                kc(ln(1, L)) = 1; kc(ln(2, L)) = 1
             end do

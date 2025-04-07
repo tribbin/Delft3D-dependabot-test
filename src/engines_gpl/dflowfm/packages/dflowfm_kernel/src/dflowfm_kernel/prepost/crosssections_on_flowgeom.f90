@@ -61,7 +61,7 @@ contains
       integer, dimension(:, :), allocatable :: linklist
       integer, dimension(:), allocatable :: idum
 
-      integer :: i, num, numcrossedlinks, ierror
+      integer :: i, num, intersection_count, ierror
       integer :: istart, iend
 
       integer :: jakdtree = 1
@@ -73,7 +73,7 @@ contains
 
       if (ncrs < 1) return
 
-      numcrossedlinks = 0
+      intersection_count = 0
 
 !   allocate
       allocate (istartcrs(ncrs + 1))
@@ -88,7 +88,7 @@ contains
          call copy_cached_cross_sections(iLink, ipol, success)
 
          if (success) then
-            numcrossedlinks = size(iLink)
+            intersection_count = size(iLink)
             ierror = 0
          else
             num = 0
@@ -126,20 +126,20 @@ contains
             ipol = 0
             allocate (dSL(Lnx))
             dSL = 0d0
-            call find_crossed_links_kdtree2(treeglob, num, xx, yy, 2, Lnx, 1, numcrossedlinks, iLink, ipol, dSL, ierror)
+            call find_crossed_links_kdtree2(treeglob, num, xx, yy, 2, Lnx, 1, intersection_count, iLink, ipol, dSL, ierror)
 
-            call save_link_list(numcrossedlinks, iLink, ipol)
+            call save_link_list(intersection_count, iLink, ipol)
          end if
 
-         if (ierror == 0 .and. numcrossedlinks > 0) then
+         if (ierror == 0 .and. intersection_count > 0) then
 
 !          determine crossed links per cross-section
             allocate (numlist(ncrs))
             numlist = 0
-            allocate (linklist(numcrossedlinks, ncrs))
+            allocate (linklist(intersection_count, ncrs))
             linklist = 0
 
-            do i = 1, numcrossedlinks
+            do i = 1, intersection_count
                do ic = 1, ncrs
                   if (crs(ic)%loc2OC == 0) then
                      istart = istartcrs(ic)
@@ -176,7 +176,7 @@ contains
       icMOD = max(1, ncrs / 100)
 
       call realloc(numlist, ncrs, keepExisting=.true., fill=0) ! In case pli-based cross sections have not allocated this yet.
-      call realloc(linklist, (/max(numcrossedlinks, 1), ncrs/), keepExisting=.true., fill=0) ! In addition to pli-based cross sections (if any), also support 1D branchid-based cross sections.
+      call realloc(linklist, (/max(intersection_count, 1), ncrs/), keepExisting=.true., fill=0) ! In addition to pli-based cross sections (if any), also support 1D branchid-based cross sections.
 
       call copy_cached_cross_sections(iLink, ipol, success)
 
