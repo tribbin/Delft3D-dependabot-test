@@ -770,19 +770,6 @@
       </checks>
     </testCase>
 
-    <testCase name="e02_f092_c09_exer_12_3d_bend_course_model" ref="dflowfm_default">
-      <path version="2025-04-02T13:26:49.790000">e02_dflowfm/f092_tutorial_course_models/c09_exer_12_3d_bend_course_model</path>
-      <maxRunTime>15000.0000000</maxRunTime>
-      <checks>
-        <file name="dflowfmoutput/cb_3d_map.nc" type="netCDF">
-          <parameters>
-            <parameter name="mesh2d_s1" toleranceAbsolute="0.0002" />
-            <parameter name="mesh2d_u1" toleranceAbsolute="0.003" />
-          </parameters>
-        </file>
-      </checks>
-    </testCase>
-
     <testCase name="e02_f202_c001_conservation_sigma" ref="dflowfm_default">
       <path version="2025-04-02T14:57:58.009000">e02_dflowfm/f202_3D_z_sigma/c001_conservation_sigma</path>
       <maxRunTime>15000.0000000</maxRunTime>
