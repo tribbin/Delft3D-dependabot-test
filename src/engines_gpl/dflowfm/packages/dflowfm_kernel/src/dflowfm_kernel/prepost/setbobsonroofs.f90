@@ -297,7 +297,7 @@ contains
             bl(n2) = min(bl(n2), zc)
             ! Do not change the advection for this link, when advection was turned off
             if (iadv(L) /= 0) then
-               iadv(L) = 8
+               iadv(L) = IADV_ORIGINAL_LATERAL_OVERFLOW
             end if
             nt2 = nt2 + 1
          end if

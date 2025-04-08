@@ -612,7 +612,7 @@ contains
 !> set advection type for slope large than Slopedrop2D
    subroutine set_advection_type_for_slope_large_than_Slopedrop2D()
       use m_flowparameters, only: Slopedrop2D
-      use m_flowgeom, only: lnx1D, lnxi, ln, iadv, dxi, bl
+      use m_flowgeom, only: lnx1D, lnxi, ln, iadv, dxi, bl, IADV_SUBGRID_WEIR, IADV_VILLEMONTE_WEIR, IADV_ORIGINAL_LATERAL_OVERFLOW
 
       implicit none
 
@@ -621,7 +621,7 @@ contains
       if (Slopedrop2D > 0d0) then !todo, uitsluitende test maken
          do link = lnx1D + 1, lnxi
             if (iadv(link) /= OFF .and. &
-                .not. (iadv(link) >= IADV_SUBGRID .and. iadv(link) <= 25) .and. &
+                .not. (iadv(link) >= IADV_SUBGRID_WEIR .and. iadv(link) <= IADV_VILLEMONTE_WEIR) .and. &
                 dxi(link) * abs(bl(ln(1, link)) - bl(ln(2, link))) > Slopedrop2D) then ! Not for fixed weirs itself.
                iadv(link) = IADV_ORIGINAL_LATERAL_OVERFLOW
             end if
@@ -633,7 +633,7 @@ contains
 !> set advection type for slope large than Slopedrop2D
    subroutine set_advection_type_for_lateral_flow_and_pipes()
       use m_flowparameters, only: iadveccorr1D2D
-      use m_flowgeom, only: lnxi, iadv, kcu
+      use m_flowgeom, only: lnxi, iadv, kcu, IADV_ORIGINAL_LATERAL_OVERFLOW
 
       implicit none
 

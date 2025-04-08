@@ -52,14 +52,14 @@ contains
          iadv1 = 0
          iadv2 = 0
       elseif (u0(L) > 0) then
-         iadv1 = 8 ! piaczek incoming upwind
+         iadv1 = IADV_ORIGINAL_LATERAL_OVERFLOW ! piaczek incoming upwind
          iadv2 = 0 ! noadv downstream
       else if (u0(L) < 0) then
          iadv1 = 0
-         iadv2 = 8
+         iadv2 = IADV_ORIGINAL_LATERAL_OVERFLOW
       else ! == (now safe for grid direction)
-         iadv1 = 8
-         iadv2 = 8
+         iadv1 = IADV_ORIGINAL_LATERAL_OVERFLOW
+         iadv2 = IADV_ORIGINAL_LATERAL_OVERFLOW
       end if
 
       do kk = 1, nd(k1)%lnx

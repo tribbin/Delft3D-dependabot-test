@@ -156,11 +156,11 @@ contains
             else
                N2 = N2 - 1
             end if
-            call reapol_nampli(minp, jadoorladen, KEEP_PLI_NAMES, number_of_plis)
             if (jawriteDFMinterpretedvalues > 0) then
                call newfil(mout, trim(getoutputdir())//'DFM_interpreted_fxwvalues_'//fnames(ifil) (n1 + 1:n2)//trim(sd)//'.xyz')
                write (mout, '(a)') '* xu yu crest width xk3 yk3 xk4 yk4 crestlevxw shlxw shrxw crestlxw taludlxw taludrxw vegxw iweirtxw csu snu L bob1 bob2 u1'
             end if
+            call reapol_nampli(minp, jadoorladen, KEEP_PLI_NAMES, number_of_plis)
             jadoorladen = 1
          end do
 
@@ -396,11 +396,11 @@ contains
                   vegetat(L) = (1d0 - sl) * dveg(k) + sl * dveg(k + 1) ! vegetation on fixed weir
                   iweirtyp(L) = iweirt(k) ! type of weir
                   if (iweirt(k) == 1) then
-                     iadv(L) = 24; jatabellenboekorvillemonte = 1 !  Tabellenboek
+                     iadv(L) = IADV_TABELLENBOEK_WEIR; jatabellenboekorvillemonte = 1 !  Tabellenboek
                   else if (iweirt(k) == 2) then
-                     iadv(L) = 25; jatabellenboekorvillemonte = 1 !  Villemonte
+                     iadv(L) = IADV_VILLEMONTE_WEIR; jatabellenboekorvillemonte = 1 !  Villemonte
                   else
-                     iadv(L) = IADV_SUBGRID !  Subgrid, ifixedweirscheme = 6 or 7
+                     iadv(L) = IADV_SUBGRID_WEIR !  Subgrid, ifixedweirscheme = 6 or 7
                   end if
                   !
                   ! If link is reversed, exchange ground height levels and taluds
@@ -422,17 +422,17 @@ contains
                   end if
                else ! use global type definition
                   if (ifixedweirscheme == 7) then
-                     iadv(L) = 23 !  Rajaratnam
+                     iadv(L) = IADV_RAJARATNAM_WEIR !  Rajaratnam
                   else if (ifixedweirscheme == 8) then
-                     iadv(L) = 24 !  Tabellenboek
+                     iadv(L) = IADV_TABELLENBOEK_WEIR !  Tabellenboek
                      dzsillu(L) = max(0.0d0, zc - blu(L)); dzsilld(L) = max(0.0d0, zc - blu(L)) ! if not specified then estimate
                      zcrest(L) = zc
                   else if (ifixedweirscheme == 9) then
-                     iadv(L) = 25 !  Villemonte
+                     iadv(L) = IADV_VILLEMONTE_WEIR !  Villemonte
                      dzsillu(L) = max(0.0d0, zc - blu(L)); dzsilld(L) = max(0.0d0, zc - blu(L)) ! if not specified then estimate
                      zcrest(L) = zc
                   else
-                     iadv(L) = IADV_SUBGRID !  Ifixedweirscheme 6
+                     iadv(L) = IADV_SUBGRID_WEIR !  Ifixedweirscheme 6
                   end if
                end if
             else
@@ -513,7 +513,7 @@ contains
             if (ihu(L) > 0 .and. (dzsillu(L) < sillheightmin .or. dzsilld(L) < sillheightmin)) then
                ihu(L) = 0; iadv(L) = iadvec
                if (slopedrop2D > 0d0) then
-                  iadv(L) = 8
+                  iadv(L) = IADV_ORIGINAL_LATERAL_OVERFLOW
                end if
             end if
             BLmn = min(bob(1, L), bob(2, L)) ! and reset BL to lowest attached link
@@ -529,10 +529,10 @@ contains
          if (ihu(L) > 0) then
             nfxw = nfxw + 1 ! TODO: HK: incorrect/inconsistent use of nfxw: upon reading the pliz file it is nr of polylines, now it becomes the total number of flow links crossed by a fixed weir.
 
-            if (iadv(L) == IADV_SUBGRID) then
+            if (iadv(L) == IADV_SUBGRID_WEIR) then
                call setfixedweirscheme3onlink(L)
                if (ifixedweirscheme == 7) then
-                  iadv(L) = 23
+                  iadv(L) = IADV_RAJARATNAM_WEIR
                end if
             end if
 
