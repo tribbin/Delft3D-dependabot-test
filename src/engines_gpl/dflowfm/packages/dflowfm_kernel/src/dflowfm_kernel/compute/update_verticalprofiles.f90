@@ -46,7 +46,7 @@ contains
                         jarichardsononoutput, rich, sigrho, vol1, javeg, dke, rnveg, diaveg, jacdvegsp, cdvegsp, cdveg, clveg, r3, ek, epstke, kmxl, sigeps, &
                         c1e, c3t_unstable, c3t_stable, c1t, c2t, c9of1, eps6, epseps, jalogprofkepsbndin, dmiss, jamodelspecific, eddyviscositybedfacmax, &
                         vicwws, kmxx, turbulence_lax_horizontal, viskin, sigtke, jawavebreakerturbulence, rhomean, idensform, bruva, buoflu, &
-                        vicwminb, dijdij, v, eddyviscositysurfacmax, ktop, jadrhodz
+                        vicwminb, dijdij, v, eddyviscositysurfacmax, ktop
       use m_flowgeom, only: lnx, acl, ln, ndxi, lnxi
       use m_waves, only: hwav, gammax, ustokes, vstokes, fbreak, fwavpendep
       use m_partitioninfo, only: jampi, itype_sall3d, update_ghosts
