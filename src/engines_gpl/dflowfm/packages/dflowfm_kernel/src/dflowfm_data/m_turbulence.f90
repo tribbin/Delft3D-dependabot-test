@@ -152,7 +152,6 @@ contains
       ! k-eps
       c1e = c2e - vonkar**2 / (sigeps * sqrt(cmukep))
       c3e_stable = 0.0_dp
-      c3e_unstable = c1e
 
       ! k-tau
       c2t = 1.0_dp - c2e
