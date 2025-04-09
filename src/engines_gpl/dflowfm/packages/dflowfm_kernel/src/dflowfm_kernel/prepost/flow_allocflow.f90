@@ -54,8 +54,8 @@ contains
                         dzslay, strch_user, laycof, strch_exponent, indlaynod, wflaynod, ndkx, jazlayeratubybob, lnkx, ln0, ucx, squ, sqi, dvyc, &
                         uqcx, uqcy, vol0, ucyq, vol1, ucy, qin, ucxq, vih, dvxc, vol1_f, sqa, volerror, sq, ucmag, jatrt, ucx_mor, ucy_mor, &
                         uc1d, u1du, japure1d, alpha_mom_1d, alpha_ene_1d, q1d, au1d, wu1d, sar1d, volu1d, freeboard, hsonground, volonground, &
-                        qcur1d2d, vtot1d2d, qcurlat, vtotlat, s1gradient, squ2d, squcor, icorio, hus, ucz, rho, rhomean, rhowat, jatem, jasal, jabaroctimeint, &
-                        jacreep, dpbdx0, rho0, jabarocterm, rvdn, grn, jarhointerfaces, rhosww, qw, zws, ww1, zws0, keepzlayeringatbed, kmxd, &
+                        qcur1d2d, vtot1d2d, qcurlat, vtotlat, s1gradient, squ2d, squcor, icorio, hus, ucz, rho, rhomean, rhowat, jatem, jasal, &
+                        jacreep, dpbdx0, rvdn, grn, jarhointerfaces, rhosww, qw, zws, ww1, zws0, keepzlayeringatbed, kmxd, &
                         workx, work1, work0, worky, jasecflow, spirint, zwsbtol, czusf, czssf, spircrv, ht_xy, spirfy, spirucm, ht_xx, spirfx, spirsrc, spiratx, &
                         spiraty, jabarrieradvection, struclink, ducxdx, ducydy, ducxdy, ducydx, dsadx, dsady, dsall, dteml, jatidep, jaselfal, tidep, &
                         limtypmom, limtypsa, tidef, s1init, jaselfalcorrectwlwithini, turkin0, tureps0, vicwws, turkin1, vicwwu, tureps1, epstke, epseps, &
@@ -741,39 +741,25 @@ contains
       end if
 
       if (jasal > 0 .or. jatem > 0 .or. jased > 0 .or. stm_included) then
-         if (abs(jabaroctimeint) >= 2) then
-            if (jacreep == 1 .or. abs(jabaroctimeint) == 3 .or. abs(jabaroctimeint) == 4) then
-               if (allocated(dpbdx0)) then
-                  deallocate (dpbdx0)
-               end if
-               allocate (dpbdx0(lnkx), stat=ierr)
-               call aerr('dpbdx0 (lnkx)', ierr, lnkx); dpbdx0 = 0.0_dp
-            end if
-
-            if (jacreep /= 1 .and. abs(jabaroctimeint) == 2 .or. abs(jabaroctimeint) == 5) then
-               if (allocated(rho0)) then
-                  deallocate (rho0)
-               end if
-               allocate (rho0(ndkx), stat=ierr)
-               call aerr('rho0 (ndkx)', ierr, ndkx); rho0 = rhomean
-            end if
-
+         if (allocated(dpbdx0)) then
+            deallocate (dpbdx0)
          end if
+         allocate (dpbdx0(lnkx), stat=ierr)
+         call aerr('dpbdx0 (lnkx)', ierr, lnkx); dpbdx0 = 0d0
 
-         if (jabarocterm >= 4) then
-            if (allocated(rvdn)) deallocate (rvdn, grn)
-            allocate (rvdn(ndkx), grn(ndkx), stat=ierr); rvdn = 0.0_dp; grn = 0.0_dp
-            call aerr('rvdn(ndkx), grn(ndkx)', ierr, 2 * ndkx)
-
-            if (jarhointerfaces == 1) then
-               if (allocated(rhosww)) then
-                  deallocate (rhosww)
-               end if
-               allocate (rhosww(ndkx), stat=ierr)
-               call aerr('rhosww(ndkx)', ierr, ndkx); rhosww = 0.0_dp
-            end if
+         if (allocated(rvdn)) then
+            deallocate (rvdn, grn)
          end if
+         allocate (rvdn(ndkx), grn(ndkx), stat=ierr); rvdn = 0d0; grn = 0d0
+         call aerr('rvdn(ndkx), grn(ndkx)', ierr, 2 * ndkx)
 
+         if (jarhointerfaces == 1) then
+            if (allocated(rhosww)) then
+               deallocate (rhosww)
+            end if
+            allocate (rhosww(ndkx), stat=ierr)
+            call aerr('rhosww(ndkx)', ierr, ndkx); rhosww = 0d0
+         end if
       end if
 
       if (kmx > 0) then
