@@ -913,11 +913,14 @@ contains
       use unstruc_channel_flow, only: network
       use m_transport, only: NAMLEN, NUMCONST
       use m_laterals, only: numlatsg, nlatnd
-
+      use string_module, only: str_token
+      
       character(kind=c_char), intent(in) :: c_var_name(*)
       integer(c_int), intent(inout) :: shape(MAXDIMS)
 
       character(len=strlen(c_var_name)) :: var_name
+      character(len=strlen(c_var_name)) :: tmp_var_name
+      character(len=strlen(c_var_name)) :: varset_name !< For parsing compound variable names.
 
       var_name = char_array_to_string(c_var_name, strlen(c_var_name))
       shape = [0, 0, 0, 0, 0, 0]
@@ -1016,8 +1019,15 @@ contains
          shape(1) = 1
          shape(2) = len_trim(md_ident)
          return
-      case default
-      SHAPE(1) = 1
+      end select
+
+      ! Try to parse variable name as slash-separated id (e.g., 'laterals/sealock_A/water_discharge')
+      tmp_var_name = var_name
+      call str_token(tmp_var_name, varset_name, DELIMS='/')
+      select case (varset_name)
+      case ('pumps', 'weirs', 'orifices', 'gates', 'generalstructures', 'culverts', 'sourcesinks', 'dambreak', 'observations', 'crosssections', 'laterals')
+         shape(1) = 1
+         return
       end select
 
       if (numconst > 0) then
