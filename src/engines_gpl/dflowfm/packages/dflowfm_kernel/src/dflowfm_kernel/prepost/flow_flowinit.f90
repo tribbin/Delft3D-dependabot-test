@@ -83,7 +83,6 @@ module m_flow_flowinit
    integer, parameter :: LATERAL_1D2D_LINK = 3
    integer, parameter :: STREET_INLET_1D2D_LINK = 5
    integer, parameter :: ROOF_GUTTER_1D2D_LINK = 7
-   integer, parameter :: ORIGINAL_LATERAL_OVERFLOW_ADVECTION = 8
    integer, parameter :: BOUNDARY_1D = -1
    integer, parameter :: SET_ZWS0 = 1
    logical, parameter :: INITIALIZATION_PHASE = .true.
@@ -611,7 +610,7 @@ contains
 !> set advection type for slope large than Slopedrop2D
    subroutine set_advection_type_for_slope_large_than_Slopedrop2D()
       use m_flowparameters, only: Slopedrop2D
-      use m_flowgeom, only: lnx1D, lnxi, ln, iadv, dxi, bl
+      use m_flowgeom, only: lnx1D, lnxi, ln, iadv, dxi, bl, IADV_SUBGRID_WEIR, IADV_VILLEMONTE_WEIR, IADV_ORIGINAL_LATERAL_OVERFLOW
 
       implicit none
 
@@ -620,9 +619,9 @@ contains
       if (Slopedrop2D > 0.0_dp) then !todo, uitsluitende test maken
          do link = lnx1D + 1, lnxi
             if (iadv(link) /= OFF .and. &
-                .not. (iadv(link) >= 21 .and. iadv(link) <= 25) .and. &
+                .not. (iadv(link) >= IADV_SUBGRID_WEIR .and. iadv(link) <= IADV_VILLEMONTE_WEIR) .and. &
                 dxi(link) * abs(bl(ln(1, link)) - bl(ln(2, link))) > Slopedrop2D) then ! Not for fixed weirs itself.
-               iadv(link) = ORIGINAL_LATERAL_OVERFLOW_ADVECTION
+               iadv(link) = IADV_ORIGINAL_LATERAL_OVERFLOW
             end if
          end do
       end if
@@ -632,7 +631,7 @@ contains
 !> set advection type for slope large than Slopedrop2D
    subroutine set_advection_type_for_lateral_flow_and_pipes()
       use m_flowparameters, only: iadveccorr1D2D
-      use m_flowgeom, only: lnxi, iadv, kcu
+      use m_flowgeom, only: lnxi, iadv, kcu, IADV_ORIGINAL_LATERAL_OVERFLOW
 
       implicit none
 
@@ -644,10 +643,10 @@ contains
                if (iadveccorr1D2D == 2) then
                   iadv(link) = OFF
                else
-                  iadv(link) = ORIGINAL_LATERAL_OVERFLOW_ADVECTION
+                  iadv(link) = IADV_ORIGINAL_LATERAL_OVERFLOW
                end if
             else if (kcu(link) == STREET_INLET_1D2D_LINK .or. kcu(link) == ROOF_GUTTER_1D2D_LINK) then
-               iadv(link) = ORIGINAL_LATERAL_OVERFLOW_ADVECTION
+               iadv(link) = IADV_ORIGINAL_LATERAL_OVERFLOW
             end if
          end if
       end do
