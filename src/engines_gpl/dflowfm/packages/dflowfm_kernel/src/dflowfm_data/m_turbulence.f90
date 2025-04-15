@@ -35,7 +35,7 @@ module m_turbulence
 
    implicit none
 
-   ! Coefficients of k-e model:
+   ! Coefficients of turbulence model:
    real(kind=dp) :: cmukep
    real(kind=dp) :: cewall
    real(kind=dp) :: c1e
@@ -53,16 +53,6 @@ module m_turbulence
    real(kind=dp) :: c3t_unstable
 
    real(kind=dp) :: coefn2
-   real(kind=dp) :: skmy
-   real(kind=dp) :: a1ph
-   real(kind=dp) :: a2
-   real(kind=dp) :: b1
-   real(kind=dp) :: b2
-   real(kind=dp) :: c1
-   real(kind=dp) :: e1
-   real(kind=dp) :: e2
-   real(kind=dp) :: ghmin
-   real(kind=dp) :: ghmax
 
    integer, parameter :: kmxx = 2000 !< max dim of nr of vertical layers
    integer, parameter :: mg = 4 !< max dim of nr of sediment fractions
@@ -132,57 +122,38 @@ module m_turbulence
 
 contains
 
-!> Sets ALL (scalar) variables in this module to their default values.
+   !> Sets ALL (scalar) variables in this module to their default values.
    subroutine default_turbulence()
       use m_physcoef, only: vonkar
-
+   
       sigdif = 1.0_dp
       sigtke = 1.0_dp
       sigeps = 1.3_dp
       sigrho = 0.7_dp
 
       cmukep = 0.09_dp
-
       c2e = 1.92_dp
 
       ! k-eps
       c1e = c2e - vonkar**2 / (sigeps * sqrt(cmukep))
       c3e_stable = 0.0_dp
+      c3e_unstable = c1e ! Not a derived coefficient as it can be set by the user
 
       ! k-tau
       c2t = 1.0_dp - c2e
       c3t_stable = 1.0_dp * cmukep
-
-      call calculate_derived_coefficients_turbulence_c1e()
-
-      skmy = 1.96_dp
-      a1ph = 0.92_dp
-      a2 = 0.74_dp
-      b1 = 16.6_dp
-      b2 = 10.1_dp
-      c1 = 0.08_dp
-      e1 = 1.80_dp
-      e2 = 1.33_dp
-      ghmin = -0.280_dp
-      ghmax = 0.0233_dp
    end subroutine default_turbulence
 
-!> Calculate derived coefficients for turbulence
+   !> Calculates derived coefficients for turbulence
    subroutine calculate_derived_coefficients_turbulence()
-      use m_physcoef, only: rhomean, ag
-
+      use m_physcoef, only: vonkar, rhomean, ag
+      
+      cewall = cmukep**0.75_dp / vonkar
       coefn2 = -ag / (sigrho * rhomean)
-   end subroutine calculate_derived_coefficients_turbulence
-
-   !> Calculate derived coefficients for turbulence variable c1e
-   subroutine calculate_derived_coefficients_turbulence_c1e()
-
-      ! k-eps
-      c3e_unstable = c1e
-
+      
       ! k-tau
       c1t = (1.0_dp - c1e) * cmukep
       c3t_unstable = (1.0_dp - c1e) * cmukep
-   end subroutine calculate_derived_coefficients_turbulence_c1e
-
+   end subroutine calculate_derived_coefficients_turbulence
+   
 end module m_turbulence

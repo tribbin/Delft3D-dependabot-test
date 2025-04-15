@@ -1174,10 +1174,7 @@ contains
       call prop_get(md_ptr, 'numerics', 'Maxitverticalforestertem', Maxitverticalforestertem)
       call prop_get(md_ptr, 'numerics', 'Turbulencemodel', Iturbulencemodel)
 
-      call prop_get(md_ptr, 'numerics', 'c1e', c1e, success, value_parsed)
-      if (success .AND. value_parsed) then
-         call calculate_derived_coefficients_turbulence_c1e()
-      end if
+      call prop_get(md_ptr, 'numerics', 'c1e', c1e)
       call prop_get(md_ptr, 'numerics', 'c3eStable', c3e_stable)
       if (c3e_stable > 0.0d0) then
          call mess(LEVEL_ERROR, 'c3eStable should be <= 0')
