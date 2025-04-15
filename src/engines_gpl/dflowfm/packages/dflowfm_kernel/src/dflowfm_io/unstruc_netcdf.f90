@@ -14103,7 +14103,7 @@ contains
                      end if
                   end do
                   call check_error(ierr, 'msed')
-               else !!ZT: why is the else condition here?
+               else
                   !
                   ierr = nf90_inq_varid(imapfile, 'lyrfrac', id_lyrfrac)
                   if (ierr == nf90_noerr) then
