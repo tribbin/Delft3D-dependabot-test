@@ -1176,11 +1176,11 @@ contains
 
       call prop_get(md_ptr, 'numerics', 'c1e', c1e)
       call prop_get(md_ptr, 'numerics', 'c3eStable', c3e_stable)
-      if (c3e_stable > 0.0d0) then
+      if (c3e_stable > 0.0_dp) then
          call mess(LEVEL_ERROR, 'c3eStable should be <= 0')
       end if
       call prop_get(md_ptr, 'numerics', 'c3eUnstable', c3e_unstable)
-      if (c3e_unstable < 0.0d0) then
+      if (c3e_unstable < 0.0_dp) then
          call mess(LEVEL_ERROR, 'c3eUnstable should be >= 0')
       end if
 
