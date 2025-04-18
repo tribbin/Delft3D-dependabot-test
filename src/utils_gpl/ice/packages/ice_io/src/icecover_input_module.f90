@@ -43,7 +43,7 @@ subroutine read_icecover(icecover, md_ptr, chapter, error)
     use icecover_module, only: icecover_type, alloc_icecover, select_icecover_model, &
         & ICECOVER_NONE, ICECOVER_EXT, ICECOVER_SEMTNER, FRICT_AS_DRAG_COEFF, &
         & ICE_WINDDRAG_NONE, ICE_WINDDRAG_CUBIC, ICE_WINDDRAG_LB05, ICE_WINDDRAG_AN10, &
-        & ICE_WINDDRAG_LINEAR, ICE_WINDDRAG_RAYS
+        & ICE_WINDDRAG_LINEAR, ICE_WINDDRAG_RAYS, ICE_WINDDRAG_JOYCE19
     use MessageHandling, only: mess, LEVEL_ERROR
     use properties
     use string_module, only: str_lower
@@ -70,7 +70,7 @@ subroutine read_icecover(icecover, md_ptr, chapter, error)
     model =  ICECOVER_NONE
     
     tmp = ' '
-    call prop_get(md_ptr,chapter,'IceCoverModel',tmp)
+    call prop_get(md_ptr,chapter,'iceCoverModel',tmp)
     call str_lower(tmp,len(tmp))
     select case (tmp)
     case ('none', ' ')
@@ -89,12 +89,12 @@ subroutine read_icecover(icecover, md_ptr, chapter, error)
     !
     ! Process flags
     !
-    call prop_get(md_ptr,chapter,'ApplyPressure',icecover%apply_pressure)
-    call prop_get(md_ptr,chapter,'ApplyFriction',icecover%apply_friction)
-    call prop_get(md_ptr,chapter,'ReduceSurfExch',icecover%reduce_surface_exchange)
-    call prop_get(md_ptr,chapter,'ReduceWaves',icecover%reduce_waves)
+    call prop_get(md_ptr,chapter,'applyPressure',icecover%apply_pressure)
+    call prop_get(md_ptr,chapter,'applyFriction',icecover%apply_friction)
+    call prop_get(md_ptr,chapter,'reduceSurfExch',icecover%reduce_surface_exchange)
+    call prop_get(md_ptr,chapter,'reduceWaves',icecover%reduce_waves)
     tmp = ' '
-    call prop_get(md_ptr,chapter,'ModifyWindDrag',tmp)
+    call prop_get(md_ptr,chapter,'modifyWindDrag',tmp)
     call str_lower(tmp,len(tmp))
     select case (tmp)
     case ('none',' ')
@@ -109,6 +109,10 @@ subroutine read_icecover(icecover, md_ptr, chapter, error)
        model = ICE_WINDDRAG_AN10
     case ('raysice')
        model = ICE_WINDDRAG_RAYS
+    case ('joyce')
+       model = ICE_WINDDRAG_JOYCE19
+       call prop_get(md_ptr,chapter,'iceSkinDrag',icecover%ice_skin_drag)
+       call prop_get(md_ptr,chapter,'maximumIceFormDrag',icecover%maximum_ice_form_drag)
     case default
        call mess(LEVEL_ERROR, 'invalid wind drag option "'//trim(tmp)//'"')
        error = .true.
@@ -118,12 +122,12 @@ subroutine read_icecover(icecover, md_ptr, chapter, error)
     !
     ! Parameters
     !
-    call prop_get(md_ptr,chapter,'IceDensity',icecover%ice_density)
-    call prop_get(md_ptr,chapter,'IceAlbedo' ,icecover%ice_albedo)
-    call prop_get(md_ptr,chapter,'SnowAlbedo',icecover%snow_albedo)
+    call prop_get(md_ptr,chapter,'iceDensity',icecover%ice_density)
+    call prop_get(md_ptr,chapter,'iceAlbedo' ,icecover%ice_albedo)
+    call prop_get(md_ptr,chapter,'snowAlbedo',icecover%snow_albedo)
     !
     tmp = ' '
-    call prop_get(md_ptr,chapter,'IceFricType',tmp)
+    call prop_get(md_ptr,chapter,'iceFricType',tmp)
     call str_lower(tmp,len(tmp))
     select case (tmp)
     case ('cdrag', ' ')
@@ -134,7 +138,7 @@ subroutine read_icecover(icecover, md_ptr, chapter, error)
        error = .true.
        return
     end select
-    call prop_get(md_ptr,chapter,'IceFricValue',icecover%frict_val)
+    call prop_get(md_ptr,chapter,'iceFricValue',icecover%frict_val)
     !
     select case (icecover%modeltype)
     case (ICECOVER_EXT)
@@ -145,8 +149,8 @@ subroutine read_icecover(icecover, md_ptr, chapter, error)
     !
     ! Output flags
     !
-    call prop_get(md_ptr,chapter,'AddIceToHis',icecover%hisout)
-    call prop_get(md_ptr,chapter,'AddIceToMap',icecover%mapout)
+    call prop_get(md_ptr,chapter,'addIceToHis',icecover%hisout)
+    call prop_get(md_ptr,chapter,'addIceToMap',icecover%mapout)
 end subroutine read_icecover
 
 

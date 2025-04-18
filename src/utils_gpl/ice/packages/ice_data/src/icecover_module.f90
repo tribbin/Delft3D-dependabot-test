@@ -46,12 +46,13 @@ integer, parameter, public :: ICECOVER_SEMTNER = 2 !< ice thickness computed bas
 
 integer, parameter, public :: FRICT_AS_DRAG_COEFF = 11 ! should be extension of D-Flow FM friction numbers
 
-integer, parameter, public :: ICE_WINDDRAG_NONE    = 0 !< no effect, normal wind drag
-integer, parameter, public :: ICE_WINDDRAG_CUBIC   = 1 !< Based on ADCIRC (Chapman & Massey)
-integer, parameter, public :: ICE_WINDDRAG_LB05    = 2 !< Lupkes and Birnbaum (2005)
-integer, parameter, public :: ICE_WINDDRAG_AN10    = 3 !< Andreas et al (2010)
-integer, parameter, public :: ICE_WINDDRAG_LINEAR  = 4 !< no wind drag below ice
-integer, parameter, public :: ICE_WINDDRAG_RAYS    = 5 !< Based on ADCIRC (Chapman et al., 2005)
+integer, parameter, public :: ICE_WINDDRAG_NONE        = 0 !< no effect, normal wind drag
+integer, parameter, public :: ICE_WINDDRAG_CUBIC       = 1 !< Based on ADCIRC (Chapman & Massey)
+integer, parameter, public :: ICE_WINDDRAG_LB05        = 2 !< Lupkes and Birnbaum (2005)
+integer, parameter, public :: ICE_WINDDRAG_AN10        = 3 !< Andreas et al (2010)
+integer, parameter, public :: ICE_WINDDRAG_LINEAR      = 4 !< no wind drag below ice
+integer, parameter, public :: ICE_WINDDRAG_RAYS        = 5 !< Based on ADCIRC (Chapman et al., 2005)
+integer, parameter, public :: ICE_WINDDRAG_JOYCE19     = 6 !< Joyce et al (2019)
 
 !
 ! public routines
@@ -88,8 +89,10 @@ type icecover_type
     !
     real(fp) :: ice_albedo                        !< albedo of ice (-)
     real(fp) :: ice_conductivity                  !< conductivity of ice (W m-1 K-1)
-    real(fp) :: ice_latentheat                    !< latent heat of ice (kJ kg-1)
     real(fp) :: ice_density                       !< ice density (kg m-3)
+    real(fp) :: ice_latentheat                    !< latent heat of ice (kJ kg-1)
+    real(fp) :: ice_skin_drag                     !< skin drag of ice floes (N m-2)
+    real(fp) :: maximum_ice_form_drag             !< maximum form drag of ice floes (N m-2)
     real(fp) :: snow_albedo                       !< albedo of snow (-)
     real(fp) :: snow_conductivity                 !< conductivity of snow (W m-1 K-1)
     real(fp) :: snow_latentheat                   !< latent heat of snow (kJ kg-1)
@@ -403,8 +406,8 @@ pure function ice_drag_effect(icecover, ice_af, cdw) result (cdeff)
     !
     type (icecover_type)                       , intent(in)    :: icecover  !< data structure containing ice cover data
     real(fp)                                   , intent(in)    :: ice_af    !< area fraction covered by ice (-) 
-    real(fp)                                   , intent(in)    :: cdw       !< wind drag exerted via open water
-    real(fp)                                                   :: cdeff     !< effective wind drag coefficient
+    real(fp)                                   , intent(in)    :: cdw       !< wind drag exerted via open water (N m-2)
+    real(fp)                                                   :: cdeff     !< effective wind drag coefficient (N m-2)
     !
     ! Local variables
     !
@@ -413,6 +416,7 @@ pure function ice_drag_effect(icecover, ice_af, cdw) result (cdeff)
     real(fp) :: c2     !< quadratic coefficient of cubic drag formula
     real(fp) :: c3     !< cubic coefficient of cubic drag formula 
     real(fp) :: cdf    !< wind drag exerted via ice floes
+    real(fp) :: cdfmax !< maximum wind drag exerted via ice floes (maximum form drag)
     real(fp) :: cdi    !< wind drag exerted via ice cover
     real(fp) :: wat_af !< open water area fraction
     real(fp) :: num    !< numerator
@@ -479,6 +483,14 @@ pure function ice_drag_effect(icecover, ice_af, cdw) result (cdeff)
         
         cdeff = wat_af * cdw
         
+    case (ICE_WINDDRAG_JOYCE19)
+
+        cdi = icecover%ice_skin_drag
+        cdfmax = icecover%maximum_ice_form_drag
+        
+        ! Eq. (6) of Joyce et al, 2019 equivalent to Eq. (A4) of Lupkes et al, 2012
+        cdeff = cdw * wat_af + cdi * ice_af + 4.0_fp * cdfmax * ice_af * wat_af
+
     end select
 end function ice_drag_effect
 
