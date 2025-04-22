@@ -1500,6 +1500,40 @@ contains
                              'W m-2', UNC_LOC_STATION, nc_attributes=atts(1:1), &
                              nc_dim_ids=station_nc_dims_2D)
 
+      ! Ice cover model
+      call add_output_config(config_set_his, IDX_HIS_ICE_S1, &
+                             'Wrihis_ice_open_water_level', 'ice_open_water_level', 'sea surface height of open water', '', &
+                             'm', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write water level of open water to his-file', &
+                             nc_dim_ids=station_nc_dims_2D)
+      call add_output_config(config_set_his, IDX_HIS_ICE_ZMAX, &
+                             'Wrihis_ice_surface_height', 'ice_surface_height', 'height of ice/snow surface', '', &
+                             'm', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write height of ice/snow surface to his-file', &
+                             nc_dim_ids=station_nc_dims_2D)
+      call add_output_config(config_set_his, IDX_HIS_ICE_AF, &
+                             'Wrihis_ice_area_fraction', 'ice_area_fraction', 'area fraction covered by ice', 'sea_ice_area_fraction', &
+                             '1', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write area fraction covered by ice to his-file', &
+                             nc_dim_ids=station_nc_dims_2D)
+      call add_output_config(config_set_his, IDX_HIS_ICE_H, &
+                             'Wrihis_ice_thickness', 'ice_thickness', 'ice thickness', 'sea_ice_thickness', &
+                             'm', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write ice thickness to his-file', &
+                             nc_dim_ids=station_nc_dims_2D)
+      call add_output_config(config_set_his, IDX_HIS_ICE_P, &
+                             'Wrihis_ice_pressure', 'ice_pressure', 'ice pressure', '', &
+                             'Pa', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write ice pressure to his-file', &
+                             nc_dim_ids=station_nc_dims_2D)
+      call add_output_config(config_set_his, IDX_HIS_ICE_T, &
+                             'Wrihis_ice_temperature', 'ice_temperature', 'ice temperature', 'sea_ice_temperature', &
+                             'K', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write ice temperature to his-file', &
+                             nc_dim_ids=station_nc_dims_2D)
+      call add_output_config(config_set_his, IDX_HIS_SNOW_H, &
+                             'Wrihis_snow_thickness', 'snow_thickness', 'snow thickness', 'surface_snow_thickness', &
+                             'm', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write snow thickness to his-file', &
+                             nc_dim_ids=station_nc_dims_2D)
+      call add_output_config(config_set_his, IDX_HIS_SNOW_T, &
+                             'Wrihis_snow_temperature', 'snow_temperature', 'snow temperature', 'temperature_in_surface_snow', &
+                             'K', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write snow temperature to his-file', &
+                             nc_dim_ids=station_nc_dims_2D)
+
       ! Sediment model
       call add_output_config(config_set_his, IDX_HIS_SED, &
                              'Wrihis_sediment', 'sed', 'Sediment concentration', &
@@ -2641,6 +2675,11 @@ contains
             call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_QTOT), valobs(:, IPNT_QTOT))
          end if
 
+         ! Ice model
+         !if (IPNT_ICE_S1 > 0) then
+         !   call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_S1), valobs(:, IPNT_ICE_S1))
+         !end if
+         
          ! Sediment model
          if (jased > 0 .and. .not. stm_included) then
             if (model_is_3D()) then
