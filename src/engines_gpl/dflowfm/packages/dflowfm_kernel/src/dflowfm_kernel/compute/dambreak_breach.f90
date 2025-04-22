@@ -48,7 +48,10 @@ module m_dambreak_breach
    real(kind=dp), dimension(:), allocatable, target, public :: db_breach_widths !< dambreak breach widths (as a level)
    real(kind=dp), dimension(:), allocatable, target, public :: db_upstream_levels !< upstream water levels computed each time step
    real(kind=dp), dimension(:), allocatable, target, public :: db_downstream_levels !< downstream water levels computed each time step
-
+   
+   integer, dimension(:), allocatable, public :: db_upstream_link_ids !< dambreak upstream links index array
+   integer, dimension(:), allocatable, public :: db_downstream_link_ids !< dambreak downstream links index array
+   
    integer, parameter :: UPSTREAM = 1
    integer, parameter :: DOWNSTREAM = 2
    integer, parameter :: NUMBER_COLUMNS = 2
@@ -68,7 +71,7 @@ contains
    !> allocate arrays and initialize variables
    subroutine allocate_and_initialize_dambreak_data(n_db_signals)
       use m_alloc, only: realloc
-      use m_dambreak_data, only: dambreaks, db_ids, n_db_links, db_link_ids, db_upstream_link_ids, db_downstream_link_ids
+      use m_dambreak_data, only: dambreaks, db_ids, n_db_links, db_link_ids
 
       integer, intent(in) :: n_db_signals !< number of dambreak signals
 
@@ -99,8 +102,7 @@ contains
       use m_missing, only: dmiss
       use unstruc_channel_flow, only: network
       use m_partitioninfo, only: get_average_quantity_from_links
-      use m_dambreak_data, only: n_db_links, n_db_signals, dambreaks, db_first_link, db_last_link, db_link_ids, &
-                                 db_upstream_link_ids, db_downstream_link_ids
+      use m_dambreak_data, only: n_db_links, n_db_signals, dambreaks, db_first_link, db_last_link, db_link_ids
 
       real(kind=dp), intent(in) :: start_time !< start time
       real(kind=dp), intent(in) :: delta_time !< delta time

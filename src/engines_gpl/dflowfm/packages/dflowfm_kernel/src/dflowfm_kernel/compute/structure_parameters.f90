@@ -49,9 +49,8 @@ contains
       use m_GlobalParameters
       use m_longculverts, only: nlongculverts, longculverts, newculverts
       use m_dambreak_breach, only: db_upstream_levels, db_downstream_levels, is_not_db_active_link, &
-          get_dambreak_breach_start_link
-      use m_dambreak_data, only: p_n_db_signals, db_first_link, db_last_link, dambreaks, db_link_ids, db_link_actual_width, &
-          db_upstream_link_ids
+          get_dambreak_breach_start_link, db_upstream_link_ids
+      use m_dambreak_data, only: p_n_db_signals, db_first_link, db_last_link, dambreaks, db_link_ids, db_link_actual_width
 
       integer :: i, n, L, Lf, La, ierr, k, ku, kd, istru, nlinks
       real(kind=dp) :: dir

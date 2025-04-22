@@ -395,11 +395,11 @@ contains
       use m_flowgeom, only: ln, kcu, wu, lncn, snu, csu
       use m_inquire_flowgeom, only: findnode
       use m_dambreak_data, only: n_db_links, n_db_signals, db_link_ids, db_ids, dambreaks, &
-                                db_link_effective_width, db_first_link, db_last_link, &
-                                db_upstream_link_ids, db_downstream_link_ids
+                                db_link_effective_width, db_first_link, db_last_link
       use m_dambreak_breach, only: allocate_and_initialize_dambreak_data, set_breach_start_link, &
                                    add_dambreaklocation_upstream, add_dambreaklocation_downstream, &
-                                   add_averaging_upstream_signal, add_averaging_downstream_signal
+                                   add_averaging_upstream_signal, add_averaging_downstream_signal, &
+                                   db_upstream_link_ids, db_downstream_link_ids
       use m_dambreak, only: BREACH_GROWTH_VERHEIJVDKNAAP, BREACH_GROWTH_TIMESERIES
       use m_alloc, only: realloc
 
@@ -612,11 +612,11 @@ contains
       use unstruc_messages, only: callback_msg
       use m_dambreak_breach, only: allocate_and_initialize_dambreak_data, db_breach_depths, db_breach_widths, &
                                    add_dambreaklocation_upstream, add_dambreaklocation_downstream, add_averaging_upstream_signal, &
-                                   add_averaging_downstream_signal, set_breach_start_link
+                                   add_averaging_downstream_signal, set_breach_start_link, &
+                                   db_upstream_link_ids, db_downstream_link_ids
       use m_dambreak, only: BREACH_GROWTH_VERHEIJVDKNAAP, BREACH_GROWTH_TIMESERIES
       use m_dambreak_data, only: n_db_links, n_db_signals, db_first_link, db_last_link, db_link_effective_width, &
-          db_link_actual_width, db_link_ids, dambreaks, db_ids, &
-          db_upstream_link_ids, db_downstream_link_ids
+          db_link_actual_width, db_link_ids, dambreaks, db_ids
 
       implicit none
       logical :: status
