@@ -45,6 +45,8 @@ module m_dambreak_data
    real(kind=dp), dimension(:), allocatable, public :: db_link_effective_width !< dambreak effective flow widths
    real(kind=dp), dimension(:), allocatable, public :: db_link_actual_width !< dambreak actual flow widths
 
+   ! the following pointers allow one to use n_db_links and n_db_signals values but do not allow to overwrite these values. 
+   ! so the pointers act like getter functions. 
    integer, protected, pointer :: n_db_links_protected => n_db_links
    integer, protected, pointer :: n_db_signals_protected => n_db_signals
 
