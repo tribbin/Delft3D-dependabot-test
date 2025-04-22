@@ -53,12 +53,12 @@ module m_dambreak_data
 contains
 
 !> Initialize the dambreak data
-   subroutine default_dambreak_data()
+   subroutine set_zero_dambreak_signals_links()
 
       n_db_links = 0 ! nr of dambreak links
       n_db_signals = 0 ! nr of dambreak signals
 
-   end subroutine default_dambreak_data
+   end subroutine set_zero_dambreak_signals_links
 
    !> Check if there are any dambreak links
    pure function exist_dambreak_links() result(res)

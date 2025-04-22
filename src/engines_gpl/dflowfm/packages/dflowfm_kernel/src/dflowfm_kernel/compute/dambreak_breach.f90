@@ -305,13 +305,11 @@ contains
 
       real(kind=dp) :: water_level_jump !< water level jump [m]
 
-      real(kind=dp) :: s_max, s_min, h_max, h_min
+      real(kind=dp) :: h_max, h_min
 
-      s_max = max(upstream_level, downstream_level)
-      s_min = min(upstream_level, downstream_level)
-      h_max = max(0.0_dp, s_max - crest_level)
-      h_min = max(0.0_dp, s_min - crest_level)
-      water_level_jump = h_max - h_min
+      h_max = max(upstream_level, downstream_level) - crest_level
+      h_min = min(upstream_level, downstream_level) - crest_level
+      water_level_jump =  max(0.0_dp, h_max) -  max(0.0_dp, h_min)
 
    end function calculate_water_level_jump
 
