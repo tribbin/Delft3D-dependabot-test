@@ -53,7 +53,7 @@ module m_turbulence
    real(kind=dp) :: c3t_stable
    real(kind=dp) :: c3t_unstable
 
-   real(kind=dp) :: coefn2
+   real(kind=dp) :: brunt_vaisala_coefficient
 
    integer, parameter :: kmxx = 2000 !< max dim of nr of vertical layers
    integer, parameter :: mg = 4 !< max dim of nr of sediment fractions
@@ -99,6 +99,7 @@ module m_turbulence
    real(kind=dp), allocatable, dimension(:), target :: in_situ_density ! Pressure dependent water density at cell centres (kg/m3)
    real(kind=dp), allocatable, dimension(:), target :: potential_density ! Potential water density at cell centres (kg/m3)
    real(kind=dp), dimension(:), pointer :: rho ! Water density at cell centres (kg/m3)
+   real(kind=dp), allocatable, dimension(:) :: drhodz !< Vertical density gradient
    real(kind=dp), allocatable, dimension(:) :: rhosww ! deviatoric density at vertical interfaces, w points (kg/m3)
    real(kind=dp), allocatable, dimension(:) :: rhowat ! density at cell centres (kg/m3), only salt and temp
    real(kind=dp), allocatable, dimension(:) :: dpbdx0 ! previous step baroclinic pressure gradient, at u points
@@ -110,9 +111,10 @@ module m_turbulence
    real(kind=dp) :: Schmidt_number_salinity = 0.7_dp !< Turbulent Schmidt number for salinity
    real(kind=dp) :: Prandtl_number_temperature = 0.7_dp !< Turbulent Prandtl number for temperature
    real(kind=dp) :: Schmidt_number_tracer = 1.0_dp !< Turbulent Schmidt number for tracers
-   real(kind=dp), allocatable, dimension(:) :: sigsed(:) !< prandtl schmidt per sediment fraction
-   real(kind=dp), allocatable, dimension(:) :: sigdifi(:) !< inverse prandtl schmidt nrs
-   real(kind=dp), allocatable, dimension(:) :: wsf(:) !< fall velocities of all numconst constituents
+
+   real(kind=dp), allocatable, dimension(:) :: sigsed !< prandtl schmidt per sediment fraction
+   real(kind=dp), allocatable, dimension(:) :: sigdifi !< inverse prandtl schmidt nrs
+   real(kind=dp), allocatable, dimension(:) :: wsf !< fall velocities of all numconst constituents
 
    real(kind=dp), allocatable, dimension(:, :) :: turkinepsws !< k and eps,1,2     at layer interface at c , horizontal transport of k and eps
    real(kind=dp), allocatable, dimension(:) :: tqcu !< sum of q*turkinws at layer interface at cupw , horizontal transport of k and eps
@@ -153,12 +155,16 @@ contains
 
       cewall = cmukep**0.75_dp / vonkar
       cde = cmukep**0.75_dp
-      coefn2 = -ag / (sigrho * rhomean)
 
+      c1e = c2e - vonkar**2 / (sigeps * sqrt(cmukep))
       c1t = (1.0_dp - c1e) * cmukep
+
       c2t = 1.0_dp - c2e
       c3t_stable = 1.0_dp * cmukep
       c3t_unstable = (1.0_dp - c1e) * cmukep
+
+      brunt_vaisala_coefficient = -ag / (sigrho * rhomean)
+
    end subroutine calculate_derived_coefficients_turbulence
 
 end module m_turbulence

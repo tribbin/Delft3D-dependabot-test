@@ -68,9 +68,8 @@ contains
       use m_get_ucx_ucy_eul_mag
       use m_get_link1
       use m_links_to_centers, only: links_to_centers
-      use m_density, only: density_at_cell
       use m_wind, only: wx, wy, jawind, japatm, patm, jarain, rain, airdensity, tair, rhum, clou
-      use m_turbulence, only: in_situ_density, potential_density
+      use m_turbulence, only: in_situ_density, potential_density, rich, richs
 
       implicit none
 
@@ -78,7 +77,7 @@ contains
       integer :: link_id_nearest
       integer :: kmx_const, kk_const, nlyrs
       real(kind=dp) :: wavfac
-      real(kind=dp) :: dens, prsappr, drhodz, rhomea
+      real(kind=dp) :: dens
       real(kind=dp) :: ux, uy, um
       real(kind=dp), allocatable :: wa(:, :)
       real(kind=dp), allocatable :: frac(:, :)
@@ -482,14 +481,7 @@ contains
                   end if
                   if ((jasal > 0 .or. jatem > 0 .or. jased > 0) .and. jahisrho > 0) then
                      if (zws(kt) - zws(kb - 1) > epshu .and. kk > kb - 1 .and. kk < kt) then
-                        if (apply_thermobaricity) then
-                           prsappr = ag * rhomean * (zws(kt) - zws(kk))
-                           drhodz = (density_at_cell(kk + 1, prsappr) - density_at_cell(kk, prsappr)) / max(0.5_dp * (zws(kk + 1) - zws(kk - 1)), epshs)
-                        else
-                           drhodz = (rho(kk + 1) - rho(kk)) / max(0.5_dp * (zws(kk + 1) - zws(kk - 1)), epshs)
-                        end if
-                        rhomea = 0.5_dp * (rho(kk + 1) + rho(kk))
-                        valobs(i, IPNT_BRUV + klay - 1) = -ag * drhodz / rhomea
+                        valobs(i, IPNT_BRUV + klay - 1) = drhodz(kk) * brunt_vaisala_coefficient
                      end if
                   end if
                   if (idensform > 0 .and. jaRichardsononoutput > 0) then
