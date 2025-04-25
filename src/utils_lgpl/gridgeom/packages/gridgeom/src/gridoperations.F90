@@ -2669,7 +2669,9 @@ contains
       use m_ggeo_orthosettings
       use m_missing, only: jins, dmiss, dxymis
       use geometry_module, only: getcircumcenter, comp_circumcenter3D, comp_masscenter
-      use network_data, only: netcell, xk, yk, zk, dcenterinside, circumcenter_method
+      use network_data, only: netcell, xk, yk, zk, dcenterinside
+
+      use m_circumcenter_method, only: circumcenter_method
       use m_sferic
 
       implicit none
