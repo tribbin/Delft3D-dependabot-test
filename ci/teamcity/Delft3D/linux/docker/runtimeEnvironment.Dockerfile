@@ -13,6 +13,7 @@ ARG INTEL_MPI_PATH=/opt/intel/oneapi/mpi/latest/bin
 COPY --from=buildtools ${INTEL_MPI_PATH}/hydra_* ${INTEL_MPI_PATH}/mpiexec* ${INTEL_MPI_PATH}/mpirun /opt/intel/mpi/bin/
 
 ADD dimrset /opt/dimrset
+ADD example /example
 
 RUN dnf --assumeyes update \
   && dnf --assumeyes install libgomp libfabric \
@@ -26,3 +27,6 @@ ARG GIT_COMMIT=unknown
 ARG GIT_BRANCH=unknown
 LABEL delft3d-git-commit=$GIT_COMMIT
 LABEL delft3d-git-branch=$GIT_BRANCH
+
+WORKDIR /example
+CMD ["./run_example.sh"]
