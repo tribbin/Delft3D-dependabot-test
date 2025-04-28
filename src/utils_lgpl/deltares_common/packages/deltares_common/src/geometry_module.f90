@@ -2619,7 +2619,7 @@ contains
 
       ! set tolerance for convergence 
       if (jsferic == 1) then
-         eps = circumcenter_tolerance/earth_radius/degrad_hp  ! Convert metres to equivalent degrees
+         eps = 0.1_hp*circumcenter_tolerance/earth_radius/degrad_hp  ! Convert metres to equivalent degrees
       else 
          eps = circumcenter_tolerance 
       end if
