@@ -50,7 +50,7 @@ contains
 
       integer, parameter :: MAXOP = 64
       integer :: NUMK, NUML, KEY
-      real(kind=dp) XI, YI, ZI
+      real(kind=dp) :: XI, YI, ZI
       real(kind=dp), dimension(numk), intent(in) :: XK
       real(kind=dp), dimension(numk), intent(in) :: YK
       real(kind=dp), dimension(numk), intent(in) :: ZK
