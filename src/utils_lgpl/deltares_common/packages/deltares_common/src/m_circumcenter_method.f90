@@ -30,7 +30,7 @@
 !
 !> Stores values related to circumcenter method
 module m_circumcenter_method
-   use precision
+   use precision, only: dp
 
    implicit none
    private
@@ -41,7 +41,7 @@ module m_circumcenter_method
    integer, parameter, public :: ALL_NETLINKS_LOOP = 3
 
    character(len=128), public :: md_circumcenter_method = 'internalNetlinksEdge' !< Circumcenter method ('internalNetlinksEdge', 'internalNetlinksLoop' or 'allNetlinksLoop')
-   integer, public :: circumcenter_method !< Circumcenter computation method (INTERNAL_NETLINKS_EDGE: iterate over each internal netlink; INTERNAL_NETLINKS_LOOP=iterate over each internal netlink loop, ALL_NETLINKS_LOOP=iterate over each netlink loop)
+   integer, public :: circumcenter_method !< Circumcenter computation method (INTERNAL_NETLINKS_EDGE=iterate over each internal netlink; INTERNAL_NETLINKS_LOOP=iterate over each internal netlink loop; ALL_NETLINKS_LOOP=iterate over each netlink loop)
    real(kind=dp), public :: circumcenter_tolerance = 1e-3_dp !< Tolerance for convergence of circumcenter [m]
 
 contains
@@ -58,7 +58,7 @@ contains
       select case (trim(str_tolower(circumcenter_method_string)))
       case ('internalnetlinksedge')
          circumcenter_method_ = INTERNAL_NETLINKS_EDGE
-         call mess(LEVEL_WARN, '"[geometry] circumcenterMethod = internalNetlinksEdge" will be deprecated and will be removed in future. Please update this in your model. "circumcenterMethod = internalNetlinksLoop" is the improved current inplementation using internal net links only. "circumcenterMethod = allNetlinksLoop" is a stricter implemention considering also the net links on the outline of the grid. The new options may require an update of your grid.')
+         call mess(LEVEL_WARN, '"[geometry] circumcenterMethod = internalNetlinksEdge" will be deprecated and will be removed in future. Please update this in your model. "circumcenterMethod = internalNetlinksLoop" is the improved current implementation using internal net links only. "circumcenterMethod = allNetlinksLoop" is a stricter implementation considering also the net links on the outline of the grid. The new options may require an update of your grid.')
       case ('internalnetlinksloop')
          circumcenter_method_ = INTERNAL_NETLINKS_LOOP
       case ('allnetlinksloop')
