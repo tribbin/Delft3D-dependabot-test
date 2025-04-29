@@ -32,6 +32,8 @@ module m_addbarocl
 
    private
 
+   real(kind=dp), parameter :: MIN_LAYER_THICKNESS = 0.1_dp
+
    public :: addbarocL, addbarocLrho_w, addbarocL_use_rho_directly
 
 contains
@@ -56,7 +58,7 @@ contains
 
       gradpu(1:l_top - l_bot + 1) = 0.0_dp
 
-      if (zws(ln(1, l_top)) - zws(ln(1, l_bot)) < 0.1_dp .or. zws(ln(2, l_top)) - zws(ln(2, l_bot)) < 0.1_dp) then
+      if (zws(ln(1, l_top)) - zws(ln(1, l_bot)) < MIN_LAYER_THICKNESS .or. zws(ln(2, l_top)) - zws(ln(2, l_bot)) < MIN_LAYER_THICKNESS) then
          return ! no baroclinic pressure in thin water layers
       end if
 
@@ -186,7 +188,7 @@ contains
 
       gradpu(1:l_top - l_bot + 1) = 0.0_dp
 
-      if (zws(ln(1, l_top)) - zws(ln(1, l_bot)) < 0.1_dp .or. zws(ln(2, l_top)) - zws(ln(2, l_bot)) < 0.1_dp) then
+      if (zws(ln(1, l_top)) - zws(ln(1, l_bot)) < MIN_LAYER_THICKNESS .or. zws(ln(2, l_top)) - zws(ln(2, l_bot)) < MIN_LAYER_THICKNESS) then
          return ! no baroclini pressure in thin water layers
       end if
 
@@ -331,8 +333,8 @@ contains
 
       gradpu(1:l_top - l_bot + 1) = 0.0_dp
 
-      if (zws(ln(1, l_top)) - zws(ln(1, l_bot)) < 0.1_dp .or. zws(ln(2, l_top)) - zws(ln(2, l_bot)) < 0.1_dp) then
          return ! no baroclinic pressure in thin water layers
+      if (zws(ln(1, l_top)) - zws(ln(1, l_bot)) < MIN_LAYER_THICKNESS .or. zws(ln(2, l_top)) - zws(ln(2, l_bot)) < MIN_LAYER_THICKNESS) then
       end if
 
       insigpart = 0

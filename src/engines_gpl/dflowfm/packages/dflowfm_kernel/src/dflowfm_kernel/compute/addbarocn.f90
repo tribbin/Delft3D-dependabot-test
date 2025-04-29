@@ -32,6 +32,8 @@ module m_addbarocn
 
    private
 
+   real(kind=dp), parameter :: MIN_RVDN = 1e-10_dp ! Small value (to avoid zero) at cells with small waterdepth
+
    public :: addbarocn, addbarocnrho_w, addbarocn_use_rho_directly
 
 contains
@@ -55,7 +57,7 @@ contains
       call getkbotktop(cell_index_2d, kb, kt)
       if (zws(kt) - zws(kb - 1) < epshu) then
          grn(kb:kt) = 0.0_dp
-         rvdn(kb:kt) = 1e-10_dp
+         rvdn(kb:kt) = MIN_RVDN
          return
       end if
 
@@ -119,7 +121,7 @@ contains
       call getkbotktop(cell_index_2d, kb, kt)
       if (zws(kt) - zws(kb - 1) < epshu) then
          grn(kb:kt) = 0.0_dp
-         rvdn(kb:kt) = 1e-10_dp
+         rvdn(kb:kt) = MIN_RVDN
          return
       end if
 
@@ -185,7 +187,7 @@ contains
       call getkbotktop(cell_index_2d, kb, kt)
       if (zws(kt) - zws(kb - 1) < epshu) then
          grn(kb:kt) = 0.0_dp
-         rvdn(kb:kt) = 1e-10_dp
+         rvdn(kb:kt) = MIN_RVDN
          return
       end if
 
