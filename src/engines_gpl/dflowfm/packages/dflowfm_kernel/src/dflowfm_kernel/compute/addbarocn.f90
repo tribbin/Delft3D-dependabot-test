@@ -33,12 +33,15 @@
 
 module m_add_baroclinic_pressure_cell
    use precision, only: dp
+   use m_physcoef, only: thermobaricity_in_baroclinic_pressure_gradient
+   use m_turbulence, only: in_situ_density, potential_density
 
    implicit none
 
    private
 
    real(kind=dp), parameter :: MIN_BAROCLINIC_PRESSURE = 1e-10_dp ! Small value (to avoid zero) at cells with small waterdepth
+   real(kind=dp), dimension(:), pointer :: density ! local pointer
 
    public :: add_baroclinic_pressure_cell, add_baroclinic_pressure_cell_interface, add_baroclinic_pressure_cell_use_rho_directly
 
@@ -47,14 +50,13 @@ contains
    !> Computes baroclinic pressure gradients across layers for a horizontal cell.
    !! Density is based on linear interpolation of density at vertical interfaces.
    subroutine add_baroclinic_pressure_cell(cell_index_2d)
-      use m_turbulence, only: in_situ_density, potential_density, integrated_baroclinic_pressures, baroclinic_pressures
+      use m_turbulence, only: integrated_baroclinic_pressures, baroclinic_pressures
       use m_flowparameters, only: epshu
       use m_flow, only: zws
-      use m_physcoef, only: rhomean, thermobaricity_in_baroclinic_pressure_gradient
+      use m_physcoef, only: rhomean
       use m_get_kbot_ktop, only: getkbotktop
 
       integer, intent(in) :: cell_index_2d !< horizontal cell index
-      real(kind=dp), dimension(:), pointer :: density ! local pointer
 
       integer :: cell_index_3d, k_bot, k_top
       real(kind=dp) :: baroclinic_pressure_up, baroclinic_pressure_down, integrated_baroclinic_pressure, delta_z

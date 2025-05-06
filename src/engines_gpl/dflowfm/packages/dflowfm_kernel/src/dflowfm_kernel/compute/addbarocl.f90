@@ -33,12 +33,15 @@
 
 module m_add_baroclinic_pressure_link
    use precision, only: dp
+   use m_physcoef, only: thermobaricity_in_baroclinic_pressure_gradient
+   use m_turbulence, only: in_situ_density, potential_density
 
    implicit none
 
    private
 
    real(kind=dp), parameter :: MIN_LAYER_THICKNESS = 0.1_dp ! Minimum layer thickness for baroclinic pressure calculation
+   real(kind=dp), dimension(:), pointer :: density ! local pointer
 
    public :: add_baroclinic_pressure_link, add_baroclinic_pressure_link_interface, add_baroclinic_pressure_link_use_rho_directly
 
@@ -47,16 +50,15 @@ contains
    !> Computes baroclinic pressure gradients across layers for a horizontal link.
    !! Density is based on linear interpolation of density at vertical interfaces.
    subroutine add_baroclinic_pressure_link(link_index_2d, l_bot, l_top)
-      use m_turbulence, only: kmxx, in_situ_density, potential_density, rhou, baroclinic_pressures, integrated_baroclinic_pressures
+      use m_turbulence, only: kmxx, rhou, baroclinic_pressures, integrated_baroclinic_pressures
       use m_flowgeom, only: ln, dx
       use m_flow, only: zws, numtopsig, kmxn, ktop
       use m_flowparameters, only: jarhoxu
-      use m_physcoef, only: rhomean, thermobaricity_in_baroclinic_pressure_gradient
+      use m_physcoef, only: rhomean
 
       integer, intent(in) :: link_index_2d !< Horizontal link index
       integer, intent(in) :: l_bot !< bottom link
       integer, intent(in) :: l_top !< top link
-      real(kind=dp), dimension(:), pointer :: density ! local pointer
 
       integer :: link_index_3d, k1, k2, k1t, k2t, cell_index_3d, k_top, kz, ktz, insigpart, morelayersleft
       real(kind=dp) :: baroclinic_pressure_gradients(kmxx), volume_averaged_density(kmxx), baroclinic_pressure3
@@ -182,18 +184,17 @@ contains
    !> Computes baroclinic pressure gradients across layers for a horizontal link.
    !! Density is based on linear interpolation of recomputed density (from salinity, temperature (and pressure)) at vertical interfaces.
    subroutine add_baroclinic_pressure_link_interface(link_index_2d, l_bot, l_top)
-      use m_turbulence, only: kmxx, in_situ_density, potential_density, rhou, baroclinic_pressures, integrated_baroclinic_pressures, rhosww
+      use m_turbulence, only: kmxx, rhou, baroclinic_pressures, integrated_baroclinic_pressures, rhosww
       use m_flowgeom, only: ln, dx
       use m_flow, only: zws, numtopsig, kmxn, ktop
       use m_flowparameters, only: jarhoxu
       use m_transport, only: ISALT, ITEMP, constituents
-      use m_physcoef, only: rhomean, max_iterations_pressure_density, ag, apply_thermobaricity, thermobaricity_in_baroclinic_pressure_gradient
+      use m_physcoef, only: rhomean, max_iterations_pressure_density, ag, apply_thermobaricity
       use m_density, only: calculate_density
 
       integer, intent(in) :: link_index_2d !< Horizontal link index
       integer, intent(in) :: l_bot !< bottom link
       integer, intent(in) :: l_top !< top link
-      real(kind=dp), dimension(:), pointer :: density ! local pointer
 
       integer :: link_index_3d, k1, k2, k1t, k2t, cell_index_3d, k_top, kz, ktz, insigpart, morelayersleft, i
       real(kind=dp) :: baroclinic_pressure_gradients(kmxx), volume_averaged_density(kmxx), baroclinic_pressure3
