@@ -337,7 +337,7 @@ contains
    !> Computes baroclinic pressure gradients across layers for a horizontal link.
    !! Cell density (i.e. rho(cell_index_3d)) is used
    subroutine add_baroclinic_pressure_link_use_rho_directly(link_index_2d, l_bot, l_top)
-      use m_turbulence, only: kmxx, rho, rhou, baroclinic_pressures, integrated_baroclinic_pressures
+      use m_turbulence, only: kmxx, rhou, baroclinic_pressures, integrated_baroclinic_pressures
       use m_flowgeom, only: ln, dx
       use m_flow, only: zws, numtopsig, kmxn, ktop
       use m_flowparameters, only: jarhoxu
@@ -355,6 +355,13 @@ contains
 
       if (zws(ln(1, l_top)) - zws(ln(1, l_bot)) < MIN_LAYER_THICKNESS .or. zws(ln(2, l_top)) - zws(ln(2, l_bot)) < MIN_LAYER_THICKNESS) then
          return
+      end if
+
+      ! Associate density with the potential density or in-situ density
+      if (thermobaricity_in_baroclinic_pressure_gradient) then
+         density => in_situ_density
+      else
+         density => potential_density
       end if
 
       insigpart = 0
@@ -382,7 +389,7 @@ contains
             k2t = ktop(ln(2, link_index_2d))
          end if
 
-         volume_averaged_density(link_index_3d - l_bot + 1) = 0.5_dp * ((zws(k1t) - zws(k1 - 1)) * rho(k1) + (zws(k2t) - zws(k2 - 1)) * rho(k2))
+         volume_averaged_density(link_index_3d - l_bot + 1) = 0.5_dp * ((zws(k1t) - zws(k1 - 1)) * density(k1) + (zws(k2t) - zws(k2 - 1)) * density(k2))
          if (jarhoxu > 0) then
             rhou(link_index_3d) = volume_averaged_density(link_index_3d - l_bot + 1) / (0.5_dp * (zws(k1t) - zws(k1 - 1) + zws(k2t) - zws(k2 - 1)))
          end if
@@ -410,17 +417,17 @@ contains
             if (insigpart == 0) then
                delta_z = zws(kz) - zws(kz - 1) ! shallow side
 
-               volume_averaged_density(1) = delta_z * 0.5_dp * (rho(cell_index_3d) + rho(kz)) * dx(link_index_2d)
+               volume_averaged_density(1) = delta_z * 0.5_dp * (density(cell_index_3d) + density(kz)) * dx(link_index_2d)
                if (jarhoxu > 0) then
-                  rhou(link_index_3d) = 0.5_dp * (rho(cell_index_3d) + rho(kz))
+                  rhou(link_index_3d) = 0.5_dp * (density(cell_index_3d) + density(kz))
                end if
 
             else
                delta_z = zws(cell_index_3d) - zws(cell_index_3d - 1) ! deep side
             end if
 
-            baroclinic_pressure = baroclinic_pressures(cell_index_3d + 1) + delta_z * (rho(cell_index_3d) - rhomean)
-            integrated_baroclinic_pressure = (baroclinic_pressures(cell_index_3d + 1) + delta_z * (rho(cell_index_3d) - rhomean)) * delta_z
+            baroclinic_pressure = baroclinic_pressures(cell_index_3d + 1) + delta_z * (density(cell_index_3d) - rhomean)
+            integrated_baroclinic_pressure = (baroclinic_pressures(cell_index_3d + 1) + delta_z * (density(cell_index_3d) - rhomean)) * delta_z
 
             if (morelayersleft == 1) then ! k1=deepest
                baroclinic_pressure1 = baroclinic_pressure
