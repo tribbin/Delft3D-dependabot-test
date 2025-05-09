@@ -103,7 +103,6 @@ if (WIN32)
     target_link_libraries(${executable_name} PRIVATE
                           "pthreadVC2.lib"
                           "tecio.lib"
-                          "libpetsc.lib"
                           "${mpi_fortran_library}"
     )
 

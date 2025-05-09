@@ -17,7 +17,7 @@ create_target(
 set(oss_dependencies waq_external_access_layer)
 
 if(WIN32)
-        target_link_libraries(${library_name} ${oss_dependencies})
+        target_link_libraries(${library_name} PRIVATE ${oss_dependencies})
 
         # Set linker properties
         target_link_directories(${library_name}
@@ -26,7 +26,7 @@ if(WIN32)
                 "${checkout_src_root}/third_party_open/netcdf/${netcdf_version}/lib"
                 "${checkout_src_root}/third_party_open/pthreads/bin/x64")
 
-        target_link_libraries(${library_name}
+        target_link_libraries(${library_name} PRIVATE
                 "libiomp5md.lib"
                 "${mpi_fortran_library}"
                 "WbeMuuid.lib"
@@ -47,7 +47,7 @@ if(WIN32)
 endif(WIN32)
 
 if(UNIX)
-        target_link_libraries(${library_name} ${oss_dependencies}
+        target_link_libraries(${library_name} PRIVATE ${oss_dependencies}
                 uuid)
         target_link_options(${library_name} PRIVATE ${openmp_flag})
 endif(UNIX)

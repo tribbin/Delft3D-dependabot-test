@@ -1,6 +1,5 @@
-# check if FILENAME is an absolute path and
-# return the absolute path of the file and
-# the container directory
+# check if FILENAME is an absolute path and return
+# the absolute path of the file and the parent directory
 function(F90TWCHKPATH FILENAME RETFILENAMEFULL RETFILEDIRECTORY)
 
     get_filename_component(filedir "${FILENAME}" DIRECTORY)
@@ -20,10 +19,9 @@ function(F90TWCHKPATH FILENAME RETFILENAMEFULL RETFILEDIRECTORY)
 endfunction()
 
 # preprocess a fortran source file.
-# INFILE, OUTFILE : the input and the output files
-# EXE, SWITCH : the preprocessor executable and arguments switch
-# OPTIONS, INCLUDES DEFINITIONS : the preprocessor options, include
-# directories and definitions
+# INFILE, OUTFILE: the input and the output files
+# EXE, SWITCH: the preprocessor executable and arguments switch
+# OPTIONS, INCLUDES DEFINITIONS: the preprocessor options, include directories and definitions
 function(F90TWFPP INFILE OUTFILE)
     set(prefix FPP)
     set(flags)
@@ -38,7 +36,7 @@ function(F90TWFPP INFILE OUTFILE)
     )
 
     foreach(dir ${FPP_INCLUDES})
-        string( PREPEND dir ${FPP_SWITCH} I)
+        string(PREPEND dir ${FPP_SWITCH} I)
         list(APPEND INCL ${dir})
     endforeach()
     foreach(def ${FPP_DEFINITIONS})
@@ -169,7 +167,7 @@ endfunction()
 function(F90TWTEST NAME)
     set(prefix FTW)
     set(flags)
-    set(singleValues F90TWFWK EXE SWITCH OUTDIR F2HNAME)
+    set(singleValues F90TWFWK EXE SWITCH OUTDIR F2HNAME VISUAL_STUDIO_PATH)
     set(multiValues CFILES F90FILES FPPFILES F2HFILES OPTIONS LIBRARIES INCLUDES MODULES DEFINITIONS)
 
     include(CMakeParseArguments)
@@ -178,6 +176,9 @@ function(F90TWTEST NAME)
                     "${singleValues}"
                     "${multiValues}"
     )
+
+    list(APPEND FTW_INCLUDES ${f90tw_INCLUDE_DIR})
+    list(APPEND FTW_MODULES ${f90tw_MODULES_DIR})
 
     set(FLIBNAME "${NAME}_f90")
     set(F2HTRGNAME "${NAME}_f2h")
@@ -194,6 +195,7 @@ function(F90TWTEST NAME)
         set(F2HFILE "${CMAKE_CURRENT_BINARY_DIR}/${F2HNAME}")
         F90TWF2H(INFILES ${FTW_F2HFILES} OUTFILE ${F2HFILE})
         add_custom_target(${F2HTRGNAME} ALL DEPENDS ${F2HFILE})
+        set_target_properties(${F2HTRGNAME} PROPERTIES FOLDER ${FTW_VISUAL_STUDIO_PATH})
     else()
         set(F2HFILE)
     endif()
@@ -238,10 +240,11 @@ function(F90TWTEST NAME)
     # compile c and create the executable
     add_executable(${NAME} ${FTW_CFILES} ${F2HFILE})
     target_include_directories(${NAME} PRIVATE ${FPPINCLDS} ${CMAKE_CURRENT_BINARY_DIR} ${FTW_INCLUDES})
-    message("HARMEN: FLIBNAME FTW_LIBRARIES " ${FLIBNAME} ${FTW_LIBRARIES})
     target_link_libraries(${NAME} PRIVATE ${FLIBNAME} f90tw_gtest)
     target_compile_definitions(${NAME} PUBLIC ${FTW_DEFINITIONS})
     add_dependencies(${NAME} ${FLIBNAME})
+    set_target_properties(${NAME} ${FLIBNAME} PROPERTIES FOLDER ${FTW_VISUAL_STUDIO_PATH})
+    gtest_discover_tests(${NAME})
 endfunction()
 
 # resolve the preprocessor to be used. it is assumed that on unix bases systems
@@ -296,7 +299,6 @@ add_library(f90tw_gtest STATIC gtest_assertions.cpp)
 set_property(TARGET f90tw_gtest PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(f90tw_gtest PUBLIC ${gtest_INCLUDE_DIR})
 target_link_libraries(f90tw_gtest PUBLIC f90twi_gtest gtest_main)
-target_compile_definitions(f90tw_gtest PUBLIC f90twi_gtest USEGTEST)
 
 set(file2fpp "${CMAKE_CURRENT_SOURCE_DIR}/assertions_gtest.fpp")
 set(file2 "${CMAKE_CURRENT_BINARY_DIR}/assertions_gtest.f90")
@@ -309,10 +311,11 @@ F90TWFPP("${file2fpp}" "${file2}"
     EXE ${FPP_EXE}
     OPTIONS ${FPP_OPTIONS}
     SWITCH ${FPP_SWITCH}
-    DEFINITIONS USEGTEST
 )
 add_dependencies(f90tw_gtest f90twi_gtest)
 
 # make available the include and module paths
 set(f90tw_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE STRING "f90tw include directory")
 set(f90tw_MODULES_DIR ${CMAKE_CURRENT_BINARY_DIR} CACHE STRING "f90tw modules/libraries directory")
+
+include(GoogleTest)
