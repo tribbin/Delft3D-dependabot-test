@@ -71,8 +71,10 @@ public set_default_output_flags
 
 ! ice cover output
 type icecover_output_flags
+    logical :: default  !< default flag for output writing
     logical :: ice_s1   !< sea surface height of open water
     logical :: ice_zmax !< surface height of ice/snow cover
+    logical :: ice_zmin !< lower surface height of ice/snow cover
     logical :: ice_af   !< area fraction covered by ice
     logical :: ice_h    !< ice thickness
     logical :: ice_p    !< pressure of ice cover
@@ -86,7 +88,6 @@ type icecover_type
     !
     ! input
     !
-    type(icecover_output_flags) :: hisout         !< flags indicating whether ice cover should be written to history-file
     type(icecover_output_flags) :: mapout         !< flags indicating whether ice cover should be written to map-file
     !
     logical  :: apply_pressure                    !< flag indicating whether pressure of ice cover should be applied
@@ -205,6 +206,7 @@ function late_activation_ext_force_icecover(icecover) result(istat)
        icecover%modeltype = ICECOVER_EXT
        icecover%apply_pressure = .true.
        call mess(LEVEL_ALL, 'Activating ice cover module based on external forcing.')
+       call set_default_output_flags(icecover%mapout, icecover%modeltype)
        ! note: spatial arrays haven't been allocated yet!
     else
        ! don't overrule previously selected icecover ...
@@ -232,7 +234,6 @@ function select_icecover_model(icecover, modeltype) result(istat)
 !
     icecover%modeltype                 = modeltype
 
-    call set_default_output_flags(icecover%hisout, modeltype, .false.)
     call set_default_output_flags(icecover%mapout, modeltype, .false.)
     
     icecover%ice_areafrac_forcing_available   = 0
@@ -268,25 +269,27 @@ end function select_icecover_model
 subroutine set_default_output_flags(flags, modeltype, default)
    type(icecover_output_flags), intent(inout) :: flags !< output flags
    integer, intent(in) :: modeltype !< ice cover model type
-   logical, intent(in) :: default !< default value for output flags
+   logical, optional, intent(in) :: default !< default value for output flags
    
    logical :: default_ !< local default value for output flags
    
+   if (present(default)) then
+      flags%default = default
+   end if
+   default_ = flags%default
+   
    if (modeltype == ICECOVER_NONE) then
       default_ = .false.
-   else
-      default_ = default
    end if
    
    flags%ice_s1   = default_
    flags%ice_zmax = default_
+   flags%ice_zmin = default_
    flags%ice_af   = default_
    flags%ice_h    = default_
    flags%ice_p    = default_
    
-   if (modeltype == ICECOVER_SEMTNER) then
-      default_ = default
-   else
+   if (modeltype /= ICECOVER_SEMTNER) then
       default_ = .false.
    end if
    

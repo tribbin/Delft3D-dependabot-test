@@ -54,7 +54,7 @@ subroutine read_icecover(icecover, md_ptr, chapter, error, jamapice)
    !
 !
 ! Arguments
-!
+! 
    type (icecover_type)         , intent(inout) :: icecover !< ice cover data structure containing the data read
    type(tree_data)              , pointer       :: md_ptr   !< pointer to the input file
    character(len=*)             , intent(in)    :: chapter  !< chapter name of the ice section
@@ -153,19 +153,14 @@ subroutine read_icecover(icecover, md_ptr, chapter, error, jamapice)
    !
    ! Output flags
    !
-   bool = .false.
-   call prop_get(md_ptr, chapter, 'addIceToHis', bool)
-   call set_default_output_flags(icecover%hisout, model, bool)
-   call read_icecover_output(md_ptr, chapter, 'his', icecover%hisout)
-   !
    if (present(jamapice)) then
-      bool = jamapice
+      bool = jamapice /= 0
    else
       bool = .false.
    end if
    call prop_get(md_ptr, chapter, 'addIceToMap', bool)
    call set_default_output_flags(icecover%mapout, model, bool)
-   call read_icecover_output(md_ptr, chapter, 'map', icecover%mapout)
+   call read_icecover_output(md_ptr, 'output', 'wrimap', icecover%mapout)
 end subroutine read_icecover
 
 
@@ -292,10 +287,6 @@ function echo_icecover(icecover, lundia) result (error)
    !
    ! output flags
    !
-   txtput1 = '  History File Output'
-   write (lundia, '(1a)') txtput1
-   call echo_icecover_output(lundia, icecover%hisout)
-   
    txtput1 = '  Map File Output'
    write (lundia, '(1a)') txtput1
    call echo_icecover_output(lundia, icecover%mapout)
@@ -322,6 +313,7 @@ subroutine read_icecover_output(md_ptr, chapter, prefix, outflags)
    prefix_ = prefix//'_'
    call prop_get(md_ptr, chapter, prefix//'open_water_level', outflags%ice_s1)
    call prop_get(md_ptr, chapter, prefix//'ice_surface_height', outflags%ice_zmax)
+   call prop_get(md_ptr, chapter, prefix//'ice_lower_surface_height', outflags%ice_zmin)
    call prop_get(md_ptr, chapter, prefix//'ice_area_fraction', outflags%ice_af)
    call prop_get(md_ptr, chapter, prefix//'ice_thickness', outflags%ice_h)
    call prop_get(md_ptr, chapter, prefix//'ice_pressure', outflags%ice_p)
@@ -349,6 +341,9 @@ subroutine echo_icecover_output(lundia, outflags)
    end if
    if (outflags%ice_zmax) then
       write (lundia, '(2a)') '  * ', 'surface height of ice/snow cover'
+   end if
+   if (outflags%ice_zmin) then
+      write (lundia, '(2a)') '  * ', 'lower surface height of ice/snow cover'
    end if
    if (outflags%ice_af) then
       write (lundia, '(2a)') '  * ', 'area fraction covered by ice'

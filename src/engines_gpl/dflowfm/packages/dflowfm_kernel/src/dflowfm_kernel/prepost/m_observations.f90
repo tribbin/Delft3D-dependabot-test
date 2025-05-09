@@ -94,6 +94,7 @@ contains
       use m_fm_wq_processes, only: noout, numwqbots
       use m_sediment, only: stm_included, stmpar
       use m_wind, only: japatm, jawind
+      use m_fm_icecover, only: ja_icecover, ICECOVER_NONE, ICECOVER_SEMTNER
       implicit none
 
       integer :: i, i0, numfracs, nlyrs
@@ -167,6 +168,15 @@ contains
       IVAL_QFRE = 0
       IVAL_QFRC = 0
       IVAL_QTOT = 0
+      IVAL_ICE_S1 = 0
+      IVAL_ICE_ZMAX = 0
+      IVAL_ICE_ZMIN = 0
+      IVAL_ICE_AF = 0
+      IVAL_ICE_H = 0
+      IVAL_ICE_P = 0
+      IVAL_ICE_T = 0
+      IVAL_SNOW_H = 0
+      IVAL_SNOW_T = 0
       IVAL_RAIN = 0
       IVAL_INFILTCAP = 0
       IVAL_INFILTACT = 0
@@ -262,6 +272,19 @@ contains
       end if
       if (jatem > 1) then
          i = i + 1; IVAL_QTOT = i
+      end if
+      if (ja_icecover /= ICECOVER_NONE) then
+         i = i + 1; IVAL_ICE_S1 = i
+         i = i + 1; IVAL_ICE_ZMAX = i
+         i = i + 1; IVAL_ICE_ZMIN = i
+         i = i + 1; IVAL_ICE_AF = i
+         i = i + 1; IVAL_ICE_H = i
+         i = i + 1; IVAL_ICE_P = i
+         if (ja_icecover == ICECOVER_SEMTNER) then
+            i = i + 1; IVAL_ICE_T = i
+            i = i + 1; IVAL_SNOW_H = i
+            i = i + 1; IVAL_SNOW_T = i
+         end if
       end if
       if (jahisrain > 0) then
          i = i + 1; IVAL_RAIN = i
@@ -494,6 +517,15 @@ contains
       IPNT_QFRE = ivalpoint(IVAL_QFRE, kmx, nlyrs)
       IPNT_QFRC = ivalpoint(IVAL_QFRC, kmx, nlyrs)
       IPNT_QTOT = ivalpoint(IVAL_QTOT, kmx, nlyrs)
+      IPNT_ICE_S1 = ivalpoint(IVAL_ICE_S1, kmx, nlyrs)
+      IPNT_ICE_ZMAX = ivalpoint(IVAL_ICE_ZMAX, kmx, nlyrs)
+      IPNT_ICE_ZMIN = ivalpoint(IVAL_ICE_ZMIN, kmx, nlyrs)
+      IPNT_ICE_AF = ivalpoint(IVAL_ICE_AF, kmx, nlyrs)
+      IPNT_ICE_H = ivalpoint(IVAL_ICE_H, kmx, nlyrs)
+      IPNT_ICE_P = ivalpoint(IVAL_ICE_P, kmx, nlyrs)
+      IPNT_ICE_T = ivalpoint(IVAL_ICE_T, kmx, nlyrs)
+      IPNT_SNOW_H = ivalpoint(IVAL_SNOW_H, kmx, nlyrs)
+      IPNT_SNOW_T = ivalpoint(IVAL_SNOW_T, kmx, nlyrs)
       IPNT_RAIN = ivalpoint(IVAL_RAIN, kmx, nlyrs)
       IPNT_INFILTCAP = ivalpoint(IVAL_INFILTCAP, kmx, nlyrs)
       IPNT_INFILTACT = ivalpoint(IVAL_INFILTACT, kmx, nlyrs)

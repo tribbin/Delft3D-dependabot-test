@@ -1040,7 +1040,7 @@ contains
       jamapS1Gradient = 0
       jamapFlowAnalysis = 0
       jamapNearField = 0
-      !jamapice = 0
+      jamapice = 0
       jamapwqbot3d = 0
 
       jarstignorebl = 0

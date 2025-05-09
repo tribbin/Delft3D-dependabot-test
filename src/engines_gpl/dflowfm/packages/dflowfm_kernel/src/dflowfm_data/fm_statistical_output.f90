@@ -1506,8 +1506,12 @@ contains
                              'm', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write water level of open water to his-file', &
                              nc_dim_ids=station_nc_dims_2D)
       call add_output_config(config_set_his, IDX_HIS_ICE_ZMAX, &
-                             'Wrihis_ice_surface_height', 'ice_surface_height', 'height of ice/snow surface', '', &
-                             'm', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write height of ice/snow surface to his-file', &
+                             'Wrihis_ice_surface_height', 'ice_surface_height', 'upper surface height of ice cover', '', &
+                             'm', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write upper surface height of ice cover to his-file', &
+                             nc_dim_ids=station_nc_dims_2D)
+      call add_output_config(config_set_his, IDX_HIS_ICE_ZMIN, &
+                             'Wrihis_ice_lower_surface_height', 'ice_lower_surface_height', 'lower surface height of ice cover', '', &
+                             'm', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write lower surface height of ice cover to his-file', &
                              nc_dim_ids=station_nc_dims_2D)
       call add_output_config(config_set_his, IDX_HIS_ICE_AF, &
                              'Wrihis_ice_area_fraction', 'ice_area_fraction', 'area fraction covered by ice', 'sea_ice_area_fraction', &
@@ -2220,6 +2224,7 @@ contains
       use m_laterals, only: numlatsg, qplat, qplatAve, qLatRealAve, qLatReal
       use m_sferic, only: jsferic
       use m_wind, only: japatm, jawind, jarain, ja_airdensity, ja_computed_airdensity, clou, rhum
+      use m_fm_icecover, only: ja_icecover, ICECOVER_NONE, ICECOVER_SEMTNER
       use, intrinsic :: iso_c_binding
 
       type(t_output_quantity_config_set), intent(inout) :: output_config_set !< output config for which an output set is needed.
@@ -2676,9 +2681,19 @@ contains
          end if
 
          ! Ice model
-         !if (IPNT_ICE_S1 > 0) then
-         !   call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_S1), valobs(:, IPNT_ICE_S1))
-         !end if
+         if (ja_icecover /= ICECOVER_NONE) then
+            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_S1), valobs(:, IPNT_ICE_S1))
+            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_ZMAX), valobs(:, IPNT_ICE_ZMAX))
+            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_ZMIN), valobs(:, IPNT_ICE_ZMIN))
+            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_AF), valobs(:, IPNT_ICE_AF))
+            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_H), valobs(:, IPNT_ICE_H))
+            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_P), valobs(:, IPNT_ICE_P))
+            if (ja_icecover == ICECOVER_SEMTNER) then
+               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_T), valobs(:, IPNT_ICE_T))
+               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_SNOW_H), valobs(:, IPNT_SNOW_H))
+               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_SNOW_T), valobs(:, IPNT_SNOW_T))
+            end if
+         end if
          
          ! Sediment model
          if (jased > 0 .and. .not. stm_included) then

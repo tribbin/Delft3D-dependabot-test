@@ -50,7 +50,6 @@ module m_fm_icecover
    integer, pointer :: ja_ice_area_fraction_read !< flag indicating whether ice area fraction is available via EC module
    integer, pointer :: ja_ice_thickness_read !< flag indicating whether ice thickness is available via EC module
 
-   type(icecover_output_flags), pointer :: ice_hisout !< module pointer to hisout flags inside ice_data
    type(icecover_output_flags), pointer :: ice_mapout !< module pointer to mapout flags inside ice_data
 
    logical, pointer :: ice_apply_pressure !< module pointer to flag apply_pressure inside ice_data
@@ -115,7 +114,6 @@ contains
 
       ja_icecover => ice_data%modeltype
 
-      ice_hisout => ice_data%hisout
       ice_mapout => ice_data%mapout
 
       ice_apply_pressure => ice_data%apply_pressure
