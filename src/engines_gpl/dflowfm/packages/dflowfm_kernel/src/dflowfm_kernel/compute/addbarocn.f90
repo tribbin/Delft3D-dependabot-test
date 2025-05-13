@@ -102,7 +102,7 @@ contains
          else if (cell_index_3d == k_top) then
             delta_z_down = zws(cell_index_3d - 1) - zws(cell_index_3d - 2)
             rho_down_weight_down = delta_z / (delta_z_down + delta_z)
-            rho_down_weight_up = 1.0_dp - rho_down_weight_up
+            rho_down_weight_up = 1.0_dp - rho_down_weight_down
             rho_down = rho_down_weight_up * density(cell_index_3d) + rho_down_weight_down * density(cell_index_3d - 1) - rhomean
             rho_up = 2.0_dp * (density(cell_index_3d) - rhomean) - rho_down
          end if
