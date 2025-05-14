@@ -152,6 +152,8 @@ if __name__ == "__main__":
     base_dir = get_base_directory_ci_python_scripts(__file__)
     examples_dir = base_dir / EXAMPLES_RELATIVE_DIR
     apptainer_dir = base_dir / APPTAINER_RELATIVE_DIR
+    logger.log(f"Examples directory: {examples_dir}")
+    logger.log(f"Apptainer directory: {apptainer_dir}")
 
     has_errors = False
     logger.log("Create destination directory.")
