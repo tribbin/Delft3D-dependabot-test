@@ -450,36 +450,36 @@ end subroutine update_icepress
 
 
 !> determine effective drag coefficient when ice may be present
-pure function ice_drag_effect(icecover, ice_area_fraction, cdw) result (cdeff)
+pure function ice_drag_effect(icecover, ice_area_fraction, cdw_open) result (cdw_eff)
     !
     ! Function/routine arguments
     !
     type (icecover_type)                       , intent(in)    :: icecover  !< data structure containing ice cover data
     real(fp)                                   , intent(in)    :: ice_area_fraction    !< area fraction covered by ice (-) 
-    real(fp)                                   , intent(in)    :: cdw       !< wind drag exerted via open water (N m-2)
-    real(fp)                                                   :: cdeff     !< effective wind drag coefficient (N m-2)
+    real(fp)                                   , intent(in)    :: cdw_open  !< wind drag exerted via open water (N m-2)
+    real(fp)                                                   :: cdw_eff   !< effective wind drag coefficient (N m-2)
     !
     ! Local variables
     !
-    real(fp) :: c0     !< constant coefficient of cubic drag formula
-    real(fp) :: c1     !< linear coefficient of cubic drag formula
-    real(fp) :: c2     !< quadratic coefficient of cubic drag formula
-    real(fp) :: c3     !< cubic coefficient of cubic drag formula 
-    real(fp) :: cdf    !< wind drag exerted via ice floes
-    real(fp) :: cdfmax !< maximum wind drag exerted via ice floes (maximum form drag)
-    real(fp) :: cdi    !< wind drag exerted via ice cover
-    real(fp) :: wat_af !< open water area fraction
-    real(fp) :: num    !< numerator
-    real(fp) :: den    !< denominator
+    real(fp) :: c0 !< constant coefficient of cubic drag formula (N m-2)
+    real(fp) :: c1 !< linear coefficient of cubic drag formula (N m-2)
+    real(fp) :: c2 !< quadratic coefficient of cubic drag formula (N m-2)
+    real(fp) :: c3 !< cubic coefficient of cubic drag formula (N m-2)
+    real(fp) :: cdw_floe !< wind drag exerted via ice floes (N m-2)
+    real(fp) :: cdw_floe_max !< maximum wind drag exerted via ice floes (maximum form drag) (N m-2)
+    real(fp) :: cdw_ice !< wind drag exerted via ice cover (N m-2)
+    real(fp) :: water_area_fraction !< open water area fraction (-)
+    real(fp) :: num !< numerator
+    real(fp) :: den !< denominator
 !
 !! executable statements -------------------------------------------------------
 !
-    wat_af = 1.0_fp - ice_area_fraction
+    water_area_fraction = 1.0_fp - ice_area_fraction
     
     select case (icecover%modify_winddrag)
     case (ICE_WINDDRAG_NONE) ! no wind drag modification
         
-        cdeff = cdw
+        cdw_eff = cdw_open
         
     case (ICE_WINDDRAG_CUBIC) ! Chapman & Massey (ADCIRC)
         
@@ -496,8 +496,8 @@ pure function ice_drag_effect(icecover, ice_area_fraction, cdw) result (cdeff)
         c1 =  0.00750_fp
         c2 = -0.00900_fp
         c3 =  0.00200_fp
-        cdi = c0 + (c1 + (c2 + c3 * ice_area_fraction) * ice_area_fraction ) * ice_area_fraction
-        cdeff = max(cdi, cdw)
+        cdw_ice = c0 + (c1 + (c2 + c3 * ice_area_fraction) * ice_area_fraction ) * ice_area_fraction
+        cdw_eff = max(cdw_ice, cdw_open)
         
     case (ICE_WINDDRAG_RAYS) ! Chapman et al (ADCIRC)
 
@@ -507,39 +507,39 @@ pure function ice_drag_effect(icecover, ice_area_fraction, cdw) result (cdeff)
         ! Jensen & Ebersole (2012) ERDC/CHL TR-12-26
         ! Modeling of Lake Michigan Storm Waves and Water Levels
         ! refer to Chapman et al. (2005, 2009) for
-        ! cdeff = 0.001_fp * (0.125_fp + 0.5_fp * ice_area_fraction * (1.0_fp  ice_area_fraction))
+        ! cdw_eff = 0.001_fp * (0.125_fp + 0.5_fp * ice_area_fraction * (1.0_fp  ice_area_fraction))
 
         c0 =  0.00125_fp
         c1 =  0.00500_fp
-        cdi = c0 + c1 * ice_area_fraction * wat_af
-        cdeff = max(cdi, cdw)
+        cdw_ice = c0 + c1 * ice_area_fraction * water_area_fraction
+        cdw_eff = max(cdw_ice, cdw_open)
 
     case (ICE_WINDDRAG_LB05) ! Lupkes and Birnbaum (2005)
         
-        cdi = 1.5e-3_fp
-        num = wat_af * (wat_af**0.8_fp + 0.5_fp * (1.0_fp - 0.5_fp * ice_area_fraction)**2)
-        den = 31.0_fp + 90.0_fp * ice_area_fraction * wat_af
-        cdf = 0.34e-3_fp * ice_area_fraction * ice_area_fraction * num / den
+        cdw_ice = 1.5e-3_fp
+        num = water_area_fraction * (water_area_fraction**0.8_fp + 0.5_fp * (1.0_fp - 0.5_fp * ice_area_fraction)**2)
+        den = 31.0_fp + 90.0_fp * ice_area_fraction * water_area_fraction
+        cdw_floe = 0.34e-3_fp * ice_area_fraction * ice_area_fraction * num / den
         
-        cdeff = wat_af * cdw + ice_area_fraction * cdi + cdf
+        cdw_eff = water_area_fraction * cdw_open + ice_area_fraction * cdw_ice + cdw_floe
         
     case (ICE_WINDDRAG_AN10) ! Andreas et al. (2010)
         
         c0 = 1.5e-3_fp
         c1 = 2.233e-3_fp
-        cdeff = c0 + c1 * ice_area_fraction * wat_af
+        cdw_eff = c0 + c1 * ice_area_fraction * water_area_fraction
 
     case (ICE_WINDDRAG_LINEAR)
         
-        cdeff = wat_af * cdw
+        cdw_eff = water_area_fraction * cdw_open
         
     case (ICE_WINDDRAG_JOYCE19)
 
-        cdi = icecover%ice_skin_drag
-        cdfmax = icecover%maximum_ice_form_drag
+        cdw_ice = icecover%ice_skin_drag
+        cdw_floe_max = icecover%maximum_ice_form_drag
         
         ! Eq. (6) of Joyce et al, 2019 equivalent to Eq. (A4) of Lupkes et al, 2012
-        cdeff = cdw * wat_af + cdi * ice_area_fraction + 4.0_fp * cdfmax * ice_area_fraction * wat_af
+        cdw_eff = cdw_open * water_area_fraction + cdw_ice * ice_area_fraction + 4.0_fp * cdw_floe_max * ice_area_fraction * water_area_fraction
 
     end select
 end function ice_drag_effect
