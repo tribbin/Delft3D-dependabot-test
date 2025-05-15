@@ -54,7 +54,7 @@ contains
       use m_wind
       use m_sferic
       use m_xbeach_data, only: Lwave
-      use m_fm_icecover, only: ice_p, fm_ice_update_press, ice_apply_pressure, ice_reduce_waves, ice_af, ice_apply_friction, ice_frctp, ice_frcuni, FRICT_AS_DRAG_COEFF
+      use m_fm_icecover, only: ice_pressure, fm_ice_update_press, ice_apply_pressure, ice_reduce_waves, ice_area_fraction, ice_apply_friction, ice_frict_type, ice_frcuni, FRICT_AS_DRAG_COEFF
       use m_get_Lbot_Ltop
       use m_get_chezy, only: get_chezy
       use m_links_to_centers, only: links_to_centers
@@ -146,13 +146,13 @@ contains
                duL = sqrt(duxL * duxL + duyL * duyL)
 
                ! get drag coefficient
-               if (ice_frctp == FRICT_AS_DRAG_COEFF) then
+               if (ice_frict_type == FRICT_AS_DRAG_COEFF) then
                   cdi = ice_frcuni
                else
                   cdi = 0d0
                end if
 
-               wfac = 0.5d0 * (ice_af(ln(1, LL)) + ice_af(ln(2, LL)))
+               wfac = 0.5d0 * (ice_area_fraction(ln(1, LL)) + ice_area_fraction(ln(2, LL)))
                ice_shear = wfac * cdi * duL * (duxL * csu(LL) + duyL * snu(LL)) ! * rhomean?
 
                if (kmx > 0) then
@@ -188,7 +188,7 @@ contains
             do L = 1, lnx
                wfac = 1d0
                if (ice_reduce_waves) then
-                  wfac = wfac * (1.0d0 - 0.5d0 * (ice_af(ln(1, L)) + ice_af(ln(2, L))))
+                  wfac = wfac * (1.0d0 - 0.5d0 * (ice_area_fraction(ln(1, L)) + ice_area_fraction(ln(2, L))))
                end if
                adve(L) = adve(L) - wfac * wavfu(L)
             end do
@@ -196,7 +196,7 @@ contains
             do LL = 1, lnx
                wfac = 1d0
                if (ice_reduce_waves) then
-                  wfac = wfac * (1.0d0 - 0.5d0 * (ice_af(ln(1, LL)) + ice_af(ln(2, LL))))
+                  wfac = wfac * (1.0d0 - 0.5d0 * (ice_area_fraction(ln(1, LL)) + ice_area_fraction(ln(2, LL))))
                end if
                call getLbotLtop(LL, Lb, Lt)
                if (Lt < Lb) cycle
@@ -221,7 +221,7 @@ contains
                   dptot = dptot + (patm(k2) - patm(k1)) * dxi(L) / rhomean
                end if
                if (ice_apply_pressure) then
-                  dptot = dptot + (ice_p(k2) - ice_p(k1)) * dxi(L) / rhomean
+                  dptot = dptot + (ice_pressure(k2) - ice_pressure(k1)) * dxi(L) / rhomean
                end if
                if (jatidep > 0 .or. jaselfal > 0) then
                   if (jatidep == 1) then

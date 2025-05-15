@@ -53,7 +53,7 @@ contains
       use m_sferic, only: jsferic
       use m_flowtimes, only: dts
       use m_transport, only: constituents, itemp, isalt
-      use m_fm_icecover, only: ja_icecover, ice_af, ice_albedo, ice_h, ice_t, snow_albedo, snow_h, snow_t, &
+      use m_fm_icecover, only: ja_icecover, ice_area_fraction, ice_albedo, ice_thickness, ice_temperature, snow_albedo, snow_thickness, snow_temperature, &
                                qh_air2ice, qh_ice2wat, ICECOVER_NONE, ICECOVER_SEMTNER, preprocess_icecover
       use m_get_kbot_ktop, only: getkbotktop
       use m_get_link1, only: getlink1
@@ -86,7 +86,7 @@ contains
       real(kind=dp), parameter :: MIN_THICK = 0.001_fp !< threshold thickness for ice/snow to overrule the underlying layer (m)
 
       if (ja_icecover /= ICECOVER_NONE) then
-         afrac = 1.0_dp - ice_af(n)
+         afrac = 1.0_dp - ice_area_fraction(n)
       else
          afrac = 1.0_dp
       end if
@@ -144,19 +144,19 @@ contains
 
       else if (jatem == 5) then
 
-         ! Set TSURF either to TWATN or to ice_t(n) or to snow_t(n) and change albedo parameter in case of ice and/or snow
+         ! Set TSURF either to TWATN or to ice_temperature(n) or to snow_temperature(n) and change albedo parameter in case of ice and/or snow
          !
          if (ja_icecover == ICECOVER_SEMTNER) then
-            if (snow_h(n) > MIN_THICK) then
+            if (snow_thickness(n) > MIN_THICK) then
                !
                ! ice and snow
                albedo = snow_albedo
-               tsurf = snow_t(n)
-            elseif (ice_h(n) > MIN_THICK) then
+               tsurf = snow_temperature(n)
+            elseif (ice_thickness(n) > MIN_THICK) then
                !
                ! ice but no snow
                albedo = ice_albedo
-               tsurf = ice_t(n)
+               tsurf = ice_temperature(n)
             else
                !
                ! no ice and no snow, but ice_modelling switched on
@@ -285,7 +285,7 @@ contains
          ! change parameters for ice modelling
          !
          if (ja_icecover == ICECOVER_SEMTNER) then
-            if (ice_h(n) > MIN_THICK) then
+            if (ice_thickness(n) > MIN_THICK) then
                ! in case of ice (and snow) overrule the Stanton number (convective heat flux)
                ch = 0.00232_dp
             end if
@@ -331,7 +331,7 @@ contains
          ! In case of ice preprocessing of ice quantities
          !
          if (ja_icecover == ICECOVER_SEMTNER) then
-            if (ice_h(n) > MIN_THICK .or. (twatn < 0.1_fp .and. tair(n) < 0.0_fp)) then
+            if (ice_thickness(n) > MIN_THICK .or. (twatn < 0.1_fp .and. tair(n) < 0.0_fp)) then
                !
                ! Compute Qlong_ice (NB. Delft3D-FLOW definition is used, with opposite sign, so that
                ! algorithm in preprocess_icecover remains identical to the one for Delft3D-FLOW
@@ -351,7 +351,7 @@ contains
                call preprocess_icecover(n, Qlong_ice, twatn, salinity, windn)
             end if
             !
-            if (ice_h(n) > MIN_THICK) then
+            if (ice_thickness(n) > MIN_THICK) then
                !
                ! recompute heatsrc0 because of presence of ice
                !

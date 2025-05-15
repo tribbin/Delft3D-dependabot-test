@@ -40,7 +40,6 @@ module unstruc_model
    use m_globalparameters, only: t_filenames
    use time_module, only: ymd2modified_jul, datetimestring_to_seconds
    use dflowfm_version_module, only: getbranch_dflowfm
-   !use m_fm_icecover, only: ice_mapout
    use netcdf, only: nf90_double
    use m_start_parameters, only: md_jaautostart, MD_NOAUTOSTART
    use properties, only: prop_get, prop_file, tree_create, tree_destroy

@@ -58,7 +58,7 @@ contains
       use m_sobekdfm
       use unstruc_channel_flow
       use iso_c_utils, only: MAXSTRINGLEN
-      use m_fm_icecover, only: ice_apply_pressure, ice_p
+      use m_fm_icecover, only: ice_apply_pressure, ice_pressure
       use m_qnerror
       use m_wind, only: japatm, patm, pavbnd
 
@@ -255,7 +255,7 @@ contains
             end if
 
             if (ice_apply_pressure) then
-               zb = zb - ice_p(kb) / (ag * rhomean)
+               zb = zb - ice_pressure(kb) / (ag * rhomean)
             end if
 
             zb = max(zb, bl(kb) + HBMIN)

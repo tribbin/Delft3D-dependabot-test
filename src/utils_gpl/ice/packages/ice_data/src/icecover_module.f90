@@ -30,6 +30,7 @@
 module icecover_module
 use precision
 use MessageHandling, only: mess, LEVEL_ALL, LEVEL_FATAL
+implicit none
 private
 
 !
@@ -68,6 +69,7 @@ public clr_icecover
 public update_icepress
 public ice_drag_effect
 public set_default_output_flags
+public icecover_prepare_output
 
 ! ice cover output
 type icecover_output_flags
@@ -75,12 +77,12 @@ type icecover_output_flags
     logical :: ice_s1   !< sea surface height of open water
     logical :: ice_zmin !< lower surface height of ice/snow cover
     logical :: ice_zmax !< upper surface height of ice/snow cover
-    logical :: ice_af   !< area fraction covered by ice
-    logical :: ice_h    !< ice thickness
-    logical :: ice_p    !< pressure of ice cover
-    logical :: ice_t    !< temperature of ice cover
-    logical :: snow_h   !< snow thickness
-    logical :: snow_t   !< temperature of snow cover
+    logical :: ice_area_fraction   !< area fraction covered by ice
+    logical :: ice_thickness    !< ice thickness
+    logical :: ice_pressure    !< pressure of ice cover
+    logical :: ice_temperature    !< temperature of ice cover
+    logical :: snow_thickness   !< snow thickness
+    logical :: snow_temperature   !< temperature of snow cover
 end type icecover_output_flags
 
 ! ice cover type
@@ -99,7 +101,7 @@ type icecover_type
     integer  :: modeltype                         !< type of the ice cover (one of ICECOVER_...)
     integer  :: frict_type                        !< friction type exerted by the ice cover
     !
-    integer  :: ice_areafrac_forcing_available    !< flag indicating whether ice area fraction is available via external forcing
+    integer  :: ice_area_fraction_forcing_available    !< flag indicating whether ice area fraction is available via external forcing
     integer  :: ice_thickness_forcing_available   !< flag indicating whether ice thickness is available via external forcing
     !
     real(fp) :: ice_albedo                        !< albedo of ice (-)
@@ -115,7 +117,7 @@ type icecover_type
     !
     ! state
     !
-    real(fp), dimension(:), pointer :: ice_areafrac     => null() !< area fraction covered by ice (-)
+    real(fp), dimension(:), pointer :: ice_area_fraction     => null() !< area fraction covered by ice (-)
     real(fp), dimension(:), pointer :: ice_thickness    => null() !< ice cover thickness (m)
     real(fp), dimension(:), pointer :: snow_thickness   => null() !< snow cover thickness (m)
     real(fp), dimension(:), pointer :: ice_temperature  => null() !< ice temperature (degC)
@@ -126,6 +128,9 @@ type icecover_type
     real(fp), dimension(:), pointer :: qh_air2ice => null() !< heat flux from air to ice (W m-2)
     real(fp), dimension(:), pointer :: qh_ice2wat => null() !< heat flux from ice to water (W m-2)
     real(fp), dimension(:), pointer :: pressure   => null() !< pressure exerted by the ice cover (Pa)
+    real(fp), dimension(:), pointer :: ice_s1     => null() !< open water level (m+REF)
+    real(fp), dimension(:), pointer :: ice_zmin   => null() !< lower ice cover surface height (m+REF)
+    real(fp), dimension(:), pointer :: ice_zmax   => null() !< upper ice cover surface height (m+REF)
 end type icecover_type
 
 contains
@@ -152,8 +157,6 @@ end function freezing_temperature
 
 !> Nullify/initialize an icecover data structure.
 function null_icecover(icecover) result(istat)
-!!--declarations----------------------------------------------------------------
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -170,22 +173,25 @@ function null_icecover(icecover) result(istat)
     !
     ! state
     !
-    nullify(icecover%ice_areafrac)
+    nullify(icecover%ice_area_fraction)
     nullify(icecover%ice_thickness)
     nullify(icecover%snow_thickness)
+    nullify(icecover%ice_temperature)
+    nullify(icecover%snow_temperature)
     !
     ! extra
     !
     nullify(icecover%qh_air2ice)
     nullify(icecover%qh_ice2wat)
     nullify(icecover%pressure)
+    nullify(icecover%ice_s1)
+    nullify(icecover%ice_zmin)
+    nullify(icecover%ice_zmax)
 end function null_icecover
 
 
 !> activation of icecover module based on external forcing input
 function late_activation_ext_force_icecover(icecover) result(istat)
-!!--declarations----------------------------------------------------------------
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -217,8 +223,6 @@ end function late_activation_ext_force_icecover
 
 !> set default values for selected ice cover model and allocate
 function select_icecover_model(icecover, modeltype) result(istat)
-!!--declarations----------------------------------------------------------------
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -236,7 +240,7 @@ function select_icecover_model(icecover, modeltype) result(istat)
 
     call set_default_output_flags(icecover%mapout, modeltype, .false.)
     
-    icecover%ice_areafrac_forcing_available   = 0
+    icecover%ice_area_fraction_forcing_available   = 0
     icecover%ice_thickness_forcing_available  = 0
     
     if (modeltype == ICECOVER_NONE) then
@@ -282,27 +286,25 @@ subroutine set_default_output_flags(flags, modeltype, default)
       default_ = .false.
    end if
    
-   flags%ice_s1   = default_
+   flags%ice_s1 = default_
    flags%ice_zmin = default_
    flags%ice_zmax = default_
-   flags%ice_af   = default_
-   flags%ice_h    = default_
-   flags%ice_p    = default_
+   flags%ice_area_fraction = default_
+   flags%ice_thickness = default_
+   flags%ice_pressure = default_
    
    if (modeltype /= ICECOVER_SEMTNER) then
       default_ = .false.
    end if
    
-   flags%ice_t    = default_
-   flags%snow_h   = default_
-   flags%snow_t   = default_
+   flags%ice_temperature = default_
+   flags%snow_thickness = default_
+   flags%snow_temperature = default_
 
 end subroutine set_default_output_flags
 
 !> Allocate the arrays of an icecover data structure.
 function alloc_icecover(icecover, nmlb, nmub) result(istat)
-!!--declarations----------------------------------------------------------------
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -322,34 +324,38 @@ function alloc_icecover(icecover, nmlb, nmub) result(istat)
     ! state
     !
     if (icecover%modeltype /= ICECOVER_NONE) then
-       if (istat==0) allocate(icecover%ice_areafrac (nmlb:nmub), STAT = istat)
+       if (istat==0) allocate(icecover%ice_area_fraction(nmlb:nmub), STAT = istat)
        if (istat==0) allocate(icecover%ice_thickness(nmlb:nmub), STAT = istat)
        if (istat==0) then
-          icecover%ice_areafrac    = 0.0_fp
-          icecover%ice_thickness   = 0.0_fp
+          icecover%ice_area_fraction = 0.0_fp
+          icecover%ice_thickness = 0.0_fp
        endif
        if (icecover%modeltype == ICECOVER_SEMTNER) then
-          if (istat==0) allocate(icecover%ice_temperature (nmlb:nmub), STAT = istat)
-          if (istat==0) allocate(icecover%snow_thickness  (nmlb:nmub), STAT = istat)
+          if (istat==0) allocate(icecover%ice_temperature(nmlb:nmub), STAT = istat)
+          if (istat==0) allocate(icecover%snow_thickness(nmlb:nmub), STAT = istat)
           if (istat==0) allocate(icecover%snow_temperature(nmlb:nmub), STAT = istat)
           if (istat==0) then
-             icecover%ice_temperature  = 0.0_fp
-             icecover%snow_thickness   = 0.0_fp
+             icecover%ice_temperature = 0.0_fp
+             icecover%snow_thickness = 0.0_fp
              icecover%snow_temperature = 0.0_fp
           endif
        endif
-    endif
-    !
-    ! extra
-    !
-    if (icecover%modeltype /= ICECOVER_NONE) then
+       !
+       ! extra
+       !
        if (istat==0) allocate(icecover%qh_air2ice(nmlb:nmub), STAT = istat)
        if (istat==0) allocate(icecover%qh_ice2wat(nmlb:nmub), STAT = istat)
-       if (istat==0) allocate(icecover%pressure  (nmlb:nmub), STAT = istat)
+       if (istat==0) allocate(icecover%pressure(nmlb:nmub), STAT = istat)
+       if (istat==0) allocate(icecover%ice_s1(nmlb:nmub), STAT = istat)
+       if (istat==0) allocate(icecover%ice_zmin(nmlb:nmub), STAT = istat)
+       if (istat==0) allocate(icecover%ice_zmax(nmlb:nmub), STAT = istat)
        if (istat==0) then
           icecover%qh_air2ice = 0.0_fp
           icecover%qh_ice2wat = 0.0_fp
-          icecover%pressure   = 0.0_fp
+          icecover%pressure = 0.0_fp
+          icecover%ice_s1 = 0.0_fp
+          icecover%ice_zmin = 0.0_fp
+          icecover%ice_zmax = 0.0_fp
        endif
     endif
 end function alloc_icecover
@@ -357,8 +363,6 @@ end function alloc_icecover
 
 !> Clear the arrays of sedtra_type data structure.
 function clr_icecover(icecover) result (istat)
-!!--declarations----------------------------------------------------------------
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -375,17 +379,20 @@ function clr_icecover(icecover) result (istat)
     !
     ! state
     !
-    if (associated(icecover%ice_areafrac    )) deallocate(icecover%ice_areafrac    , STAT = istat)
-    if (associated(icecover%ice_thickness   )) deallocate(icecover%ice_thickness   , STAT = istat)
-    if (associated(icecover%ice_temperature )) deallocate(icecover%ice_temperature , STAT = istat)
-    if (associated(icecover%snow_thickness  )) deallocate(icecover%snow_thickness  , STAT = istat)
+    if (associated(icecover%ice_area_fraction)) deallocate(icecover%ice_area_fraction, STAT = istat)
+    if (associated(icecover%ice_thickness)) deallocate(icecover%ice_thickness, STAT = istat)
+    if (associated(icecover%ice_temperature)) deallocate(icecover%ice_temperature, STAT = istat)
+    if (associated(icecover%snow_thickness)) deallocate(icecover%snow_thickness, STAT = istat)
     if (associated(icecover%snow_temperature)) deallocate(icecover%snow_temperature, STAT = istat)
     !
     ! extra
     !
     if (associated(icecover%qh_air2ice)) deallocate(icecover%qh_air2ice, STAT = istat)
     if (associated(icecover%qh_ice2wat)) deallocate(icecover%qh_ice2wat, STAT = istat)
-    if (associated(icecover%pressure  )) deallocate(icecover%pressure  , STAT = istat)
+    if (associated(icecover%pressure)) deallocate(icecover%pressure, STAT = istat)
+    if (associated(icecover%ice_s1)) deallocate(icecover%ice_s1, STAT = istat)
+    if (associated(icecover%ice_zmin)) deallocate(icecover%ice_zmin, STAT = istat)
+    if (associated(icecover%ice_zmax)) deallocate(icecover%ice_zmax, STAT = istat)
 end function clr_icecover
 
 !--------------- following routines should move to ice kernel ---------------
@@ -415,8 +422,6 @@ end function clr_icecover
 
 !> Update the ice pressure array.
 subroutine update_icepress(icecover, ag)
-!!--declarations----------------------------------------------------------------
-    implicit none
     !
     ! Function/routine arguments
     !
@@ -433,10 +438,10 @@ subroutine update_icepress(icecover, ag)
 !
 !! executable statements -------------------------------------------------------
 !
-    areafrac  => icecover%ice_areafrac
+    areafrac  => icecover%ice_area_fraction
     pressure  => icecover%pressure
     thickness => icecover%ice_thickness
-    density  =  icecover%ice_density
+    density = icecover%ice_density
     do nm = lbound(pressure,1),ubound(pressure,1)
         pressure(nm) = areafrac(nm) * thickness(nm) * density * ag
         ! + optionally snow or is that weight always negligible?
@@ -445,14 +450,12 @@ end subroutine update_icepress
 
 
 !> determine effective drag coefficient when ice may be present
-pure function ice_drag_effect(icecover, ice_af, cdw) result (cdeff)
-!!--declarations----------------------------------------------------------------
-    implicit none
+pure function ice_drag_effect(icecover, ice_area_fraction, cdw) result (cdeff)
     !
     ! Function/routine arguments
     !
     type (icecover_type)                       , intent(in)    :: icecover  !< data structure containing ice cover data
-    real(fp)                                   , intent(in)    :: ice_af    !< area fraction covered by ice (-) 
+    real(fp)                                   , intent(in)    :: ice_area_fraction    !< area fraction covered by ice (-) 
     real(fp)                                   , intent(in)    :: cdw       !< wind drag exerted via open water (N m-2)
     real(fp)                                                   :: cdeff     !< effective wind drag coefficient (N m-2)
     !
@@ -471,7 +474,7 @@ pure function ice_drag_effect(icecover, ice_af, cdw) result (cdeff)
 !
 !! executable statements -------------------------------------------------------
 !
-    wat_af = 1.0_fp - ice_af
+    wat_af = 1.0_fp - ice_area_fraction
     
     select case (icecover%modify_winddrag)
     case (ICE_WINDDRAG_NONE) ! no wind drag modification
@@ -481,7 +484,7 @@ pure function ice_drag_effect(icecover, ice_af, cdw) result (cdeff)
     case (ICE_WINDDRAG_CUBIC) ! Chapman & Massey (ADCIRC)
         
         ! ADCIRC default "IceCube" formula:
-        ! cdrag = c0 + c1*A + c2*A^2 + c3*A^3 with A = ice_af
+        ! cdrag = c0 + c1*A + c2*A^2 + c3*A^3 with A = ice_area_fraction
         !
         ! where drag coefficients c0, c1, c2, c3 follow from the following conditions:
         ! cdrag(A = 0) = 0.00075
@@ -493,38 +496,38 @@ pure function ice_drag_effect(icecover, ice_af, cdw) result (cdeff)
         c1 =  0.00750_fp
         c2 = -0.00900_fp
         c3 =  0.00200_fp
-        cdi = c0 + (c1 + (c2 + c3 * ice_af) * ice_af ) * ice_af
+        cdi = c0 + (c1 + (c2 + c3 * ice_area_fraction) * ice_area_fraction ) * ice_area_fraction
         cdeff = max(cdi, cdw)
         
     case (ICE_WINDDRAG_RAYS) ! Chapman et al (ADCIRC)
 
         ! ADCIRC "RaysIce" formula:
-        ! cdrag = c0 + c1*A*(1-A) with A = ice_af
+        ! cdrag = c0 + c1*A*(1-A) with A = ice_area_fraction
 
         ! Jensen & Ebersole (2012) ERDC/CHL TR-12-26
         ! Modeling of Lake Michigan Storm Waves and Water Levels
         ! refer to Chapman et al. (2005, 2009) for
-        ! cdeff = 0.001_fp * (0.125_fp + 0.5_fp * ice_af * (1.0_fp  ice_af))
+        ! cdeff = 0.001_fp * (0.125_fp + 0.5_fp * ice_area_fraction * (1.0_fp  ice_area_fraction))
 
         c0 =  0.00125_fp
         c1 =  0.00500_fp
-        cdi = c0 + c1 * ice_af * wat_af
+        cdi = c0 + c1 * ice_area_fraction * wat_af
         cdeff = max(cdi, cdw)
 
     case (ICE_WINDDRAG_LB05) ! Lupkes and Birnbaum (2005)
         
         cdi = 1.5e-3_fp
-        num = wat_af * (wat_af**0.8_fp + 0.5_fp * (1.0_fp - 0.5_fp * ice_af)**2)
-        den = 31.0_fp + 90.0_fp * ice_af * wat_af
-        cdf = 0.34e-3_fp * ice_af * ice_af * num / den
+        num = wat_af * (wat_af**0.8_fp + 0.5_fp * (1.0_fp - 0.5_fp * ice_area_fraction)**2)
+        den = 31.0_fp + 90.0_fp * ice_area_fraction * wat_af
+        cdf = 0.34e-3_fp * ice_area_fraction * ice_area_fraction * num / den
         
-        cdeff = wat_af * cdw + ice_af * cdi + cdf
+        cdeff = wat_af * cdw + ice_area_fraction * cdi + cdf
         
     case (ICE_WINDDRAG_AN10) ! Andreas et al. (2010)
         
         c0 = 1.5e-3_fp
         c1 = 2.233e-3_fp
-        cdeff = c0 + c1 * ice_af * wat_af
+        cdeff = c0 + c1 * ice_area_fraction * wat_af
 
     case (ICE_WINDDRAG_LINEAR)
         
@@ -536,9 +539,37 @@ pure function ice_drag_effect(icecover, ice_af, cdw) result (cdeff)
         cdfmax = icecover%maximum_ice_form_drag
         
         ! Eq. (6) of Joyce et al, 2019 equivalent to Eq. (A4) of Lupkes et al, 2012
-        cdeff = cdw * wat_af + cdi * ice_af + 4.0_fp * cdfmax * ice_af * wat_af
+        cdeff = cdw * wat_af + cdi * ice_area_fraction + 4.0_fp * cdfmax * ice_area_fraction * wat_af
 
     end select
 end function ice_drag_effect
+
+
+   
+!> compute the icecover quantities that are only needed for output
+subroutine icecover_prepare_output(icecover, water_level, water_density, ag)
+    type (icecover_type), intent(inout) :: icecover  !< data structure containing ice cover data
+    real(fp), dimension(:) :: water_level  !< water level (m+REF)
+    real(fp), dimension(:) :: water_density  !< water density (kg m-3)
+    real(fp) :: ag  !< gravitational acceleration (m/s2)
+    
+    integer :: ndx !< number of spatial points
+    integer :: n !< loop index
+    
+    real(fp) :: open_water_level !< open water level (m+REF)
+    real(fp) :: zmin !< lower ice cover surface height (m+REF)
+    real(fp) :: zmax !< upper ice cover surface height (m+REF)
+    
+    ndx = size(icecover%ice_area_fraction)
+    do n = 1, ndx
+       open_water_level = water_level(n) + icecover%pressure(n) / water_density(n) / ag
+       zmin = open_water_level - icecover%ice_thickness(n) * icecover%ice_density / water_density(n)
+       zmax = zmin + icecover%ice_thickness(n)
+
+       icecover%ice_s1(n) = open_water_level
+       icecover%ice_zmin(n) = zmin
+       icecover%ice_zmax(n) = zmax
+    end do
+end subroutine icecover_prepare_output
 
 end module icecover_module

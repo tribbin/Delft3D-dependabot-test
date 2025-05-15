@@ -264,12 +264,12 @@ module m_output_config
    integer, public :: IDX_HIS_ICE_S1
    integer, public :: IDX_HIS_ICE_ZMIN
    integer, public :: IDX_HIS_ICE_ZMAX
-   integer, public :: IDX_HIS_ICE_AF
-   integer, public :: IDX_HIS_ICE_H
-   integer, public :: IDX_HIS_ICE_P
-   integer, public :: IDX_HIS_ICE_T
-   integer, public :: IDX_HIS_SNOW_H
-   integer, public :: IDX_HIS_SNOW_T
+   integer, public :: IDX_HIS_ICE_AREA_FRACTION
+   integer, public :: IDX_HIS_ICE_THICKNESS
+   integer, public :: IDX_HIS_ICE_PRESSURE
+   integer, public :: IDX_HIS_ICE_TEMPERATURE
+   integer, public :: IDX_HIS_SNOW_THICKNESS
+   integer, public :: IDX_HIS_SNOW_TEMPERATURE
    
    integer, public :: IDX_HIS_SED_FRAC_NAME
    integer, public :: IDX_HIS_SED

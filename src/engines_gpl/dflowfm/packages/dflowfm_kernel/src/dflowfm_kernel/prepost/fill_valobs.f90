@@ -70,7 +70,7 @@ contains
       use m_links_to_centers, only: links_to_centers
       use m_wind, only: wx, wy, jawind, japatm, patm, jarain, rain, airdensity, tair, rhum, clou
       use m_turbulence, only: in_situ_density, potential_density, rich, richs
-      use m_fm_icecover, only: ice_af, ice_h, ice_p, ice_t, snow_h, snow_t, ice_density, ja_icecover, ICECOVER_NONE, ICECOVER_SEMTNER
+      use m_fm_icecover, only: ice_s1, ice_zmin, ice_zmax, ice_area_fraction, ice_thickness, ice_pressure, ice_temperature, snow_thickness, snow_temperature, ja_icecover, ICECOVER_NONE, ICECOVER_SEMTNER
 
       implicit none
 
@@ -233,16 +233,16 @@ contains
             end if
             
             if (ja_icecover /= ICECOVER_NONE) then
-               valobs(i, IPNT_ICE_S1) = s1(k) + real(ice_p(k), dp) / rho(kt) / ag
-               valobs(i, IPNT_ICE_ZMIN) = valobs(i, IPNT_ICE_S1) - real(ice_h(k) * ice_density, dp) / rho(kt)
-               valobs(i, IPNT_ICE_ZMAX) = valobs(i, IPNT_ICE_ZMIN) + real(ice_h(k), dp)
-               valobs(i, IPNT_ICE_AF) = ice_af(k)
-               valobs(i, IPNT_ICE_H) = ice_h(k)
-               valobs(i, IPNT_ICE_P) = ice_p(k)
+               valobs(i, IPNT_ICE_S1) = ice_s1(k)
+               valobs(i, IPNT_ICE_ZMIN) = ice_zmin(k)
+               valobs(i, IPNT_ICE_ZMAX) = ice_zmax(k)
+               valobs(i, IPNT_ICE_AREA_FRACTION) = ice_area_fraction(k)
+               valobs(i, IPNT_ICE_THICKNESS) = ice_thickness(k)
+               valobs(i, IPNT_ICE_PRESSURE) = ice_pressure(k)
                if (ja_icecover == ICECOVER_SEMTNER) then
-                  valobs(i, IPNT_ICE_T) = ice_t(k)
-                  valobs(i, IPNT_SNOW_H) = snow_h(k)
-                  valobs(i, IPNT_SNOW_T) = snow_t(k)
+                  valobs(i, IPNT_ICE_TEMPERATURE) = ice_temperature(k)
+                  valobs(i, IPNT_SNOW_THICKNESS) = snow_thickness(k)
+                  valobs(i, IPNT_SNOW_TEMPERATURE) = snow_temperature(k)
                end if
             end if
 

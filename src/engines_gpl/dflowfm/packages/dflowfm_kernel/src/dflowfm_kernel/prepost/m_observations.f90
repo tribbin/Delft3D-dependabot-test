@@ -170,15 +170,17 @@ contains
       IVAL_QFRE = 0
       IVAL_QFRC = 0
       IVAL_QTOT = 0
+      
       IVAL_ICE_S1 = 0
       IVAL_ICE_ZMIN = 0
       IVAL_ICE_ZMAX = 0
-      IVAL_ICE_AF = 0
-      IVAL_ICE_H = 0
-      IVAL_ICE_P = 0
-      IVAL_ICE_T = 0
-      IVAL_SNOW_H = 0
-      IVAL_SNOW_T = 0
+      IVAL_ICE_AREA_FRACTION = 0
+      IVAL_ICE_THICKNESS = 0
+      IVAL_ICE_PRESSURE = 0
+      IVAL_ICE_TEMPERATURE = 0
+      IVAL_SNOW_THICKNESS = 0
+      IVAL_SNOW_TEMPERATURE = 0
+      
       IVAL_RAIN = 0
       IVAL_INFILTCAP = 0
       IVAL_INFILTACT = 0
@@ -279,13 +281,13 @@ contains
          i = i + 1; IVAL_ICE_S1 = i
          i = i + 1; IVAL_ICE_ZMIN = i
          i = i + 1; IVAL_ICE_ZMAX = i
-         i = i + 1; IVAL_ICE_AF = i
-         i = i + 1; IVAL_ICE_H = i
-         i = i + 1; IVAL_ICE_P = i
+         i = i + 1; IVAL_ICE_AREA_FRACTION = i
+         i = i + 1; IVAL_ICE_THICKNESS = i
+         i = i + 1; IVAL_ICE_PRESSURE = i
          if (ja_icecover == ICECOVER_SEMTNER) then
-            i = i + 1; IVAL_ICE_T = i
-            i = i + 1; IVAL_SNOW_H = i
-            i = i + 1; IVAL_SNOW_T = i
+            i = i + 1; IVAL_ICE_TEMPERATURE = i
+            i = i + 1; IVAL_SNOW_THICKNESS = i
+            i = i + 1; IVAL_SNOW_TEMPERATURE = i
          end if
       end if
       if (jahisrain > 0) then
@@ -526,12 +528,12 @@ contains
       IPNT_ICE_S1 = ivalpoint(IVAL_ICE_S1, kmx, nlyrs)
       IPNT_ICE_ZMIN = ivalpoint(IVAL_ICE_ZMIN, kmx, nlyrs)
       IPNT_ICE_ZMAX = ivalpoint(IVAL_ICE_ZMAX, kmx, nlyrs)
-      IPNT_ICE_AF = ivalpoint(IVAL_ICE_AF, kmx, nlyrs)
-      IPNT_ICE_H = ivalpoint(IVAL_ICE_H, kmx, nlyrs)
-      IPNT_ICE_P = ivalpoint(IVAL_ICE_P, kmx, nlyrs)
-      IPNT_ICE_T = ivalpoint(IVAL_ICE_T, kmx, nlyrs)
-      IPNT_SNOW_H = ivalpoint(IVAL_SNOW_H, kmx, nlyrs)
-      IPNT_SNOW_T = ivalpoint(IVAL_SNOW_T, kmx, nlyrs)
+      IPNT_ICE_AREA_FRACTION = ivalpoint(IVAL_ICE_AREA_FRACTION, kmx, nlyrs)
+      IPNT_ICE_THICKNESS = ivalpoint(IVAL_ICE_THICKNESS, kmx, nlyrs)
+      IPNT_ICE_PRESSURE = ivalpoint(IVAL_ICE_PRESSURE, kmx, nlyrs)
+      IPNT_ICE_TEMPERATURE = ivalpoint(IVAL_ICE_TEMPERATURE, kmx, nlyrs)
+      IPNT_SNOW_THICKNESS = ivalpoint(IVAL_SNOW_THICKNESS, kmx, nlyrs)
+      IPNT_SNOW_TEMPERATURE = ivalpoint(IVAL_SNOW_TEMPERATURE, kmx, nlyrs)
       IPNT_RAIN = ivalpoint(IVAL_RAIN, kmx, nlyrs)
       IPNT_INFILTCAP = ivalpoint(IVAL_INFILTCAP, kmx, nlyrs)
       IPNT_INFILTACT = ivalpoint(IVAL_INFILTACT, kmx, nlyrs)

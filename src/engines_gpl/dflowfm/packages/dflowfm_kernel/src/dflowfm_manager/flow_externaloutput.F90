@@ -75,6 +75,7 @@ contains
       use m_wrihistek
       use m_unc_write_his, only: unc_write_his
       use m_print_timings, only: print_timings
+      use m_fm_icecover, only: fm_icecover_prepare_output
 
 #ifdef _OPENMP
       use omp_lib
@@ -87,6 +88,7 @@ contains
       real(kind=dp) :: tem_dif
 
       call inctime_split(tim)
+      call fm_icecover_prepare_output(s1, rho, ag)
 
       if (ti_his > 0) then
          if (comparereal(tim, time_his, eps10) >= 0) then

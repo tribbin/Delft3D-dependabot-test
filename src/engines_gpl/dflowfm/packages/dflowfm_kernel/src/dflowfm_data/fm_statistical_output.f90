@@ -1521,27 +1521,27 @@ contains
                              'Wrihis_ice_surface_height', 'ice_surface_height', 'upper surface height of ice cover', '', &
                              'm', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write upper surface height of ice cover to his-file', &
                              nc_dim_ids=station_nc_dims_2D)
-      call add_output_config(config_set_his, IDX_HIS_ICE_AF, &
+      call add_output_config(config_set_his, IDX_HIS_ICE_AREA_FRACTION, &
                              'Wrihis_ice_area_fraction', 'ice_area_fraction', 'area fraction covered by ice', 'sea_ice_area_fraction', &
                              '1', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write area fraction covered by ice to his-file', &
                              nc_dim_ids=station_nc_dims_2D)
-      call add_output_config(config_set_his, IDX_HIS_ICE_H, &
+      call add_output_config(config_set_his, IDX_HIS_ICE_THICKNESS, &
                              'Wrihis_ice_thickness', 'ice_thickness', 'ice thickness', 'sea_ice_thickness', &
                              'm', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write ice thickness to his-file', &
                              nc_dim_ids=station_nc_dims_2D)
-      call add_output_config(config_set_his, IDX_HIS_ICE_P, &
+      call add_output_config(config_set_his, IDX_HIS_ICE_PRESSURE, &
                              'Wrihis_ice_pressure', 'ice_pressure', 'ice pressure', '', &
                              'Pa', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write ice pressure to his-file', &
                              nc_dim_ids=station_nc_dims_2D)
-      call add_output_config(config_set_his, IDX_HIS_ICE_T, &
+      call add_output_config(config_set_his, IDX_HIS_ICE_TEMPERATURE, &
                              'Wrihis_ice_temperature', 'ice_temperature', 'ice temperature', 'sea_ice_temperature', &
                              'K', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write ice temperature to his-file', &
                              nc_dim_ids=station_nc_dims_2D)
-      call add_output_config(config_set_his, IDX_HIS_SNOW_H, &
+      call add_output_config(config_set_his, IDX_HIS_SNOW_THICKNESS, &
                              'Wrihis_snow_thickness', 'snow_thickness', 'snow thickness', 'surface_snow_thickness', &
                              'm', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write snow thickness to his-file', &
                              nc_dim_ids=station_nc_dims_2D)
-      call add_output_config(config_set_his, IDX_HIS_SNOW_T, &
+      call add_output_config(config_set_his, IDX_HIS_SNOW_TEMPERATURE, &
                              'Wrihis_snow_temperature', 'snow_temperature', 'snow temperature', 'temperature_in_surface_snow', &
                              'K', UNC_LOC_STATION, nc_attributes=atts(1:1), description='Write snow temperature to his-file', &
                              nc_dim_ids=station_nc_dims_2D)
@@ -2698,13 +2698,13 @@ contains
             call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_S1), valobs(:, IPNT_ICE_S1))
             call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_ZMIN), valobs(:, IPNT_ICE_ZMIN))
             call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_ZMAX), valobs(:, IPNT_ICE_ZMAX))
-            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_AF), valobs(:, IPNT_ICE_AF))
-            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_H), valobs(:, IPNT_ICE_H))
-            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_P), valobs(:, IPNT_ICE_P))
+            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_AREA_FRACTION), valobs(:, IPNT_ICE_AREA_FRACTION))
+            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_THICKNESS), valobs(:, IPNT_ICE_THICKNESS))
+            call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_PRESSURE), valobs(:, IPNT_ICE_PRESSURE))
             if (ja_icecover == ICECOVER_SEMTNER) then
-               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_T), valobs(:, IPNT_ICE_T))
-               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_SNOW_H), valobs(:, IPNT_SNOW_H))
-               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_SNOW_T), valobs(:, IPNT_SNOW_T))
+               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_ICE_TEMPERATURE), valobs(:, IPNT_ICE_TEMPERATURE))
+               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_SNOW_THICKNESS), valobs(:, IPNT_SNOW_THICKNESS))
+               call add_stat_output_items(output_set, output_config_set%configs(IDX_HIS_SNOW_TEMPERATURE), valobs(:, IPNT_SNOW_TEMPERATURE))
             end if
          end if
          

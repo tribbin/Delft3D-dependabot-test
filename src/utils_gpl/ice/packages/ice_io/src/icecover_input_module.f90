@@ -210,15 +210,15 @@ function echo_icecover(icecover, lundia) result (error)
    
    if (icecover%modeltype == ICECOVER_EXT) then
       txtput1 = '  Area fraction forcing'
-      call write_logical(lundia, txtput1, icecover%ice_areafrac_forcing_available /= 0)
+      call write_logical(lundia, txtput1, icecover%ice_area_fraction_forcing_available /= 0)
 
       txtput1 = '  Ice thickness forcing'
       call write_logical(lundia, txtput1, icecover%ice_thickness_forcing_available /= 0)
       
-      if (icecover%ice_areafrac_forcing_available == 0 .and. icecover%ice_thickness_forcing_available == 0) then
+      if (icecover%ice_area_fraction_forcing_available == 0 .and. icecover%ice_thickness_forcing_available == 0) then
          call mess(LEVEL_ERROR, 'icecover set to external forcing but no forcing data found')
          error = .true.
-      elseif (icecover%ice_areafrac_forcing_available == 0) then
+      elseif (icecover%ice_area_fraction_forcing_available == 0) then
          call mess(LEVEL_ERROR, 'icecover set to external forcing but no area fraction forcing found')
          error = .true.
       elseif (icecover%ice_thickness_forcing_available == 0) then
@@ -314,12 +314,12 @@ subroutine read_icecover_output(md_ptr, chapter, prefix, outflags)
    call prop_get(md_ptr, chapter, prefix//'open_water_level', outflags%ice_s1)
    call prop_get(md_ptr, chapter, prefix//'ice_lower_surface_height', outflags%ice_zmin)
    call prop_get(md_ptr, chapter, prefix//'ice_surface_height', outflags%ice_zmax)
-   call prop_get(md_ptr, chapter, prefix//'ice_area_fraction', outflags%ice_af)
-   call prop_get(md_ptr, chapter, prefix//'ice_thickness', outflags%ice_h)
-   call prop_get(md_ptr, chapter, prefix//'ice_pressure', outflags%ice_p)
-   call prop_get(md_ptr, chapter, prefix//'ice_temperature', outflags%ice_t)
-   call prop_get(md_ptr, chapter, prefix//'snow_thickness', outflags%snow_h)
-   call prop_get(md_ptr, chapter, prefix//'snow_temperature', outflags%snow_t)
+   call prop_get(md_ptr, chapter, prefix//'ice_area_fraction', outflags%ice_area_fraction)
+   call prop_get(md_ptr, chapter, prefix//'ice_thickness', outflags%ice_thickness)
+   call prop_get(md_ptr, chapter, prefix//'ice_pressure', outflags%ice_pressure)
+   call prop_get(md_ptr, chapter, prefix//'ice_temperature', outflags%ice_temperature)
+   call prop_get(md_ptr, chapter, prefix//'snow_thickness', outflags%snow_thickness)
+   call prop_get(md_ptr, chapter, prefix//'snow_temperature', outflags%snow_temperature)
 end subroutine read_icecover_output
 
 subroutine echo_icecover_output(lundia, outflags)
@@ -345,22 +345,22 @@ subroutine echo_icecover_output(lundia, outflags)
    if (outflags%ice_zmax) then
       write (lundia, '(2a)') '  * ', 'upper surface height of ice cover'
    end if
-   if (outflags%ice_af) then
+   if (outflags%ice_area_fraction) then
       write (lundia, '(2a)') '  * ', 'area fraction covered by ice'
    end if
-   if (outflags%ice_h) then
+   if (outflags%ice_thickness) then
       write (lundia, '(2a)') '  * ', 'ice thickness'
    end if
-   if (outflags%ice_p) then
+   if (outflags%ice_pressure) then
       write (lundia, '(2a)') '  * ', 'pressure of ice cover'
    end if
-   if (outflags%ice_t) then
+   if (outflags%ice_temperature) then
       write (lundia, '(2a)') '  * ', 'temperature of ice cover'
    end if
-   if (outflags%snow_h) then
+   if (outflags%snow_thickness) then
       write (lundia, '(2a)') '  * ', 'snow thickness'
    end if
-   if (outflags%snow_t) then
+   if (outflags%snow_temperature) then
       write (lundia, '(2a)') '  * ', 'temperature of snow cover'
    end if
 

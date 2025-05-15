@@ -6302,7 +6302,7 @@ module m_meteo
    use string_module
    use m_sediment, only: stm_included, stmpar
    use m_subsidence
-   use m_fm_icecover, only: ice_af, ice_h
+   use m_fm_icecover, only: ice_area_fraction, ice_thickness
 
    implicit none
 
@@ -6800,10 +6800,10 @@ contains
          dataPtr2 => wy
       case ('sea_ice_area_fraction')
          itemPtr1 => item_sea_ice_area_fraction
-         dataPtr1 => ice_af
+         dataPtr1 => ice_area_fraction ! here we require fp == dp
       case ('sea_ice_thickness')
          itemPtr1 => item_sea_ice_thickness
-         dataPtr1 => ice_h
+         dataPtr1 => ice_thickness ! here we require fp == dp
       case ('stressx')
          itemPtr1 => item_stressx
          dataPtr1 => wdsu_x

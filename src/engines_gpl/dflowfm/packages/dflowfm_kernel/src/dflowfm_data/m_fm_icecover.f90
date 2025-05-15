@@ -29,8 +29,11 @@
 
 module m_fm_icecover
    use precision
-   use icecover_module
-   use icecover_input_module
+   use icecover_module, only: icecover_type, icecover_output_flags
+   use icecover_module, only: ICECOVER_NONE, ICECOVER_EXT, ICECOVER_SEMTNER, ICE_WINDDRAG_NONE, FRICT_AS_DRAG_COEFF
+   use icecover_module, only: null_icecover, alloc_icecover, clr_icecover, late_activation_ext_force_icecover
+   use icecover_module, only: freezing_temperature, update_icepress, ice_drag_effect, icecover_prepare_output
+   use icecover_input_module, only: read_icecover, echo_icecover
    implicit none
 
 !
@@ -38,14 +41,18 @@ module m_fm_icecover
 !
    type(icecover_type), target :: ice_data !< module instance of the icecover data structure
 !
-   real(fp), dimension(:), pointer :: ice_af !< module pointer to array ice areafrac inside ice_data
-   real(fp), dimension(:), pointer :: ice_h !< module pointer to array ice thickness inside ice_data
-   real(fp), dimension(:), pointer :: ice_p !< module pointer to array pressure inside ice_data
-   real(fp), dimension(:), pointer :: ice_t !< module pointer to array temperature inside ice_data
-   real(fp), dimension(:), pointer :: qh_air2ice !< module pointer to array qh_air2ice inside ice_data
-   real(fp), dimension(:), pointer :: qh_ice2wat !< module pointer to array qh_ice2wat inside ice_data
-   real(fp), dimension(:), pointer :: snow_h !< module pointer to array snow thickness inside ice_data
-   real(fp), dimension(:), pointer :: snow_t !< module pointer to array snow temperature inside ice_data
+   real(fp), dimension(:), pointer :: ice_area_fraction !< module pointer to the ice area fraction array inside ice_data
+   real(fp), dimension(:), pointer :: ice_thickness !< module pointer to the ice thickness array inside ice_data
+   real(fp), dimension(:), pointer :: ice_pressure !< module pointer to the ice pressure array inside ice_data
+   real(fp), dimension(:), pointer :: ice_temperature !< module pointer to array temperature inside ice_data
+   real(fp), dimension(:), pointer :: qh_air2ice !< module pointer to the qh_air2ice array inside ice_data
+   real(fp), dimension(:), pointer :: qh_ice2wat !< module pointer to the qh_ice2wat array inside ice_data
+   real(fp), dimension(:), pointer :: snow_thickness !< module pointer to the snow thickness array inside ice_data
+   real(fp), dimension(:), pointer :: snow_temperature !< module pointer to the snow temperature array inside ice_data
+   
+   real(fp), dimension(:), pointer :: ice_s1 !< module pointer to the open water level array inside ice_data
+   real(fp), dimension(:), pointer :: ice_zmin !< module pointer to the lower ice cover surface height array inside ice_data
+   real(fp), dimension(:), pointer :: ice_zmax !< module pointer to the upper ice cover surface height array inside ice_data
 
    integer, pointer :: ja_ice_area_fraction_read !< flag indicating whether ice area fraction is available via EC module
    integer, pointer :: ja_ice_thickness_read !< flag indicating whether ice thickness is available via EC module
@@ -59,7 +66,7 @@ module m_fm_icecover
    integer, pointer :: ice_modify_winddrag !< module pointer to flag modify_winddrag inside ice_data
 
    integer, pointer :: ja_icecover !< module pointer to modeltype flag inside ice_data that specifies the ice cover model
-   integer, pointer :: ice_frctp !< module pointer to frict_type inside ice_data
+   integer, pointer :: ice_frict_type !< module pointer to frict_type inside ice_data
 
    real(fp), pointer :: ice_density !< module pointer to ice_density inside ice_data
    real(fp), pointer :: ice_albedo !< module pointer to ice_albedo inside ice_data
@@ -75,9 +82,6 @@ contains
 
 !> Nullify/initialize ice data structure.
    subroutine fm_ice_null()
-!!--declarations----------------------------------------------------------------
-      !
-      implicit none
       !
       ! Function/routine arguments
       !
@@ -95,9 +99,6 @@ contains
 
 !> Update all ice data structure.
    subroutine fm_ice_update_all_pointers()
-!!--declarations----------------------------------------------------------------
-      !
-      implicit none
       !
       ! Function/routine arguments
       !
@@ -109,7 +110,7 @@ contains
 !
 !! executable statements -------------------------------------------------------
 !
-      ja_ice_area_fraction_read => ice_data%ice_areafrac_forcing_available
+      ja_ice_area_fraction_read => ice_data%ice_area_fraction_forcing_available
       ja_ice_thickness_read => ice_data%ice_thickness_forcing_available
 
       ja_icecover => ice_data%modeltype
@@ -125,7 +126,7 @@ contains
       ice_conductivity => ice_data%ice_conductivity
       ice_latentheat => ice_data%ice_latentheat
       ice_density => ice_data%ice_density
-      ice_frctp => ice_data%frict_type
+      ice_frict_type => ice_data%frict_type
       ice_frcuni => ice_data%frict_val
 
       snow_albedo => ice_data%snow_albedo
@@ -137,9 +138,6 @@ contains
 
 !> Update spatial pointers after (de)allocation
    subroutine fm_ice_update_spatial_pointers()
-!!--declarations----------------------------------------------------------------
-      !
-      implicit none
       !
       ! Function/routine arguments
       !
@@ -150,23 +148,24 @@ contains
 !
 !! executable statements -------------------------------------------------------
 !
-      ice_af => ice_data%ice_areafrac
-      ice_h => ice_data%ice_thickness
+      ice_area_fraction => ice_data%ice_area_fraction
+      ice_thickness => ice_data%ice_thickness
       !
-      ice_t => ice_data%ice_temperature
-      snow_h => ice_data%snow_thickness
-      snow_t => ice_data%snow_temperature
+      ice_temperature => ice_data%ice_temperature
+      snow_thickness => ice_data%snow_thickness
+      snow_temperature => ice_data%snow_temperature
       !
-      ice_p => ice_data%pressure
+      ice_s1 => ice_data%ice_s1
+      ice_zmin => ice_data%ice_zmin
+      ice_zmax => ice_data%ice_zmax
+      !
+      ice_pressure => ice_data%pressure
       qh_air2ice => ice_data%qh_air2ice
       qh_ice2wat => ice_data%qh_ice2wat
    end subroutine fm_ice_update_spatial_pointers
 
 !> activation of icecover module based on external forcing input
    subroutine fm_ice_activate_by_ext_forces(ndx)
-!!--declarations----------------------------------------------------------------
-      !
-      implicit none
       !
       ! Function/routine arguments
       !
@@ -184,9 +183,6 @@ contains
 
 !> Allocate the arrays of ice data structure.
    subroutine fm_ice_alloc(ndx)
-!!--declarations----------------------------------------------------------------
-      !
-      implicit none
       !
       ! Function/routine arguments
       !
@@ -198,7 +194,7 @@ contains
 !
 !! executable statements -------------------------------------------------------
 !
-      if (associated(ice_af)) return ! don't allocate if already allocated - or should we deallocate and realloc?
+      if (associated(ice_area_fraction)) return ! don't allocate if already allocated - or should we deallocate and realloc?
 
       istat = alloc_icecover(ice_data, 1, ndx)
       call fm_ice_update_spatial_pointers()
@@ -206,9 +202,6 @@ contains
 
 !> Clear the arrays of ice data structure.
    subroutine fm_ice_clr()
-!!--declarations----------------------------------------------------------------
-      !
-      implicit none
       !
       ! Function/routine arguments
       !
@@ -226,10 +219,8 @@ contains
 
 !> Read the ice cover module configuration from the mdu file
    subroutine fm_ice_read(md_ptr, jamapice, ierror)
-!!--declarations----------------------------------------------------------------
       use dfm_error, only: DFM_WRONGINPUT
       use properties, only: tree_data
-      implicit none
       !
       ! Function/routine arguments
       !
@@ -253,8 +244,6 @@ contains
 
 !> Report the ice configuration to the diagnostic output.
    subroutine fm_ice_echo(mdia)
-!!--declarations----------------------------------------------------------------
-      implicit none
       !
       ! Function/routine arguments
       !
@@ -271,35 +260,32 @@ contains
 
 !> Update the ice pressure array.
    subroutine fm_ice_update_press(ag)
-!!--declarations----------------------------------------------------------------
-      implicit none
       !
       ! Function/routine arguments
       !
-      real(fp), intent(in) :: ag !< gravitational accelaration (m/s2)
+      real(dp), intent(in) :: ag !< gravitational acceleration (m/s2)
       !
       ! Local variables
       !
-      ! NONE
+      real(fp) :: ag_fp !< gravitational acceleration (m/s2)
 !
 !! executable statements -------------------------------------------------------
 !
-      call update_icepress(ice_data, ag)
+      ag_fp = real(ag, fp)
+      call update_icepress(ice_data, ag_fp)
    end subroutine fm_ice_update_press
 
 !> preprocessing for ice cover, because in subroutine HEATUN some ice cover quantities have to be computed
 !! this subroutine is comparable with subroutine HEA_ICE.F90 of the Delft3D-FLOW ice module
    subroutine preprocess_icecover(n, Qlong_ice, tempwat, saltcon, wind)
-!!--declarations----------------------------------------------------------------
       use MessageHandling
-      use m_flow ! test om tair(.) te gebruiken
+      use m_flow, only: hu
       use m_flowgeom, only: nd
       use m_physcoef, only: vonkar
       use physicalconsts, only: CtoKelvin
       use m_heatfluxes, only: cpw
       use m_wind, only: tair
       use ieee_arithmetic, only: ieee_is_nan
-      implicit none
       !
       ! Function/routine arguments
       !
@@ -359,14 +345,14 @@ contains
          !
          ! Compute conductivity, depending on the presence of both ice and snow
          !
-         if (snow_h(n) < 0.001_fp) then
+         if (snow_thickness(n) < 0.001_fp) then
             conduc = ice_conductivity
-            D_ice = max(0.01_fp, ice_h(n))
-            tsi = ice_t(n)
+            D_ice = max(0.01_fp, ice_thickness(n))
+            tsi = ice_temperature(n)
          else
             conduc = (ice_conductivity * snow_conductivity)
-            D_ice = (max(0.01_fp, ice_h(n)) * snow_conductivity + max(0.01_fp, snow_h(n)) * ice_conductivity)
-            tsi = snow_t(n)
+            D_ice = (max(0.01_fp, ice_thickness(n)) * snow_conductivity + max(0.01_fp, snow_thickness(n)) * ice_conductivity)
+            tsi = snow_temperature(n)
          end if
          !
          ! Compute longwave radiation flux from ice surface according to Eq. (7) in (Wang, 2005)
@@ -390,19 +376,19 @@ contains
                ! apply relaxation for stability reasons
                !
                alpha = 0.5_fp
-               if (snow_h(n) < 0.001_fp) then
-                  ice_t(n) = alpha * tsi + (1.0_fp - alpha) * ice_t(n)
+               if (snow_thickness(n) < 0.001_fp) then
+                  ice_temperature(n) = alpha * tsi + (1.0_fp - alpha) * ice_temperature(n)
                else
-                  snow_t(n) = alpha * tsi + (1.0_fp - alpha) * snow_t(n)
+                  snow_temperature(n) = alpha * tsi + (1.0_fp - alpha) * snow_temperature(n)
                end if
                !
                ! limit ice and snow temperature
                !
-               if (ice_h(n) > 0.001_fp) then
-                  ice_t(n) = max(-25.0_fp, min(ice_t(n), 0.0_fp))
+               if (ice_thickness(n) > 0.001_fp) then
+                  ice_temperature(n) = max(-25.0_fp, min(ice_temperature(n), 0.0_fp))
                end if
-               if (snow_h(n) > 0.001_fp) then
-                  snow_t(n) = max(-25.0_fp, min(snow_t(n), 0.0_fp))
+               if (snow_thickness(n) > 0.001_fp) then
+                  snow_temperature(n) = max(-25.0_fp, min(snow_temperature(n), 0.0_fp))
                end if
                !
                qh_air2ice(n) = qh_air2ice(n) - Qlong
@@ -466,12 +452,10 @@ contains
 !> update the ice cover -- initial coding here with full access to D-Flow FM arrays via use statements
 !! let's see if we can make it gradually more modular and move functionality to the icecover_module.
    subroutine update_icecover()
-!!--declarations----------------------------------------------------------------
       use precision, only: dp
       use m_flowgeom, only: ndx
       use m_flowtimes, only: dts
       use m_wind, only: tair, rain, jarain
-      implicit none
       !
       ! Function/routine arguments
       !
@@ -493,32 +477,32 @@ contains
          ! Compute snow growth (NB. presence of ice is required)
          if (jarain == 1) then ! check whether rainfall input is prescribed
             do n = 1, ndx
-               if (tair(n) < 0.0_fp .and. ice_h(n) > 0.01_fp .and. rain(n) > 0.0_fp) then
-                  snow_h(n) = snow_h(n) + dts * rain(n) * conv_factor
+               if (tair(n) < 0.0_fp .and. ice_thickness(n) > 0.01_fp .and. rain(n) > 0.0_fp) then
+                  snow_thickness(n) = snow_thickness(n) + dts * rain(n) * conv_factor
                end if
             end do
          end if
 
          ! Compute ice growth or melt or melting of snow
          do n = 1, ndx
-            if (tair(n) < 0.0_fp .or. ice_h(n) > 0.001_fp) then
+            if (tair(n) < 0.0_fp .or. ice_thickness(n) > 0.001_fp) then
                if (qh_air2ice(n) > qh_ice2wat(n)) then
                   ! Melting of ice or snow
                   ! 
-                  if (snow_h(n) < 0.001_fp) then
+                  if (snow_thickness(n) < 0.001_fp) then
                      ! melting of ice because there is no snow on top of the ice
                      !
-                     ice_h(n) = max(0.0_fp, ice_h(n) + dts * (-qh_air2ice(n) + qh_ice2wat(n)) / ice_latentheat)
+                     ice_thickness(n) = max(0.0_fp, ice_thickness(n) + dts * (-qh_air2ice(n) + qh_ice2wat(n)) / ice_latentheat)
                   else
                      ! melting of snow due to heat exchange with air and melting of ice due to heat exchange with water
                      !
-                     snow_h(n) = max(0.0_fp, snow_h(n) + dts * (-qh_air2ice(n) + 0.0_fp) / snow_latentheat)
-                     ice_h(n) = max(0.0_fp, ice_h(n)   + dts * (0.0_fp  + qh_ice2wat(n)) / ice_latentheat)
+                     snow_thickness(n) = max(0.0_fp, snow_thickness(n) + dts * (-qh_air2ice(n) + 0.0_fp) / snow_latentheat)
+                     ice_thickness(n) = max(0.0_fp, ice_thickness(n)   + dts * (0.0_fp  + qh_ice2wat(n)) / ice_latentheat)
                   end if
                else
                   ! freezing of ice
                   !
-                  ice_h(n) = max(0.0_fp, ice_h(n) + dts * (-qh_air2ice(n) + qh_ice2wat(n)) / ice_latentheat)
+                  ice_thickness(n) = max(0.0_fp, ice_thickness(n) + dts * (-qh_air2ice(n) + qh_ice2wat(n)) / ice_latentheat)
                end if
             end if
          end do
@@ -529,13 +513,11 @@ contains
    end subroutine update_icecover
 
 !> determine effective drag coefficient when ice may be present
-   pure function fm_ice_drag_effect(ice_af, cdw) result(cdeff)
-!!--declarations----------------------------------------------------------------
-      implicit none
+   pure function fm_ice_drag_effect(ice_area_fraction, cdw) result(cdeff)
       !
       ! Function/routine arguments
       !
-      real(fp), intent(in) :: ice_af !< ice area fraction (-)
+      real(fp), intent(in) :: ice_area_fraction !< ice area fraction (-)
       real(fp), intent(in) :: cdw !< wind drag exerted via open water
       real(fp) :: cdeff !< effective wind drag coefficient
       !
@@ -545,7 +527,36 @@ contains
 !
 !! executable statements -------------------------------------------------------
 !
-      cdeff = ice_drag_effect(ice_data, ice_af, cdw)
+      cdeff = ice_drag_effect(ice_data, ice_area_fraction, cdw)
    end function fm_ice_drag_effect
+
+!> compute the icecover quantities that are only needed for output
+   subroutine fm_icecover_prepare_output(water_level, rho, ag)
+      use m_flowgeom, only: ndx
+      use m_get_kbot_ktop, only: getkbotktop
+      
+      real(dp), dimension(:), intent(in) :: water_level !< water level (m+REF)
+      real(dp), dimension(:), intent(in) :: rho !< water density (kg/m3)
+      real(dp), intent(in) :: ag !< gravitational acceleration (m/s2)
+      
+      real(fp), dimension(:), allocatable :: water_level_fp !< water level (m+REF) cast to fp precision
+      real(fp), dimension(:), allocatable :: water_density !< near surface water density (kg/m3)
+      
+      integer :: n !< loop index, grid cell number
+      integer :: kb !< index of bottom layer
+      integer :: kt !< index of top layer
+      real(fp) :: ag_fp !< gravitational acceleration (m/s2)
+      
+      ag_fp = real(ag, fp)
+      
+      allocate(water_level_fp(ndx), water_density(ndx))
+      do n = 1, ndx
+         call getkbotktop(n, kb, kt)
+         water_density(n) = real(rho(kt), fp)
+      end do
+      water_level_fp(:) = real(water_level(:), fp)
+      
+      call icecover_prepare_output(ice_data, water_level_fp, water_density, ag_fp)
+   end subroutine fm_icecover_prepare_output
 
 end module m_fm_icecover
