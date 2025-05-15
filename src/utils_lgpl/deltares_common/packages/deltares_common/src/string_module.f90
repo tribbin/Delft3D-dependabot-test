@@ -1039,6 +1039,10 @@ contains
       success = .true.
    end subroutine get_version_major_minor_integer
 
+   !> Split a string into its tokens separated by a delimiter. 
+   !! The string is split into tokens, which are stored in the words array.
+   !! The `last_token` variable indicates the number of tokens found.
+   !! The subroutine allocates the words array, so it should be deallocated after use.
    subroutine str_split(words,last_token,string, token, quote, delims)
    
    use m_alloc, only: realloc
@@ -1054,25 +1058,17 @@ contains
 
    
    integer :: i
-   !character(len=256) :: temp_string
-   integer, parameter :: MAXTOKENS=3
-   integer, parameter :: MAXLENGTH=25
-   allocate(character(len=MAXLENGTH) :: words(MAXTOKENS))
-
-
+   integer, parameter :: MAXTOKENS=3 !< Maximum number of tokens to split
+   integer, parameter :: MAXLENGTH=25 !< Maximum length of each token
+   allocate(character(len=MAXLENGTH) :: words(MAXTOKENS)) !<array containing the tokens
+   
+   ! Fill the array with empty strings
    do i = 1, MAXTOKENS
       words(i) = ""  
    end do
 
-   i = 0
-   !temp_string = string
-
+   ! Loop on the string to find the tokens
    do i=1,MAXTOKENS
-      !temp_string=frcu
-      !temp_string='' token=frcu 
-      ! 
-      !temp_string=pumps/pump2/capacity
-      !temp_string=/pump2/capacity token=pumps
       call str_token(string, token, quote, delims)
       if (len_trim(token) == 0) then
           last_token=i-1
@@ -1081,7 +1077,9 @@ contains
       
       words(i) = token
    end do
+   
    last_token=MAXTOKENS
+   
    end subroutine str_split
    
 end module string_module

@@ -780,51 +780,55 @@ contains
 
       type_name = "" !initially the type name is empty
 
+      !We are not returning if it is found, because at the end we convert to a c-type string. 
+      !We are not checking if it is still empty because we assume (`case default`) that it is a double
+      !if it is a compount type. 
+      
       !First we check if the type is captured by the automatically generated include file.
       var_name = char_array_to_string(c_var_name, strlen(c_var_name))
       include "bmi_get_var_type.inc"
 
-      if (type_name == "") then !If it has not been filled already
-         !Second we check if it is of a special case. It can be a compound name (e.g., 'weirs/weir1/crestlevel').
-         !If it is a compound name, we check on the last token (e.g., 'crestlevel'), as this has the information of the type. 
-          
-         !Split the variable name. 
-         !E.g., var_name='weirs/weir1/crestlevel' -> words(1)='weirs', words(2)='weir1', words(3)='crestlevel'; last_token=3
-         !E.g., var_name='frcu' -> words(1)='frcu', words(2)='', words(3)=''; last_token=1
-         call str_split(words,last_token, var_name, varset_name, DELIMS='/')
+     !Second we check if it is of a special case. It can be a compound name (e.g., 'weirs/weir1/crestlevel').
+     !If it is a compound name, we check on the last token (e.g., 'crestlevel'), as this has the information of the type. 
       
-         !Case on the last token of the variable name.
-         select case (trim(words(last_token)))
-            case ("netelemnode")
-               type_name = "int"
-            case ("flowelemnode", "flowelemnbs", "flowelemlns")
-               type_name = "int"
-            case ("flowelemcontour_x", "flowelemcontour_y")
-               type_name = "double"
-            case ("TcrEro", "TcrSed", "tem1Surf")
-               type_name = "double"
-            case ('vltb')
-               type_name = "type(t_voltable)"
-            case ('vltbOnLinks')
-               type_name = "type(t_voltable)"
-            case ('network')
-               type_name = "type(t_network)"
-            case default !for now, if it is a compound name, we assume it is a double
-               type_name = "double"
-            end select          
+     !Split the variable name. 
+     !E.g., var_name='weirs/weir1/crestlevel' -> words(1)='weirs', words(2)='weir1', words(3)='crestlevel'; last_token=3
+     !E.g., var_name='frcu' -> words(1)='frcu', words(2)='', words(3)=''; last_token=1
+     call str_split(words, last_token, var_name, varset_name, DELIMS='/')
+  
+     !Case on the last token of the variable name.
+     select case (trim(words(last_token)))
+        case ("netelemnode")
+           type_name = "int"
+        case ("flowelemnode", "flowelemnbs", "flowelemlns")
+           type_name = "int"
+        case ("flowelemcontour_x", "flowelemcontour_y")
+           type_name = "double"
+        case ("TcrEro", "TcrSed", "tem1Surf")
+           type_name = "double"
+        case ('vltb')
+           type_name = "type(t_voltable)"
+        case ('vltbOnLinks')
+           type_name = "type(t_voltable)"
+        case ('network')
+           type_name = "type(t_network)"
+        case default !for now, if it is a compound name, we assume it is a double
+           type_name = "double"
+     end select          
+
+     !Third we check if it a constituent name (e.g., 'salt', 'tracer1', etc.)
+     if (numconst > 0) then
+        iconst = find_name(const_names, var_name)
+     end if
+     if (iconst /= 0) then
+        type_name = "double"
+     end if
+      
+     c_type = string_to_char_array(trim(type_name), len(trim(type_name)))
+
+      if(allocated(words)) then
+          deallocate(words)
       end if
-      
-      if (type_name == "") then !If it has not been filled already
-         !Third we check if it a constituent name (e.g., 'salt', 'tracer1', etc.)
-         if (numconst > 0) then
-            iconst = find_name(const_names, var_name)
-         end if
-         if (iconst /= 0) then
-            type_name = "double"
-         end if
-      end if
-      
-      c_type = string_to_char_array(trim(type_name), len(trim(type_name)))
 
    end subroutine get_var_type
 
@@ -866,42 +870,56 @@ contains
       !DEC$ ATTRIBUTES DLLEXPORT :: get_var_rank
 
       use iso_c_binding, only: c_int, c_char
-      use string_module, only: str_token
+      use string_module, only: str_split
       
       character(kind=c_char), intent(in) :: c_var_name(*)
       integer(c_int), intent(out) :: rank
-
+      
       ! The fortran name of the attribute name
       character(len=strlen(c_var_name)) :: var_name
-      character(len=strlen(c_var_name)) :: tmp_var_name
       character(len=strlen(c_var_name)) :: varset_name !< For parsing compound variable names.
+      integer :: last_token
+      character(:), allocatable :: words(:)
       
-      ! Store the name
+      rank = 0 !initially 0
+
+      !First we check if the rank is captured by the automatically generated include file.
       var_name = char_array_to_string(c_var_name, strlen(c_var_name))
-
       include "bmi_get_var_rank.inc"
-
-      select case (var_name)
-      case ("netelemnode")
-         rank = 2
-      case ("flowelemnode", "flowelemnbs", "flowelemlns", "flowelemcontour_x", "flowelemcontour_y")
-         rank = 2
-      case ("pumps", "weirs", "orifices", "gates", "generalstructures", "culverts", "sourcesinks", "dambreak", "observations", "crosssections", "laterals") ! Compound vars: shape = [numobj, numfields_per_obj]
-         rank = 2
-      case ("TcrEro", "TcrSed")
-         rank = 2
-      case ("tem1Surf")
-         rank = 1
-      end select
-
-      ! Try to parse variable name as slash-separated id (e.g., 'laterals/sealock_A/water_discharge')
-      tmp_var_name = var_name
-      call str_token(tmp_var_name, varset_name, DELIMS='/')
-      select case (varset_name)
-      case ('pumps', 'weirs', 'orifices', 'gates', 'generalstructures', 'culverts', 'sourcesinks', 'dambreak', 'observations', 'crosssections', 'laterals')
-          rank=1
+      if (rank /= 0) then 
+          return
+      endif 
+          
+      !Second we check if it is of a special case. It can be a compound name (e.g., 'weirs/weir1/crestlevel').
+      !If it is a compound name, we check on the last token (e.g., 'crestlevel'), as this has the information of the type. 
+       
+      !Split the variable name. 
+      !E.g., var_name='weirs/weir1/crestlevel' -> words(1)='weirs', words(2)='weir1', words(3)='crestlevel'; last_token=3
+      !E.g., var_name='frcu' -> words(1)='frcu', words(2)='', words(3)=''; last_token=1
+      call str_split(words, last_token, var_name, varset_name, DELIMS='/')
+      
+      select case (trim(words(last_token)))
+         case ("netelemnode")
+            rank = 2
+            return
+         case ("flowelemnode", "flowelemnbs", "flowelemlns", "flowelemcontour_x", "flowelemcontour_y")
+            rank = 2
+            return
+         case ("pumps", "weirs", "orifices", "gates", "generalstructures", "culverts", "sourcesinks", "dambreak", "observations", "crosssections", "laterals") ! Compound vars: shape = [numobj, numfields_per_obj]
+            rank = 2
+            return
+         case ("TcrEro", "TcrSed")
+            rank = 2
+            return
+         case ("tem1Surf")
+            rank = 1
+            return
+         case default !for now, if it is a compound name, we assume it has rank 1
+            rank = 1    
+            return
       end select
       
+      !Third we check if it a constituent name (e.g., 'salt', 'tracer1', etc.)
       if (numconst > 0) then
          iconst = find_name(const_names, var_name)
       end if
@@ -909,6 +927,7 @@ contains
          rank = 1
          return
       end if
+      
    end subroutine get_var_rank
 
 !> Returns the shape of a variable, i.e., an array with length equal to this variables's rank.
@@ -929,22 +948,32 @@ contains
       use unstruc_channel_flow, only: network
       use m_transport, only: NAMLEN, NUMCONST
       use m_laterals, only: numlatsg, nlatnd
-      use string_module, only: str_token
+      use string_module, only: str_split
       
       character(kind=c_char), intent(in) :: c_var_name(*)
       integer(c_int), intent(inout) :: shape(MAXDIMS)
 
       character(len=strlen(c_var_name)) :: var_name
-      character(len=strlen(c_var_name)) :: tmp_var_name
       character(len=strlen(c_var_name)) :: varset_name !< For parsing compound variable names.
-
+      integer :: last_token
+      character(:), allocatable :: words(:)
+      
+      shape = [0, 0, 0, 0, 0, 0] !initialize
+      
+      !First we check if the shape is captured by the automatically generated include file.
       var_name = char_array_to_string(c_var_name, strlen(c_var_name))
-      shape = [0, 0, 0, 0, 0, 0]
-
       include "bmi_get_var_shape.inc"
-            
+  
+      !Second we check if it is of a special case. It can be a compound name (e.g., 'weirs/weir1/crestlevel').
+      !If it is a compound name, we check on the last token (e.g., 'crestlevel'), as this has the information of the type. 
+       
+      !Split the variable name. 
+      !E.g., var_name='weirs/weir1/crestlevel' -> words(1)='weirs', words(2)='weir1', words(3)='crestlevel'; last_token=3
+      !E.g., var_name='frcu' -> words(1)='frcu', words(2)='', words(3)=''; last_token=1
+      call str_split(words, last_token, var_name, varset_name, DELIMS='/')
+      
       ! NOTE: report the shape below in row-major order (so, C-style, not FORTRAN-style)
-      select case (var_name)
+      select case (trim(words(last_token)))
       case ("netelemnode")
          shape(1) = nump1d2d
          shape(2) = get_net_elem_max_nodes()
@@ -969,7 +998,7 @@ contains
          shape(1) = ndx
          return
 
-! Compounds:
+      ! Compounds:
       case ("pumps")
          shape(1) = npumpsg
          shape(2) = 1
@@ -1016,7 +1045,7 @@ contains
       case ('network')
          shape(1) = 1
 
-         ! Array pointers:
+      ! Array pointers:
       case ("geometry/xcc", "geometry/ycc", "field/water_depth", "geometry/kbot", "geometry/ktop")
          shape(1) = ndx
          return
@@ -1035,13 +1064,9 @@ contains
          shape(1) = 1
          shape(2) = len_trim(md_ident)
          return
-      end select
-
-      ! Try to parse variable name as slash-separated id (e.g., 'laterals/sealock_A/water_discharge')
-      tmp_var_name = var_name
-      call str_token(tmp_var_name, varset_name, DELIMS='/')
-      select case (varset_name)
-      case ('pumps', 'weirs', 'orifices', 'gates', 'generalstructures', 'culverts', 'sourcesinks', 'dambreak', 'observations', 'crosssections', 'laterals')
+         
+      ! Compounds (e.g., 'weirs/weir1/crestlevel')
+      case default !for now, if it is a compound name, we assume it has shape 1
          shape(1) = 1
          return
       end select
