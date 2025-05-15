@@ -30,7 +30,7 @@ object CopyExamples : BuildType({
             name = "Copy example files to P drive"
             environment = venv {
                 requirementsFile = ""
-                pipArgs = "--editable ./ci/python[example_utils]"
+                pipArgs = "--editable ./ci/python"
             }
             command = module {
                 module = "ci_tools.example_utils.copy_examples"
