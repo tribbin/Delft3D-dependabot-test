@@ -2,7 +2,7 @@
 
 This is the main page which includes links to developer documentation for kernels in the software suite.
 
-It consists of currently two documented kernels:
+It currently consists of two documented kernels:
 
 [DIMR](../../dimr/result_doc/html/index.html)
 

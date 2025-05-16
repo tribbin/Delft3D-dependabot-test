@@ -19,7 +19,7 @@ the BMI interface used by D-HYDRO models (some type definitions are
 omitted for simplicity). In order to understand the class diagram we
 introduce the following name conventions:
 
-- Component: identifies a simulator (D-FlowFM, RTC-Tools, WAQ, WAVE or
+- Component: identifies a simulator (e.g.: D-FlowFM, RTC-Tools, WAQ, WAVE or
   Delft3D-FLOW). Each component is available as a dynamic library (.dll
   or .so) with a BMI interface (Basic Model Interface) consisting of 11
   functions responsible for executing the simulator, getting the
