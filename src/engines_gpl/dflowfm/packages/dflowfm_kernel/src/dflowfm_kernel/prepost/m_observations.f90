@@ -559,7 +559,7 @@ contains
    end subroutine init_valobs_pointers
 
    !> increment the current index and returns it
-   pure function next_index(current_index, increment) result(res)
+   function next_index(current_index, increment) result(res)
       integer, intent(inout) :: current_index !< current index
       integer, optional, intent(in) :: increment !< increment value
       integer :: res

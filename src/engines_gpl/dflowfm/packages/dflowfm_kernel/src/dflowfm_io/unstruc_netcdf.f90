@@ -8070,6 +8070,7 @@ contains
       use m_get_ucx_ucy_eul_mag
       use m_get_chezy, only: get_chezy
       use m_turbulence, only: in_situ_density, potential_density
+      use physicalconsts, only: celsius_to_kelvin
 
       implicit none
 
@@ -8103,7 +8104,8 @@ contains
          id_q1main, &
          id_s1, id_taus, id_ucx, id_ucy, id_ucz, id_ucxa, id_ucya, id_unorm, id_ww1, id_sa1, id_tem1, id_sed, id_ero, id_s0, id_u0, id_cfcl, id_cftrt, id_czs, id_czu, &
          id_qsun, id_qeva, id_qcon, id_qlong, id_qfreva, id_qfrcon, id_qtot, &
-         id_air_pressure, id_ice_s1, id_ice_zmax, id_ice_zmin, id_ice_area_fraction, id_ice_thickness, id_ice_pressure, id_ice_temperature, id_snow_thickness, id_snow_temperature, id_tair, id_rhum, id_clou, id_E, id_R, id_H, id_D, id_DR, id_urms, id_thetamean, &
+         id_air_pressure, id_air_temperature, id_relative_humidity, id_cloudiness, id_E, id_R, id_H, id_D, id_DR, id_urms, id_thetamean, &
+         id_ice_s1, id_ice_zmax, id_ice_zmin, id_ice_area_fraction, id_ice_thickness, id_ice_pressure, id_ice_temperature, id_snow_thickness, id_snow_temperature, &
          id_cwav, id_cgwav, id_sigmwav, &
          id_ust, id_vst, id_windx, id_windy, id_windxu, id_windyu, id_numlimdt, id_hs, id_bl, id_zk, &
          id_1d2d_edges, id_1d2d_zeta1d, id_1d2d_crest_level, id_1d2d_b_2di, id_1d2d_b_2dv, id_1d2d_d_2dv, id_1d2d_q_zeta, id_1d2d_q_lat, &
