@@ -5893,16 +5893,18 @@ contains
             ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_mor_bl, nc_precision, UNC_LOC_S, 'mor_bl', '', 'Time-varying bottom level in flow cell center', 'm', dimids=[-2, -1], jabndnd=jabndnd_)
          end if
         !
-        select case (ibedlevtyp)
-        case (1)
-            iloc = UNC_LOC_S
-        case (2)
-            iloc = UNC_LOC_U
-        case (3, 4, 5, 6)
-            iloc = UNC_LOC_CN
-        end select
-        ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_subsupl, nc_precision, iloc, 'subsupl', '', 'Cumulative subsidence/uplift', 'm', dimids=[-2, -1], jabndnd=jabndnd_)
-         !
+         if (jasubsupl > 0) then
+            select case (ibedlevtyp)
+            case (1)
+                iloc = UNC_LOC_S
+            case (2)
+                iloc = UNC_LOC_U
+            case (3, 4, 5, 6)
+                iloc = UNC_LOC_CN
+            end select
+            ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_subsupl, nc_precision, iloc, 'subsupl', '', 'Cumulative subsidence/uplift', 'm', dimids=[-2, -1], jabndnd=jabndnd_)
+         end if
+            !
          if (jamapz0 > 0) then
             ! roughness heights for current and current and wave related roughness
             ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_z0c, nc_precision, UNC_LOC_U, 'z0ucur', '', 'Current related roughness height', 'm', dimids=[-2, -1], jabndnd=jabndnd_)
@@ -6921,8 +6923,8 @@ contains
             end if
             !
             if (stmpar%morpar%moroutput%ssuuvv) then
-               call realloc(toutputx, [lnx, stmpar%lsedsus], keepExisting=.false., fill=-999d0)
-               call realloc(toutputy, [lnx, stmpar%lsedsus], keepExisting=.false., fill=-999d0)
+               call realloc(toutputx, [lnx, stmpar%lsedsus], keepExisting=.false., fill=-999.0_dp)
+               call realloc(toutputy, [lnx, stmpar%lsedsus], keepExisting=.false., fill=-999.0_dp)
                do l = 1, stmpar%lsedsus
                   select case (stmpar%morpar%moroutput%transptype)
                   case (0)
@@ -6940,8 +6942,8 @@ contains
             end if
          end if
          if (stmpar%lsedtot > 0 .and. stmpar%morpar%moroutput%sbuuvv) then
-            call realloc(toutputx, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999d0)
-            call realloc(toutputy, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999d0)
+            call realloc(toutputx, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999.0_dp)
+            call realloc(toutputy, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999.0_dp)
             do l = 1, stmpar%lsedtot
                select case (stmpar%morpar%moroutput%transptype)
                case (0)
@@ -6958,8 +6960,8 @@ contains
             ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sbt, UNC_LOC_U, toutputy, jabndnd=jabndnd_)
          end if
         if (stmpar%lsedtot > 0 .and. stmpar%morpar%moroutput%sbwuuvv) then
-            call realloc(toutputx, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999d0)
-            call realloc(toutputy, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999d0)
+            call realloc(toutputx, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999.0_dp)
+            call realloc(toutputy, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999.0_dp)
             do l = 1, stmpar%lsedtot
                select case (stmpar%morpar%moroutput%transptype)
                case (0)
@@ -6976,8 +6978,8 @@ contains
             ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sbwt, UNC_LOC_U, toutputy, jabndnd=jabndnd_)
         end if
         if (stmpar%lsedtot > 0 .and. stmpar%morpar%moroutput%sswuuvv) then
-            call realloc(toutputx, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999d0)
-            call realloc(toutputy, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999d0)
+            call realloc(toutputx, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999_dp)
+            call realloc(toutputy, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999_dp)
             do l = 1, stmpar%lsedtot
                select case (stmpar%morpar%moroutput%transptype)
                case (0)
@@ -6994,8 +6996,8 @@ contains
             ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_sswt, UNC_LOC_U, toutputy, jabndnd=jabndnd_)
         end if
         if (stmpar%lsedtot > 0 .and. stmpar%morpar%moroutput%sbcuuvv) then
-            call realloc(toutputx, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999d0)
-            call realloc(toutputy, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999d0)
+            call realloc(toutputx, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999.0_dp)
+            call realloc(toutputy, [lnx, stmpar%lsedtot], keepExisting=.false., fill=-999.0_dp)
             do l = 1, stmpar%lsedtot
                select case (stmpar%morpar%moroutput%transptype)
                case (0)
@@ -10704,8 +10706,8 @@ contains
             
             if (stmpar%morpar%moroutput%sxytot) then
                do l = 1, stmpar%lsedtot
-                  call realloc(toutputx, [ndx, stmpar%lsedtot], keepExisting=.false., fill=-999d0)
-                  call realloc(toutputy, [ndx, stmpar%lsedtot], keepExisting=.false., fill=-999d0)
+                  call realloc(toutputx, [ndx, stmpar%lsedtot], keepExisting=.false., fill=-999.0_dp)
+                  call realloc(toutputy, [ndx, stmpar%lsedtot], keepExisting=.false., fill=-999.0_dp)
                   select case (stmpar%morpar%moroutput%transptype)
                   case (0)
                      rhol = 1d0
