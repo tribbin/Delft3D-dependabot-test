@@ -447,7 +447,7 @@ contains
             end if
 
             if (issparse == 1) then
-               call realloc(imask, (/nsx, nsy/), fill=0)
+               call realloc(imask, [nsx, nsy], fill=0)
             end if
 
             do i = 1, n_points
