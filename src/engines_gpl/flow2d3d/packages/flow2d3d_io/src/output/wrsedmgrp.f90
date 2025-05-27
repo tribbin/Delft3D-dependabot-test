@@ -64,7 +64,7 @@ subroutine wrsedmgrp(lundia    ,error     ,filename  ,itmapc    ,mmax      , &
     integer                         , pointer :: celidt
     type (datagroup)                , pointer :: group4
     type (datagroup)                , pointer :: group5
-    type (moroutputtype)                 , pointer :: moroutput
+    type (moroutputtype)            , pointer :: moroutput
     real(hp)                        , pointer :: morft
     real(fp)                        , pointer :: morfac
     integer                         , pointer :: nmaxgl
