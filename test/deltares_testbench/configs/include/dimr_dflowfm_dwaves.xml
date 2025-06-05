@@ -118,7 +118,7 @@
     </testCase>
     <!-- ======================================================================== -->
     <testCase name="e100_f02_c03" ref="dimr_trunk">
-        <path version="2025-06-05T11:56:50.286000">e100_dflowfm-dwaves/f02_delft3d_cases/c03-FriesianInlet_realistic/dfm</path>
+        <path version="2025-06-05T15:17:05.780000">e100_dflowfm-dwaves/f02_delft3d_cases/c03-FriesianInlet_realistic/dfm</path>
         <maxRunTime>3600.0</maxRunTime> <!-- seconds -->
         <checks>
             <file name="fm/dflowfmoutput/r17_map.nc" type="NETCDF">
@@ -160,7 +160,7 @@
     </testCase>
     <!-- ======================================================================== -->
     <testCase name="e100_f02_c06" ref="dimr_trunk">
-        <path version="2025-06-05T11:57:42.453000">e100_dflowfm-dwaves/f02_delft3d_cases/c06-loosdrecht/dfm</path>
+        <path version="2025-06-05T15:17:26.106000">e100_dflowfm-dwaves/f02_delft3d_cases/c06-loosdrecht/dfm</path>
         <maxRunTime>1800.0</maxRunTime> <!-- seconds -->
          <checks>
             <file name="fm/dflowfmoutput/loo_map.nc" type="NETCDF">
