@@ -1,7 +1,6 @@
-!----- AGPL --------------------------------------------------------------------
+!----AGPL --------------------------------------------------------------------
 !
 !  Copyright (C)  Stichting Deltares, 2017-2024.
-!
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
 !  Delft3D is free software: you can redistribute it and/or modify
@@ -26,35 +25,36 @@
 !  Deltares, and remain the property of Stichting Deltares. All rights reserved.
 !
 !-------------------------------------------------------------------------------
+!
+!
 
-!
-!
-module m_k_plot_plus_min
-   use m_textflow
-   use m_waveconst
+module m_reconstruct_hydrodynamics
+
+   use m_get_Lbot_Ltop_max, only: getLbotLtopmax
+   use precision, only: dp
 
    implicit none
+
+   public :: reconstruct_hu_2D_from_3D
+
 contains
-   subroutine KPLOTPLUSMIN(IPM)
-      use M_FLOWGEOM, only: ntheta
-      use M_FLOW, only: kmx, kplotfrombedorsurface, kplot, jawave
-      use m_xbeach_data, only: itheta_view
 
-      integer :: IP, IPM
+   !> Set hu at the 2D indices to the corresponding hu at the top active-layer
+   subroutine reconstruct_hu_2D_from_3D(hu, lnx)
+      real(kind=dp), dimension(:), intent(inout) :: hu !< [m] Upwind water-height at u-point, i.e. the distance from the top of a layer to the bed
+      integer, intent(in) :: lnx !< [-] Number of flow links (internal + boundary)
 
-      if (kmx >= 1) then
+      integer :: link_index_2d, link_index_3d, link_bottom, link_top_max
 
-         ip = ipm
-         if (kplotfrombedorsurface /= 1) then
-            ip = -1 * ipm
-         end if
+      do link_index_2d = 1, lnx
+         call getLbotLtopmax(link_index_2d, link_bottom, link_top_max)
+         do link_index_3d = link_top_max, link_bottom, -1
+            if (hu(link_index_3d) > 0.0_dp) then
+               hu(link_index_2d) = hu(link_index_3d)
+               exit
+            end if
+         end do
+      end do
+   end subroutine reconstruct_hu_2D_from_3D
 
-         KPLOT = KPLOT + ip
-         kplot = max(1, min(kplot, kmx))
-
-         call TEXTFLOW()
-      else if (jawave == WAVE_SURFBEAT) then
-         itheta_view = max(min(itheta_view + sign(1, ipm), ntheta), 1)
-      end if
-   end subroutine KPLOTPLUSMIN
-end module m_k_plot_plus_min
+end module m_reconstruct_hydrodynamics
