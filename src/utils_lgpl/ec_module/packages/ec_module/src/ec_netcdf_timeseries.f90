@@ -223,13 +223,12 @@ module m_ec_netcdf_timeseries
 
        if (isVector) cycle    ! vector placeholder, not a real variable with data in the file
 
-       ! Check for important var: was it the stations?
+       ! Check for important var: was it the station_id?
        cf_role = ''
        ierr = ncu_get_att(ncptr%ncid,iVars,'cf_role',cf_role)
-       if (cf_role == 'timeseries_id') then 
-             nDims = 0                
-             ierr = nf90_inquire_variable(ncptr%ncid, iVars, ndims = nDims)
-             if (nDims==2) then                                                             ! If cf Role 'timeseries_id' found, compose an index timeseries id's 
+       if (cf_role == 'timeseries_id') then                                                 ! Multiple variables might have cf_role=timeseries_id
+             if (var_ndims(iVars)==2 .and. ncptr%variable_names(iVars)=='station_id') then  ! Check dims and var_name
+                ! Compose an index timeseries id's 
                 ierr = nf90_inquire_variable(ncptr%ncid, iVars, dimids = dimids_tsid)
                 tslen = ncptr%dimlen(dimids_tsid(1))                                        ! timeseries ID length 
                 nTims = ncptr%dimlen(dimids_tsid(2))                                        ! number of timeseries IDs  
@@ -243,9 +242,6 @@ module m_ec_netcdf_timeseries
                 end do
                 ncptr%tsidvarid  = iVars                                                       ! For convenience also store the Station ID explicitly 
                 ncptr%tsiddimid = dimids_tsid(2)                                            ! For convenience also store the Station's dimension ID explicitly 
-             else 
-                ! timeseries_id has the wrong dimensionality
-                return  
              endif 
        end if
 
