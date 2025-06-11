@@ -387,12 +387,3 @@ if(${configuration_type} STREQUAL ${d3d4-suite_configuration})
     message(STATUS "Generating solution for Delft3D4 ...")
     include(configurations/suites/d3d4_configuration.cmake)
 endif()
-
-if(WIN32)
-message("HARMEN: DUMP ENVIRONMENT")
-execute_process(COMMAND cmd /C "set"
-                OUTPUT_VARIABLE HARMEN_ENVIRONMENT_VARIABLES
-)
-message("${HARMEN_ENVIRONMENT_VARIABLES}")
-message("HARMEN: ENVIRONMENT DUMPED")
-endif()
