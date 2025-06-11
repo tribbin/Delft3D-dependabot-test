@@ -143,7 +143,7 @@ module m_ec_netcdf_timeseries
     function ecNetCDFInit (ncname, ncptr, iostat) result (success)
     use string_module
     use io_ugrid
-    use netcdf_utils, only: ncu_get_att
+    use netcdf_utils, only: ncu_get_att, ncu_inq_dimname
     
     implicit none
 !   Open a netCDF file, store ncid, standard names and long names ....
@@ -250,10 +250,13 @@ module m_ec_netcdf_timeseries
        end if
 
        ! Check for important var: was it time?
-       if (ncptr%standard_names(iVars) == 'time') then
-          ierr = nf90_get_att(ncptr%ncid,iVars,'units',ncptr%timeunit)                     ! Store the unit string of the time variable 
-          ncptr%timevarid    = iVars                                                       ! For convenience also store the ID explicitly 
-          ncptr%timedimid = var_dimids(1,iVars)
+       if (ncptr%standard_names(iVars) == 'time') then                                        ! Multiple variables might have standard_name "time"
+          ierr = ncu_inq_dimname(ncptr%ncid,var_dimids(1,iVars),name)
+          if (var_ndims(iVars)==1 .and. name=='time') then                                    ! ndims must be 1 and dimName must be "time"
+             ierr = nf90_get_att(ncptr%ncid,iVars,'units',ncptr%timeunit)                     ! Store the unit string of the time variable 
+             ncptr%timevarid = iVars                                                          ! For convenience also store the ID explicitly 
+             ncptr%timedimid = var_dimids(1,iVars)
+          endif
        endif 
 
        ! Check for important var: was it vertical layering?
