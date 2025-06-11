@@ -1,7 +1,3 @@
-# Set directories
-# Set the directory of where the source code is located.
-set(src_path src)
-
 # Set the DFlow FM component path
 set(dflowfm_path "${CMAKE_CURRENT_SOURCE_DIR}/../../")
 set(dflowfm_cli_path "${CMAKE_CURRENT_SOURCE_DIR}/src/")
@@ -78,7 +74,7 @@ endif(WIN32)
 
 
 # Define additional compilation flags
-set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/${src_path}/net_main.F90
+set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/net_main.F90
                             PROPERTIES COMPILE_OPTIONS "${file_preprocessor_flag}")
 
 if (WIN32)
