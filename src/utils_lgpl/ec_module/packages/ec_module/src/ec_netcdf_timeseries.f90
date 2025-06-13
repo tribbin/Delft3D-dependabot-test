@@ -28,7 +28,6 @@
 
 
 module m_ec_netcdf_timeseries
-    use precision 
     use m_ec_parameters
     use m_ec_support
     use m_ec_message
@@ -193,9 +192,9 @@ module m_ec_netcdf_timeseries
     ncptr%standard_names = ' '
     ncptr%long_names = ' '
     ncptr%variable_names = ' '
-    ncptr%fillvalues = -huge(hp)
-    ncptr%scales     = 1.0_hp
-    ncptr%offsets    = 0.0_hp
+    ncptr%fillvalues = -huge(dp)
+    ncptr%scales     = 1.0_dp
+    ncptr%offsets    = 0.0_dp
     allocate(var_dimids(nDims, nVars)) ! NOTE: nDims is only an upper bound here!
     allocate(var_ndims(nVars))
     var_ndims = 0
@@ -214,11 +213,11 @@ module m_ec_netcdf_timeseries
        ierr = nf90_get_att(ncptr%ncid,iVars,'long_name',ncptr%long_names(iVars))            ! Long name for non CF names
 
        ierr = nf90_get_att(ncptr%ncid,iVars,'_FillValue',ncptr%fillvalues(iVars))
-       if (ierr/=NF90_NOERR)   ncptr%fillvalues(iVars) = -huge(hp)
+       if (ierr/=NF90_NOERR)   ncptr%fillvalues(iVars) = -huge(dp)
        ierr = nf90_get_att(ncptr%ncid,iVars,'scale_factor',ncptr%scales(iVars))
-       if (ierr/=NF90_NOERR)   ncptr%scales(iVars) = 1.0_hp
+       if (ierr/=NF90_NOERR)   ncptr%scales(iVars) = 1.0_dp
        ierr = nf90_get_att(ncptr%ncid,iVars,'add_offset',ncptr%offsets(iVars))
-       if (ierr/=NF90_NOERR)   ncptr%offsets(iVars) = 0.0_hp
+       if (ierr/=NF90_NOERR)   ncptr%offsets(iVars) = 0.0_dp
        ierr = nf90_inquire_variable(ncptr%ncid,iVars,ndims=var_ndims(iVars),dimids=var_dimids(:,iVars))
 
        if (isVector) cycle    ! vector placeholder, not a real variable with data in the file
@@ -393,9 +392,10 @@ module m_ec_netcdf_timeseries
     integer, intent(in)                  :: l_id
     integer, intent(in)                  :: dims(:)
     integer, intent(in)                  :: timelevel 
-    real(hp), intent(out)                :: nctime(:)
-    real(hp), intent(out)                :: ncvalue(:)
-    real(hp), intent(inout), allocatable :: buffer(:)
+    real(dp), intent(out)                :: nctime(:)
+    real(dp), intent(out)                :: ncvalue(:)
+    real(dp), intent(inout), allocatable :: buffer(:)
+    real(dp), intent(inout), allocatable :: buffer(:)
     
     integer                              :: vectormax, iv, il, ierr           
 
