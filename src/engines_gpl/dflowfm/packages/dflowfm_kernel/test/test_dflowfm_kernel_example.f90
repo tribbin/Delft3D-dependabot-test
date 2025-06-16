@@ -7,7 +7,6 @@ contains
 
    !$f90tw TESTCODE(TEST, tests_accumulate_distance, test_simple_path, test_simple_path,
    subroutine test_simple_path() bind(C)
-      use iso_c_binding, only: c_null_char
       use precision, only: dp
       integer, parameter :: PATH_LENGTH = 2
       real(kind=dp), parameter :: tolerance = 1e-8_dp
@@ -19,7 +18,7 @@ contains
 
       call accumulateDistance(x, y, running_distance, PATH_LENGTH)
 
-      call f90_expect_near(running_distance, expected_running_distance, tolerance, "path length is not square root of 2"//c_null_char)
+      call f90_expect_near(running_distance, expected_running_distance, tolerance, "path length is not square root of 2")
    end subroutine test_simple_path
    !$f90tw)
 end module test_accumulate_distance

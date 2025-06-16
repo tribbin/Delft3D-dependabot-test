@@ -147,6 +147,12 @@ function(F90TWTEST NAME)
     target_compile_definitions(${NAME} PUBLIC ${FTW_DEFINITIONS})
     add_dependencies(${NAME} ${FLIBNAME})
     set_target_properties(${NAME} ${FLIBNAME} PROPERTIES FOLDER ${FTW_VISUAL_STUDIO_PATH})
+    if(WIN32)
+        add_custom_command(TARGET ${NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${NAME}> $<TARGET_RUNTIME_DLLS:${NAME}>
+            COMMAND_EXPAND_LISTS
+        )
+    endif()
     gtest_discover_tests(${NAME})
 endfunction()
 
