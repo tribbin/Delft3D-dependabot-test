@@ -40,7 +40,7 @@ contains
       use m_howtoview
       use m_perspx
       implicit none
-      integer :: KEY
+      integer, intent(inout) :: KEY
 
       JVIEW = JVIEW + 1
       if (JVIEW > JAV) JVIEW = 1

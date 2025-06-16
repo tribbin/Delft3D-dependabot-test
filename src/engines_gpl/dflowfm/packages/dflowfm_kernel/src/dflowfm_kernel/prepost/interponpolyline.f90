@@ -46,7 +46,7 @@ contains
    subroutine interpOnPolyline(DPL, DXS, NPL, DXS1, DXS2)
       use precision, only: dp
 
-      integer :: npl
+      integer, intent(in) :: npl
       real(kind=dp), intent(in) :: DPL(NPL) !< Accumulated distance at each point.
       real(kind=dp), intent(out) :: DXS(NPL) !< Interpolated values of dxs1--dxs2 on polyline points.
       real(kind=dp), intent(in) :: dxs1 !< Value at first polyline point.

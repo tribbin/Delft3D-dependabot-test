@@ -43,7 +43,7 @@ contains
    subroutine EQDINT(YH2, imax, TJ, Y2)
       use precision, only: dp
 
-      integer :: imax
+      integer, intent(in) :: imax
       real(kind=dp) :: YH2(imax)
       real(kind=dp) :: TJ, Y2
       integer :: j1, j2

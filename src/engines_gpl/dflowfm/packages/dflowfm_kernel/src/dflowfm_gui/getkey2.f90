@@ -36,7 +36,7 @@ contains
       use m_nkeys
 
       integer :: i
-      integer :: key
+      integer, intent(inout) :: key
       integer :: keynum
 
       KEYNUM = -999

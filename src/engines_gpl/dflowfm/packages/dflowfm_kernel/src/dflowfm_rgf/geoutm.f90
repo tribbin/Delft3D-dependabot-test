@@ -44,7 +44,7 @@ contains
       use precision, only: dp
       use m_ellips
 
-      integer :: nzone
+      integer, intent(inout) :: nzone
 ! ----------------------------------------------------------------------
 !
 !     conversion of geographical (lat, lon) --> UTM coordinates (x, y, zone)

@@ -36,7 +36,7 @@ contains
       use precision, only: dp
       use m_ship !                                                             (-1,  1) = (stern, starboard)
       real(kind=dp) :: sx1, sx2, sy1, sy2, css, sns
-      integer :: n
+      integer, intent(in) :: n
       css = cos(shi(n)); sns = sin(shi(n))
       sx2 = shx(n) + sx1 * shL(n) * css - sy1 * shb(n) * sns ! square ship
       sy2 = shy(n) + sx1 * shL(n) * sns + sy1 * shb(n) * css

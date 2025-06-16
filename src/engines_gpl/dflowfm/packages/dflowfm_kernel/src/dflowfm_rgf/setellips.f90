@@ -44,7 +44,7 @@ contains
    subroutine SETELLIPS(IELL)
       use m_ellips
 
-      integer :: iell
+      integer, intent(in) :: iell
 
       A = 6378137d0
       E = 0.081819d0

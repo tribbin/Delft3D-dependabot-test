@@ -36,7 +36,7 @@ contains
    subroutine SPLINT(YA, Y2A, N, X, Y)
       use precision, only: dp
 
-      integer :: N !< number of control points
+      integer, intent(in) :: N !< number of control points
       real(kind=dp), dimension(N) :: ya !< control point values
       real(kind=dp), dimension(N) :: y2a !< control point second order derivatives
       real(kind=dp), intent(in) :: x !< spline coordinate

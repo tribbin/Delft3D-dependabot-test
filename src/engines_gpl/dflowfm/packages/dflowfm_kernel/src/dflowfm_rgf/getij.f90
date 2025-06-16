@@ -36,15 +36,15 @@ contains
       use precision, only: dp
 
       integer :: i
-      integer :: i1
-      integer :: i2
+      integer, intent(in) :: i1
+      integer, intent(in) :: i2
       integer :: j
-      integer :: j1
-      integer :: j2
+      integer, intent(in) :: j1
+      integer, intent(in) :: j2
       integer :: k
-      integer :: mmax
-      integer :: mnmax
-      integer :: nmax
+      integer, intent(in) :: mmax
+      integer, intent(in) :: mnmax
+      integer, intent(in) :: nmax
 !     HAAL EEN LIJN (XH) UIT EEN ARRAY (X)
       real(kind=dp) :: X(MMAX, NMAX), XH(MNMAX)
       K = 0
