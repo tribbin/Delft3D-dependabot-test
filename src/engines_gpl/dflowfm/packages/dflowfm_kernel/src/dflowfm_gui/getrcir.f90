@@ -31,13 +31,13 @@
 !
 
 module m_getrcir
-
+   use precision, only: dp
    implicit none
 
 contains
 
    real(kind=dp) function GETRCIR()
-      use m_wearelt, only : rcir
+      use m_wearelt, only: rcir
 
       GETRCIR = RCIR
    end function GETRCIR
