@@ -38,8 +38,8 @@ contains
 
    subroutine SMALLSCREEN()
       use precision, only: dp
-      use m_screenarea, only : ybot, xleft
-      use m_view_port, only : viewport
+      use m_screenarea, only: ybot, xleft
+      use m_view_port, only: viewport
 
       implicit none
       real(kind=dp) :: xright

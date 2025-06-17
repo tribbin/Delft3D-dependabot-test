@@ -42,9 +42,9 @@ module m_allocate_splineprops
 contains
 
    subroutine allocate_splineprops()
-      use m_splines, only : mcs
-      use m_spline2curvi, only : splineprops, nsubmax
-      use m_missing, only : dmiss
+      use m_splines, only: mcs
+      use m_spline2curvi, only: splineprops, nsubmax
+      use m_missing, only: dmiss
 
       integer :: ispline
 

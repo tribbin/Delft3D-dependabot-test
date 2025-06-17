@@ -38,11 +38,11 @@ contains
 
    subroutine KCIR(X, Y, Z)
       use precision, only: dp
-      use m_isocol, only : isocol
-      use m_cir, only : cir
-      use unstruc_colors, only : rcir, ncolhl
-      use m_set_col, only : setcol
-      use m_movabs, only : movabs
+      use m_isocol, only: isocol
+      use m_cir, only: cir
+      use unstruc_colors, only: rcir, ncolhl
+      use m_set_col, only: setcol
+      use m_movabs, only: movabs
       use m_missing, only: dmiss
 
       integer :: ncol

@@ -38,11 +38,11 @@ contains
 
    subroutine MTEXT(TEX, X, Y, NCOL)
       use precision, only: dp
-      use unstruc_colors, only : x1, x2, y1, y2, klscl
-      use m_box_nop, only : boxnop
-      use m_fbox_nop, only : fboxnop
-      use m_set_col, only : setcol
-      use m_draw_text, only : drawtext
+      use unstruc_colors, only: x1, x2, y1, y2, klscl
+      use m_box_nop, only: boxnop
+      use m_fbox_nop, only: fboxnop
+      use m_set_col, only: setcol
+      use m_draw_text, only: drawtext
 
       real(kind=dp) :: heigth
       integer :: l

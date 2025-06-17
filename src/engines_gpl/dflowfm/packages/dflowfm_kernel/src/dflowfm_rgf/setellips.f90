@@ -42,7 +42,7 @@ module m_setellips
 contains
 
    subroutine SETELLIPS(IELL)
-      use m_ellips, only : a, e
+      use m_ellips, only: a, e
 
       integer :: iell
 

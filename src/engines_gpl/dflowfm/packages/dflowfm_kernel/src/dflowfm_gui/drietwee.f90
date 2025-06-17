@@ -36,7 +36,7 @@ module m_three_two
 contains
    subroutine DRIETWEE(XD, YD, ZD, X, Y, Z)
       use precision, only: dp
-      use m_howtoview, only : jview
+      use m_howtoview, only: jview
 
       real(kind=dp) XD, YD, ZD, X, Y, Z
 

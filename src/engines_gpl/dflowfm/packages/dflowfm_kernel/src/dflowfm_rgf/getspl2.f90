@@ -42,10 +42,10 @@ contains
 
    subroutine GETSPL2(X, XI2, XJ2, MC, NC, MMAX, NMAX)
       use precision, only: dp
-      use M_MISSING, only : dxymis
-      use m_spline, only : spline
-      use m_put_ij, only : putij
-      use m_get_ij, only : getij
+      use M_MISSING, only: dxymis
+      use m_spline, only: spline
+      use m_put_ij, only: putij
+      use m_get_ij, only: getij
 
       integer :: i
       integer :: iff

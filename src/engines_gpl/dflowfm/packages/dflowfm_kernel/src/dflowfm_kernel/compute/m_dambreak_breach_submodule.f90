@@ -83,7 +83,7 @@ submodule(m_dambreak_breach) m_dambreak_breach_submodule
    end type
 
    type(t_dambreak), target, dimension(:), allocatable :: dambreaks(:) !< dambreak data for all dambreaks
-   
+
    abstract interface
       subroutine calculate_breach_growth_using_any_model(dambreak, time, time_step)
          use precision, only: dp
@@ -92,7 +92,7 @@ submodule(m_dambreak_breach) m_dambreak_breach_submodule
          real(kind=dp), intent(in) :: time !< current time
          real(kind=dp), intent(in) :: time_step !< time step
       end subroutine calculate_breach_growth_using_any_model
-  end interface
+   end interface
 
    integer :: number_of_mappings !< number of mappings for upstream and downstream water levels
    type :: t_mapping !< mapping of water level
@@ -312,7 +312,7 @@ contains
    !> Calculate breach growth using vdKnaap model
    subroutine calculate_breach_growth_using_vdKnaap_model(dambreak, time, time_step)
       import t_dambreak
-      
+
       class(t_dambreak), intent(inout) :: dambreak !< dambreak data for a single dambreak
       real(kind=dp), intent(in) :: time !< current time
       real(kind=dp), intent(in) :: time_step !< time step
@@ -347,8 +347,8 @@ contains
 
       dambreak%breach_width_derivative = (dambreak%width - dambreak%breach_width) / time_step
 
-     dambreak%breach_width = dambreak%width
-     dambreak%breach_depth = dambreak%crest_level
+      dambreak%breach_width = dambreak%width
+      dambreak%breach_depth = dambreak%crest_level
 
    end subroutine calculate_breach_growth_using_vdKnaap_model
 
@@ -423,11 +423,11 @@ contains
       use m_flowtimes, only: irefdate, tunit, tzone
       use messagehandling, only: msgbuf, LEVEL_ERROR, SetMessage
       import t_dambreak
-      
+
       class(t_dambreak), intent(inout) :: dambreak !< dambreak data for a single dambreak
       real(kind=dp), intent(in) :: time !< current time
       real(kind=dp), intent(in) :: time_step !< time step
-      
+
       logical :: success !< success flag
 
       if (time > dambreak%t0) then
@@ -443,14 +443,14 @@ contains
             call SetMessage(LEVEL_ERROR, msgbuf)
          end if
       end if
- 
+
       dambreak%breach_width_derivative = (dambreak%width - dambreak%breach_width) / time_step
 
       dambreak%breach_width = dambreak%width
       dambreak%breach_depth = dambreak%crest_level
 
       dambreak%water_level_jump = calculate_water_level_jump(dambreak)
-      
+
    end subroutine calculate_breach_growth_using_tables
 
    !> calculate the water level jump for dambreaks
@@ -537,12 +537,12 @@ contains
 
    end subroutine update_crest_bed_levels
 
-  ! process dam "left" or "right" of initial breach segment
+   ! process dam "left" or "right" of initial breach segment
    subroutine process_breach_side(k, dambreak, side_breach_width)
       integer, intent(in) :: k !< dam link index
       type(t_dambreak), intent(inout) :: dambreak !< dambreak data for a single dambreak
       real(kind=dp), intent(inout) :: side_breach_width !< width of the breach on the side [m]
-      
+
       if (side_breach_width > 0.0_dp) then
          call set_bobs_to_crest_level(k, dambreak)
          dambreak%active_links(k) = 1
@@ -557,7 +557,7 @@ contains
          side_breach_width = 0.0_dp
       end if
    end subroutine process_breach_side
-      
+
    !> set bobs to breached crest level
    subroutine set_bobs_to_crest_level(link, dambreak)
       use m_flowgeom, only: bob, bob0
@@ -1269,18 +1269,18 @@ contains
       dambreak%u_crit = dambreak_settings%u_crit
       dambreak%f1 = dambreak_settings%f1
       dambreak%f2 = dambreak_settings%f2
-      
+
       select case (dambreak%algorithm)
-         case (BREACH_GROWTH_VDKNAAP)
-            dambreak%calculate_breach_growth => calculate_breach_growth_using_vdKnaap_model
-         case (BREACH_GROWTH_VERHEIJVDKNAAP)
-            dambreak%calculate_breach_growth =>  calculate_breach_growth_using_Verheij_vdKnaap_model
-         case (BREACH_GROWTH_TIMESERIES)
-            dambreak%calculate_breach_growth =>  calculate_breach_growth_using_tables
-         case default
-            write (msgbuf, '(a,a)') 'Unknown dambreak algorithm ', dambreak%algorithm
-            call SetMessage(LEVEL_ERROR, msgbuf)
-         end select
+      case (BREACH_GROWTH_VDKNAAP)
+         dambreak%calculate_breach_growth => calculate_breach_growth_using_vdKnaap_model
+      case (BREACH_GROWTH_VERHEIJVDKNAAP)
+         dambreak%calculate_breach_growth => calculate_breach_growth_using_Verheij_vdKnaap_model
+      case (BREACH_GROWTH_TIMESERIES)
+         dambreak%calculate_breach_growth => calculate_breach_growth_using_tables
+      case default
+         write (msgbuf, '(a,a)') 'Unknown dambreak algorithm ', dambreak%algorithm
+         call SetMessage(LEVEL_ERROR, msgbuf)
+      end select
 
    end subroutine set_dambreak_data
 

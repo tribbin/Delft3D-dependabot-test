@@ -37,8 +37,8 @@ module m_rectangle
 contains
 
    subroutine RECTANGLE(x1, y1, x2, y2)
-      use unstruc_opengl, only : inopenglrendering
-      use m_pfiller_core, only : pfillercore
+      use unstruc_opengl, only: inopenglrendering
+      use m_pfiller_core, only: pfillercore
       implicit none
       real x1, y1, x2, y2
       real x(4), y(4)

@@ -35,8 +35,8 @@ contains
    logical function INVIEW(X, Y)
       use precision, only: dp
       ! ZIT IK IN ZOOMGEBIED? NULLEN EN DEFAULTS NIET, IN WERELDCOORD inview3
-      use m_wearelt, only : x1, x2, y1, y2
-      use m_dproject, only : dproject
+      use m_wearelt, only: x1, x2, y1, y2
+      use m_dproject, only: dproject
       use m_missing, only: xymis
 
       real(kind=dp) :: x, y, xx, yy

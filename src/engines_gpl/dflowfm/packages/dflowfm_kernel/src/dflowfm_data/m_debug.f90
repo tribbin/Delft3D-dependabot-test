@@ -44,8 +44,8 @@ module m_debug
 contains
 
    subroutine init_debugarr(dim1, dim2, dim3)
-      use m_alloc, only : realloc
-      use m_missing, only : dmiss
+      use m_alloc, only: realloc
+      use m_missing, only: dmiss
 
       implicit none
 

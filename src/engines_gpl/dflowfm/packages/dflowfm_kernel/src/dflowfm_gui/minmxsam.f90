@@ -41,9 +41,9 @@ contains
 
       use m_samples, only: ns, xs, ys, zs
       use m_missing, only: dmiss
-      use m_isoscaleunit, only : unit
-      use m_paramtext, only : paramtext
-      use m_inview, only : inview
+      use m_isoscaleunit, only: unit
+      use m_paramtext, only: paramtext
+      use m_inview, only: inview
       use m_depmax2, only: vmax => vmax2, vmin => vmin2, dv => dv2, val => val2, nv => nv2, jaauto => jaauto2
 
       real(kind=dp) :: rmin, rmax
@@ -82,11 +82,11 @@ contains
    subroutine minmxarc()
       use precision, only: dp
 
-      use m_arcinfo, only : nca, mca, x0, dxa, y0, dya, d
-      use m_missing, only : dmiss
-      use m_isoscaleunit, only : unit
-      use m_paramtext, only : paramtext
-      use m_inview, only : inview
+      use m_arcinfo, only: nca, mca, x0, dxa, y0, dya, d
+      use m_missing, only: dmiss
+      use m_isoscaleunit, only: unit
+      use m_paramtext, only: paramtext
+      use m_inview, only: inview
       use m_depmax2, only: vmax => vmax2, vmin => vmin2, dv => dv2, val => val2, nv => nv2, jaauto => jaauto2
 
       implicit none

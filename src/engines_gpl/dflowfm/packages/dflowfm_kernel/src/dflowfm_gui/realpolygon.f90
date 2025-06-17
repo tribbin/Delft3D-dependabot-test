@@ -33,9 +33,9 @@ module m_realpolygon
    implicit none
 contains
    subroutine realPOLYGON(X, Y, N, NCOL)
-      use m_set_col, only : setcol
-      use m_lnabs, only : lnabs
-      use m_ptabs, only : ptabs
+      use m_set_col, only: setcol
+      use m_lnabs, only: lnabs
+      use m_ptabs, only: ptabs
 
       integer :: i
       integer :: n

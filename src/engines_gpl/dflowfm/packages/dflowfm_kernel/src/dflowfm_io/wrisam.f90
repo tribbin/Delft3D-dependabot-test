@@ -37,10 +37,10 @@ module m_wrisam
 contains
    subroutine WRISAM(MSAM)
       use precision, only: dp
-      use M_SAMPLES, only : ns, zs, xs, ys
-      use M_ARCINFO, only : mca, nca, x0, y0, dxa, dya, maxsamarc, d
-      use m_readyy, only : readyy
-      use m_qnerror, only : qnerror
+      use M_SAMPLES, only: ns, zs, xs, ys
+      use M_ARCINFO, only: mca, nca, x0, y0, dxa, dya, maxsamarc, d
+      use m_readyy, only: readyy
+      use m_qnerror, only: qnerror
       use M_MISSING, only: DMISS
       use m_filez, only: doclose
 

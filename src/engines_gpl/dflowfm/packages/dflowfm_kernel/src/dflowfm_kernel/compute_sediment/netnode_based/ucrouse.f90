@@ -42,7 +42,7 @@ contains
 
    real(kind=dp) function ucrouse(z, z0, h, a, rs)
       use precision, only: dp
-      
+
       implicit none
       real(kind=dp) :: z, z0, h, a, rs
 

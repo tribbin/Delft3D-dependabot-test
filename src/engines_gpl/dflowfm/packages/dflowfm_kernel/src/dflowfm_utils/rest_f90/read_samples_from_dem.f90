@@ -43,11 +43,11 @@ contains
 
    subroutine read_samples_from_dem(filnam, jadoorladen)
       use precision, only: dp
-      use dem, only : deminfo, read_dem_file, nodata
-      use m_samples, only : savesam, ns, increasesam, xs, ys, zs, ipsam, mxsam, mysam, ipstat, ipstat_ok
-      use m_drawthis, only : ndraw
-      use m_readyy, only : readyy
-      use m_get_samples_boundingbox, only : get_samples_boundingbox
+      use dem, only: deminfo, read_dem_file, nodata
+      use m_samples, only: savesam, ns, increasesam, xs, ys, zs, ipsam, mxsam, mysam, ipstat, ipstat_ok
+      use m_drawthis, only: ndraw
+      use m_readyy, only: readyy
+      use m_get_samples_boundingbox, only: get_samples_boundingbox
       use m_filez, only: message
 
       character(len=*), intent(in) :: filnam

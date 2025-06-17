@@ -103,7 +103,7 @@ contains
 
       call default_physcoef()
       call calculate_derived_physcoef()
-      
+
       call default_sferic()
 
       call default_grw()

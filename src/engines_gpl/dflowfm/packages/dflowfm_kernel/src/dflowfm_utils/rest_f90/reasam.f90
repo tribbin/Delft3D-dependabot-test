@@ -38,14 +38,14 @@ module m_reasam
 contains
    subroutine REASAM(MSAM, JADOORLADEN)
       use precision, only: dp
-      use M_MISSING, only : kmod, xymis, dmiss
-      use M_SAMPLES, only : savesam, mxsam, mysam, ipstat, ipstat_notok, nsmax, ns, xs, ys, zs, ipsam, restoresam, ipstat_ok
-      use m_alloc, only : aerr
-      use m_drawthis, only : ndraw
-      use m_pharosflow, only : jflow, rec1
-      use m_readyy, only : readyy
-      use m_qnerror, only : qnerror
-      use m_get_samples_boundingbox, only : get_samples_boundingbox
+      use M_MISSING, only: kmod, xymis, dmiss
+      use M_SAMPLES, only: savesam, mxsam, mysam, ipstat, ipstat_notok, nsmax, ns, xs, ys, zs, ipsam, restoresam, ipstat_ok
+      use m_alloc, only: aerr
+      use m_drawthis, only: ndraw
+      use m_pharosflow, only: jflow, rec1
+      use m_readyy, only: readyy
+      use m_qnerror, only: qnerror
+      use m_get_samples_boundingbox, only: get_samples_boundingbox
       use ieee_arithmetic, only: ieee_is_nan
       use m_filez, only: thisisanumber, doclose
 

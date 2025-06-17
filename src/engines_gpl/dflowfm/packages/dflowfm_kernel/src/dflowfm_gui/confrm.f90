@@ -39,10 +39,10 @@ contains
    subroutine CONFRM(TEXT, JAZEKR)
       use unstruc_display_data, only: npos
       use m_devices, only: iws
-      use m_gui, only : jagui
-      use m_helpnow, only : nlevel, wrdkey
-      use m_timlin, only : timlin
-      use m_fkeys, only : fkeys
+      use m_gui, only: jagui
+      use m_helpnow, only: nlevel, wrdkey
+      use m_timlin, only: timlin
+      use m_fkeys, only: fkeys
       implicit none
 
       character TEXT * (*)

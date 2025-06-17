@@ -38,7 +38,7 @@ contains
 
    subroutine QNMESSAGE(TEX)
       use unstruc_display_data, only: npos
-      use unstruc_colors, only : iws, ihs, hlpfor, hlpbck
+      use unstruc_colors, only: iws, ihs, hlpfor, hlpbck
       use messagehandling, only: msgbuf, msg_flush
 
       integer :: ih

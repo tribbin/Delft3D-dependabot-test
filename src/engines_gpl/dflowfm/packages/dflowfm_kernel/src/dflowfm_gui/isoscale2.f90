@@ -38,18 +38,18 @@ contains
 
    subroutine ISOSCALE2() !   tekenen legenda
       use precision, only: dp
-      use m_arrows, only : arrows
-      use m_isoscaleunit, only : paramtex, unit
-      use unstruc_colors, only : x1, x2, y1, y2, klscl, kltex, klvec
-      use m_scalepos, only : scalesize, xsc, ysc, ndec
-      use m_vfac, only : vfac
-      use m_drawthis, only : ndraw
-      use m_gtext, only : gtext
-      use m_jgtext, only : jgtext
-      use m_dispform_scale, only : dispformscale
-      use m_box_nop, only : boxnop
-      use m_fbox_nop, only : fboxnop
-      use m_set_col, only : setcol
+      use m_arrows, only: arrows
+      use m_isoscaleunit, only: paramtex, unit
+      use unstruc_colors, only: x1, x2, y1, y2, klscl, kltex, klvec
+      use m_scalepos, only: scalesize, xsc, ysc, ndec
+      use m_vfac, only: vfac
+      use m_drawthis, only: ndraw
+      use m_gtext, only: gtext
+      use m_jgtext, only: jgtext
+      use m_dispform_scale, only: dispformscale
+      use m_box_nop, only: boxnop
+      use m_fbox_nop, only: fboxnop
+      use m_set_col, only: setcol
       use m_samples, only: ns
       use m_depmax2, only: vmax => vmax2, vmin => vmin2, val => val2, ncols => ncols2, nv => nv2
 

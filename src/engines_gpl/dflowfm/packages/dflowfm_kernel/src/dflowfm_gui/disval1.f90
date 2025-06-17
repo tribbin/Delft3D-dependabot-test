@@ -38,8 +38,8 @@ contains
 
    subroutine DISVAL1(DEP)
       use precision, only: dp
-      use unstruc_colors, only : iws
-      use m_ktext, only : ktext
+      use unstruc_colors, only: iws
+      use m_ktext, only: ktext
 
       real(kind=dp) :: DEP
       character TEX * 8

@@ -41,8 +41,8 @@ contains
 
    subroutine reabnd2pol(mbnd, mbca) ! convert d3d boundaryes stuf to model independent
       use precision, only: dp
-      use m_grid, only : ijyes, mc, nc, xc
-      use M_MISSING, only : xymis
+      use m_grid, only: ijyes, mc, nc, xc
+      use M_MISSING, only: xymis
       use m_filez, only: doclose
       implicit none
 

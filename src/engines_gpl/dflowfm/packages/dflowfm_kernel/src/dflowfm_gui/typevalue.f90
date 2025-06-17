@@ -38,7 +38,7 @@ contains
 
    subroutine TYPEVALUE(RD, KEY)
       use precision, only: dp
-      use M_DEVICES, only : iws, ihs
+      use M_DEVICES, only: iws, ihs
       implicit none
       real(kind=dp) :: rdin
       real(kind=dp) :: RD

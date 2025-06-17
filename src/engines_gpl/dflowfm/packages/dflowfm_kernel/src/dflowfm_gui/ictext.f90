@@ -38,9 +38,9 @@ contains
 
    subroutine ICTEXT(TEX, NX, NY, NCOL)
       use precision, only: dp
-      use unstruc_colors, only : x1, x2, iws, y2, y1, ihs
-      use m_set_col, only : setcol
-      use m_draw_text, only : drawtext
+      use unstruc_colors, only: x1, x2, iws, y2, y1, ihs
+      use m_set_col, only: setcol
+      use m_draw_text, only: drawtext
       implicit none
       integer :: l
       integer :: ncol

@@ -37,8 +37,8 @@ module m_inikeys
 contains
 
    subroutine INIKEYS()
-      use m_devices, only : nopsys
-      use m_nkeys, only : nkey, numc, numkeys
+      use m_devices, only: nopsys
+      use m_nkeys, only: nkey, numc, numkeys
       implicit none
       integer :: i
 !     Keyboard

@@ -40,7 +40,7 @@ contains
    ! Now a real(kind=dp) (real(kind=dp) ::)
    subroutine SHOWREAL(TEXT, value)
       use precision, only: dp
-      use m_devices, only : iws, ihs
+      use m_devices, only: iws, ihs
       implicit none
       integer :: infoattribute
       integer :: ixp

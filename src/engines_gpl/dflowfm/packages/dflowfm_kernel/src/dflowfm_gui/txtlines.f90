@@ -37,9 +37,9 @@ module m_txtlines
 contains
 
    subroutine TXTLINES()
-      use m_settextsize, only : settextsize
-      use m_mtext, only : mtext
-      use m_textlines, only : txsize, txlin, txxpos, txypos
+      use m_settextsize, only: settextsize
+      use m_mtext, only: mtext
+      use m_textlines, only: txsize, txlin, txxpos, txypos
       implicit none
       integer :: i
 

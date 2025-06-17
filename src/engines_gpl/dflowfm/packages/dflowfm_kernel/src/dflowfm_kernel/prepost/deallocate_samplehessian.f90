@@ -42,7 +42,7 @@ module m_deallocate_samplehessian
 contains
 
    subroutine deallocate_sampleHessian()
-      use m_samples_refine, only : zss, ihesstat, ihesstat_dirty
+      use m_samples_refine, only: zss, ihesstat, ihesstat_dirty
 
       if (allocated(zss)) then
          deallocate (zss)

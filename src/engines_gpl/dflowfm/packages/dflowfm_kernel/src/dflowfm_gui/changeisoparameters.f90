@@ -38,14 +38,14 @@ contains
 
    subroutine CHANGEISOPARAMETERS()
       use precision, only: dp
-      use unstruc_colors, only : hlpfor, hlpbck, iws, ihs, lblfor, lblbck
-      use unstruc_display_data, only : npos
-      use m_depmax, only : jaauto, nv, vmin, vmax, dv, nis, nie, val
-      use m_helpnow, only : nlevel, wrdkey
-      use m_scalepos, only : xsc, ysc, ndec, scalesize
-      use m_depmax2, only : jaauto2, nv2, vmin2, vmax2, dv2, nis2, nie2, val2
-      use m_help, only : help
-      use m_highlight_form_line, only : highlight_form_line
+      use unstruc_colors, only: hlpfor, hlpbck, iws, ihs, lblfor, lblbck
+      use unstruc_display_data, only: npos
+      use m_depmax, only: jaauto, nv, vmin, vmax, dv, nis, nie, val
+      use m_helpnow, only: nlevel, wrdkey
+      use m_scalepos, only: xsc, ysc, ndec, scalesize
+      use m_depmax2, only: jaauto2, nv2, vmin2, vmax2, dv2, nis2, nie2, val2
+      use m_help, only: help
+      use m_highlight_form_line, only: highlight_form_line
       use dflowfm_version_module, only: company, product_name
 
       real(kind=dp) :: dvi, dvi2

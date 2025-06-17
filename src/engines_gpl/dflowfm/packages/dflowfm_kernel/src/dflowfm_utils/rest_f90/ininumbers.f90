@@ -42,7 +42,6 @@ contains
 
    subroutine ININUMBERS()
       use precision, only: dp
-      
 
       real(kind=dp) :: pi, dg2rd, rd2dg, ra
       RA = 6370000d0

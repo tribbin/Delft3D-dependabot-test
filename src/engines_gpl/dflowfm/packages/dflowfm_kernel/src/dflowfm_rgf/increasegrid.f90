@@ -33,8 +33,8 @@ module m_increase_grid
    implicit none
 contains
    subroutine INCREASEGRID(M, N)
-      use M_GRID, only : mmax, nmax, mnmax, xc, yc, zc, ijc, ijyes
-      use m_alloc, only : realloc
+      use M_GRID, only: mmax, nmax, mnmax, xc, yc, zc, ijc, ijyes
+      use m_alloc, only: realloc
       use M_MISSING, only: dxymis
 
       integer :: m, n
