@@ -28,12 +28,12 @@
 !-------------------------------------------------------------------------------
 !
 !
-module m_ellips
+module m_ellipse
    use precision, only: dp
-
    implicit none
+   private
 
-   real(dp) :: a
-   real(dp) :: e
+   real(dp), public :: semi_major_axis
+   real(dp), public :: eccentricity
 
-end module m_ellips
+end module m_ellipse

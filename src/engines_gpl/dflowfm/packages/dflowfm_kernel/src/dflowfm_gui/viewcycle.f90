@@ -31,21 +31,22 @@
 !
 
 module m_viewcycle
-
    implicit none
+   private
+   public :: viewcycle
 
 contains
 
-   subroutine VIEWCYCLE(KEY)
-      use m_howtoview
+   subroutine viewcycle(key)
+      use m_howtoview, only: jview, jav
       use m_perspx
       implicit none
-      integer, intent(inout) :: KEY
+      integer, intent(out) :: key
 
-      JVIEW = JVIEW + 1
-      if (JVIEW > JAV) JVIEW = 1
-      KEY = 3
-      return
-   end subroutine VIEWCYCLE
-
+      jview = jview + 1
+      if (jview > jav) then
+         jview = 1
+      end if
+      key = 3
+   end subroutine viewcycle
 end module m_viewcycle
