@@ -50,10 +50,10 @@ contains
       use m_tranfn, only: tranfn
       use m_eqdint, only: eqdint
       use precision, only: dp
-      use m_missing
-      use m_splint
-      use m_readyy
-      use m_get_ij
+      use m_missing, only: dmiss
+      use m_splint, only: splint
+      use m_readyy, only: readyy
+      use m_get_ij, only: getij
 
       integer :: mmax, nmax, imax, m1, n1, m2, n2, mc, nc, mfac, nfac
       real(kind=dp) :: X(MMAX, NMAX), XR(MMAX, NMAX), &
@@ -152,8 +152,8 @@ contains
                            Y1, Y2, Y3, Y4, &
                            mmax, nmax, imax, &
                            MFA, NFA, XRH, YRH)
-               do K = 1, MFA + 1
-                  do L = 1, NFA + 1
+               do L = 1, NFA + 1
+                  do K = 1, MFA + 1
                      KI = KI1 + K
                      LJ = LJ1 + L
                      XR(KI, LJ) = XRH(K, L)

@@ -48,7 +48,7 @@ contains
 
    subroutine utmgeo2(xutm, yutm, xgeo, ygeo, IZONE, ihem)
       use precision, only: dp
-      use m_sferic
+      use m_sferic, only: rd2dg
       use m_ellipse, only: semi_major_axis, eccentricity
 
 !     xutm    i    real(kind=dp) ::    easting (UTM)

@@ -39,7 +39,6 @@ contains
 
    subroutine viewcycle(key)
       use m_howtoview, only: jview, jav
-      use m_perspx
       implicit none
       integer, intent(out) :: key
 
