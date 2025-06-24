@@ -60,7 +60,8 @@ contains
       use iso_c_utils, only: MAXSTRINGLEN
       use m_fm_icecover, only: ice_apply_pressure, ice_p
       use m_qnerror
-      use m_wind, only: air_pressure_available, air_pressure, pavbnd
+      use m_wind, only: air_pressure_available, air_pressure, pseudo_air_pressure_available, pseudo_air_pressure, &
+                        water_level_correction_available, water_level_correction, pavbnd
 
       integer :: n
       integer :: kb, k2, L, k, LL, itpbn
@@ -250,8 +251,18 @@ contains
          else
 !      Dirichlet boundary condition
 
-            if (air_pressure_available > 0 .and. PavBnd > 0) then
-               zb = zb - (air_pressure(kb) - PavBnd) / (ag * rhomean)
+            if (PavBnd > 0 .and. (air_pressure_available > 0 .or. pseudo_air_pressure_available > 0 &
+                .or. water_level_correction_available > 0)) then
+               zb = zb + PavBnd / (ag * rhomean)
+               if (air_pressure_available > 0) then
+                  zb = zb - air_pressure(kb) / (ag * rhomean)
+               end if
+               if (pseudo_air_pressure_available > 0) then
+                  zb = zb - pseudo_air_pressure(kb) / (ag * rhomean)
+               end if
+               if (water_level_correction_available > 0) then
+                  zb = zb - water_level_correction(kb) 
+               end if
             end if
 
             if (ice_apply_pressure) then

@@ -181,6 +181,12 @@ contains
             ! Retrieve wind's p-component for ext-file quantity 'atmosphericpressure'.
          else if (ec_item_id == item_atmosphericpressure) then
             call get_timespace_value_by_item(item_atmosphericpressure)
+            ! Retrieve value for ext-file quantity 'pseudo_air_pressure'.
+         else if (ec_item_id == item_pseudo_air_pressure) then
+            call get_timespace_value_by_item(item_pseudo_air_pressure)
+            ! Retrieve value for ext-file quantity 'water_level_correction'.
+         else if (ec_item_id == item_water_level_correction) then
+            call get_timespace_value_by_item(item_water_level_correction)
          else
             cycle ! avoid updating id_first_wind and id_last_wind
          end if
@@ -2817,10 +2823,46 @@ contains
 
    end function allocate_patm
 
+   !> Allocate and initialized pseudo atmosperic pressure variable(s)
+   function allocate_pseudo_air_pressure(default_value) result(status)
+      use m_wind, only: pseudo_air_pressure
+      use m_cell_geometry, only: ndx
+      use m_alloc, only: aerr
+      use precision_basics, only: hp
+
+      real(kind=hp), intent(in) :: default_value !< default atmospheric pressure value
+      integer :: status
+
+      status = 0
+      if (.not. allocated(pseudo_air_pressure)) then
+         allocate (pseudo_air_pressure(ndx), stat=status, source=default_value)
+         call aerr('pseudo_air_pressure(ndx)', status, ndx)
+      end if
+
+   end function allocate_pseudo_air_pressure
+
+   !> Allocate and initialized pseudo atmosperic pressure variable(s)
+   function allocate_water_level_correction(default_value) result(status)
+      use m_wind, only: water_level_correction
+      use m_cell_geometry, only: ndx
+      use m_alloc, only: aerr
+      use precision_basics, only: hp
+
+      real(kind=hp), intent(in) :: default_value !< default atmospheric pressure value
+      integer :: status
+
+      status = 0
+      if (.not. allocated(water_level_correction)) then
+         allocate (water_level_correction(ndx), stat=status, source=default_value)
+         call aerr('water_level_correction(ndx)', status, ndx)
+      end if
+
+   end function allocate_water_level_correction
+
    function check_keyword_zerozbndinflowadvection() result(success)
       use m_flowparameters, only: jaZerozbndinflowadvection
       use messagehandling, only: LEVEL_ERROR, msgbuf, mess
-
+      
       logical :: success
 
       success = .true.

@@ -931,6 +931,30 @@ contains
                   air_pressure_available = 1
                end if
 
+            else if (qid == 'pseudoAirPressure') then
+
+               if (.not. allocated(pseudo_air_pressure)) then
+                  allocate (pseudo_air_pressure(ndx), stat=ierr)
+                  call aerr('pseudo_air_pressure(ndx)', ierr, ndx)
+                  pseudo_air_pressure = 0.0_dp
+               end if
+               success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
+               if (success) then
+                  pseudo_air_pressure_available = 1
+               end if
+
+            else if (qid == 'waterLevelCorrection') then
+
+               if (.not. allocated(water_level_correction)) then
+                  allocate (water_level_correction(ndx), stat=ierr)
+                  call aerr('water_level_correction(ndx)', ierr, ndx)
+                  water_level_correction = 0.0_dp
+               end if
+               success = ec_addtimespacerelation(qid, xz, yz, kcs, kx, filename, filetype, method, operand, varname=varname)
+               if (success) then
+                  water_level_correction_available = 1
+               end if
+
             else if (qid == 'air_temperature') then
                call mess(LEVEL_WARN, 'Reading *.ext forcings file '''//trim(md_extfile)//''', please replace air_temperature by airtemperature')
                success = .false.
@@ -948,6 +972,7 @@ contains
                end if
 
             else if (qid == 'airdensity') then
+
 
                if (.not. allocated(air_density)) then
                   allocate (air_density(ndx), stat=ierr)

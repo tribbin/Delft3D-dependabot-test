@@ -625,7 +625,7 @@ contains
       use fm_location_types, only: UNC_LOC_S, UNC_LOC_U
       use m_wind, only: air_density, jawindstressgiven, jaspacevarcharn, ja_airdensity, air_pressure_available, jawind, jarain, &
                         jaqin, jaqext, solar_radiation_available, long_wave_radiation_available, ec_pwxwy_x, ec_pwxwy_y, ec_pwxwy_c, &
-                        ec_charnock, wcharnock, rain, qext
+                        ec_charnock, wcharnock, rain, qext, pseudo_air_pressure_available, water_level_correction_available
       use m_flowgeom, only: ndx, lnx, xz, yz
       use m_flowparameters, only: btempforcingtypA, btempforcingtypC, btempforcingtypD, btempforcingtypH, btempforcingtypL, &
                                   btempforcingtypS, itempforcingtyp
@@ -750,6 +750,14 @@ contains
             kx = 1
             ierr = allocate_patm(0._dp)
 
+         case ('pseudoAirPressure')
+            kx = 1
+            ierr = allocate_pseudo_air_pressure(0._dp)
+
+         case ('waterLevelCorrection')
+            kx = 1
+            ierr = allocate_water_level_correction(0._dp)
+
          case ('airpressure_windx_windy', 'airpressure_stressx_stressy', 'airpressure_windx_windy_charnock')
             kx = 1
             call allocatewindarrays()
@@ -829,7 +837,8 @@ contains
             res = timespaceinitialfield(xz, yz, qext, ndx, forcing_file, filetype, method, oper, transformcoef, UNC_LOC_S, mask)
             return ! This was a special case, don't continue with timespace processing below.
          case default
-            write (msgbuf, '(a)') 'Unknown quantity '''//trim(quantity)//''' in file '''//trim(file_name)//''': ['//trim(group_name)//'].'
+            write (msgbuf, '(a)') 'Unknown quantity '''//trim(quantity)//' in file '''//file_name//''': ['//group_name// &
+               '].'
             call err_flush()
             return
          end select
@@ -876,6 +885,12 @@ contains
 
          case ('airpressure', 'atmosphericpressure')
             air_pressure_available = 1
+
+         case ('pseudoAirPressure')
+            pseudo_air_pressure_available = 1
+
+         case ('waterLevelCorrection')
+            water_level_correction_available = 1
 
          case ('airpressure_windx_windy', 'airpressure_stressx_stressy', 'airpressure_windx_windy_charnock')
             jawind = 1
