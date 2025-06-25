@@ -162,7 +162,7 @@ contains
       allocate (character(len=0) :: zunits)
 
       ierr = nf90_open(trim(ncname), NF90_NOWRITE, ncptr%ncid)
-      if (ierr /= 0) then
+      if (ierr /= NF90_NOERR) then
          call setECmessage("ec_netcdf_timeseries::ecNetCDFInit: Error opening "//trim(ncname))
          return
       end if
@@ -203,7 +203,7 @@ contains
       var_ndims = 0
       do iVars = 1, nVars ! Inventorize variables
          ierr = nf90_inquire_attribute(ncptr%ncid, iVars, 'vector', len=len_vectordef) ! Check if this variable is just a reference to vector
-         if (ierr == 0) then
+         if (ierr == NF90_NOERR) then
             isVector = .true.
             allocate (character(len=len_vectordef) :: ncptr%vector_definitions(iVars)%s, stat=ierr)
             if (ierr /= 0) return
@@ -213,7 +213,7 @@ contains
          end if
          ierr = nf90_inquire_variable(ncptr%ncid, iVars, name=ncptr%variable_names(iVars)) ! Variable name
          ierr = nf90_get_att(ncptr%ncid, iVars, 'standard_name', ncptr%standard_names(iVars)) ! Standard name if available
-         if (ierr /= 0) ncptr%standard_names(iVars) = ncptr%variable_names(iVars) ! Variable name as fallback for standard_name
+         if (ierr /= NF90_NOERR) ncptr%standard_names(iVars) = ncptr%variable_names(iVars) ! Variable name as fallback for standard_name
          ierr = nf90_get_att(ncptr%ncid, iVars, 'long_name', ncptr%long_names(iVars)) ! Long name for non CF names
 
          ierr = nf90_get_att(ncptr%ncid, iVars, '_FillValue', ncptr%fillvalues(iVars))
@@ -243,7 +243,7 @@ contains
                ncptr%tsid = ''
                do iTims = 1, nTims
                   ierr = nf90_get_var(ncptr%ncid, iVars, ncptr%tsid(iTims), (/1, iTims/), (/tslen, 1/))
-                  if (ierr /= 0) return
+                  if (ierr /= NF90_NOERR) return
                   call replace_char(ncptr%tsid(iTims), 0, 32) ! Replace NULL char by whitespace: iachar(' ') == 32
                end do
                ncptr%tsidvarid = iVars ! For convenience also store the Station ID explicitly
@@ -276,9 +276,9 @@ contains
             allocate (ncptr%vp(ncptr%nLayer), stat=ierr)
             if (ierr /= 0) return
             ierr = nf90_get_var(ncptr%ncid, ncptr%layervarid, ncptr%vp, (/1/), (/ncptr%nLayer/))
-            if (ierr /= 0) return
+            if (ierr /= NF90_NOERR) return
             ierr = ncu_get_att(ncptr%ncid, iVars, 'units', zunits)
-            if (ierr /= 0) return
+            if (ierr /= NF90_NOERR) return
             if (strcmpi(zunits, 'm')) then
                if (strcmpi(positive, 'up')) ncptr%vptyp = BC_VPTYP_ZDATUM ! z upward from datum, unmodified z-values
                if (strcmpi(positive, 'down')) ncptr%vptyp = BC_VPTYP_ZSURF ! z downward
@@ -451,7 +451,7 @@ contains
 
       success = .false.
       ierr = nf90_get_att(ncptr%ncid, q_id, trim(attribute_name), attribute_value)
-      if (ierr /= 0) return
+      if (ierr /= NF90_NOERR) return
       success = .true.
    end function ecNetCDFGetAttrib
 
