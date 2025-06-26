@@ -197,7 +197,7 @@ contains
                 end if
                 ierr = nf90_enddef(imapfile)
 
-                call construct_layer_coords( hyd, layer_zs, interface_zs )
+                call get_layer_coords( hyd, layer_zs, interface_zs )
 
                 call ug_write_mesh_layer_arrays(imapfile, meshids, ierr, num_layers, laytp, layer_zs, &
                          interface_zs, num_layers)
@@ -304,6 +304,55 @@ contains
 
     end subroutine construct_layer_coords
 
+    subroutine get_layer_coords( hyd, layer_zs, interface_zs )
+        use m_hydmod, only: t_hydrodynamics
+        use io_netcdf
+
+        type(t_hydrodynamics), intent(in) :: hyd
+        real(kind=dp), pointer, dimension(:), intent(out) :: layer_zs
+        real(kind=dp), pointer, dimension(:), intent(out) :: interface_zs
+
+        integer :: idlay, idinterface
+        integer :: ncid, ierr
+
+        allocate( layer_zs(1:hyd%num_layers), interface_zs(1:hyd%num_layers+1) )
+
+        ierr = nf90_open( trim(hyd%file_geo%name), nf90_nowrite, ncid )
+
+        layer_zs     = 0.0_dp
+        interface_zs = 0.0_dp
+
+        ierr = nf90_inq_varid( ncid, trim(hyd%waqgeom%meshname) // '_layer_z', idlay )
+        if ( ierr == nf90_noerr ) then
+            ierr = nf90_inq_varid( ncid, trim(hyd%waqgeom%meshname) // '_interface_z', idinterface )
+        else
+            ierr = nf90_inq_varid( ncid, trim(hyd%waqgeom%meshname) // '_layer_sigma', idlay )
+            if ( ierr == nf90_noerr ) then
+                ierr = nf90_inq_varid( ncid, trim(hyd%waqgeom%meshname) // '_interface_sigma', idinterface )
+            else
+                !
+                ! No layer information found, so resort to the last possibility
+                !
+                ierr = nf90_close( ncid )
+                call construct_layer_coords( hyd, layer_zs, interface_zs )
+
+                return
+            endif
+        endif
+
+        !
+        ! We do have layer information, read it from the file
+        ! And reverse the order
+        !
+        ierr = nf90_get_var( ncid, idlay, layer_zs )
+        ierr = nf90_get_var( ncid, idinterface, interface_zs )
+
+        layer_zs     = layer_zs(hyd%num_layers:1:-1)
+        interface_zs = interface_zs(hyd%num_layers+1:1:-1)
+
+        ierr = nf90_close( ncid )
+
+    end subroutine get_layer_coords
 
     subroutine unc_write_map()
 
@@ -471,6 +520,8 @@ contains
 
         integer, save :: icount = 0
 
+        write(88,*) ' '
+
         icount = icount + 1
 
         !  allocate
@@ -510,6 +561,11 @@ contains
             do i = 1, NopartTot
                 k = mpart(i)
                 lay = laypart(i)
+
+                write(88,*) i, k, lay
+                if ( abs(lay) > 10 ) then
+                    flush( 88 )
+                endif
 
                 zz(i) = 0.0
                 if (k > 0 .and. lay > 0) then
