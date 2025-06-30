@@ -51,7 +51,7 @@ contains
         use MessageHandling
         use partmem
         use m_part_mesh
-        use m_particles, only: NopartTot, Nrpart, trpart, xrpart, yrpart, zrpart, mrpart, irpart
+        use m_particles, only: NopartTot, Nrpart, trpart, xrpart, yrpart, zrpart, mrpart, irpart, laypart => kpart
         use part10fm_mod
         use fm_oildsp_mod
         use fm_vert_disp_mod
@@ -99,7 +99,11 @@ contains
         ! For a model based on z-layers we need extra administration
         ! but that is not part of the current implementation yet
         !
-        allocate(laytop(0, 0), laytopp(0, 0))
+        if ( zmodel ) then
+            allocate(laytop(1, hyd%nosegl), laytopp(1, hyd%nosegl))
+        else
+            allocate(laytop(0, 0), laytopp(0, 0))
+        endif
 
         !
         ! Read the grid information and the actual input file
@@ -180,6 +184,7 @@ contains
                     trkfil = .false.
                 endif
             endif
+
             if (trkfil) call unc_write_trk()
             if (mapfil) call unc_write_map()
 
