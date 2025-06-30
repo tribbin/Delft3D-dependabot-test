@@ -47,7 +47,10 @@ contains
 #ifdef HAVE_GDAL
       use, intrinsic :: iso_c_binding, only: c_int, c_double, c_float, c_null_char, c_associated, c_ptr
       use fortranc, only: strtofchar
-      use gdal, only: gdaldataseth, gdalrasterbandh, gdalallregister, gdalopen, ga_readonly, gdalassociated, gdalgetrasterxsize, gdalgetrasterysize, gdalgetrastercount, gdalgetrasterband, gdalgetdatatypesize, gdalgetrasterdatatype, gdaldatasetrasterio_f, gf_read, gdalgetgeotransform, gdalgetmetadataitem, gdalmajorobjecth_new, gdalclose
+      use gdal, only: gdaldataseth, gdalrasterbandh, gdalallregister, gdalopen, ga_readonly, gdalassociated, &
+                      gdalgetrasterxsize, gdalgetrasterysize, gdalgetrastercount, gdalgetrasterband, gdalgetdatatypesize, &
+                      gdalgetrasterdatatype, gdaldatasetrasterio_f, gf_read, gdalgetgeotransform, gdalgetmetadataitem, &
+                      gdalmajorobjecth_new, gdalclose
       use m_samples, only: increasesam, ns, xs, ys, zs, mxsam, mysam, ipstat, ipstat_notok, ipsam, ipstat_ok
       use m_drawthis, only: ndraw
       use m_readyy, only: readyy

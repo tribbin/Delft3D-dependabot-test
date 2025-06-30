@@ -44,7 +44,8 @@ contains
 
    subroutine updateValuesOnLaterals(tim1, timestep)
       use m_flowtimes, only: ti_his, time_his, ti_hiss
-      use m_laterals, only: qLatReal, numlatsg, n1latsg, n2latsg, nnlat, num_layers, qqLat, qplatCum, qplat, qLatRealCum, qplatAve, qplatCumPre, qLatRealAve, qLatRealCumPre
+      use m_laterals, only: qLatReal, numlatsg, n1latsg, n2latsg, nnlat, num_layers, qqLat, qplatCum, qplat, &
+                            qLatRealCum, qplatAve, qplatCumPre, qLatRealAve, qLatRealCumPre
       use precision, only: dp, comparereal
       use m_alloc, only: realloc
       use m_flowparameters, only: eps10

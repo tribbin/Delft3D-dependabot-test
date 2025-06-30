@@ -243,7 +243,6 @@ contains
    !> find the flow link number, using node id
    function findlink_by_nodeid(nodeId, L) result(ierr)
       use dfm_error
-      use messagehandling
       use m_hash_search
       use unstruc_channel_flow
       use m_branch
@@ -330,7 +329,6 @@ contains
    function findnode_by_pol(npol, xpol, ypol, points, numpoints, nodetype) result(ierr)
       use precision, only: dp
       use m_flowgeom, only: xz, yz, ndx2D, ndxi
-      use messagehandling
       use m_polygon, only: xpl, ypl, npl, increasepol
       use dfm_error
 
@@ -394,7 +392,6 @@ contains
 
    !> Find the flow node number, using node Id.
    function findnode_by_id(nodeId, nodenr) result(ierr)
-      use messagehandling
       use m_hash_search
       use unstruc_channel_flow
       use dfm_error

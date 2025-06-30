@@ -45,7 +45,7 @@ contains
    subroutine checknetwork()
       use precision, only: dp
 
-      use network_data, only: numl, linkcross, nlinkcross, kn, xk, yk, numk, nmk, nod, kn
+      use network_data, only: numl, linkcross, nlinkcross, kn, xk, yk, nmk, nod, kn
       use m_alloc, only: realloc
       use m_readyy, only: readyy
       use geometry_module, only: cross
