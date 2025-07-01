@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2024.
+!  Copyright (C)  Stichting Deltares, 2017-2025.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -46,6 +46,7 @@ contains
       use m_waves, only: hwav
       use m_flowparameters, only: jawave
       use m_debug
+      use m_waveconst
 
       logical, intent(out) :: error
 
@@ -60,7 +61,7 @@ contains
       bermslopeindexbed = .false.
       bermslopeindexsus = .false.
       !
-      if (jawave > 0) then
+      if (jawave > NO_WAVES) then
          do L = 1, lnx
             if (hu(L) < epshu) cycle
             k1 = ln(1, L); k2 = ln(2, L)

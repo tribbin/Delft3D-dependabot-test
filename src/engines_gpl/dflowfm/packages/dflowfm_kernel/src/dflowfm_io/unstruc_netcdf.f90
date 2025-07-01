@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2024.
+!  Copyright (C)  Stichting Deltares, 2017-2025.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -57,6 +57,9 @@ module unstruc_netcdf
    use m_readyy
    use m_qnerror
    use netcdf_utils, only: ncu_sanitize_name, ncu_ensure_data_mode, ncu_ensure_define_mode, ncu_restore_mode
+   use m_waveconst
+   use m_get_Lbot_Ltop_max, only: getLbotLtopmax
+   use m_reconstruct_hydrodynamics, only: reconstruct_hu_2D_from_3D
 
    implicit none
 
@@ -3561,7 +3564,7 @@ contains
          ITRAN0 = ITRAN
       end if
 
-      if (jawave == 4) then
+      if (jawave == WAVE_SURFBEAT) then
          ierr = nf90_def_var(irstfile, 'E', nf90_double, [id_flowelemdim, id_timedim], id_E)
          ierr = nf90_put_att(irstfile, id_E, 'coordinates', 'FlowElem_xcc FlowElem_ycc')
          ierr = nf90_put_att(irstfile, id_E, 'standard_name', 'sea_surface_bulk_wave_energy') ! not CF
@@ -4199,7 +4202,7 @@ contains
       end if
 
       ! JRE
-      if (jawave == 4) then
+      if (jawave == WAVE_SURFBEAT) then
          ierr = nf90_inq_varid(irstfile, 'E', id_E)
          ierr = nf90_inq_varid(irstfile, 'thetamean', id_thetamean)
          ierr = nf90_inq_varid(irstfile, 'sigmwav', id_sigmwav)
@@ -4284,13 +4287,13 @@ contains
       ierr = nf90_put_var(irstfile, id_bl, bl, [1, itim], [ndxi, 1])
 
       ! Write the data: tau current
-      if (jawave == 0) then ! Else, get taus from subroutine tauwave (taus = taucur + tauwave). Bas; Mind for jawind!
+      if (jawave == NO_WAVES) then ! Else, get taus from subroutine tauwave (taus = taucur + tauwave). Bas; Mind for jawind!
          call gettaus(1, 1)
       else if (jamap_chezy_links > 0) then
          call gettaus(2, 1)
       end if
       !
-      if (jawave > 0 .and. .not. flowWithoutWaves) then
+      if (jawave > NO_WAVES .and. .not. flowWithoutWaves) then
          call gettauswave(jawaveswartdelwaq)
       end if
       !
@@ -4414,15 +4417,15 @@ contains
          end do
          ierr = nf90_put_var(irstfile, id_q1, work1(1:kmx, 1:lnx), start=[1, 1, itim], count=[kmx, lnx, 1])
 
-         work1 = dmiss
+         work0 = dmiss
          do LL = 1, lnx
             call getLbotLtopmax(LL, Lb, Ltx)
             call getlayerindicesLmax(LL, nlaybL, nrlayLx)
-            do L = Lb, Ltx
-               work1(L - Lb + nlaybL, LL) = hu(L)
+            do L = Lb - 1, Ltx
+               work0(L - Lb + nlaybL, LL) = hu(L)
             end do
          end do
-         ierr = nf90_put_var(irstfile, id_hu, work1(1:kmx, 1:lnx), start=[1, 1, itim], count=[kmx, lnx, 1])
+         ierr = nf90_put_var(irstfile, id_hu, work0(0:kmx, 1:lnx), start=[1, 1, itim], count=[kmx + 1, lnx, 1])
 
          if (Corioadamsbashfordfac > 0d0) then
             work1 = dmiss
@@ -4641,7 +4644,7 @@ contains
       end if
 
       ! JRE: review what is really necessary
-      if (jawave == 4) then
+      if (jawave == WAVE_SURFBEAT) then
          ierr = nf90_put_var(irstfile, id_E, E, [1, itim], [ndxi, 1])
          ierr = nf90_put_var(irstfile, id_thetamean, thetamean, [1, itim], [ndxi, 1])
          ierr = nf90_put_var(irstfile, id_sigmwav, sigmwav, [1, itim], [ndxi, 1])
@@ -5417,9 +5420,9 @@ contains
       call realloc(mapids%id_const, [MAX_ID_VAR, NUMCONST], keepExisting=.false.)
 
       ! Set correct limiting depth for waves
-      if (jawave > 0) then
+      if (jawave > NO_WAVES) then
          select case (jawave)
-         case (4)
+         case (WAVE_SURFBEAT)
             hmlwL = hminlw_xb
          case default
             hmlwL = hminlw_waves
@@ -5560,7 +5563,7 @@ contains
             ierr = unc_put_att(mapids%ncid, mapids%id_u0, 'comment', 'Positive direction is from first to second neighbouring face (flow element).')
          end if
          if (jamapucvec > 0) then
-            if (jaeulervel == 1 .and. jawave > 0 .and. .not. flowWithoutWaves) then ! TODO: AvD:refactor such that yes<->no Eulerian velocities are in parameters below:
+            if (jaeulervel == WAVE_EULER_VELOCITIES_OUTPUT_ON .and. jawave > NO_WAVES .and. .not. flowWithoutWaves) then ! TODO: AvD:refactor such that yes<->no Eulerian velocities are in parameters below:
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_ucx, nc_precision, iLocS, 'ucx', 'sea_water_x_eulerian_velocity', 'Flow element center eulerian velocity vector, x-component', 'm s-1', jabndnd=jabndnd_)
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_ucy, nc_precision, iLocS, 'ucy', 'sea_water_y_eulerian_velocity', 'Flow element center eulerian velocity vector, y-component', 'm s-1', jabndnd=jabndnd_)
             else
@@ -5576,7 +5579,7 @@ contains
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_ucz, nc_precision, UNC_LOC_S3D, 'ucz', 'upward_sea_water_velocity', 'Flow element center velocity vector, z-component', 'm s-1', jabndnd=jabndnd_)
                ! Depth-averaged cell-center velocities in 3D:
                if (jsferic == 0) then
-                  if (jaeulervel == 1 .and. jawave > 0) then
+                  if (jaeulervel == WAVE_EULER_VELOCITIES_OUTPUT_ON .and. jawave > NO_WAVES) then
                      ! GLM indication needed to report that depth-averaged values are always GLM, even when eulervelocities==1
                      ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_ucxa, nc_precision, UNC_LOC_S, 'ucxa', 'sea_water_glm_x_velocity', 'Flow element center GLM depth-averaged velocity, x-component', 'm s-1', jabndnd=jabndnd_) ! depth-averaged magnitude has no stokes drift
                      ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_ucya, nc_precision, UNC_LOC_S, 'ucya', 'sea_water_glm_y_velocity', 'Flow element center GLM depth-averaged velocity, y-component', 'm s-1', jabndnd=jabndnd_)
@@ -5591,13 +5594,13 @@ contains
             end if
          end if
          if (jamapucmag > 0) then
-            if (jaeulervel == 1 .and. jawave > 0 .and. .not. flowWithoutWaves) then ! TODO: AvD:refactor such that yes<->no Eulerian velocities are in parameters below:
+            if (jaeulervel == WAVE_EULER_VELOCITIES_OUTPUT_ON .and. jawave > NO_WAVES .and. .not. flowWithoutWaves) then ! TODO: AvD:refactor such that yes<->no Eulerian velocities are in parameters below:
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_ucmag, nc_precision, iLocS, 'ucmag', 'sea_water_eulerian_speed', 'Flow element center eulerian velocity magnitude', 'm s-1', jabndnd=jabndnd_)
             else
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_ucmag, nc_precision, iLocS, 'ucmag', 'sea_water_speed', 'Flow element center velocity magnitude', 'm s-1', jabndnd=jabndnd_)
             end if
             if (kmx > 0) then
-               if (jaeulervel == 1 .and. jawave > 0) then ! TODO: AvD:refactor such that yes<->no Eulerian velocities are in parameters below:
+               if (jaeulervel == WAVE_EULER_VELOCITIES_OUTPUT_ON .and. jawave > NO_WAVES) then ! TODO: AvD:refactor such that yes<->no Eulerian velocities are in parameters below:
                   ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_ucmaga, nc_precision, UNC_LOC_S, 'ucmaga', 'sea_water_speed', 'Flow element center depth-averaged GLM velocity magnitude', 'm s-1', jabndnd=jabndnd_) ! depth-averaged magnitude has no stokes drift
                else
                   ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_ucmaga, nc_precision, UNC_LOC_S, 'ucmaga', 'sea_water_speed', 'Flow element center depth-averaged velocity magnitude', 'm s-1', jabndnd=jabndnd_)
@@ -5605,7 +5608,7 @@ contains
             end if
          end if
          if (jamapucqvec > 0) then
-            if (jaeulervel == 1 .and. jawave > 0 .and. .not. flowWithoutWaves) then ! TODO: AvD:refactor such that yes<->no Eulerian velocities are in parameters below:
+            if (jaeulervel == WAVE_EULER_VELOCITIES_OUTPUT_ON .and. jawave > NO_WAVES .and. .not. flowWithoutWaves) then ! TODO: AvD:refactor such that yes<->no Eulerian velocities are in parameters below:
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_ucxq, nc_precision, iLocS, 'ucxq', 'ucxq_eulerian_velocity', 'Flow element center eulerian velocity vector based on discharge, x-component', 'm s-1', jabndnd=jabndnd_)
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_ucyq, nc_precision, iLocS, 'ucyq', 'ucyq_eulerian_velocity', 'Flow element center eulerian velocity vector based on discharge, y-component', 'm s-1', jabndnd=jabndnd_)
             else
@@ -6264,7 +6267,7 @@ contains
             end if
          end if
 
-         if (jawave > 0 .and. jamapwav > 0) then
+         if (jawave > NO_WAVES .and. jamapwav > 0) then
             if (flowWithoutWaves) then ! Check the external forcing wave quantities and their associated arrays
                if (jamapwav_hwav > 0 .and. allocated(hwav)) then
                   if (jamapsigwav == 0) then
@@ -6291,7 +6294,7 @@ contains
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_twav, nc_precision, UNC_LOC_S, 'twav', 'sea_surface_wave_period_at_variance_spectral_density_maximum', 'Wave peak period', 's') ! we assume working with the peak period in all our formulations
                ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_uorb, nc_precision, UNC_LOC_S, 'uorb', 'sea_surface_wave_orbital_velocity', 'Wave orbital velocity', 'm s-1', jabndnd=jabndnd_) ! not CF
                !
-               if (jawavestokes > 0) then
+               if (jawavestokes > NO_STOKES_DRIFT) then
                   ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_ustokes, nc_precision, iLocS, 'ust_cc', 'sea_surface_wave_stokes_drift_x_velocity', 'Stokes drift, x-component', 'm s-1', jabndnd=jabndnd_)
                   ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_vstokes, nc_precision, iLocS, 'vst_cc', 'sea_surface_wave_stokes_drift_y_velocity', 'Stokes drift, y-component', 'm s-1', jabndnd=jabndnd_)
 
@@ -6300,7 +6303,7 @@ contains
                end if
                !
                ! Then wave model dependent:
-               if ((jawave == 3 .or. jawave == 4 .or. jawave == 7) .and. jawaveforces > 0) then
+               if ((jawave == WAVE_SWAN_ONLINE .or. jawave == WAVE_SURFBEAT .or. jawave == WAVE_NC_OFFLINE) .and. jawaveforces > WAVE_FORCES_OFF) then
                   ! Report wave forces depth-integrated in flow cell center for easier comparison with other models/observations
                   ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_Fx, nc_precision, UNC_LOC_S, 'Fx', 'sea_surface_wave_x_force', 'Wave force, x-component', 'N m-2', jabndnd=jabndnd_) ! not CF
                   ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_Fy, nc_precision, UNC_LOC_S, 'Fy', 'sea_surface_wave_y_force', 'Wave force, y-component', 'N m-2', jabndnd=jabndnd_) ! not CF
@@ -6316,7 +6319,7 @@ contains
                   end if
                end if
 
-               if (jawave == 4) then
+               if (jawave == WAVE_SURFBEAT) then
                   ierr = nf90_def_dim(mapids%ncid, 'ntheta', ntheta, mapids%id_tsp%id_ntheta)
                   ierr = unc_def_var_map(mapids%ncid, mapids%id_tsp, mapids%id_E, nc_precision, UNC_LOC_S, 'E', 'sea_surface_wave_bulk_energy', 'Wave energy per square meter', 'J m-2', jabndnd=jabndnd_) ! not CF
                   if (roller > 0) then
@@ -7676,7 +7679,7 @@ contains
          ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_qtot, UNC_LOC_S, Qtotmap, jabndnd=jabndnd_)
       end if
 
-      if (jawave > 0 .and. jamapwav > 0) then
+      if (jawave > NO_WAVES .and. jamapwav > 0) then
          !
          if (jamapsigwav == 0) then
             wavfac = 1d0
@@ -7712,7 +7715,7 @@ contains
             ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_uorb, UNC_LOC_S, uorb, jabndnd=jabndnd_)
             deallocate (wa)
             !
-            if (jawavestokes > 0) then
+            if (jawavestokes > NO_STOKES_DRIFT) then
                call realloc(ust_x, ndkx, keepExisting=.false.)
                call realloc(ust_y, ndkx, keepExisting=.false.)
                call reconstruct_cc_stokesdrift(ndkx, ust_x, ust_y)
@@ -7724,7 +7727,7 @@ contains
                ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_vstokeslink, iLocU, vstokes, jabndnd=jabndnd_)
             end if
             !
-            if ((jawave == 3 .or. jawave == 4 .or. jawave == 7) .and. jawaveforces > 0) then
+            if ((jawave == WAVE_SWAN_ONLINE .or. jawave == WAVE_SURFBEAT .or. jawave == WAVE_NC_OFFLINE) .and. jawaveforces > WAVE_FORCES_OFF) then
                call realloc(windx, ndkx, keepExisting=.false., fill=0d0) ! reuse scratch wind arrays, ust_x, y still needed for tausx,y
                call realloc(windy, ndkx, keepExisting=.false., fill=0d0)
                call realloc(wavout, lnkx, keepExisting=.false., fill=0d0)
@@ -7777,7 +7780,7 @@ contains
                end if
             end if
             !
-            if (jawave == 4) then
+            if (jawave == WAVE_SURFBEAT) then
                ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_E, UNC_LOC_S, E, jabndnd=jabndnd_)
                if (roller > 0) then
                   ierr = unc_put_var_map(mapids%ncid, mapids%id_tsp, mapids%id_R, UNC_LOC_S, R, jabndnd=jabndnd_)
@@ -7820,7 +7823,7 @@ contains
 
       !
       if (jamaptaucurrent > 0 .or. jamap_chezy_elements > 0 .or. jamap_chezy_links > 0) then
-         if (jawave == 0) then ! Else, get taus from subroutine tauwave (taus = f(taucur,tauwave))
+         if (jawave == NO_WAVES) then ! Else, get taus from subroutine tauwave (taus = f(taucur,tauwave))
             call gettaus(1, 1)
             workx = DMISS; worky = DMISS
             if (kmx == 0) then
@@ -7841,7 +7844,7 @@ contains
             call gettaus(2, 1) ! Only update czs
          end if
 
-         if (jawave > 0 .and. .not. flowWithoutWaves) then
+         if (jawave > NO_WAVES .and. .not. flowWithoutWaves) then
             call gettauswave(jawaveswartdelwaq)
          end if
       end if
@@ -9240,7 +9243,7 @@ contains
             end if
 
             ! JRE waves
-            if (jawave == 4) then
+            if (jawave == WAVE_SURFBEAT) then
                ierr = nf90_def_var(imapfile, 'E', nf90_double, [id_flowelemdim(iid), id_timedim(iid)], id_E(iid))
                ierr = nf90_put_att(imapfile, id_E(iid), 'coordinates', 'FlowElem_xcc FlowElem_ycc')
                ierr = nf90_put_att(imapfile, id_E(iid), 'standard_name', 'sea_surface_bulk_wave_energy') ! not CF
@@ -9891,8 +9894,8 @@ contains
             ierr = nf90_inq_varid(imapfile, 'ero', id_ero(iid))
          end if
          !
-         ! JRE - XBeach
-         if (jawave == 4) then
+         ! JRE - Surfbeat
+         if (jawave == WAVE_SURFBEAT) then
             ierr = nf90_inq_varid(imapfile, 'E', id_E(iid))
             ierr = nf90_inq_varid(imapfile, 'R', id_R(iid))
             ierr = nf90_inq_varid(imapfile, 'H', id_H(iid))
@@ -9991,7 +9994,7 @@ contains
       ! only when the user asks for it and only if we are not writing to com-file
       !
       jaeulerloc = 0
-      if (jaeulervel == 1 .and. jaseparate_ /= 2 .and. jawave > 0) then
+      if (jaeulervel == WAVE_EULER_VELOCITIES_OUTPUT_ON .and. jaseparate_ /= 2 .and. jawave > NO_WAVES) then
          jaeulerloc = 1
       end if
       !
@@ -10053,12 +10056,12 @@ contains
          end if
          ! Tau current and chezy roughness
          if (jamaptaucurrent > 0 .or. jamap_chezy_elements > 0 .or. jamap_chezy_links > 0) then
-            if (jawave == 0) then ! Else, get taus from subroutine tauwave (taus = f(taucur,tauwave))
+            if (jawave == NO_WAVES) then ! Else, get taus from subroutine tauwave (taus = f(taucur,tauwave))
                call gettaus(1, 1) ! Update taus and czs
             else if (jamap_chezy_links > 0) then
                call gettaus(2, 1) ! Only update czs
             end if
-            if (jawave > 0 .and. .not. flowWithoutWaves) then
+            if (jawave > NO_WAVES .and. .not. flowWithoutWaves) then
                call gettauswave(jawaveswartdelwaq)
             end if
          end if
@@ -10986,8 +10989,8 @@ contains
          ierr = nf90_put_var(imapfile, id_cfcl(iid), cfclval, [1, itim], [numl, 1])
       end if
 
-      ! JRE - XBeach
-      if (jawave == 4) then
+      ! JRE - surfbeat
+      if (jawave == WAVE_SURFBEAT) then
          ierr = nf90_put_var(imapfile, id_E(iid), E, [1, itim], [ndxndxi, 1]) ! direction integrated
          ierr = nf90_put_var(imapfile, id_R(iid), R, [1, itim], [ndxndxi, 1])
          ierr = nf90_put_var(imapfile, id_H(iid), H, [1, itim], [ndxndxi, 1])
@@ -11165,7 +11168,7 @@ contains
 
          ! Start detecting grid enclosure
          call savepol()
-         if (jampi > 0) then ! .and. jawave == 3) then
+         if (jampi > 0) then
             netstat_store = netstat
             netstat = NETSTAT_OK
             call generate_partition_pol_from_idomain(ierr, myrank=my_rank) ! UNST-1937: strictly domain, no ghostcells
@@ -13522,9 +13525,15 @@ contains
       call readyy('Reading map data', 0.50d0)
 
       ! Read upwinded flow depth (flow link)
-      ierr = get_var_and_shift(imapfile, 'hu', hu, tmpvar1, UNC_LOC_U, kmx, Lstart, um%lnx_own, it_read, um%jamergedmap, &
-                               um%ilink_own, um%ilink_merge)
-
+      if (kmx > 0) then
+         ierr = get_var_and_shift(imapfile, 'hu', hu, tmpvar1, UNC_LOC_WU, kmx, Lstart, um%lnx_own, it_read, um%jamergedmap, &
+                                  um%ilink_own, um%ilink_merge)
+         call reconstruct_hu_2D_from_3D(hu, lnx)
+      else
+         ierr = get_var_and_shift(imapfile, 'hu', hu, tmpvar1, UNC_LOC_U, kmx, Lstart, um%lnx_own, it_read, um%jamergedmap, &
+                                  um%ilink_own, um%ilink_merge)
+      end if
+      
       ! Read qa (flow link), optional: only from rst file, so no error check
       ierr = get_var_and_shift(imapfile, 'qa', qa, tmpvar1, UNC_LOC_U3D, kmx, Lstart, um%lnx_own, it_read, um%jamergedmap, &
                                um%ilink_own, um%ilink_merge)
@@ -18413,12 +18422,10 @@ contains
 !  another variable).
    subroutine read_sediment(var, stradd, imapfile, kstart, kcount, it_read, um, target_shift)
       use precision, only: dp
-
       use m_flow, only: kmx, ndkx
       use m_transport, only: ISED1, ISEDN, const_names
       use messagehandling, only: mess, LEVEL_WARN
       use m_alloc, only: realloc
-      use m_partitioninfo, only: um
       use fm_location_types, only: UNC_LOC_S3D, UNC_LOC_S
 
 !input/output

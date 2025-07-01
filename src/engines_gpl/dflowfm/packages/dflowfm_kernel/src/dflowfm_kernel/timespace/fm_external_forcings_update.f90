@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2024.
+!  Copyright (C)  Stichting Deltares, 2017-2025.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -55,6 +55,7 @@ submodule(fm_external_forcings) fm_external_forcings_update
    use m_laterals, only: numlatsg
    use m_physcoef, only: BACKGROUND_AIR_PRESSURE
    use m_flow_initwaveforcings_runtime, only: flow_initwaveforcings_runtime
+   use m_waveconst
 
    implicit none
 
@@ -274,6 +275,8 @@ contains
 !> set_temperature_models
    subroutine set_temperature_models(time_in_seconds)
       use precision, only: dp
+      use messagehandling, only: LEVEL_WARN, mess
+
       real(kind=dp), intent(in) :: time_in_seconds !< Time in seconds
 
       logical :: foundtempforcing
@@ -389,7 +392,7 @@ contains
       use ieee_arithmetic, only: ieee_is_nan
       use m_compute_wave_parameters, only: compute_wave_parameters
       use unstruc_messages, only: callback_msg
-      use messagehandling, only: warn_flush
+      use messagehandling, only: LEVEL_WARN, msgbuf, warn_flush
 
       logical, intent(in) :: initialization !< initialization phase
 
@@ -397,19 +400,19 @@ contains
 
       integer :: k
 
-      if (jawave == 3 .or. jawave == 7) then
+      if (jawave == WAVE_SWAN_ONLINE .or. jawave == WAVE_NC_OFFLINE) then
 
          if (.not. initialization) then
             !
-            if (jawave == 7 .and. waveforcing == 1) then
+            if (jawave == WAVE_NC_OFFLINE .and. waveforcing == WAVEFORCING_RADIATION_STRESS) then
                !
                call set_parameters_for_radiation_stress_driven_forces()
                !
-            elseif (jawave == 7 .and. waveforcing == 2) then
+            elseif (jawave == WAVE_NC_OFFLINE .and. waveforcing == WAVEFORCING_DISSIPATION_TOTAL) then
                !
                call set_parameters_for_dissipation_driven_forces()
                !
-            elseif (jawave == 7 .and. waveforcing == 3) then
+            elseif (jawave == WAVE_NC_OFFLINE .and. waveforcing == WAVEFORCING_DISSIPATION_3D) then
                !
                call set_parameters_for_3d_dissipation_driven_forces()
             else
@@ -441,7 +444,7 @@ contains
             message = dumpECMessageStack(LEVEL_ERROR, callback_msg)
          end if
 
-         if (jawave == 7) then
+         if (jawave == WAVE_NC_OFFLINE) then
             ! If wave model and flow model do not cover each other exactly, NaN values can propagate in the flow model.
             ! Correct for this by setting values to zero
             do k = 1, ndx
@@ -499,7 +502,7 @@ contains
                end if
             end if
 
-            all_wave_variables = .not. (jawave == 7 .and. waveforcing /= 3)
+            all_wave_variables = .not. (jawave == WAVE_NC_OFFLINE .and. waveforcing /= WAVEFORCING_DISSIPATION_3D)
             call select_wave_variables_subgroup(all_wave_variables)
 
             ! In MPI case, partition ghost cells are filled properly already, open boundaries are not
@@ -525,7 +528,7 @@ contains
             end if
          end if
 
-         if (jawave > 0) then
+         if (jawave > NO_WAVES) then
             ! this call  is needed for bedform updates with van Rijn 2007 (cal_bf, cal_ksc below)
             ! These subroutines need uorb, rlabda
             call compute_wave_parameters()
@@ -541,14 +544,14 @@ contains
 
       success_copy = success
       success = success .and. ecGetValues(ecInstancePtr, item, ecTime)
-      if (flowwithoutwaves) success = success_copy           ! used to be jawave=6, but this is only real use case
+      if (flowwithoutwaves) success = success_copy ! used to be jawave=6, but this is only real use case
 
    end subroutine get_values_and_consider_fww
 
 !> set wave parameters for jawave==3 (online wave coupling) and jawave==6 (SWAN data for D-WAQ)
    subroutine set_all_wave_parameters()
       ! This part must be skipped during initialization
-      if (jawave == 3) then
+      if (jawave == WAVE_SWAN_ONLINE) then
          ! Finally the delayed external forcings can be initialized
          success = flow_initwaveforcings_runtime()
       end if

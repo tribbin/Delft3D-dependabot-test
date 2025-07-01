@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2024.
+!  Copyright (C)  Stichting Deltares, 2017-2025.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -51,10 +51,11 @@ contains
       use timespace_parameters
       use timespace
       use fm_external_forcings_utils, only: get_tracername, get_sedfracname, get_constituent_name
-      use m_transportdata, only : NAMLEN
+      use m_transportdata, only: NAMLEN
       use timespace_read, only: maxnamelen
       use precision, only: dp
       use unstruc_messages, only: callback_msg
+      use m_waveconst
 
       character(len=*), intent(in) :: name !< Name for the target Quantity, possibly compounded with a tracer name.
       real(kind=dp), dimension(:), intent(in) :: x !< Array of x-coordinates for the target ElementSet.
@@ -203,7 +204,7 @@ contains
             end if
             message = 'Adding time-space-relation for forcing '''//trim(name)//''', location='''//trim(location)//''', file='''//trim(forcingfile)//''' failed!'
             call mess(LEVEL_ERROR, message)
-            
+
             goto 1234
          end if
       else
@@ -677,7 +678,7 @@ contains
          ! the name of the source item created by the file reader will be the same as the ext.force. quant name
          sourceItemName = target_name
          ! this file contains wave data
-         if (jawave == 3) then
+         if (jawave == WAVE_SWAN_ONLINE) then
             ! wave data is read from a com.nc file produced by D-Waves which contains one time field only
             fileReaderPtr%one_time_field = .true.
          end if
