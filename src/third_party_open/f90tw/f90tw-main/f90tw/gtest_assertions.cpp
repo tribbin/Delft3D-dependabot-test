@@ -1,5 +1,3 @@
-/* just expanding the wrappers without boost and obtain a more
-// comprehensive source file. */
 #include "gtest/gtest.h"
 
 #include "f90tw_defs_gtest.h"
@@ -31,4 +29,3 @@
 #undef VERSIONSUB
 #undef HEADERLEVELWHAT
 #undef HEADERLEVEL
-
