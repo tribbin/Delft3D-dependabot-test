@@ -130,7 +130,7 @@ contains
       in_sigma_part = .false.
       if (numtopsig > 0) then
          if (kmxn(ln(1, link_index_2d)) <= numtopsig .or. kmxn(ln(2, link_index_2d)) <= numtopsig) then
-            in_sigma_part = .true. ! one of the bottom layers is in the sigma part
+            in_sigma_part = .true. ! one of the nodes is in the sigma part
          end if
       end if
 
@@ -191,6 +191,10 @@ contains
 
             if (.not. in_sigma_part) then
                delta_z = zws(k_shallow_side) - zws(k_shallow_side - 1)
+               volume_averaged_density(1) = delta_z * 0.5_dp * (density(k_deep_side) + density(k_shallow_side)) * dx(link_index_2d)
+               if (jarhoxu > 0) then
+                  rhou(link_index_3d) = 0.5_dp * (density(k_deep_side) + density(k_shallow_side))
+               end if
             else
                delta_z = zws(k_deep_side) - zws(k_deep_side - 1)
             end if
@@ -324,6 +328,10 @@ contains
 
             if (.not. in_sigma_part) then
                delta_z = zws(k_shallow_side) - zws(k_shallow_side - 1)
+               volume_averaged_density(1) = delta_z * 0.5_dp * (density(k_deep_side) + density(k_shallow_side)) * dx(link_index_2d)
+               if (jarhoxu > 0) then
+                  rhou(link_index_3d) = 0.5_dp * (density(k_deep_side) + density(k_shallow_side))
+               end if
             else
                delta_z = zws(k_deep_side) - zws(k_deep_side - 1)
             end if
@@ -459,8 +467,14 @@ contains
 
             if (.not. in_sigma_part) then
                delta_z = zws(k_shallow_side) - zws(k_shallow_side - 1)
+
+               volume_averaged_density(1) = delta_z * 0.5_dp * (density(k_deep_side) + density(k_shallow_side)) * dx(link_index_2d)
+               if (jarhoxu > 0) then
+                  rhou(link_index_3d) = 0.5_dp * (density(k_deep_side) + density(k_shallow_side))
+               end if
+
             else
-               delta_z = zws(k_deep_side) - zws(k_deep_side - 1)
+               delta_z = zws(k_deep_side) - zws(k_deep_side - 1) ! deep side
             end if
 
             baroclinic_pressure = baroclinic_pressures(k_deep_side + 1) + delta_z * (density(k_deep_side) - rhomean)
