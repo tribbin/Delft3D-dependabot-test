@@ -158,7 +158,7 @@ endfunction()
 # systems, cl.exe may be available. On mac os cpp is an interface to clang with
 # "-traditional-cpp" locked. To avoid this we use directly the clang front end.
 if(WIN32)
-    set(FPP_EXE ${CMAKE_C_COMPILER})
+    set(FPP_EXE "${CMAKE_C_COMPILER}")
 else()
     find_program(FPP_EXE NAMES clang cpp REQUIRED)
 endif()
