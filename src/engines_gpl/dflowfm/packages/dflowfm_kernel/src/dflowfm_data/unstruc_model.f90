@@ -1390,6 +1390,7 @@ contains
       call prop_get(md_ptr, 'physics', 'Salimin', Salimin)
       call prop_get(md_ptr, 'physics', 'Surftempsmofac', Surftempsmofac)
       call prop_get(md_ptr, 'physics', 'RhoairRhowater', wind_stress_water_density_option)
+      call prop_get(md_ptr, 'physics', 'Albedo', albedo)
       call prop_get(md_ptr, 'physics', 'Heat_eachstep', jaheat_eachstep)
       call prop_get(md_ptr, 'physics', 'Soiltempthick', Soiltempthick)
       if (soiltempthick > 0.0_dp) then
