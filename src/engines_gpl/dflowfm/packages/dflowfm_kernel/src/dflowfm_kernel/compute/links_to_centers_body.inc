@@ -1,4 +1,4 @@
-real(kind=dp), intent(out) :: vnod(ndkx)
+real(kind=dp), intent(out), contiguous :: vnod(:)
       integer :: L, k1, k2, LL, kk, k_start, k_end, k
 
       vnod = 0.0_dp
