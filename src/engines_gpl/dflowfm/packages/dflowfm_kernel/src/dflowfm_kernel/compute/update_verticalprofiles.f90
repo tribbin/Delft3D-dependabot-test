@@ -205,7 +205,8 @@ contains
 
          if (javakeps > 0) then ! transport switched on: prepare horizontal advection k and eps
 
-            call links_to_centers(turkinepsws, turkin1, tureps1)
+            call links_to_centers(turkinepsws(1,:), turkin1)
+            call links_to_centers(turkinepsws(2,:), tureps1)
 
             if (numsrc > 0 .and. addksources > 0.0_dp) then
                call doaddksources()
