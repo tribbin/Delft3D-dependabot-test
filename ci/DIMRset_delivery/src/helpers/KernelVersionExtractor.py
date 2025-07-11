@@ -54,9 +54,9 @@ class KernelVersionExtractor(object):
 
     def get_branch_name(self) -> str:
         """ Returns the branch name from the latest release collector build. """
-        latest_dimr_collector_build_info = self.__teamcity.get_build_info_for_latest_build_for_build_type_id(
-            build_type_id=TEAMCITY_IDS.DIMR_COLLECTOR_RELEASE_BUILD_TYPE_ID.value)
-        branch_name_property = next((prop for prop in latest_dimr_collector_build_info['resultingProperties']['property'] 
+        latest_publish_build_info = self.__teamcity.get_build_info_for_latest_build_for_build_type_id(
+            build_type_id=TEAMCITY_IDS.DIMR_PUBLISH.value)
+        branch_name_property = next((prop for prop in latest_publish_build_info['resultingProperties']['property'] 
                         if prop['name'] == 'teamcity.build.branch'), None)
         self.__branch_name = branch_name_property['value']
         return self.__branch_name
