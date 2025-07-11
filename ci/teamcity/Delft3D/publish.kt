@@ -79,42 +79,6 @@ object Publish : BuildType({
                 onDependencyCancel = FailureAction.CANCEL
             }
         }
-        dependency(LinuxTest) {
-            snapshot {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
-            }
-        }
-        dependency(WindowsTest) {
-            snapshot {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
-            }
-        }
-        dependency(LinuxUnitTest) {
-            snapshot {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
-            }
-        }
-        dependency(WindowsUnitTest) {
-            snapshot {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
-            }
-        }
-        dependency(LinuxRunAllDockerExamples) {
-            snapshot {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
-            }
-        }
-        dependency(Delft3D_LinuxLegacyDockerTest) {
-            snapshot {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
-            }
-        }
         triggers {
             finishBuildTrigger {
                 enabled = true
