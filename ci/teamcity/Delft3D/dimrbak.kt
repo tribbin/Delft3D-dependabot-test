@@ -43,29 +43,41 @@ object DIMRbak : BuildType({
                 onDependencyFailure = FailureAction.FAIL_TO_START
                 onDependencyCancel = FailureAction.CANCEL
             }
-            snapshot(AbsoluteId("LinuxTest")) {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
+            dependency(LinuxTest) {
+                snapshot {
+                    onDependencyFailure = FailureAction.FAIL_TO_START
+                    onDependencyCancel = FailureAction.CANCEL
+                }
             }
-            snapshot(AbsoluteId("WindowsTest")) {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
+            dependency(WindowsTest) {
+                snapshot {
+                    onDependencyFailure = FailureAction.FAIL_TO_START
+                    onDependencyCancel = FailureAction.CANCEL
+                }
             }
-            snapshot(AbsoluteId("LinuxUnitTest")) {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
+            dependency(LinuxUnitTest) {
+                snapshot {
+                    onDependencyFailure = FailureAction.FAIL_TO_START
+                    onDependencyCancel = FailureAction.CANCEL
+                }
             }
-            snapshot(AbsoluteId("WindowsUnitTest")) {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
+            dependency(WindowsUnitTest) {
+                snapshot {
+                    onDependencyFailure = FailureAction.FAIL_TO_START
+                    onDependencyCancel = FailureAction.CANCEL
+                }
             }
-            snapshot(AbsoluteId("LinuxRunAllDockerExamples")) {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
+            dependency(LinuxRunAllDockerExamples) {
+                snapshot {
+                    onDependencyFailure = FailureAction.FAIL_TO_START
+                    onDependencyCancel = FailureAction.CANCEL
+                }
             }
-            snapshot(AbsoluteId("Delft3D_LinuxLegacyDockerTest")) {
-                onDependencyFailure = FailureAction.FAIL_TO_START
-                onDependencyCancel = FailureAction.CANCEL
+            dependency(LinuxLegacyDockerTest) {
+                snapshot {
+                    onDependencyFailure = FailureAction.FAIL_TO_START
+                    onDependencyCancel = FailureAction.CANCEL
+                }
             }
         }
     }
