@@ -34,6 +34,8 @@ TESTCASE_GROUPS = [
 class TEAMCITY_IDS(Enum):
     DIMR_PUBLISH = "Delft3D_DIMRbak"
     DIMR_COLLECTOR_RELEASE_BUILD_TYPE_ID = "Dimr_DimrCollector"
+    DELFT3D_LINUX_COLLECT_BUILD_TYPE_ID = "Delft3D_LinuxCollect"
+    DELFT3D_WINDOWS_COLLECT_BUILD_TYPE_ID = "Delft3D_WindowsCollect"
     DIMR_TO_NGHS_BUILD_TYPE_ID = "DIMR_To_NGHS"
     DIMR_TESTBENCH_RELEASE_BUILD_TYPE_ID = "Dimr_DimrTestbenchRelease_StatusOfDailyTestbench"
     DIMR_TESTBENCH_RELEASE_TESTS_LINUX = "Dimr_DimrCollectors_DIMRsetAggregatedReleaseResultsLinux"
@@ -41,10 +43,10 @@ class TEAMCITY_IDS(Enum):
 
 
 # Path to Windows version artifact on TeamCity
-PATH_TO_WINDOWS_VERSION_ARTIFACT = "version/dimr_version_release_x64.txt"
+PATH_TO_WINDOWS_VERSION_ARTIFACT = "version/dimrset_version_x64.txt"
 
 # Path to Linux version artifact on TeamCity
-PATH_TO_LINUX_VERSION_ARTIFACT = "version/dimr_version_release_lnx64.txt"
+PATH_TO_LINUX_VERSION_ARTIFACT = "version/dimrset_version_lnx64.txt"
 
 # Path to release test results artifact on TeamCity
 PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT = "teamcity_retrieve_release_engine_test_status.txt"
