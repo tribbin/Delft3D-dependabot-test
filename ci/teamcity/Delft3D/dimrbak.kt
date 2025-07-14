@@ -103,13 +103,13 @@ object DIMRbak : BuildType({
 
         
         python {
-            name = "Execute DIMRbakker script"
+            name = "Generate test report summary"
             command = file {
                 filename = "teamcity_retrieve_engine_test_status_dpc.py"
                 scriptArguments = """
                     --username "%svn_buildserver_username%"
                     --password "%svn_buildserver_password%"
-                    --build_id "%dimrbakker_personal_access_token%"
+                    --build_id "%teamcity.build.id%"
                 """.trimIndent()
             }
             workingDir = "ci/DIMRset_delivery/src"
