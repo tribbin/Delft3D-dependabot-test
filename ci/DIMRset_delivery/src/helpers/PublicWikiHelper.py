@@ -251,8 +251,10 @@ class PublicWikiHelper(object):
         Returns:
             str: The content.
         """
-        latest_dimr_release_testbench_build_id = self.__teamcity.get_latest_build_id_for_build_type_id(
-            build_type_id=TEAMCITY_IDS.DIMR_TESTBENCH_RELEASE_BUILD_TYPE_ID.value
+        latest_dimr_release_testbench_build_id = (
+            self.__teamcity.get_latest_build_id_for_build_type_id(
+                build_type_id=TEAMCITY_IDS.S_Of_DAILY.value
+            )
         )
         release_testbench_artifact = self.__teamcity.get_build_artifact(
             latest_dimr_release_testbench_build_id, PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT

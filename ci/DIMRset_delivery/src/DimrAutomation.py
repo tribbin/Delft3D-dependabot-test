@@ -10,8 +10,11 @@ from helpers.SshClient import Direction, SshClient
 from helpers.TestbankResultParser import TestbankResultParser
 from lib.Atlassian import Atlassian
 from lib.TeamCity import TeamCity
-from settings.general_settings import *
-from settings.teamcity_settings import *
+from settings.general_settings import LINUX_ADDRESS, VERSIONS_EXCEL_FILENAME
+from settings.teamcity_settings import (
+    PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT,
+    TEAMCITY_IDS,
+)
 
 
 class DimrAutomation(object):
@@ -143,27 +146,21 @@ class DimrAutomation(object):
         helper.generate_template()
 
     def __get_testbank_result_parser(self) -> TestbankResultParser:
-        """Gets a new TestbankResultParser for the latest test bench results."""
-        latest_test_bench_build_id = (
-            self.__teamcity.get_latest_build_id_for_build_type_id(
-                build_type_id=TEAMCITY_IDS.DIMR_TESTBENCH_RELEASE_BUILD_TYPE_ID.value
-            )
-        )
-        artifact = self.__teamcity.get_build_artifact(
-            latest_test_bench_build_id, PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT
-        )
+        """Gets a new TestbankResultParser for the latest test bench results from a local file."""
+        with open(PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT, "rb") as f:
+            artifact = f.read()
         return TestbankResultParser(artifact.decode())
 
     def __get_previous_testbank_result_parser(self) -> TestbankResultParser:
         """Gets a new TestbankResultParser for the previous pinned test bench results."""
         latest_test_bench_build_id = (
             self.__teamcity.get_latest_build_id_for_build_type_id(
-                build_type_id=TEAMCITY_IDS.DIMR_TESTBENCH_RELEASE_BUILD_TYPE_ID.value
+                build_type_id=TEAMCITY_IDS.DIMR_PUBLISH.value
             )
         )
 
         pinned_test_bench_builds = self.__teamcity.get_builds_for_build_type_id(
-            build_type_id=TEAMCITY_IDS.DIMR_TESTBENCH_RELEASE_BUILD_TYPE_ID.value,
+            build_type_id=TEAMCITY_IDS.DIMR_PUBLISH.value,
             limit=2,
             include_failed_builds=False,
             pinned="true",
