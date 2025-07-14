@@ -375,37 +375,6 @@ class TeamCity(object):
         print(f"{result.status_code} - {result.content}")
         return None
 
-    def get_build_info_for_latest_build_for_build_type_id(
-        self, build_type_id: str, include_failed_builds: bool = False
-    ) -> Dict[str, Any]:
-        """
-        Gets the build info for the latest build of a specific build type.
-
-        Uses the following TeamCity REST API endpoints:
-        /app/rest/builds?<buildLocator>
-        /app/rest/buildTypes/<buildTypeLocator>/builds?<buildLocator>
-
-        Arguments:
-            build_type_id (str): The build type id.
-            include_failed_builds (bool, optional): Specifies whether to include
-                builds that have failed. Defaults to False.
-
-        Returns:
-            Dict[str, Any]: A dictionary with a variety of keys. This includes
-            information about the configuration parameters, artifact dependencies
-            and the agent the build has run on.
-
-            For more information, please see the official TeamCity REST API docs.
-
-            Returns None if the request failed.
-        """
-        latest_build_id = self.get_latest_build_id_for_build_type_id(
-            build_type_id=build_type_id, include_failed_builds=include_failed_builds
-        )
-        if latest_build_id is None:
-            return None
-        return self.get_build_info_for_build_id(build_id=latest_build_id)
-
     def get_latest_build_id_for_build_type_id(
         self, build_type_id: str, include_failed_builds: bool = False
     ) -> str:

@@ -50,18 +50,19 @@ class DimrAutomation(object):
         self.__kernel_versions = None
         self.__dimr_version = None
 
-    def run(self) -> None:
+    def run(self, build_id_chain: str) -> None:
         """Runs the actual DIMR release automation steps."""
         self.__assert_preconditions()
-        self.__get_kernel_versions()  # This step is crucial for the script to run, do not comment this one out!
-        self.__download_and_install_artifacts()
+        # __get_kernel_versions is crucial for the script to run, do not comment this one out!
+        self.__get_kernel_versions(build_id_chain)
+        self.__download_and_install_artifacts(build_id_chain)
         self.__git_client.tag_commit(
             self.__kernel_versions["build.vcs.number"], f"DIMRset_{self.__dimr_version}"
         )
-        self.__pin_and_tag_builds()
+        self.__pin_and_tag_builds(build_id_chain)
         self.__update_excel_sheet()
-        self.__prepare_email()
-        self.__update_public_wiki()
+        self.__prepare_email(build_id_chain)  # depending on TC tags
+        self.__update_public_wiki(build_id_chain)
 
     def __assert_preconditions(self) -> None:
         """Asserts some preconditions are met before the script is fully run."""
@@ -73,21 +74,21 @@ class DimrAutomation(object):
         )
         preconditions.assert_preconditions()
 
-    def __get_kernel_versions(self) -> None:
+    def __get_kernel_versions(self, build_id_chain: str) -> None:
         """
         Extract and set the kernel versions based on the information that has been manually
         set in the TeamCity build settings.
         """
         extractor = KernelVersionExtractor(teamcity=self.__teamcity)
 
-        self.__branch_name = extractor.get_branch_name()
+        self.__branch_name = extractor.get_branch_name(build_id_chain)
 
-        self.__kernel_versions = extractor.get_latest_kernel_versions()
+        self.__kernel_versions = extractor.get_latest_kernel_versions(build_id_chain)
         extractor.assert_all_versions_have_been_extracted()
 
         self.__dimr_version = extractor.get_dimr_version()
 
-    def __update_public_wiki(self) -> None:
+    def __update_public_wiki(self, build_id_chain: str) -> None:
         """Updates the Public Wiki."""
         print("Updating the public wiki...")
         public_wiki = PublicWikiHelper(
@@ -95,9 +96,9 @@ class DimrAutomation(object):
             teamcity=self.__teamcity,
             dimr_version=self.__dimr_version,
         )
-        public_wiki.update_public_wiki()
+        public_wiki.update_public_wiki(build_id_chain)
 
-    def __download_and_install_artifacts(self) -> None:
+    def __download_and_install_artifacts(self, build_id_chain: str) -> None:
         """Downloads the artifacts and installs them on Linux machine."""
         helper = ArtifactInstallHelper(
             teamcity=self.__teamcity,
@@ -105,13 +106,13 @@ class DimrAutomation(object):
             dimr_version=self.__dimr_version,
             branch_name=self.__branch_name,
         )
-        helper.download_artifacts_to_network_drive()
-        helper.install_dimr_on_linux()
+        helper.publish_artifacts_to_network_drive(build_id_chain)
+        helper.publish_weekly_dimr_via_h7()
 
-    def __pin_and_tag_builds(self) -> None:
+    def __pin_and_tag_builds(self, build_id_chain: str) -> None:
         """Pin and tag the appropriate builds."""
         helper = PinHelper(teamcity=self.__teamcity, dimr_version=self.__dimr_version)
-        helper.pin_and_tag_builds()
+        helper.pin_and_tag_builds(build_id_chain)
 
     def __update_excel_sheet(self) -> None:
         """Updates the Excel sheet with this week's release information."""
@@ -133,9 +134,9 @@ class DimrAutomation(object):
             LINUX_ADDRESS, VERSIONS_EXCEL_FILENAME, path_to_excel_file, Direction.TO
         )
 
-    def __prepare_email(self) -> None:
+    def __prepare_email(self, build_id_chain: str) -> None:
         parser = self.__get_testbank_result_parser()
-        previous_parser = self.__get_previous_testbank_result_parser()
+        previous_parser = self.__get_previous_testbank_result_parser(build_id_chain)
 
         helper = EmailHelper(
             dimr_version=self.__dimr_version,
@@ -151,14 +152,10 @@ class DimrAutomation(object):
             artifact = f.read()
         return TestbankResultParser(artifact.decode())
 
-    def __get_previous_testbank_result_parser(self) -> TestbankResultParser:
+    def __get_previous_testbank_result_parser(
+        self, build_id_chain: str
+    ) -> TestbankResultParser:
         """Gets a new TestbankResultParser for the previous pinned test bench results."""
-        latest_test_bench_build_id = (
-            self.__teamcity.get_latest_build_id_for_build_type_id(
-                build_type_id=TEAMCITY_IDS.DIMR_PUBLISH.value
-            )
-        )
-
         pinned_test_bench_builds = self.__teamcity.get_builds_for_build_type_id(
             build_type_id=TEAMCITY_IDS.DIMR_PUBLISH.value,
             limit=2,
@@ -166,7 +163,7 @@ class DimrAutomation(object):
             pinned="true",
         )
 
-        if pinned_test_bench_builds["build"][0]["id"] != latest_test_bench_build_id:
+        if pinned_test_bench_builds["build"][0]["id"] != build_id_chain:
             previous_test_bench_build_id = pinned_test_bench_builds["build"][0]["id"]
         else:
             previous_test_bench_build_id = pinned_test_bench_builds["build"][1]["id"]

@@ -125,6 +125,7 @@ object DIMRbak : BuildType({
                     --username "%dimrbakker_username%"
                     --password "%dimrbakker_password%"
                     --git-PAT "%dimrbakker_personal_access_token%"
+                    --build_id "%teamcity.build.id%"
                 """.trimIndent()
             }
             workingDir = "ci/DIMRset_delivery/src"
