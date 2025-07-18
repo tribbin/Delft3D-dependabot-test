@@ -1,6 +1,6 @@
 !----- AGPL --------------------------------------------------------------------
 !
-!  Copyright (C)  Stichting Deltares, 2017-2024.
+!  Copyright (C)  Stichting Deltares, 2017-2025.
 !
 !  This file is part of Delft3D (D-Flow Flexible Mesh component).
 !
@@ -45,7 +45,7 @@ contains
       use M_MISSING, only: dmiss
 
       integer :: i
-      integer :: mmax
+      integer, intent(in) :: mmax
       real(kind=dp) :: H(MMAX)
 
       do I = 1, MMAX
