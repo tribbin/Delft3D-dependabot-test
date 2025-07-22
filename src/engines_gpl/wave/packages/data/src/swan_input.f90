@@ -103,6 +103,11 @@ module swan_input
    integer, parameter :: NUM_ACCUR = 0
    integer, parameter :: NUM_STOPC = 1
    !
+   real, parameter :: DEFAULT_TOLERANCE_RELATIVE_STOPC = 0.01
+   real, parameter :: DEFAULT_TOLERANCE_ABSOLUTE_STOPC = 0.005
+   real, parameter :: DEFAULT_TOLERANCE_ACCUR = 0.02
+
+   !
    type swan_dom
       real :: freqmax ! maximum frequency
       real :: freqmin ! minimum frequency
@@ -282,10 +287,10 @@ module swan_input
       real :: depmin
       real :: diffr_coeff
       integer :: num_type !> Either NUM_ACCUR or NUM_STOPC
-      real :: drel !> Relative tolerance used with both "num stopc" and "num accur"
-      real :: dabs !> Absolute tolerance used with "num stopc"
-      real :: dh_abs !> Absolute tolerance for wave height used with "num accur"
-      real :: dt_abs !> Absolute tolerance for wave period used with "num accur"
+      real :: tolerance_relative !> Relative tolerance used with both "num stopc" and "num accur"
+      real :: tolerance_absolute !> Absolute tolerance used with "num stopc"
+      real :: tolerance_absolute_wave_height !> Absolute tolerance for wave height used with "num accur"
+      real :: tolerance_absolute_wave_period !> Absolute tolerance for wave period used with "num accur"
       real :: dxw
       real :: dyw
       real :: excval
@@ -550,7 +555,6 @@ contains
       real :: def_freqmin
       real :: def_freqmax
       real :: tscale
-      real :: r_dummy
       real, dimension(2) :: xy
       character(10) :: exemode
       character(10) :: versionstring
@@ -1208,10 +1212,11 @@ contains
 
       activate_num_accur = .false.
       activate_num_stopc = .false.
-      sr%drel = -1.0 ! Default value will be set after checking whether "num accur" or "num stopc" is used
-      sr%dabs = -1.0 ! Default value will be set after checking whether "num stopc" is used
-      sr%dh_abs = -1.0 ! Default value will be set after checking whether "num accur" is used
-      sr%dt_abs = -1.0 ! Default value will be set after checking whether "num accur" is used
+      
+      sr%tolerance_relative = -1.0 ! Default value will be set after checking whether "num accur" or "num stopc" is used
+      sr%tolerance_absolute = DEFAULT_TOLERANCE_ABSOLUTE_STOPC
+      sr%tolerance_absolute_wave_height = DEFAULT_TOLERANCE_ACCUR
+      sr%tolerance_absolute_wave_period = DEFAULT_TOLERANCE_ACCUR
       sr%percwet = 98.0
       sr%itermx = 15
       sr%gamma0 = 3.3
@@ -1236,32 +1241,25 @@ contains
       call prop_get(mdw_ptr, 'Numerics', 'FreqSpaceCSS', sr%css)
       !
       ! "num stopc" parameters
-      ! If the user specifies invalid values (e.g. negative values), the parameter will be treated as "not specified"
-      call prop_get(mdw_ptr, 'Numerics', 'DRelHinc', sr%drel)
-      if (sr%drel > 0.0) then
+      if ( prop_get_checked(sr, mdw_ptr, 'Numerics', 'DRelHinc', sr%tolerance_relative, 0.0, 1.0) ) then
          activate_num_stopc = .true.
       end if
-      call prop_get(mdw_ptr, 'Numerics', 'DAbsHinc', sr%dabs)
-      if (sr%dabs > 0.0) then
+      if ( prop_get_checked(sr, mdw_ptr, 'Numerics', 'DAbsHinc', sr%tolerance_absolute, 0.0, 100.0) ) then
          activate_num_stopc = .true.
       end if
       !
-      ! "num accur" parameters. Use r_dummy for sr%d_rel, because it might be already set with "DRelHinc" above
-      ! If the user specifies invalid values (e.g. negative values), the parameter will be treated as "not specified"
-      r_dummy = -1.0
-      call prop_get(mdw_ptr, 'Numerics', 'RChHsTm01', r_dummy)
-      if (r_dummy > 0.0) then
-         activate_num_accur = .true.
-         sr%drel = r_dummy
-      end if
-      call prop_get(mdw_ptr, 'Numerics', 'RChMeanHs', sr%dh_abs)
-      if (sr%dh_abs > 0.0) then
+      ! "num accur" parameters
+      if ( prop_get_checked(sr, mdw_ptr, 'Numerics', 'RChHsTm01', sr%tolerance_relative, 0.0, 1.0) ) then
          activate_num_accur = .true.
       end if
-      call prop_get(mdw_ptr, 'Numerics', 'RChMeanTm01', sr%dt_abs)
-      if (sr%dt_abs > 0.0) then
+      if ( prop_get_checked(sr, mdw_ptr, 'Numerics', 'RChMeanHs', sr%tolerance_absolute_wave_height, 0.0, 100.0) ) then
          activate_num_accur = .true.
       end if
+      if ( prop_get_checked(sr, mdw_ptr, 'Numerics', 'RChMeanTm01', sr%tolerance_absolute_wave_period, 0.0, 100.0) ) then
+         activate_num_accur = .true.
+      end if
+      !
+      ! Check (combinations of) activate_num_accur and activate_num_stopc
       if (activate_num_accur .and. activate_num_stopc) then
          write (*, *) 'SWAN_INPUT: Tolerances specified for both "num_accur" and "num_stopc"'
          call handle_errors_mdw(sr)
@@ -1271,23 +1269,14 @@ contains
       end if
       if (activate_num_stopc) then
          sr%num_type = NUM_STOPC
-         if (sr%drel < 0.0) then
-            sr%drel = 0.01
-         end if
-         if (sr%dabs < 0.0) then
-            sr%dabs = 0.005
+         if (sr%tolerance_relative < 0.0) then
+            sr%tolerance_relative = DEFAULT_TOLERANCE_RELATIVE_STOPC
          end if
       end if
       if (activate_num_accur) then
          sr%num_type = NUM_ACCUR
-         if (sr%drel < 0.0) then
-            sr%drel = 0.02
-         end if
-         if (sr%dh_abs < 0.0) then
-            sr%dh_abs = 0.02
-         end if
-         if (sr%dt_abs < 0.0) then
-            sr%dt_abs = 0.02
+         if (sr%tolerance_relative < 0.0) then
+            sr%tolerance_relative = DEFAULT_TOLERANCE_ACCUR
          end if
       end if
       !
@@ -3519,24 +3508,24 @@ contains
          line(1:10) = 'NUM STOPC '
          if (sr%modsim /= 3) then
             write (line(15:), '(A,F7.5,A,F7.5,A,F0.3,A,I0,A,F7.5)') &
-               & 'DABS=', sr%dabs, ' DREL=', sr%drel, ' CURVAT=0.005 NPNTS=', sr%percwet, ' STAT MXITST=', sr%itermx, ' ALFA=', sr%alfa
+               & 'DABS=', sr%tolerance_absolute, ' DREL=', sr%tolerance_relative, ' CURVAT=0.005 NPNTS=', sr%percwet, ' STAT MXITST=', sr%itermx, ' ALFA=', sr%alfa
          else
             write (line(15:), '(A,F7.5,A,F7.5,A,F0.3,A,I0)') &
-            & 'DABS=', sr%dabs, ' DREL=', sr%drel, ' CURVAT=0.005 NPNTS=', sr%percwet, ' NONSTAT MXITNS=', sr%itermx
+            & 'DABS=', sr%tolerance_absolute, ' DREL=', sr%tolerance_relative, ' CURVAT=0.005 NPNTS=', sr%percwet, ' NONSTAT MXITNS=', sr%itermx
          end if
       else
          line(1:10) = 'NUM ACCUR '
          if (sr%modsim /= 3) then
             if (sr%alfa > 0.0) then
                write (line(15:), '(F8.3,1X,F8.3,1X,F8.3,1X,F8.3,1X,A,1X,I4,1X,F8.3)') &
-                    & sr%drel, sr%dh_abs, sr%dt_abs, sr%percwet, 'STAT', sr%itermx, sr%alfa
+                    & sr%tolerance_relative, sr%tolerance_absolute_wave_height, sr%tolerance_absolute_wave_period, sr%percwet, 'STAT', sr%itermx, sr%alfa
             else
                write (line(15:), '(F8.3,1X,F8.3,1X,F8.3,1X,F8.3,1X,I4)') &
-               & sr%drel, sr%dh_abs, sr%dt_abs, sr%percwet, sr%itermx
+               & sr%tolerance_relative, sr%tolerance_absolute_wave_height, sr%tolerance_absolute_wave_period, sr%percwet, sr%itermx
             end if
          else
             write (line(15:), '(F8.3,1X,F8.3,1X,F8.3,1X,F8.3,1X,A,1X,I4)') &
-            & sr%drel, sr%dh_abs, sr%dt_abs, sr%percwet, &
+            & sr%tolerance_relative, sr%tolerance_absolute_wave_height, sr%tolerance_absolute_wave_period, sr%percwet, &
             & 'NONSTAT', sr%itermx
          end if
       end if
@@ -4375,7 +4364,9 @@ contains
          pointname(maxPointNameLength + 1:) = ' '
       end if
    end function get_pointname
-
+!
+!
+!==============================================================================
 !> add nest index as to the string
    subroutine add_inest(nnest, line, i, inest)
 
@@ -4392,5 +4383,30 @@ contains
          i = i + 3
       end if
    end subroutine
+!
+!
+!==============================================================================
+   !> Use the success return value of prop_get
+   !> Check if value_out is between lower_bound and upper_bound
+   function prop_get_checked(sr, mdw_ptr, group, key, value_out, lower_bound, upper_bound) result(success)
+      use properties
+
+      type(swan_type) :: sr
+      type(tree_data), pointer :: mdw_ptr
+      character(*), intent(in) :: group
+      character(*), intent(in) :: key
+      real, intent(out) :: value_out
+      real, intent(in) :: lower_bound
+      real, intent(in) :: upper_bound
+      logical :: success
+      
+      call prop_get(mdw_ptr, group, key, value_out, success)
+      if (success) then
+         if (value_out < lower_bound .or. value_out > upper_bound) then
+            write (*, *) 'SWAN_INPUT: parameter ', key, ' (', value_out, ') is out of bounds [', lower_bound, ',', upper_bound, ']'
+            call handle_errors_mdw(sr)
+         end if
+      end if  
+   end function prop_get_checked
 
 end module swan_input
