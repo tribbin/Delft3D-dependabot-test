@@ -4425,6 +4425,7 @@ inpupr,inpuit,inpunm,inpude,inpudo,inpusx
 "Res_DM    ","MinDepth  ",  10,"Y","x",1
 "Res_DM    ","Surf      ",  11,"N","x",1
 "Res_DM    ","SWResusp  ",  12,"Y"," ",1
+"Res_DM    ","SWResBuf  ",  13,"Y"," ",1
 "Bur_DM    ","fSedDM    ",   1,"N","x",1
 "Bur_DM    ","fResS1DM  ",   2,"Y","x",1
 "Bur_DM    ","fResS2DM  ",   3,"Y","x",1

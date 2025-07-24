@@ -175,9 +175,11 @@ contains
         if ( nint(process_space_real(ipnt(id_switch_buffer))) /= 1 ) then
             call get_log_unit_number( lunrep )
             write(lunrep, '(a)' ) 'Please set the process parameter "SwResBuf" to 1', &
-                                  'otherwise resuspension is not accounted for correctly'
+                                  'otherwise resuspension is not accounted for correctly', &
+                                  'in conjunction with Res_Buffer'
             write(*,      '(a)' ) 'Please set the process parameter "SwResBuf" to 1', &
-                                  'otherwise resuspension is not accounted for correctly'
+                                  'otherwise resuspension is not accounted for correctly', &
+                                  'in conjunction with Res_Buffer'
             call stop_with_error
         endif
 
