@@ -32,6 +32,7 @@ contains
             noflux, iexpnt, iknmrk, num_exchanges_u_dir, num_exchanges_v_dir, &
             num_exchanges_z_dir, num_exchanges_bottom_dir)
         use m_extract_waq_attribute
+        use m_logger_helper, only : stop_with_error, get_log_unit_number
 
         !>\file
         !>       Resuspension total bottom material (dry mass)
@@ -75,13 +76,14 @@ contains
 
         IMPLICIT NONE
 
-        integer, parameter :: number_inp_out   = 17
-        integer, parameter :: id_switch_buffer = 13
+        integer, parameter     :: number_inp_out   = 17
+        integer, parameter     :: id_switch_buffer = 13
+        integer(kind = int_wp) :: lunrep
 
         real(kind = real_wp) :: process_space_real(*)     !i/o process manager system array, window of routine to process library
         real(kind = real_wp) :: fl(*)       ! o  array of fluxes made by this process in mass/volume/time
-        integer(kind = int_wp) :: ipoint(16) ! i  array of pointers in process_space_real to get and store the data
-        integer(kind = int_wp) :: increm(16) ! i  increments in ipoint for segment loop, 0=constant, 1=spatially varying
+        integer(kind = int_wp) :: ipoint(number_inp_out) ! i  array of pointers in process_space_real to get and store the data
+        integer(kind = int_wp) :: increm(number_inp_out) ! i  increments in ipoint for segment loop, 0=constant, 1=spatially varying
         integer(kind = int_wp) :: num_cells       ! i  number of computational elements in the whole model schematisation
         integer(kind = int_wp) :: noflux      ! i  number of fluxes, increment in the fl array
         integer(kind = int_wp) :: iexpnt(4, *) ! i  from, to, from-1 and to+1 segment numbers of the exchange surfaces
