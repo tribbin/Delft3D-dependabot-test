@@ -12,13 +12,22 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
+# Use the Docker image reference (Apptainer will cache automatically on first use)
+apptainer_image="docker://$image"
+echo "Using Docker image to run the apptainer: $apptainer_image (will be cached automatically)"
+
+# Check if apptainer is available in PATH
+if ! command -v apptainer &> /dev/null; then
+    echo "Error: 'apptainer' command not found. Please install Apptainer and ensure it is in your PATH."
+    exit 1
+fi
+
 # Loop through each subdirectory
 for dir in */ ; do
     # Check if run_apptainer.sh exists in the subdirectory
     if [ -f "$dir/run_apptainer.sh" ]; then
         echo "Found run_apptainer.sh in $dir. Executing..."
-        # Run the script
-        ${dir}/run_apptainer.sh --image "$image"
+        ${dir}run_apptainer.sh --image "$apptainer_image"
     else
         echo "No run_apptainer.sh found in $dir."
     fi
