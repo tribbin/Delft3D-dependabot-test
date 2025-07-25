@@ -6,7 +6,7 @@
 #
 
 # Defaults to daily build; can also be overridden (for automation) with: --image <container-name>
-image=containers.deltares.nl/delft3d/delft3dfm:daily
+image=docker://containers.deltares.nl/delft3d/delft3dfm:daily
 
 # Directory containing the entire model, that will be mounted inside the container.
 # Default: the location of this script.
