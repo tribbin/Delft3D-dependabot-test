@@ -28,8 +28,8 @@ done
 
 # Prepare image reference based on container runtime
 if [ "$container_runtime" = "apptainer" ]; then
-    # when using image as argument then don't prepend docker://
-    if [ "$image" = "$default_image" ]; then
+    # If the image is from containers.deltares.nl, prepend 'docker://' in case of Apptainer
+    if [[ "$image" == containers.deltares.nl* ]]; then
         container_image="docker://$image"
     else
         container_image="$image"
