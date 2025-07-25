@@ -1,6 +1,7 @@
 package Delft3D.linux
 
 import jetbrains.buildServer.configs.kotlin.*
+import jetbrains.buildServer.configs.kotlin.buildFeatures.*
 import jetbrains.buildServer.configs.kotlin.buildSteps.*
 import jetbrains.buildServer.configs.kotlin.failureConditions.*
 import Delft3D.linux.*
@@ -8,9 +9,9 @@ import Delft3D.template.*
 
 import Trigger
 
-object LinuxRunAllDockerExamples : BuildType({
+object LinuxRunAllContainerExamples : BuildType({
 
-    description = "Run all Docker example cases for fm/ and all/ merge-requests."
+    description = "Run all container example cases for fm/ and all/ merge-requests using Docker and Apptainer."
 
     templates(
         TemplateMergeRequest,
@@ -19,7 +20,7 @@ object LinuxRunAllDockerExamples : BuildType({
         TemplateMonitorPerformance
     )
 
-    name = "Run all docker examples"
+    name = "Run all container examples (Matrix)"
     buildNumberPattern = "%dep.${LinuxRuntimeContainers.id}.product%: %build.vcs.number%"
 
     vcs {
@@ -27,13 +28,24 @@ object LinuxRunAllDockerExamples : BuildType({
         cleanCheckout = true
     }
     
+    params {
+        param("container_runtime", "")
+    }
+    
     steps {
         script {
-            name = "Execute run_all_examples_docker.sh"
+            name = "Execute run_all_examples_container.sh with %container_runtime%"
             scriptContent = """
                 cd ./examples/dflowfm/
-                ./run-all-examples-docker.sh --image "%dep.${LinuxRuntimeContainers.id}.runtime_container_image%"
+                ./run-all-examples-container.sh --%container_runtime% --image "%dep.${LinuxRuntimeContainers.id}.runtime_container_image%"
             """.trimIndent()
+        }
+    }
+  
+    features {
+        matrix {
+            id = "container_matrix"
+            param("container_runtime", listOf("docker", "apptainer").map { MatrixFeature.Value(it) })
         }
     }
   
