@@ -235,6 +235,8 @@ function select_icecover_model(icecover, model_type) result(istat)
     icecover%ice_albedo                = 0.75_fp
     icecover%ice_conductivity          = 2.04_fp
     icecover%ice_latentheat            = 302.0_fp * 1000000.0_fp
+    icecover%ice_skin_drag             = 1.5e-3_fp
+    icecover%maximum_ice_form_drag     = 2.5e-3_fp
     icecover%ice_density               = 917.0_fp
     icecover%snow_albedo               = 0.9_fp
     icecover%snow_conductivity         = 0.31_fp
@@ -457,17 +459,17 @@ pure function ice_drag_effect(icecover, ice_area_fraction, cdw_open) result (cdw
         ! refer to Chapman et al. (2005, 2009) for
         ! cdw_eff = 0.001_fp * (0.125_fp + 0.5_fp * ice_area_fraction * (1.0_fp  ice_area_fraction))
 
-        c0 =  0.00125_fp
-        c1 =  0.00500_fp
+        c0 =  1.25e-3_fp
+        c1 =  5.0e-3_fp
         cdw_ice = c0 + c1 * ice_area_fraction * water_area_fraction
         cdw_eff = max(cdw_ice, cdw_open)
 
     case (ICE_WINDDRAG_LB05) ! Lupkes and Birnbaum (2005)
         
-        cdw_ice = 1.5e-3_fp
+        cdw_ice = icecover%ice_skin_drag
         num = water_area_fraction * (water_area_fraction**0.8_fp + 0.5_fp * (1.0_fp - 0.5_fp * ice_area_fraction)**2)
         den = 31.0_fp + 90.0_fp * ice_area_fraction * water_area_fraction
-        cdw_floe = 0.34e-3_fp * ice_area_fraction * ice_area_fraction * num / den
+        cdw_floe = 0.34_fp * ice_area_fraction * ice_area_fraction * num / den ! Lupkes et al (2012) writes 0.34e-3 but that doesn't match the original paper and the expected curve
         
         cdw_eff = water_area_fraction * cdw_open + ice_area_fraction * cdw_ice + cdw_floe
         

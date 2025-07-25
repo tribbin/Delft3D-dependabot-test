@@ -287,6 +287,8 @@ function echo_icecover(icecover, lundia) result (error)
        write (lundia, '(2a)') txtput1, ': RaysIce (Chapman et al.)'
    case (ICE_WINDDRAG_LB05)
        write (lundia, '(2a)') txtput1, ': Lupkes & Birnbaum (2005)'
+       txtput1 = 'Skin drag for ice floes'
+       write (lundia, '(2a,e20.4)') txtput1, ': ', icecover%ice_skin_drag
    case (ICE_WINDDRAG_AN10)
        write (lundia, '(2a)') txtput1, ': Andreas et al. (2010)'
    case (ICE_WINDDRAG_JOYCE19)
@@ -353,7 +355,7 @@ subroutine echo_icecover_output(lundia, outflags, model_type)
    call write_quantity_name(outflags%snow_thickness, lundia, 'snow thickness', any_quantity)
    call write_quantity_name(outflags%snow_temperature, lundia, 'temperature of snow cover', any_quantity)
    if (.not. any_quantity) then
-      write(lundia, '(a)') '  No ice cover output quantities selected'
+      write(lundia, '(a)') '  * No ice cover output quantities selected'
    end if
 end subroutine echo_icecover_output
 
