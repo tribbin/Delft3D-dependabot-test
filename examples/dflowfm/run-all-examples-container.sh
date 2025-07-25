@@ -1,4 +1,5 @@
 #!/bin/bash
+sed -e
 
 # Initialize variables
 image="containers.deltares.nl/delft3d/delft3dfm:daily"  # Default value
