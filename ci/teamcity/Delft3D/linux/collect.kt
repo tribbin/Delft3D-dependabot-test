@@ -48,7 +48,7 @@ object LinuxCollect : BuildType({
             workingDir = "lnx64/lib"
             path = "ci/teamcity/Delft3D/linux/scripts/removeSysLibs.sh"
             conditions {
-                matches("product", """^(fm-(suite|testbench))|(all-testbench)$""")
+                matches("dep.${LinuxBuild.id}.product", """^(fm-(suite|testbench))|(all-testbench)$""")
             }
         }
         script {
@@ -83,6 +83,16 @@ object LinuxCollect : BuildType({
     }
 
     dependencies {
+        dependency(LinuxBuild2D3DSP) {
+            snapshot {
+                onDependencyFailure = FailureAction.FAIL_TO_START
+                onDependencyCancel = FailureAction.CANCEL
+            }
+
+            artifacts {
+                artifactRules = "?:oss_artifacts_lnx64_*.tar.gz!lnx64/lib/libflow2d3d_sp.so => lnx64/lib"
+            }
+        }
         dependency(LinuxBuild) {
             snapshot {
                 onDependencyFailure = FailureAction.FAIL_TO_START
