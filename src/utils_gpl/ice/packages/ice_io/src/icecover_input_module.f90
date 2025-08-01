@@ -26,9 +26,9 @@ module icecover_input_module
 !                                                                               
 !-------------------------------------------------------------------------------!
 
-use icecover_module, only: icecover_type
+use icecover_module, only: icecover_type, ICECOVER_EXT, ICECOVER_NONE
 use properties, only: tree_data, prop_get
-use MessageHandling, only: mess, LEVEL_ERROR
+use MessageHandling, only: mess, LEVEL_ERROR, LEVEL_ALL, LEVEL_FATAL
 use string_module, only: str_lower
 implicit none
 
@@ -37,10 +37,37 @@ private
 !
 ! functions and subroutines
 !
+public late_activation_ext_force_icecover
 public read_icecover
 public echo_icecover
 
 contains
+
+
+!> activation of icecover module based on external forcing input
+function late_activation_ext_force_icecover(icecover, md_ptr, chapter) result(istat)
+   type (icecover_type), intent(inout) :: icecover !< data structure containing ice cover data
+   type(tree_data), pointer, intent(in) :: md_ptr !< pointer to the input file
+   character(len=*), intent(in) :: chapter !< chapter name of the ice section
+   
+   integer :: istat !< status flag for allocation
+
+   istat = 0
+   if (icecover%model_type == ICECOVER_EXT) then
+      ! icecover already set to externally forced
+   elseif (icecover%model_type == ICECOVER_NONE) then
+      ! activate icecover and switch on the pressure effect
+      icecover%model_type = ICECOVER_EXT
+      icecover%apply_pressure = .true.
+      call mess(LEVEL_ALL, 'Activating ice cover module based on external forcing.')
+      ! we need to rescan the output flags since the model_type has changed which affects the default
+      call read_icecover_output(icecover, md_ptr, chapter)
+   else
+      ! don't overrule previously selected icecover ...
+      call mess(LEVEL_FATAL, 'Ice cover forcing data conflicts with selected ice cover model.')
+   endif
+end function late_activation_ext_force_icecover
+
 
 !> Read ice cover settings (Note: the meteo module should already have been initialized)
 subroutine read_icecover(icecover, md_ptr, chapter, error)
@@ -200,7 +227,7 @@ subroutine read_output_flags_per_quantity(outflags, md_ptr, chapter, prefix, mod
    call prop_get(md_ptr, chapter, prefix//'_ice_default', outflags%default)
    call apply_default_output_flag(outflags, model_type)
    
-   call prop_get(md_ptr, chapter, prefix//'_open_water_level', outflags%ice_s1)
+   call prop_get(md_ptr, chapter, prefix//'_ice_open_water_level', outflags%ice_s1)
    call prop_get(md_ptr, chapter, prefix//'_ice_lower_surface_height', outflags%ice_zmin)
    call prop_get(md_ptr, chapter, prefix//'_ice_surface_height', outflags%ice_zmax)
    call prop_get(md_ptr, chapter, prefix//'_ice_area_fraction', outflags%ice_area_fraction)

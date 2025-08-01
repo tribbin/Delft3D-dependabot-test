@@ -29,7 +29,6 @@
 
 module icecover_module
 use precision
-use MessageHandling, only: mess, LEVEL_ALL, LEVEL_FATAL
 implicit none
 private
 
@@ -62,7 +61,6 @@ integer, parameter, public :: ICE_WINDDRAG_JOYCE19     = 6 !< Joyce et al (2019)
 public :: freezing_temperature
 public :: null_icecover
 public :: select_icecover_model
-public :: late_activation_ext_force_icecover
 public :: alloc_icecover
 public :: clr_icecover
 public :: update_icepress
@@ -180,30 +178,6 @@ function null_icecover(icecover) result(istat)
     nullify(icecover%ice_zmin)
     nullify(icecover%ice_zmax)
 end function null_icecover
-
-
-!> activation of icecover module based on external forcing input
-function late_activation_ext_force_icecover(icecover) result(istat)
-    type (icecover_type)                       , intent(inout) :: icecover  !< data structure containing ice cover data
-    integer                                                    :: istat     !< status flag for allocation
-
-    istat = 0
-    if (icecover%model_type == ICECOVER_EXT) then
-       ! icecover already set to externally forced
-    elseif (icecover%model_type == ICECOVER_NONE) then
-       ! activate icecover and switch on the pressure effect
-       icecover%model_type = ICECOVER_EXT
-       icecover%apply_pressure = .true.
-       call mess(LEVEL_ALL, 'Activating ice cover module based on external forcing.')
-       ! all output was set to False because the model type was equal to ICECOVER_NONE before
-       call apply_default_output_flag(icecover%hisout, icecover%model_type)
-       call apply_default_output_flag(icecover%mapout, icecover%model_type)
-       ! note: spatial arrays haven't been allocated yet!
-    else
-       ! don't overrule previously selected icecover ...
-       call mess(LEVEL_FATAL, 'Ice cover forcing data conflicts with selected ice cover model.')
-    endif
-end function late_activation_ext_force_icecover
 
 
 !> set default values for selected ice cover model and allocate
