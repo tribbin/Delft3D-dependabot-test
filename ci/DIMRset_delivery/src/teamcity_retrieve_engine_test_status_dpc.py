@@ -1,5 +1,4 @@
 import argparse
-import getpass
 import os
 import sys
 import xml.etree.ElementTree as ET
@@ -10,6 +9,8 @@ from typing import List, Optional
 import requests
 from pyparsing import Enum
 from requests.auth import HTTPBasicAuth
+
+from dimr_context import DimrAutomationContext, parse_common_arguments, create_context_from_args
 
 """
 This script list the test bench results with status: passed, failed, exception, ignored and muted.
@@ -353,29 +354,7 @@ def log_coniguration_line(log_file: TextIOWrapper, line: ConfigurationTestResult
             )
 
 
-def create_argument_parser() -> argparse.ArgumentParser:
-    """Create custom argument parser."""
-    parser = argparse.ArgumentParser(description="Retrieve status of a testbench running on TeamCity")
-    parser.add_argument("-u", "--username", help="Username for accessing TeamCity.", dest="username")
-    parser.add_argument(
-        "-p",
-        "--password",
-        help="Password for accessing TeamCity.",
-        dest="password",
-    )
-    parser.add_argument(
-        "-i",
-        "--interactive",
-        help="Must be True to enable username/password via keyboard.",
-        dest="interactive",
-    )
-    parser.add_argument(
-        "--build_id",
-        help="Build ID of the chain to analyze",
-        dest="build_id",
-    )
 
-    return parser
 
 
 def get_build_dependency_chain(
@@ -521,49 +500,21 @@ def get_build_test_results(xml_root: ET.Element) -> ConfigurationTestResult:
     )
 
 
-def get_credentials(args: argparse.Namespace) -> tuple[str, str]:
-    """
-    Retrieve TeamCity credentials from command-line arguments or interactively.
 
-    Parameters
-    ----------
-    args : argparse.Namespace
-        Parsed command-line arguments.
-
-    Returns
-    -------
-    tuple[str, str]
-        A tuple containing the username and password.
-    """
-    if args.interactive:
-        interactive = args.interactive
-    else:
-        interactive = False
-    if args.username:
-        username = args.username
-    else:
-        if interactive:
-            username = input("Username for TeamCity access:")
-        else:
-            print('No username on commandline. add "-i True" to enable interactive input')
-            exit()
-    if args.password:
-        password = args.password
-    else:
-        if interactive:
-            password = getpass.getpass()
-        else:
-            print('No password on commandline. add "-i True" to enable interactive input')
-            exit()
-    return username, password
 
 
 if __name__ == "__main__":
     start_time = datetime.now()
 
-    parser = create_argument_parser()
-    args = parser.parse_args()
-    username, password = get_credentials(args)
+    args = parse_common_arguments()
+    context = create_context_from_args(args, require_atlassian=False, require_git=False, require_ssh=False)
+    
+    # Extract credentials from the context
+    if context.teamcity and hasattr(context.teamcity, '_TeamCity__auth'):
+        username, password = context.teamcity._TeamCity__auth
+    else:
+        print("Error: TeamCity credentials are required for this script")
+        sys.exit(1)
 
     build_id = args.build_id
     output_file = "teamcity_retrieve_release_engine_test_status.txt"

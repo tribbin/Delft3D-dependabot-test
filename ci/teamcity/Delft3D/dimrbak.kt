@@ -70,6 +70,7 @@ object DIMRbak : BuildType({
             command = file {
                 filename = "assert_preconditions.py"
                 scriptArguments = """
+                    --build_id "%teamcity.build.id%"
                     --atlassian-username "%dimrbakker_username%"
                     --atlassian-password "%dimrbakker_password%"
                     --teamcity-username "%dimrbakker_username%"
@@ -78,7 +79,6 @@ object DIMRbak : BuildType({
                     --ssh-password "%dimrbakker_password%"
                     --git-username "%dimrbakker_username%"
                     --git-PAT "%dimrbakker_personal_access_token%"
-                    --build_id "%teamcity.build.id%"
                     --dry-run
                 """.trimIndent()
             }
@@ -92,9 +92,9 @@ object DIMRbak : BuildType({
             command = file {
                 filename = "teamcity_retrieve_engine_test_status_dpc.py"
                 scriptArguments = """
-                    --username "%svn_buildserver_username%"
-                    --password "%svn_buildserver_password%"
                     --build_id "%teamcity.build.id%"
+                    --teamcity-username "%dimrbakker_username%"
+                    --teamcity-password "%dimrbakker_password%"
                 """.trimIndent()
             }
             workingDir = "ci/DIMRset_delivery/src"
@@ -107,11 +107,11 @@ object DIMRbak : BuildType({
             command = file {
                 filename = "download_and_install_artifacts.py"
                 scriptArguments = """
+                    --build_id "%teamcity.build.id%"
                     --teamcity-username "%dimrbakker_username%"
                     --teamcity-password "%dimrbakker_password%"
                     --ssh-username "%dimrbakker_username%"
                     --ssh-password "%dimrbakker_password%"
-                    --build_id "%teamcity.build.id%"
                     --dry-run
                 """.trimIndent()
             }
@@ -125,11 +125,11 @@ object DIMRbak : BuildType({
             command = file {
                 filename = "update_excel_sheet.py"
                 scriptArguments = """
+                    --build_id "%teamcity.build.id%"
                     --teamcity-username "%dimrbakker_username%"
                     --teamcity-password "%dimrbakker_password%"
                     --ssh-username "%dimrbakker_username%"
                     --ssh-password "%dimrbakker_password%"
-                    --build_id "%teamcity.build.id%"
                     --dry-run
                 """.trimIndent()
             }
@@ -143,9 +143,9 @@ object DIMRbak : BuildType({
             command = file {
                 filename = "prepare_email.py"
                 scriptArguments = """
+                    --build_id "%teamcity.build.id%"
                     --teamcity-username "%dimrbakker_username%"
                     --teamcity-password "%dimrbakker_password%"
-                    --build_id "%teamcity.build.id%"
                     --dry-run
                 """.trimIndent()
             }
@@ -159,11 +159,11 @@ object DIMRbak : BuildType({
             command = file {
                 filename = "update_public_wiki.py"
                 scriptArguments = """
+                    --build_id "%teamcity.build.id%"
                     --atlassian-username "%dimrbakker_username%"
                     --atlassian-password "%dimrbakker_password%"
                     --teamcity-username "%dimrbakker_username%"
                     --teamcity-password "%dimrbakker_password%"
-                    --build_id "%teamcity.build.id%"
                     --dry-run
                 """.trimIndent()
             }
@@ -177,11 +177,11 @@ object DIMRbak : BuildType({
             command = file {
                 filename = "pin_and_tag_builds.py"
                 scriptArguments = """
+                    --build_id "%teamcity.build.id%"
                     --teamcity-username "%dimrbakker_username%"
                     --teamcity-password "%dimrbakker_password%"
                     --git-username "%dimrbakker_username%"
                     --git-PAT "%dimrbakker_personal_access_token%"
-                    --build_id "%teamcity.build.id%"
                     --dry-run
                 """.trimIndent()
             }
