@@ -48,7 +48,7 @@ PATH_TO_WINDOWS_VERSION_ARTIFACT = "version/dimrset_version_x64.txt"
 PATH_TO_LINUX_VERSION_ARTIFACT = "version/dimrset_version_lnx64.txt"
 
 # Path to release test results artifact on TeamCity
-PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT = "teamcity_retrieve_release_engine_test_status.txt"
+PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT = "teamcity_test_results.txt"
 
 # Path to summary of DIMR collector release signed artifact on TeamCity
 PATH_TO_DIMR_COLLECTOR_RELEASE_SIGNED_ARTIFACT = "signed/summary.txt"

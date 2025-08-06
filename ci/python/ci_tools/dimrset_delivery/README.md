@@ -44,7 +44,7 @@ Finally, the main class putting everything together is the DimrAutomation class.
 - `settings/` - Configuration constants and settings
 - `scripts/` - Utility scripts
 - `templates/` - HTML templates for email and wiki generation
-- `teamcity_retrieve_engine_test_status_dpc.py` - TeamCity test result retrieval script
+- `teamcity_test_results.py` - TeamCity test result retrieval script
 
 ## Known limitations
 

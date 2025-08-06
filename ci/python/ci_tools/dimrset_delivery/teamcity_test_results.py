@@ -22,12 +22,12 @@ It takes a build ID and:
 The percentage is computed as: passed tests / total tests * 100
 
 Usage examples:
-teamcity_retrieve_engine_test_status_dpc.py --build_id 123456 --teamcity-username <user> --teamcity-password <pass> --dry-run
+teamcity_test_results.py --build_id 123456 --teamcity-username <user> --teamcity-password <pass> --dry-run
 
 For complete list of arguments and options, run:
-teamcity_retrieve_engine_test_status_dpc.py --help
+teamcity_test_results.py --help
 
-Output: Creates 'teamcity_retrieve_release_engine_test_status.txt' with detailed test results
+Output: Creates 'teamcity_test_results.txt' with detailed test results
 """
 BASE_URL = "https://dpcbuild.deltares.nl"
 REST_API_URL = f"{BASE_URL}/httpAuth/app/rest"
@@ -43,7 +43,7 @@ class FilteredList(Enum):
     DELFT3D_LINUX_TEST = "Delft3D_LinuxTest"
 
 
-class TestResultSummary:
+class ResultSummary:
     """A class to store summary data for test results."""
 
     def __init__(self, name: str) -> None:
@@ -55,7 +55,7 @@ class TestResultSummary:
         self.sum_muted = 0
 
 
-class TestResultExecutiveSummary:
+class ResultExecutiveSummary:
     """A class to store data for test result summary."""
 
     def __init__(self, passed: int, failed: int) -> None:
@@ -71,12 +71,12 @@ class TestResultExecutiveSummary:
 class ExecutiveSummary:
     """A class to store executive summary data for test results."""
 
-    def __init__(self, name: str, summary: list[TestResultSummary]) -> None:
+    def __init__(self, name: str, summary: list[ResultSummary]) -> None:
         self.name = name
         self.summary = summary
 
 
-class TestResult:
+class ResultInfo:
     """A class to store configuration test results info."""
 
     def __init__(
@@ -127,7 +127,7 @@ class ConfigurationTestResult:
         self.build_nr = build_nr
         self.status_text = status_text
         self.exceptions: List[str] = []
-        self.test_result = TestResult(passed, failed, ignored, muted, 0, 0)
+        self.test_result = ResultInfo(passed, failed, ignored, muted, 0, 0)
 
     def get_total(self) -> int:
         """Get total number of testcases.
@@ -150,7 +150,7 @@ class ConfigurationTestResult:
         return self.test_result.get_not_passed_total()
 
 
-def get_sum_test_result(test_overview: List[ConfigurationTestResult]) -> TestResult:
+def get_sum_test_result(test_overview: List[ConfigurationTestResult]) -> ResultInfo:
     """Get sum of the test results.
 
     Parameters
@@ -176,7 +176,7 @@ def get_sum_test_result(test_overview: List[ConfigurationTestResult]) -> TestRes
         sum_muted += test.test_result.muted
         sum_exception += test.test_result.exception
         sum_muted_exception += test.test_result.muted_exception
-    return TestResult(sum_passed, sum_failed, sum_ignored, sum_muted, sum_exception, sum_muted_exception)
+    return ResultInfo(sum_passed, sum_failed, sum_ignored, sum_muted, sum_exception, sum_muted_exception)
 
 
 def log_to_file(log_file: TextIOWrapper, *args: str) -> None:
@@ -244,7 +244,7 @@ def log_result_list(log_file: TextIOWrapper, name: str, engines: List[Configurat
         log_coniguration_line(log_file, configuration_line)
     sum_test_result = get_sum_test_result(engines)
 
-    configuration_summary = TestResultExecutiveSummary(sum_test_result.passed, sum_test_result.get_not_passed_total())
+    configuration_summary = ResultExecutiveSummary(sum_test_result.passed, sum_test_result.get_not_passed_total())
     log_to_file(log_file, f"    Total     : {configuration_summary.total:6d}")
     log_to_file(log_file, f"    Passed    : {configuration_summary.passed:6d}")
     log_to_file(log_file, f"    Percentage: {configuration_summary.percentage:6.2f}")
@@ -435,7 +435,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     build_id = args.build_id
-    output_file = "teamcity_retrieve_release_engine_test_status.txt"
+    output_file = "teamcity_test_results.txt"
     if os.path.exists(output_file):
         os.remove(output_file)
     log_file = open(output_file, "a")
@@ -467,7 +467,7 @@ if __name__ == "__main__":
     log_result_list(log_file, "DIMR Testbench Release", result_list)
 
     # 4. Write executive summary to file
-    summary = TestResultSummary("All")
+    summary = ResultSummary("All")
     for result in result_list:
         summary.sum_passed += result.test_result.passed
         summary.sum_failed += result.test_result.failed
