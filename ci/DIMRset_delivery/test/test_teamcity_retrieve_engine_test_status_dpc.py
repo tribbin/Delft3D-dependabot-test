@@ -1,123 +1,24 @@
 """Tests for teamcity_retrieve_engine_test_status_dpc.py"""
 
-import pytest
-from unittest.mock import Mock, patch, mock_open
-from datetime import datetime
-from io import TextIOWrapper
-
-# We need to set up the path to import from src
 import sys
 import os
+from unittest.mock import Mock, patch, mock_open
+from io import StringIO
+
+# Add src directory to Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-# Test data classes that don't have external dependencies
-class TestTestResult:
-    """Test cases for TestResult class."""
-    
-    def test_test_result_can_be_created(self):
-        """Test that we can create a TestResult-like object for testing."""
-        # Create a simple class for testing
-        class TestResult:
-            def __init__(self, passed, failed, ignored, muted, exception, muted_exception):
-                self.passed = passed
-                self.failed = failed
-                self.ignored = ignored
-                self.muted = muted
-                self.exception = exception
-                self.muted_exception = muted_exception
-            
-            def get_total(self):
-                return self.passed + self.failed + self.exception + self.ignored + self.muted - self.muted_exception
-            
-            def get_not_passed_total(self):
-                return self.failed + self.exception + self.ignored + self.muted
-        
-        test_result = TestResult(10, 2, 1, 1, 1, 0)
-        assert test_result.passed == 10
-        assert test_result.failed == 2
-        assert test_result.ignored == 1
-        assert test_result.muted == 1
-        assert test_result.exception == 1
-        assert test_result.muted_exception == 0
-    
-    def test_get_total(self):
-        """Test get_total method."""
-        class TestResult:
-            def __init__(self, passed, failed, ignored, muted, exception, muted_exception):
-                self.passed = passed
-                self.failed = failed
-                self.ignored = ignored
-                self.muted = muted
-                self.exception = exception
-                self.muted_exception = muted_exception
-            
-            def get_total(self):
-                return self.passed + self.failed + self.exception + self.ignored + self.muted - self.muted_exception
-        
-        test_result = TestResult(10, 2, 1, 1, 1, 0)
-        # Total = passed + failed + exception + ignored + muted - muted_exception
-        # Total = 10 + 2 + 1 + 1 + 1 - 0 = 15
-        assert test_result.get_total() == 15
-    
-    def test_get_total_with_muted_exception(self):
-        """Test get_total method with muted exceptions."""
-        class TestResult:
-            def __init__(self, passed, failed, ignored, muted, exception, muted_exception):
-                self.passed = passed
-                self.failed = failed
-                self.ignored = ignored
-                self.muted = muted
-                self.exception = exception
-                self.muted_exception = muted_exception
-            
-            def get_total(self):
-                return self.passed + self.failed + self.exception + self.ignored + self.muted - self.muted_exception
-        
-        test_result = TestResult(10, 2, 1, 1, 1, 1)
-        # Total = 10 + 2 + 1 + 1 + 1 - 1 = 14
-        assert test_result.get_total() == 14
-    
-    def test_get_not_passed_total(self):
-        """Test get_not_passed_total method."""
-        class TestResult:
-            def __init__(self, passed, failed, ignored, muted, exception, muted_exception):
-                self.passed = passed
-                self.failed = failed
-                self.ignored = ignored
-                self.muted = muted
-                self.exception = exception
-                self.muted_exception = muted_exception
-            
-            def get_not_passed_total(self):
-                return self.failed + self.exception + self.ignored + self.muted
-        
-        test_result = TestResult(10, 2, 1, 1, 1, 0)
-        # Not passed = failed + exception + ignored + muted
-        # Not passed = 2 + 1 + 1 + 1 = 5
-        assert test_result.get_not_passed_total() == 5
-
-
-class TestTestResultSummary:
-    """Test cases for TestResultSummary class."""
-    
-    def test_init(self):
-        """Test TestResultSummary initialization."""
-        class TestResultSummary:
-            def __init__(self, name):
-                self.name = name
-                self.sum_passed = 0
-                self.sum_failed = 0
-                self.sum_exception = 0
-                self.sum_ignored = 0
-                self.sum_muted = 0
-        
-        summary = TestResultSummary("Test Summary")
-        assert summary.name == "Test Summary"
-        assert summary.sum_passed == 0
-        assert summary.sum_failed == 0
-        assert summary.sum_exception == 0
-        assert summary.sum_ignored == 0
-        assert summary.sum_muted == 0
+from teamcity_retrieve_engine_test_status_dpc import (  
+    TestResult, 
+    TestResultExecutiveSummary, 
+    ConfigurationTestResult,
+    TestResultSummary,
+    ExecutiveSummary,
+    log_executive_summary,
+    get_build_test_results_from_teamcity,
+    log_to_file,
+    log_result_list
+)
 
 
 class TestTestResultExecutiveSummary:
@@ -125,17 +26,11 @@ class TestTestResultExecutiveSummary:
     
     def test_init_with_values(self):
         """Test TestResultExecutiveSummary initialization with values."""
-        class TestResultExecutiveSummary:
-            def __init__(self, passed, failed):
-                self.passed = passed
-                self.failed = failed
-                self.total = passed + failed
-                a = 0.0
-                if self.total > 0:
-                    a = float(self.passed) / float(self.total) * 100.0
-                self.percentage = a
-        
+                
+        # Act
         summary = TestResultExecutiveSummary(80, 20)
+        
+        # Assert
         assert summary.passed == 80
         assert summary.failed == 20
         assert summary.total == 100
@@ -143,21 +38,43 @@ class TestTestResultExecutiveSummary:
     
     def test_init_with_zero_total(self):
         """Test TestResultExecutiveSummary initialization with zero total."""
-        class TestResultExecutiveSummary:
-            def __init__(self, passed, failed):
-                self.passed = passed
-                self.failed = failed
-                self.total = passed + failed
-                a = 0.0
-                if self.total > 0:
-                    a = float(self.passed) / float(self.total) * 100.0
-                self.percentage = a
         
+        # Act
         summary = TestResultExecutiveSummary(0, 0)
+        
+        # Assert
         assert summary.passed == 0
         assert summary.failed == 0
         assert summary.total == 0
         assert summary.percentage == 0.0
+
+
+class TestTestResult:
+    """Test cases for TestResult class."""
+    
+    def test_test_result_can_be_created(self):
+        """Test that we can create a TestResult-like object for testing."""
+        # Act
+        test_result = TestResult(10, 9, 8, 7, 6, 5)
+        
+        # Assert
+        assert test_result.get_total() == 35
+
+    def test_get_total_with_muted_exception(self):
+        """Test get_total method with muted exceptions."""
+        # Arrange
+        test_result = TestResult(10, 9, 8, 7, 6, 5)
+        
+        # Act & Assert
+        assert test_result.get_total() == 35
+
+    def test_get_not_passed_total(self):
+        """Test get_not_passed_total method."""
+        # Arrange
+        test_result = TestResult(10, 9, 8, 7, 6, 5)
+        
+        # Act & Assert
+        assert test_result.get_not_passed_total() == 30
 
 
 class TestConfigurationTestResult:
@@ -165,81 +82,337 @@ class TestConfigurationTestResult:
     
     def test_basic_functionality(self):
         """Test basic ConfigurationTestResult functionality."""
-        class TestResult:
-            def __init__(self, passed, failed, ignored, muted, exception, muted_exception):
-                self.passed = passed
-                self.failed = failed
-                self.ignored = ignored
-                self.muted = muted
-                self.exception = exception
-                self.muted_exception = muted_exception
-            
-            def get_total(self):
-                return self.passed + self.failed + self.exception + self.ignored + self.muted - self.muted_exception
-            
-            def get_not_passed_total(self):
-                return self.failed + self.exception + self.ignored + self.muted
+        # Arrange - no setup needed for constructor test
         
-        class ConfigurationTestResult:
-            def __init__(self, name, build_nr, passed, failed, ignored, muted, status_text):
-                self.name = name
-                self.build_nr = build_nr
-                self.status_text = status_text
-                self.exceptions = []
-                self.test_result = TestResult(passed, failed, ignored, muted, 0, 0)
-            
-            def get_total(self):
-                return self.test_result.get_total()
-            
-            def get_not_passed_total(self):
-                return self.test_result.get_not_passed_total()
+        # Act
+        config_result = ConfigurationTestResult("Test Config", "123", 10, 3, 2, 1, "SUCCESS")
         
-        config_result = ConfigurationTestResult("Test Config", "123", 10, 2, 1, 1, "SUCCESS")
+        # Assert
         assert config_result.name == "Test Config"
         assert config_result.build_nr == "123"
         assert config_result.status_text == "SUCCESS"
         assert config_result.test_result.passed == 10
-        assert config_result.test_result.failed == 2
-        assert config_result.test_result.ignored == 1
+        assert config_result.test_result.failed == 3
+        assert config_result.test_result.ignored == 2
         assert config_result.test_result.muted == 1
+        assert config_result.test_result.exception == 0
+        assert config_result.test_result.muted_exception == 0
         assert config_result.exceptions == []
-        assert config_result.get_total() == 14  # 10 + 2 + 1 + 1
-        assert config_result.get_not_passed_total() == 4  # 2 + 1 + 1
+        assert config_result.get_total() == 16
+        assert config_result.get_not_passed_total() == 6
 
 
-class TestUtilityFunctions:
-    """Test cases for utility functions."""
-    
-    def test_log_to_file_functionality(self):
-        """Test log_to_file function behavior."""
-        def log_to_file(log_file, *args):
-            log_file.write(" ".join(map(str, args)) + "\n")
+class TestTeamcityRetrieveEngineTestStatusDPC:
+    """Test cases for log_executive_summary function."""
+    def test_log_to_file_single_arg(self):
+        """Test log_to_file with a single argument."""
+        # Arrange
+        mock_file = StringIO()
         
-        mock_file = Mock()
-        log_to_file(mock_file, "Test", "message", "123")
-        mock_file.write.assert_called_once_with("Test message 123\n")
-    
-    def test_percentage_calculation(self):
-        """Test percentage calculation logic."""
-        def calculate_percentage(passed, total):
-            if total > 0:
-                return float(passed) / float(total) * 100.0
-            return 0.0
+        # Act
+        log_to_file(mock_file, "Test message")
         
-        assert calculate_percentage(80, 100) == 80.0
-        assert calculate_percentage(0, 100) == 0.0
-        assert calculate_percentage(0, 0) == 0.0
-        assert calculate_percentage(50, 200) == 25.0
+        # Assert
+        output = mock_file.getvalue()
+        assert output == "Test message\n"
+    
+    def test_log_to_file_multiple_args(self):
+        """Test log_to_file with multiple arguments."""
+        # Arrange
+        mock_file = StringIO()
+        
+        # Act
+        log_to_file(mock_file, "Test", "message", "with", "multiple", "args")
+        
+        # Assert
+        output = mock_file.getvalue()
+        assert output == "Test message with multiple args\n"
+    
+    def test_log_to_file_mixed_types(self):
+        """Test log_to_file with mixed argument types."""
+        # Arrange
+        mock_file = StringIO()
+        
+        # Act
+        log_to_file(mock_file, "Count:", 42, "Percentage:", 85.5)
+        
+        # Assert
+        output = mock_file.getvalue()
+        assert output == "Count: 42 Percentage: 85.5\n"
+  
+    def test_log_executive_summary_single_summary(self):
+        """Test logging executive summary with a single summary."""
+        # Arrange
+        mock_file = StringIO()
+        
+        summary = TestResultSummary("Windows Tests")
+        summary.sum_passed = 85
+        summary.sum_failed = 10
+        summary.sum_exception = 3
+        summary.sum_ignored = 2
+        summary.sum_muted = 0
+        
+        executive_summary = ExecutiveSummary("DIMR Test Results", [summary])
+        
+        # Act
+        log_executive_summary(mock_file, executive_summary)
+        
+        # Assert
+        output = mock_file.getvalue()
+        assert "Testbench root: DIMR Test Results" in output
+        assert "Summary: Windows Tests" in output
+        assert "Total tests   :    100" in output
+        assert "    Passed    :     85" in output
+        assert "    Not passed:     15" in output
+        assert "    Failed    :     10" in output
+        assert "    Exception :      3" in output
+        assert "    Ignored   :      2" in output
+        assert "    Muted     :      0" in output
+        assert "    Percentage:  85.00" in output
+    
+    def test_log_executive_summary_multiple_summaries(self):
+        """Test logging executive summary with multiple summaries."""
+        # Arrange
+        mock_file = StringIO()
+        
+        windows_summary = TestResultSummary("Windows Tests")
+        windows_summary.sum_passed = 85
+        windows_summary.sum_failed = 10
+        windows_summary.sum_exception = 3
+        windows_summary.sum_ignored = 2
+        windows_summary.sum_muted = 0
+        
+        linux_summary = TestResultSummary("Linux Tests")
+        linux_summary.sum_passed = 90
+        linux_summary.sum_failed = 5
+        linux_summary.sum_exception = 3
+        linux_summary.sum_ignored = 1
+        linux_summary.sum_muted = 1
+        
+        executive_summary = ExecutiveSummary("DIMR Test Results", [windows_summary, linux_summary])
+        
+        # Act
+        log_executive_summary(mock_file, executive_summary)
+        
+        # Assert
+        output = mock_file.getvalue()
+        assert "Testbench root: DIMR Test Results" in output
+        assert "Summary: Windows Tests" in output
+        assert "Summary: Linux Tests" in output
+        assert "    Percentage:  85.00" in output  # Windows percentage
+        assert "    Percentage:  90.00" in output  # Linux percentage
+    
+    def test_log_executive_summary_zero_total(self):
+        """Test logging executive summary with zero total tests."""
+        # Arrange
+        mock_file = StringIO()
+        
+        summary = TestResultSummary("Empty Tests")
+        # All values are 0 by default
+        
+        executive_summary = ExecutiveSummary("Empty Test Results", [summary])
+        
+        # Act
+        log_executive_summary(mock_file, executive_summary)
+        
+        # Assert
+        output = mock_file.getvalue()
+        assert "Testbench root: Empty Test Results" in output
+        assert "Summary: Empty Tests" in output
+        assert "Total tests   :      0" in output
+        assert "    Percentage:   0.00" in output
 
+    def test_log_result_list_empty_engines(self):
+        """Test log_result_list with empty engines list."""
+        # Arrange
+        mock_file = StringIO()
+        engines = []
+        
+        # Act
+        log_result_list(mock_file, "Test Results", engines)
+        
+        # Assert
+        output = mock_file.getvalue()
+        assert "Test Results" in output
+        assert "total   passed   failed   except  ignored    muted        %  ---  test case name           (#build)" in output
+        assert "    Total     :      0" in output
+        assert "    Passed    :      0" in output
+        assert "    Percentage:   0.00" in output
 
-@patch('builtins.print')
-def test_script_can_be_imported(mock_print):
-    """Test that importing the script doesn't cause immediate errors."""
-    try:
-        # This will test basic import without running the main block
-        import teamcity_retrieve_engine_test_status_dpc
-        assert True  # If we get here, import was successful
-    except ImportError as e:
-        # This is expected due to missing dependencies in test environment
-        assert "helpers" in str(e) or "lib" in str(e)
-        assert True  # This is an acceptable failure for testing purposes
+    def test_log_result_list_single_engine(self):
+        """Test log_result_list with single engine."""
+        # Arrange
+        mock_file = StringIO()
+        engine = ConfigurationTestResult("Test Config", "123", 50, 5, 3, 2, "SUCCESS")
+        engines = [engine]
+        
+        # Act
+        log_result_list(mock_file, "Single Engine Results", engines)
+        
+        # Assert
+        output = mock_file.getvalue()
+        assert "Single Engine Results" in output
+        assert "total   passed   failed   except  ignored    muted        %  ---  test case name           (#build)" in output
+        assert "          60       50        5        0        3        2    83.33  ---  Test Config" in output
+        assert "    Total     :     60" in output
+        assert "    Passed    :     50" in output
+        assert "    Percentage:  83.33" in output
+
+    def test_log_result_list_multiple_engines(self):
+        """Test log_result_list with multiple engines."""
+        # Arrange
+        mock_file = StringIO()
+        engine1 = ConfigurationTestResult("Windows Tests", "123", 40, 10, 5, 5, "SUCCESS")
+        engine2 = ConfigurationTestResult("Linux Tests", "456", 60, 5, 3, 2, "SUCCESS")
+        engines = [engine1, engine2]
+        
+        # Act
+        log_result_list(mock_file, "Multiple Engine Results", engines)
+        
+        # Assert
+        output = mock_file.getvalue()
+        assert "Multiple Engine Results" in output
+        assert "total   passed   failed   except  ignored    muted        %  ---  test case name           (#build)" in output
+        assert "Windows Tests" in output
+        assert "Linux Tests" in output
+        assert "    Total     :    130" in output
+        assert "    Passed    :    100" in output
+        assert "    Percentage:  76.92" in output
+
+    def test_log_result_list_engine_with_zero_total(self):
+        """Test log_result_list with engine having zero total tests."""
+        # Arrange
+        mock_file = StringIO()
+        engine = ConfigurationTestResult("Empty Config", "789", 0, 0, 0, 0, "FAILED")
+        engines = [engine]
+        
+        # Act
+        log_result_list(mock_file, "Zero Total Results", engines)
+        
+        # Assert
+        output = mock_file.getvalue()
+        assert "Zero Total Results" in output
+        assert "           x        x        x        x        x        x        x  ---  Empty Config             (#789)" in output
+        assert "                                                                            xxx  FAILED" in output
+        assert "    Total     :      0" in output
+        assert "    Passed    :      0" in output
+        assert "    Percentage:   0.00" in output
+
+    def test_get_build_test_results_from_teamcity_dry_run_mode(self):
+        """Test get_build_test_results_from_teamcity in dry run mode."""
+        # Arrange
+        mock_context = Mock()
+        mock_context.dry_run = True
+        
+        # Act
+        result = get_build_test_results_from_teamcity(mock_context, 12345)
+        
+        # Assert
+        assert result is not None
+        assert result.name == "[DRY-RUN] Test Configuration / Build 12345"
+        assert result.build_nr == 12345
+        assert result.test_result.passed == 85
+        assert result.test_result.failed == 0
+        assert result.test_result.ignored == 0
+        assert result.test_result.muted == 0
+        assert result.status_text == "[DRY-RUN] SUCCESS"
+    
+    def test_get_build_test_results_from_teamcity_no_build_info(self):
+        """Test get_build_test_results_from_teamcity when no build info is returned."""
+        # Arrange
+        mock_context = Mock()
+        mock_context.dry_run = False
+        mock_context.teamcity.get_full_build_info_for_build_id.return_value = None
+        
+        # Act
+        result = get_build_test_results_from_teamcity(mock_context, 12345)
+        
+        # Assert
+        assert result is None
+        mock_context.teamcity.get_full_build_info_for_build_id.assert_called_once_with(12345)
+    
+    def test_get_build_test_results_from_teamcity_no_test_occurrences(self):
+        """Test get_build_test_results_from_teamcity when no test occurrences exist."""
+        # Arrange
+        mock_context = Mock()
+        mock_context.dry_run = False
+        
+        build_info = {
+            "number": "2023.01.123",
+            "status": "SUCCESS",
+            "buildType": {
+                "name": "Windows Integration Tests",
+                "projectName": "Delft3D"
+            }
+        }
+        mock_context.teamcity.get_full_build_info_for_build_id.return_value = build_info
+        
+        # Act
+        result = get_build_test_results_from_teamcity(mock_context, 12345)
+        
+        # Assert
+        assert result is None
+    
+    def test_get_build_test_results_from_teamcity_zero_test_count(self):
+        """Test get_build_test_results_from_teamcity when test count is zero."""
+        # Arrange
+        mock_context = Mock()
+        mock_context.dry_run = False
+        
+        build_info = {
+            "number": "2023.01.123",
+            "status": "SUCCESS",
+            "buildType": {
+                "name": "Windows Integration Tests",
+                "projectName": "Delft3D"
+            },
+            "testOccurrences": {
+                "count": "0"
+            }
+        }
+        mock_context.teamcity.get_full_build_info_for_build_id.return_value = build_info
+        
+        # Act
+        result = get_build_test_results_from_teamcity(mock_context, 12345)
+        
+        # Assert
+        assert result is None
+    
+    def test_get_build_test_results_from_teamcity_valid_test_results(self):
+        """Test get_build_test_results_from_teamcity with valid test results."""
+        # Arrange
+        mock_context = Mock()
+        mock_context.dry_run = False
+        
+        build_info = {
+            "number": "1.23.34",
+            "status": "SUCCESS",
+            "buildType": {
+                "name": "Windows Integration Tests",
+                "projectName": "Delft3D"
+            },
+            "testOccurrences": {
+                "count": "100",
+                "passed": "85",
+                "failed": "10",
+                "ignored": "3",
+                "muted": "2"
+            }
+        }
+        mock_context.teamcity.get_full_build_info_for_build_id.return_value = build_info
+        
+        # Act
+        result = get_build_test_results_from_teamcity(mock_context, 12345)
+        
+        # Assert
+        assert result is not None
+        assert result.name == "Delft3D / Windows Integration Tests"
+        assert result.build_nr == "1.23.34"
+        assert result.status_text == "SUCCESS"
+        assert result.test_result.passed == 85
+        assert result.test_result.failed == 10
+        assert result.test_result.ignored == 3
+        assert result.test_result.muted == 2
+        assert result.test_result.exception == 0
+        assert result.test_result.muted_exception == 0
+
