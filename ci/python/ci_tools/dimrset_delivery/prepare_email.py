@@ -3,6 +3,7 @@
 
 from typing import Optional
 
+from .common_utils import get_testbank_result_parser
 from .dimr_context import DimrAutomationContext, create_context_from_args, parse_common_arguments
 from .helpers.email_helper import EmailHelper
 from .helpers.testbank_result_parser import TestbankResultParser
@@ -40,13 +41,6 @@ def prepare_email(context: DimrAutomationContext) -> None:
     helper.generate_template()
 
     print("Email template preparation completed successfully!")
-
-
-def get_testbank_result_parser() -> TestbankResultParser:
-    """Get a new TestbankResultParser for the latest test bench results from a local file."""
-    with open(PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT, "rb") as f:
-        artifact = f.read()
-    return TestbankResultParser(artifact.decode())
 
 
 def get_previous_testbank_result_parser(context: DimrAutomationContext) -> Optional[TestbankResultParser]:

@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Update the Excel sheet with this week's release information."""
 
+from .common_utils import get_testbank_result_parser
 from .dimr_context import DimrAutomationContext, create_context_from_args, parse_common_arguments
 from .helpers.excel_helper import ExcelHelper
 from .helpers.ssh_client import Direction
-from .helpers.testbank_result_parser import TestbankResultParser
 from .settings.general_settings import DRY_RUN_PREFIX, LINUX_ADDRESS, VERSIONS_EXCEL_FILENAME
-from .settings.teamcity_settings import PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT
 
 
 def update_excel_sheet(context: DimrAutomationContext) -> None:
@@ -45,13 +44,6 @@ def update_excel_sheet(context: DimrAutomationContext) -> None:
     context.ssh_client.secure_copy(LINUX_ADDRESS, VERSIONS_EXCEL_FILENAME, path_to_excel_file, Direction.TO)
 
     print("Excel sheet update completed successfully!")
-
-
-def get_testbank_result_parser() -> TestbankResultParser:
-    """Get a new TestbankResultParser for the latest test bench results from a local file."""
-    with open(PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT, "rb") as f:
-        artifact = f.read()
-    return TestbankResultParser(artifact.decode())
 
 
 if __name__ == "__main__":

@@ -1,0 +1,69 @@
+"""
+Common utilities for DIMR automation scripts.
+
+Provides shared initialization and helper functions.
+"""
+
+import argparse
+from getpass import getpass
+from typing import Tuple
+
+from .helpers.git_client import GitClient
+from .helpers.ssh_client import SshClient
+from .helpers.testbank_result_parser import TestbankResultParser
+from .lib.atlassian import Atlassian
+from .lib.teamcity import TeamCity
+from .settings.general_settings import DELFT3D_GIT_REPO, DRY_RUN_PREFIX
+from .settings.teamcity_settings import PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT
+
+
+def initialize_clients(
+    username: str, password: str, personal_access_token: str
+) -> Tuple[Atlassian, TeamCity, SshClient, GitClient]:
+    """Initialize all required client wrappers.
+
+    Parameters
+    ----------
+    username : str
+        Username for authentication.
+    password : str
+        Password for authentication.
+    personal_access_token : str
+        Personal access token for Git authentication.
+
+    Returns
+    -------
+    Tuple[Atlassian, TeamCity, SshClient, GitClient]
+        Initialized client wrappers.
+    """
+    atlassian_wrapper = Atlassian(username=username, password=password)
+    teamcity_wrapper = TeamCity(username=username, password=password)
+    ssh_client_wrapper = SshClient(username=username, password=password, connect_timeout=30)
+    git_client_wrapper = GitClient(DELFT3D_GIT_REPO, username, personal_access_token)
+
+    return atlassian_wrapper, teamcity_wrapper, ssh_client_wrapper, git_client_wrapper
+
+
+def get_testbank_result_parser() -> TestbankResultParser:
+    """Get a new TestbankResultParser for the latest test bench results from a local file.
+
+    Returns
+    -------
+    TestbankResultParser
+        Parser instance for the test results.
+    """
+    with open(PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT, "rb") as f:
+        artifact = f.read()
+    return TestbankResultParser(artifact.decode())
+
+
+def print_dry_run_message(dry_run: bool) -> None:
+    """Print dry run message if applicable.
+
+    Parameters
+    ----------
+    dry_run : bool
+        Whether running in dry-run mode.
+    """
+    if dry_run:
+        print(f"{DRY_RUN_PREFIX} - no changes will be made")

@@ -200,35 +200,6 @@ class ConfigurationTestResult:
         return self.test_result.get_not_passed_total()
 
 
-def get_sum_test_result(test_overview: List[ConfigurationTestResult]) -> ResultInfo:
-    """Get sum of the test results.
-
-    Parameters
-    ----------
-    test_overview : List[ConfigurationTestResult]
-        List of configuration test results to aggregate.
-
-    Returns
-    -------
-    TestResult
-        Data object with the aggregated sum of the tests.
-    """
-    sum_passed = 0
-    sum_failed = 0
-    sum_exception = 0
-    sum_ignored = 0
-    sum_muted = 0
-    sum_muted_exception = 0
-    for test in test_overview:
-        sum_passed += test.test_result.passed
-        sum_failed += test.test_result.failed
-        sum_ignored += test.test_result.ignored
-        sum_muted += test.test_result.muted
-        sum_exception += test.test_result.exception
-        sum_muted_exception += test.test_result.muted_exception
-    return ResultInfo(sum_passed, sum_failed, sum_ignored, sum_muted, sum_exception, sum_muted_exception)
-
-
 def log_to_file(log_file: TextIOWrapper, *args: str) -> None:
     """Write to a log file.
 
@@ -291,60 +262,13 @@ def log_result_list(log_file: TextIOWrapper, name: str, engines: List[Configurat
         HEADER_FMT.format("total", "passed", "failed", "except", "ignored", "muted", "%", "test case name", "build"),
     )
     for configuration_line in engines:
-        log_coniguration_line(log_file, configuration_line)
-    sum_test_result = get_sum_test_result(engines)
+        _log_configuration_line(log_file, configuration_line)
+    sum_test_result = _get_sum_test_result(engines)
 
     configuration_summary = ResultExecutiveSummary(sum_test_result.passed, sum_test_result.get_not_passed_total())
     log_to_file(log_file, f"    Total     : {configuration_summary.total:6d}")
     log_to_file(log_file, f"    Passed    : {configuration_summary.passed:6d}")
     log_to_file(log_file, f"    Percentage: {configuration_summary.percentage:6.2f}")
-
-
-def log_coniguration_line(log_file: TextIOWrapper, line: ConfigurationTestResult) -> None:
-    """Log configuration line to a file.
-
-    Parameters
-    ----------
-    log_file : TextIOWrapper
-        The file to write the configuration line to.
-    line : ConfigurationTestResult
-        The configuration test result to log.
-    """
-    total = line.get_total()
-    if total != 0:
-        percentage = line.test_result.passed / total * 100.0
-    else:
-        percentage = 0
-    if total > 0:
-        log_to_file(
-            log_file,
-            "{:12d} {:8d} {:8d} {:8d} {:8d} {:8d} {:8.2f}  ---  {:24s} (#{:s})".format(
-                total,
-                line.test_result.passed,
-                line.test_result.failed,
-                line.test_result.exception,
-                line.test_result.ignored,
-                line.test_result.muted,
-                percentage,
-                line.name,
-                line.build_nr,
-            ),
-        )
-
-    else:
-        log_to_file(log_file, HEADER_FMT.format("x", "x", "x", "x", "x", "x", "x", line.name, line.build_nr))
-        log_to_file(
-            log_file,
-            f"                                                                            xxx  {line.status_text}",
-        )
-
-    if line.test_result.exception != 0:
-        for exception in line.exceptions:
-            log_to_file(
-                log_file,
-                f"                                                           "
-                f"                 xxx  Exception {exception}",
-            )
 
 
 def get_build_dependency_chain(
@@ -471,6 +395,82 @@ def get_build_test_results_from_teamcity(
         muted=muted,
         status_text=status_text,
     )
+
+
+def _get_sum_test_result(test_overview: List[ConfigurationTestResult]) -> ResultInfo:
+    """Get sum of the test results.
+
+    Parameters
+    ----------
+    test_overview : List[ConfigurationTestResult]
+        List of configuration test results to aggregate.
+
+    Returns
+    -------
+    TestResult
+        Data object with the aggregated sum of the tests.
+    """
+    sum_passed = 0
+    sum_failed = 0
+    sum_exception = 0
+    sum_ignored = 0
+    sum_muted = 0
+    sum_muted_exception = 0
+    for test in test_overview:
+        sum_passed += test.test_result.passed
+        sum_failed += test.test_result.failed
+        sum_ignored += test.test_result.ignored
+        sum_muted += test.test_result.muted
+        sum_exception += test.test_result.exception
+        sum_muted_exception += test.test_result.muted_exception
+    return ResultInfo(sum_passed, sum_failed, sum_ignored, sum_muted, sum_exception, sum_muted_exception)
+
+
+def _log_configuration_line(log_file: TextIOWrapper, line: ConfigurationTestResult) -> None:
+    """Log configuration line to a file.
+
+    Parameters
+    ----------
+    log_file : TextIOWrapper
+        The file to write the configuration line to.
+    line : ConfigurationTestResult
+        The configuration test result to log.
+    """
+    total = line.get_total()
+    if total != 0:
+        percentage = line.test_result.passed / total * 100.0
+    else:
+        percentage = 0
+    if total > 0:
+        log_to_file(
+            log_file,
+            "{:12d} {:8d} {:8d} {:8d} {:8d} {:8d} {:8.2f}  ---  {:24s} (#{:s})".format(
+                total,
+                line.test_result.passed,
+                line.test_result.failed,
+                line.test_result.exception,
+                line.test_result.ignored,
+                line.test_result.muted,
+                percentage,
+                line.name,
+                line.build_nr,
+            ),
+        )
+
+    else:
+        log_to_file(log_file, HEADER_FMT.format("x", "x", "x", "x", "x", "x", "x", line.name, line.build_nr))
+        log_to_file(
+            log_file,
+            f"                                                                            xxx  {line.status_text}",
+        )
+
+    if line.test_result.exception != 0:
+        for exception in line.exceptions:
+            log_to_file(
+                log_file,
+                f"                                                           "
+                f"                 xxx  Exception {exception}",
+            )
 
 
 if __name__ == "__main__":

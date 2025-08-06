@@ -89,23 +89,6 @@ def verify_signing_authority(filepath: str, developer_prompt: str) -> tuple:
         return f"Error: {e}"
 
 
-def get_actual_files(directory: str) -> list[Path]:
-    """Recursively retrieve a list of relative file paths for all .dll and .exe files in the given directory.
-
-    Parameters
-    ----------
-    directory : str
-        The root directory to search for files.
-
-    Returns
-    -------
-    list[Path]
-        A list of relative file paths for .dll and .exe files found in the directory.
-    """
-    directory = Path(directory)
-    return [path.relative_to(directory) for path in directory.glob("**/*") if path.suffix.lower() in (".dll", ".exe")]
-
-
 def validate_signing_status(
     file: str,
     directory: str,
@@ -230,7 +213,24 @@ def is_signing_correct(
     return files_signed_correctly and files_unsigned_correctly
 
 
-def validate_directory_contents(actual_files: list[Path], expected_files: list[Path]) -> bool:
+def _get_actual_files(directory: str) -> list[Path]:
+    """Recursively retrieve a list of relative file paths for all .dll and .exe files in the given directory.
+
+    Parameters
+    ----------
+    directory : str
+        The root directory to search for files.
+
+    Returns
+    -------
+    list[Path]
+        A list of relative file paths for .dll and .exe files found in the directory.
+    """
+    directory = Path(directory)
+    return [path.relative_to(directory) for path in directory.glob("**/*") if path.suffix.lower() in (".dll", ".exe")]
+
+
+def _validate_directory_contents(actual_files: list[Path], expected_files: list[Path]) -> bool:
     """
     Validate the contents of a directory by comparing the actual files against the expected files.
 
@@ -258,7 +258,7 @@ def validate_directory_contents(actual_files: list[Path], expected_files: list[P
     return not missing_files and not extra_files
 
 
-def print_example_json_file_structure() -> None:
+def _print_example_json_file_structure() -> None:
     """Print an example JSON file structure for the expected file configuration."""
     print("Example JSON file structure:{")
     print('    "signed": [')
@@ -309,13 +309,13 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error parsing JSON file: {file_structure_json}")
         print(f"Error: {e}")
-        print_example_json_file_structure()
+        _print_example_json_file_structure()
         sys.exit(1)
 
     expected_files = files_that_should_be_signed + files_that_should_not_be_signed
-    actual_files = get_actual_files(directory)
+    actual_files = _get_actual_files(directory)
 
-    if not validate_directory_contents(actual_files, expected_files):
+    if not _validate_directory_contents(actual_files, expected_files):
         print("Directory check failed: Missing or extra files detected.")
         sys.exit(1)
 
