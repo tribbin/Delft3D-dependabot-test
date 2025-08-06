@@ -11,19 +11,23 @@ from dimr_context import DimrAutomationContext, parse_common_arguments, create_c
 from settings.general_settings import DRY_RUN_PREFIX
 
 """
-This script list the test bench results with status: passed, failed, exception, ignored and muted.
-The percentage is computed as follows: the passed tests divide by the total number of tests
+This script retrieves test results from TeamCity for DIMR release builds.
 
-The test benchroot need to specified by its projectid.
-This can be taken from the web-adress.
-Ex. DIMR testbench daily:  https://dpcbuild.deltares.nl/project.html?projectId=Delft3DSobek_DimrTestbench&tab=projectOverview
-The project id is: Delft3DSobek_DimrTestbench
-See the examples below
-Structure of testbench should be: root -> engine test -> functionality tests
+It takes a build ID and:
+1. Gets the dependency chain of all dependent builds from TeamCity
+2. Filters for Windows and Linux test builds (Delft3D_WindowsTest, Delft3D_LinuxTest)
+3. Retrieves test results for each dependent build with status: passed, failed, exception, ignored and muted
+4. Generates a summary report with test statistics and percentages
 
-teamcity_retrieve_engine_test_status.py --tbroot DFlowFlexibleMesh
-teamcity_retrieve_engine_test_status.py --tbroot Dimr_DimrTestbenchRelease  # DIMR testbench release
-teamcity_retrieve_engine_test_status.py --tbroot Delft3DSobek_DimrTestbench  # DIMR testbench daily
+The percentage is computed as: passed tests / total tests * 100
+
+Usage examples:
+teamcity_retrieve_engine_test_status_dpc.py --build_id 123456 --teamcity-username <user> --teamcity-password <pass> --dry-run
+
+For complete list of arguments and options, run:
+teamcity_retrieve_engine_test_status_dpc.py --help
+  
+Output: Creates 'teamcity_retrieve_release_engine_test_status.txt' with detailed test results
 """
 BASE_URL = "https://dpcbuild.deltares.nl"
 REST_API_URL = f"{BASE_URL}/httpAuth/app/rest"
@@ -149,6 +153,11 @@ class ConfigurationTestResult(object):
 def get_sum_test_result(test_overview: List[ConfigurationTestResult]) -> TestResult:
     """Get sum of the test results.
 
+    Parameters
+    ----------
+    test_overview : List[ConfigurationTestResult]
+        List of configuration test results to aggregate.
+
     Returns
     -------
     TestResult
@@ -184,7 +193,15 @@ def log_to_file(log_file: TextIOWrapper, *args: str) -> None:
 
 
 def log_executive_summary(log_file: TextIOWrapper, summarydata: ExecutiveSummary) -> None:
-    """Log executive summary to a file."""
+    """Log executive summary to a file.
+    
+    Parameters
+    ----------
+    log_file : TextIOWrapper
+        The file to write the executive summary to.
+    summarydata : ExecutiveSummary
+        The executive summary data to log.
+    """
     log_to_file(log_file, f"\nTestbench root: {summarydata.name}")
     for summary in summarydata.summary:
         total = (
@@ -207,7 +224,17 @@ def log_executive_summary(log_file: TextIOWrapper, summarydata: ExecutiveSummary
 
 
 def log_result_list(log_file: TextIOWrapper, name: str, engines: List[ConfigurationTestResult]) -> None:
-    """Log engine list to a file."""
+    """Log engine list to a file.
+    
+    Parameters
+    ----------
+    log_file : TextIOWrapper
+        The file to write the results to.
+    name : str
+        Name/title for the result list section.
+    engines : List[ConfigurationTestResult]
+        List of configuration test results to log.
+    """
     log_to_file(log_file, f"{name}")
     log_to_file(
         log_file,
@@ -224,7 +251,15 @@ def log_result_list(log_file: TextIOWrapper, name: str, engines: List[Configurat
 
 
 def log_coniguration_line(log_file: TextIOWrapper, line: ConfigurationTestResult) -> None:
-    """Log configuration line to a file."""
+    """Log configuration line to a file.
+    
+    Parameters
+    ----------
+    log_file : TextIOWrapper
+        The file to write the configuration line to.
+    line : ConfigurationTestResult
+        The configuration test result to log.
+    """
     total = line.get_total()
     if total != 0:
         percentage = float(line.test_result.passed) / float(total) * 100.0
@@ -268,14 +303,10 @@ def get_build_dependency_chain(
 
     Parameters
     ----------
-    teamcity_client : TeamCity
-        The TeamCity client instance.
-    build_id : str
-        The build ID to get dependencies for.
-    filtered_list : FILTERED_LIST, optional
+    context : DimrAutomationContext
+        The automation context containing TeamCity client and build configuration.
+    filtered_list : Optional[list[FILTERED_LIST]], optional
         Optional filter to include only builds whose buildTypeId matches one of the values.
-    dry_run : bool
-        If True, simulate the operation without making actual API calls.
 
     Returns
     -------
@@ -322,9 +353,9 @@ def get_build_test_results_from_teamcity(context: DimrAutomationContext, build_i
 
     Parameters
     ----------
-    teamcity_client : TeamCity
-        The TeamCity client instance.
-    build_id : str
+    context : DimrAutomationContext
+        The automation context containing TeamCity client and build configuration.
+    build_id : int
         The build ID to retrieve results for.
 
     Returns
