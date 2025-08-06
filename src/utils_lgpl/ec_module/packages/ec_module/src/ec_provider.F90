@@ -2643,7 +2643,7 @@ contains
          ncstdnames(4) = 'surface_downwelling_shortwave_flux_in_air'
       case ('solarradiation')
          ncvarnames(1) = 'ssrd' ! outgoing SW radiation at the top-of-the-atmosphere
-         ncstdnames(1) = 'surface_net_downward_shortwave_flux'
+         ncstdnames(1) = 'surface_downwelling_shortwave_flux_in_air'
          ncstdnames_fallback(1) = 'solar_irradiance'
       case ('netsolarradiation')
          ncvarnames(1) = 'ssr'
