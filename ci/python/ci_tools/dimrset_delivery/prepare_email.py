@@ -5,6 +5,7 @@ import os
 from typing import Dict, Optional
 
 from ci_tools.dimrset_delivery.common_utils import (
+    ResultTestBankParser,
     get_previous_testbank_result_parser,
     get_testbank_result_parser,
 )
@@ -13,7 +14,6 @@ from ci_tools.dimrset_delivery.dimr_context import (
     create_context_from_args,
     parse_common_arguments,
 )
-from ci_tools.dimrset_delivery.helpers.result_testbank_parser import ResultTestBankParser
 from ci_tools.dimrset_delivery.settings.email_settings import (
     LOWER_BOUND_PERCENTAGE_SUCCESSFUL_TESTS,
     RELATIVE_PATH_TO_EMAIL_TEMPLATE,

@@ -3,10 +3,11 @@
 from unittest.mock import Mock, patch
 
 from ci_tools.dimrset_delivery.common_utils import (
+    ResultTestBankParser,
+    get_testbank_result_parser,
     parse_version,
 )
 from ci_tools.dimrset_delivery.dimr_context import DimrAutomationContext
-from ci_tools.dimrset_delivery.helpers.result_testbank_parser import ResultTestBankParser
 from ci_tools.dimrset_delivery.prepare_email import prepare_email
 
 

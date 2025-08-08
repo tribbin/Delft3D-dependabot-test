@@ -6,6 +6,7 @@ from unittest.mock import Mock, mock_open, patch
 import pytest
 
 from ci_tools.dimrset_delivery.common_utils import (
+    ResultTestBankParser,
     get_previous_testbank_result_parser,
     get_tag_from_build_info,
     get_testbank_result_parser,
@@ -13,7 +14,6 @@ from ci_tools.dimrset_delivery.common_utils import (
     print_dry_run_message,
 )
 from ci_tools.dimrset_delivery.dimr_context import DimrAutomationContext
-from ci_tools.dimrset_delivery.helpers.result_testbank_parser import ResultTestBankParser
 from ci_tools.dimrset_delivery.lib.atlassian import Atlassian
 from ci_tools.dimrset_delivery.lib.git_client import GitClient
 from ci_tools.dimrset_delivery.lib.ssh_client import SshClient

@@ -6,8 +6,8 @@ from unittest.mock import MagicMock, Mock, call, patch
 import pytest
 from openpyxl.worksheet.worksheet import Worksheet
 
+from ci_tools.dimrset_delivery.common_utils import ResultTestBankParser
 from ci_tools.dimrset_delivery.dimr_context import DimrAutomationContext
-from ci_tools.dimrset_delivery.helpers.result_testbank_parser import ResultTestBankParser
 from ci_tools.dimrset_delivery.lib.teamcity import TeamCity
 from ci_tools.dimrset_delivery.settings.general_settings import (
     DRY_RUN_PREFIX,
