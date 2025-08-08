@@ -26,6 +26,8 @@ dev = [
     "pytest-cov~=6.0.0",
     "pytest-mock~=3.14.0",
     "ruff~=0.9.2",
+    "types-paramiko",
+    "types-requests",
 ]
 verschilanalyse = [
     "openpyxl~=3.1.5",
