@@ -1,6 +1,5 @@
 from unittest.mock import Mock, patch
 
-import paramiko
 import pytest
 
 from ci_tools.dimrset_delivery.lib.ssh_client import Direction, SshClient
