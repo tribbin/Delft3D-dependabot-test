@@ -246,6 +246,194 @@ class TestMainExecution:
         mock_create_context.assert_called_once_with(mock_args, require_atlassian=False, require_git=False)
 
 
+class TestArtifactInstallHelper:
+    """Test cases for ArtifactInstallHelper class."""
+
+    def test_init_creates_instance_with_dependencies(self) -> None:
+        """Test that ArtifactInstallHelper can be instantiated with dependencies."""
+        # Arrange
+        from ci_tools.dimrset_delivery.download_and_install_artifacts import ArtifactInstallHelper
+
+        mock_teamcity = Mock()
+        mock_ssh_client = Mock()
+        dimr_version = "2.3.4"
+        branch_name = "develop"
+
+        # Act
+        helper = ArtifactInstallHelper(
+            teamcity=mock_teamcity,
+            ssh_client=mock_ssh_client,
+            dimr_version=dimr_version,
+            branch_name=branch_name,
+        )
+
+        # Assert - Verify instance was created (methods exist)
+        assert hasattr(helper, "publish_artifacts_to_network_drive")
+        assert hasattr(helper, "publish_weekly_dimr_via_h7")
+
+    @patch("ci_tools.dimrset_delivery.download_and_install_artifacts.TeamcityIds")
+    def test_publish_artifacts_to_network_drive_calls_teamcity(self, mock_teamcity_ids: Mock) -> None:
+        """Test that publish_artifacts_to_network_drive calls TeamCity for dependent builds."""
+        # Arrange
+        from ci_tools.dimrset_delivery.download_and_install_artifacts import ArtifactInstallHelper
+
+        mock_teamcity = Mock()
+        mock_teamcity.get_dependent_build_id.side_effect = ["windows_build_123", "linux_build_456"]
+        mock_teamcity.get_build_artifact_names.return_value = {"file": []}
+
+        helper = ArtifactInstallHelper(
+            teamcity=mock_teamcity,
+            ssh_client=Mock(),
+            dimr_version="1.0.0",
+            branch_name="main",
+        )
+
+        # Act
+        helper.publish_artifacts_to_network_drive("chain_build_789")
+
+        # Assert
+        assert mock_teamcity.get_dependent_build_id.call_count == 2
+        mock_teamcity.get_dependent_build_id.assert_any_call(
+            "chain_build_789", mock_teamcity_ids.DELFT3D_WINDOWS_COLLECT_BUILD_TYPE_ID.value
+        )
+        mock_teamcity.get_dependent_build_id.assert_any_call(
+            "chain_build_789", mock_teamcity_ids.DELFT3D_LINUX_COLLECT_BUILD_TYPE_ID.value
+        )
+
+    @patch("ci_tools.dimrset_delivery.download_and_install_artifacts.LINUX_ADDRESS", "test-linux-host")
+    @patch("builtins.print")
+    def test_publish_weekly_dimr_via_h7_executes_ssh_command(self, mock_print: Mock) -> None:
+        """Test that publish_weekly_dimr_via_h7 executes SSH commands."""
+        # Arrange
+        from ci_tools.dimrset_delivery.download_and_install_artifacts import ArtifactInstallHelper
+
+        mock_ssh_client = Mock()
+        helper = ArtifactInstallHelper(
+            teamcity=Mock(), ssh_client=mock_ssh_client, dimr_version="1.2.3", branch_name="main"
+        )
+
+        # Act
+        helper.publish_weekly_dimr_via_h7()
+
+        # Assert
+        mock_ssh_client.execute.assert_called_once()
+        args, kwargs = mock_ssh_client.execute.call_args
+        assert kwargs["address"] == "test-linux-host"
+        assert "1.2.3" in kwargs["command"]
+        assert "libtool_install.sh" in kwargs["command"]
+
+    @patch("ci_tools.dimrset_delivery.download_and_install_artifacts.LINUX_ADDRESS", "test-linux-host")
+    @patch("builtins.print")
+    def test_publish_weekly_dimr_via_h7_main_branch_creates_symlinks(self, mock_print: Mock) -> None:
+        """Test that publish_weekly_dimr_via_h7 creates symlinks on main branch."""
+        # Arrange
+        from ci_tools.dimrset_delivery.download_and_install_artifacts import ArtifactInstallHelper
+
+        mock_ssh_client = Mock()
+        helper = ArtifactInstallHelper(
+            teamcity=Mock(), ssh_client=mock_ssh_client, dimr_version="1.2.3", branch_name="main"
+        )
+
+        # Act
+        helper.publish_weekly_dimr_via_h7()
+
+        # Assert
+        args, kwargs = mock_ssh_client.execute.call_args
+        command = kwargs["command"]
+        assert "ln -s 1.2.3 latest;" in command
+        assert "ln -s weekly/1.2.3 latest;" in command
+
+    @patch("ci_tools.dimrset_delivery.download_and_install_artifacts.LINUX_ADDRESS", "test-linux-host")
+    @patch("builtins.print")
+    def test_publish_weekly_dimr_via_h7_non_main_branch_no_symlinks(self, mock_print: Mock) -> None:
+        """Test that publish_weekly_dimr_via_h7 doesn't create symlinks on non-main branches."""
+        # Arrange
+        from ci_tools.dimrset_delivery.download_and_install_artifacts import ArtifactInstallHelper
+
+        mock_ssh_client = Mock()
+        helper = ArtifactInstallHelper(
+            teamcity=Mock(), ssh_client=mock_ssh_client, dimr_version="1.2.3", branch_name="feature/test-branch"
+        )
+
+        # Act
+        helper.publish_weekly_dimr_via_h7()
+
+        # Assert
+        args, kwargs = mock_ssh_client.execute.call_args
+        command = kwargs["command"]
+        assert "ln -s" not in command
+        assert "unlink latest" not in command
+
+    @patch("ci_tools.dimrset_delivery.download_and_install_artifacts.TeamcityIds")
+    def test_publish_artifacts_handles_none_build_ids(self, mock_teamcity_ids: Mock) -> None:
+        """Test that publish_artifacts_to_network_drive handles None build IDs gracefully."""
+        # Arrange
+        from ci_tools.dimrset_delivery.download_and_install_artifacts import ArtifactInstallHelper
+
+        mock_teamcity = Mock()
+        mock_teamcity.get_dependent_build_id.side_effect = [None, None]
+        mock_teamcity.get_build_artifact_names.return_value = {"file": []}
+
+        helper = ArtifactInstallHelper(
+            teamcity=mock_teamcity,
+            ssh_client=Mock(),
+            dimr_version="1.0.0",
+            branch_name="main",
+        )
+
+        # Act & Assert - Should not raise exception
+        helper.publish_artifacts_to_network_drive("chain_build_789")
+
+        # Verify artifact names were still requested (with empty string build IDs)
+        assert mock_teamcity.get_build_artifact_names.call_count == 2
+
+    @patch("ci_tools.dimrset_delivery.download_and_install_artifacts.os.path.exists", return_value=True)
+    @patch("ci_tools.dimrset_delivery.download_and_install_artifacts.os.remove")
+    @patch("builtins.open", new_callable=lambda: __import__("unittest.mock").mock.mock_open())
+    @patch("builtins.print")
+    def test_download_and_unpack_integration(
+        self, mock_print: Mock, mock_open: Mock, mock_remove: Mock, mock_exists: Mock
+    ) -> None:
+        """Integration test for the download and unpack workflow."""
+        # Arrange
+        from ci_tools.dimrset_delivery.download_and_install_artifacts import ArtifactInstallHelper
+
+        mock_teamcity = Mock()
+        mock_ssh_client = Mock()
+
+        # Mock dependent build IDs
+        mock_teamcity.get_dependent_build_id.side_effect = ["windows_build_123", "linux_build_456"]
+
+        # Mock artifact names with matching artifacts
+        def get_artifact_names_side_effect(build_id: str) -> dict:
+            if build_id == "windows_build_123":
+                return {"file": [{"name": "dimrset_x64.zip"}]}
+            elif build_id == "linux_build_456":
+                return {"file": [{"name": "dimrset_lnx64.tar.gz"}]}
+            else:
+                return {"file": []}
+
+        mock_teamcity.get_build_artifact_names.side_effect = get_artifact_names_side_effect
+        mock_teamcity.get_build_artifact.return_value = b"fake_content"
+
+        helper = ArtifactInstallHelper(
+            teamcity=mock_teamcity,
+            ssh_client=mock_ssh_client,
+            dimr_version="1.0.0",
+            branch_name="main",
+        )
+
+        with patch.object(helper, "_ArtifactInstallHelper__extract_archive") as mock_extract:
+            # Act
+            helper.publish_artifacts_to_network_drive("build_123")
+
+            # Assert - Verify the flow executed without errors
+            assert mock_teamcity.get_build_artifact_names.call_count >= 1
+            assert mock_teamcity.get_build_artifact.call_count >= 1
+            assert mock_extract.call_count >= 1
+            assert mock_ssh_client.secure_copy.call_count >= 1
+
+
 class TestIntegration:
     """Integration test cases."""
 
