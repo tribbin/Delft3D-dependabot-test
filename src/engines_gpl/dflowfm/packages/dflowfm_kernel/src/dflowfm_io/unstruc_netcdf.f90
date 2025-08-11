@@ -13666,7 +13666,7 @@ contains
 
       ! compute kbot and ktop after reading s1 from rst/map file
       if (kmx > 0) then
-         call setkbotktop(1)
+         call setkbotktop(jazws0=1, water_level=s1)
       end if
 
       ! For 3D model

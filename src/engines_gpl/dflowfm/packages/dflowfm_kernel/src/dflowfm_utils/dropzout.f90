@@ -45,7 +45,7 @@ contains
       use m_isocol, only: isocol
       use m_polygon, only: npl, xpl, ypl, zpl
       use m_flowgeom, only: ndx, xz, yz, nd
-      use m_flow, only: sdropstep, dmiss, jins, kplot, sam1tot, vol0, vol1, nplot, kmx
+      use m_flow, only: sdropstep, dmiss, jins, kplot, sam1tot, vol0, vol1, nplot, kmx, s1
       use m_transportdata, only: constituents, isalt
       use m_get_kbot_ktop, only: getkbotktop
       use m_set_kbot_ktop, only: setkbotktop
@@ -96,7 +96,7 @@ contains
       end if
 
       if (kmx > 0) then
-         call setkbotktop(1) ! drop
+         call setkbotktop(jazws0=1, water_level=s1) ! drop
       end if
 
    end subroutine dropzout

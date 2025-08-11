@@ -31,12 +31,12 @@
 module m_set_kbot_ktop
    implicit none
 contains
-!
-!> initialise vertical coordinates
-   subroutine setkbotktop(jazws0)
+
+   !> initialise vertical coordinates
+   subroutine setkbotktop(jazws0, water_level)
       use precision, only: dp
       use m_flowgeom, only: ndx, ba, bl, ln, lnx, nd
-      use m_flow, only: kmx, zws0, zws, ktop0, ktop, vol1, layertype, kbot, jased, s1, kmxn, &
+      use m_flow, only: kmx, zws0, zws, ktop0, ktop, vol1, layertype, kbot, jased, kmxn, &
                         zslay, toplayminthick, numtopsig, keepzlayeringatbed, dkx, rho, sdkx, tsigma, epshu, laydefnr, laytyp, &
                         wflaynod, indlaynod, sigmagrowthfactor, keepzlay1bedvol, vol0, jasal, jatem, qwwaq, ln0, LAYTP_SIGMA, LAYTP_Z
       use m_get_kbot_ktop, only: getkbotktop
@@ -45,7 +45,8 @@ contains
       use m_flowtimes, only: dts, ti_waq
       use m_transport, only: Constituents, ISALT, ITEMP
 
-      integer :: jazws0
+      integer, intent(in) :: jazws0 !< Whether to store zws in zws0 at initialisation
+      real(kind=dp), dimension(:), intent(in) :: water_level !< Array of water levels for each flow node. Either s0 or water_level (water_level is standard).
 
       integer :: k2, kb, k, n, kk, nL, nR, nlayb, nrlay, ktx
       integer :: kt0, kt1, kt2, kt3, LL, L, Lb, Lt, n1, n2, kb1, kb2, kt, kkk, kwaq, Ldn
@@ -56,7 +57,9 @@ contains
       integer :: numbd, numtp, j
       real(kind=dp) :: drhok, a, aa, h00, zsl, aaa, sig, dsig, dsig0
 
-      if (kmx == 0) return
+      if (kmx == 0) then
+         return
+      end if
 
       zws0 = zws
       ktop0 = ktop
@@ -72,7 +75,7 @@ contains
             kb = kbot(n)
 
             if (jased > 0) zws(kb - 1) = bl(n)
-            h0 = s1(n) - zws(kb - 1) ! bl(n)
+            h0 = water_level(n) - zws(kb - 1) ! bl(n)
             !if (h0 < epshs) then
             !    ktop(n) = 1 ; cycle
             !endif
@@ -98,7 +101,7 @@ contains
             kb = kbot(n)
 
             !if (jased>0)  zws(kb-1) = bl(n)
-            !h0        = s1(n) - zws(kb-1) ! bl(n)
+            !h0        = water_level(n) - zws(kb-1) ! bl(n)
             !if (h0 < epshs) then
             ! ktop(n) = 1 ; cycle
             !endif
@@ -109,10 +112,10 @@ contains
             do k = kb, ktx
                kk = k - kb + nlayb
                zkk = zslay(kk, 1)
-               if (zkk < s1(n) - toplayminthick .and. k < ktx) then
+               if (zkk < water_level(n) - toplayminthick .and. k < ktx) then
                   zws(k) = zkk
                else
-                  zws(k) = s1(n)
+                  zws(k) = water_level(n)
                   ktop(n) = k
                   if (ktx > k) then
                      zws(k + 1:ktx) = zws(k)
@@ -124,13 +127,13 @@ contains
             if (numtopsig > 0) then
                kt1 = max(kb, ktx - numtopsig + 1)
                if (ktop(n) >= kt1) then
-                  h0 = s1(n) - zws(kt1 - 1)
+                  h0 = water_level(n) - zws(kt1 - 1)
                   dtopsi = 1d0 / dble(ktx - kt1 + 1)
                   do k = kt1, ktx
                      kk = k - kt1 + 1
                      zws(k) = zws(kt1 - 1) + h0 * dble(kk) * dtopsi
                   end do
-                  zws(ktx) = s1(n)
+                  zws(ktx) = water_level(n)
                   ktop(n) = ktx
                end if
             end if
@@ -187,7 +190,7 @@ contains
 
             call getkbotktop(n, kb, kt)
 
-            h0 = s1(n) - zws(kb - 1); h00 = max(epshu, zws0(kt) - zws0(kb - 1)); sig = 0d0
+            h0 = water_level(n) - zws(kb - 1); h00 = max(epshu, zws0(kt) - zws0(kb - 1)); sig = 0d0
             dsig0 = 0.1d0 / dble(numtp)
 
             do k = 1, kmxn(n)
@@ -218,7 +221,7 @@ contains
 
                kk = kb + k - 1
                if (k == kmxn(n)) then
-                  zws(kk) = s1(n)
+                  zws(kk) = water_level(n)
                else
                   if (jazws0 == 1) then
                      zsl = zslay(k, 1)
@@ -245,12 +248,12 @@ contains
             if (Ldn > 0) then
 
                if (Laytyp(Ldn) == 1) then ! sigma
-                  h0 = s1(n) - zws(kb - 1)
+                  h0 = water_level(n) - zws(kb - 1)
                   do k = 1, kmxn(n) - 1
                      zws(kb + k - 1) = zws(kb - 1) + h0 * zslay(k, Ldn)
                   end do
                   ktop(n) = kb + kmxn(n) - 1
-                  zws(ktop(n)) = s1(n)
+                  zws(ktop(n)) = water_level(n)
                else if (Laytyp(Ldn) == 2) then ! z
 
                   ktx = kb + kmxn(n) - 1
@@ -259,10 +262,10 @@ contains
                   do k = kb, ktx
                      kk = k - kb + nlayb
                      zkk = zslay(kk, Ldn)
-                     if (zkk < s1(n) - toplayminthick .and. k < ktx) then
+                     if (zkk < water_level(n) - toplayminthick .and. k < ktx) then
                         zws(k) = zkk
                      else
-                        zws(k) = s1(n)
+                        zws(k) = water_level(n)
                         ktop(n) = k
                         if (ktx > k) then
                            zws(k + 1:ktx) = zws(k)
@@ -289,7 +292,7 @@ contains
             k1 = indlaynod(1, n); k2 = indlaynod(2, n); k3 = indlaynod(3, n)
             kb1 = kbot(k1); kb2 = kbot(k2); kb3 = kbot(k3)
             bL1 = zws(kb1 - 1); bL2 = zws(kb2 - 1); bL3 = zws(kb3 - 1)
-            h1 = s1(k1) - bL1; h2 = s1(k2) - bL2; h3 = s1(k3) - bL3; h0 = s1(n) - zws(kb - 1)
+            h1 = water_level(k1) - bL1; h2 = water_level(k2) - bL2; h3 = water_level(k3) - bL3; h0 = water_level(n) - zws(kb - 1)
             kt1 = ktop(k1); kt2 = ktop(k2); kt3 = ktop(k3)
             ht1 = zws(kt1) - zws(kt1 - 1)
             ht2 = zws(kt2) - zws(kt2 - 1)
@@ -337,10 +340,10 @@ contains
 
                !sigm = dble(k) / dble( kmxn(n) )
                !zkk  = bl(n) + h0*sigm
-               if (zkk < s1(n) - toplaymint .and. k < kmxn(n)) then
+               if (zkk < water_level(n) - toplaymint .and. k < kmxn(n)) then
                   zws(kk) = zkk
                else
-                  zws(kk) = s1(n)
+                  zws(kk) = water_level(n)
                   ktop(n) = kk
                   if (ktx > kk) then
                      zws(kk + 1:ktx) = zws(kk)

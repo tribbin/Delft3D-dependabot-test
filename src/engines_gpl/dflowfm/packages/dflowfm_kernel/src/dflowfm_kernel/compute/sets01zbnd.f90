@@ -46,12 +46,16 @@ contains
       use m_boundary_condition_type, only: BOUNDARY_WATER_LEVEL, BOUNDARY_WATER_LEVEL_NEUMANN, &
                                            BOUNDARY_VELOCITY_RIEMANN, BOUNDARY_WATER_LEVEL_OUTFLOW, &
                                            BOUNDARY_DISCHARGE_HEAD
+      use m_set_kbot_ktop, only: setkbotktop
 
       integer, intent(in) :: n01 !< Selects whether s0 or s1 has to be set.
       integer, intent(in) :: jasetBlDepth !< Whether or not (1/0) to set the boundary node bed levels, based on depth below s1. Typically only upon model init (based on initial water levels).
 
       integer :: n, kb, k2, itpbn, L, ibnd
       real(kind=dp) :: water_level_boundary, hh
+      logical :: s0_was_updated
+
+      s0_was_updated = .false.
 
       do n = 1, nbndz ! overrides for waterlevel boundaries
          kb = kbndz(1, n)
@@ -75,6 +79,7 @@ contains
                water_level_boundary = s0(k2)
                if (n01 == 0) then
                   s0(kb) = max(water_level_boundary, bl(kb)) ! TODO: AvD: if single time step is being restarted, then this line will have overwritten some of the old s0 values.
+                  s0_was_updated = .true.
                else
                   s1(kb) = max(water_level_boundary, bl(kb))
                end if
@@ -105,12 +110,17 @@ contains
             if (n01 == 0) then
                s0(kb) = max(water_level_boundary, bl(kb)) ! TODO: AvD: if single time step is being restarted, then this line will have overwritten some of the old s0 values.
                hs(kb) = s0(kb) - bl(kb)
+               s0_was_updated = .true.
             else
                s1(kb) = max(water_level_boundary, bl(kb))
                hs(kb) = s1(kb) - bl(kb)
             end if
          end if
       end do
+
+      if (s0_was_updated) then
+         call setkbotktop(jazws0=0, water_level=s0) ! Ensure that zws and other 3d variables are aligned with the new s0 values.
+      end if
 
       call set_1d2d_01()
    end subroutine sets01zbnd

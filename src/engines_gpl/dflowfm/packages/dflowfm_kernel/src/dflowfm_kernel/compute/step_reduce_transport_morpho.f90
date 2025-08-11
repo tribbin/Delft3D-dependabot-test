@@ -88,9 +88,9 @@ contains
          end if
       end if
 
-!-----------------------------------------------------------------------------------------------
-! TODO: AvD: consider moving everything below to flow_finalize single_timestep?
-      call setkbotktop(0) ! bottom and top layer indices and new sigma distribution
+      !-----------------------------------------------------------------------------------------------
+      ! TODO: AvD: consider moving everything below to flow_finalize single_timestep?
+      call setkbotktop(jazws0=0, water_level=s1) ! bottom and top layer indices and new sigma distribution
 
       if (flow_solver == FLOW_SOLVER_FM) then
          call u1q1() ! the vertical flux qw depends on new sigma => after setkbotktop
@@ -156,7 +156,7 @@ contains
          end if
          call volsur() ! update volumes 2d
          if (kmx > 0) then
-            call setkbotktop(0) ! and 3D for cell volumes
+            call setkbotktop(jazws0=0, water_level=s1) ! and 3D for cell volumes
          end if
       end if
 

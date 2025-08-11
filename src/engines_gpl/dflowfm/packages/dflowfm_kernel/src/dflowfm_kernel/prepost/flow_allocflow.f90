@@ -1229,6 +1229,6 @@ contains
          call realloc(nudge_rate, Ndx, fill=DMISS)
       end if
 
-      call setkbotktop(1)
+      call setkbotktop(jazws0=1, water_level=s1)
    end subroutine flow_allocflow
 end module m_flow_allocflow

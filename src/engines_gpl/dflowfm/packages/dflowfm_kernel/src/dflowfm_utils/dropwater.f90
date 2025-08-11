@@ -104,7 +104,7 @@ contains
       volerr = 0; volerrcum = 0
 
       if (kmx > 0) then
-         call setkbotktop(1) ! dropwater
+         call setkbotktop(jazws0=1, water_level=s1) ! dropwater
       end if
 
       validateon = .false.
