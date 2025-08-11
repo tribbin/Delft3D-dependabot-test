@@ -1,17 +1,15 @@
 import sys
 from unittest.mock import Mock, patch
-
-import pytest
+from unittest.mock import Mock as MockType
 
 from ci_tools.dimrset_delivery.lib.git_client import GitClient
 
 
-def test_tag_commit_success(monkeypatch):
+@patch("subprocess.run")
+def test_tag_commit_success(mock_run: MockType) -> None:
     # Arrange
     client = GitClient("https://repo.url", "user", "pass")
-    mock_run = Mock()
     mock_run.return_value.returncode = 0
-    monkeypatch.setattr("subprocess.run", mock_run)
     # Act
     client.tag_commit("abc123", "v1.0.0")
     # Assert
@@ -22,12 +20,11 @@ def test_tag_commit_success(monkeypatch):
     assert args2[:3] == ["git", "push", "--tags"]
 
 
-def test_tag_commit_fail_tag(monkeypatch):
+@patch("subprocess.run")
+def test_tag_commit_fail_tag(mock_run: MockType) -> None:
     # Arrange
     client = GitClient("https://repo.url", "user", "pass")
-    mock_run = Mock()
     mock_run.side_effect = [Mock(returncode=1), Mock(returncode=0)]
-    monkeypatch.setattr("subprocess.run", mock_run)
     with patch.object(sys, "exit") as mock_exit:
         # Act
         client.tag_commit("abc123", "v1.0.0")
@@ -35,12 +32,11 @@ def test_tag_commit_fail_tag(monkeypatch):
         mock_exit.assert_called_once()
 
 
-def test_tag_commit_fail_push(monkeypatch):
+@patch("subprocess.run")
+def test_tag_commit_fail_push(mock_run: MockType) -> None:
     # Arrange
     client = GitClient("https://repo.url", "user", "pass")
-    mock_run = Mock()
     mock_run.side_effect = [Mock(returncode=0), Mock(returncode=1)]
-    monkeypatch.setattr("subprocess.run", mock_run)
     with patch.object(sys, "exit") as mock_exit:
         # Act
         client.tag_commit("abc123", "v1.0.0")
@@ -48,14 +44,15 @@ def test_tag_commit_fail_push(monkeypatch):
         mock_exit.assert_called_once()
 
 
-def test_tag_commit_exception(monkeypatch):
+@patch("subprocess.run")
+def test_tag_commit_exception(mock_run: MockType) -> None:
     # Arrange
     client = GitClient("https://repo.url", "user", "pass")
 
-    def raise_exc(*a, **kw):
+    def raise_exc(*a: object, **kw: object) -> None:
         raise Exception("fail")
 
-    monkeypatch.setattr("subprocess.run", raise_exc)
+    mock_run.side_effect = raise_exc
     with patch.object(sys, "exit") as mock_exit:
         # Act
         client.tag_commit("abc123", "v1.0.0")
@@ -63,22 +60,22 @@ def test_tag_commit_exception(monkeypatch):
         mock_exit.assert_called_once()
 
 
-def test_test_connection_success(monkeypatch):
+@patch("subprocess.run")
+def test_test_connection_success(mock_run: MockType) -> None:
     # Arrange
     client = GitClient("https://repo.url", "user", "pass")
-    mock_run = Mock(return_value=Mock(returncode=0))
-    monkeypatch.setattr("subprocess.run", mock_run)
+    mock_run.return_value = Mock(returncode=0)
     # Act
     client.test_connection(dry_run=False)
     # Assert
     mock_run.assert_called_once()
 
 
-def test_test_connection_fail(monkeypatch):
+@patch("subprocess.run")
+def test_test_connection_fail(mock_run: MockType) -> None:
     # Arrange
     client = GitClient("https://repo.url", "user", "pass")
-    mock_run = Mock(return_value=Mock(returncode=1))
-    monkeypatch.setattr("subprocess.run", mock_run)
+    mock_run.return_value = Mock(returncode=1)
     with patch.object(sys, "exit") as mock_exit:
         # Act
         client.test_connection(dry_run=False)
@@ -86,14 +83,15 @@ def test_test_connection_fail(monkeypatch):
         mock_exit.assert_called_once()
 
 
-def test_test_connection_exception(monkeypatch):
+@patch("subprocess.run")
+def test_test_connection_exception(mock_run: MockType) -> None:
     # Arrange
     client = GitClient("https://repo.url", "user", "pass")
 
-    def raise_exc(*a, **kw):
+    def raise_exc(*a: object, **kw: object) -> None:
         raise Exception("fail")
 
-    monkeypatch.setattr("subprocess.run", raise_exc)
+    mock_run.side_effect = raise_exc
     with patch.object(sys, "exit") as mock_exit:
         # Act
         client.test_connection(dry_run=False)
@@ -101,7 +99,7 @@ def test_test_connection_exception(monkeypatch):
         mock_exit.assert_called_once()
 
 
-def test_test_connection_dry_run(monkeypatch):
+def test_test_connection_dry_run() -> None:
     # Arrange
     client = GitClient("https://repo.url", "user", "pass")
     # Act
