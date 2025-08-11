@@ -255,7 +255,7 @@ class TestGetPreviousTestbankResultParser:
             "buildTypeId": "bt123",
             "tags": {"tag": [{"name": "DIMRset_1.2.3"}]},
         }
-        mock_context.teamcity.get_builds_for_build_type_id.return_value = None
+        mock_context.teamcity.get_builds_for_build_configuration_id.return_value = None
 
         # Act
         result = get_previous_testbank_result_parser(mock_context)
@@ -289,7 +289,7 @@ class TestGetPreviousTestbankResultParser:
             None,  # For first loop build (12346)
             previous_build_info,  # For second loop build (12344)
         ]
-        mock_context.teamcity.get_builds_for_build_type_id.return_value = builds_response
+        mock_context.teamcity.get_builds_for_build_configuration_id.return_value = builds_response
         mock_context.teamcity.get_build_artifact.return_value = mock_artifact_content
 
         mock_parser_instance = Mock(spec=ResultTestBankParser)
@@ -327,7 +327,7 @@ class TestGetPreviousTestbankResultParser:
             current_build_info,  # For current build
             other_build_info,  # For other build
         ]
-        mock_context.teamcity.get_builds_for_build_type_id.return_value = builds_response
+        mock_context.teamcity.get_builds_for_build_configuration_id.return_value = builds_response
 
         # Act
         result = get_previous_testbank_result_parser(mock_context)
@@ -356,7 +356,7 @@ class TestGetPreviousTestbankResultParser:
             current_build_info,  # For current build
             previous_build_info,  # For previous build
         ]
-        mock_context.teamcity.get_builds_for_build_type_id.return_value = builds_response
+        mock_context.teamcity.get_builds_for_build_configuration_id.return_value = builds_response
         mock_context.teamcity.get_build_artifact.return_value = None
 
         # Act

@@ -78,182 +78,9 @@ class TeamCity(object):
         print(f"Error: {result.status_code} - {result.content.decode('utf-8', errors='replace')}")
         return False
 
-    def get_project(self, project_id: str) -> Dict[str, str]:
-        """
-        Get a teamcity project by its id.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/projects?locator=id:<project_id>
-
-        Parameters
-        ----------
-        project_id : str
-            The project id.
-
-        Returns
-        -------
-        Dict[str, str]
-            Project information dictionary.
-        """
-        endpoint = f"{self.__rest_uri}projects?locator=id:{project_id}"
-        result = requests.get(endpoint, headers=self.__default_headers, auth=self.__auth)
-        json_result: Dict[str, str] = result.json()
-        return json_result
-
-    def set_project_name(self, project_id: str, new_name: str) -> bytes:
-        """
-        Set a new project name for a given project id.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/projects/<project_id>/name
-
-        Parameters
-        ----------
-        project_id : str
-            The id of the project to set the name on.
-        new_name : str
-            The new project name.
-
-        Returns
-        -------
-        bytes
-            The new name as a byte string.
-        """
-        endpoint = f"{self.__rest_uri}projects/{project_id}/name"
-        result = requests.put(
-            endpoint,
-            headers=self.__get_put_request_headers(content_type="text/plain", accept="text/plain"),
-            auth=self.__auth,
-            data=new_name,
-            timeout=5,
-        )
-        return result.content
-
-    def get_vcs_root_checkout_rules(self, build_id: str, vcs_root_name: str) -> bytes:
-        """
-        Read the checkout rules of a version control root belonging to a build.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/buildTypes/<build_id>/vcs-root-entries/<vcs_root_name>/checkout-rules
-
-        Parameters
-        ----------
-        build_id : str
-            The build id with the version control root attached.
-        vcs_root_name : str
-            The version control root.
-
-        Returns
-        -------
-        bytes
-            The checkout rules as a byte string.
-        """
-        endpoint = f"{self.__rest_uri}buildTypes/{build_id}/vcs-root-entries/{vcs_root_name}/checkout-rules"
-        result = requests.get(
-            endpoint,
-            headers={
-                "content-type": "text/plain",
-                "accept": "*/*",
-                "origin": f"{self.__base_uri}",
-            },
-            auth=self.__auth,
-        )
-
-        return result.content
-
-    def set_vcs_root_checkout_rules(self, build_id: str, vcs_root_name: str, checkout_rules: str) -> bytes:
-        """
-        Set the checkout rules of a version control root belonging to a build.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/buildTypes/<build_id>/vcs-root-entries/<vcs_root_name>/checkout-rules
-
-        Parameters
-        ----------
-        build_id : str
-            The build id with the version control root attached.
-        vcs_root_name : str
-            The version control root.
-        checkout_rules : str
-            The new checkout rule.
-
-        Returns
-        -------
-        bytes
-            The new checkout rules as a byte string.
-        """
-        endpoint = f"{self.__rest_uri}buildTypes/{build_id}/vcs-root-entries/{vcs_root_name}/checkout-rules"
-        result = requests.put(
-            endpoint,
-            headers=self.__get_put_request_headers(content_type="text/plain", accept="text/plain"),
-            auth=self.__auth,
-            data=checkout_rules,
-        )
-
-        return result.content
-
-    def get_artifact_dependencies(self, build_type_id: str) -> bytes:
-        """
-        Get the artifact dependencies belonging to a build_type_id.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/buildTypes/<build_type_id>/artifact-dependencies
-
-        Parameters
-        ----------
-        build_type_id : str
-            The id of the build with dependencies.
-
-        Returns
-        -------
-        bytes
-            A byte string containing a dictionary.
-        """
-        endpoint = f"{self.__rest_uri}buildTypes/{build_type_id}/artifact-dependencies"
-
-        result = requests.get(
-            endpoint,
-            headers=self.__default_headers,
-            auth=self.__auth,
-        )
-
-        return result.content
-
-    def toggle_artifact_dependency(self, build_type_id: str, artifact_id: str, enabled: bool) -> bytes:
-        """
-        Enable/disable an artifact dependency of a build.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/buildTypes/<build_type_id>/artifact-dependencies/<artifact_id>/disabled
-
-        Parameters
-        ----------
-        build_type_id : str
-            The id of the build with the dependency to be dis- or enabled.
-        artifact_id : str
-            The id of the dependency to enable/disable.
-        enabled : bool
-            Determines whether or not the dependency should be enabled or disabled.
-
-        Returns
-        -------
-        bytes
-            Whether or not the dependency has been **disabled**. If you enable a dependency,
-            the return will be False.
-        """
-        endpoint = f"{self.__rest_uri}buildTypes/{build_type_id}/artifact-dependencies/{artifact_id}/disabled"
-
-        result = requests.put(
-            endpoint,
-            headers=self.__get_put_request_headers(content_type="text/plain", accept="text/plain"),
-            auth=self.__auth,
-            data=str(not enabled),
-        )
-        return result.content
-
-    def get_builds_for_build_type_id(
+    def get_builds_for_build_configuration_id(
         self,
-        build_type_id: str,
+        build_configuration_id: str,
         limit: int = 10,
         include_failed_builds: bool = False,
         pinned: str = "any",
@@ -266,8 +93,8 @@ class TeamCity(object):
 
         Parameters
         ----------
-        build_type_id : str
-            The build type id.
+        build_configuration_id : str
+            The build configuration id.
         limit : int, optional
             The maximum number of builds you want to get. Defaults to 10.
         include_failed_builds : bool, optional
@@ -290,110 +117,21 @@ class TeamCity(object):
         if pinned == "true" or pinned == "false":
             pinned_locator = f",pinned:{pinned}"
 
+        # Add status filter for failed builds if needed
+        status_locator = ""
+        if not include_failed_builds:
+            status_locator = ",status:SUCCESS"
+
         endpoint = (
             f"{self.__rest_uri}builds?locator=defaultFilter:false,"
-            f"buildType:{build_type_id},count:{limit}{pinned_locator}"
+            f"buildType:{build_configuration_id},count:{limit}{pinned_locator}{status_locator}"
         )
 
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
         if result.status_code == 200:
             json_result: Dict[str, Any] = result.json()
             return json_result
-        print(f"Could not retrieve builds for build id {build_type_id}:")
-        print(f"{result.status_code} - {result.content.decode('utf-8', errors='replace')}")
-        sys.exit(result.status_code)
-
-    def get_latest_build_for_build_type_id(
-        self, build_type_id: str, include_failed_builds: bool = False
-    ) -> Optional[Dict[str, Any]]:
-        """
-        Get the latest build for the given build type id.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/builds?<buildLocator>
-
-        Parameters
-        ----------
-        build_type_id : str
-            The build type id.
-        include_failed_builds : bool, optional
-            Specifies whether to include builds that have failed. Defaults to False.
-
-        Returns
-        -------
-        Dict[str, Any]
-            A dictionary with a variety of keys. The 'build' key
-            contains a list of builds for the given build type id.
-
-            For more information, please see the official TeamCity REST API docs.
-
-            Returns None if the request failed.
-        """
-        return self.get_builds_for_build_type_id(
-            build_type_id=build_type_id,
-            limit=1,
-            include_failed_builds=include_failed_builds,
-        )
-
-    def get_latest_build_number_for_build_type_id(
-        self, build_type_id: str, include_failed_builds: bool = False
-    ) -> Optional[str]:
-        """
-        Get the latest build number for a given build type id.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/builds?<buildLocator>
-
-        Parameters
-        ----------
-        build_type_id : str
-            The build type id.
-        include_failed_builds : bool, optional
-            Specifies whether to include builds that have failed. Defaults to False.
-
-        Returns
-        -------
-        str
-            The build number of the latest build.
-
-            Returns None if the request failed.
-        """
-        latest_build = self.get_latest_build_for_build_type_id(
-            build_type_id=build_type_id, include_failed_builds=include_failed_builds
-        )
-        if latest_build is None:
-            return None
-        build_number: str = latest_build["build"][0]["number"]
-        return build_number
-
-    def get_build_id_for_specific_build(self, build_type_id: str, build_number: str) -> Optional[str]:
-        """
-        Get the unique build id for a specific build.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/buildTypes/<buildTypeLocator>/builds?<buildLocator>
-
-        Parameters
-        ----------
-        build_type_id : str
-            The build type id.
-        build_number : str
-            The build number of a specific build.
-
-        Returns
-        -------
-        Optional[str]
-            The build id for a specific build.
-            Returns None if the request has failed.
-        """
-        endpoint = (
-            f"{self.__rest_uri}buildTypes/id:{build_type_id}/builds?locator=defaultFilter:false,number:{build_number}"
-        )
-        result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
-        if result.status_code == 200:
-            build_id: str = result.json()["build"][0]["id"]
-            return build_id
-        print(f"Could not retrieve build id for build type {build_type_id} and build number {build_number}:")
+        print(f"Could not retrieve builds for build id {build_configuration_id}:")
         print(f"{result.status_code} - {result.content.decode('utf-8', errors='replace')}")
         sys.exit(result.status_code)
 
@@ -463,39 +201,6 @@ class TeamCity(object):
         print(f"Could not retrieve build info for build id {build_id}:")
         print(f"{result.status_code} - {result.content.decode('utf-8', errors='replace')}")
         sys.exit(result.status_code)
-
-    def get_latest_build_id_for_build_type_id(
-        self, build_type_id: str, include_failed_builds: bool = False
-    ) -> Optional[str]:
-        """
-        Get the build id for the latest build of a specific build type.
-
-        Uses the following TeamCity REST API endpoints:
-        /app/rest/builds?<buildLocator>
-        /app/rest/buildTypes/<buildTypeLocator>/builds?<buildLocator>
-
-        Parameters
-        ----------
-        build_type_id : str
-            The build type id.
-        include_failed_builds : bool, optional
-            Specifies whether to include builds that have failed. Defaults to False.
-
-        Returns
-        -------
-        Optional[str]
-            The build id for the latest build for a specific build type.
-            Returns None if the request failed.
-        """
-        latest_build_number = self.get_latest_build_number_for_build_type_id(
-            build_type_id=build_type_id, include_failed_builds=include_failed_builds
-        )
-        if latest_build_number is None:
-            return None
-        latest_build_id = self.get_build_id_for_specific_build(
-            build_type_id=build_type_id, build_number=latest_build_number
-        )
-        return latest_build_id
 
     def get_build_artifact_names(self, build_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -587,7 +292,7 @@ class TeamCity(object):
             return True
         print(f"Could not pin build with build id {build_id}:")
         print(f"{result.status_code} - {result.content.decode('utf-8', errors='replace')}")
-        sys.exit(result.status_code)
+        return False
 
     def add_tag_to_build_with_dependencies(self, build_id: str, tag: str) -> bool:
         """
@@ -635,53 +340,6 @@ class TeamCity(object):
             print(f"{result.status_code} - {result.content.decode('utf-8', errors='replace')}")
             sys.exit(result.status_code)
         return True
-
-    def __get_csrf_token(self) -> Optional[str]:
-        """
-        Get a CSRF token required for making requests other than GET requests.
-
-        Does not use the TeamCity REST API, but makes a GET
-        request to the following URI to retrieve the token for
-        the session.
-
-        Returns
-        -------
-        Optional[str]
-            The CSRF token.
-            Returns None if the request failed.
-        """
-        endpoint = f"{self.__base_uri}authenticationTest.html?csrf"
-        result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
-        if result.status_code == 200:
-            return result.content.decode("utf-8", errors="replace")
-        sys.exit(result.status_code)
-
-    def __get_put_request_headers(
-        self, content_type: str = "application/json", accept: str = "application/json"
-    ) -> Dict[str, str]:
-        """
-        Create the headers required for making PUT requests.
-
-        Parameters
-        ----------
-        content_type : str, optional
-            Content type header. Defaults to "application/json".
-        accept : str, optional
-            Accept header. Defaults to "application/json".
-
-        Returns
-        -------
-        Dict[str, str]
-            The headers required for making PUT requests.
-        """
-        csrf_token = self.__get_csrf_token()
-        headers = {
-            "content-type": content_type,
-            "accept": accept,
-            "X-TC-CSRF-Token": csrf_token or "",
-            "origin": self.__base_uri,
-        }
-        return headers
 
     def get_filtered_dependent_build_ids(self, build_id: str) -> List[str]:
         """
@@ -757,4 +415,51 @@ class TeamCity(object):
 
         print(f"Could not retrieve dependent build ({dependent_build_type}) for build id {build_id}:")
         print(f"{result.status_code} - {result.content.decode('utf-8', errors='replace')}")
+        sys.exit(result.status_code)
+
+    def __get_put_request_headers(
+        self, content_type: str = "application/json", accept: str = "application/json"
+    ) -> Dict[str, str]:
+        """
+        Create the headers required for making PUT requests.
+
+        Parameters
+        ----------
+        content_type : str, optional
+            Content type header. Defaults to "application/json".
+        accept : str, optional
+            Accept header. Defaults to "application/json".
+
+        Returns
+        -------
+        Dict[str, str]
+            The headers required for making PUT requests.
+        """
+        csrf_token = self.__get_csrf_token()
+        headers = {
+            "content-type": content_type,
+            "accept": accept,
+            "X-TC-CSRF-Token": csrf_token or "",
+            "origin": self.__base_uri,
+        }
+        return headers
+
+    def __get_csrf_token(self) -> Optional[str]:
+        """
+        Get a CSRF token required for making requests other than GET requests.
+
+        Does not use the TeamCity REST API, but makes a GET
+        request to the following URI to retrieve the token for
+        the session.
+
+        Returns
+        -------
+        Optional[str]
+            The CSRF token.
+            Returns None if the request failed.
+        """
+        endpoint = f"{self.__base_uri}authenticationTest.html?csrf"
+        result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
+        if result.status_code == 200:
+            return result.content.decode("utf-8", errors="replace")
         sys.exit(result.status_code)

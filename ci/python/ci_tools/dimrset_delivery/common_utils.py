@@ -133,9 +133,9 @@ def get_previous_testbank_result_parser(context: DimrAutomationContext) -> Optio
 
     current_tag_name = get_tag_from_build_info(current_build_info)
 
-    # Get all builds for the publish build type
-    latest_builds = context.teamcity.get_builds_for_build_type_id(
-        build_type_id=build_type_id,
+    # Get all builds for the publish build configuration
+    latest_builds = context.teamcity.get_builds_for_build_configuration_id(
+        build_configuration_id=build_type_id,
         limit=50,
         include_failed_builds=False,
     )
