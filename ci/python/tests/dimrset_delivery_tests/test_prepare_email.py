@@ -232,33 +232,6 @@ class TestEmailHelper:
         assert helper._EmailHelper__template == "Table: <table>content</table>"  # type: ignore
 
 
-# @patch("ci_tools.dimrset_delivery.prepare_email.get_testbank_result_parser")
-# @patch("builtins.print")
-# def test_prepare_email_dry_run(
-#     self,
-#     mock_print: Mock,
-#     mock_get_parser: Mock,
-# ) -> None:
-#     """Test prepare_email in dry run mode."""
-#     # Arrange
-#     mock_context = Mock(spec=DimrAutomationContext)
-#     mock_context.dry_run = True
-#     mock_context.get_kernel_versions.return_value = {"kernel1": "1.0.0"}
-#     mock_context.get_dimr_version.return_value = "1.2.3"
-
-#     # Act
-#     prepare_email(mock_context)
-
-#     # Assert
-#     mock_context.print_status.assert_called_once_with("Preparing email template...")
-#     mock_context.get_kernel_versions.assert_called_once()
-#     mock_context.get_dimr_version.assert_called_once()
-#     mock_get_parser.assert_not_called()
-
-#     # Check that print was called with the correct arguments
-#     mock_print.assert_called_once_with(f"{DRY_RUN_PREFIX} Would prepare email template for DIMR version:", "1.2.3")
-
-
 class TestParseVersion:
     """Test cases for parse_version function."""
 
