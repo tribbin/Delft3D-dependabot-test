@@ -38,7 +38,7 @@ contains
       use m_flowgeom, only: ndx, ba, bl, ln, lnx, nd
       use m_flow, only: kmx, zws0, zws, ktop0, ktop, vol1, layertype, kbot, jased, kmxn, &
                         zslay, toplayminthick, numtopsig, keepzlayeringatbed, dkx, rho, sdkx, tsigma, epshu, laydefnr, laytyp, &
-                        wflaynod, indlaynod, sigmagrowthfactor, keepzlay1bedvol, vol0, jasal, jatem, qwwaq, ln0, LAYTP_SIGMA, LAYTP_Z
+                        wflaynod, indlaynod, keepzlay1bedvol, vol0, jasal, jatem, qwwaq, ln0, LAYTP_SIGMA, LAYTP_Z
       use m_get_kbot_ktop, only: getkbotktop
       use m_get_Lbot_Ltop, only: getlbotltop
       use m_get_zlayer_indices, only: getzlayerindices
@@ -63,22 +63,17 @@ contains
 
       zws0 = zws
       ktop0 = ktop
-      vol1 = 0d0
+      vol1 = 0.0_dp
 
       nL = 1
       nR = 2
 
       if (Layertype == LAYTP_SIGMA) then ! sigma only
-
          do n = 1, ndx
-
             kb = kbot(n)
 
             if (jased > 0) zws(kb - 1) = bl(n)
-            h0 = water_level(n) - zws(kb - 1) ! bl(n)
-            !if (h0 < epshs) then
-            !    ktop(n) = 1 ; cycle
-            !endif
+            h0 = water_level(n) - zws(kb - 1)
             do k = 1, kmxn(n)
                kk = kb + k - 1
                zws(kk) = zws(kb - 1) + h0 * zslay(k, 1)
@@ -91,20 +86,8 @@ contains
          return ! sigma only: quick exit
 
       else if (Layertype == LAYTP_Z) then ! z or z-sigma
-
-         ! toplayminthick = 0.5d0*( zslay(1,1) - zslay(0,1) )
-
-         ! toplayminthick = 0d0
-
          do n = 1, ndx
-
             kb = kbot(n)
-
-            !if (jased>0)  zws(kb-1) = bl(n)
-            !h0        = water_level(n) - zws(kb-1) ! bl(n)
-            !if (h0 < epshs) then
-            ! ktop(n) = 1 ; cycle
-            !endif
 
             ktx = kb + kmxn(n) - 1
             call getzlayerindices(n, nlayb, nrlay)
@@ -128,7 +111,7 @@ contains
                kt1 = max(kb, ktx - numtopsig + 1)
                if (ktop(n) >= kt1) then
                   h0 = water_level(n) - zws(kt1 - 1)
-                  dtopsi = 1d0 / dble(ktx - kt1 + 1)
+                  dtopsi = 1.0_dp / dble(ktx - kt1 + 1)
                   do k = kt1, ktx
                      kk = k - kt1 + 1
                      zws(k) = zws(kt1 - 1) + h0 * dble(kk) * dtopsi
@@ -141,11 +124,11 @@ contains
             if (keepzlayeringatbed >= 2) then
                if (ktop(n) > kb) then
                   if (keepzlayeringatbed <= 3) then ! fifty/fifty btween bed and top of second layer
-                     zws(kb) = 0.5d0 * (zws(kb + 1) + zws(kb - 1))
+                     zws(kb) = 0.5_dp * (zws(kb + 1) + zws(kb - 1))
                   else if (keepzlayeringatbed <= 4) then ! idem, but never below current z-layer level of bed layer.
-                     zws(kb) = max(zws(kb), 0.5d0 * (zws(kb + 1) + zws(kb - 1)))
+                     zws(kb) = max(zws(kb), 0.5_dp * (zws(kb + 1) + zws(kb - 1)))
                   else
-                     zws(kb) = max(zws(kb), 0.1d0 * zws(kb + 1) + 0.9d0 * zws(kb - 1)) ! not important
+                     zws(kb) = max(zws(kb), 0.1_dp * zws(kb + 1) + 0.9_dp * zws(kb - 1)) ! not important
                   end if
                end if
             end if
@@ -153,69 +136,56 @@ contains
          end do
 
       else if (Layertype == 4) then ! density controlled sigma
-
-         dkx = 0.5d0
+         dkx = 0.5_dp
          do n = 1, ndx
-            drhok = 0.01d0
+            drhok = 0.01_dp
             kb = kbot(n); kt = kb - 1 + kmxn(n); ktop(n) = kt
             do k = kb + 1, kt
                if (abs(rho(k) - rho(k - 1)) > drhok) then
                   drhok = abs(rho(k) - rho(k - 1))
                   dkx(n) = dble(k - kb) / dble(kt - kb + 1)
-                  dkx(n) = min(0.8d0, dkx(n))
-                  dkx(n) = max(0.2d0, dkx(n))
+                  dkx(n) = min(0.8_dp, dkx(n))
+                  dkx(n) = max(0.2_dp, dkx(n))
                end if
             end do
          end do
 
          do j = 1, 10
-            sdkx = 0d0
+            sdkx = 0.0_dp
             do L = 1, Lnx
                k1 = ln(1, L); k2 = ln(2, L)
                sdkx(k1) = sdkx(k1) + dkx(k2)
                sdkx(k2) = sdkx(k2) + dkx(k1)
             end do
 
-            a = 0.25d0
+            a = 0.25_dp
             do n = 1, ndx
-               dkx(n) = a * dkx(n) + (1d0 - a) * sdkx(n) / dble(nd(n)%lnx)
+               dkx(n) = a * dkx(n) + (1.0_dp - a) * sdkx(n) / dble(nd(n)%lnx)
             end do
          end do
 
-         numbd = 0.5d0 * kmx; numtp = kmx - numbd; aaa = 1.05d0; aa = min(1d0, exp(-dts / Tsigma))
+         numbd = 0.5_dp * kmx; numtp = kmx - numbd; aaa = 1.05_dp; aa = min(1.0_dp, exp(-dts / Tsigma))
 
-         dkx = 0.5d0
+         dkx = 0.5_dp
 
          do n = 1, ndx
 
             call getkbotktop(n, kb, kt)
 
-            h0 = water_level(n) - zws(kb - 1); h00 = max(epshu, zws0(kt) - zws0(kb - 1)); sig = 0d0
-            dsig0 = 0.1d0 / dble(numtp)
+            h0 = water_level(n) - zws(kb - 1); h00 = max(epshu, zws0(kt) - zws0(kb - 1)); sig = 0.0_dp
+            dsig0 = 0.1_dp / dble(numtp)
 
             do k = 1, kmxn(n)
-
                if (k == 1) then
-                  dsig = dkx(n) * (1d0 - aaa) / (1d0 - aaa**numbd)
+                  dsig = dkx(n) * (1.0_dp - aaa) / (1.0_dp - aaa**numbd)
                   dsig = dsig * aaa**(numbd - 1)
                else if (k <= numbd) then
                   dsig = dsig / aaa
                else if (k == numbd + 1) then
-                  dsig = (1d0 - sig) * (1d0 - aaa) / (1d0 - aaa**numtp)
+                  dsig = (1.0_dp - sig) * (1.0_dp - aaa) / (1.0_dp - aaa**numtp)
                else
                   dsig = dsig * aaa
                end if
-
-               !if (k == 1) then
-               !   dsig = dkx(n) / numbd
-               !else if ( k <= numbd ) then
-               !
-               !else if (k == numbd + 1) then
-               !   aaa  = ( (1d0-dkx(n))**(1d0/dble(numbd)) - dsig0 ) / dsig0
-               !   dsig = dsig0
-               !else
-               !   dsig = dsig*(1d0 + a)
-               !endif
 
                sig = sig + dsig
 
@@ -226,7 +196,7 @@ contains
                   if (jazws0 == 1) then
                      zsl = zslay(k, 1)
                   else
-                     zsl = (1d0 - aa) * sig + aa * (zws0(kk) - zws0(kb - 1)) / h00
+                     zsl = (1.0_dp - aa) * sig + aa * (zws0(kk) - zws0(kb - 1)) / h00
                   end if
                   zws(kk) = zws(kb - 1) + h0 * zsl
                end if
@@ -234,19 +204,15 @@ contains
                vol1(kk) = ba(n) * (zws(kk) - zws(kk - 1)) ! just for now here
                vol1(n) = vol1(n) + vol1(kk)
             end do
-
          end do
          return ! sigma only: quick exit
 
       else if (Layertype == 3) then ! mix : first do sigma and z
-
          do n = 1, ndx
-
             kb = kbot(n)
 
             Ldn = laydefnr(n)
             if (Ldn > 0) then
-
                if (Laytyp(Ldn) == 1) then ! sigma
                   h0 = water_level(n) - zws(kb - 1)
                   do k = 1, kmxn(n) - 1
@@ -258,7 +224,6 @@ contains
 
                   ktx = kb + kmxn(n) - 1
                   call getzlayerindices(n, nlayb, nrlay)
-                  ! toplayminthick = 0.5d0*( zslay(2,1) - zslay(1,1) )
                   do k = kb, ktx
                      kk = k - kb + nlayb
                      zkk = zslay(kk, Ldn)
@@ -273,13 +238,9 @@ contains
                         exit
                      end if
                   end do
-
                end if
-
             end if
-
          end do
-
       end if
 
       do n = 1, ndx
@@ -297,22 +258,14 @@ contains
             ht1 = zws(kt1) - zws(kt1 - 1)
             ht2 = zws(kt2) - zws(kt2 - 1)
             ht3 = zws(kt3) - zws(kt3 - 1)
-            !Ld1 = laydefnr(k1)   ; Ld2 = laydefnr(k2)   ; Ld3 = laydefnr(k3)
-            !dz1 = 0d0            ; dz2 = 0d0            ; dz3 = 0d0
-            !if (laytyp(Ld1) == 2) dz1 = 0.5d0*zslay(2,Ld1) - zslay(1,Ld1)
-            !if (laytyp(Ld2) == 2) dz2 = 0.5d0*zslay(2,Ld2) - zslay(1,Ld2)
-            !if (laytyp(Ld3) == 2) dz3 = 0.5d0*zslay(2,Ld3) - zslay(1,Ld3)
-            !toplaymint = w1*dz1 + w2*dz2 + w3*dz3
 
-            toplaymint = 0.1d0 ! 0.5d0*min(ht1,ht2,ht3)
+            toplaymint = 0.1_dp
 
             do k = 1, kmxn(n)
                kk = kb + k - 1
 
                kk1 = kb1 + k - 1
                if (kk1 > kt1) then
-                  ! zw1 =  2d0*zws(kt1) - zws(kt1-1)
-                  ! zw1 = zw1 + 0.5d0*(ht2 + ht3)
                   zw1 = zw1 + min(zw2, zw3)
                else
                   zw1 = (zws(kk1) - bL1) / h1
@@ -320,8 +273,6 @@ contains
 
                kk2 = kb2 + k - 1
                if (kk2 > kt2) then
-                  ! zw2 =  2d0*zws(kt2) - zws(kt2-1)
-                  ! zw2 = zw2 + 0.5d0*(ht1 + ht3)
                   zw2 = zw2 + min(zw1, zw3)
                else
                   zw2 = (zws(kk2) - bL2) / h2
@@ -329,8 +280,6 @@ contains
 
                kk3 = kb3 + k - 1
                if (kk3 > kt3) then
-                  ! zw3 = 2d0*zws(kt3) - zws(kt3-1)
-                  ! zw3 = zw3 + 0.5d0*(ht1 + ht2)
                   zw3 = zw3 + min(zw1, zw2)
                else
                   zw3 = (zws(kk3) - bL3) / h3
@@ -338,8 +287,6 @@ contains
 
                zkk = zws(kb - 1) + (w1 * zw1 + w2 * zw2 + w3 * zw3) * h0
 
-               !sigm = dble(k) / dble( kmxn(n) )
-               !zkk  = bl(n) + h0*sigm
                if (zkk < water_level(n) - toplaymint .and. k < kmxn(n)) then
                   zws(kk) = zkk
                else
@@ -354,13 +301,6 @@ contains
          end if
 
          kt = ktop(n)
-         kkk = kt - kb + 1 ! nr of layers
-         if (kkk >= 2 .and. sigmagrowthfactor > 0) then ! bedlayers equal thickness
-            ! zws(kb) = 0.5d0*(zws(kb+1) + zws(kb-1))
-         end if
-         if (kkk >= 3) then
-            ! zws(kt-1) = 0.5d0*(zws(kt) + zws(kt-2))   ! toplayers equal thickness
-         end if
 
          if (keepzlay1bedvol == 1) then ! inconsistent control volumes in baroclinic terms
             vol1(kb) = ba(n) * (zws(kb) - bl(n)) ! transport and momentum volumes not too big anymore
@@ -392,7 +332,7 @@ contains
                      qwwaq(kwaq - 1) = qwwaq(kwaq - 1) - vol0(kkk)
                   end do
                end if
-               vol0(kkk) = 0d0
+               vol0(kkk) = 0.0_dp
             end do
             if (volkt > 0) then
                if (jasal > 0) then
@@ -409,7 +349,6 @@ contains
                end if
             end if
          end if
-
       end do
 
       if (jazws0 == 1) then ! at initialise, store zws in zws0
@@ -427,6 +366,5 @@ contains
             end do
          end do
       end if
-
    end subroutine setkbotktop
 end module m_set_kbot_ktop
