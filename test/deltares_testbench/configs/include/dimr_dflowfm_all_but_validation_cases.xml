@@ -4570,7 +4570,7 @@
       </checks>
     </testCase>
     <testCase name="e02_f020_c040_simple_solar_radiation_model_all_defaults" ref="dflowfm_default">
-      <path version="2025-08-08T12:54:02.328000">e02_dflowfm/f020_heat_flux/c040_simple_solar_radiation_model_all_defaults</path>
+      <path version="2025-08-13T14:51:35.941000">e02_dflowfm/f020_heat_flux/c040_simple_solar_radiation_model_all_defaults</path>
       <maxRunTime>60.0000000</maxRunTime>
       <checks>
         <file name="output/model_map.nc" type="netCDF">
@@ -4581,7 +4581,7 @@
       </checks>
     </testCase>
     <testCase name="e02_f020_c041_simple_solar_radiation_model_default_albedo" ref="dflowfm_default">
-      <path version="2025-08-08T12:59:34.509000">e02_dflowfm/f020_heat_flux/c041_simple_solar_radiation_model_default_albedo</path>
+      <path version="2025-08-13T14:51:58.527000">e02_dflowfm/f020_heat_flux/c041_simple_solar_radiation_model_default_albedo</path>
       <maxRunTime>60.0000000</maxRunTime>
       <checks>
         <file name="output/model_map.nc" type="netCDF">
@@ -4592,7 +4592,7 @@
       </checks>
     </testCase>
     <testCase name="e02_f020_c042_simple_solar_radiation_model_custom_albedo" ref="dflowfm_default">
-      <path version="2025-08-08T13:26:15.910000">e02_dflowfm/f020_heat_flux/c042_simple_solar_radiation_model_custom_albedo</path>
+      <path version="2025-08-13T14:52:42.601000">e02_dflowfm/f020_heat_flux/c042_simple_solar_radiation_model_custom_albedo</path>
       <maxRunTime>60.0000000</maxRunTime>
       <checks>
         <file name="output/model_map.nc" type="netCDF">
@@ -4603,7 +4603,7 @@
       </checks>
     </testCase>
     <testCase name="e02_f020_c043_simple_net_solar_radiation_model" ref="dflowfm_default">
-      <path version="2025-08-08T13:32:06.786000">e02_dflowfm/f020_heat_flux/c043_simple_net_solar_radiation_model</path>
+      <path version="2025-08-13T14:53:15.534000">e02_dflowfm/f020_heat_flux/c043_simple_net_solar_radiation_model</path>
       <maxRunTime>60.0000000</maxRunTime>
       <checks>
         <file name="output/model_map.nc" type="netCDF">
