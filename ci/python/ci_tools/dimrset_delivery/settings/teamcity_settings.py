@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class KernelData(object):
+class KernelData():
     """Class to hold the various variations of names for a kernel."""
 
     def __init__(self, name_for_extracting_revision: str, name_for_email: str) -> None:

@@ -33,7 +33,7 @@ from ci_tools.dimrset_delivery.settings.teamcity_settings import (
 )
 
 
-class PublicWikiHelper(object):
+class PublicWikiHelper():
     """Class responsible for updating the Deltares Public Wiki for a specific DIMR version."""
 
     def __init__(self, atlassian: Atlassian, teamcity: TeamCity, dimr_version: str) -> None:

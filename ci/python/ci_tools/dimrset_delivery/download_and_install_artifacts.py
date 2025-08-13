@@ -58,7 +58,7 @@ def download_and_install_artifacts(context: DimrAutomationContext) -> None:
     print("Artifacts download and installation completed successfully!")
 
 
-class ArtifactInstallHelper(object):
+class ArtifactInstallHelper():
     """Class responsible for downloading, unpacking and installing the DIMR artifacts."""
 
     def __init__(

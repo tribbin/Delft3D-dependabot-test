@@ -7,7 +7,7 @@ import requests
 from ci_tools.dimrset_delivery.settings.general_settings import DRY_RUN_PREFIX
 
 
-class Atlassian(object):
+class Atlassian():
     """
     Wrapper for the Atlassian Confluence REST API.
 

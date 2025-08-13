@@ -16,7 +16,7 @@ from ci_tools.dimrset_delivery.settings.general_settings import DELFT3D_GIT_REPO
 from ci_tools.dimrset_delivery.settings.teamcity_settings import PATH_TO_RELEASE_TEST_RESULTS_ARTIFACT
 
 
-class ResultTestBankParser(object):
+class ResultTestBankParser():
     """Object responsible for parsing a specific testbank result artifact."""
 
     def __init__(self, testbank_result: str) -> None:

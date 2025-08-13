@@ -13,7 +13,7 @@ class Direction(Enum):
     FROM = "from"  # remote to local
 
 
-class SshClient(object):
+class SshClient():
     """Class to wrap a paramiko ssh client."""
 
     def __init__(self, username: str, password: str, connect_timeout: int = 30) -> None:

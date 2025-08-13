@@ -4,7 +4,7 @@ import sys
 from ci_tools.dimrset_delivery.settings.general_settings import DRY_RUN_PREFIX
 
 
-class GitClient(object):
+class GitClient():
     """Class responsible for tagging Git commits.
 
     Parameters

@@ -24,7 +24,7 @@ from ci_tools.dimrset_delivery.settings.general_settings import (
 )
 
 
-class ExcelHelper(object):
+class ExcelHelper():
     """Object responsible for updating the Excel sheet."""
 
     def __init__(

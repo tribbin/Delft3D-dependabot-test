@@ -8,7 +8,7 @@ from requests import Response
 from ci_tools.dimrset_delivery.settings.general_settings import DRY_RUN_PREFIX
 
 
-class TeamCity(object):
+class TeamCity():
     """
     Wrapper for the TeamCity REST API.
 
