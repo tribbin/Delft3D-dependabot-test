@@ -38,6 +38,36 @@ module m_physcoef
 
    implicit none
 
+   ! Abstract base type for dicoww
+   type, abstract :: dicoww_t
+   contains
+      procedure(get_dicoww_if), deferred :: get
+   end type dicoww_t
+
+   ! Interface for deferred binding
+   abstract interface
+      pure function get_dicoww_if(this, k) result(val)
+         import :: dicoww_t
+         class(dicoww_t), intent(in) :: this
+         integer, intent(in) :: k
+         real :: val
+      end function get_dicoww_if
+   end interface
+
+   ! Concrete type for scalar dicoww
+   type, extends(dicoww_t) :: dicoww_scalar_t
+      real :: value
+   contains
+      procedure :: get => get_dicoww_scalar
+   end type dicoww_scalar_t
+
+   ! Concrete type for array dicoww
+   type, extends(dicoww_t) :: dicoww_array_t
+      real, allocatable :: values(:)
+   contains
+      procedure :: get => get_dicoww_array
+   end type dicoww_array_t
+
    real(kind=dp) :: ag !< gravitational acceleration (m/s2)
    real(kind=dp) :: sag !< sqrt(ag)
    integer :: jahelmert = 0 !< 1=use Helmerts equation for agp only
@@ -69,7 +99,7 @@ module m_physcoef
    real(kind=dp) :: viuchk !< if < 0.5 then eddy viscosity cell peclet check viu<viuchk*dx*dx/dt
 
    real(kind=dp) :: vicoww !< user specified constant vertical   eddy viscosity  (m2/s)
-   real(kind=dp) :: dicoww !< user specified constant vertical   eddy diffusivity(m2/s)
+   class(dicoww_t), allocatable :: dicoww !< user specified constant vertical   eddy diffusivity(m2/s)
 
    real(kind=dp) :: rhomean !< mean ambient density (kg/m3)
    real(kind=dp) :: rhog !< rhomean*g
@@ -122,7 +152,27 @@ module m_physcoef
    real(kind=dp) :: locsaltmax !< maximum salinity for case of lock exchange
 
    integer :: NFEntrainmentMomentum = 0 !< 1: switched on: Momentum transfer in NearField related entrainment
+
 contains
+
+   ! Scalar implementation of get_dicoww
+   pure function get_dicoww_scalar(this, k) result(val)
+      class(dicoww_scalar_t), intent(in) :: this
+      integer, intent(in) :: k
+      real :: val
+      associate (k_dummy => k)
+      end associate
+      val = this%value
+   end function get_dicoww_scalar
+
+   ! Array implementation of get_dicoww
+   pure function get_dicoww_array(this, k) result(val)
+      class(dicoww_array_t), intent(in) :: this
+      integer, intent(in) :: k
+      real :: val
+      val = this%values(k)
+   end function get_dicoww_array
+
 !> Sets all variables in this module to their default values.
    subroutine default_physcoef()
       ag = 9.81_dp
@@ -143,7 +193,7 @@ contains
       Smagorinsky = 0.2_dp
       viuchk = 0.24_dp
       vicoww = 1e-6_dp
-      dicoww = 1e-6_dp
+      !dicoww = 1e-6_dp
       rhomean = 1000.0_dp
       c9of1 = 9.0_dp
       backgroundwatertemperature = 20.0_dp

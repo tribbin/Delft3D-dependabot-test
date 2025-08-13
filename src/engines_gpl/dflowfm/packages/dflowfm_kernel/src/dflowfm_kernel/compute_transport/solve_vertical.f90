@@ -45,7 +45,7 @@ contains
    subroutine solve_vertical(NUMCONST, ISED1, ISEDN, thetavert, Ndkx, kmx, &
                              zws, qw, vol1, kbot, ktop, &
                              sumhorflux, fluxver, source, sink, &
-                             difsedw, sigdifi, vicwws, &
+                             sigdifi, vicwws, &
                              nsubsteps, jaupdate, ndeltasteps, sed, &
                              a, b, c, d, e, sol, rhs)
       use precision, only: dp
@@ -78,14 +78,13 @@ contains
       real(kind=dp), dimension(NUMCONST, Ndkx), intent(in) :: fluxver !< vertical fluxes
       real(kind=dp), dimension(NUMCONST, Ndkx), intent(in) :: source !< sources
       real(kind=dp), dimension(NUMCONST, Ndkx), intent(in) :: sink !< sinks
-      real(kind=dp), dimension(NUMCONST), intent(in) :: difsedw !< scalar-specific diffusion coefficent (dicoww+difmod)
       real(kind=dp), dimension(Ndkx), intent(in) :: vicwws !< vertical eddy viscosity, NOTE: real, not double
       real(kind=dp), dimension(NUMCONST), intent(in) :: sigdifi !< 1/(Prandtl number) for heat, 1/(Schmidt number) for mass
       integer, intent(in) :: nsubsteps !< number of substeps
       integer, dimension(Ndx), intent(in) :: jaupdate !< update cell (1) or not (0)
       integer, dimension(Ndx), intent(in) :: ndeltasteps !< number of substeps
       real(kind=dp), dimension(NUMCONST, Ndkx), intent(inout) :: sed !< transported quantities
-      
+
       real(kind=dp), dimension(kmx, NUMCONST) :: a, b, c, d ! work array: aj(i,j)*sed(j,k-1) + bj(i,j)*sed(j,k) + c(i,j)*sed(j,k+1) = d(i), i=k-kb+1
       real(kind=dp), dimension(kmx) :: ac, bc, cc, dc, sol, e ! work array: solution and dummy array in tridag, respectively
       real(kind=dp), dimension(NUMCONST, Ndkx) :: rhs ! work array: right-hand side, dim(NUMCONST,Ndkx)
@@ -169,11 +168,11 @@ contains
             do j = 1, NUMCONST
                ! diffusion
                if (jased == 4 .and. j >= ISED1 .and. j <= ISEDN) then ! sediment d3d
-                  fluxfac = (ozmid + mtd%seddif(j - ISED1 + 1, k) / tpsnumber(j - ISED1 + 1) + difsedw(j)) * dtbazi
+                  fluxfac = (ozmid + mtd%seddif(j - ISED1 + 1, k) / tpsnumber(j - ISED1 + 1) + get_difsedw(k, j)) * dtbazi
                else
-                  fluxfac = (sigdifi(j) * vicwws(k) + difsedw(j) + ozmid) * dtbazi
+                  fluxfac = (sigdifi(j) * vicwws(k) + get_difsedw(k, j) + ozmid) * dtbazi
                   if (j == ISALT) then
-                     difwws(k) = (sigdifi(j) * vicwws(k) + difsedw(j) + ozmid)
+                     difwws(k) = (sigdifi(j) * vicwws(k) + get_difsedw(k, j) + ozmid)
                   end if
                end if
 
@@ -242,4 +241,17 @@ contains
       !$OMP END PARALLEL DO
       if (timon) call timstop(ithndl)
    end subroutine solve_vertical
+
+   pure function get_difsedw(k, j)
+      use m_physcoef, only: dicoww, dicoww_t, dicoww_scalar_t, dicoww_array_t
+      use m_transport, only: difsedw
+      use precision, only: dp
+      integer, intent(in) :: k ! node index
+      integer, intent(in) :: j ! constituent index
+      real(kind=dp) :: get_difsedw ! return value
+
+      !total diffusivity is user specified diffusivity plus molecular diffusivity depending on constituent
+      get_difsedw = dicoww%get(k) + difsedw(j)
+   end function get_difsedw
+
 end module m_solve_vertical

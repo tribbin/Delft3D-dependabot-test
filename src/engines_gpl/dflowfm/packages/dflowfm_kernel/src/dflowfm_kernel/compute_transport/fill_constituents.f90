@@ -122,7 +122,7 @@ contains
             difsedu(ISALT) = difmolsal
          end if
          if (dicoww >= 0.0_dp) then
-            difsedw(ISALT) = dicoww + difmolsal
+            difsedw(ISALT) = difmolsal
             sigdifi(ISALT) = 1.0_dp / Schmidt_number_salinity
          end if
       end if
@@ -132,14 +132,14 @@ contains
             difsedu(ITEMP) = difmoltem
          end if
          if (dicoww >= 0.0_dp) then
-            difsedw(ITEMP) = dicoww + difmoltem
+            difsedw(ITEMP) = difmoltem
             sigdifi(ITEMP) = 1.0_dp / Prandtl_number_temperature
          end if
       end if
 
       if (jasecflow > 0 .and. jaequili == 0 .and. kmx == 0) then
          difsedu(ISPIR) = 0.0_dp
-         difsedw(ISPIR) = 0.0_dp !dicoww + difmoltem
+         difsedw(ISPIR) = 0.0_dp
          sigdifi(ISPIR) = 0.0_dp !/sigspi
       end if
 
@@ -148,7 +148,7 @@ contains
             iconst = ISED1 + jsed - 1
             if (dicouv >= 0.0_dp) difsedu(iconst) = 0.0_dp
             if (dicoww >= 0.0_dp) then
-               difsedw(iconst) = dicoww
+               difsedw(iconst) = 0.0_dp
                sigdifi(iconst) = 1.0_dp / sigsed(jsed)
             end if
             if (jased < 4) wsf(iconst) = ws(jsed)
@@ -159,7 +159,7 @@ contains
          do jtra = ITRA1, ITRAN
             difsedu(jtra) = difmoltracer
             if (dicoww >= 0.0_dp) then
-               difsedw(jtra) = dicoww + difmoltracer
+               difsedw(jtra) = difmoltracer
                sigdifi(jtra) = 1.0_dp / Schmidt_number_tracer
             end if
             wsf(jtra) = wstracers(jtra - ITRA1 + 1)
