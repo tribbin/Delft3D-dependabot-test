@@ -35,28 +35,103 @@ module m_set_kbot_ktop
    public :: update_vertical_coordinates_boundary
 contains
 
+   !> Handle constituent conservation when layers are removed
+   subroutine handle_constituent_conservation(n, kt, ktx)
+      use precision, only: dp
+      use m_flow, only: ktop0, vol0, jasal, jatem, qwwaq
+      use m_flowtimes, only: ti_waq
+      use m_transport, only: Constituents, ISALT, ITEMP
+
+      integer, intent(in) :: n, kt, ktx
+
+      integer :: kt0, kkk, kwaq
+      real(kind=dp) :: volkt, savolkt, tevolkt
+
+      kt0 = ktop0(n)
+      if (kt0 > kt) then
+         volkt = vol0(kt)
+
+         if (jasal > 0) then
+            savolkt = volkt * constituents(isalt, kt)
+         end if
+         if (jatem > 0) then
+            tevolkt = volkt * constituents(itemp, kt)
+         end if
+
+         do kkk = kt0, kt + 1, -1 ! old volumes above present ktop are lumped in ktop
+            volkt = volkt + vol0(kkk)
+            vol0(kt) = volkt
+            if (jasal > 0) then
+               savolkt = savolkt + vol0(kkk) * constituents(isalt, kkk)
+            end if
+            if (jatem > 0) then
+               tevolkt = tevolkt + vol0(kkk) * constituents(itemp, kkk)
+            end if
+            if (ti_waq > 0) then
+               do kwaq = kkk, kt + 1, -1
+                  qwwaq(kwaq - 1) = qwwaq(kwaq - 1) - vol0(kkk)
+               end do
+            end if
+            vol0(kkk) = 0.0_dp
+         end do
+         if (volkt > 0) then
+            if (jasal > 0) then
+               constituents(isalt, kt) = savolkt / volkt
+               if (ktx > kt) then
+                  constituents(isalt, kt + 1:ktx) = constituents(isalt, kt)
+               end if
+            end if
+            if (jatem > 0) then
+               constituents(itemp, kt) = tevolkt / volkt
+               if (ktx > kt) then
+                  constituents(itemp, kt + 1:ktx) = constituents(itemp, kt)
+               end if
+            end if
+         end if
+      end if
+   end subroutine handle_constituent_conservation
+
+   !> Update link connectivity for layer changes
+   subroutine update_link_connectivity()
+      use m_flowgeom, only: ln, lnx
+      use m_flow, only: ktop, ln0
+      use m_get_Lbot_Ltop, only: getlbotltop
+
+      integer :: LL, L, Lb, Lt, n1, n2, kt1, kt2
+
+      do LL = 1, Lnx
+         n1 = ln(1, LL)
+         n2 = ln(2, LL)
+         kt1 = ktop(n1)
+         kt2 = ktop(n2)
+         call getLbotLtop(LL, Lb, Lt)
+         do L = Lb, Lt
+            ln(1, L) = min(ln0(1, L), kt1)
+            ln(2, L) = min(ln0(2, L), kt2)
+         end do
+      end do
+   end subroutine update_link_connectivity
+
    !> Initialise vertical coordinates, calculate layer volumes, set layer interfaces
    subroutine set_kbot_ktop(jazws0)
       use precision, only: dp
       use m_flowgeom, only: ndx, ba, bl, ln, lnx, nd
       use m_flow, only: kmx, zws0, zws, ktop0, ktop, vol1, layertype, kbot, jased, kmxn, &
                         zslay, toplayminthick, numtopsig, keepzlayeringatbed, dkx, rho, s1, sdkx, tsigma, epshu, laydefnr, laytyp, &
-                        wflaynod, indlaynod, keepzlay1bedvol, vol0, jasal, jatem, qwwaq, ln0, LAYTP_SIGMA, LAYTP_Z
+                        wflaynod, indlaynod, LAYTP_SIGMA, LAYTP_Z
       use m_get_kbot_ktop, only: getkbotktop
-      use m_get_Lbot_Ltop, only: getlbotltop
       use m_get_zlayer_indices, only: getzlayerindices
-      use m_flowtimes, only: dts, ti_waq
-      use m_transport, only: Constituents, ISALT, ITEMP
+      use m_flowtimes, only: dts
 
       integer, intent(in) :: jazws0 !< Whether to store zws in zws0 at initialisation
 
       integer :: k2, kb, k, n, kk, nlayb, nrlay, ktx
-      integer :: kt0, kt1, kt2, kt3, LL, L, Lb, Lt, n1, n2, kb1, kb2, kt, kkk, kwaq, Ldn
-      real(kind=dp) :: zkk, h0, toplaymint, volkt, savolkt, tevolkt, dtopsi
+      integer :: kt1, kt2, kt3, kb1, kb2, kt, Ldn
+      real(kind=dp) :: zkk, h0, toplaymint, dtopsi
       real(kind=dp) :: w1, w2, w3, h1, h2, h3, zw1, zw2, zw3, bL1, bL2, bL3
       integer :: k1, k3, kb3, kk1, kk2, kk3
 
-      integer :: numbd, numtp, j
+      integer :: numbd, numtp, j, L
       real(kind=dp) :: drhok, a, aa, h00, zsl, aaa, sig, dsig, dsig0
 
       if (kmx == 0) then
@@ -322,62 +397,7 @@ contains
          end if
 
          kt = ktop(n)
-
-         if (keepzlay1bedvol == 1) then ! inconsistent control volumes in baroclinic terms
-            vol1(kb) = ba(n) * (zws(kb) - bl(n)) ! transport and momentum volumes not too big anymore
-            vol1(n) = vol1(n) + vol1(kb)
-            kb1 = kb + 1
-         else ! Default, transport and momentum volumes too big
-            kb1 = kb ! consistent with control volumes in baroclinic terms
-         end if
-
-         do kk = kb1, kt ! x
-            vol1(kk) = ba(n) * (zws(kk) - zws(kk - 1)) ! just for now here
-            vol1(n) = vol1(n) + vol1(kk)
-         end do
-
-         kt0 = ktop0(n)
-         if (kt0 > kt) then
-            volkt = vol0(kt)
-
-            if (jasal > 0) then
-               savolkt = volkt * constituents(isalt, kt)
-            end if
-            if (jatem > 0) then
-               tevolkt = volkt * constituents(itemp, kt)
-            end if
-
-            do kkk = kt0, kt + 1, -1 ! old volumes above present ktop are lumped in ktop
-               volkt = volkt + vol0(kkk)
-               vol0(kt) = volkt
-               if (jasal > 0) then
-                  savolkt = savolkt + vol0(kkk) * constituents(isalt, kkk)
-               end if
-               if (jatem > 0) then
-                  tevolkt = tevolkt + vol0(kkk) * constituents(itemp, kkk)
-               end if
-               if (ti_waq > 0) then
-                  do kwaq = kkk, kt + 1, -1
-                     qwwaq(kwaq - 1) = qwwaq(kwaq - 1) - vol0(kkk)
-                  end do
-               end if
-               vol0(kkk) = 0.0_dp
-            end do
-            if (volkt > 0) then
-               if (jasal > 0) then
-                  constituents(isalt, kt) = savolkt / volkt
-                  if (ktx > kt) then
-                     constituents(isalt, kt + 1:ktx) = constituents(isalt, kt)
-                  end if
-               end if
-               if (jatem > 0) then
-                  constituents(itemp, kt) = tevolkt / volkt
-                  if (ktx > kt) then
-                     constituents(itemp, kt + 1:ktx) = constituents(itemp, kt)
-                  end if
-               end if
-            end if
-         end if
+         call calculate_node_volumes(n, kb, kt, ktx)
       end do
 
       if (jazws0 == 1) then ! at initialise, store zws in zws0
@@ -385,17 +405,7 @@ contains
       end if
 
       if (layertype > 1) then ! ln does not change in sigma only
-         do LL = 1, Lnx
-            n1 = ln(1, LL)
-            n2 = ln(2, LL)
-            kt1 = ktop(n1)
-            kt2 = ktop(n2)
-            call getLbotLtop(LL, Lb, Lt)
-            do L = Lb, Lt
-               ln(1, L) = min(ln0(1, L), kt1)
-               ln(2, L) = min(ln0(2, L), kt2)
-            end do
-         end do
+         call update_link_connectivity()
       end if
    end subroutine set_kbot_ktop
 
@@ -404,20 +414,18 @@ contains
    !! Is a special version of the set_kbot_ktop subroutine for after s0 updates on the boundary nodes.
    subroutine update_vertical_coordinates_boundary()
       use precision, only: dp
-      use m_flowgeom, only: ndx, ba, bl, ln, lnx
-      use m_flow, only: kmx, zws, zws0, ktop, ktop0, vol1, layertype, kbot, jased, kmxn, &
+      use m_flowgeom, only: ndx, ba, bl
+      use m_flow, only: kmx, zws, zws0, ktop, vol1, layertype, kbot, jased, kmxn, &
                         zslay, toplayminthick, numtopsig, keepzlayeringatbed, s0, tsigma, epshu, laydefnr, laytyp, &
-                        wflaynod, indlaynod, keepzlay1bedvol, vol0, jasal, jatem, qwwaq, ln0, LAYTP_SIGMA, LAYTP_Z, &
+                        wflaynod, indlaynod, LAYTP_SIGMA, LAYTP_Z, &
                         nbndz, kbndz
       use m_get_kbot_ktop, only: getkbotktop
-      use m_get_Lbot_Ltop, only: getlbotltop
       use m_get_zlayer_indices, only: getzlayerindices
-      use m_flowtimes, only: dts, ti_waq
-      use m_transport, only: Constituents, ISALT, ITEMP
+      use m_flowtimes, only: dts
 
       integer :: k2, kb, k, n, kk, nlayb, nrlay, ktx
-      integer :: kt0, kt1, kt2, kt3, LL, L, Lb, Lt, n1, n2, kb1, kb2, kt, kkk, kwaq, Ldn
-      real(kind=dp) :: zkk, h0, toplaymint, volkt, savolkt, tevolkt, dtopsi
+      integer :: kt0, kt1, kt2, kt3, kb1, kb2, kt, Ldn
+      real(kind=dp) :: zkk, h0, toplaymint, dtopsi
       real(kind=dp) :: w1, w2, w3, h1, h2, h3, zw1, zw2, zw3, bL1, bL2, bL3
       integer :: k1, k3, kb3, kk1, kk2, kk3
       integer :: i_bnd
@@ -507,7 +515,7 @@ contains
                   else if (keepzlayeringatbed <= 4) then
                      zws(kb) = max(zws(kb), 0.5_dp * (zws(kb + 1) + zws(kb - 1)))
                   else
-                     zws(kb) = max(zws(kb), 0.1_dp * zws(kb + 1) + 0.9_dp * zws(kb - 1))
+                     zws(kb) = max(zws(kb), 0.1_dp * zws(kb + 1) + 0.9_dp * zws(kb - 1)) ! not important
                   end if
                end if
             end if
@@ -703,83 +711,43 @@ contains
             cycle
          end if
 
-         vol1(n) = 0.0_dp ! Reset before accumulation
-
          kb = kbot(n)
          kt = ktop(n)
-
-         if (keepzlay1bedvol == 1) then
-            vol1(kb) = ba(n) * (zws(kb) - bl(n))
-            vol1(n) = vol1(n) + vol1(kb)
-            kb1 = kb + 1
-         else
-            kb1 = kb
-         end if
-
-         do kk = kb1, kt
-            vol1(kk) = ba(n) * (zws(kk) - zws(kk - 1))
-            vol1(n) = vol1(n) + vol1(kk)
-         end do
-
-         ! Handle constituent conservation when layers are removed
-         kt0 = ktop0(n)
-         if (kt0 > kt) then
-            volkt = vol0(kt)
-
-            if (jasal > 0) then
-               savolkt = volkt * constituents(isalt, kt)
-            end if
-            if (jatem > 0) then
-               tevolkt = volkt * constituents(itemp, kt)
-            end if
-
-            do kkk = kt0, kt + 1, -1
-               volkt = volkt + vol0(kkk)
-               vol0(kt) = volkt
-               if (jasal > 0) then
-                  savolkt = savolkt + vol0(kkk) * constituents(isalt, kkk)
-               end if
-               if (jatem > 0) then
-                  tevolkt = tevolkt + vol0(kkk) * constituents(itemp, kkk)
-               end if
-               if (ti_waq > 0) then
-                  do kwaq = kkk, kt + 1, -1
-                     qwwaq(kwaq - 1) = qwwaq(kwaq - 1) - vol0(kkk)
-                  end do
-               end if
-               vol0(kkk) = 0.0_dp
-            end do
-
-            if (volkt > 0) then
-               if (jasal > 0) then
-                  constituents(isalt, kt) = savolkt / volkt
-                  if (ktx > kt) then
-                     constituents(isalt, kt + 1:ktx) = constituents(isalt, kt)
-                  end if
-               end if
-               if (jatem > 0) then
-                  constituents(itemp, kt) = tevolkt / volkt
-                  if (ktx > kt) then
-                     constituents(itemp, kt + 1:ktx) = constituents(itemp, kt)
-                  end if
-               end if
-            end if
-         end if
+         ktx = kb - 1 + kmxn(n)
+         call calculate_node_volumes(n, kb, kt, ktx)
       end do
 
       ! Update link connectivity only if boundary nodes experienced wetting or significant layer changes
       if (need_link_update .and. layertype > 1) then
-         do LL = 1, Lnx
-            n1 = ln(1, LL)
-            n2 = ln(2, LL)
-            kt1 = ktop(n1)
-            kt2 = ktop(n2)
-            call getLbotLtop(LL, Lb, Lt)
-            do L = Lb, Lt
-               ln(1, L) = min(ln0(1, L), kt1)
-               ln(2, L) = min(ln0(2, L), kt2)
-            end do
-         end do
+         call update_link_connectivity()
       end if
    end subroutine update_vertical_coordinates_boundary
+
+   !> Calculate layer volumes for a single node
+   subroutine calculate_node_volumes(n, kb, kt, ktx)
+      use precision, only: dp
+      use m_flowgeom, only: ba, bl
+      use m_flow, only: vol1, zws, keepzlay1bedvol
+
+      integer, intent(in) :: n, kb, kt, ktx
+
+      integer :: kb1, kk
+
+      vol1(n) = 0.0_dp ! Reset before accumulation
+
+      if (keepzlay1bedvol == 1) then ! inconsistent control volumes in baroclinic terms
+         vol1(kb) = ba(n) * (zws(kb) - bl(n)) ! transport and momentum volumes not too big anymore
+         vol1(n) = vol1(n) + vol1(kb)
+         kb1 = kb + 1
+      else ! Default, transport and momentum volumes too big
+         kb1 = kb ! consistent with control volumes in baroclinic terms
+      end if
+
+      do kk = kb1, kt
+         vol1(kk) = ba(n) * (zws(kk) - zws(kk - 1))
+         vol1(n) = vol1(n) + vol1(kk)
+      end do
+
+      call handle_constituent_conservation(n, kt, ktx)
+   end subroutine calculate_node_volumes
 end module m_set_kbot_ktop
