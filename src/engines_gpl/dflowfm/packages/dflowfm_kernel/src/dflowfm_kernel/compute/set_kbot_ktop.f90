@@ -33,84 +33,8 @@ module m_set_kbot_ktop
    private
    public :: set_kbot_ktop
    public :: update_vertical_coordinates_boundary
+
 contains
-
-   !> Handle constituent conservation when layers are removed
-   subroutine handle_constituent_conservation(n, kt, ktx)
-      use precision, only: dp
-      use m_flow, only: ktop0, vol0, jasal, jatem, qwwaq
-      use m_flowtimes, only: ti_waq
-      use m_transport, only: Constituents, ISALT, ITEMP
-
-      integer, intent(in) :: n, kt, ktx
-
-      integer :: kt0, kkk, kwaq
-      real(kind=dp) :: volkt, savolkt, tevolkt
-
-      kt0 = ktop0(n)
-      if (kt0 > kt) then
-         volkt = vol0(kt)
-
-         if (jasal > 0) then
-            savolkt = volkt * constituents(isalt, kt)
-         end if
-         if (jatem > 0) then
-            tevolkt = volkt * constituents(itemp, kt)
-         end if
-
-         do kkk = kt0, kt + 1, -1 ! old volumes above present ktop are lumped in ktop
-            volkt = volkt + vol0(kkk)
-            vol0(kt) = volkt
-            if (jasal > 0) then
-               savolkt = savolkt + vol0(kkk) * constituents(isalt, kkk)
-            end if
-            if (jatem > 0) then
-               tevolkt = tevolkt + vol0(kkk) * constituents(itemp, kkk)
-            end if
-            if (ti_waq > 0) then
-               do kwaq = kkk, kt + 1, -1
-                  qwwaq(kwaq - 1) = qwwaq(kwaq - 1) - vol0(kkk)
-               end do
-            end if
-            vol0(kkk) = 0.0_dp
-         end do
-         if (volkt > 0) then
-            if (jasal > 0) then
-               constituents(isalt, kt) = savolkt / volkt
-               if (ktx > kt) then
-                  constituents(isalt, kt + 1:ktx) = constituents(isalt, kt)
-               end if
-            end if
-            if (jatem > 0) then
-               constituents(itemp, kt) = tevolkt / volkt
-               if (ktx > kt) then
-                  constituents(itemp, kt + 1:ktx) = constituents(itemp, kt)
-               end if
-            end if
-         end if
-      end if
-   end subroutine handle_constituent_conservation
-
-   !> Update link connectivity for layer changes
-   subroutine update_link_connectivity()
-      use m_flowgeom, only: ln, lnx
-      use m_flow, only: ktop, ln0
-      use m_get_Lbot_Ltop, only: getlbotltop
-
-      integer :: LL, L, Lb, Lt, n1, n2, kt1, kt2
-
-      do LL = 1, Lnx
-         n1 = ln(1, LL)
-         n2 = ln(2, LL)
-         kt1 = ktop(n1)
-         kt2 = ktop(n2)
-         call getLbotLtop(LL, Lb, Lt)
-         do L = Lb, Lt
-            ln(1, L) = min(ln0(1, L), kt1)
-            ln(2, L) = min(ln0(2, L), kt2)
-         end do
-      end do
-   end subroutine update_link_connectivity
 
    !> Initialise vertical coordinates, calculate layer volumes, set layer interfaces
    subroutine set_kbot_ktop(jazws0)
@@ -126,7 +50,7 @@ contains
       integer, intent(in) :: jazws0 !< Whether to store zws in zws0 at initialisation
 
       integer :: kb, k, n, kk, nlayb, nrlay, ktx
-      integer :: kt0, kt, Ldn, kt1, k1, k2
+      integer :: kt, Ldn, kt1, k1, k2
       real(kind=dp) :: zkk, h0, dtopsi
       logical :: ktop_changed
 
@@ -331,7 +255,7 @@ contains
          ktx = kb - 1 + kmxn(n)
 
          if (laydefnr(n) == 0) then ! overlap zone
-            call process_overlap_zone(n, kb, ktx, s1, kt0, ktop_changed)
+            call process_overlap_zone(n, kb, ktx, s1, ktop_changed)
          end if
 
          kt = ktop(n)
@@ -569,8 +493,7 @@ contains
          ktx = kb - 1 + kmxn(n)
 
          if (laydefnr(n) == 0) then ! overlap zone
-            kt0 = ktop(n) ! Store original ktop for comparison before calling process_overlap_zone
-            call process_overlap_zone(n, kb, ktx, s0, kt0, ktop_changed)
+            call process_overlap_zone(n, kb, ktx, s0, ktop_changed)
 
             ! Check if this node experienced significant layer changes
             if (ktop_changed) then
@@ -604,7 +527,10 @@ contains
       use m_flowgeom, only: ba, bl
       use m_flow, only: vol1, zws, keepzlay1bedvol
 
-      integer, intent(in) :: n, kb, kt, ktx
+      integer, intent(in) :: n !< Node index
+      integer, intent(in) :: kb !< Bottom layer index for the node
+      integer, intent(in) :: kt !< Top layer index for the node
+      integer, intent(in) :: ktx !< Maximum layer index for the node
 
       integer :: kb1, kk
 
@@ -627,21 +553,22 @@ contains
    end subroutine calculate_node_volumes
 
    !> Process overlap zone interpolation for a node
-   subroutine process_overlap_zone(n, kb, ktx, water_levels, kt0_out, ktop_changed)
+   subroutine process_overlap_zone(n, kb, ktx, water_levels, ktop_changed)
       use precision, only: dp
       use m_flow, only: wflaynod, indlaynod, kbot, ktop, zws, kmxn
 
-      integer, intent(in) :: n, kb, ktx
-      real(kind=dp), dimension(:), intent(in) :: water_levels
-      integer, intent(out) :: kt0_out
-      logical, intent(out) :: ktop_changed
+      integer, intent(in) :: n !< Node index
+      integer, intent(in) :: kb !< Bottom layer index for the node
+      integer, intent(in) :: ktx !< Maximum layer index for the node
+      real(kind=dp), dimension(:), intent(in) :: water_levels !< Water levels at the node (s0 or s1)
+      logical, intent(out) :: ktop_changed !< Flag indicating if ktop has changed
 
       real(kind=dp) :: w1, w2, w3, h1, h2, h3, zw1, zw2, zw3, bL1, bL2, bL3
       integer :: k1, k2, k3, kb1, kb2, kb3, kk1, kk2, kk3
-      integer :: kt1, kt2, kt3, k, kk
+      integer :: kt1, kt2, kt3, k, kk, kt0
       real(kind=dp) :: h0, zkk, toplaymint
 
-      kt0_out = ktop(n) ! Store original ktop for comparison
+      kt0 = ktop(n) ! Store original ktop for comparison
       ktop_changed = .false.
 
       w1 = wflaynod(1, n)
@@ -708,8 +635,87 @@ contains
       end do
 
       ! Check if this node experienced significant layer changes
-      if (ktop(n) /= kt0_out) then
+      if (ktop(n) /= kt0) then
          ktop_changed = .true.
       end if
    end subroutine process_overlap_zone
+
+   !> Handle constituent conservation when layers are removed
+   subroutine handle_constituent_conservation(n, kt, ktx)
+      use precision, only: dp
+      use m_flow, only: ktop0, vol0, jasal, jatem, qwwaq
+      use m_flowtimes, only: ti_waq
+      use m_transport, only: Constituents, ISALT, ITEMP
+
+      integer, intent(in) :: n !< Node index
+      integer, intent(in) :: kt !< Current layer index for the node
+      integer, intent(in) :: ktx !< Maximum layer index for the node
+
+      integer :: kt0, kkk, kwaq
+      real(kind=dp) :: volkt, savolkt, tevolkt
+
+      kt0 = ktop0(n)
+      if (kt0 > kt) then
+         volkt = vol0(kt)
+
+         if (jasal > 0) then
+            savolkt = volkt * constituents(isalt, kt)
+         end if
+         if (jatem > 0) then
+            tevolkt = volkt * constituents(itemp, kt)
+         end if
+
+         do kkk = kt0, kt + 1, -1 ! old volumes above present ktop are lumped in ktop
+            volkt = volkt + vol0(kkk)
+            vol0(kt) = volkt
+            if (jasal > 0) then
+               savolkt = savolkt + vol0(kkk) * constituents(isalt, kkk)
+            end if
+            if (jatem > 0) then
+               tevolkt = tevolkt + vol0(kkk) * constituents(itemp, kkk)
+            end if
+            if (ti_waq > 0) then
+               do kwaq = kkk, kt + 1, -1
+                  qwwaq(kwaq - 1) = qwwaq(kwaq - 1) - vol0(kkk)
+               end do
+            end if
+            vol0(kkk) = 0.0_dp
+         end do
+         if (volkt > 0) then
+            if (jasal > 0) then
+               constituents(isalt, kt) = savolkt / volkt
+               if (ktx > kt) then
+                  constituents(isalt, kt + 1:ktx) = constituents(isalt, kt)
+               end if
+            end if
+            if (jatem > 0) then
+               constituents(itemp, kt) = tevolkt / volkt
+               if (ktx > kt) then
+                  constituents(itemp, kt + 1:ktx) = constituents(itemp, kt)
+               end if
+            end if
+         end if
+      end if
+   end subroutine handle_constituent_conservation
+
+   !> Update link connectivity for layer changes
+   subroutine update_link_connectivity()
+      use m_flowgeom, only: ln, lnx
+      use m_flow, only: ktop, ln0
+      use m_get_Lbot_Ltop, only: getlbotltop
+
+      integer :: LL, L, Lb, Lt, n1, n2, kt1, kt2
+
+      do LL = 1, Lnx
+         n1 = ln(1, LL)
+         n2 = ln(2, LL)
+         kt1 = ktop(n1)
+         kt2 = ktop(n2)
+         call getLbotLtop(LL, Lb, Lt)
+         do L = Lb, Lt
+            ln(1, L) = min(ln0(1, L), kt1)
+            ln(2, L) = min(ln0(2, L), kt2)
+         end do
+      end do
+   end subroutine update_link_connectivity
 end module m_set_kbot_ktop
