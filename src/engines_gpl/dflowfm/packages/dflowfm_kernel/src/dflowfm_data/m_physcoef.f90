@@ -180,20 +180,20 @@ contains
    end function get_dicoww_array
 
 !> (re)allocate dicoww as scalar regardless of previous status
-subroutine realloc_dicoww_scalar(dicoww, value)
-    class(dicoww_t), allocatable, intent(inout) :: dicoww !< dicoww object to be reallocated
-    real(kind=dp), intent(in) :: value !< value to be set in the scalar dicoww
+   subroutine realloc_dicoww_scalar(dicoww, value)
+      class(dicoww_t), allocatable, intent(inout) :: dicoww !< dicoww object to be reallocated
+      real(kind=dp), intent(in) :: value !< value to be set in the scalar dicoww
 
-    if (allocated(dicoww)) then
-        deallocate(dicoww)
-    end if
+      if (allocated(dicoww)) then
+         deallocate (dicoww)
+      end if
 
-    allocate(dicoww_scalar_t :: dicoww)
-    select type(scalar => dicoww)
-        type is (dicoww_scalar_t)
-            scalar%value = value
-    end select
-end subroutine realloc_dicoww_scalar
+      allocate (dicoww_scalar_t :: dicoww)
+      select type (scalar => dicoww)
+      type is (dicoww_scalar_t)
+         scalar%value = value
+      end select
+   end subroutine realloc_dicoww_scalar
 
 !> (re)allocate dicoww as array regardless of previous status, optionally with a fill_value and a pointer to the values array
    subroutine realloc_dicoww_array(dicoww, n, fill_value, values_ptr)
