@@ -1,9 +1,8 @@
 import os
-from pathlib import Path, PosixPath
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import Dict, Optional
 from unittest.mock import Mock, patch
 
-from ci_tools.dimrset_delivery import prepare_email as pe
 from ci_tools.dimrset_delivery.common_utils import ResultTestBankParser, parse_version
 from ci_tools.dimrset_delivery.dimr_context import DimrAutomationContext
 from ci_tools.dimrset_delivery.prepare_email import EmailHelper, prepare_email

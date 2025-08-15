@@ -2,7 +2,7 @@
 """Update the Excel sheet with this week's release information."""
 
 from datetime import datetime, timezone
-from typing import Dict, List
+from typing import List
 
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet

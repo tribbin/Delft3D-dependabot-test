@@ -117,7 +117,9 @@ class SshClient:
                     transport.sock.settimeout(120)
             transport = self._client.get_transport()
             if transport is None:
-                raise AssertionError(f"Could not get SSH transport for SCP operation '{direction}' on '{address}'")
+                raise AssertionError(
+                    f"Could not get SSH transport for SCP operation '{direction}' on '{self.__address}'"
+                )
             with SCPClient(transport) as scp_client:
                 if hasattr(scp_client, "channel") and scp_client.channel is not None:
                     scp_client.channel.settimeout(120)

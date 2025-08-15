@@ -1,6 +1,5 @@
 """Tests for common_utils.py."""
 
-from io import StringIO
 from unittest.mock import Mock, mock_open, patch
 
 import pytest

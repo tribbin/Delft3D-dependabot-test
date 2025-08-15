@@ -9,6 +9,22 @@ from ci_tools.dimrset_delivery.dimr_context import (
 
 
 class PinAndTagHelper:
+    """Helper class to pin and tag builds in TeamCity and Git.
+
+    This class uses the provided automation context to interact with TeamCity and Git clients,
+    pinning and tagging builds as required for DIMRset delivery.
+
+    Attributes
+    ----------
+    context : DimrAutomationContext
+        The automation context containing necessary clients and configuration.
+
+    Methods
+    -------
+    pin_and_tag_builds() -> None
+        Pin and tag the appropriate builds.
+    """
+
     def __init__(self, context: DimrAutomationContext) -> None:
         self.__context = context
         self.__dry_run = context.dry_run

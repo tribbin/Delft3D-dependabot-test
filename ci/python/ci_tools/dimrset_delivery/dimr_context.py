@@ -1,9 +1,8 @@
 import argparse
-import json
 import os
 from dataclasses import dataclass
 from getpass import getpass
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, TextIO
 
 from ci_tools.dimrset_delivery.lib.atlassian import Atlassian
 from ci_tools.dimrset_delivery.lib.git_client import GitClient
@@ -86,24 +85,13 @@ class DimrAutomationContext:
         self._dimr_version: Optional[str] = None
         self._branch_name: Optional[str] = None
 
-    def log(self, *args, **kwargs) -> None:
-        """Print status message with dry-run prefix if applicable.
-
-        Parameters
-        ----------
-        *args
-            Positional arguments to pass to print.
-        **kwargs
-            Keyword arguments to pass to print.
-        """
+    def log(self, *args: object, sep: str = " ") -> None:
+        """Print status message with dry-run prefix if applicable."""
         if self.dry_run:
-            # If sep is specified in kwargs, use it; otherwise default to ' '
-            sep = kwargs.get("sep", " ")
-            # Join all args with the separator and add dry-run prefix
-            message = sep.join(str(arg) for arg in args)
-            print(f"{self.settings.dry_run_prefix} {message}", **{k: v for k, v in kwargs.items() if k != "sep"})
+            message = f"{self.settings.dry_run_prefix}{sep}{sep.join(str(arg) for arg in args)}"
+            print(message)
         else:
-            print(*args, **kwargs)
+            print(*args, sep=sep)
 
     def get_kernel_versions(self) -> Dict[str, str]:
         """Get kernel versions (cached).
