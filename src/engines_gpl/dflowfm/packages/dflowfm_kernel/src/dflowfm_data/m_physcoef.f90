@@ -103,8 +103,8 @@ module m_physcoef
    real(kind=dp) :: Smagorinsky !< add Smagorinsky Cs coefficient, vic = vic + (Cs*dx)**2 * S
    real(kind=dp) :: viuchk !< if < 0.5 then eddy viscosity cell peclet check viu<viuchk*dx*dx/dt
 
-   real(kind=dp) :: vicoww !< user specified constant vertical   eddy viscosity  (m2/s)
-   real(kind=dp) :: dicoww !< user specified constant vertica eddy diffusivity(m2/s)
+   real(kind=dp) :: vicoww !< user specified constant vertical eddy viscosity  (m2/s)
+   real(kind=dp) :: constant_dicoww !< constant user specified vertica eddy diffusivity(m2/s)
    class(t_array_or_scalar), allocatable, target :: class_dicoww !< abstract class for dicoww, either scalar or array depending on user input
    logical :: vertical_diffusivity_enabled !< true if vertical diffusivity is enabled, false if not
 
@@ -248,7 +248,7 @@ contains
       Smagorinsky = 0.2_dp
       viuchk = 0.24_dp
       vicoww = 1e-6_dp
-      dicoww = 1e-6_dp
+      constant_dicoww = 1e-6_dp
       vertical_diffusivity_enabled = .true.
       rhomean = 1000.0_dp
       c9of1 = 9.0_dp

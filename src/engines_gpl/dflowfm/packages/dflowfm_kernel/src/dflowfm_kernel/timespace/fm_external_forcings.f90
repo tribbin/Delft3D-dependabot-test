@@ -2389,7 +2389,7 @@ contains
       use m_get_prof_1D
       use mathconsts, only: pi
       use m_filez, only: doclose
-      use m_physcoef, only: dicoww, realloc
+      use m_physcoef, only: constant_dicoww, realloc
 
       integer :: j, k, ierr, l, n, itp, kk, k1, k2, kb, kt, nstor, i, ja
       integer :: imba, needextramba, needextrambar
@@ -2806,7 +2806,7 @@ contains
 
       ! Set class_dicoww to scalar value if not read from inifields file
       if (.not. allocated(class_dicoww)) then
-         call realloc(class_dicoww, dicoww)
+         call realloc(class_dicoww, constant_dicoww)
       end if
 
    end subroutine finalize
