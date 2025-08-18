@@ -98,9 +98,9 @@ contains
       end if
 
       allocate (t_scalar :: array_or_scalar)
-      select type (scalar => array_or_scalar)
+      select type(array_or_scalar)
       type is (t_scalar)
-         scalar%value = value
+         array_or_scalar%value = value
       end select
    end subroutine realloc_t_scalar
 
@@ -142,9 +142,9 @@ contains
          ierr = 1 !< set error code if array_or_scalar is not allocated
          return !< silent exit, no error if array_or_scalar is not allocated
       end if
-      select type (array => array_or_scalar)
+      select type (array_or_scalar)
       type is (t_array)
-         values_ptr => array%values
+         values_ptr => array_or_scalar%values
       type is (t_scalar)
          ierr = 1 !< set error code if array_or_scalar is a scalar
       end select
