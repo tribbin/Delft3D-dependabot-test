@@ -104,7 +104,7 @@ class GitClient(ConnectionServiceInterface):
 
             if result.returncode == 0:
                 self.__context.log("Read access to the repository is successful.")
-                return True
+                success = True
             else:
                 self.__context.log(
                     (
@@ -112,7 +112,9 @@ class GitClient(ConnectionServiceInterface):
                         f"return code {result.returncode}.' status='ERROR']"
                     )
                 )
-                return False
+                success = False
+
+            return success
 
         except Exception as e:
             self.__context.log(

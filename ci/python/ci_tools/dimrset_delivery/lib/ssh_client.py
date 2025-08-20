@@ -54,26 +54,27 @@ class SshClient(ConnectionServiceInterface):
         """
         if dry_run:
             self.__context.log(f"SSH connection to '{self.__address}' with '{self.__username}' (dry run)")
-            return True
-
-        try:
-            self._client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            self._client.connect(
-                hostname=self.__address,
-                username=self.__username,
-                password=self.__password,
-                timeout=self.__connect_timeout,
-            )
-            self.__context.log(
-                f"Successfully created an SSH connection to '{self.__address}' with '{self.__username}'."
-            )
-            return True
-        except Exception as e:
-            self.__context.log(f"Failed to establish SSH connection to '{self.__address}': {e}")
-            return False
-        finally:
-            self._client.close()
-            self.__context.log(f"Close SSH connection to '{self.__address}' with '{self.__username}'.")
+            success = True
+        else:
+            try:
+                self._client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                self._client.connect(
+                    hostname=self.__address,
+                    username=self.__username,
+                    password=self.__password,
+                    timeout=self.__connect_timeout,
+                )
+                self.__context.log(
+                    f"Successfully created an SSH connection to '{self.__address}' with '{self.__username}'."
+                )
+                success = True
+            except Exception as e:
+                self.__context.log(f"Failed to establish SSH connection to '{self.__address}': {e}")
+                success = False
+            finally:
+                self._client.close()
+                self.__context.log(f"Close SSH connection to '{self.__address}' with '{self.__username}'.")
+        return success
 
     def execute(self, command: str) -> None:
         """

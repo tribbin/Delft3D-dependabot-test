@@ -170,7 +170,6 @@ class DimrDeliveryPipeline:
 
 if __name__ == "__main__":
     try:
-        # Parse arguments but don't use them here - pass them through to each step
         args = parse_common_arguments()
         context = create_context_from_args(args)
         services = Services(context)

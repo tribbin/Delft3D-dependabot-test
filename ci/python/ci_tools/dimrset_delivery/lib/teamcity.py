@@ -76,10 +76,13 @@ class TeamCity(ConnectionServiceInterface):
             result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
         if result.status_code == 200:
             self.__context.log("Successfully connected to the TeamCity API.")
-            return True
-        self.__context.log("Could not connect to the TeamCity API:")
-        self.__context.log(f"Error: {result.status_code} - {result.content.decode('utf-8', errors='replace')}")
-        return False
+            success = True
+        else:
+            self.__context.log("Could not connect to the TeamCity API:")
+            self.__context.log(f"Error: {result.status_code} - {result.content.decode('utf-8', errors='replace')}")
+            success = False
+
+        return success
 
     def get_builds_for_build_configuration_id(
         self,

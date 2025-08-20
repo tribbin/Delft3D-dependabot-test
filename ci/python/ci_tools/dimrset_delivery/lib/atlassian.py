@@ -63,10 +63,13 @@ class Atlassian(ConnectionServiceInterface):
 
         if result.status_code == 200:
             self.__context.log("Successfully connected to the Atlassian Confluence API.")
-            return True
-        self.__context.log("Could not connect to the Atlassian Confluence API:")
-        self.__context.log(f"Error : {result.status_code} - {result.content.decode('utf-8')}")
-        return False
+            success = True
+        else:
+            self.__context.log("Could not connect to the Atlassian Confluence API:")
+            self.__context.log(f"Error : {result.status_code} - {result.content.decode('utf-8')}")
+            success = False
+
+        return success
 
     def get_page_info_for_parent_page(self, parent_page_id: str) -> Optional[Dict[str, Any]]:
         """
