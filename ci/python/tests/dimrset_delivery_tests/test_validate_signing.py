@@ -1,7 +1,7 @@
 """Tests for validate_signing.py."""
 
-from io import StringIO
 import os
+from io import StringIO
 from pathlib import Path
 from unittest.mock import Mock, patch
 
