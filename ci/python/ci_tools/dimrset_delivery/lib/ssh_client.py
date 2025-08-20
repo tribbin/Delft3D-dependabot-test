@@ -8,25 +8,34 @@ from ci_tools.dimrset_delivery.lib.connection_service_interface import Connectio
 
 
 class Direction(Enum):
-    """Enumeration for SCP copy direction."""
+    """Enumeration for SCP copy direction.
+
+    Used to specify the direction of file transfer in SCP operations.
+    """
 
     TO = "to"  # local to remote
     FROM = "from"  # remote to local
 
 
 class SshClient(ConnectionServiceInterface):
-    """Class to wrap a paramiko ssh client."""
+    """Wraps a Paramiko SSH client for remote command execution and file transfer.
+
+    Provides methods to test SSH connectivity, execute remote commands, and transfer files using SCP.
+    """
 
     def __init__(self, username: str, password: str, context: DimrAutomationContext, connect_timeout: int = 30) -> None:
-        """
-        Create a new instance of SshClient.
+        """Initialize a new SshClient instance.
 
         Parameters
         ----------
         username : str
-            Username to create a SSH connection.
+            Username for SSH authentication.
         password : str
-            Password to create a SSH connection.
+            Password for SSH authentication.
+        context : DimrAutomationContext
+            Context object containing settings and logging utilities.
+        connect_timeout : int, optional
+            Timeout for SSH connection in seconds (default is 30).
         """
         self.__username = username
         self.__password = password
@@ -38,19 +47,17 @@ class SshClient(ConnectionServiceInterface):
         self.__address = context.settings.linux_address
 
     def test_connection(self, dry_run: bool) -> bool:
-        """
-        Tests the SSH connection to the specified address using the provided credentials.
+        """Test the SSH connection to the specified address.
 
-        If `dry_run` is True, logs the connection attempt without actually connecting and returns True.
-        Otherwise, attempts to establish an SSH connection using paramiko. Logs the result and returns True
-        if successful, or False if an exception occurs.
-
-        Args:
-            dry_run (bool): If True, performs a dry run without establishing a real connection.
+        Parameters
+        ----------
+        dry_run : bool
+            If True, performs a dry run without establishing a real connection.
 
         Returns
         -------
-            bool: True if the connection test is successful or dry run is performed, False otherwise.
+        bool
+            True if the connection test is successful or dry run is performed, False otherwise.
         """
         if dry_run:
             self.__context.log(f"SSH connection to '{self.__address}' with '{self.__username}' (dry run)")
@@ -77,18 +84,17 @@ class SshClient(ConnectionServiceInterface):
         return success
 
     def execute(self, command: str) -> None:
-        """
-        Execute the specified command on the specified address.
+        """Execute a command on the remote address.
 
         Parameters
         ----------
         command : str
-            The command to execute on the specified address.
+            Command to execute on the remote address.
 
         Raises
         ------
         AssertionError
-            If the command fails to execute on the specified address.
+            If the command fails to execute on the remote address.
         """
         try:
             self._client.connect(
@@ -102,22 +108,23 @@ class SshClient(ConnectionServiceInterface):
             self.__context.log(f"Successfully executed command '{command}' on '{self.__address}'.")
 
     def secure_copy(self, local_path: str, remote_path: str, direction: Direction = Direction.TO) -> None:
-        """
-        Copy a file to or from the specified address using SCP.
+        """Copy a file to or from the remote address using SCP.
 
         Parameters
         ----------
         local_path : str
-            The local file path.
+            Local file path.
         remote_path : str
-            The remote file path.
-        direction : Direction
-            The direction of the copy (Direction.TO or Direction.FROM).
+            Remote file path.
+        direction : Direction, optional
+            Direction of the copy (Direction.TO for local to remote, Direction.FROM for remote to local).
 
         Raises
         ------
         AssertionError
             If the SCP operation fails.
+        ValueError
+            If the direction argument is invalid.
         """
         try:
             self._client.connect(

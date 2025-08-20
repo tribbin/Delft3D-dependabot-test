@@ -11,7 +11,11 @@ from ci_tools.dimrset_delivery.settings.teamcity_settings import (
 
 @dataclass
 class ServiceRequirements:
-    """Dataclass for specifying which services are required."""
+    """
+    Specifies which services are required for DIMR automation.
+
+    This dataclass is used to indicate which external services are needed for a given automation run.
+    """
 
     atlassian: bool = True
     teamcity: bool = True
@@ -21,7 +25,11 @@ class ServiceRequirements:
 
 @dataclass
 class DimrCredentials:
-    """Dataclass for storing credentials for DIMR automation."""
+    """
+    Stores credentials for DIMR automation services.
+
+    This dataclass holds usernames and passwords for all supported external services.
+    """
 
     atlassian_username: Optional[str] = None
     atlassian_password: Optional[str] = None
@@ -34,7 +42,11 @@ class DimrCredentials:
 
 
 class DimrAutomationContext:
-    """Shared context for DIMR automation steps."""
+    """
+    Shared context for DIMR automation steps.
+
+    Provides access to credentials, requirements, settings, and cached data for automation scripts.
+    """
 
     def __init__(
         self,
@@ -43,18 +55,19 @@ class DimrAutomationContext:
         credentials: Optional[DimrCredentials] = None,
         requirements: Optional[ServiceRequirements] = None,
     ) -> None:
-        """Initialize DIMR Automation Context.
+        """
+        Initialize DIMR automation context.
 
         Parameters
         ----------
         build_id : str
-            The TeamCity build ID
+            The TeamCity build ID.
         dry_run : bool, optional
-            Whether to run in dry-run mode, by default False
+            Whether to run in dry-run mode. Default is False.
         credentials : Optional[DimrCredentials], optional
-            Credentials for various services, by default None
+            Credentials for various services. Default is None.
         requirements : Optional[ServiceRequirements], optional
-            Requirements for various services, by default None
+            Requirements for various services. Default is None.
         """
         self.build_id = build_id
         self.dry_run = dry_run
@@ -81,7 +94,16 @@ class DimrAutomationContext:
         self.branch_name: str = ""
 
     def log(self, *args: object, sep: str = " ") -> None:
-        """Print status message with dry-run prefix if applicable."""
+        """
+        Print status message with dry-run prefix if applicable.
+
+        Parameters
+        ----------
+        args : object
+            Objects to print.
+        sep : str, optional
+            Separator between objects. Default is a space.
+        """
         if self.dry_run:
             message = f"{self.settings.dry_run_prefix}{sep}{sep.join(str(arg) for arg in args)}"
             print(message)
@@ -89,7 +111,21 @@ class DimrAutomationContext:
             print(*args, sep=sep)
 
     def _prompt_for_credentials(self, credentials: DimrCredentials, requirements: ServiceRequirements) -> None:
-        """Prompt for any missing required credentials and validate presence after prompting."""
+        """
+        Prompt for any missing required credentials and validate presence after prompting.
+
+        Parameters
+        ----------
+        credentials : DimrCredentials
+            Credentials object to fill in.
+        requirements : ServiceRequirements
+            Service requirements to check.
+
+        Raises
+        ------
+        ValueError
+            If any required credentials are missing after prompting.
+        """
         if requirements.atlassian and (not credentials.atlassian_username or not credentials.atlassian_password):
             print("Atlassian/Confluence credentials:")
             credentials.atlassian_username = credentials.atlassian_username or input("Enter your Atlassian username:")
@@ -129,7 +165,14 @@ class DimrAutomationContext:
 
 
 def parse_common_arguments() -> argparse.Namespace:
-    """Parse common command line arguments for DIMR automation scripts."""
+    """
+    Parse common command line arguments for DIMR automation scripts.
+
+    Returns
+    -------
+    argparse.Namespace
+        Parsed command line arguments.
+    """
     parser = argparse.ArgumentParser(description="DIMR Automation Script")
 
     parser.add_argument("--build_id", type=str, required=True, help="Build ID chain for the DIMR release")
@@ -159,7 +202,27 @@ def create_context_from_args(
     require_teamcity: bool = True,
     require_ssh: bool = True,
 ) -> DimrAutomationContext:
-    """Create automation context from parsed arguments."""
+    """
+    Create automation context from parsed arguments.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command line arguments.
+    require_atlassian : bool, optional
+        Whether Atlassian credentials are required. Default is True.
+    require_git : bool, optional
+        Whether Git credentials are required. Default is True.
+    require_teamcity : bool, optional
+        Whether TeamCity credentials are required. Default is True.
+    require_ssh : bool, optional
+        Whether SSH credentials are required. Default is True.
+
+    Returns
+    -------
+    DimrAutomationContext
+        The constructed automation context.
+    """
     credentials = DimrCredentials(
         atlassian_username=args.atlassian_username,
         atlassian_password=args.atlassian_password,

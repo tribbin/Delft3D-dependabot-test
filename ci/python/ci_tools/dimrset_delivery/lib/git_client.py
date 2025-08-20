@@ -6,16 +6,18 @@ from ci_tools.dimrset_delivery.lib.connection_service_interface import Connectio
 
 
 class GitClient(ConnectionServiceInterface):
-    """Class responsible for tagging Git commits.
+    """Handles Git operations such as tagging commits and testing repository connections.
+
+    This client is used to interact with a Git repository, primarily for tagging commits and verifying connectivity.
 
     Parameters
     ----------
-    repo_url : str
-        URL of the Git repository.
     username : str
         Git username for authentication.
     password : str
         Git password for authentication.
+    context : DimrAutomationContext
+        Context object containing settings and logging utilities.
     """
 
     def __init__(
@@ -33,7 +35,7 @@ class GitClient(ConnectionServiceInterface):
             self.repo_url = context.settings.delft3d_git_repo
 
     def tag_commit(self, commit_hash: str, tag_name: str) -> None:
-        """Tags a specific commit with a given tag name and pushes the tag to the remote repository.
+        """Tag a commit and push the tag to the remote repository.
 
         Parameters
         ----------
@@ -41,6 +43,11 @@ class GitClient(ConnectionServiceInterface):
             Hash of the commit to be tagged.
         tag_name : str
             Name of the tag to be created.
+
+        Raises
+        ------
+        SystemExit
+            If tagging or pushing the tag fails.
         """
         try:
             # Create the tag locally
@@ -80,8 +87,7 @@ class GitClient(ConnectionServiceInterface):
             sys.exit(1)
 
     def test_connection(self, dry_run: bool) -> bool:
-        """
-        Tests the connection to the Git repository.
+        """Test the connection to the Git repository.
 
         Parameters
         ----------

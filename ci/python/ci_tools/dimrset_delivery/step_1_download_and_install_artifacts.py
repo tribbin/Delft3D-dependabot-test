@@ -20,19 +20,23 @@ class ArtifactInstaller(StepExecutorInterface):
     """
     Executes the step to download and install build artifacts on a Linux machine.
 
-    This class handles the process of retrieving artifacts from TeamCity,
-    deploying them to a remote system via SSH, and performing installation
-    tasks as part of the DIMR automation workflow.
+    This class retrieves artifacts from TeamCity, deploys them to a remote system via SSH,
+    and performs installation tasks as part of the DIMR automation workflow.
 
+    Parameters
+    ----------
+    context : DimrAutomationContext
+        The automation context containing configuration and state.
     services : Services
-        The collection of external service clients required for artifact
-        retrieval and deployment (e.g., TeamCity, SSH).
+        The collection of external service clients required for artifact retrieval and deployment (e.g., TeamCity, SSH).
+    remote_base_path : str, optional
+        Base path for DIMR installation on remote system.
+    installation_path : str, optional
+        Installation subdirectory (e.g., 'weekly', 'release').
 
-    Methods
-    -------
-    execute_step()
-        Downloads artifacts from TeamCity and installs them on the remote Linux machine.
-        Supports dry-run mode for testing without performing actual operations.
+    Usage
+    -----
+    Instantiate and call `execute_step()` to perform the artifact download and installation process.
     """
 
     def __init__(
@@ -43,15 +47,18 @@ class ArtifactInstaller(StepExecutorInterface):
         installation_path: str = "weekly",
     ) -> None:
         """
-        Create a new instance of ArtifactInstallHelper.
+        Initialize ArtifactInstaller.
 
-        Arguments:
-            teamcity (TeamCity): A reference to a TeamCity REST API wrapper.
-            ssh_client (SshClient): A wrapper for a SSH client.
-            dimr_version (str): The full DIMR version to download and install.
-            branch_name (str): The branch name for version control decisions.
-            remote_base_path (str): Base path for DIMR installation on remote system.
-            installation_path (str): Installation subdirectory (e.g., 'weekly', 'release').
+        Parameters
+        ----------
+        context : DimrAutomationContext
+            The automation context containing configuration and state.
+        services : Services
+            The collection of external service clients required for artifact retrieval and deployment.
+        remote_base_path : str, optional
+            Base path for DIMR installation on remote system.
+        installation_path : str, optional
+            Installation subdirectory (e.g., 'weekly', 'release').
         """
         self.context = context
         self.services = services
@@ -63,12 +70,18 @@ class ArtifactInstaller(StepExecutorInterface):
         self.__ssh_client = services.ssh
 
     def execute_step(self) -> bool:
-        """Download the artifacts and install them on Linux machine.
+        """
+        Download the artifacts and install them on the Linux machine.
 
-        Parameters
-        ----------
-        context : DimrAutomationContext
-            The automation context containing necessary clients and configuration.
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
+
+        Raises
+        ------
+        ValueError
+            If required clients are not initialized.
         """
         self.context.log("Downloading and installing artifacts...")
 
@@ -125,7 +138,14 @@ class ArtifactInstaller(StepExecutorInterface):
         self.__ssh_client.execute(command=command)
 
     def __build_ssh_installation_command(self) -> str:
-        """Build the SSH command for DIMR installation."""
+        """
+        Build the SSH command for DIMR installation.
+
+        Returns
+        -------
+        str
+            The SSH command string for installation.
+        """
         installation_full_path = f"{self.__remote_base_path}/{self.__installation_path}"
         version_path = f"{installation_full_path}/{self.__dimr_version}"
 
@@ -149,13 +169,17 @@ class ArtifactInstaller(StepExecutorInterface):
         """
         Download and unpack artifacts from a TeamCity build that match the specified artifact name key.
 
-        Args:
-            build_id (str): The ID of the TeamCity build to retrieve artifacts from.
-            artifact_name_key (str): Substring to filter artifact names for downloading.
+        Parameters
+        ----------
+        build_id : str
+            The ID of the TeamCity build to retrieve artifacts from.
+        artifact_name_key : str
+            Substring to filter artifact names for downloading.
 
-        Returns
-        -------
-            None
+        Raises
+        ------
+        ValueError
+            If artifact names cannot be retrieved.
         """
         if self.__teamcity is None:
             raise ValueError("TeamCity client is required but not initialized")
@@ -167,11 +191,14 @@ class ArtifactInstaller(StepExecutorInterface):
 
     def __download_and_unpack_dimr_artifacts(self, artifacts_to_download: List[str], build_id: str) -> None:
         """
-        Download the provided artifact names from the provided TeamCity build id.
+        Download the provided artifact names from the specified TeamCity build ID.
 
-        Args:
-            artifacts_to_download (List[str]): A list of artifact names to download.
-            build_id (str): The build id for the build to download the artifacts from.
+        Parameters
+        ----------
+        artifacts_to_download : List[str]
+            A list of artifact names to download.
+        build_id : str
+            The build ID for the build to download the artifacts from.
         """
         self.__ensure_version_directory_exists()
 
@@ -185,7 +212,21 @@ class ArtifactInstaller(StepExecutorInterface):
             os.makedirs(file_path)
 
     def __download_extract_and_deploy_artifact(self, artifact_name: str, build_id: str) -> None:
-        """Download, extract, and deploy a single artifact."""
+        """
+        Download, extract, and deploy a single artifact.
+
+        Parameters
+        ----------
+        artifact_name : str
+            The name of the artifact to download.
+        build_id : str
+            The build ID to download the artifact from.
+
+        Raises
+        ------
+        ValueError
+            If the artifact cannot be downloaded.
+        """
         if self.__teamcity is None:
             raise ValueError("TeamCity client is required but not initialized")
         if self.__ssh_client is None:
@@ -222,15 +263,15 @@ class ArtifactInstaller(StepExecutorInterface):
 
         Parameters
         ----------
-        archive_path: str
+        archive_path : str
             The path to the archive (tar or zip).
-        target_path: str
+        target_path : str
             The path to extract the archive to.
 
-        Notes
-        -----
-        - The function removes the Unix permission bits when on Windows, as the permission bits are not
-        supported on Windows.
+        Raises
+        ------
+        ValueError
+            If the archive format is unsupported.
         """
         # Map of file extensions to extraction methods
         extraction_methods = {
@@ -249,7 +290,16 @@ class ArtifactInstaller(StepExecutorInterface):
         raise ValueError(f"Unsupported archive format. Supported formats: {', '.join(supported_formats)}")
 
     def __extract_tar_archive(self, archive_path: str, target_path: str) -> None:
-        """Extract a tar.gz or tgz archive."""
+        """
+        Extract a tar.gz or tgz archive.
+
+        Parameters
+        ----------
+        archive_path : str
+            The path to the tar archive.
+        target_path : str
+            The path to extract the archive to.
+        """
         with tarfile.open(archive_path, "r:gz") as tar:
             for member in tar.getmembers():
                 # Strip the Unix permission bits when on Windows
@@ -258,7 +308,16 @@ class ArtifactInstaller(StepExecutorInterface):
                 tar.extract(member, path=target_path)
 
     def __extract_zip_archive(self, archive_path: str, target_path: str) -> None:
-        """Extract a zip archive."""
+        """
+        Extract a zip archive.
+
+        Parameters
+        ----------
+        archive_path : str
+            The path to the zip archive.
+        target_path : str
+            The path to extract the archive to.
+        """
         with zipfile.ZipFile(archive_path, "r") as zip_ref:
             zip_ref.extractall(target_path)
 

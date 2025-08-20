@@ -17,19 +17,11 @@ from ci_tools.dimrset_delivery.step_executer_interface import StepExecutorInterf
 
 class PreconditionsChecker(StepExecutorInterface):
     """
-    Checks that all required preconditions for the DIMR release process are met.
+    Checks required preconditions for the DIMR release process.
 
-    Attributes
-    ----------
-    context : DimrAutomationContext
-        The automation context containing necessary clients and configuration.
-    services : Services
-        The collection of service clients used for connectivity checks.
-
-    Methods
-    -------
-    execute_step() -> bool
-        Runs all precondition checks and returns True if all pass.
+    This class verifies that all necessary services, connections, and permissions are available
+    before running the DIMR automation. Instantiate with a context and services, then call
+    `execute_step()` to perform all checks.
     """
 
     def __init__(self, context: DimrAutomationContext, services: Services) -> None:
@@ -37,21 +29,15 @@ class PreconditionsChecker(StepExecutorInterface):
         self.services = services
 
     def execute_step(self) -> bool:
-        """Assert that all preconditions are met before the script is fully run.
+        """
+        Assert that all preconditions are met before running the DIMR release process.
 
-        This function performs comprehensive checks to ensure all required services,
-        connections, and permissions are available before executing the main automation.
+        Performs checks for service connectivity, network access, and permissions.
 
-        The checks include:
-        - API connectivity to TeamCity and Atlassian services
-        - Network drive access permissions
-        - SSH connectivity to Linux servers
-        - Git repository access
-
-        Parameters
-        ----------
-        context : DimrAutomationContext
-            The automation context containing necessary clients and configuration.
+        Returns
+        -------
+        bool
+            True if all preconditions are met, False otherwise.
 
         Raises
         ------
@@ -82,7 +68,8 @@ class PreconditionsChecker(StepExecutorInterface):
         return error_count == 0
 
     def __are_connections_ok(self) -> bool:
-        """Check connections for services.
+        """
+        Check connections for all required services.
 
         Raises
         ------
@@ -113,6 +100,22 @@ class PreconditionsChecker(StepExecutorInterface):
             return False
 
     def __check_connection(self, client: Optional[ConnectionServiceInterface], name: str) -> bool:
+        """
+        Check connection for a specific service client.
+
+        Parameters
+        ----------
+        client : Optional[ConnectionServiceInterface]
+            The service client to test.
+
+        name : str
+            The name of the service for logging.
+
+        Returns
+        -------
+        bool
+            True if connection is successful, False otherwise.
+        """
         if client is None:
             self.context.log(f"{name} client is required but not initialized")
             return False
@@ -124,7 +127,14 @@ class PreconditionsChecker(StepExecutorInterface):
         return True
 
     def __is_network_accessible(self) -> bool:
-        """Check read/write access to the network drive."""
+        """
+        Check read/write access to the network drive.
+
+        Returns
+        -------
+        bool
+            True if read and write access is available, False otherwise.
+        """
         self.context.log(f"Checking read/write access to {self.context.settings.network_base_path}...")
 
         if self.context.dry_run:

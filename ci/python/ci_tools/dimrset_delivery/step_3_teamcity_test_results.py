@@ -34,13 +34,25 @@ teamcity_test_results.py --help
 
 Output: Creates 'teamcity_test_results.txt' with detailed test results
 """
+"""
+Retrieve and summarize TeamCity test results for DIMR release builds.
+
+This script collects test results for dependent builds, filters relevant test builds, and generates a summary report
+with statistics and percentages. Output is written to 'teamcity_test_results.txt'.
+"""
 BASE_URL = "https://dpcbuild.deltares.nl"
 REST_API_URL = f"{BASE_URL}/httpAuth/app/rest"
 HEADER_FMT = "{:>12s} {:>8s} {:>8s} {:>8s} {:>8s} {:>8s} {:>8s}  ---  {:24s} (#{:s})"
 
 
 class FilteredList(Enum):
-    """Enum for filtering build types in TeamCity dependency chains."""
+    """
+    Enum for filtering build types in TeamCity dependency chains.
+
+    Usage
+    -----
+    Used to select relevant build types for test result aggregation.
+    """
 
     DIMRSET_AGGREGATED_RELEASE_RESULTS_LINUX = "Dimr_DimrCollectors_DIMRsetAggregatedReleaseResultsLinux"
     DIMRSET_AGGREGATED_RELEASE_RESULTS_WINDOWS = "Dimr_DimrCollectors_DIMRsetAggregatedReleaseResultsWindows"
@@ -49,7 +61,14 @@ class FilteredList(Enum):
 
 
 class ResultSummary:
-    """A class to store summary data for test results."""
+    """
+    Store summary data for test results.
+
+    Parameters
+    ----------
+    name : str
+        Name of the summary.
+    """
 
     def __init__(self, name: str) -> None:
         self.name = name
@@ -61,7 +80,8 @@ class ResultSummary:
 
 
 class ResultExecutiveSummary:
-    """A class to store data for test result summary.
+    """
+    Store executive summary data for test results.
 
     Parameters
     ----------
@@ -82,7 +102,8 @@ class ResultExecutiveSummary:
 
 
 class ExecutiveSummary:
-    """A class to store executive summary data for test results.
+    """
+    Store executive summary data for test results.
 
     Parameters
     ----------
@@ -99,24 +120,16 @@ class ExecutiveSummary:
 
 class TeamCityTestResultWriter(StepExecutorInterface):
     """
-    Executes the step to retrieve and write TeamCity test results for dependent builds.
+    Retrieve and write TeamCity test results for dependent builds.
 
-    This class interacts with the TeamCity service to:
-    - Retrieve the dependency chain of builds relevant for test results.
-    - Collect test results from each dependent build.
-    - Write detailed test results and an executive summary to an output file.
-    - Log progress and summary information to both file and context logger.
-    - Exit the script with the number of failed tests as the exit code.
+    This class interacts with TeamCity to collect, summarize, and log test results for dependent builds.
 
-    Args:
-        context (DimrAutomationContext): The automation context containing build information and logging.
-        services (Services): Service container providing access to TeamCity client and other services.
-
-    Methods
-    -------
-        execute_step() -> bool:
-            Executes the retrieval and writing of TeamCity test results.
-            Returns True if successful, otherwise exits with the number of failed tests.
+    Parameters
+    ----------
+    context : DimrAutomationContext
+        Automation context containing build information and logging.
+    services : Services
+        Service container providing access to TeamCity client and other services.
     """
 
     def __init__(self, context: DimrAutomationContext, services: Services) -> None:
@@ -127,21 +140,15 @@ class TeamCityTestResultWriter(StepExecutorInterface):
         """
         Retrieve and summarize TeamCity test results for dependent builds.
 
-        This method performs the following actions:
-        1. Validates the presence of TeamCity credentials.
-        2. Retrieves the dependency chain of relevant builds.
-        3. Collects test results for each dependent build.
-        4. Writes detailed test results and executive summary to an output file.
-        5. Logs progress and summary information.
-        6. Exits the script with the number of failed tests as the exit code.
-
         Returns
         -------
-            bool: This method does not return; it exits the process with the number of failed tests.
+        bool
+            True if all tests passed, False otherwise.
 
         Raises
         ------
-            SystemExit: If TeamCity credentials are missing or after processing test results.
+        SystemExit
+            If TeamCity credentials are missing or after processing test results.
         """
         start_time = datetime.now(timezone.utc)
 
@@ -204,12 +211,13 @@ class TeamCityTestResultWriter(StepExecutorInterface):
 
 
 def log_to_file(log_file: TextIOWrapper, *args: str) -> None:
-    """Write to a log file.
+    """
+    Write to a log file.
 
     Parameters
     ----------
     log_file : TextIOWrapper
-        The file it logs to.
+        The file to write to.
     *args
         Variable number of arguments to be written to the log file.
     """
@@ -217,7 +225,8 @@ def log_to_file(log_file: TextIOWrapper, *args: str) -> None:
 
 
 def log_executive_summary(log_file: TextIOWrapper, summarydata: ExecutiveSummary) -> None:
-    """Log executive summary to a file.
+    """
+    Log executive summary to a file.
 
     Parameters
     ----------
@@ -248,7 +257,8 @@ def log_executive_summary(log_file: TextIOWrapper, summarydata: ExecutiveSummary
 
 
 def log_result_list(log_file: TextIOWrapper, name: str, engines: List[ConfigurationTestResult]) -> None:
-    """Log engine list to a file.
+    """
+    Log engine list to a file.
 
     Parameters
     ----------
@@ -275,7 +285,8 @@ def log_result_list(log_file: TextIOWrapper, name: str, engines: List[Configurat
 
 
 def _get_sum_test_result(test_overview: List[ConfigurationTestResult]) -> ResultInfo:
-    """Get sum of the test results.
+    """
+    Get sum of the test results.
 
     Parameters
     ----------
@@ -284,7 +295,7 @@ def _get_sum_test_result(test_overview: List[ConfigurationTestResult]) -> Result
 
     Returns
     -------
-    TestResult
+    ResultInfo
         Data object with the aggregated sum of the tests.
     """
     sum_passed = 0
@@ -304,7 +315,8 @@ def _get_sum_test_result(test_overview: List[ConfigurationTestResult]) -> Result
 
 
 def _log_configuration_line(log_file: TextIOWrapper, line: ConfigurationTestResult) -> None:
-    """Log configuration line to a file.
+    """
+    Log configuration line to a file.
 
     Parameters
     ----------

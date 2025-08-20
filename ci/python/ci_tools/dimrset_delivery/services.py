@@ -8,7 +8,13 @@ from ci_tools.dimrset_delivery.lib.teamcity import TeamCity
 
 
 class Services:
-    """Dataclass for storing initialized service clients."""
+    """
+    Stores initialized service clients for automation tasks.
+
+    This class provides access to Atlassian, TeamCity, SSH, and Git clients
+    based on the requirements and credentials provided in the context.
+    Usage: Instantiate with a DimrAutomationContext to initialize required services.
+    """
 
     atlassian: Optional[Atlassian] = None
     teamcity: Optional[TeamCity] = None
@@ -16,7 +22,19 @@ class Services:
     git: Optional[GitClient] = None
 
     def __init__(self, context: DimrAutomationContext) -> None:
-        """Initialize services based on requirements."""
+        """
+        Initialize service clients based on context requirements.
+
+        Parameters
+        ----------
+        context : DimrAutomationContext
+            The context containing requirements and credentials for service initialization.
+
+        Raises
+        ------
+        ValueError
+            If required credentials for a service are missing.
+        """
         if context.requirements.atlassian:
             if not context.credentials.atlassian_username or not context.credentials.atlassian_password:
                 raise ValueError("Atlassian credentials are required but not provided")

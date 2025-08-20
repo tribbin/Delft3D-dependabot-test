@@ -1,7 +1,7 @@
 """
 Common utilities for DIMR automation scripts.
 
-Provides shared initialization and helper functions.
+Provides shared initialization and helper functions for DIMR automation.
 """
 
 import re
@@ -37,11 +37,15 @@ Total tests   :   1900
 
 
 class ResultTestBankParser:
-    """Object responsible for parsing a specific testbank result artifact."""
+    """
+    Parses a specific testbank result artifact.
+
+    Use this class to extract test statistics from DIMR testbank result strings.
+    """
 
     def __init__(self, testbank_result: str) -> None:
         """
-        Create a new instance of ResultTestBankParser.
+        Initialize the parser with a testbank result string.
 
         Parameters
         ----------
@@ -51,7 +55,14 @@ class ResultTestBankParser:
         self.testbank_result = testbank_result
 
     def get_percentage_total_passing(self) -> str:
-        """Get the total percentage of passing tests."""
+        """
+        Get the total percentage of passing tests.
+
+        Returns
+        -------
+        str
+            Percentage of passing tests as a string.
+        """
         start_index = self.testbank_result.find("Summary")
         substring = self.testbank_result[start_index:]  # get all text from "Summary" to end of file.
         matches = re.findall(r"Percentage\D*([0-9.]*)", substring)
@@ -59,13 +70,27 @@ class ResultTestBankParser:
         return percentage
 
     def get_total_tests(self) -> str:
-        """Get the total number of tests."""
+        """
+        Get the total number of tests.
+
+        Returns
+        -------
+        str
+            Total number of tests as a string.
+        """
         matches = re.findall(r"Total tests\D*([0-9.]*)", self.testbank_result)
         total_number: str = matches[0]
         return total_number
 
     def get_total_passing(self) -> str:
-        """Get the total number of passing tests."""
+        """
+        Get the total number of passing tests.
+
+        Returns
+        -------
+        str
+            Total number of passing tests as a string.
+        """
         start_index = self.testbank_result.find("Summary")
         substring = self.testbank_result[start_index:]  # get all text from "Summary" to end of file.
         matches = re.findall(r"Passed\D*([0-9.]*)", substring)
@@ -73,7 +98,14 @@ class ResultTestBankParser:
         return total_number
 
     def get_total_failing(self) -> str:
-        """Get the total number of failing tests."""
+        """
+        Get the total number of failing tests.
+
+        Returns
+        -------
+        str
+            Total number of failing tests as a string.
+        """
         start_index = self.testbank_result.find("Summary")
         substring = self.testbank_result[start_index:]  # get all text from "Summary" to end of file.
         matches = re.findall(r"Not passed\D*([0-9.]*)", substring)
@@ -81,14 +113,27 @@ class ResultTestBankParser:
         return total_number
 
     def get_total_exceptions(self) -> str:
-        """Get the total number of exceptions that occurred."""
+        """
+        Get the total number of exceptions that occurred.
+
+        Returns
+        -------
+        str
+            Total number of exceptions as a string.
+        """
         matches = re.findall(r"Exception\D*:\D*([0-9.]*)", self.testbank_result)
         total_number: str = matches[0]
         return total_number
 
 
 def get_testbank_result_parser(context: DimrAutomationContext) -> ResultTestBankParser:
-    """Get a new ResultTestBankParser for the latest test bench results from a local file.
+    """
+    Get a new ResultTestBankParser for the latest test bench results from a local file.
+
+    Parameters
+    ----------
+    context : DimrAutomationContext
+        The automation context containing configuration and state.
 
     Returns
     -------
@@ -107,17 +152,25 @@ def get_testbank_result_parser(context: DimrAutomationContext) -> ResultTestBank
 def get_previous_testbank_result_parser(
     context: DimrAutomationContext, services: Services
 ) -> Optional[ResultTestBankParser]:
-    """Get a new ResultTestBankParser for the previous versioned tagged test bench results.
+    """
+    Get a new ResultTestBankParser for the previous versioned tagged test bench results.
 
     Parameters
     ----------
     context : DimrAutomationContext
         The automation context containing necessary clients and configuration.
+    services : Services
+        Services object providing access to TeamCity and other APIs.
 
     Returns
     -------
     Optional[ResultTestBankParser]
         Parser for previous test results, or None if not found.
+
+    Raises
+    ------
+    ValueError
+        If TeamCity client is not initialized.
     """
     if context.dry_run:
         context.log("Create mock parsers with sensible default values for dry-run")
@@ -183,7 +236,8 @@ def get_previous_testbank_result_parser(
 
 
 def get_tag_from_build_info(current_build_info: dict) -> tuple:
-    """Extract tag information from build info.
+    """
+    Extract tag information from build info.
 
     Parameters
     ----------
@@ -207,7 +261,8 @@ def get_tag_from_build_info(current_build_info: dict) -> tuple:
 
 
 def parse_version(tag: str) -> Optional[tuple]:
-    """Parse version string from tag.
+    """
+    Parse version string from tag.
 
     Parameters
     ----------

@@ -16,20 +16,22 @@ from ci_tools.dimrset_delivery.step_executer_interface import StepExecutorInterf
 
 
 class WikiPublisher(StepExecutorInterface):
-    """Class responsible for updating the Deltares Public Wiki for a specific DIMR version."""
+    """
+    Updates the Deltares Public Wiki for a specific DIMR version.
+
+    This class handles the creation and update of wiki pages for DIMR releases.
+    """
 
     def __init__(self, context: DimrAutomationContext, services: Services) -> None:
         """
-        Create a new instance of WikiPublisher.
+        Initialize WikiPublisher.
 
         Parameters
         ----------
-        atlassian : Atlassian
-            A reference to a Atlassian Confluence REST API wrapper.
-        teamcity : TeamCity
-            A reference to a TeamCity REST API wrapper.
-        dimr_version : str
-            The version of DIMR to update the Public Wiki for.
+        context : DimrAutomationContext
+            Automation context containing configuration and version info.
+        services : Services
+            Service clients for Atlassian and TeamCity APIs.
         """
         self.__atlassian = services.atlassian
         self.__teamcity = services.teamcity
@@ -55,12 +57,13 @@ class WikiPublisher(StepExecutorInterface):
         self.__build_id = context.build_id
 
     def execute_step(self) -> bool:
-        """Update the Public Wiki.
+        """
+        Update the Public Wiki.
 
-        Parameters
-        ----------
-        context : DimrAutomationContext
-            The automation context containing necessary clients and configuration.
+        Returns
+        -------
+        bool
+            True if update succeeded, False otherwise.
         """
         self.__context.log("Updating public wiki...")
 
@@ -80,29 +83,26 @@ class WikiPublisher(StepExecutorInterface):
         return True
 
     def update_public_wiki(self) -> None:
-        """
-        Create and/or update the Public Wiki for a specific DIMR version.
-
-        Returns
-        -------
-        None
-        """
+        """Create and/or update the Public Wiki for the current DIMR version."""
         self.__context.log("Updating main wiki page...")
-        if not self.__context.dry_run:
+        main_page_id = None
+        if self.__context.dry_run:
+            main_page_id = "DUMMY_PAGE_ID"
+        else:
             main_page_id = self.__update_main_page()
 
         self.__context.log("Updating sub wiki page...")
-        if not self.__context.dry_run:
+        if main_page_id is not None:
             self.__update_sub_page(parent_page_id=main_page_id)
 
     def __update_main_page(self) -> str:
         """
-        Update the content of the main page for the given DIMR version.
+        Update the main wiki page for the current DIMR version.
 
         Returns
         -------
         str
-            The id of the updated page.
+            ID of the updated page.
         """
         content = self.__prepare_content_for_main_page()
         page_to_update_page_id = self.__get_main_page_id_for_page_to_update()
@@ -115,12 +115,12 @@ class WikiPublisher(StepExecutorInterface):
 
     def __prepare_content_for_main_page(self) -> str:
         """
-        Prepare the content that should be uploaded to the main page.
+        Prepare content for the main wiki page.
 
         Returns
         -------
         str
-            The content.
+            Content for the main page.
         """
         windows_version_artifact, linux_version_artifact = self.__get_version_artifacts()
         if windows_version_artifact is None:
@@ -142,7 +142,7 @@ class WikiPublisher(StepExecutorInterface):
         Returns
         -------
         Tuple[str, str]
-            A tuple containing the Windows and Linux artifacts respectively.
+            Tuple of Windows and Linux artifacts.
         """
         if self.__teamcity is None:
             raise ValueError("TeamCity client is required but not initialized")
@@ -170,19 +170,19 @@ class WikiPublisher(StepExecutorInterface):
 
     def __create_content_from_template(self, windows_version_artifact: str, linux_version_artifact: str) -> str:
         """
-        Create the content for the main DIMR page from a template file.
+        Create main page content from template.
 
         Parameters
         ----------
         windows_version_artifact : str
-            The Windows Version.txt artifact.
+            Windows Version.txt artifact.
         linux_version_artifact : str
-            The Linux Version.txt artifact.
+            Linux Version.txt artifact.
 
         Returns
         -------
         str
-            The content.
+            Page content.
         """
         current_dir = os.path.dirname(__file__)
         path_to_wiki_template = os.path.join(current_dir, self.__relative_path_to_wiki_template)
@@ -200,25 +200,12 @@ class WikiPublisher(StepExecutorInterface):
 
     def __get_main_page_id_for_page_to_update(self) -> str:
         """
-        Get the page id for the Public Wiki page we want to update.
-
-        This method first checks if there is a page for the current major version of DIMR on the root DIMR page.
-        If there is no such page, it will be created. (e.g. DIMRset 2)
-
-        It will then check if there is a page for the current major.minor version of DIMR under the major version page.
-        If there is no such page, it will be created. (e.g. DIMRset 2 -> DIMRset 2.13)
-
-        It will then check if there is a page for the current major.minor.patch version of DIMR under the major.minor
-        version page.
-        If there is no such page, it will be created. (e.g. DIMRset 2 -> DIMRset 2.13 -> DIMRset 2.13.03)
-
-        It will then return the page id for the major.minor.patch page. This is the page that should be updated
-        (so: the id of the DIMRset 2.13.03 page).
+        Get the page ID for the main wiki page to update.
 
         Returns
         -------
         str
-            The page id of the page to be updated.
+            Page ID to update.
         """
         dimr_major_version_page_id = self.__get_public_wiki_page_id(
             parent_page_id=self.__dimr_root_page_id,
@@ -242,14 +229,23 @@ class WikiPublisher(StepExecutorInterface):
 
     def __get_public_wiki_page_id(self, parent_page_id: str, dimr_version: str, prefix: str, suffix: str = "") -> str:
         """
-        Check if there is already a page for the specified DIMR version under the specified parent page.
+        Get or create wiki page for the specified DIMR version under the parent page.
 
-        If there is no such page, it will be created.
+        Parameters
+        ----------
+        parent_page_id : str
+            Parent page ID.
+        dimr_version : str
+            DIMR version string.
+        prefix : str
+            Page title prefix.
+        suffix : str, optional
+            Page title suffix.
 
         Returns
         -------
         str
-            The id for the page of the specified DIMR version.
+            Page ID for the specified DIMR version.
         """
         if self.__atlassian is None:
             raise ValueError("Atlassian client is required but not initialized")
@@ -283,20 +279,16 @@ class WikiPublisher(StepExecutorInterface):
 
     def __update_content_of_page(self, page_id: str, page_title: str, content: str) -> None:
         """
-        Update the page with the given page id on the Public Wiki with the given title and content.
+        Update the wiki page with the given ID, title, and content.
 
         Parameters
         ----------
         page_id : str
-            The id for the page to update.
+            Page ID to update.
         page_title : str
-            The title for the page to update.
+            Title for the page.
         content : str
-            The content for the page to update.
-
-        Returns
-        -------
-        None
+            Content for the page.
         """
         if self.__atlassian is None:
             raise ValueError("Atlassian client is required but not initialized")
@@ -309,16 +301,12 @@ class WikiPublisher(StepExecutorInterface):
 
     def __update_sub_page(self, parent_page_id: str) -> None:
         """
-        Update the sub page for the given DIMR version.
+        Update the sub wiki page for the current DIMR version.
 
         Parameters
         ----------
         parent_page_id : str
-            The id for the main page of the specified DIMR version.
-
-        Returns
-        -------
-        None
+            Main page ID for the specified DIMR version.
         """
         content = self.__prepare_content_for_sub_page()
 
@@ -333,12 +321,12 @@ class WikiPublisher(StepExecutorInterface):
 
     def __prepare_content_for_sub_page(self) -> str:
         """
-        Prepare the content that should be uploaded to the sub page.
+        Prepare content for the sub wiki page.
 
         Returns
         -------
         str
-            The content.
+            Content for the sub page.
         """
         with open(self.__path_to_release_test_results_artifact, "rb") as f:
             artifact = f.read()

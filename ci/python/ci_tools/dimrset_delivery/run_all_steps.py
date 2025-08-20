@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Master script to run all DIMR delivery steps in sequence."""
+"""
+Master script to run all DIMR delivery steps in sequence.
+
+This script discovers and executes all step scripts for the DIMR delivery pipeline.
+"""
 
 import importlib.util
 import inspect
@@ -19,7 +23,11 @@ from ci_tools.dimrset_delivery.services import Services
 
 
 class StepResult:
-    """Result of running a single step."""
+    """
+    Result of running a single step.
+
+    Stores the outcome, duration, and error information for a pipeline step.
+    """
 
     def __init__(
         self,
@@ -37,7 +45,11 @@ class StepResult:
 
 
 class DimrDeliveryPipeline:
-    """Master pipeline to run all DIMR delivery steps."""
+    """
+    Master pipeline to run all DIMR delivery steps.
+
+    Discovers, runs, and summarizes all step scripts for the DIMR delivery process.
+    """
 
     def __init__(self, context: DimrAutomationContext, services: Services) -> None:
         self.context = context
@@ -46,7 +58,14 @@ class DimrDeliveryPipeline:
         self.script_dir = Path(__file__).parent
 
     def run_all_steps(self) -> bool:
-        """Run all delivery steps in sequence using direct method calls."""
+        """
+        Run all delivery steps in sequence using direct method calls.
+
+        Returns
+        -------
+        bool
+            True if all steps succeed, False otherwise.
+        """
         start_time = datetime.now(timezone.utc)
         self.context.log(f"🚀 Starting DIMR delivery pipeline at {start_time}")
         self.context.log("=" * 60)
@@ -75,7 +94,26 @@ class DimrDeliveryPipeline:
         return True
 
     def _run_single_step_direct(self, step_name: str, file_path: Path) -> bool:
-        """Import step module and call StepExecutorInterface.execute_step directly."""
+        """
+        Import step module and call StepExecutorInterface.execute_step directly.
+
+        Parameters
+        ----------
+        step_name : str
+            Name of the step to run.
+        file_path : Path
+            Path to the step script file.
+
+        Returns
+        -------
+        bool
+            True if the step succeeds, False otherwise.
+
+        Raises
+        ------
+        Exception
+            If the step script cannot be loaded or executed.
+        """
         print(f"\n🚀 Starting {step_name}")
         step_start = time.time()
         module_name = file_path.stem
@@ -125,14 +163,15 @@ class DimrDeliveryPipeline:
             return False
 
     def _print_summary(self, start_time: datetime, failed_early: bool) -> None:
-        """Print execution summary.
+        """
+        Print execution summary.
 
         Parameters
         ----------
         start_time : datetime
-            When the pipeline started
+            When the pipeline started.
         failed_early : bool
-            Whether the pipeline failed before completing all steps
+            Whether the pipeline failed before completing all steps.
         """
         end_time = datetime.now(timezone.utc)
         total_duration = (end_time - start_time).total_seconds()

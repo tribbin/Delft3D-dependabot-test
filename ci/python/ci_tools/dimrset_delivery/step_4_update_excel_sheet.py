@@ -20,7 +20,12 @@ from ci_tools.dimrset_delivery.step_executer_interface import StepExecutorInterf
 
 
 class ExcelHelper(StepExecutorInterface):
-    """Object responsible for updating the Excel sheet."""
+    """
+    Object responsible for updating the Excel sheet.
+
+    This class updates the Excel sheet with release information for DIMR.
+    Usage: Instantiate with context and services, then call execute_step().
+    """
 
     def __init__(
         self,
@@ -28,14 +33,14 @@ class ExcelHelper(StepExecutorInterface):
         services: Services,
     ) -> None:
         """
-        Create a new instance of ExcelHelper.
+        Initialize ExcelHelper.
 
-        Args:
-            teamcity (TeamCity): A wrapper for the TeamCity REST API.
-            filepath (str): Path to the Excel file.
-            dimr_version (str): The DIMR version to update the Excel for.
-            kernel_versions (Dict[str, str]): A dictionary mapping kernel names to their version.
-            parser (ResultTestBankParser): A parser for the latest test bench results.
+        Parameters
+        ----------
+        context : DimrAutomationContext
+            The automation context containing configuration and clients.
+        services : Services
+            Service objects for SSH, TeamCity, etc.
         """
         self.__context = context
         self.__services = services
@@ -47,12 +52,13 @@ class ExcelHelper(StepExecutorInterface):
         self.__name_column = context.settings.name_column
 
     def execute_step(self) -> bool:
-        """Update the Excel sheet with this week's release information.
+        """
+        Update the Excel sheet with this week's release information.
 
-        Parameters
-        ----------
-        context : DimrAutomationContext
-            The automation context containing necessary clients and configuration.
+        Returns
+        -------
+        bool
+            True if the update was successful, False otherwise.
         """
         self.__context.log("Updating Excel sheet...")
 
@@ -112,7 +118,14 @@ class ExcelHelper(StepExecutorInterface):
                 workbook.close()
 
     def __prepare_row_to_insert(self) -> List[str]:
-        """Prepare a row to be inserted in the Excel sheet."""
+        """
+        Prepare a row to be inserted in the Excel sheet.
+
+        Returns
+        -------
+        List[str]
+            The row data to insert into the Excel sheet.
+        """
         row = []
 
         row.append("")  # Column A (empty column)
@@ -138,7 +151,15 @@ class ExcelHelper(StepExecutorInterface):
         """
         Check if the Excel sheet already contains a row for the given DIMRset.
 
-        Return True if the Excel sheet already contains such a row.
+        Parameters
+        ----------
+        worksheet : Worksheet
+            The worksheet to check for existing rows.
+
+        Returns
+        -------
+        bool
+            True if the row exists, False otherwise.
         """
         name_already_exists = False
 

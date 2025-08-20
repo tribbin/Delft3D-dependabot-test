@@ -102,8 +102,11 @@ class TestWikiPublisher:
         self.mock_context.dry_run = True
         self.mock_context.log = Mock()
 
-        # Act
-        self.public_wiki_helper.execute_step()
+        # Patch 'open' in the module where it's used to avoid FileNotFoundError
+        with patch("ci_tools.dimrset_delivery.step_6_update_public_wiki.open", create=True) as mock_open:
+            mock_open.return_value.__enter__.return_value.read.return_value = b""
+            # Act
+            self.public_wiki_helper.execute_step()
 
         # Assert
         self.mock_context.log.assert_has_calls(

@@ -10,27 +10,26 @@ from ci_tools.dimrset_delivery.lib.connection_service_interface import Connectio
 
 class Atlassian(ConnectionServiceInterface):
     """
-    Wrapper for the Atlassian Confluence REST API.
+    Atlassian Confluence REST API wrapper.
 
-    The Confluence REST API uses resource expansion: some parts of
-    a resource are not returned unless explicitly specified. This
-    simplifies responses and minimizes network traffic.
-
-    For more information about the Atlassian REST API, please see
-    the official Atlassian REST API docs at:
-    https://developer.atlassian.com/cloud/confluence/rest/intro/
+    Provides methods to interact with the Atlassian Confluence API, including page creation, update, and retrieval.
+    Usage:
+        client = Atlassian(username, password, context)
+        client.create_public_wiki_page(...)
     """
 
     def __init__(self, username: str, password: str, context: DimrAutomationContext) -> None:
         """
-        Instantiate a new Atlassian object.
+        Initialize Atlassian API client.
 
         Parameters
         ----------
         username : str
-            Your Deltares username.
+            Deltares username.
         password : str
-            Your Deltares password.
+            Deltares password.
+        context : DimrAutomationContext
+            Automation context for logging and configuration.
         """
         self.__auth = (username, password)
         self.__base_uri = "https://publicwiki.deltares.nl/"
@@ -40,15 +39,17 @@ class Atlassian(ConnectionServiceInterface):
 
     def test_connection(self, dry_run: bool) -> bool:
         """
-        Test if the the API connection can successfully be established.
+        Test API connection to Atlassian Confluence.
 
-        Uses the following Atlassian REST API endpoint:
-        /rest/api/content
+        Parameters
+        ----------
+        dry_run : bool
+            If True, simulate the request without making an actual API call.
 
         Returns
         -------
         bool
-            Returns True if a successful request can be made.
+            True if connection is successful, False otherwise.
         """
         self.__context.log(f"Checking connection to the Atlassian Confluence API with credentials: {self.__auth[0]}")
         endpoint = f"{self.__rest_uri}content"
@@ -73,26 +74,17 @@ class Atlassian(ConnectionServiceInterface):
 
     def get_page_info_for_parent_page(self, parent_page_id: str) -> Optional[Dict[str, Any]]:
         """
-        Get the page info for the given parent page.
-
-        Uses the following Atlassian REST API endpoint:
-        /rest/api/content/<advanced_search>
+        Get page information for a given parent page.
 
         Parameters
         ----------
         parent_page_id : str
-            The id of the parent page.
+            ID of the parent page.
 
         Returns
         -------
-        Dict[str, Any] | None
-            A dictionary with various keys. The "results" key
-            contains an array of dictionaries with child page info.
-
-            For more information, please see the official Atlassian Confluence
-            REST API docs.
-
-            Returns None if the request failed.
+        Optional[Dict[str, Any]]
+            Dictionary with page info if successful, None otherwise.
         """
         endpoint = f"{self.__rest_uri}content/search?cql=parent={parent_page_id}"
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth, verify=False)
@@ -109,26 +101,21 @@ class Atlassian(ConnectionServiceInterface):
         """
         Create a new page on the Public Wiki.
 
-        Uses the following Atlassian REST API endpoint:
-        /rest/api/content
-
         Parameters
         ----------
         page_title : str
-            The title for the page.
+            Title for the new page.
         space_id : str
-            The id for the space the page is in.
+            Space key for the page.
         ancestor_id : str
-            The id for the parent page.
-        body : str
-            The content that should be placed on the new page. Defaults to an empty page.
+            ID of the parent page.
+        body : str, optional
+            Content for the new page. Defaults to empty string.
 
         Returns
         -------
-        str | None
-            The id for the newly created page.
-
-            Returns None if the request failed.
+        Optional[str]
+            ID of the newly created page if successful, None otherwise.
         """
         payload = json.dumps(
             {
@@ -156,26 +143,23 @@ class Atlassian(ConnectionServiceInterface):
 
     def update_page(self, page_id: str, page_title: str, content: str, next_version: Optional[int] = None) -> bool:
         """
-        Update a page on the Public Wiki.
-
-        Uses the following Atlassian REST API endpoint:
-        /rest/api/content/<page_id>
+        Update an existing page on the Public Wiki.
 
         Parameters
         ----------
         page_id : str
-            The id of the page to update.
+            ID of the page to update.
         page_title : str
-            The title to set for the page.
+            New title for the page.
         content : str
-            The content to set on the page.
-        next_version : int, optional
-            The next version number for the page. Defaults to None.
+            New content for the page.
+        next_version : Optional[int]
+            Next version number. If None, will auto-increment.
 
         Returns
         -------
         bool
-            Returns true if the page was successfully updated.
+            True if the page was updated successfully, False otherwise.
         """
         if next_version is None:
             current_version = self.__get_page_version(page_id)
@@ -208,20 +192,17 @@ class Atlassian(ConnectionServiceInterface):
 
     def __get_page_version(self, page_id: str) -> Optional[int]:
         """
-        Get the current version of a page.
-
-        Uses the following Atlassian REST API endpoint:
-        /rest/api/content/<page_id>
+        Get the current version number of a page.
 
         Parameters
         ----------
         page_id : str
-            The id of the page to update.
+            ID of the page.
 
         Returns
         -------
-        int | None
-            The current version of the page.
+        Optional[int]
+            Current version number if successful, None otherwise.
         """
         endpoint = f"{self.__rest_uri}content/{page_id}"
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth, verify=False)

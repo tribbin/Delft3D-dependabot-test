@@ -14,24 +14,31 @@ from ci_tools.dimrset_delivery.step_executer_interface import StepExecutorInterf
 
 class PinAndTagger(StepExecutorInterface):
     """
-    Executes the step to pin and tag builds in TeamCity and Git.
+    Executes pinning and tagging of builds in TeamCity and Git.
 
-    This class handles the process of retrieving artifacts from TeamCity,
-    deploying them to a remote system via SSH, and performing installation
-    tasks as part of the DIMR automation workflow.
+    This class retrieves artifacts from TeamCity, deploys them via SSH, and performs installation tasks as part of the DIMR automation workflow.
 
+    Parameters
+    ----------
     services : Services
-        The collection of external service clients required for artifact
-        retrieval and deployment (e.g., TeamCity, SSH).
+        Collection of external service clients for artifact retrieval and deployment (e.g., TeamCity, SSH).
 
-    Methods
-    -------
-    execute_step()
-        Downloads artifacts from TeamCity and installs them on the remote Linux machine.
-        Supports dry-run mode for testing without performing actual operations.
+    Usage
+    -----
+    Instantiate with a context and services, then call `execute_step()` to perform the pin and tag operation.
     """
 
     def __init__(self, context: DimrAutomationContext, services: Services) -> None:
+        """
+        Initialize the PinAndTagger.
+
+        Parameters
+        ----------
+        context : DimrAutomationContext
+            The automation context containing configuration and state.
+        services : Services
+            External service clients for TeamCity and Git operations.
+        """
         self.__context = context
         self.__dry_run = context.dry_run
         self.__kernel_versions = context.kernel_versions
@@ -46,14 +53,17 @@ class PinAndTagger(StepExecutorInterface):
         """
         Execute the step to pin and tag builds in TeamCity and Git.
 
-        This method logs the process, checks for required clients (TeamCity and Git),
-        and performs the pinning and tagging operations. If running in dry-run mode,
-        it logs the actions that would be taken without making changes. On success,
-        it logs completion and returns True. On failure, it logs the error and returns False.
+        This method logs the process, checks for required clients, and performs the pinning and tagging operations. In dry-run mode, it logs intended actions without making changes.
 
         Returns
         -------
-            bool: True if the step completed successfully, False otherwise.
+        bool
+            True if the step completed successfully, False otherwise.
+
+        Raises
+        ------
+        Exception
+            If an unexpected error occurs during the process.
         """
         self.__context.log("Pinning and tagging builds...")
 
@@ -83,7 +93,14 @@ class PinAndTagger(StepExecutorInterface):
             return False
 
     def __pin_and_tag_builds_teamcity(self) -> None:
-        """Tag all builds and pin the appropriate builds in TeamCity."""
+        """
+        Tag all builds and pin the appropriate builds in TeamCity.
+
+        Raises
+        ------
+        ValueError
+            If the TeamCity client is not initialized.
+        """
         if self.__teamcity is None:
             raise ValueError("TeamCity client is required but not initialized")
 

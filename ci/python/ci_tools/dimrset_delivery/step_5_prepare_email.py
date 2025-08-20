@@ -19,7 +19,12 @@ from ci_tools.dimrset_delivery.step_executer_interface import StepExecutorInterf
 
 
 class EmailHelper(StepExecutorInterface):
-    """Class responsible for preparing the weekly DIMR release email."""
+    """
+    Prepares the weekly DIMR release email.
+
+    This class generates an HTML email template for DIMRset releases, including kernel versions,
+    test results, and exception summaries. Use `execute_step` to perform the preparation.
+    """
 
     # Constants
     DIMR_SET_VERSION_KEY = "DIMRset_ver"
@@ -31,13 +36,14 @@ class EmailHelper(StepExecutorInterface):
         services: Services,
     ) -> None:
         """
-        Create a new instance of EmailHelper.
+        Initialize EmailHelper.
 
-        Args:
-            dimr_version (str): The latest DIMR version.
-            kernel_versions (Dict[str, str]): A dictionary mapping kernel names to their version.
-            current_parser (ResultTestBankParser): A parser for the latest test bench results.
-            previous_parser (Optional[ResultTestBankParser]): A parser for the previous test bench results.
+        Parameters
+        ----------
+        context : DimrAutomationContext
+            The automation context containing configuration and clients.
+        services : Services
+            Service manager for external dependencies.
         """
         self.__context = context
         self.__settings = context.settings
@@ -48,12 +54,13 @@ class EmailHelper(StepExecutorInterface):
         self.__template = ""
 
     def execute_step(self) -> bool:
-        """Prepare a mail template for the release notification.
+        """
+        Prepare the mail template for the release notification.
 
-        Parameters
-        ----------
-        context : DimrAutomationContext
-            The automation context containing necessary clients and configuration.
+        Returns
+        -------
+        bool
+            True if the template was prepared successfully.
         """
         self.__context.log("Preparing email template...")
 
@@ -63,14 +70,14 @@ class EmailHelper(StepExecutorInterface):
         return True
 
     def __generate_template(self) -> None:
-        """Generate a template email for the latest DIMR release that can be copy/pasted into Outlook."""
+        """Generate the email template for the latest DIMR release."""
         self.__load_template()
         self.__insert_summary_table_header()
         self.__insert_summary_table()
         self.__save_template()
 
     def __load_template(self) -> None:
-        """Load the template into memory."""
+        """Load the email template into memory."""
         current_dir = os.path.dirname(__file__)
         path_to_email_template = os.path.join(current_dir, self.__settings.relative_path_to_email_template)
 
@@ -87,24 +94,32 @@ class EmailHelper(StepExecutorInterface):
         self.__template = html
 
     def __generate_wiki_link(self) -> str:
-        """Generate a link to the public wiki for the DIMR version."""
-        link = f"https://publicwiki.deltares.nl/display/PROJ/DIMRset+release+{self.__dimr_version}"
-        return f'<a href="{link}">{link}</a>'
-
-    def __create_status_span(self, value: str, is_percentage: bool = False) -> str:
-        """Create a span with success or fail class based on value.
-
-        Parameters
-        ----------
-        value : str
-            The value to display
-        is_percentage : bool
-            Whether the value is a percentage that should be compared to threshold
+        """
+        Generate a link to the public wiki for the DIMR version.
 
         Returns
         -------
         str
-            HTML span element with appropriate CSS class
+            HTML anchor element linking to the public wiki.
+        """
+        link = f"https://publicwiki.deltares.nl/display/PROJ/DIMRset+release+{self.__dimr_version}"
+        return f'<a href="{link}">{link}</a>'
+
+    def __create_status_span(self, value: str, is_percentage: bool = False) -> str:
+        """
+        Create a span with success or fail class based on value.
+
+        Parameters
+        ----------
+        value : str
+            The value to display.
+        is_percentage : bool
+            Whether the value is a percentage to compare to threshold.
+
+        Returns
+        -------
+        str
+            HTML span element with appropriate CSS class.
         """
         suffix = "%" if is_percentage else ""
 
@@ -123,7 +138,14 @@ class EmailHelper(StepExecutorInterface):
         self.__template = self.__template.replace("@@@SUMMARY_TABLE_BODY@@@", html)
 
     def __generate_summary_table_html(self) -> str:
-        """Dynamically generates the summary table based on the kernels expected to be present."""
+        """
+        Generate the summary table HTML for the email.
+
+        Returns
+        -------
+        str
+            HTML string for the summary table.
+        """
         html_parts = []
 
         # Add kernel information rows
@@ -138,7 +160,14 @@ class EmailHelper(StepExecutorInterface):
         return "".join(html_parts)
 
     def __generate_kernel_rows(self) -> list[str]:
-        """Generate HTML rows for kernel information."""
+        """
+        Generate HTML rows for kernel information.
+
+        Returns
+        -------
+        list of str
+            List of HTML table row strings for kernels.
+        """
         rows = []
         for kernel, revision in self.__kernel_versions.items():
             if kernel == self.DIMR_SET_VERSION_KEY:
@@ -150,7 +179,14 @@ class EmailHelper(StepExecutorInterface):
         return rows
 
     def __generate_test_results_row(self) -> str:
-        """Generate HTML row for test results with comparison to previous results."""
+        """
+        Generate HTML row for test results with comparison to previous results.
+
+        Returns
+        -------
+        str
+            HTML table row for test results.
+        """
         passing_percentage = self.__current_parser.get_percentage_total_passing()
         status_span = self.__create_status_span(passing_percentage, is_percentage=True)
 
@@ -165,7 +201,14 @@ class EmailHelper(StepExecutorInterface):
         return "".join(row_parts)
 
     def __generate_previous_test_comparison(self) -> list[str]:
-        """Generate HTML for test results comparison with previous results."""
+        """
+        Generate HTML for test results comparison with previous results.
+
+        Returns
+        -------
+        list of str
+            List of HTML strings for previous test comparison.
+        """
         assert self.__previous_parser is not None, "Previous parser must not be None"
 
         previous_percentage = self.__previous_parser.get_percentage_total_passing()
@@ -180,7 +223,19 @@ class EmailHelper(StepExecutorInterface):
         ]
 
     def __generate_current_test_info_only(self, passing_percentage: str) -> list[str]:
-        """Generate HTML for current test info when no previous results available."""
+        """
+        Generate HTML for current test info when no previous results are available.
+
+        Parameters
+        ----------
+        passing_percentage : str
+            Percentage of passing tests.
+
+        Returns
+        -------
+        list of str
+            List of HTML strings for current test info.
+        """
         success_span = self.__create_status_span(passing_percentage, is_percentage=True)
 
         return [
@@ -190,7 +245,14 @@ class EmailHelper(StepExecutorInterface):
         ]
 
     def __generate_exceptions_row(self) -> str:
-        """Generate HTML row for exceptions/crashes information."""
+        """
+        Generate HTML row for exceptions/crashes information.
+
+        Returns
+        -------
+        str
+            HTML table row for exceptions/crashes.
+        """
         total_exceptions = self.__current_parser.get_total_exceptions()
         status_span = self.__create_status_span(total_exceptions, is_percentage=False)
 
@@ -207,7 +269,19 @@ class EmailHelper(StepExecutorInterface):
         return "".join(row_parts)
 
     def __get_email_friendly_kernel_name(self, kernel: str) -> str:
-        """Get the email friendly kernel name for a given kernel."""
+        """
+        Get the email-friendly kernel name for a given kernel.
+
+        Parameters
+        ----------
+        kernel : str
+            Kernel identifier.
+
+        Returns
+        -------
+        str
+            Kernel name formatted for email.
+        """
         kernel_name = ""
         for kernel_config in KERNELS:
             if kernel_config.name_for_extracting_revision == kernel:

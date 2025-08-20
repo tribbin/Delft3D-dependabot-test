@@ -15,19 +15,8 @@ class TeamCity(ConnectionServiceInterface):
     """
     Wrapper for the TeamCity REST API.
 
-    TeamCity uses build type ids (Build configuration IDs) to identify builds.
-    The build type id can be found in the Configuration Settings of a build.
-
-    Each build type id has a list of builds. These are the builds that run
-    after each commit or on a specific schedule, for example.
-
-    Each build has a build number and a unique build id. The build number
-    can be found in the list of builds in the GUI. The build id can be
-    found in the URL when you click a specific build number.
-
-    For more information about the TeamCity REST API, please see the official
-    TeamCity REST API docs at:
-    https://www.jetbrains.com/help/teamcity/rest-api.html
+    Provides methods to interact with TeamCity builds, artifacts, tags, and test results.
+    Usage: Instantiate with credentials and context, then call API methods.
     """
 
     def __init__(self, username: str, password: str, context: DimrAutomationContext) -> None:
@@ -37,9 +26,11 @@ class TeamCity(ConnectionServiceInterface):
         Parameters
         ----------
         username : str
-            Your Deltares username.
+            Deltares username.
         password : str
-            Your Deltares password.
+            Deltares password.
+        context : DimrAutomationContext
+            Automation context for logging and configuration.
         """
         self.__auth = (username, password)
         self.__base_uri = "https://dpcbuild.deltares.nl/"
@@ -52,10 +43,7 @@ class TeamCity(ConnectionServiceInterface):
 
     def test_connection(self, dry_run: bool) -> bool:
         """
-        Test if the the API connection can successfully be established.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/agents
+        Test if the API connection can be established.
 
         Parameters
         ----------
@@ -92,38 +80,33 @@ class TeamCity(ConnectionServiceInterface):
         pinned: str = "any",
     ) -> Optional[Dict[str, Any]]:
         """
-        Get builds for the given build type id.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/builds?<buildLocator>
+        Get builds for the given build configuration ID.
 
         Parameters
         ----------
         build_configuration_id : str
-            The build configuration id.
+            Build configuration ID.
         limit : int, optional
-            The maximum number of builds you want to get. Defaults to 10.
+            Maximum number of builds to retrieve. Defaults to 10.
         include_failed_builds : bool, optional
-            Specifies whether to include builds that have failed. Defaults to False.
+            Whether to include failed builds. Defaults to False.
         pinned : str, optional
-            Specifies whether to get only pinned build, builds that are not pinned, or both.
-            Possible values are: "true", "false" or "any". Defaults to "any".
+            Filter for pinned builds ("true", "false", "any"). Defaults to "any".
 
         Returns
         -------
-        Dict[str, Any]
-            A dictionary with a variety of keys. The 'build' key
-            contains a list of builds for the given build type id.
+        Optional[Dict[str, Any]]
+            Dictionary containing build information, or None if request failed.
 
-            For more information, please see the official TeamCity REST API docs.
-
-            Returns None if the request failed.
+        Raises
+        ------
+        SystemExit
+            If the request fails.
         """
         pinned_locator = ""
         if pinned == "true" or pinned == "false":
             pinned_locator = f",pinned:{pinned}"
 
-        # Add status filter for failed builds if needed
         status_locator = ""
         if not include_failed_builds:
             status_locator = ",status:SUCCESS"
@@ -143,26 +126,22 @@ class TeamCity(ConnectionServiceInterface):
 
     def get_build_info_for_build_id(self, build_id: str) -> Optional[Dict[str, Any]]:
         """
-        Get the build info for a specific build.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/builds/<buildLocator>
+        Get build info for a specific build.
 
         Parameters
         ----------
         build_id : str
-            The build id of a specific build.
+            Build ID.
 
         Returns
         -------
         Optional[Dict[str, Any]]
-            A dictionary with a variety of keys. This includes
-            information about the configuration parameters, artifact dependencies
-            and the agent the build has run on.
+            Dictionary with build information, or None if request failed.
 
-            For more information, please see the official TeamCity REST API docs.
-
-            Returns None if the request failed.
+        Raises
+        ------
+        SystemExit
+            If the request fails.
         """
         endpoint = (
             f"{self.__rest_uri}builds/id:{build_id}?"
@@ -178,26 +157,17 @@ class TeamCity(ConnectionServiceInterface):
 
     def get_full_build_info_for_build_id(self, build_id: str) -> Optional[Dict[str, Any]]:
         """
-        Get the build info for a specific build.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/builds/<buildLocator>
+        Get full build info for a specific build.
 
         Parameters
         ----------
         build_id : str
-            The build id of a specific build.
+            Build ID.
 
         Returns
         -------
         Optional[Dict[str, Any]]
-            A dictionary with a variety of keys. This includes
-            information about the configuration parameters, artifact dependencies
-            and the agent the build has run on.
-
-            For more information, please see the official TeamCity REST API docs.
-
-            Returns None if the request failed.
+            Dictionary with full build information, or None if request failed.
         """
         endpoint = f"{self.__rest_uri}builds/id:{build_id}"
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
@@ -210,28 +180,22 @@ class TeamCity(ConnectionServiceInterface):
 
     def get_build_artifact_names(self, build_id: str) -> Optional[Dict[str, Any]]:
         """
-        Get the names of the artifact files and folders.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/builds/<buildLocator>/artifacts/children
+        Get names of artifact files and folders for a build.
 
         Parameters
         ----------
         build_id : str
-            The build id for a specific build.
+            Build ID.
 
         Returns
         -------
         Optional[Dict[str, Any]]
-            A dictionary with a variety of keys. This includes
-            a 'count' key specifying the number of files/folders, and a
-            'files' key. The 'files' key is another dictionary that contains
-            several more keys, including a 'name' key that specifies the name
-            of the file/folder.
+            Dictionary with artifact names, or None if request failed.
 
-            For more information, please see the official TeamCity REST API docs.
-
-            Returns None if the request failed.
+        Raises
+        ------
+        SystemExit
+            If the request fails.
         """
         endpoint = f"{self.__rest_uri}builds/buildId:{build_id}/artifacts/children"
         headers = self.__get_put_request_headers()
@@ -245,26 +209,24 @@ class TeamCity(ConnectionServiceInterface):
 
     def get_build_artifact(self, build_id: str, path_to_artifact: str) -> Optional[bytes]:
         """
-        Get a specific artifact for a specific build.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/builds/<buildLocator>/artifacts/contents/<path>
+        Get a specific artifact for a build.
 
         Parameters
         ----------
         build_id : str
-            The build id for a specific build.
+            Build ID.
         path_to_artifact : str
-            The path to the artifact. The path
-            can span into the archive content, for example:
-            dir/path/archive.zip!/path_within_archive
+            Path to the artifact, including archive paths if needed.
 
         Returns
         -------
         Optional[bytes]
-            Returns the file.
-            Returns None if the request failed or the specified file
-            could not be found.
+            File content, or None if request failed.
+
+        Raises
+        ------
+        SystemExit
+            If the request fails.
         """
         endpoint = f"{self.__rest_uri}builds/buildId:{build_id}/artifacts/content/{path_to_artifact}"
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
@@ -278,18 +240,15 @@ class TeamCity(ConnectionServiceInterface):
         """
         Pin a specific build.
 
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/builds/<buildLocator>/pin
-
         Parameters
         ----------
         build_id : str
-            The build id for a specific build.
+            Build ID.
 
         Returns
         -------
         bool
-            True if the build was successfully pinned.
+            True if the build was successfully pinned, False otherwise.
         """
         endpoint = f"{self.__rest_uri}builds/buildId:{build_id}/pin"
         headers = self.__get_put_request_headers(content_type="text/plain")
@@ -302,23 +261,24 @@ class TeamCity(ConnectionServiceInterface):
 
     def add_tag_to_build_with_dependencies(self, build_id: str, tag: str) -> bool:
         """
-        Add the specified tag to the specified build and its dependencies.
-
-        Uses the following TeamCity REST API endpoints:
-        /app/rest/builds/<buildLocator>/tag
-        /app/rest/builds/multiple/snapshotDependency:(to:(id:<build_id>)),count:1000/tags
+        Add a tag to a build and its dependencies.
 
         Parameters
         ----------
         build_id : str
-            The build id for a specific build.
+            Build ID.
         tag : str
-            The tag to add.
+            Tag to add.
 
         Returns
         -------
         bool
-            True if the tags were successfully added to the specified build.
+            True if tags were successfully added.
+
+        Raises
+        ------
+        SystemExit
+            If the request fails.
         """
         endpoint = f"{self.__rest_uri}builds/buildId:{build_id}/tags"
         headers = {
@@ -349,30 +309,29 @@ class TeamCity(ConnectionServiceInterface):
 
     def get_dependent_build_ids_with_filter(self, build_id: str, filtered_ids: List[str]) -> List[str]:
         """
-        Get a list of build IDs for builds related to a specific build, filtered by buildTypeIds from the provided list.
-
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/builds?locator=defaultFilter:false,snapshotDependency(to:(id:<build_id>)),count:1000&fields=build(id,buildTypeId)
+        Get build IDs for builds related to a specific build, filtered by buildTypeIds.
 
         Parameters
         ----------
         build_id : str
-            The ID of the build to filter related builds.
+            Build ID to filter related builds.
         filtered_ids : List[str]
-            The list of TeamCity build type IDs to filter by.
+            List of TeamCity build type IDs to filter by.
 
         Returns
         -------
         List[str]
-            A list of build IDs for builds matching the snapshot dependency
-            and whose buildTypeId is in the provided list.
-            Returns an empty list if the request failed or no matching builds are found.
+            List of build IDs matching the filter.
+
+        Raises
+        ------
+        SystemExit
+            If the request fails.
         """
         if self.__context.dry_run:
             self.__context.log(f"Would get dependency chain for build {self.__context.build_id}")
             if filtered_ids:
                 self.__context.log(f"Would filter by build types: {filtered_ids}")
-            # Return mock dependency chain for dry run
             return ["123456", "123457", "123458"]
 
         build_type_ids = filtered_ids
@@ -398,21 +357,17 @@ class TeamCity(ConnectionServiceInterface):
         """
         Get the build ID of a specific dependent build type for a given build.
 
-        Uses the following TeamCity REST API endpoint:
-        /app/rest/builds?locator=defaultFilter:false,snapshotDependency(to:(id:<build_id>)),count:1000&fields=build(id,buildTypeId)
-
         Parameters
         ----------
         build_id : str
-            The build id for a specific build.
+            Build ID.
         dependent_build_type : str
-            The build type ID of the dependent build to find.
+            Build type ID of the dependent build.
 
         Returns
         -------
         Optional[int]
-            The build ID of the dependent build that matches the specified build type.
-            Returns None if the request failed or no matching dependent build is found.
+            Build ID of the dependent build, or None if not found.
         """
         endpoint = (
             f"{self.__rest_uri}builds?locator=defaultFilter:false,"
@@ -433,23 +388,20 @@ class TeamCity(ConnectionServiceInterface):
 
     def get_build_test_results_from_teamcity(self, build_id: str) -> Optional[ConfigurationTestResult]:
         """
-        Fetch test results for a given build ID using the TeamCity client.
+        Fetch test results for a given build ID.
 
         Parameters
         ----------
-        context : DimrAutomationContext
-            The automation context containing TeamCity client and build configuration.
         build_id : str
-            The build ID to retrieve results for.
+            Build ID to retrieve results for.
 
         Returns
         -------
         Optional[ConfigurationTestResult]
-            An object containing the parsed test results for the build, or None if no test results.
+            Parsed test results for the build, or None if no test results.
         """
         if self.__context.dry_run:
             self.__context.log(f"Would get test results for build {build_id}")
-            # Return mock test result for dry run
             return ConfigurationTestResult(
                 name=f"{self.__context.settings.dry_run_prefix} Test Configuration / Build {build_id}",
                 build_nr=str(build_id),
@@ -464,16 +416,13 @@ class TeamCity(ConnectionServiceInterface):
         if not build_info:
             return None
 
-        # Check if there are test results
         test_occurrences = build_info.get("testOccurrences", {})
         if not test_occurrences or int(test_occurrences.get("count", "0")) == 0:
             return None
 
-        # Extract build information
         build_nr = build_info.get("number", "Unknown build number")
         status_text = build_info.get("status", "No status available")
 
-        # Build up config_name including parent project(s)
         config_name = "Unknown config"
         parent = "Unknown parent"
         build_type = build_info.get("buildType", {})
@@ -482,7 +431,6 @@ class TeamCity(ConnectionServiceInterface):
             parent = build_type.get("projectName", "Unknown parent")
         config_name = f"{parent} / {config_name}"
 
-        # Extract test counts
         passed = int(test_occurrences.get("passed", "0"))
         failed = int(test_occurrences.get("failed", "0"))
         ignored = int(test_occurrences.get("ignored", "0"))
@@ -499,12 +447,18 @@ class TeamCity(ConnectionServiceInterface):
         )
 
     def get_kernel_versions_from_context(self) -> Dict[str, str]:
-        """Get kernel versions (cached).
+        """
+        Get kernel versions from context.
 
         Returns
         -------
         Dict[str, str]
             Dictionary mapping kernel names to their versions.
+
+        Raises
+        ------
+        ValueError
+            If build info cannot be retrieved.
         """
         if self.__context.dry_run:
             self.__context.log(
@@ -522,12 +476,13 @@ class TeamCity(ConnectionServiceInterface):
         return kernel_versions
 
     def get_dimr_version_from_context(self) -> str:
-        """Get DIMR version.
+        """
+        Get DIMR version from context.
 
         Returns
         -------
         str
-            The DIMR version string.
+            DIMR version string.
 
         Raises
         ------
@@ -545,12 +500,13 @@ class TeamCity(ConnectionServiceInterface):
         return dimr_version
 
     def get_branch_name_from_context(self) -> str:
-        """Get branch name (cached).
+        """
+        Get branch name from context.
 
         Returns
         -------
         str
-            The branch name.
+            Branch name.
 
         Raises
         ------
@@ -590,7 +546,7 @@ class TeamCity(ConnectionServiceInterface):
         self, content_type: str = "application/json", accept: str = "application/json"
     ) -> Dict[str, str]:
         """
-        Create the headers required for making PUT requests.
+        Create headers for PUT requests.
 
         Parameters
         ----------
@@ -602,7 +558,7 @@ class TeamCity(ConnectionServiceInterface):
         Returns
         -------
         Dict[str, str]
-            The headers required for making PUT requests.
+            Headers for PUT requests.
         """
         csrf_token = self.__get_csrf_token()
         headers = {
@@ -615,17 +571,17 @@ class TeamCity(ConnectionServiceInterface):
 
     def __get_csrf_token(self) -> Optional[str]:
         """
-        Get a CSRF token required for making requests other than GET requests.
-
-        Does not use the TeamCity REST API, but makes a GET
-        request to the following URI to retrieve the token for
-        the session.
+        Get CSRF token for non-GET requests.
 
         Returns
         -------
         Optional[str]
-            The CSRF token.
-            Returns None if the request failed.
+            CSRF token, or None if request failed.
+
+        Raises
+        ------
+        SystemExit
+            If the request fails.
         """
         endpoint = f"{self.__base_uri}authenticationTest.html?csrf"
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
@@ -634,7 +590,19 @@ class TeamCity(ConnectionServiceInterface):
         sys.exit(result.status_code)
 
     def __extract_kernel_versions(self, build_info: Dict[str, Any]) -> Dict[str, str]:
-        """Extract kernel versions from build info."""
+        """
+        Extract kernel versions from build info.
+
+        Parameters
+        ----------
+        build_info : Dict[str, Any]
+            Build information dictionary.
+
+        Returns
+        -------
+        Dict[str, str]
+            Dictionary mapping kernel names to their versions.
+        """
         kernel_versions: Dict[str, str] = {}
         for kernel in KERNELS:
             kernel_versions[kernel.name_for_extracting_revision] = ""

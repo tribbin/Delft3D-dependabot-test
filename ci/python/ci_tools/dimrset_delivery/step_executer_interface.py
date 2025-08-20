@@ -6,23 +6,23 @@ from ci_tools.dimrset_delivery.services import Services
 
 class StepExecutorInterface(ABC):
     """
-    Interface for executing steps within the DIMR automation workflow.
+    Abstract base class for executing steps in the DIMR automation workflow.
 
-    This abstract base class defines the contract for step executors, requiring
-    implementations to provide initialization with a context and services, and
-    an execution method for performing a step.
-
-    Methods
-    -------
-    __init__(context: DimrAutomationContext, services: Services) -> None
-        Initialize the step executor with the given automation context and services.
-
-    execute_step() -> Any
-        Execute the step and return the result.
+    Provides the contract for step executors, requiring initialization with context and services, and an execution method.
     """
 
     @abstractmethod
     def __init__(self, context: DimrAutomationContext, services: Services) -> None:
+        """
+        Initialize the step executor with the given automation context and services.
+
+        Parameters
+        ----------
+        context : DimrAutomationContext
+            The automation context for the step executor.
+        services : Services
+            The services required for step execution.
+        """
         self.context = context
         self.services = services
 
