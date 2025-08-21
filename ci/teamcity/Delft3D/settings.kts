@@ -10,7 +10,7 @@ import Delft3D.template.*
 import Delft3D.ciUtilities.*
 import Delft3D.verschilanalyse.*
 
-version = "2025.03"
+version = "2025.07"
 
 project {
 
@@ -24,6 +24,7 @@ project {
         password("s3_dsctestbench_secret", "credentialsJSON:7e8a3aa7-76e9-4211-a72e-a3825ad1a160")
 
         param("product", "dummy_value")
+
     }
 
     template(TemplateMergeRequest)
@@ -53,7 +54,7 @@ project {
         buildType(LinuxBuild2D3DSP)
         buildType(LinuxCollect)
         buildType(LinuxRuntimeContainers)
-        buildType(LinuxRunAllDockerExamples)
+        buildType(LinuxRunAllContainerExamples)
         buildType(LinuxLegacyDockerTest)
         buildType(LinuxTest)
         buildType(LinuxUnitTest)
@@ -62,7 +63,7 @@ project {
             LinuxBuild2D3DSP,
             LinuxCollect,
             LinuxRuntimeContainers,
-            LinuxRunAllDockerExamples,
+            LinuxRunAllContainerExamples,
             LinuxLegacyDockerTest,
             LinuxUnitTest,
             LinuxTest
