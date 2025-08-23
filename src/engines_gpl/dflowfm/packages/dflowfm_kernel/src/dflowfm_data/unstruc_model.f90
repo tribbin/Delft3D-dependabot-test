@@ -2397,7 +2397,7 @@ contains
          call mess(LEVEL_ERROR, 'Error reading ice properties from the MDU file. Error code: ', ierror)
          return
       end if
-          
+
 !  processes (WAQ)
       call prop_get(md_ptr, 'processes', 'SubstanceFile', md_subfile, success)
       call prop_get(md_ptr, 'processes', 'AdditionalHistoryOutputFile', md_ehofile, success)
@@ -3316,10 +3316,10 @@ contains
             call prop_set(prop_ptr, 'physics', 'Vicwminb', Vicwminb, 'Minimum visc in prod and buoyancy term (m2/s)')
          end if
          call prop_set(prop_ptr, 'physics', 'Xlozmidov', xlozmidov, 'Ozmidov length scale (m), default=0.0, no contribution of internal waves to vertical diffusion')
-         if (comparereal(tke_min, MINIMUM_VALUE_K_EPS_TAU) /= 0) then
+         if (writeall .or. (comparereal(tke_min, MINIMUM_VALUE_K_EPS_TAU) /= 0)) then
             call prop_set(prop_ptr, 'physics', 'TKEMin', tke_min, 'Minimum turbulence kinetic energy (TKE) value in k-eps turbulence model')
          end if
-         if (comparereal(eps_min, MINIMUM_VALUE_K_EPS_TAU) /= 0) then
+         if (writeall .or. (comparereal(eps_min, MINIMUM_VALUE_K_EPS_TAU) /= 0)) then
             if (iturbulencemodel /= 4) then
                call prop_set(prop_ptr, 'physics', 'EPSMin', eps_min, 'Minimum turbulent dissipation rate (EPS) value in k-eps turbulence model')
             else
