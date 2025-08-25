@@ -34,8 +34,8 @@ class TeamCity(ConnectionServiceInterface):
             Automation context for logging and configuration.
         """
         self.__auth = (username, password)
-        self.__base_uri = "https://dpcbuild.deltares.nl/"
-        self.__rest_uri = f"{self.__base_uri}app/rest/"
+        self.__base_uri = "https://dpcbuild.deltares.nl"
+        self.__rest_uri = f"{self.__base_uri}/app/rest"
         self.__default_headers = {
             "content-type": "application/json",
             "accept": "application/json",
@@ -57,7 +57,7 @@ class TeamCity(ConnectionServiceInterface):
             True if a successful request can be made.
         """
         self.__context.log(f"Checking connection to the TeamCity API with credentials: {self.__auth[0]}")
-        endpoint = f"{self.__rest_uri}agents"
+        endpoint = f"{self.__rest_uri}/agents"
         if dry_run:
             self.__context.log(f"GET request: {endpoint}")
             result: Union[Response, SimpleNamespace] = SimpleNamespace(status_code=200, content=b"dry-run mock")
@@ -116,7 +116,7 @@ class TeamCity(ConnectionServiceInterface):
             status_locator = ",status:SUCCESS"
 
         endpoint = (
-            f"{self.__rest_uri}builds?locator=defaultFilter:false,"
+            f"{self.__rest_uri}/builds?locator=defaultFilter:false,"
             f"buildType:{build_configuration_id},count:{limit}{pinned_locator}{status_locator}"
         )
 
@@ -150,7 +150,7 @@ class TeamCity(ConnectionServiceInterface):
             If the request fails.
         """
         endpoint = (
-            f"{self.__rest_uri}builds/id:{build_id}?"
+            f"{self.__rest_uri}/builds/id:{build_id}?"
             f"fields=id,artifact-dependencies(build),resultingProperties(property)"
         )
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
@@ -177,7 +177,7 @@ class TeamCity(ConnectionServiceInterface):
         Optional[Dict[str, Any]]
             Dictionary with full build information, or None if request failed.
         """
-        endpoint = f"{self.__rest_uri}builds/id:{build_id}"
+        endpoint = f"{self.__rest_uri}/builds/id:{build_id}"
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
         if result.status_code == 200:
             full_build_info: Dict[str, Any] = result.json()
@@ -205,7 +205,7 @@ class TeamCity(ConnectionServiceInterface):
         SystemExit
             If the request fails.
         """
-        endpoint = f"{self.__rest_uri}builds/buildId:{build_id}/artifacts/children"
+        endpoint = f"{self.__rest_uri}/builds/buildId:{build_id}/artifacts/children"
         headers = self.__get_put_request_headers()
         result = requests.get(url=endpoint, headers=headers, auth=self.__auth)
         if result.status_code == 200:
@@ -238,7 +238,7 @@ class TeamCity(ConnectionServiceInterface):
         SystemExit
             If the request fails.
         """
-        endpoint = f"{self.__rest_uri}builds/buildId:{build_id}/artifacts/content/{path_to_artifact}"
+        endpoint = f"{self.__rest_uri}/builds/buildId:{build_id}/artifacts/content/{path_to_artifact}"
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
         if result.status_code == 200:
             return result.content
@@ -264,7 +264,7 @@ class TeamCity(ConnectionServiceInterface):
         bool
             True if the build was successfully pinned, False otherwise.
         """
-        endpoint = f"{self.__rest_uri}builds/buildId:{build_id}/pin"
+        endpoint = f"{self.__rest_uri}/builds/buildId:{build_id}/pin"
         headers = self.__get_put_request_headers(content_type="text/plain")
         result = requests.put(url=endpoint, headers=headers, auth=self.__auth)
         if result:
@@ -294,7 +294,7 @@ class TeamCity(ConnectionServiceInterface):
         SystemExit
             If the request fails.
         """
-        endpoint = f"{self.__rest_uri}builds/buildId:{build_id}/tags"
+        endpoint = f"{self.__rest_uri}/builds/buildId:{build_id}/tags"
         headers = {
             "content-type": "text/plain",
             "accept": "*/*",
@@ -309,7 +309,7 @@ class TeamCity(ConnectionServiceInterface):
             )
             sys.exit(result.status_code)
 
-        endpoint = f"{self.__rest_uri}builds/multiple/snapshotDependency:(to:(id:{build_id})),count:1000/tags"
+        endpoint = f"{self.__rest_uri}/builds/multiple/snapshotDependency:(to:(id:{build_id})),count:1000/tags"
         csrf_token = self.__get_csrf_token()
         headers = {
             "Content-Type": "application/json",
@@ -356,7 +356,7 @@ class TeamCity(ConnectionServiceInterface):
 
         build_type_ids = filtered_ids
         endpoint = (
-            f"{self.__rest_uri}builds?locator=defaultFilter:false,"
+            f"{self.__rest_uri}/builds?locator=defaultFilter:false,"
             f"snapshotDependency(to:(id:{build_id})),count:1000&fields=build(id,buildTypeId)"
         )
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
@@ -392,7 +392,7 @@ class TeamCity(ConnectionServiceInterface):
             Build ID of the dependent build, or None if not found.
         """
         endpoint = (
-            f"{self.__rest_uri}builds?locator=defaultFilter:false,"
+            f"{self.__rest_uri}/builds?locator=defaultFilter:false,"
             f"snapshotDependency(to:(id:{build_id})),count:1000&fields=build(id,buildTypeId)"
         )
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
@@ -605,7 +605,7 @@ class TeamCity(ConnectionServiceInterface):
         SystemExit
             If the request fails.
         """
-        endpoint = f"{self.__base_uri}authenticationTest.html?csrf"
+        endpoint = f"{self.__base_uri}/authenticationTest.html?csrf"
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth)
         if result.status_code == 200:
             return result.content.decode("utf-8", errors="replace")

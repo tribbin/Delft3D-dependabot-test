@@ -33,8 +33,7 @@ class Atlassian(ConnectionServiceInterface):
             Automation context for logging and configuration.
         """
         self.__auth = (username, password)
-        self.__base_uri = "https://publicwiki.deltares.nl/"
-        self.__rest_uri = f"{self.__base_uri}rest/api/"
+        self.__rest_uri = "https://publicwiki.deltares.nl/rest/api"
         self.__default_headers = {"content-type": "application/json", "accept": "application/json"}
         self.__context = context
 
@@ -53,7 +52,7 @@ class Atlassian(ConnectionServiceInterface):
             True if connection is successful, False otherwise.
         """
         self.__context.log(f"Checking connection to the Atlassian Confluence API with credentials: {self.__auth[0]}")
-        endpoint = f"{self.__rest_uri}content"
+        endpoint = f"{self.__rest_uri}/content"
 
         if dry_run:
             self.__context.log(f"GET request: {endpoint}")
@@ -87,7 +86,7 @@ class Atlassian(ConnectionServiceInterface):
         Optional[Dict[str, Any]]
             Dictionary with page info if successful, None otherwise.
         """
-        endpoint = f"{self.__rest_uri}content/search?cql=parent={parent_page_id}"
+        endpoint = f"{self.__rest_uri}/content/search?cql=parent={parent_page_id}"
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth, verify=False)
         if result.status_code == 200:
             json_response: Dict[str, Any] = result.json()
@@ -133,7 +132,7 @@ class Atlassian(ConnectionServiceInterface):
             }
         )
 
-        endpoint = f"{self.__rest_uri}content"
+        endpoint = f"{self.__rest_uri}/content"
         result = requests.post(
             url=endpoint, headers=self.__default_headers, auth=self.__auth, data=payload, verify=False
         )
@@ -184,7 +183,7 @@ class Atlassian(ConnectionServiceInterface):
             }
         )
 
-        endpoint = f"{self.__rest_uri}content/{page_id}"
+        endpoint = f"{self.__rest_uri}/content/{page_id}"
         result = requests.put(
             url=endpoint, headers=self.__default_headers, auth=self.__auth, data=payload, verify=False
         )
@@ -211,7 +210,7 @@ class Atlassian(ConnectionServiceInterface):
         Optional[int]
             Current version number if successful, None otherwise.
         """
-        endpoint = f"{self.__rest_uri}content/{page_id}"
+        endpoint = f"{self.__rest_uri}/content/{page_id}"
         result = requests.get(url=endpoint, headers=self.__default_headers, auth=self.__auth, verify=False)
         if result.status_code == 200:
             json_response: Dict[str, Any] = result.json()
