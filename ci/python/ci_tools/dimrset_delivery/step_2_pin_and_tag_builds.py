@@ -75,17 +75,8 @@ class PinAndTagger(StepExecutorInterface):
             return False
 
         try:
-            if self.__dry_run:
-                self.__context.log("Pin and tag TC builds")
-                self.__context.log(
-                    "Would tag git commit with:",
-                    f"commit={self.__kernel_versions['build.vcs.number']}, tag=DIMRset_{self.__dimr_version}",
-                )
-            else:
-                self.__pin_and_tag_builds_teamcity()
-                self.__git_client.tag_commit(
-                    self.__kernel_versions["build.vcs.number"], f"DIMRset_{self.__dimr_version}"
-                )
+            self.__pin_and_tag_builds_teamcity()
+            self.__git_client.tag_commit(self.__kernel_versions["build.vcs.number"], f"DIMRset_{self.__dimr_version}")
             self.__context.log("Build pinning and tagging completed successfully!")
             return True
         except Exception as e:
@@ -105,6 +96,9 @@ class PinAndTagger(StepExecutorInterface):
             raise ValueError("TeamCity client is required but not initialized")
 
         tag = f"DIMRset_{self.__dimr_version}"
+        if self.__dry_run:
+            self.__context.log(f"Pin and tag {self.__build_id} and dependent builds with '{tag}' in TeamCity")
+            return
         self.__teamcity.add_tag_to_build_with_dependencies(self.__build_id, tag=tag)
         # Only pin specific builds
         teamcity_ids_list = list(vars(self.__teamcity_ids).values())

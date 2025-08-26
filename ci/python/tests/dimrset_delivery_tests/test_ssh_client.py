@@ -11,6 +11,7 @@ from ci_tools.example_utils.logger import LogLevel
 def test_test_connection_success() -> None:
     # Arrange
     mock_context = Mock(spec=DimrAutomationContext)
+    mock_context.dry_run = False
     mock_context.settings = Mock(spec=Settings)
     mock_context.settings.linux_address = "host"
     client = SshClient(credentials=Credentials("user", "pass"), context=mock_context)
@@ -19,7 +20,7 @@ def test_test_connection_success() -> None:
         patch.object(client._client, "close") as mock_close,
     ):
         # Act
-        client.test_connection(dry_run=False)
+        client.test_connection()
         # Assert
         mock_connect.assert_called_once_with(hostname="host", username="user", password="pass", timeout=30)
         mock_close.assert_called_once()
@@ -28,6 +29,7 @@ def test_test_connection_success() -> None:
 def test_test_connection_dry_run() -> None:
     # Arrange
     mock_context = Mock(spec=DimrAutomationContext)
+    mock_context.dry_run = True
     mock_context.settings = Mock(spec=Settings)
     mock_context.settings.linux_address = "host"
     mock_context.settings.dry_run_prefix = "[TEST]"
@@ -37,7 +39,7 @@ def test_test_connection_dry_run() -> None:
         patch.object(client._client, "close") as mock_close,
     ):
         # Act
-        client.test_connection(dry_run=True)
+        client.test_connection()
         # Assert
         mock_connect.assert_not_called()
         mock_close.assert_not_called()
@@ -46,6 +48,7 @@ def test_test_connection_dry_run() -> None:
 def test_test_connection_fail() -> None:
     # Arrange
     mock_context = Mock(spec=DimrAutomationContext)
+    mock_context.dry_run = False
     mock_context.settings = Mock(spec=Settings)
     mock_context.settings.linux_address = "host"
     client = SshClient(credentials=Credentials("user", "pass"), context=mock_context)
@@ -54,7 +57,7 @@ def test_test_connection_fail() -> None:
         patch.object(client._client, "close") as mock_close,
     ):
         # Act & Assert
-        result = client.test_connection(dry_run=False)
+        result = client.test_connection()
         assert not result
         mock_close.assert_called_once()
         mock_context.log.assert_called_with("Close SSH connection to 'host' with 'user'.")

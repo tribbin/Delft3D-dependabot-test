@@ -124,8 +124,8 @@ def validate_signing_status(
         return f"Error occurred while verifying signing for file: {file}", False
     signed_files = {item["file"]: item for item in files_that_should_be_signed_with_issued_to}
     if file in signed_files:
-        expected_issued_to = signed_files[file]["issuedTo"]
         if status == "Verified":
+            expected_issued_to = signed_files[file]["issuedTo"]
             if expected_issued_to == issued_to:
                 return f"File is correctly signed: {file} by {issued_to}", True
             else:

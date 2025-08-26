@@ -45,20 +45,15 @@ class SshClient(ConnectionServiceInterface):
         self.__context = context
         self.__address = context.settings.linux_address
 
-    def test_connection(self, dry_run: bool = False) -> bool:
+    def test_connection(self) -> bool:
         """Test the SSH connection to the specified address.
-
-        Parameters
-        ----------
-        dry_run : bool
-            If True, performs a dry run without establishing a real connection.
 
         Returns
         -------
         bool
             True if the connection test is successful or dry run is performed, False otherwise.
         """
-        if dry_run:
+        if self.__context.dry_run:
             self.__context.log(f"SSH connection to '{self.__address}' with '{self.__username}'")
             success = True
         else:

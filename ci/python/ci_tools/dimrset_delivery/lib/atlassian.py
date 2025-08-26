@@ -35,14 +35,9 @@ class Atlassian(ConnectionServiceInterface):
         self.__default_headers = {"content-type": "application/json", "accept": "application/json"}
         self.__context = context
 
-    def test_connection(self, dry_run: bool = False) -> bool:
+    def test_connection(self) -> bool:
         """
         Test API connection to Atlassian Confluence.
-
-        Parameters
-        ----------
-        dry_run : bool
-            If True, simulate the request without making an actual API call.
 
         Returns
         -------
@@ -52,7 +47,7 @@ class Atlassian(ConnectionServiceInterface):
         self.__context.log(f"Checking connection to the Atlassian Confluence API with credentials: {self.__auth[0]}")
         endpoint = f"{self.__rest_uri}/content"
 
-        if dry_run:
+        if self.__context.dry_run:
             self.__context.log(f"GET request: {endpoint}")
             result: Union[SimpleNamespace, requests.Response] = SimpleNamespace(
                 status_code=200, content=b"dry-run mock"

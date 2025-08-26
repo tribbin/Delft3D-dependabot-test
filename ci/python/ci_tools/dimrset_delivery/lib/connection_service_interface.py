@@ -26,14 +26,9 @@ class ConnectionServiceInterface(ABC):
         pass
 
     @abstractmethod
-    def test_connection(self, dry_run: bool = False) -> bool:
+    def test_connection(self) -> bool:
         """
         Test the connection to the service.
-
-        Parameters
-        ----------
-        dry_run : bool
-            Whether to perform a dry run without making actual changes.
 
         Returns
         -------

@@ -11,6 +11,7 @@ from ci_tools.dimrset_delivery.settings.teamcity_settings import Settings
 def test_tag_commit_success(mock_run: MockType) -> None:
     # Arrange
     mock_context = Mock(spec=DimrAutomationContext)
+    mock_context.dry_run = False
     mock_context.settings = Mock(spec=Settings)
     mock_context.settings.delft3d_git_repo = "https://repo.url"
     client = GitClient(credentials=Credentials("user", "pass"), context=mock_context)
@@ -78,12 +79,13 @@ def test_tag_commit_exception(mock_run: MockType) -> None:
 def test_test_connection_success(mock_run: MockType) -> None:
     # Arrange
     mock_context = Mock(spec=DimrAutomationContext)
+    mock_context.dry_run = False
     mock_context.settings = Mock(spec=Settings)
     mock_context.settings.delft3d_git_repo = "https://repo.url"
     client = GitClient(credentials=Credentials("user", "pass"), context=mock_context)
     mock_run.return_value = Mock(returncode=0)
     # Act
-    client.test_connection(dry_run=False)
+    client.test_connection()
     # Assert
     mock_run.assert_called_once()
 
@@ -98,7 +100,7 @@ def test_test_connection_fail(mock_run: MockType) -> None:
     mock_run.return_value = Mock(returncode=1)
 
     # Act
-    result = client.test_connection(dry_run=False)
+    result = client.test_connection()
 
     # Assert
     assert result is False
@@ -118,7 +120,7 @@ def test_test_connection_exception(mock_run: MockType) -> None:
     mock_run.side_effect = raise_exc
 
     # Act
-    result = client.test_connection(dry_run=False)
+    result = client.test_connection()
 
     # Assert
     assert result is False
@@ -132,7 +134,7 @@ def test_test_connection_dry_run() -> None:
     mock_context.settings.dry_run_prefix = "[TEST]"
     client = GitClient(credentials=Credentials("user", "pass"), context=mock_context)
     # Act
-    client.test_connection(dry_run=True)
+    client.test_connection()
     # Assert
     # No exception should be raised
     assert True

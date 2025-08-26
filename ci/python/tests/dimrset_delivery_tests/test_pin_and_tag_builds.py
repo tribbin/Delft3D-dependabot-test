@@ -70,12 +70,14 @@ class TestPinAndTagBuilds:
             helper.execute_step()
 
         # Assert
-        self.mock_context.log.assert_any_call("Pinning and tagging builds...")
-        self.mock_context.log.assert_any_call("Pin and tag TC builds")
-        self.mock_context.log.assert_any_call("Build pinning and tagging completed successfully!")
-        # Check for the combined log call with both arguments
-        expected_log_call = ("Would tag git commit with:", "commit=abc123def, tag=DIMRset_1.2.3")
-        assert expected_log_call in [call.args for call in self.mock_context.log.call_args_list]
+        expected_logs = [
+            "Pinning and tagging builds...",
+            "Pin and tag 12345 and dependent builds with 'DIMRset_1.2.3' in TeamCity",
+            "Build pinning and tagging completed successfully!",
+        ]
+        actual_logs = [call.args[0] for call in self.mock_context.log.call_args_list]
+        for expected in expected_logs:
+            assert expected in actual_logs
 
     def test_pin_and_tag_builds_missing_teamcity_client(self) -> None:
         """Test error when TeamCity client is None."""

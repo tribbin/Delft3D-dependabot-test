@@ -11,6 +11,7 @@ test_password = "pass"
 def test_test_connection_success() -> None:
     # Arrange
     mock_context = Mock(spec=DimrAutomationContext)
+    mock_context.dry_run = False
     atlassian = Atlassian(credentials=Credentials(test_username, test_password), context=mock_context)
     with patch("ci_tools.dimrset_delivery.lib.atlassian.requests.get") as mock_get:
         mock_response = Mock()
@@ -18,7 +19,7 @@ def test_test_connection_success() -> None:
         mock_response.content = b"ok"
         mock_get.return_value = mock_response
         # Act
-        result = atlassian.test_connection(dry_run=False)
+        result = atlassian.test_connection()
         # Assert
         assert result is True
 
@@ -26,6 +27,7 @@ def test_test_connection_success() -> None:
 def test_test_connection_failure() -> None:
     # Arrange
     mock_context = Mock(spec=DimrAutomationContext)
+    mock_context.dry_run = False
     atlassian = Atlassian(credentials=Credentials(test_username, test_password), context=mock_context)
     with patch("ci_tools.dimrset_delivery.lib.atlassian.requests.get") as mock_get:
         mock_response = Mock()
@@ -33,7 +35,7 @@ def test_test_connection_failure() -> None:
         mock_response.content = b"unauthorized"
         mock_get.return_value = mock_response
         # Act
-        result = atlassian.test_connection(dry_run=False)
+        result = atlassian.test_connection()
         # Assert
         assert result is False
 

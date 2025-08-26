@@ -208,15 +208,14 @@ def get_tag_from_build_info(current_build_info: dict) -> tuple:
     tuple
         Tuple containing version numbers (major, minor, patch).
     """
-    current_tag_name = (0, 0, 0)
     tags = current_build_info.get("tags", {}).get("tag", [])
     for tag in tags:
         tag_name = tag.get("name")
         if tag_name and tag_name.startswith("DIMRset_"):
             parsed_version = parse_version(tag_name)
             if parsed_version is not None:
-                current_tag_name = parsed_version
-    return current_tag_name
+                return parsed_version
+    return (0, 0, 0)
 
 
 def parse_version(tag: str) -> Optional[tuple]:

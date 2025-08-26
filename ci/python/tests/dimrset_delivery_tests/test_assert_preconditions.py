@@ -50,10 +50,10 @@ class TestAssertPreconditionsFunction:
 
         # Assert
         assert result
-        self.mock_services.teamcity.test_connection.assert_called_once_with(False)
-        self.mock_services.atlassian.test_connection.assert_called_once_with(False)
-        self.mock_services.ssh.test_connection.assert_called_once_with(False)
-        self.mock_services.git.test_connection.assert_called_once_with(False)
+        self.mock_services.teamcity.test_connection.assert_called_once()
+        self.mock_services.atlassian.test_connection.assert_called_once()
+        self.mock_services.ssh.test_connection.assert_called_once()
+        self.mock_services.git.test_connection.assert_called_once()
         mock_os_exists.assert_called_with("test_path")
         mock_os_access.assert_any_call("test_path", os.W_OK)
         mock_os_access.assert_any_call("test_path", os.R_OK)
@@ -218,10 +218,10 @@ class TestAssertPreconditionsFunction:
         assert actual_calls == expected_log_calls
 
         # Verify service method calls with dry_run=True
-        self.mock_services.teamcity.test_connection.assert_called_once_with(True)
-        self.mock_services.atlassian.test_connection.assert_called_once_with(True)
-        self.mock_services.ssh.test_connection.assert_called_once_with(True)
-        self.mock_services.git.test_connection.assert_called_once_with(True)
+        self.mock_services.teamcity.test_connection.assert_called_once()
+        self.mock_services.atlassian.test_connection.assert_called_once()
+        self.mock_services.ssh.test_connection.assert_called_once()
+        self.mock_services.git.test_connection.assert_called_once()
 
     def test_assert_preconditions_missing_atlassian(self) -> None:
         """Test preconditions assertion fails when Atlassian client is missing."""

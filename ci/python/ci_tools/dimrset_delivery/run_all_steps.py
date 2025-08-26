@@ -54,6 +54,7 @@ class DimrDeliveryPipeline:
         self.services = services
         self.results: List[StepResult] = []
         self.script_dir = Path(__file__).parent
+        self.total_steps = 0
 
     def run_all_steps(self) -> bool:
         """
@@ -77,6 +78,7 @@ class DimrDeliveryPipeline:
                 step_desc = match.group(2).replace("_", " ").replace("-", " ").title()
                 step_name = f"Step {step_num}: {step_desc}"
                 step_scripts.append((step_name, file))
+        self.total_steps = len(step_scripts)
         if not step_scripts:
             self.context.log("No step scripts found in directory.", severity=LogLevel.ERROR)
             self._print_summary(start_time, failed_early=True)
@@ -179,7 +181,7 @@ class DimrDeliveryPipeline:
         print("=" * 60)
 
         successful_steps = sum(1 for result in self.results if result.success)
-        total_steps = len(self.results)
+        executed_steps = len(self.results)
 
         for result in self.results:
             status = "✅ SUCCESS" if result.success else "❌ FAILED"
@@ -189,20 +191,20 @@ class DimrDeliveryPipeline:
                 print(f"{'':12} | Error: {result.error}")
 
         if failed_early:
-            remaining = 7 - total_steps
+            remaining = self.total_steps - executed_steps
             for i in range(remaining):
-                print(f"⏭️  SKIPPED   | Step {total_steps + i + 1}: (skipped due to previous failure)")
+                print(f"⏭️  SKIPPED   | Step {executed_steps + i + 1}: (skipped due to previous failure)")
 
         print("-" * 60)
         print(f"Total time: {total_duration:.2f}s")
-        print(f"Steps completed: {successful_steps}/{7}")
+        print(f"Steps completed: {successful_steps}/{self.total_steps}")
 
-        if successful_steps == 7:
-            print("🎉 All steps completed successfully!")
+        if successful_steps == self.total_steps:
+            print("✅ All steps completed successfully!")
         elif failed_early:
-            print(f"💥 Pipeline failed at step {total_steps}")
+            print(f"❌ Script failed at step {executed_steps}")
         else:
-            print(f"⚠️  Pipeline completed with {7 - successful_steps} failures")
+            print(f"❌ Script completed with {self.total_steps - successful_steps} failures")
 
 
 if __name__ == "__main__":
@@ -217,13 +219,13 @@ if __name__ == "__main__":
         sys.exit(0 if success else 1)
 
     except KeyboardInterrupt:
-        print("\n🛑 Pipeline interrupted by user")
+        print("\n🛑 Script interrupted by user")
         sys.exit(130)
 
     except (ValueError, AssertionError) as e:
-        print(f"Pipeline failed: {e}")
+        print(f"❌ Script failed: {e}")
         sys.exit(1)
 
     except Exception as e:
-        print(f"💥 Pipeline failed with unexpected error: {e}")
+        print(f"❌ Script failed with unexpected error: {e}")
         sys.exit(2)

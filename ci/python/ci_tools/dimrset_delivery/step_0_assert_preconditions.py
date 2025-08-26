@@ -118,7 +118,7 @@ class PreconditionsChecker(StepExecutorInterface):
             self.context.log(f"{name} client is required but not initialized")
             return False
         self.context.log(f"Testing {name} connection...")
-        if not client.test_connection(self.context.dry_run):
+        if not client.test_connection():
             self.context.log(f"Failed to connect to the {name} REST API.", severity=LogLevel.ERROR)
             return False
         self.context.log(f"{name} connection successful")

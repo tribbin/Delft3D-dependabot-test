@@ -366,8 +366,8 @@ class TestGetTagFromBuildInfo:
         # Assert
         assert result == (1, 2, 3)
 
-    def test_multiple_dimrset_tags_returns_last_valid(self) -> None:
-        """Test that multiple DIMRset tags returns the last valid one."""
+    def test_multiple_dimrset_tags_returns_first_valid(self) -> None:
+        """Test that multiple DIMRset tags returns the first valid one."""
         # Arrange
         build_info = {
             "tags": {"tag": [{"name": "DIMRset_1.0.0"}, {"name": "DIMRset_2.3.4"}, {"name": "some_other_tag"}]}
@@ -377,7 +377,7 @@ class TestGetTagFromBuildInfo:
         result = get_tag_from_build_info(build_info)
 
         # Assert
-        assert result == (2, 3, 4)
+        assert result == (1, 0, 0)
 
     def test_valid_non_standard_dimrset_tag_returns_version(self) -> None:
         """Test that valid DIMRset tag with non-standard format returns parsed version."""

@@ -40,14 +40,9 @@ class TeamCity(ConnectionServiceInterface):
         }
         self.__context = context
 
-    def test_connection(self, dry_run: bool = False) -> bool:
+    def test_connection(self) -> bool:
         """
         Test if the API connection can be established.
-
-        Parameters
-        ----------
-        dry_run : bool
-            Whether to perform a dry run test.
 
         Returns
         -------
@@ -56,7 +51,7 @@ class TeamCity(ConnectionServiceInterface):
         """
         self.__context.log(f"Checking connection to the TeamCity API with credentials: {self.__auth[0]}")
         endpoint = f"{self.__rest_uri}/agents"
-        if dry_run:
+        if self.__context.dry_run:
             self.__context.log(f"GET request: {endpoint}")
             result: Union[Response, SimpleNamespace] = SimpleNamespace(status_code=200, content=b"dry-run mock")
         else:
