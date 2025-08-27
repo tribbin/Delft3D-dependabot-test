@@ -289,7 +289,7 @@ def _print_example_json_file_structure() -> None:
     print("}")
 
 
-if __name__ == "__main__":
+def parse_common_arguments():
     parser = argparse.ArgumentParser(description="Validate file structure and signing status of files in a directory.")
     parser.add_argument(
         "expected_structure_json",
@@ -301,8 +301,13 @@ if __name__ == "__main__":
     if len(sys.argv) != 4:
         print("Usage: python script.py <expected_structure_json> <developer_prompt> <directory>")
         sys.exit(1)
-
     args = parser.parse_args()
+    return args
+
+
+if __name__ == "__main__":
+    args = parse_common_arguments()
+
     file_structure_json = args.expected_structure_json
     developer_prompt = args.developer_prompt
     directory = args.directory
