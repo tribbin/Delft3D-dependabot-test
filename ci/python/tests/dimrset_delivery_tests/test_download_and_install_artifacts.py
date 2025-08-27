@@ -75,9 +75,9 @@ class TestDownloadAndInstallArtifacts:
         # Assert
         expected_calls = [
             call("Downloading and installing artifacts..."),
-            call(f"Would download artifacts for build from TeamCity: {mock_context.build_id}"),
-            call("Would publish artifacts to network drive"),
-            call("Would publish weekly DIMR via H7"),
+            call(f"Download artifacts for TeamCity build ID: {mock_context.build_id}"),
+            call("Publish downloaded artifacts to the designated network drive location"),
+            call("Publish the weekly DIMR build via H7 deployment process"),
         ]
         mock_context.log.assert_has_calls(expected_calls)
 
@@ -415,8 +415,8 @@ class TestIntegration:
         # Assert
         expected_calls = [
             call("Downloading and installing artifacts..."),
-            call("Would download artifacts for build from TeamCity: dry-run-build-456"),
-            call("Would publish artifacts to network drive"),
-            call("Would publish weekly DIMR via H7"),
+            call("Download artifacts for TeamCity build ID: dry-run-build-456"),
+            call("Publish downloaded artifacts to the designated network drive location"),
+            call("Publish the weekly DIMR build via H7 deployment process"),
         ]
         context.log.assert_has_calls(expected_calls)

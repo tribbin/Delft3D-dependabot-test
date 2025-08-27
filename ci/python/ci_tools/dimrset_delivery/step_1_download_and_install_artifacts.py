@@ -84,9 +84,9 @@ class ArtifactInstaller(StepExecutorInterface):
         self.context.log("Downloading and installing artifacts...")
 
         if self.context.dry_run:
-            self.context.log(f"Would download artifacts for build from TeamCity: {self.context.build_id}")
-            self.context.log("Would publish artifacts to network drive")
-            self.context.log("Would publish weekly DIMR via H7")
+            self.context.log(f"Download artifacts for TeamCity build ID: {self.context.build_id}")
+            self.context.log("Publish downloaded artifacts to the designated network drive location")
+            self.context.log("Publish the weekly DIMR build via H7 deployment process")
             return True
 
         if self.services.teamcity is None:
