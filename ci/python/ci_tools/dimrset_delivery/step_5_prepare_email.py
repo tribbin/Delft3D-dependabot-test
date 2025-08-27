@@ -63,25 +63,43 @@ class EmailHelper(StepExecutorInterface):
         """
         self.__context.log("Preparing email template...")
 
-        self.__generate_template()
+        success = self.__generate_template()
+        if success:
+            self.__context.log("Email template preparation completed successfully!")
+            return True
+        else:
+            self.__context.log("Email template preparation failed.")
+            return False
 
-        self.__context.log("Email template preparation completed successfully!")
-        return True
+    def __generate_template(self) -> bool:
+        """
+        Generate the email template for the latest DIMR release.
 
-    def __generate_template(self) -> None:
-        """Generate the email template for the latest DIMR release."""
-        self.__load_template()
+        Returns True if all steps succeed, False otherwise.
+        """
+        number_of_errors: int = 0
+        if not self.__load_template():
+            number_of_errors += 1
+
         self.__insert_summary_table_header()
         self.__insert_summary_table()
-        self.__save_template()
 
-    def __load_template(self) -> None:
-        """Load the email template into memory."""
+        if not self.__save_template():
+            number_of_errors += 1
+
+        return number_of_errors == 0
+
+    def __load_template(self) -> bool:
+        """Load the email template into memory. Returns True if successful, False otherwise."""
         current_dir = os.path.dirname(__file__)
         path_to_email_template = os.path.join(current_dir, self.__settings.relative_path_to_email_template)
-
-        with open(path_to_email_template, "r") as file:
-            self.__template = file.read()
+        try:
+            with open(path_to_email_template, "r") as file:
+                self.__template = file.read()
+            return True
+        except Exception as e:
+            self.__context.log(f"Failed to load email template: {e}", severity=LogLevel.ERROR)
+            return False
 
     def __insert_summary_table_header(self) -> None:
         """Insert the summary table header into the template."""
@@ -287,18 +305,21 @@ class EmailHelper(StepExecutorInterface):
                 kernel_name = kernel_config.name_for_email
         return kernel_name
 
-    def __save_template(self) -> None:
-        """Save the email template in the output folder."""
+    def __save_template(self) -> bool:
+        """Save the email template in the output folder. Returns True if successful, False otherwise."""
         current_dir = os.path.dirname(__file__)
         path_to_output_folder = os.path.join(current_dir, self.__settings.relative_path_to_output_folder)
         path_to_email_template = os.path.join(path_to_output_folder, f"DIMRset_{self.__dimr_version}.html")
-
-        self.__context.log(f"Saved email html to {path_to_email_template}")
-        if not os.path.exists(path_to_output_folder):
-            os.makedirs(path_to_output_folder)
-
-        with open(path_to_email_template, "w+") as file:
-            file.write(self.__template)
+        try:
+            if not os.path.exists(path_to_output_folder):
+                os.makedirs(path_to_output_folder)
+            with open(path_to_email_template, "w+") as file:
+                file.write(self.__template)
+            self.__context.log(f"Saved email html to {path_to_email_template}")
+            return True
+        except Exception as e:
+            self.__context.log(f"Failed to save email template: {e}", severity=LogLevel.ERROR)
+            return False
 
 
 if __name__ == "__main__":
