@@ -2014,7 +2014,8 @@ contains
                                   DFM_HYD_INTERCEPT_LAYER, jadhyd, &
                                   PotEvap, ActEvap
       use m_grw, only: jaintercept2D
-      use m_fm_icecover, only: fm_ice_activate_by_ext_forces
+      use m_fm_icecover, only: ja_ice_area_fraction_read, ja_ice_thickness_read
+
       use m_heatfluxes, only: jasecchisp, secchisp
       use m_physcoef, only: secchidepth
       use m_meteo, only: ec_addtimespacerelation
