@@ -110,7 +110,7 @@ class GitClient(ConnectionServiceInterface):
             else:
                 result = subprocess.run(["git", "ls-remote", auth_repo_url], capture_output=True, text=True)
                 self.__context.log(f"git ls-remote using username '{self.__credentials.username}'.")
-                self.__context.log(f"Using password '{hashlib.md5(self.__credentials.password.encode()).hexdigest()}'.")
+                self.__context.log(f"Using password (md5 hashed): '{hashlib.md5(self.__credentials.password.encode()).hexdigest()}'.")
 
             if result.returncode == 0:
                 self.__context.log(result.stdout)
