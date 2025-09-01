@@ -1702,7 +1702,6 @@ contains
             allocate (DissInternalTidesPerArea(Ndx), stat=ierr)
             call aerr(' DissInternalTidesPerArea(Ndx)', ierr, Ndx)
             DissInternalTidesPerArea = 0.0_dp
-
             jaFrcInternalTides2D = 1
          end if
          target_location_type = UNC_LOC_S
@@ -1733,9 +1732,7 @@ contains
          end if
          target_location_type = UNC_LOC_S
          target_array => stemdiam
-
       case ('stemdensity')
-
          if (.not. allocated(stemdens)) then
             allocate (stemdens(ndx), stat=ierr)
             call aerr('stemdens(ndx)', ierr, ndx)
@@ -1743,9 +1740,7 @@ contains
          end if
          target_location_type = UNC_LOC_S
          target_array => stemdens
-
       case ('stemheight')
-
          if (.not. allocated(stemheight)) then
             allocate (stemheight(ndx), stat=ierr)
             call aerr('stemheight(ndx)', ierr, ndx)
@@ -1753,9 +1748,7 @@ contains
          end if
          target_location_type = UNC_LOC_S
          target_array => stemheight
-
       case ('windstresscoefficient')
-
          if (jaCdwusp == 0) then
             if (allocated(Cdwusp)) then
                deallocate (Cdwusp)
@@ -1768,7 +1761,6 @@ contains
          target_location_type = UNC_LOC_U
          target_array => Cdwusp
          iCdtyp = 1 ! only 1 coeff
-         !
       case ('wavesignificantheight', 'waveperiod', 'wavedirection')
          if (jawave == WAVE_NC_OFFLINE) then
             target_location_type = UNC_LOC_S
@@ -1818,39 +1810,32 @@ contains
          target_array_3d_sp => painp
          ! TODO: UNST-9008: discuss with Michelle whether this case is in fact equal to waqsegmentnumber.
          ! TODO: UNST-9008: discuss with Michelle generalized 2D/3D handling that is repeated in old code.
-
       case ('waqsegmentnumber')
          target_location_type = UNC_LOC_S
          call find_or_add_waq_input(qid_specific, paname, num_spatial_parameters, .true., waq_values = painp, index_waq_input = target_quantity_index)
          target_array_3d_sp => painp
          ! TODO: UNST-9008: discuss with Michelle generalized 2D/3D handling that is repeated in old code.
-
       case ('waqfunction')
          target_location_type = UNC_LOC_GLOBAL
          time_dependent_array = .true.
          call find_or_add_waq_input(qid_specific, funame, num_time_functions, .false., waq_values_ptr = funinp, index_waq_input = target_quantity_index)
-
       case ('waqsegmentfunction')
          target_location_type = UNC_LOC_S
          time_dependent_array = .true.
          call find_or_add_waq_input(qid_specific, sfunname, num_spatial_time_fuctions, .true., waq_values_ptr = sfuninp, index_waq_input = target_quantity_index)
-
       case ('nudgesalinitytemperature')
          target_location_type = UNC_LOC_S3D
          time_dependent_array = .true.
          quantity_value_count = 2
          call alloc_nudging()
-         
       case ('nudgerate')
          target_location_type = UNC_LOC_S
          call alloc_nudging()
          target_array => nudge_rate
-
       case ('nudgetime')
          target_location_type = UNC_LOC_S
          call alloc_nudging()
          target_array => nudge_time
-
       case default
          write (msgbuf, '(5a)') 'Wrong block in file ''', trim(inifilename), &
             ' Field '''//trim(qid)//''' is not a recognized ''[Parameter]'' quantity (refer to User Manual). Ignoring this block.'
