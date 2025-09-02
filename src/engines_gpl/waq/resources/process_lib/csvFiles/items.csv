@@ -14344,3 +14344,4 @@ itemid,itemse,itemex,itemde,itemun,itemnm,itemag,itemda,itemwk,itemgr
 "dG5_ncmCh2","x"," ",   -999.000    ,"(mgChl/m3/d)        ","grazing of PROTIST NCM 2 (Chl) by DEB Grazer5     ","volume    ","volume    "," ","                              "
 "dG5_zooCh1","x"," ",   -999.000    ,"(mgChl/m3/d)        ","grazing of PROTIST zoo 1 (Chl) by DEB Grazer5     ","volume    ","volume    "," ","                              "
 "dG5_zooCh2","x"," ",   -999.000    ,"(mgChl/m3/d)        ","grazing of PROTIST zoo 2 (Chl) by DEB Grazer5     ","volume    ","volume    "," ","                              "
+"AirTemp   ","x"," ",    0.00000    ,"(oC)                ","Air temperature                                   ","volume    ","volume    "," ","                              "
