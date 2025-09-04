@@ -70,7 +70,7 @@ program unstruc
    use unstruc_model, only: md_jaopengl, md_pressakey, md_jatest, md_nruns, md_soltest, md_cfl, md_icgsolver, md_maxmatvecs, md_epsdiff, &
                             md_epscg, md_convnetcells, md_netfile, md_jasavenet, md_jamake1d2dlinks, md_japartition, md_partugrid, md_ident, md_ndomains, &
                             md_jacontiguous, md_pmethod, md_genpolygon, md_partseed, md_restartfile, md_mapfile, md_classmap_file, md_flowgeomfile, md_partitionfile, &
-                            md_jagridgen, md_jarefine, md_cutcells, md_cfgfile, md_convertlongculverts, md_jaautostart
+                            md_jagridgen, md_jarefine, md_cutcells, md_cfgfile, md_convertlongculverts
    use unstruc_netcdf, only: unc_conv_ugrid, level_info, unc_write_net
    use unstruc_api, only: flow
    use messagehandling, only: warn_flush, msgbuf, mess, msg_flush
@@ -111,7 +111,7 @@ program unstruc
    use m_pressakey, only: pressakey
    use m_fetch_operation_utils, only: set_mpi_environment_wwo_fetch_proc, finish_fetch_proc
    use m_solve_petsc, only: startpetsc
-   use m_start_parameters, only: MD_AUTOSTART, MD_AUTOSTARTSTOP
+   use m_start_parameters, only: MD_AUTOSTART, MD_AUTOSTARTSTOP, MD_NOAUTOSTART, md_jaautostart
    use unstruc_display, only: load_displaysettings
    use m_gridtonet, only: gridtonet
    use m_partitioninfo, only: partition_finalize
@@ -384,9 +384,8 @@ program unstruc
 
          call DRAWNU(KEY) ! Draw model for the first time
       end if
-
-      if (jaGUI == 0 .or. (md_jaAutoStart == MD_AUTOSTART .or. md_jaAutoStart >= MD_AUTOSTARTSTOP)) then
-         if (jaGUI == 0 .or. md_jaAutoStart > MD_AUTOSTARTSTOP) then
+      if (md_jaAutoStart == MD_AUTOSTART .or. md_jaAutoStart >= MD_AUTOSTARTSTOP) then
+         if (md_jaAutoStart > MD_AUTOSTARTSTOP) then
             ntek = 0
          end if
          idum = FLOW()
