@@ -164,7 +164,7 @@ contains
       minor = 0
       call get_version_number(md_ptr, major=major, minor=minor, success=success1)
       if (.not. success1) then
-         msgbuf = 'Early return, file '//trim(structurefile)//' is a 2D3D structure file, it will be read by function flow_init_structurecontrol_old.'
+         msgbuf = 'Early return, file '//trim(structurefile)//' is a 2D3D structure file (version 1.0).'
          call msg_flush()
          ! TODO: UNST-8867: re-enable the warning below after support for old structure files is dropped/differences have been explained.
          ! msgbuf = 'This functionality is deprecated, please convert this file to the current version.'
