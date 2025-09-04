@@ -40,7 +40,7 @@
 !> \page Unstruc Unstruc API docs
 !! Below is the flow structure of the unstructured grid flow solver when called form command line
 !! \image html Netmain_Logical_Call_sequence.svg
-!! 
+!!
 !! For BMI execution check \ref BMI_Unstruc
 !!
 !! \li \b Main \b program: net_main.f90
@@ -119,7 +119,7 @@ program unstruc
    use m_inidat, only: inidat
    use m_iset_jaopengl, only: iset_jaopengl
    use m_resetb, only: resetb
-   
+
    implicit none
 
    integer :: KEY
@@ -134,7 +134,7 @@ program unstruc
    character(len=maxnamelen) :: md_mapfile_base !< storing the user-defined map file
    character(len=maxnamelen) :: md_flowgeomfile_base !< storing the user-defined flowgeom file
    character(len=maxnamelen) :: md_classmapfile_base !< storing the user-defined class map file
-   real(kind=dp) :: tstartall, tstopall 
+   real(kind=dp) :: tstartall, tstopall
 
    call wall_clock_time(tstartall)
 #if HAVE_DISPLAY==0
