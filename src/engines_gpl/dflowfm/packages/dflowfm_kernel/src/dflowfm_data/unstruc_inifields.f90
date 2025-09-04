@@ -164,6 +164,7 @@ contains
       use m_alloc, only: reallocP
       use m_ec_parameters, only: ec_undef_int
       use m_cell_geometry, only: xz, yz
+      use string_module, only: str_tolower
 
       use dfm_error, only: DFM_NOERR, DFM_WRONGINPUT
       use m_missing, only: dmiss
@@ -264,6 +265,14 @@ contains
          !! Step 1: Read each block
          call readIniFieldProvider(inifilename, node_ptr, groupname, qid, filename, filetype, method, &
                                    iloctype, operand, transformcoef, ja, varname)
+         ! convert quantity name used in configuration file to the corresponding internal CF name
+         select case (str_tolower(trim(qid)))
+         case ('seaiceareafraction')
+            qid = 'sea_ice_area_fraction'
+         case ('seaicethickness')
+            qid = 'sea_ice_thickness'
+         end select
+         
          if (ja == 1) then
             call resolvePath(filename, basedir)
             ib = ib + 1
@@ -1710,7 +1719,7 @@ contains
          target_location_type = UNC_LOC_U
          target_array => frculin
          jafrculin = 1
-      case ('seaiceareafraction', 'seaicethickness')
+      case ('sea_ice_area_fraction', 'sea_ice_thickness')
          if (ja_ice_area_fraction_read == 0 .and. ja_ice_thickness_read == 0) then
             call fm_ice_activate_by_ext_forces(ndx, md_ptr)
          end if
@@ -2045,9 +2054,9 @@ contains
          if (qid == 'interceptionlayerthickness') then
             jaintercept2D = 1
          end if
-      case ('seaiceareafraction')
+      case ('sea_ice_area_fraction')
          ja_ice_area_fraction_read = 1
-      case('seaicethickness')
+      case('sea_ice_thickness')
          ja_ice_thickness_read = 1
       case ('secchidepth')
          jaSecchisp = 1
