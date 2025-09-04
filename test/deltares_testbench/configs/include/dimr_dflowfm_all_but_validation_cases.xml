@@ -2153,8 +2153,8 @@
         </file>
       </checks>
     </testCase>
-    <testCase name="e02_f006_c173_icecover_netcdf" ref="dflowfm_default">
-      <path version="2025-09-02T12:25:00.000000">e02_dflowfm/f006_external_forcing/c173_icecover_netcdf</path>
+    <testCase name="e02_f006_c174_icecover_netcdf_inifield" ref="dflowfm_default">
+      <path version="2025-09-04T19:00:00.000000">e02_dflowfm/f006_external_forcing/c174_icecover_netcdf_inifield</path>
       <maxRunTime>15000.0000000</maxRunTime>
       <checks>
         <file name="dflowfmoutput/patm_his.nc" type="netCDF">
@@ -2171,6 +2171,24 @@
           <parameters>
             <parameter name="mesh2d_ice_open_water_level" toleranceAbsolute="0.0001" />
             <parameter name="mesh2d_ice_area_fraction" toleranceAbsolute="0.0001" />
+          </parameters>
+        </file>
+      </checks>
+    </testCase>
+    <testCase name="e02_f006_c175_icecover_ascii_curvilinear_inifield" ref="dflowfm_default">
+      <path version="2025-09-04T19:00:00.000000">e02_dflowfm/f006_external_forcing/c175_icecover_ascii_curvilinear_inifield</path>
+      <maxRunTime>15000.0000000</maxRunTime>
+      <checks>
+        <file name="dflowfmoutput/patm_his.nc" type="netCDF">
+          <parameters>
+            <parameter name="ice_area_fraction" toleranceAbsolute="0.0001" />
+            <parameter name="ice_thickness" toleranceAbsolute="0.0001" />
+          </parameters>
+        </file>
+        <file name="dflowfmoutput/patm_map.nc" type="netCDF">
+          <parameters>
+            <parameter name="mesh2d_ice_area_fraction" toleranceAbsolute="0.0001" />
+            <parameter name="mesh2d_ice_thickness" toleranceAbsolute="0.0001" />
           </parameters>
         </file>
       </checks>
