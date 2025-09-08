@@ -306,20 +306,29 @@ contains
       
       ! Check the validity of the layer mapping table (starts with 1 and increments of 0 or 1 only.
       if (size(layer_mapping_table) /= input%num_layers) then
-         write (message, *) 'Definition of vertical aggregation does not match the number of layers.'
+         write (message, *) 'Definition of vertical layer mapping does not match the number of layers.'
          call mess(LEVEL_ERROR, trim(message))
+         return
       end if
       
       if (layer_mapping_table(1) /= 1) then
-         write (message, *) 'Definition of vertical aggregation should start with one.'
+         write (message, *) 'Definition of vertical layer mapping should start with one.'
          call mess(LEVEL_ERROR, trim(message))
+         return
       end if
       
       do i = 1, input%num_layers - 1
          increment = layer_mapping_table(i+1) - layer_mapping_table(i)
-         if (increment/=0 .and. increment/=1) then
-            write (message, *) 'Definition of vertical aggregation must only contain increments of 0 or 1.'
+         if (increment>1) then
+            write (message, *) 'Definition of vertical layer mapping can only contain increments of 1 or remain '// &
+                               'the same between layers.'
             call mess(LEVEL_ERROR, trim(message))
+            return
+         end if
+         if (increment<0) then
+            write (message, *) 'Definition of vertical layer mapping can not decrease between layers.'
+            call mess(LEVEL_ERROR, trim(message))
+            return
          end if
          if (increment==0) then
             no_aggregation = .false.
