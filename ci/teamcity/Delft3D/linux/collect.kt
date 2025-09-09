@@ -97,7 +97,9 @@ object LinuxCollect : BuildType({
             }
 
             artifacts {
-                artifactRules = "oss_artifacts_lnx64_*.tar.gz!lnx64/** => lnx64"
+                artifactRules = "oss_artifacts_lnx64_*.tar.gz!lnx64/bin/** => lnx64/bin"
+                artifactRules = "oss_artifacts_lnx64_*.tar.gz!lnx64/lib/** => lnx64/lib"
+                artifactRules = "oss_artifacts_lnx64_*.tar.gz!lnx64/share/** => lnx64/share"
             }
         }
     }
