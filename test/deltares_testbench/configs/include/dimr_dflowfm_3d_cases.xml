@@ -1086,7 +1086,7 @@
         </file>
       </checks>
     </testCase>
-    <testCase name="e02_f208_c019_sill_sub_3Dz" ref="platform_specific">
+    <testCase name="e02_f208_c019_sill_sub_3Dz" ref="dflowfm_default">
       <path version="2025-09-09T13:50:20.906000">e02_dflowfm/f208_3D_hydraulic_structures/c019_sill_sub_3Dz</path>
       <maxRunTime>15000.0000000</maxRunTime>
       <checks>
