@@ -200,8 +200,8 @@ contains
                do k = 1, ndx
                   if (hs(k) <= stmpar%morpar%sedthr) then
                      call getkbotktop(k, kb, kt)
-                     ssccum(grain, k) = ssccum(grain, k) + sum(constituents(ISED1 + grain - 1, kb:kt)) / &
-                                        dts * bai_mor(k) * vol1(k)
+                     ssccum(grain, k) = ssccum(grain, k) + sum(constituents(ISED1 + grain - 1, kb:kt)*vol1(kb:kt)) / &
+                                        dts * bai_mor(k)
                      constituents(ISED1 + grain - 1, kb:kt) = 0d0
                      constituents(ISED1 + grain - 1, k) = 0d0
                   end if
