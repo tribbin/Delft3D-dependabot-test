@@ -400,7 +400,7 @@ contains
       use unstruc_files
       use m_flowtimes
       use timers
-      use m_wind, only: jawind, jarain, solar_radiation_available, net_solar_radiation_available
+      use m_wind, only: jawind, jarain
       use date_time_utils, only: compute_reference_day
       use m_logger_helper, only: set_log_unit_number
       use m_wq_processes_mpi, only: wq_processes_mpi, wq_processes_mpi_subroutines
@@ -659,7 +659,8 @@ contains
 
       icon = index_in_array(cirradiation, coname_sub)
       isfradsurf = 0
-      if ((solar_radiation_available.or.net_solar_radiation_available) .and. jatem > 1) then
+      no_reflection_wq = .false.
+      if (jatem == 5) then
          if (icon > 0) then
             num_spatial_time_fuctions = num_spatial_time_fuctions + 1
             isfradsurf = num_spatial_time_fuctions
@@ -671,7 +672,7 @@ contains
          end if
       else
          if (icon > 0) then
-            call mess(LEVEL_INFO, '''radsurf'' is the sub-file but ''net solar radiation'' is not in the hydrodynamic model.')
+            call mess(LEVEL_INFO, '''radsurf'' is the sub-file but ''net solar radiation'' is not at available because the composite (ocean) temperature model is not used.')
          end if
       end if
 
