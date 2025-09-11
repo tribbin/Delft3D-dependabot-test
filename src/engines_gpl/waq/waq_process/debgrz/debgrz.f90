@@ -537,8 +537,8 @@ subroutine debgrz(process_space_real , fl , ipoint , increm , num_cells , noflux
         ! the size of the Pca flux is based on Pomm, but its carbon/energy is not coming from Pomm.
         ! It is coming from dissipation fluxes instead and is thus subtracted from dRes.
 
-        fl (26 + iflux  ) =  (pomm/egsmo)* cso_cm3_gc * dens   ! change in organic shell matrix [gC/m3/d])
-        fl (27 + iflux  ) =  (pca/egsmi) * csi_cm3_gc * dens       ! calcification of shell matrix [gC/m3/d])
+        fl (26 + iflux  ) =  pomm/(tiny(egsmo)+egsmo)* cso_cm3_gc * dens   ! change in organic shell matrix [gC/m3/d])
+        fl (27 + iflux  ) =  pca/(tiny(egsmi)+egsmi) * csi_cm3_gc * dens       ! calcification of shell matrix [gC/m3/d])
 
         fl (28 + iflux  ) = (0.+ gem)*av%dfil(1) * dens                 !uptake    [gC/m3/d]
         fl (29 + iflux  ) = (1.- gem)*av%dfil(1) * dens
