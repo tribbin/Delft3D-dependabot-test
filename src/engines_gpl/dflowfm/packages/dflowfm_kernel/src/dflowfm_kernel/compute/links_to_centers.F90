@@ -50,7 +50,8 @@ contains
 
       if (kmx == 0) then
          do L = 1, lnx
-            k1 = ln(1, L); k2 = ln(2, L)
+            k1 = ln(1, L)
+            k2 = ln(2, L)
             vnod(k1) = vnod(k1) + vlin(L) * wcL(1, L)
             vnod(k2) = vnod(k2) + vlin(L) * wcL(2, L)
          end do
