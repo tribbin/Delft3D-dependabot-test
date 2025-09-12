@@ -24,7 +24,7 @@ from typing import List, Tuple
 class FortranDoubleConverter:
     """
     Converter for Fortran double precision literals and declarations from D format to _dp format.
-    
+
     Based on Fortran standard syntax:
     signed-real-literal-constant : [ sign ] real-literal-constant
     real-literal-constant : significand [ exponent-letter exponent ] [ '_' kind-param ]
@@ -33,10 +33,10 @@ class FortranDoubleConverter:
                   or '.' digit-string
     exponent-letter : E or D
     exponent : signed-digit-string
-    
+
     We focus on exponent-letter being D and double precision declarations.
     """
-    
+
     def __init__(self):
         # Pattern to match Fortran double precision literals with D exponent
         # This matches patterns like: 1d0, 1.0d0, .5d0, 123d-5, 0.123d+10, etc.
@@ -58,7 +58,7 @@ class FortranDoubleConverter:
             ''',
             re.VERBOSE
         )
-        
+
         # Pattern to match double precision variable declarations
         # Matches: double precision :: var, double precision, dimension(...) :: var, etc.
         self.double_precision_pattern = re.compile(
@@ -73,29 +73,29 @@ class FortranDoubleConverter:
             ''',
             re.VERBOSE | re.IGNORECASE
         )
-        
+
         # Pattern to detect if we're inside a comment or string
         self.comment_pattern = re.compile(r'(!.*$)', re.MULTILINE)
         self.string_patterns = [
             re.compile(r"'([^']*(?:''[^']*)*)'"),  # Single quotes
             re.compile(r'"([^"]*(?:""[^"]*)*)"'),  # Double quotes
         ]
-        
+
         # Pattern to find module declaration
         self.module_pattern = re.compile(r'^(\s*module\s+\w+\s*)$', re.MULTILINE | re.IGNORECASE)
-        
+
         # Pattern to find existing precision import
         self.precision_import_pattern = re.compile(
-            r'^\s*use\s+precision\s*(?:,\s*only\s*:\s*dp)?\s*$', 
+            r'^\s*use\s+precision\s*(?:,\s*only\s*:\s*dp)?\s*$',
             re.MULTILINE | re.IGNORECASE
         )
-        
+
         # Pattern to find the end of use statements section
         self.use_section_end_pattern = re.compile(
             r'^\s*(?:implicit\s+none|contains|private|public|integer|real|character|logical|type|interface)\s*',
             re.MULTILINE | re.IGNORECASE
         )
-    
+
     def _is_in_string_or_comment(self, text: str, pos: int) -> bool:
         """Check if position is inside a string literal or comment."""
         # Check for comments first (everything after ! to end of line)
@@ -106,21 +106,21 @@ class FortranDoubleConverter:
             pos_in_line = len(current_line)
             if pos_in_line > comment_pos:
                 return True
-        
+
         # Check for string literals
         for pattern in self.string_patterns:
             for match in pattern.finditer(text):
                 if match.start() <= pos <= match.end():
                     return True
-        
+
         return False
-    
+
     def _convert_literal(self, match: re.Match) -> str:
         """Convert a single D literal to _dp format."""
         sign = match.group('sign')
         significand = match.group('significand')
         exponent = match.group('exponent')
-        
+
         # Handle significand formatting
         if '.' not in significand:
             # Add .0 if no decimal point (e.g., 1d0 -> 1.0)
@@ -131,7 +131,7 @@ class FortranDoubleConverter:
         elif significand.startswith('.'):
             # Add 0 before leading decimal (e.g., .5 -> 0.5)
             significand = '0' + significand
-        
+
         # Convert D exponent to E exponent and add _dp kind
         if exponent == '0':
             # Simple case: no exponent needed
@@ -139,73 +139,73 @@ class FortranDoubleConverter:
         else:
             # Include exponent with E
             return f"{sign}{significand}e{exponent}_dp"
-    
+
     def _convert_double_precision_declaration(self, match: re.Match) -> str:
         """Convert a double precision declaration to real(kind=dp) format."""
         indent = match.group('indent')
         attributes = match.group('attributes').strip()
         rest = match.group('rest')
-        
+
         # Build the new declaration
         new_declaration = f"{indent}real(kind=dp)"
-        
+
         # Add attributes if they exist (like dimension(...), parameter, etc.)
         if attributes:
             new_declaration += attributes
-        
+
         new_declaration += " ::" + rest
-        
+
         return new_declaration
-    
+
     def _add_precision_import(self, text: str) -> str:
         """Add 'use precision, only: dp' import if not already present."""
         # Check if precision import already exists
         if self.precision_import_pattern.search(text):
             return text
-        
+
         # Find module declaration
         module_match = self.module_pattern.search(text)
         if not module_match:
             # No module found, return text unchanged
             return text
-        
+
         # Find where to insert the use statement
         module_end = module_match.end()
-        
+
         # Look for existing use statements after the module declaration
         remaining_text = text[module_end:]
         lines = remaining_text.split('\n')
-        
+
         insert_line_idx = 0
         use_statements_found = False
-        
+
         for i, line in enumerate(lines):
             stripped_line = line.strip()
-            
+
             # Skip empty lines and comments at the beginning
             if not stripped_line or stripped_line.startswith('!'):
                 continue
-            
+
             # Check if this is a use statement
             if re.match(r'^\s*use\s+', line, re.IGNORECASE):
                 use_statements_found = True
                 insert_line_idx = i + 1  # Insert after this use statement
                 continue
-            
+
             # If we've found use statements and now hit something else, insert here
             if use_statements_found:
                 insert_line_idx = i
                 break
-            
+
             # If this is 'implicit none' or other declaration, insert before it
             if self.use_section_end_pattern.match(line):
                 insert_line_idx = i
                 break
-            
+
             # If we haven't found any use statements yet, this might be the first declaration
             insert_line_idx = i
             break
-        
+
         # Determine indentation (use the same as surrounding use statements or module)
         indent = "   "  # Default indentation
         if use_statements_found and insert_line_idx > 0:
@@ -217,10 +217,10 @@ class FortranDoubleConverter:
             next_line = lines[insert_line_idx]
             if next_line.strip():
                 indent = next_line[:len(next_line) - len(next_line.lstrip())]
-        
+
         # Insert the precision import
         precision_import = f"{indent}use precision, only: dp"
-        
+
         # Reconstruct the text
         before_module = text[:module_end]
         if insert_line_idx == 0:
@@ -231,95 +231,95 @@ class FortranDoubleConverter:
             before_insert = '\n'.join(lines[:insert_line_idx])
             after_insert = '\n'.join(lines[insert_line_idx:])
             new_text = before_module + '\n' + before_insert + '\n' + precision_import + '\n' + after_insert
-        
+
         return new_text
-    
+
     def convert_text(self, text: str) -> Tuple[str, bool]:
         """Convert all D literals and double precision declarations in the given text. Returns (converted_text, was_converted)."""
         original_text = text
         conversions_made = False
-        
+
         # Convert D literals
         def replace_literal_match(match):
             # Check if this match is inside a string or comment
             if self._is_in_string_or_comment(text, match.start()):
                 return match.group(0)  # Return unchanged
             return self._convert_literal(match)
-        
+
         text = self.d_literal_pattern.sub(replace_literal_match, text)
         if text != original_text:
             conversions_made = True
-        
+
         # Convert double precision declarations
         def replace_declaration_match(match):
             # Check if this match is inside a string or comment
             if self._is_in_string_or_comment(text, match.start()):
                 return match.group(0)  # Return unchanged
             return self._convert_double_precision_declaration(match)
-        
+
         original_after_literals = text
         text = self.double_precision_pattern.sub(replace_declaration_match, text)
         if text != original_after_literals:
             conversions_made = True
-        
+
         # If any conversions were made, add precision import
         if conversions_made:
             text = self._add_precision_import(text)
-        
+
         return text, conversions_made
-    
+
     def convert_file(self, input_path: Path) -> bool:
         """Convert a single file in-place."""
         try:
             with open(input_path, 'r', encoding='utf-8') as f:
                 original_content = f.read()
-            
+
             converted_content, was_converted = self.convert_text(original_content)
-            
+
             # Only write if there were changes
             if was_converted:
                 with open(input_path, 'w', encoding='utf-8') as f:
                     f.write(converted_content)
-                
+
                 # Count conversions for reporting
                 original_literal_matches = len(self.d_literal_pattern.findall(original_content))
                 converted_literal_matches = len(self.d_literal_pattern.findall(converted_content))
                 literal_conversions = original_literal_matches - converted_literal_matches
-                
+
                 original_declaration_matches = len(self.double_precision_pattern.findall(original_content))
                 converted_declaration_matches = len(self.double_precision_pattern.findall(converted_content))
                 declaration_conversions = original_declaration_matches - converted_declaration_matches
-                
+
                 print(f"Converted {literal_conversions} literals and {declaration_conversions} declarations in {input_path}")
-                
+
                 # Check if precision import was added
                 if not self.precision_import_pattern.search(original_content) and \
                    self.precision_import_pattern.search(converted_content):
                     print(f"  Added 'use precision, only: dp' import")
-                
+
                 return True
             else:
                 print(f"No conversions needed in {input_path}")
                 return False
-                
+
         except Exception as e:
             print(f"Error processing {input_path}: {e}")
             return False
-    
+
     def convert_directory(self, directory: Path, extensions: List[str] = None) -> Tuple[int, int]:
         """Convert all Fortran files in a directory in-place."""
         if extensions is None:
             extensions = ['.f90', '.f95', '.f03', '.f08', '.F90', '.F95', '.F03', '.F08']
-        
+
         files_processed = 0
         files_converted = 0
-        
+
         for ext in extensions:
             for file_path in directory.rglob(f"*{ext}"):
                 files_processed += 1
                 if self.convert_file(file_path):
                     files_converted += 1
-        
+
         return files_processed, files_converted
 
 
@@ -331,43 +331,43 @@ def main():
 Examples:
   python convert_double.py input.f90 another.f90
   python convert_double.py --directory src/
-  
+
 Conversions performed:
   - Literals: 1d0 -> 1.0_dp, 2.5d-3 -> 2.5e-3_dp, etc.
   - Declarations: double precision :: var -> real(kind=dp) :: var
-  
+
 Note: All conversions are done in-place. Use git for version control safety.
 The script automatically adds 'use precision, only: dp' when conversions are made.
         """
     )
-    
+
     parser.add_argument('files', nargs='*', help='Input Fortran files to convert in-place')
-    parser.add_argument('-d', '--directory', type=Path, 
+    parser.add_argument('-d', '--directory', type=Path,
                        help='Process all Fortran files in directory recursively (in-place)')
-    parser.add_argument('--extensions', nargs='+', 
+    parser.add_argument('--extensions', nargs='+',
                        default=['.f90', '.f95', '.f03', '.f08', '.F90', '.F95', '.F03', '.F08'],
                        help='File extensions to process (default: Fortran extensions)')
-    
+
     args = parser.parse_args()
-    
+
     converter = FortranDoubleConverter()
-    
+
     if args.directory:
         print(f"Processing directory: {args.directory}")
         files_processed, files_converted = converter.convert_directory(
             args.directory, args.extensions
         )
         print(f"Processed {files_processed} files, converted {files_converted} files")
-    
+
     elif args.files:
         for file_str in args.files:
             input_path = Path(file_str)
             converter.convert_file(input_path)
-    
+
     else:
         parser.print_help()
         return 1
-    
+
     return 0
 
 
