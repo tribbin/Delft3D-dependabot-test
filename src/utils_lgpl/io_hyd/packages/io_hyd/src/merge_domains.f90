@@ -118,8 +118,8 @@
       hyd%waqgeom%num_layers = d_hyd%waqgeom%num_layers
       hyd%waqgeom%numtopsig = d_hyd%waqgeom%numtopsig
       hyd%waqgeom%layertype = d_hyd%waqgeom%layertype
-      hyd%waqgeom%layer_zs => d_hyd%waqgeom%layer_zs
-      hyd%waqgeom%interface_zs => d_hyd%waqgeom%interface_zs
+      allocate( hyd%waqgeom%layer_zs, source = d_hyd%waqgeom%layer_zs )
+      allocate( hyd%waqgeom%interface_zs, source = d_hyd%waqgeom%interface_zs )
 
       ! init totals
       hyd%num_rows  = 1
