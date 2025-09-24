@@ -6740,9 +6740,9 @@ contains
       character(len=*), intent(in) :: quantity_input_name !< given by the user in ini/ext file
       character(len=:), allocatable :: quantity_internal_name !< consistent internal name
       
-      ! the internal representation is always lower case for string comparisons
-      quantity_internal_name = str_tolower(trim(quantity_input_name))
-      select case(quantity_internal_name)
+      ! it's not safe to assume that the internal representation is always lower case
+      quantity_internal_name = trim(quantity_input_name)
+      select case(str_tolower(quantity_internal_name))
       case ('seaiceareafraction')
          quantity_internal_name = 'sea_ice_area_fraction'
       case ('seaicethickness')
