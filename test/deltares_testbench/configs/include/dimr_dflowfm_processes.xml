@@ -852,7 +852,7 @@
 </testCase>
 
 <testCase name="e02_f030_c031_frisianinlet_waqbot_restart_2D" ref="dflowfm_default_restart">
-  <path version="2025-09-03T12:22:11.626000">e02_dflowfm/f030_water_quality_processes/c031_frisianinlet_waqbot_restart_2D</path>
+  <path version="2025-09-24T10:44:34.208000">e02_dflowfm/f030_water_quality_processes/c031_frisianinlet_waqbot_restart_2D</path>
   <checks>
     <file name="dflowfmoutput/f34_waqbot_restart_map.nc" type="netCDF">
       <parameters>
@@ -883,7 +883,7 @@
   </checks>
 </testCase>
 <testCase name="e02_f030_c032_frisianinlet_waqbot_restart" ref="dflowfm_default_restart">
-  <path version="2025-09-03T12:22:11.626000">e02_dflowfm/f030_water_quality_processes/c032_frisianinlet_waqbot_restart</path>
+  <path version="2025-09-24T10:55:48.426000">e02_dflowfm/f030_water_quality_processes/c032_frisianinlet_waqbot_restart</path>
   <checks>
     <file name="dflowfmoutput/f34_waqbot_restart_map.nc" type="netCDF">
       <parameters>
@@ -924,7 +924,7 @@
   </checks>
 </testCase>
 <testCase name="e02_f030_c033_frisianinlet_waqbot_restart_z" ref="dflowfm_default_restart">
-  <path version="2025-09-03T12:22:11.626000">e02_dflowfm/f030_water_quality_processes/c033_frisianinlet_waqbot_restart_z</path>
+  <path version="2025-09-24T10:55:53.930000">e02_dflowfm/f030_water_quality_processes/c033_frisianinlet_waqbot_restart_z</path>
   <checks>
     <file name="dflowfmoutput/f34_waqbot_restart_map.nc" type="netCDF">
       <parameters>
