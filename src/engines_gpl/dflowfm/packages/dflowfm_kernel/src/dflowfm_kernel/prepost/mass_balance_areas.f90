@@ -541,7 +541,7 @@ contains
       double precision :: sec !< (fractional) seconds
 
       datestr = ""
-      if (mjd2date(refdate_mjd + time / 86400.0, iyear, imonth, iday, ihour, imin, sec) /= 0) then
+      if (mjd2date(refdate_mjd + time / 86400.0_dp, iyear, imonth, iday, ihour, imin, sec) /= 0) then
          write (datestr, '(i4,"-",i2.2,"-",i2.2," ",i2.2,":",i2.2,":",i2.2)') iyear, imonth, iday, ihour, imin, int(sec)
       end if
    end subroutine mba_datestr
