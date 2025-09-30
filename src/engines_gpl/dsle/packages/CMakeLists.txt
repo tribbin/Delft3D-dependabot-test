@@ -125,7 +125,9 @@ elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 endif()
 
 add_subdirectory(src/unity)
-
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${ZSF_SOURCE_FILES})
+set_target_properties (zsf PROPERTIES FOLDER engines_gpl/dsle)
+set_target_properties (zsf-static PROPERTIES FOLDER engines_gpl/dsle)
 # Unit tests
 add_subdirectory(tests)
 

@@ -29,3 +29,13 @@ add_test(NAME test_ini_read COMMAND test_ini_read WORKING_DIRECTORY ${CMAKE_CURR
 add_executable(test_timestamp test_timestamp.c)
 target_link_libraries(test_timestamp PRIVATE test_dependencies)
 add_test(NAME test_timestamp COMMAND test_timestamp)
+
+foreach(test_target
+    test_dimr_bmi
+    test_io_layer_distribution
+    test_load_csv
+    test_ini_read
+    test_timestamp
+)
+    set_target_properties(${test_target} PROPERTIES FOLDER tests/engines_gpl/dsle)
+endforeach()
