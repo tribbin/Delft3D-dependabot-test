@@ -133,4 +133,4 @@ add_subdirectory(tests)
 
 install(
     TARGETS
-    ${INSTALL_TARGETS})
+    zsf RUNTIME DESTINATION lib)
