@@ -113,26 +113,24 @@ contains
          do k = 1, Ndxi
             dtmax(k) = dtmax_default
 
-            if (s1(k) - bl(k) > epshu) then
-               if (jalimitdtdiff == 0) then
-                  if (squ(k) > eps10) then
-                     dtmax(k) = min(dtmax(k), cflmx * vol1(k) / squ(k))
-                  end if
-               else
-                  if (sqi(k) + sumdifflim(k) > eps10) then
-                     dtmax(k) = min(dtmax(k), cflmx * vol1(k) / (sqi(k) + sumdifflim(k)))
-                  end if
+            if (jalimitdtdiff == 0) then
+               if (squ(k) > eps10) then
+                  dtmax(k) = min(dtmax(k), cflmx * vol1(k) / squ(k))
                end if
-               
-               if (jampi == 1) then
-!                 do not include ghost cells
-                  if (idomain(k) /= my_rank) cycle
+            else
+               if (sqi(k) + sumdifflim(k) > eps10) then
+                  dtmax(k) = min(dtmax(k), cflmx * vol1(k) / (sqi(k) + sumdifflim(k)))
                end if
-               
-               if (dtmax(k) < dtmin_transp) then
-                  dtmin_transp = dtmax(k)
-                  kk_dtmin = k
-               end if
+            end if
+
+            if (jampi == 1) then
+!              do not include ghost cells
+               if (idomain(k) /= my_rank) cycle
+            end if
+
+            if (dtmax(k) < dtmin_transp) then
+               dtmin_transp = dtmax(k)
+               kk_dtmin = k
             end if
 
          end do
