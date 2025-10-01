@@ -85,8 +85,11 @@ set(ZSF_SOURCE_FILES
 ################################## Targets ###################################
 ##############################################################################
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-
-add_library(zsf SHARED ${ZSF_SOURCE_FILES})
+#Version includes
+set(version_include_dir ${CMAKE_SOURCE_DIR}/../version_includes)
+set(rc_version_file ${CMAKE_CURRENT_SOURCE_DIR}/../version/zsf_dll_version.rc)
+include_directories(${version_include_dir})
+add_library(zsf SHARED ${ZSF_SOURCE_FILES} ${rc_version_file})
 
 set_target_properties (zsf PROPERTIES
     DEFINE_SYMBOL "ZSF_EXPORTS"
