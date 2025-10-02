@@ -195,19 +195,17 @@ contains
       ! for in the bottom update when the cell becomes wet again. This prevents large concentration gradients and
       ! exploding bed levels.
       if (stm_included .and. ised1 > 0) then
-         if (ISED1 > 0) then
-            do grain = 1, mxgr
-               do k = 1, ndx
-                  if (hs(k) <= stmpar%morpar%sedthr) then
-                     call getkbotktop(k, kb, kt)
-                     ssccum(grain, k) = ssccum(grain, k) + sum(constituents(ISED1 + grain - 1, kb:kt)*vol1(kb:kt)) / &
-                                        dts * bai_mor(k)
-                     constituents(ISED1 + grain - 1, kb:kt) = 0.0_dp
-                     constituents(ISED1 + grain - 1, k) = 0.0_dp
-                  end if
-               end do
+         do grain = 1, mxgr
+            do k = 1, ndx
+               if (hs(k) <= stmpar%morpar%sedthr) then
+                  call getkbotktop(k, kb, kt)
+                  ssccum(grain, k) = ssccum(grain, k) + sum(constituents(ISED1 + grain - 1, kb:kt)*vol1(kb:kt)) / &
+                                     dts * bai_mor(k)
+                  constituents(ISED1 + grain - 1, kb:kt) = 0.0_dp
+                  constituents(ISED1 + grain - 1, k) = 0.0_dp
+               end if
             end do
-         end if
+         end do
       end if
 
       if (timon) then
