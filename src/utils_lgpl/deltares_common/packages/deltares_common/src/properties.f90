@@ -2233,7 +2233,7 @@ contains
       integer :: length
       integer :: valcount
       integer :: ierr
-      character(17) :: realchars = '0123456789-+.eEdD'
+      character(17) :: realchars = '0123456789-+.eE'
       character(2) :: spacechars = ' '//achar(9)
       character(20) :: fmt
       character(255) :: avalue
@@ -2328,6 +2328,7 @@ contains
    !!  Comments on this line:
    !!    Not allowed
    subroutine prop_get_logical(tree, chapter, key, value, success, value_parsed)
+      use string_module, only: convert_to_logical
       type(tree_data), pointer :: tree !< The property tree
       character(*), intent(in) :: chapter !< Name of the chapter (case-insensitive) or "*" to get any key
       character(*), intent(in) :: key !< Name of the key (case-insensitive)
@@ -2359,67 +2360,6 @@ contains
          end if
       end if
    end subroutine prop_get_logical
-   
-   subroutine convert_to_logical(string, bool, ierr)
-      use string_module, only: str_toupper, convert_to_real
-      !
-      character(len=*), intent(in) :: string
-      logical, intent(out) :: bool
-      integer, intent(out) :: ierr
-      !
-      ! Local variables
-      !
-      integer :: k1
-      integer :: k2
-      integer :: spacepos
-      integer :: vallength
-      real(dp) :: float
-      character(100), parameter :: FALSITY = '|0|N|NO|F|FALSE|.FALSE.|N|NEE|O|ONWAAR|OFF|'
-      character(100), parameter :: TRUTH = '|1|Y|YES|T|TRUE|.TRUE.|J|JA|W|WAAR|ON|'
-      !
-      bool = .false.
-      !
-      vallength = len_trim(string)
-      if (vallength == 0) then
-         ierr = 1
-         return
-      end if
-      spacepos = index(string, ' ')
-      if (spacepos > 0) vallength = min(spacepos - 1, vallength)
-      !
-      ! Extract the logical part
-      !
-      k1 = index(TRUTH, str_toupper(string(1:vallength)))
-      k2 = index(FALSITY, str_toupper(string(1:vallength)))
-      !
-      ! The value must match a complete word in string truth or falsity, bordered by two '|'s
-      !
-      ierr = 0
-      if (k1 > 0) then
-         if (TRUTH(k1 - 1:k1 - 1) == '|' .and. TRUTH(k1 + vallength:k1 + vallength) == '|') then
-            bool = .true.
-         else
-            ierr = 2
-         end if
-      else if (k2 > 0) then
-         if (FALSITY(k2 - 1:k2 - 1) == '|' .and. FALSITY(k2 + vallength:k2 + vallength) == '|') then
-            bool = .false.
-         else
-            ierr = 2
-         end if
-      else
-         call convert_to_real(string, float, ierr)
-         if (ierr == 0) then
-            if (comparereal(float,0.0_dp) == 0) then
-               bool = .false.
-            else
-               bool = .true.
-            end if
-         else
-            ierr = 2
-         end if
-      end if
-   end subroutine convert_to_logical
    !
    !
    ! ====================================================================
@@ -3232,8 +3172,13 @@ contains
    end subroutine prop_get_strings
    
    !> Returns the value of a property as a float or as a filename.
+   !! If the string represents a valid float, VALUE is set to that float and FILENAME is set to ' '.
+   !! If the string represents a valid logical, VALUE is set to 1.0 (for TRUE) or 0.0 (for FALSE) and FILENAME is set to ' '.
+   !! If the string is empty or the key does not exist, VALUE is unchanged and FILENAME is set to ' '.
+   !! In all these cases, IS_FLOAT is set to .true.
+   !! If the string represents neither a valid float nor a valid logical, VALUE is unchanged, FILENAME is set to the string obtained from the file and IS_FLOAT is set to .false.
    subroutine prop_get_value_or_filename(tree, chapter, key, reference, is_float, value, filename)
-   use string_module, only: convert_to_real
+   use string_module, only: convert_to_real, convert_to_logical
    use m_combinepaths, only: combinepaths
    use precision, only: fp
    
@@ -3241,9 +3186,9 @@ contains
    character(*), intent(in) :: chapter !< chapter in property tree
    character(*), intent(in) :: key !< key in property tree
    character(*), intent(in) :: reference !< reference path for relative filenames
-   logical, intent(out) :: is_float !< .true. if string is a float; .false. if string is a filename
-   real(fp), intent(inout) :: value !< float if string represent float; unchanged otherwise
-   character(len=:), allocatable, intent(out) :: filename !< filename if string is a valid filename; ' ' otherwise
+   logical, intent(out) :: is_float !< .true. if the string is empty (or key not specified) or if it's non-empty and represents a valid float or logical; .false. otherwise (non-empty string that does not represent a valid float or logical, so it should be interpreted as a filename)
+   real(fp), intent(inout) :: value !< float if the string represent a valid float or logical; unchanged otherwise
+   character(len=:), allocatable, intent(out) :: filename !< filename if string is non-empty, but not equal to valid float or logical; ' ' otherwise
    
    integer :: ierr !< error flag for convert_to_real
    logical :: bool !< temporary logical for convert_to_logical
