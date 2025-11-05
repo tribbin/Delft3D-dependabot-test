@@ -960,6 +960,14 @@ contains
                   call mess(LEVEL_FATAL, errmsg)
                end if
                !
+               ! prevent fluff layer source exceeding available mass
+               !
+               if (mfltot <= 0.0_fp) then
+                  sour_fluff = 0.0_fp
+               else
+                  sour_fluff = min(sour_fluff, mfltot/dts)
+               end if
+               !
                if (stmpar%morpar%moroutput%sedpar) then
                   do i = 1, stmpar%trapar%noutpar(l)
                      j = stmpar%trapar%ioutpar(i, l)
