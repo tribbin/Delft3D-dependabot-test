@@ -191,7 +191,7 @@ subroutine rdtdcn(lundia    ,lunout    ,lunrd     ,error     ,filout    , &
              call prterr(lundia    ,'G007'    ,filbcc    )
              if (iocond<0) then
                 if (n<nto .or. l<lstsc) then
-                   write(errmsg,'(3a)') 'not for all open boundaries BCC data defined in ', trim(filbcc),' or not in the expected order'
+                   write(errmsg,'(3a)') 'not for all open boundaries BCC data defined in ', trim(filbcc),', or not in the expected order'
                    call prterr(lundia    ,'U021'    ,errmsg)
                    error = .true.
                    goto 9999
