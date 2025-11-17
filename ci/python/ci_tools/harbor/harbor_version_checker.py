@@ -64,7 +64,7 @@ def fetch_all_tags(username: str, password: str) -> list[str]:
     while True:
         url = f"{BASE_URL}?page={page}&page_size={PAGE_SIZE}"
         print(f"Fetching page {page}...")
-        response = requests.get(url, auth=(username, password))
+        response = requests.get(url, auth=(username, password), timeout=30)
 
         if response.status_code != 200:
             print(f"Error: Failed to query API. Status code: {response.status_code}")
