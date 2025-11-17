@@ -106,6 +106,7 @@ class TestParseSemverTags:
 
     def test_semver_ignores_non_matching(self) -> None:
         tags = [
+            "weekly-foo-bar",
             "2.30.06-development",
             "weekly-2.29.23",
             "alma9-release-2025.01",
