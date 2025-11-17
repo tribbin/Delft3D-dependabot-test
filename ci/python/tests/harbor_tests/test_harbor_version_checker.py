@@ -286,6 +286,7 @@ class TestFetchAllTags:
         mock_get.assert_called_with(
             "https://containers.deltares.nl/api/v2.0/projects/delft3d/repositories/delft3dfm/artifacts?page=1&page_size=100",
             auth=(username, password),
+            timeout=30,
         )
 
     def test_fetch_all_tags_empty_response(self, mocker: MockerFixture) -> None:
