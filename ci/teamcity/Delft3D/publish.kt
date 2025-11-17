@@ -50,7 +50,7 @@ object Publish : BuildType({
     }
 
     params {
-        select("release_type", "pre-release", display = ParameterDisplay.PROMPT, options = listOf("pre-release", "release"))
+        select("release_type", "development", display = ParameterDisplay.PROMPT, options = listOf("development", "release"))
         text("release_version", "2.29.xx", 
             label = "Release version", 
             description = "e.g. '2.29.03' or '2025.02'", 
