@@ -42,7 +42,7 @@ contains
 
    !> Sets array zsc (z levels at layer mid-points, only for nudging)
    subroutine setzcs()
-      use m_flow, only: zcs, ndkx, zws, layertype, keepzlayeringatbed, zslay
+      use m_flow, only: zcs, ndkx, zws, layertype, LAYTP_Z, keepzlayeringatbed, zslay
       use m_flowgeom, only: ndx
       use m_get_kbot_ktop, only: getkbotktop
       use m_get_zlayer_indices, only: getzlayerindices
