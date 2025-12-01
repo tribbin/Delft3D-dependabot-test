@@ -160,6 +160,7 @@ WaqInterval                       = 0                                           
 StatsInterval                     =                                                                     # Interval (in s) between simulation statistics output [Dd HH:MM:SS.ZZZ]
 TimingsInterval                   =                                                                     # Timings statistics output interval [Dd HH:MM:SS.ZZZ]
 MapOutputTimeVector               =                                                                     # File (*.mpt) containing fixed map output times w.r.t. RefDate
+Wrishp_crs                        = 0                                                                   # Write shape file for cross section
 Wrishp_weir                       = 0                                                                   # Write shape file for weirs
 Wrishp_gate                       = 0                                                                   # Write shape file for gates
 Wrishp_fxw                        = 0                                                                   # Write shape file for fixed weirs
