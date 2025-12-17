@@ -222,7 +222,7 @@ module unstruc_model
    integer :: md_jagridgen = 0 !< Commandline-based simple grid generation.
    integer :: md_jarefine = 0 !< sample based mesh refinement or not
    integer :: md_jamake1d2dlinks = 0 !< Make 1D2D links from commandline (1) or not (0)
-   integer :: md_numthreads = 0 !< sample based mesh refinement or not
+   integer :: md_numthreads = 0 !< number of openmp threads to set (0: default)
    integer :: md_jatest = 0 !< only perform a (speed)test (1), or not (0)
    integer :: md_M = 1024 !< size of x in Axpy
    integer :: md_N = 2048 !< size of y in Axpy
