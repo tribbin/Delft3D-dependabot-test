@@ -1031,7 +1031,7 @@ void Dimr::runParallelUpdate(dimr_control_block* cb, double tStep) {
                                          thisCoupler->items[k].targetProcess,
                                          thisCoupler->items[k].sourceVarPtr);
                                 } else {
-                                    log->Write(INFO, my_rank, "Skipping receive on rank %d (target and source pointer not on same rank?).\n", my_rank);
+                                    log->Write(WARNING, my_rank, "Skipping pointer based exchange on rank %d: target and source component not on same rank!\n", my_rank);
                                 }
 
                                 if (thisCoupler->logger != NULL && my_rank == 0)
