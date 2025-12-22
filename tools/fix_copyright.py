@@ -24,7 +24,7 @@ regex_patterns = [
     r"(?P<before>(?:Copyright|\(C\)|CPACK_PACKAGE_VENDOR).*[-\W+])(?P<year>(?!"
     + str(year)
     + r")\d{4})(?P<after>[^-\/].*Deltares.*)",
-    # Resource files: VALUE "LegalCopyright", "Copyright © 2011-2025\0"
+    # Resource files: VALUE "LegalCopyright", "Copyright © 2011-2026\0"
     r"(?P<before>VALUE\s+\"LegalCopyright\",\s*\"Copyright\s*©\s*\d{4}-)(?P<year>(?!"
     + str(year)
     + r")\d{4})(?P<after>\\0\")",
@@ -54,10 +54,10 @@ regex_patterns = [
     r"(?P<before>!\s*\(c\)\s*Copyright\s+)(?P<year>(?!"
     + str(year)
     + r")\d{4})(?P<after>\s+Deltares)",
-    # !  Copyright (C) 2026 Geert Prinsen  WL|Deltares
+    # !  Copyright (C) 2026 Geert Prinsen  WL|Deltares (not year ranges)
     r"(?P<before>!\s*Copyright\s*\(C\)\s*)(?P<year>(?!"
     + str(year)
-    + r")\d{4})(?P<after>.*Deltares)",
+    + r")\d{4})(?P<after>\s+.*Deltares)(?!.*\d{4})",
     # !     (C) 2026 Deltares
     r"(?P<before>!\s*\(C\)\s*)(?P<year>(?!"
     + str(year)
@@ -70,7 +70,7 @@ regex_patterns = [
     r"(?P<before>Copyright\s*\(C\)\s*\d{4}-)(?P<year>(?!"
     + str(year)
     + r")\d{4})(?P<after>.*Deltares)",
-    # Version files with year ranges: "Copyright (C) company, 2023-2025"
+    # Version files with year ranges: "Copyright (C) company, 2023-2026"
     r"(?P<before>\"Copyright\s*\(C\)\s*[^\"]*[-,\s]+)(?P<year>(?!"
     + str(year)
     + r")\d{4})(?P<after>\")",
@@ -85,10 +85,10 @@ regex_patterns = [
     r"(?P<before>'[^']*Copyright\s*\(c\)\s*)(?P<year>(?!"
     + str(year)
     + r")\d{4})(?P<after>[^']*DELTARES[^']*')",
-    # UNESCO-IHE extended format: ! Copyright (C) 2007-2026 UNESCO-IHE, Deltares and Delft University !
-    r"(?P<before>!\s*Copyright\s*\(C\)\s*\d{4}-)(?P<year>(?!"
+    # Rijkswaterstaat copyright: ! Copyright © 2025, Rijkswaterstaat, All Rights Reserved.
+    r"(?P<before>!\s*Copyright\s*©\s*)(?P<year>(?!"
     + str(year)
-    + r")\d{4})(?P<after>\s+UNESCO-IHE.*Deltares.*!)",
+    + r")\d{4})(?P<after>,\s*Rijkswaterstaat,\s*All\s*Rights\s*Reserved\.)",
 ]
 
 # Compile all regex patterns
