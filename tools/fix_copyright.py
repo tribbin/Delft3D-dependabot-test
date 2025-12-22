@@ -85,8 +85,8 @@ regex_patterns = [
     r"(?P<before>'[^']*Copyright\s*\(c\)\s*)(?P<year>(?!"
     + str(year)
     + r")\d{4})(?P<after>[^']*DELTARES[^']*')",
-    # Rijkswaterstaat copyright: ! Copyright © 2025, Rijkswaterstaat, All Rights Reserved.
-    r"(?P<before>!\s*Copyright\s*©\s*)(?P<year>(?!"
+    # Rijkswaterstaat copyright: Copyright © 2026, Rijkswaterstaat, All Rights Reserved. (with or without ! prefix)
+    r"(?P<before>(?:!\s*)?Copyright\s*©\s*)(?P<year>(?!"
     + str(year)
     + r")\d{4})(?P<after>,\s*Rijkswaterstaat,\s*All\s*Rights\s*Reserved\.)",
 ]
