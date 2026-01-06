@@ -13,23 +13,21 @@ from src.utils.xml_config_parser import XmlConfigParser
 if __name__ == "__main__":
     logging.getLogger("matplotlib").setLevel(level=logging.CRITICAL)
 
-    settings = TestBenchParameterParser.parse_arguments_to_settings()
-    logger = Logger(settings.log_level, settings.teamcity)
+    command_line_settings = TestBenchParameterParser.parse_arguments_to_settings()
+    logger = Logger(command_line_settings.log_level, command_line_settings.teamcity)
 
-    (
-        settings.local_paths,
-        settings.programs,
-        settings.configs_from_xml,
-    ) = XmlConfigParser().load(settings, logger)
+    xml_config = XmlConfigParser().load(command_line_settings, logger)
 
     # Filter the testcases to be run
-    if settings.filter != "":
-        settings.configs_to_run = XmlConfigParser.filter_configs(settings.configs_from_xml, settings.filter, logger)
+    if command_line_settings.filter != "":
+        command_line_settings.configs_to_run = XmlConfigParser.filter_configs(
+            xml_config.testcase_configs, command_line_settings.filter, logger
+        )
     else:
-        settings.configs_to_run = settings.configs_from_xml
+        command_line_settings.configs_to_run = xml_config.testcase_configs
 
-    settings.log_overview(logger)
+    command_line_settings.log_overview(logger)
 
     # create and run testbench
-    test_bench = TestBench(settings, logger)
+    test_bench = TestBench(command_line_settings, logger)
     test_bench.run()
