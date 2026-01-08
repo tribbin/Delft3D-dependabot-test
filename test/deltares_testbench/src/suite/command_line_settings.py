@@ -8,8 +8,6 @@ from typing import List, Optional
 from src.config.credentials import Credentials
 from src.config.types.mode_type import ModeType
 from src.config.types.path_type import PathType
-from src.config.local_paths import LocalPaths
-from src.config.program_config import ProgramConfig
 from src.utils.logging.log_level import LogLevel
 
 
@@ -17,8 +15,6 @@ class CommandLineSettings:
     """Settings from command line arguments."""
 
     log_level: LogLevel = LogLevel.INFO
-    # local_paths: Optional[LocalPaths] = None
-    # programs: List[ProgramConfig] = []
     run_mode: ModeType = ModeType.COMPARE
     config_file: str = ""
     credentials: Credentials = Credentials()

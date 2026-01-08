@@ -86,7 +86,11 @@ class TestSetRunner(ABC):
         self.__download_dependencies()
         log_sub_header("Running tests", self.__logger)
 
-        results = self.run_tests_in_parallel() if self.__settings.command_line_settings.parallel else self.run_tests_sequentially()
+        results = (
+            self.run_tests_in_parallel()
+            if self.__settings.command_line_settings.parallel
+            else self.run_tests_sequentially()
+        )
 
         log_separator(self.__logger, char="-", with_new_line=True)
 
@@ -388,8 +392,12 @@ class TestSetRunner(ABC):
             if len(program_configuration.locations) > 0:
                 for loc in program_configuration.locations:
                     # check type of program
-                    if (self.__settings.command_line_settings.run_mode == ModeType.REFERENCE and loc.type == PathType.CHECK) or (
-                        self.__settings.command_line_settings.run_mode == ModeType.COMPARE and loc.type == PathType.CHECK
+                    if (
+                        self.__settings.command_line_settings.run_mode == ModeType.REFERENCE
+                        and loc.type == PathType.CHECK
+                    ) or (
+                        self.__settings.command_line_settings.run_mode == ModeType.COMPARE
+                        and loc.type == PathType.CHECK
                     ):
                         # if the program is local, use the existing location
                         sourceLocation = Paths().mergeFullPath(loc.root, loc.from_path)

@@ -201,7 +201,9 @@ class TestComparisonRunner:
 
         # Assert
         assert (
-            call(f"There are no test cases in '{settings.command_line_settings.config_file}' with applied filter '{settings.command_line_settings.filter}'.")
+            call(
+                f"There are no test cases in '{settings.command_line_settings.config_file}' with applied filter '{settings.command_line_settings.filter}'."
+            )
             in logger.error.call_args_list
         )
 
@@ -226,14 +228,18 @@ class TestComparisonRunner:
         runner = ComparisonRunner(settings, logger)
 
         # Act
-        settings.configs_to_run = XmlConfigParser.filter_configs(xml_configs, settings.command_line_settings.filter, logger)
+        settings.configs_to_run = XmlConfigParser.filter_configs(
+            xml_configs, settings.command_line_settings.filter, logger
+        )
 
         with pytest.raises(ValueError):
             runner.run()
 
         # Assert
         assert (
-            call(f"There are no test cases in '{settings.command_line_settings.config_file}' with applied filter '{settings.command_line_settings.filter}'.")
+            call(
+                f"There are no test cases in '{settings.command_line_settings.config_file}' with applied filter '{settings.command_line_settings.filter}'."
+            )
             in logger.error.call_args_list
         )
 

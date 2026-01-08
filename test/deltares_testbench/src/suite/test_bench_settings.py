@@ -10,30 +10,28 @@ from src.config.local_paths import LocalPaths
 from src.config.program_config import ProgramConfig
 from src.config.test_case_config import TestCaseConfig
 from src.config.types.path_type import PathType
-from src.utils.common import log_separator, log_sub_header
-from src.utils.logging.logger import Logger
 from src.suite.command_line_settings import CommandLineSettings
+from src.utils.common import log_separator, log_sub_header
 from src.utils.logging.i_logger import ILogger
+from src.utils.logging.logger import Logger
 from src.utils.xml_config_parser import XmlConfig, XmlConfigParser
 
 
 class TestBenchSettings:
     """Settings for a test bench run."""
+
     command_line_settings: CommandLineSettings = CommandLineSettings()
     configs_to_run: List[TestCaseConfig] = []
     local_paths: LocalPaths
     programs: List[ProgramConfig] = []
 
-
     def setup_runtime_settings(self, settings: CommandLineSettings, xml_config: XmlConfig, logger: ILogger) -> None:
-        """Setup runtime settings based on command line settings and XML configuration."""
+        """Set up runtime settings based on command line settings and XML configuration."""
         self.command_line_settings = settings
         self.local_paths = xml_config.local_paths
         self.programs = xml_config.program_configs
-        self.configs_to_run = XmlConfigParser.filter_configs(
-                xml_config.testcase_configs, settings.filter, logger
-            )
-        
+        self.configs_to_run = XmlConfigParser.filter_configs(xml_config.testcase_configs, settings.filter, logger)
+
     def log_overview(self, logger: Logger) -> None:
         """Log overview of the parameters.
 
@@ -49,7 +47,9 @@ class TestBenchSettings:
             PathType.INPUT: "input of cases",
             PathType.REFERENCE: "references",
         }
-        download = ", ".join(val for key, val in name_map.items() if key not in self.command_line_settings.skip_download)
+        download = ", ".join(
+            val for key, val in name_map.items() if key not in self.command_line_settings.skip_download
+        )
 
         logger.info(f"Version  : {sys.version}")
         logger.info(f"Mode     : {self.command_line_settings.run_mode}")

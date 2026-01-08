@@ -6,14 +6,13 @@ import pytest
 
 from src.config.credentials import Credentials
 from src.config.parameter import Parameter
-from src.suite.test_bench_settings import TestBenchSettings
+from src.suite.command_line_settings import CommandLineSettings
 from src.utils.comparers.d_series_comparer import DSeriesComparer
 from src.utils.comparers.end_result import EndResult
 from src.utils.comparers.tree_comparer import TreeComparer
 from src.utils.logging.console_logger import ConsoleLogger
 from src.utils.logging.log_level import LogLevel
 from src.utils.xml_config_parser import XmlConfigParser
-from src.suite.command_line_settings import CommandLineSettings
 from test.utils.test_logger import TestLogger
 
 sys.path.insert(0, abspath(join(dirname(__file__), "..")))

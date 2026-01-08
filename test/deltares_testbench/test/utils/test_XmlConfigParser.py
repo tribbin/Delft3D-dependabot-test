@@ -10,12 +10,11 @@ from lxml import etree
 from src.config.credentials import Credentials
 from src.config.dependency import Dependency
 from src.config.test_case_path import TestCasePath
-from src.suite.test_bench_settings import TestBenchSettings
+from src.suite.command_line_settings import CommandLineSettings
 from src.utils.logging.console_logger import ConsoleLogger
 from src.utils.logging.log_level import LogLevel
 from src.utils.logging.test_loggers.test_result_type import TestResultType
 from src.utils.xml_config_parser import XmlConfigParser
-from src.suite.command_line_settings import CommandLineSettings
 from test.helpers.xml_config_helper import XmlConfigHelper
 
 

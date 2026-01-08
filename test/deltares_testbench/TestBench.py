@@ -6,11 +6,10 @@ Copyright (C)  Stichting Deltares, 2026
 import logging
 
 from src.suite.test_bench import TestBench
+from src.suite.test_bench_settings import TestBenchSettings
 from src.utils.logging.logger import Logger
 from src.utils.test_bench_parameter_parser import TestBenchParameterParser
 from src.utils.xml_config_parser import XmlConfigParser
-from src.suite.test_bench_settings import TestBenchSettings
-
 
 if __name__ == "__main__":
     logging.getLogger("matplotlib").setLevel(level=logging.CRITICAL)

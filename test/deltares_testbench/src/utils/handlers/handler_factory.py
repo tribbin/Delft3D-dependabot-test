@@ -10,6 +10,7 @@ from typing import List, Optional
 from src.config.credentials import Credentials
 from src.config.types.handler_type import HandlerType
 from src.suite.program import Program
+from src.utils.handlers.dvc_handler import DvcHandler
 from src.utils.handlers.ftp_handler import FTPHandler
 from src.utils.handlers.http_handler import HTTPHandler
 from src.utils.handlers.i_handler import IHandler
@@ -19,7 +20,6 @@ from src.utils.handlers.resolve_handler import ResolveHandler
 from src.utils.logging.i_logger import ILogger
 from src.utils.paths import Paths
 from src.utils.unzipper import Unzipper
-from src.utils.handlers.dvc_handler import DvcHandler
 
 
 class HandlerFactory(ABC):

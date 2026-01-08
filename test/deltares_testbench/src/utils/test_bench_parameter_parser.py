@@ -11,10 +11,10 @@ from typing import Any, List, Optional
 from src.config.credentials import Credentials
 from src.config.types.mode_type import ModeType
 from src.config.types.path_type import PathType
+from src.suite.command_line_settings import CommandLineSettings
 from src.utils.common import get_log_level
 from src.utils.handlers.credential_handler import CredentialHandler
 from src.utils.logging.log_level import LogLevel
-from suite.command_line_settings import CommandLineSettings
 
 
 class TestBenchParameterParser:
