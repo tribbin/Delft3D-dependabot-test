@@ -17,6 +17,14 @@ from src.utils.logging.i_logger import ILogger
 class DvcHandler(IHandler):
     """DVC wrapper, has handler interface."""
 
+    def __init__(self, repo: Repo | None = None) -> None:
+        if repo is not None:
+            self.__repo = repo
+        else:
+            current_file_path = os.getcwd()
+            repo_root = self.__find_dvc_root(current_file_path)
+            self.__repo = Repo(repo_root)
+
     def download(
         self, from_path: str, to_path: str, credentials: Credentials, version: Optional[str], logger: ILogger
     ) -> None:
@@ -56,18 +64,13 @@ class DvcHandler(IHandler):
             if not os.path.isfile(dvc_file):
                 raise FileNotFoundError(f"DVC file not found: {dvc_file}")
 
-            # Open the DVC repository
-            repo_root = self.__find_dvc_root(dvc_file)
-            repo = Repo(repo_root)
-
-            dvcfile = load_file(repo, dvc_file)
+            dvcfile = load_file(self.__repo, dvc_file)
 
             # Fetch and checkout the data
             for stage in dvcfile.stages.values():
-                repo.fetch(targets=[stage.addressing])
-
+                self.__repo.fetch(targets=[stage.addressing])
             for stage in dvcfile.stages.values():
-                repo.checkout(targets=[stage.addressing], force=True)
+                self.__repo.checkout(targets=[stage.addressing], force=True)
 
             logger.info(f"Downloading DVC directory complete: {dvc_file}")
 
