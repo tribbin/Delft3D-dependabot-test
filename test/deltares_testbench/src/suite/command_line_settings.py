@@ -3,7 +3,7 @@
 Copyright (C)  Stichting Deltares, 2025
 """
 
-from typing import List, Optional
+from typing import List
 
 from src.config.credentials import Credentials
 from src.config.types.mode_type import ModeType
@@ -20,12 +20,12 @@ class CommandLineSettings:
     credentials: Credentials = Credentials()
     filter: str = ""
     skip_run: bool = False
-    skip_download: Optional[List[PathType]] = None
+    skip_download: List[PathType] | None = None
     teamcity: bool = False
     parallel: bool = False
-    test_bench_root: Optional[str] = None
-    test_bench_script_name: Optional[str] = None
-    test_bench_startup_dir: Optional[str] = None
+    test_bench_root: str | None = None
+    test_bench_script_name: str | None = None
+    test_bench_startup_dir: str | None = None
     server_base_url: str = ""
     override_paths: str = ""
     skip_post_processing: bool = False
