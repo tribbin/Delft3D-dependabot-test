@@ -24,7 +24,7 @@ from src.utils.logging.console_logger import ConsoleLogger
 from src.utils.logging.i_main_logger import IMainLogger
 from src.utils.logging.log_level import LogLevel
 from src.utils.xml_config_parser import XmlConfigParser
-from suite.command_line_settings import CommandLineSettings
+from src.suite.command_line_settings import CommandLineSettings
 from tools.minio import utils
 from tools.minio.error import MinioToolError
 
