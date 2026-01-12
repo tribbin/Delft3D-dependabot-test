@@ -618,6 +618,49 @@ mkdir -p /usr/local/lib/pkgconfig
 cp /usr/lib64/pkgconfig/libxml-2.0.pc /usr/local/lib/pkgconfig/
 EOF-libxml2
 
+FROM base AS precice
+
+ARG DEBUG
+ARG CACHE_ID_SUFFIX
+
+COPY --from=libxml2 --link /usr/local/ /usr/local/
+COPY --from=eigen --link /usr/local/ /usr/local/
+COPY --from=boost --link /usr/local/ /usr/local/
+
+RUN --mount=type=cache,target=/var/cache/src/,id=precice-${CACHE_ID_SUFFIX} <<"EOF-precice"
+source /etc/bashrc
+set -eo pipefail
+
+URL='https://github.com/precice/precice/archive/v3.3.0.tar.gz'
+BASEDIR='precice-3.3.0'
+if [[ -d "/var/cache/src/${BASEDIR}" ]]; then
+    echo "CACHED ${BASEDIR}"
+else
+    echo "Fetching ${URL}..."
+    wget --quiet --output-document=- "$URL" | tar --extract --gzip --file=- --directory='/var/cache/src'
+fi
+
+pushd "/var/cache/src/${BASEDIR}"
+
+[[ $DEBUG = "0" ]] && BUILD_TYPE="Release" || BUILD_TYPE="Debug"
+
+cmake --preset=development \
+    -D CMAKE_C_COMPILER=icx -D CMAKE_CXX_COMPILER=icpx \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D CMAKE_INSTALL_LIBDIR=lib \
+    -D PRECICE_FEATURE_PETSC_MAPPING=OFF \
+    -D PRECICE_FEATURE_GINKGO_MAPPING=OFF \
+    -D PRECICE_FEATURE_PYTHON_ACTIONS=OFF \
+    -D CMAKE_BUILD_TYPE=$BUILD_TYPE \
+    -D BUILD_SHARED_LIBS=ON \
+    -D BUILD_TESTING=OFF \
+    -D CMAKE_CXX_FLAGS="-Wno-enum-constexpr-conversion"
+
+cmake --build build --parallel $(nproc)
+cmake --install build
+popd
+EOF-precice
+
 FROM base AS all
 
 RUN set -eo pipefail && \
@@ -637,3 +680,4 @@ COPY --from=gdal --link /usr/local/ /usr/local/
 COPY --from=esmf --link /usr/local/ /usr/local/
 COPY --from=boost --link /usr/local/ /usr/local/
 COPY --from=googletest --link /usr/local/ /usr/local/
+COPY --from=precice --link /usr/local/ /usr/local/
