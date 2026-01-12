@@ -575,6 +575,33 @@ mkdir -p /usr/local/include
 cp -r /usr/include/gtest /usr/local/include/
 EOF-googletest
 
+FROM base AS eigen
+
+ARG CACHE_ID_SUFFIX
+
+RUN --mount=type=cache,target=/var/cache/src/,id=eigen-${CACHE_ID_SUFFIX} <<"EOF-eigen"
+source /etc/bashrc
+set -eo pipefail
+
+URL='https://gitlab.com/libeigen/eigen/-/archive/5.0.1/eigen-5.0.1.tar.gz'
+BASEDIR='eigen-5.0.1'
+if [[ -d "/var/cache/src/${BASEDIR}" ]]; then
+    echo "CACHED ${BASEDIR}"
+else
+    echo "Fetching ${URL}..."
+    wget --quiet --output-document=- "$URL" | tar --extract --gzip --file=- --directory='/var/cache/src'
+fi
+
+mkdir --parents "/var/cache/src/${BASEDIR}/build"
+pushd "/var/cache/src/${BASEDIR}"
+
+cmake . \
+    -D CMAKE_C_COMPILER=icx -D CMAKE_CXX_COMPILER=icpx -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D EIGEN_BUILD_TESTING=OFF -D EIGEN_BUILD_BLAS=OFF -D EIGEN_BUILD_LAPACK=OFF -D EIGEN_BUILD_DOC=OFF -D EIGEN_BUILD_DEMOS=OFF
+cmake --install build
+popd
+EOF-eigen
+
 FROM base AS all
 
 RUN set -eo pipefail && \
