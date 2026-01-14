@@ -41,8 +41,8 @@ contains
       use m_flow, only: czs, taus
       use m_alloc, only: realloc
       use m_get_tau, only: get_tau
-      use m_waveconst, only: wave_waq_shear_stress_hyd
-      use m_flowparameters, only: flowWithoutWaves, jawaveswartdelwaq
+      use m_waveconst, only: wave_waq_shear_stress_hyd, no_waves
+      use m_flowparameters, only: flowWithoutWaves, jawaveswartdelwaq, jawave
       !
       !
       ! Parameters
@@ -59,7 +59,7 @@ contains
       integer, parameter :: SET_CZS_TAUS = 1
       !
       ! Body
-      if (flowWithoutWaves .and. kernel == USE_DFLOWFM) then
+      if ((jawave > NO_WAVES .and. flowWithoutWaves) .and. kernel == USE_DFLOWFM) then
          jawaveswartdelwaq_local = WAVE_WAQ_SHEAR_STRESS_HYD
       else
          jawaveswartdelwaq_local = jawaveswartdelwaq
