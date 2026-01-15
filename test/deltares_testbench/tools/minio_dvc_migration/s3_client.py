@@ -23,8 +23,9 @@ class MinioBucketUtils:
 
         Args:
             base_url: The base S3 URL
-            top_level_dirs: List of top-level directories to process (e.g., directories starting with 'e')
-            subdirs: List of subdirectories to check within each top-level dir (e.g., ['cases', 'ref/lnx64', 'ref/win64'])
+            bucket: The S3 bucket name
+            subdirs: List of subdirectories to check within each top-level dir
+                (e.g., ['cases', 'ref/lnx64', 'ref/win64'])
 
         Returns
         -------
@@ -62,7 +63,7 @@ class MinioBucketUtils:
                 obj_name = obj.object_name
                 if obj_name and obj_name != full_prefix:
                     # Remove the prefix
-                    relative_path = obj_name[len(full_prefix) :] if full_prefix else obj_name
+                    relative_path = obj_name.removeprefix(full_prefix)
                     # Get the first directory component
                     if "/" in relative_path:
                         dir_name = relative_path.split("/")[0]
@@ -131,6 +132,7 @@ class MinioBucketUtils:
             "test_models",
             "Dbase_shared",
         ) or func_dir.startswith(("c01", "c02", "c03", "c04", "c05")):
+            # This deviates from the usual second level structure but is valid
             directories.append(S3UrlInfo(hostname=hostname, bucket=bucket, path=functional_path))
         elif func_dir.startswith("f") or func_dir.endswith(("waqpb", "1d_non_linear_waves", "2d_backward_facing_step")):
             case_dirs = self.__fetch_s3_directories_with_minio(client, bucket, functional_path)
@@ -205,8 +207,8 @@ def load_aws_credentials(profile_name: str = "default") -> tuple[str, str]:
         raise ValueError(f"Profile '{profile_name}' not found. Available profiles: {available_profiles}")
 
     profile = config[profile_name]
-    access_key = profile.get("aws_access_key_id")
-    secret_key = profile.get("aws_secret_access_key")
+    access_key = profile.get("aws_access_key_id", None)
+    secret_key = profile.get("aws_secret_access_key", None)
 
     if not access_key or not secret_key:
         raise ValueError(f"Missing credentials in profile '{profile_name}'")

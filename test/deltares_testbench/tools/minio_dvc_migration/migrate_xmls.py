@@ -14,7 +14,9 @@ from tools.minio_dvc_migration.xml_file_with_testcase_data import XmlFileWithTes
 
 BASE_URL = "https://s3.deltares.nl"
 S3_BUCKET = "dsc-testbench"
-TEAMCITY_CSV_RELATIVE_PATH = Path("..") / ".." / "ci" / "teamcity" / "Delft3D" / "vars" / "dimr_testbench_table.csv"
+# Path to the TeamCity CSV relative to the DVC repository root (.dvc folder).
+# The DVC root is derived from this file's location (via `__file__`)
+TEAMCITY_CSV_RELATIVE_PATH = Path("ci") / "teamcity" / "Delft3D" / "vars" / "dimr_testbench_table.csv"
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -51,9 +53,8 @@ def determine_xml_files_to_process(args: argparse.Namespace) -> list[Path]:
         xml_files = [Path(xml).resolve() if not Path(xml).is_absolute() else Path(xml) for xml in xml_files]
     else:
         # Use default CSV parsing
-        script_dir = Path(__file__).parent
-        testbench_root = script_dir.parent.parent
-        teamcity_csv_path = testbench_root / TEAMCITY_CSV_RELATIVE_PATH
+        dvc_repo_root = find_dvc_root_in_parent_directories(Path(__file__).resolve())
+        teamcity_csv_path = dvc_repo_root / TEAMCITY_CSV_RELATIVE_PATH
         print("Loading TeamCity XML list from CSV...")
         xml_files = load_teamcity_xml_files(str(teamcity_csv_path))
     print(f"Found {len(xml_files)} XML files")
@@ -80,9 +81,9 @@ def main() -> None:
 
     rewinder = setup_minio_rewinder(BASE_URL)
 
-    repo_root = find_dvc_root_in_parent_directories(Path("."))
+    repo_root = find_dvc_root_in_parent_directories(Path(__file__).resolve())
     print(f"Found existing DVC repo at: {repo_root}")
-    repo = Repo(repo_root)
+    repo = Repo(str(repo_root))
 
     # First download all cases and references then move doc folders and add to DVC. This will speed up the process.
     for xml_file in xml_files_with_data:

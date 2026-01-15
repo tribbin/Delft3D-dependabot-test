@@ -1,6 +1,5 @@
 """XML parsing functionality for extracting testcase data."""
 
-import re
 import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -14,7 +13,7 @@ from src.utils.logging.logger import Logger
 from src.utils.minio_rewinder import Rewinder
 from src.utils.xml_config_parser import XmlConfigParser
 from tools.minio_dvc_migration.dvc_utils import add_directory_to_dvc
-from tools.minio_dvc_migration.s3_url_info import S3UrlInfo, timestamp_str_2_datetime
+from tools.minio_dvc_migration.s3_url_info import S3UrlInfo, rewind_timestep_2_datetime
 
 
 @dataclass
@@ -50,7 +49,7 @@ class TestCaseData:
         """
         rewind_timestamp = None
         if self.version and self.version != "NO VERSION":
-            rewind_timestamp = timestamp_str_2_datetime(self.version)
+            rewind_timestamp = rewind_timestep_2_datetime(self.version)
 
         case_local_dir = self.case.to_local()
         reference_local_dir = self.reference.to_local()
@@ -63,8 +62,7 @@ class TestCaseData:
 
     def add_to_dvc(self, repo: Repo) -> List[Path]:
         """Add downloaded case and reference data to DVC tracking."""
-        dvc_files = []
-
+        dvc_files: List[Path] = []
         case_path = self.case.to_local()
         print(f"Adding case to DVC: {case_path}")
         result = add_directory_to_dvc(case_path, repo)
@@ -141,7 +139,8 @@ def extract_testcase_data(xml_file_path: Path, base_url: str, s3_bucket: str) ->
                             break
                         else:
                             print(
-                                f"  Warning: Reference location without from_path in {xml_file_path} for testcase {test_case_config.name}"
+                                f"  Warning: Reference location without from_path in {xml_file_path} "
+                                f"for testcase {test_case_config.name}"
                             )
 
                 testcase_data.append(new_testcase_data)
@@ -158,15 +157,17 @@ def extract_testcase_data(xml_file_path: Path, base_url: str, s3_bucket: str) ->
 
 def is_case_with_doc_folder(directory: Path) -> bool:
     """Return True if the given directory is a 'case' folder."""
-    pattern = re.compile(r"^data/cases/[eE][^/]*/[fF][^/]*/[cC][^/]*/input$")
+    glob_pattern = "data/cases/[eE]*/[fF]*/[cC]*/input"
 
-    if pattern.match(str(directory)):
-        if directory.exists() and directory.is_dir():
-            doc_folder = directory / "doc"
-            if doc_folder.exists() and doc_folder.is_dir():
-                return True
+    matches_pattern = directory.match(glob_pattern) or directory.match(f"**/{glob_pattern}")
+    if not matches_pattern:
+        return False
 
-    return False
+    if not directory.exists() or not directory.is_dir():
+        return False
+
+    doc_folder = directory / "doc"
+    return doc_folder.exists() and doc_folder.is_dir()
 
 
 def move_doc_folder_to_parent(directory: Path) -> Path:

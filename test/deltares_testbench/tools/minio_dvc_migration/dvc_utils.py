@@ -1,13 +1,12 @@
-"""XML parsing functionality for extracting testcase data."""
+"""Helpers for migrating data to DVC."""
 
-import os
 from pathlib import Path
 from typing import List
 
 from dvc.repo import Repo
 
 
-def find_dvc_root_in_parent_directories(start_path: Path) -> str:
+def find_dvc_root_in_parent_directories(start_path: Path) -> Path:
     """Find the DVC repository root by looking for .dvc directory.
 
     Parameters
@@ -17,17 +16,16 @@ def find_dvc_root_in_parent_directories(start_path: Path) -> str:
 
     Returns
     -------
-    str
+    Path
         Path to the DVC repository root.
     """
-    current = os.path.abspath(start_path)
-    while current != "/":
-        if os.path.isdir(os.path.join(current, ".dvc")):
-            return current
-        parent = os.path.dirname(current)
-        if parent == current:  # Reached filesystem root
-            break
-        current = parent
+    current = start_path.expanduser().resolve()
+    if current.is_file():
+        current = current.parent
+
+    for candidate in [current, *current.parents]:
+        if (candidate / ".dvc").is_dir():
+            return candidate
     raise ValueError("Could not find DVC repository root (.dvc directory)")
 
 
@@ -55,8 +53,8 @@ def push_dvc_files_to_remote(repo: Repo, dvc_files: list[Path]) -> None:
     """Push all .dvc files to remote S3 storage."""
     print(f"Pushing {len(dvc_files)} *.dvc files to S3 storage...")
 
-    successful_pushes = 0
-    failed_pushes = 0
+    successful_targets: set[Path] = set()
+    failed_targets: set[Path] = set()
     for i, dvc_file in enumerate(dvc_files, 1):
         try:
             print(f"Pushing file {i}/{len(dvc_files)}: {dvc_file}")
@@ -64,19 +62,28 @@ def push_dvc_files_to_remote(repo: Repo, dvc_files: list[Path]) -> None:
             pushed_files = repo.push(targets=[path], remote="storage")
 
             if pushed_files:
-                successful_pushes += 1
+                successful_targets.add(dvc_file)
                 print(f"  SUCCESS: {pushed_files} files pushed")
             else:
-                successful_pushes += 1
+                successful_targets.add(dvc_file)
                 print("  SUCCESS: Already up to date")
 
         except Exception as push_error:
-            failed_pushes += 1
+            failed_targets.add(dvc_file)
             print(f"  FAILED: {str(push_error)}")
 
-    print(f"\nPush summary: {successful_pushes} successful, {failed_pushes} failed")
+    failed_count = len(failed_targets)
+    success_count = len(successful_targets)
 
-    if successful_pushes > 0:
-        print("Files have been successfully uploaded to S3!")
-    if failed_pushes > 0:
-        print(f"Warning: {failed_pushes} files failed to push. Check errors above.")
+    print(f"\nPush summary: {success_count} successful, {failed_count} failed")
+
+    if success_count > 0:
+        print("Successful targets:")
+        for target in sorted(successful_targets, key=str):
+            print(f"  - {target}")
+
+    if failed_count > 0:
+        print("Failed targets:")
+        for target in sorted(failed_targets, key=str):
+            print(f"  - {target}")
+        print("Warning: some files failed to push. Check errors above.")

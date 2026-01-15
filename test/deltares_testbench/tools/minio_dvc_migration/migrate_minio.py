@@ -3,6 +3,7 @@
 
 import shutil
 from pathlib import Path
+from typing import List
 
 from dvc.repo import Repo
 
@@ -41,13 +42,13 @@ def main() -> None:
 
     rewinder = setup_minio_rewinder(BASE_URL)
 
-    repo_root = find_dvc_root_in_parent_directories(Path("."))
+    repo_root = find_dvc_root_in_parent_directories(Path(__file__).resolve())
     print(f"Found existing DVC repo at: {repo_root}")
-    repo = Repo(repo_root)
+    repo = Repo(str(repo_root))
 
     for i, directory in enumerate(directories_to_migrate, start=1):
         print(f"Migrating {i}/{len(directories_to_migrate)}: {directory.path}")
-        dvc_paths = []
+        dvc_paths: List[Path] = []
         local_directory = directory.to_local()
 
         rewinder.download(directory.bucket, directory.path, local_directory)
@@ -59,8 +60,8 @@ def main() -> None:
         push_dvc_files_to_remote(repo, dvc_paths)
 
         for dvc_path in dvc_paths:
-            binarypath = Path(str(dvc_path).removesuffix(".dvc"))
-            shutil.rmtree(binarypath)
+            tracked_path = dvc_path.with_suffix("")
+            shutil.rmtree(tracked_path)
 
         with open(MIGRATION_PROGRESS_FILE, "a") as f:
             f.write(f"{directory.path}\n")

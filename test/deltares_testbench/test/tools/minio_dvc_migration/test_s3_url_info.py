@@ -92,3 +92,39 @@ def test_deviating_folders_to_local_path(s3_path: str, expected: str) -> None:
 
     # Assert
     assert result == Path(expected)
+
+
+@pytest.mark.parametrize(
+    ("hostname", "bucket", "path", "expected"),
+    [
+        ("https://example.com/base", "bucket", "cases/e01", "https://example.com/base/bucket/cases/e01"),
+        (
+            "https://example.com/base",
+            "bucket",
+            "cases/e99_matlab_tools/f01_quickplot/Delft3D-PART - HIS - Nefis - parn",
+            "https://example.com/base/bucket/cases/e99_matlab_tools/f01_quickplot/Delft3D-PART - HIS - Nefis - parn",
+        ),
+        ("https://example.com", "bucket", "", "https://example.com/bucket"),
+        ("https://example.com/base?x=1", "bucket", "cases/e01", "https://example.com/base?x=1/bucket/cases/e01"),
+        ("http://example.com", "bucket", "", "http://example.com/bucket"),
+        ("s3://example.com", "bucket", "", "s3://example.com/bucket"),
+        ("s3://example.com/", "bucket", "", "s3://example.com/bucket"),
+        ("s3://example.com/", "/bucket", "", "s3://example.com/bucket"),
+        ("s3://example.com/", "/bucket/", "", "s3://example.com/bucket"),
+        ("localhost:9000", "bucket", "", "localhost:9000/bucket"),
+        ("localhost:9000/base", "bucket", "cases/e01", "localhost:9000/base/bucket/cases/e01"),
+        ("example.com", "bucket", "cases/e01/item", "example.com/bucket/cases/e01/item"),
+        ("example.com", "bucket", "/cases/e01/item", "example.com/bucket/cases/e01/item"),
+        ("example.com", "bucket", "cases//e01//item", "example.com/bucket/cases/e01/item"),
+        ("example.com", "", "cases/e01/item", "example.com/cases/e01/item"),
+    ],
+)
+def test_to_url_returns_url_string(hostname: str, bucket: str, path: str, expected: str) -> None:
+    # Arrange
+    s3_info = S3UrlInfo(hostname=hostname, bucket=bucket, path=path)
+
+    # Act
+    result = s3_info.to_url()
+
+    # Assert
+    assert result == expected

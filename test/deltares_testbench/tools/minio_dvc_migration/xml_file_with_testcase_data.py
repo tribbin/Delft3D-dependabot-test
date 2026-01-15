@@ -11,6 +11,12 @@ from tools.minio_dvc_migration.testcase_data import TestCaseData, is_case_with_d
 class XmlFileWithTestCaseData:
     """Test case data for XML parsing."""
 
+    TB_NAMESPACE_URI = "http://schemas.deltares.nl/deltaresTestbench_v3"
+    NAMESPACE = {"tb": TB_NAMESPACE_URI}
+
+    XI_NAMESPACE_URI = "http://www.w3.org/2001/XInclude"
+    XI_NAMESPACE = {"xi": XI_NAMESPACE_URI}
+
     xml_file: Path
     testcases: list[TestCaseData]
 
@@ -46,11 +52,9 @@ class XmlFileWithTestCaseData:
             tree = etree.parse(xml_path, parser)
             root = tree.getroot()
 
-            namespace = {"tb": "http://schemas.deltares.nl/deltaresTestbench_v3"}
-
-            self.__update_local_paths(root, namespace)
-            self.__update_location_roots(root, namespace)
-            self.__update_testcase_version(root, namespace)
+            self.__update_local_paths(root, self.NAMESPACE)
+            self.__update_location_roots(root, self.NAMESPACE)
+            self.__update_testcase_version(root, self.NAMESPACE)
             self.__process_xi_includes(root, xml_path)
 
             # Write the modified XML back
@@ -63,12 +67,12 @@ class XmlFileWithTestCaseData:
     def __update_local_paths(self, root: etree._Element, namespace: dict[str, str]) -> None:
         """Update local paths to use ./data/cases."""
         # Update testCasesDir
-        test_cases_dir = root.find(".//tb:testCasesDir", namespace)
+        test_cases_dir = root.find("./tb:config/tb:localPaths/tb:testCasesDir", namespace)
         if test_cases_dir is not None:
             test_cases_dir.text = "./data/cases"
 
         # Update referenceDir
-        reference_dir = root.find(".//tb:referenceDir", namespace)
+        reference_dir = root.find("./tb:config/tb:localPaths/tb:referenceDir", namespace)
         if reference_dir is not None:
             reference_dir.text = "./data/cases"
 
@@ -93,9 +97,7 @@ class XmlFileWithTestCaseData:
 
     def __process_xi_includes(self, root: etree._Element, current_file: Path) -> None:
         """Process xi:include elements and update the included files recursively."""
-        xi_ns = {"xi": "http://www.w3.org/2001/XInclude"}
-
-        includes = root.findall(".//xi:include", xi_ns)
+        includes = root.findall(".//xi:include", self.XI_NAMESPACE)
 
         for include in includes:
             href = include.get("href")
