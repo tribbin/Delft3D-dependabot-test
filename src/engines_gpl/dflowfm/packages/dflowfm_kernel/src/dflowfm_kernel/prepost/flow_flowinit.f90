@@ -1276,7 +1276,7 @@ contains
 !> set wave modelling
    subroutine set_wave_modelling()
       use precision, only: dp
-      use m_flowparameters, only: jawave, flowWithoutWaves, waveforcing, jawavestokes
+      use m_flowparameters, only: jawave, flow_without_waves, waveforcing, jawavestokes
       use m_flow, only: hs, hu, kmx
       use mathconsts, only: sqrt2_hp
       use m_waves !only : hwavcom, hwav, gammax, twav, phiwav, ustokes, vstokes
@@ -1304,7 +1304,7 @@ contains
       real(kind=dp) :: ustt
       real(kind=dp) :: hh
 
-      if ((jawave == SWAN .or. jawave >= SWAN_NETCDF) .and. .not. flowWithoutWaves) then
+      if ((jawave == SWAN .or. jawave >= SWAN_NETCDF) .and. .not. flow_without_waves) then
          ! Normal situation: use wave info in FLOW
          hs = max(hs, 0.0_dp)
          if (jawave >= SWAN_NETCDF) then
@@ -1335,7 +1335,7 @@ contains
          call setwavmubnd()
       end if
 
-      if ((jawave == SWAN .or. jawave >= SWAN_NETCDF) .and. flowWithoutWaves) then
+      if ((jawave == SWAN .or. jawave >= SWAN_NETCDF) .and. flow_without_waves) then
          ! Exceptional situation: use wave info not in FLOW, only in WAQ
          ! Only compute uorb
          ! Works both for 2D and 3D
@@ -1349,7 +1349,7 @@ contains
          call wave_uorbrlabda() ! hwav gets depth-limited here
       end if
 
-      if (jawave == CONST .and. .not. flowWithoutWaves) then
+      if (jawave == CONST .and. .not. flow_without_waves) then
          hs = max(hs, 0.0_dp)
          hwav = min(hwavcom, gammax * hs)
          call wave_uorbrlabda()

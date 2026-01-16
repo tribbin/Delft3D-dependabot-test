@@ -43,7 +43,7 @@ submodule(fm_external_forcings) fm_external_forcings_update
       btempforcingtypa, btempforcingtyps, item_solar_radiation, btempforcingtypc, item_cloudiness, btempforcingtypl, &
       item_long_wave_radiation, btempforcingtypd, relative_humidity, calculate_relative_humidity, jawave, waveforcing, message, &
       dumpecmessagestack, level_error, hwavcom, phiwav, sxwav, sywav, sbxwav, sbywav, dsurf, dwcap, mxwav, mywav, hs, epshu, &
-      twavcom, flowwithoutwaves, nbndu, kbndu, nbndz, kbndz, nbndn, kbndn, item_hrms, ecgetvalues, item_tp, item_dir, item_fx, &
+      twavcom, flow_without_waves, nbndu, kbndu, nbndz, kbndz, nbndn, kbndn, item_hrms, ecgetvalues, item_tp, item_dir, item_fx, &
       item_fy, item_wsbu, item_mx, item_my, uorbwav, item_ubot, item_dissurf, item_diswcap, item_wsbv, item_distot, ecgetvalues, &
       item_sea_ice_area_fraction, item_sea_ice_thickness, jarain, item_rainfall, item_rainfall_rate, item_pump_capacity, &
       item_culvert_valveopeningheight, item_weir_crestlevel, item_orifice_crestlevel, item_orifice_gateloweredgelevel, &
@@ -501,7 +501,7 @@ contains
          !
          ! For badly converged SWAN sums, dwcap and dsurf can be NaN. Put these to 0.0_dp,
          ! as they cause saad errors as a result of NaNs in the turbulence model
-         if (.not. flowwithoutwaves) then
+         if (.not. flow_without_waves) then
             if (allocated(dsurf) .and. allocated(dwcap)) then
                if (any(ieee_is_nan(dsurf)) .or. any(ieee_is_nan(dwcap))) then
                   write (msgbuf, '(a)') 'Surface dissipation fields from SWAN contain NaN values, which have been converted to 0.0_dp. &
@@ -560,7 +560,7 @@ contains
 
       success_copy = success
       success = success .and. ecGetValues(ecInstancePtr, item, ecTime)
-      if (flowwithoutwaves) then
+      if (flow_without_waves) then
          success = success_copy ! used to be jawave=6, but this is only real use case
       end if
 
