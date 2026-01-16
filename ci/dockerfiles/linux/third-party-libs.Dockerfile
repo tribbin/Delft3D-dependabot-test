@@ -600,7 +600,11 @@ export CC=icx CXX=icpx
 [[ $DEBUG = "0" ]] && VARIANT=release || VARIANT=debug
 
 ./bootstrap.sh --prefix=/usr/local
-./b2 --without-python variant=${VARIANT} toolset=intel-linux link=shared threading=multi -j$(nproc) install
+
+# Patch intel-linux.jam to remove -ip flag (not supported by icpx)
+sed -i 's/-O3 -ip/-O3/g' tools/build/src/tools/intel-linux.jam
+
+./b2 --without-python variant=${VARIANT} toolset=intel-linux link=shared pch=off threading=multi -j$(nproc) install
 
 popd
 EOF-boost
@@ -639,7 +643,7 @@ fi
 mkdir --parents "/var/cache/src/${BASEDIR}/build"
 pushd "/var/cache/src/${BASEDIR}"
 
-cmake . \
+cmake -S . -B build \
     -D CMAKE_C_COMPILER=icx -D CMAKE_CXX_COMPILER=icpx -D CMAKE_INSTALL_PREFIX=/usr/local \
     -D EIGEN_BUILD_TESTING=OFF -D EIGEN_BUILD_BLAS=OFF -D EIGEN_BUILD_LAPACK=OFF -D EIGEN_BUILD_DOC=OFF -D EIGEN_BUILD_DEMOS=OFF
 cmake --install build
@@ -675,8 +679,8 @@ RUN --mount=type=cache,target=/var/cache/src/,id=precice-${CACHE_ID_SUFFIX} <<"E
 source /etc/bashrc
 set -eo pipefail
 
-URL='https://github.com/precice/precice/archive/v3.3.0.tar.gz'
-BASEDIR='precice-3.3.0'
+URL='https://github.com/precice/precice/archive/v3.3.1.tar.gz'
+BASEDIR='precice-3.3.1'
 if [[ -d "/var/cache/src/${BASEDIR}" ]]; then
     echo "CACHED ${BASEDIR}"
 else
