@@ -1654,7 +1654,7 @@ contains
       call prop_get(md_ptr, 'waves', 'Gammax', gammax)
       call prop_get(md_ptr, 'waves', 'hminlw', hminlw)
       call prop_get(md_ptr, 'waves', 'uorbfac', jauorb) ! 0=delft3d4, sqrt(pi)/2 included in uorb calculation; >0: FM, factor not included; default: 0
-      ! backward compatibility for hk in tauwavehk:
+      ! backward compatibility for hk in compute_wave_shear_velocity:
       if (jawave > NO_WAVES .and. (jawave < WAVE_SWAN_ONLINE .or. flowWithoutWaves)) then
          jauorb = 1
       end if

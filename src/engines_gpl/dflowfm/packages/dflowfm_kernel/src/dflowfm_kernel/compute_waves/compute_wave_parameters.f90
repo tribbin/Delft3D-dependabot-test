@@ -33,7 +33,7 @@
 module m_compute_wave_parameters
    use m_wave_uorbrlabda, only: wave_uorbrlabda
    use m_wave_comp_stokes_velocities, only: wave_comp_stokes_velocities
-   use m_tauwavehk, only: tauwavehk
+   use m_wave_shear_velocity, only: compute_wave_shear_velocity
    use m_waveconst
 
    implicit none
@@ -83,7 +83,7 @@ contains
                      cs = 1.0_dp
                      sn = 0.0_dp
                   end if
-                  call tauwavehk(hw, tw, hh, uorbi, rkw, ustt)
+                  call compute_wave_shear_velocity(hw, tw, hh, uorbi, rkw, ustt)
                   ustokes(L) = ustt * (csu(L) * cs + snu(L) * sn)
                   vstokes(L) = ustt * (-snu(L) * cs + csu(L) * sn)
                end if
@@ -161,7 +161,7 @@ contains
                   tw = 0.5_dp * (twav(k1) + twav(k2))
                   cs = 0.5_dp * (cosd(phiwav(k1)) + cosd(phiwav(k2)))
                   sn = 0.5_dp * (sind(phiwav(k1)) + sind(phiwav(k2)))
-                  call tauwavehk(hw, tw, hh, uorbi, rkw, ustt)
+                  call compute_wave_shear_velocity(hw, tw, hh, uorbi, rkw, ustt)
                   ustokes(L) = ustt * (csu(L) * cs + snu(L) * sn)
                   vstokes(L) = ustt * (-snu(L) * cs + csu(L) * sn)
                end if

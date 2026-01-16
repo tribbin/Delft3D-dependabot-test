@@ -52,7 +52,7 @@ module m_flow_flowinit
    use m_coriolistilt, only: coriolistilt
    use m_wave_uorbrlabda, only: wave_uorbrlabda
    use m_wave_comp_stokes_velocities, only: wave_comp_stokes_velocities
-   use m_tauwavehk, only: tauwavehk
+   use m_wave_shear_velocity, only: compute_wave_shear_velocity
    use m_tauwave, only: tauwave
    use m_setwavmubnd, only: setwavmubnd
    use m_setwavfu, only: setwavfu
@@ -1363,7 +1363,7 @@ contains
                   tw = 0.5_dp * (twav(left_node) + twav(right_node))
                   csw = 0.5 * (cosd(phiwav(left_node)) + cosd(phiwav(right_node)))
                   snw = 0.5 * (sind(phiwav(left_node)) + sind(phiwav(right_node)))
-                  call tauwavehk(hw, tw, hh, uorbi, rkw, ustt)
+                  call compute_wave_shear_velocity(hw, tw, hh, uorbi, rkw, ustt)
                   ustokes(link) = ustt * (csu(link) * csw + snu(link) * snw)
                   vstokes(link) = ustt * (-snu(link) * csw + csu(link) * snw)
                end do
