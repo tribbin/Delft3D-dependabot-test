@@ -779,10 +779,10 @@ contains
       call realloc(xs, ns, keepexisting=.false.)
       call realloc(ys, ns, keepexisting=.false.)
 
-      xs(1) = -5.0_dp  ! Outside to the left
+      xs(1) = -5.0_dp ! Outside to the left
       ys(1) = 5.0_dp
 
-      xs(2) = 35.0_dp  ! Outside to the right
+      xs(2) = 35.0_dp ! Outside to the right
       ys(2) = 5.0_dp
 
       call samples_to_cellmask()
@@ -803,7 +803,7 @@ contains
       call realloc(xs, ns, keepexisting=.false.)
       call realloc(ys, ns, keepexisting=.false.)
 
-      xs(1) = 10.0_dp  ! Exactly on boundary between cell 1 and 2
+      xs(1) = 10.0_dp ! Exactly on boundary between cell 1 and 2
       ys(1) = 5.0_dp
 
       call samples_to_cellmask()
@@ -826,7 +826,7 @@ contains
       if (allocated(netcell)) deallocate (netcell)
       allocate (netcell(nump), stat=ierr)
 
-      numk = 24  ! 5 cells * 4 corners + 4 shared corners
+      numk = 24 ! 5 cells * 4 corners + 4 shared corners
       call realloc(xk, numk, keepexisting=.false.)
       call realloc(yk, numk, keepexisting=.false.)
       nump1d2d = 5
@@ -867,7 +867,7 @@ contains
       if (allocated(netcell)) deallocate (netcell)
       allocate (netcell(nump), stat=ierr)
 
-      numk = 12  ! 3 cells * 4 corners
+      numk = 12 ! 3 cells * 4 corners
       call realloc(xk, numk, keepexisting=.false.)
       call realloc(yk, numk, keepexisting=.false.)
       nump1d2d = 3
