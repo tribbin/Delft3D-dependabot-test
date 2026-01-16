@@ -506,7 +506,7 @@
       </checks>
     </testCase>
     <testCase name="e02_f004_c133_time_dependent_friction_scatter_points" ref="dflowfm_default">
-      <path version="2026-01-15T12:38:38.857000">e02_dflowfm/f004_bottomfriction/c133_time_dependent_friction_scatter_points</path>
+      <path version="2026-01-16T11:09:39.787000">e02_dflowfm/f004_bottomfriction/c133_time_dependent_friction_scatter_points</path>
       <maxRunTime>15000.0000000</maxRunTime>
       <checks>
         <file name="DFM_OUTPUT_model/model_map.nc" type="netCDF">
