@@ -30,17 +30,17 @@
 !
 !
 
-module m_tauwavehk
+module m_wave_shear_velocity
 
    implicit none
 
    private
 
-   public :: tauwavehk
+   public :: compute_wave_shear_velocity
 
 contains
 
-   subroutine tauwavehk(Hrms, Tsig, Depth, Uorbi, rlabd, ust)
+   subroutine compute_wave_shear_velocity(Hrms, Tsig, Depth, Uorbi, rlabd, ust)
       use precision, only: dp
       use m_getwavenr, only: getwavenr
       use m_sferic, only: twopi, pi
@@ -72,6 +72,6 @@ contains
 
       return
 
-   end subroutine tauwavehk
+   end subroutine compute_wave_shear_velocity
 
-end module m_tauwavehk
+end module m_wave_shear_velocity
