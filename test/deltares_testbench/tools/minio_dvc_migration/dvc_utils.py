@@ -57,7 +57,7 @@ def push_dvc_files_to_remote(repo: Repo, dvc_files: list[Path]) -> None:
     failed_targets: set[Path] = set()
     for i, dvc_file in enumerate(dvc_files, 1):
         try:
-            print(f"Pushing file {i}/{len(dvc_files)}: {dvc_file}")
+            print(f"Pushing dvc file {i}/{len(dvc_files)}: {dvc_file}")
             path = str(dvc_file)
             pushed_files = repo.push(targets=[path], remote="storage")
 

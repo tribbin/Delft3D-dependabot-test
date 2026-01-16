@@ -115,7 +115,7 @@ class XmlFileWithTestCaseData:
         print(f"Download {len(self.testcases)} testcases from {self.xml_file}")
         for i, testcase in enumerate(self.testcases, start=1):
             testcase.download(rewinder=rewinder)
-            print(f"Downloaded {i}/{len(self.testcases)}: {testcase.name}")
+            print(f"Downloaded testcase {i}/{len(self.testcases)}: {testcase.name}")
 
     def move_testcases_doc_folder_to_parent(self) -> None:
         """Move doc folder to parent folder for all testcases."""
@@ -128,7 +128,7 @@ class XmlFileWithTestCaseData:
         """Add all testcases folders to DVC tracking."""
         dvc_files = []
         for i, testcase in enumerate(self.testcases, start=1):
-            print(f"Adding: {testcase.name} - {i}/{len(self.testcases)} cases - {self.xml_file}")
+            print(f"Adding testcase {i}/{len(self.testcases)}: {testcase.name} - {self.xml_file}")
             dvc_files.extend(testcase.add_to_dvc(repo=repo))
 
         return dvc_files

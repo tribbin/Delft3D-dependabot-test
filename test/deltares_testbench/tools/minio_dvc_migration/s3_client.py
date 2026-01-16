@@ -8,11 +8,11 @@ from typing import List
 from minio import Minio
 from minio.error import S3Error
 
-from config.credentials import Credentials
+from src.config.credentials import Credentials
+from src.utils.logging.log_level import LogLevel
+from src.utils.logging.logger import Logger
+from src.utils.minio_rewinder import Rewinder
 from tools.minio_dvc_migration.s3_url_info import S3UrlInfo
-from utils.logging.log_level import LogLevel
-from utils.logging.logger import Logger
-from utils.minio_rewinder import Rewinder
 
 
 class MinioBucketUtils:
