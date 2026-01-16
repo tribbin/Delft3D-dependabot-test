@@ -100,6 +100,9 @@ contains
       inhul1 = -1
       inhul2 = -1
 ! Construct the new polygon set in XPH (backup pol is not used anway during this operation)
+      if (.NOT. ALLOCATED(XPH)) then
+        allocate(XPH(maxpolh))
+      end if
       XPH = dmiss
       NPH = 0
       maxpolh = size(xph)
