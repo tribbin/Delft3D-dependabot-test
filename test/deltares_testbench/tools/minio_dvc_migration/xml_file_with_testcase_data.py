@@ -5,6 +5,7 @@ from dvc.repo import Repo
 from lxml import etree
 
 from src.utils.minio_rewinder import Rewinder
+from tools.minio_dvc_migration.s3_url_info import rewind_timestep_2_datetime
 from tools.minio_dvc_migration.testcase_data import TestCaseData, is_case_with_doc_folder, move_doc_folder_to_parent
 
 
@@ -88,11 +89,17 @@ class XmlFileWithTestCaseData:
                     root_elem.text = "./data/cases"
 
     def __update_testcase_version(self, root: etree._Element, namespace: dict[str, str]) -> None:
-        """Update the version attribute for all testcases to 'DVC'."""
+        """Update the version attribute for migrated testcases to 'DVC'.
+
+        Only versions that are valid rewind timestamps (see `rewind_timestep_2_datetime`) are updated.
+        All other versions are preserved.
+        """
         testcases = root.findall(".//tb:testCase", namespace)
         for testcase in testcases:
             path_elem = testcase.find("tb:path", namespace)
             if path_elem is not None and path_elem.get("version"):
+                current_version = path_elem.get("version") or ""
+                if rewind_timestep_2_datetime(current_version.strip()) is not None:
                     path_elem.set("version", "DVC")
 
     def __process_xi_includes(self, root: etree._Element, current_file: Path) -> None:
@@ -132,3 +139,23 @@ class XmlFileWithTestCaseData:
             dvc_files.extend(testcase.add_to_dvc(repo=repo))
 
         return dvc_files
+
+
+def filter_cases_to_migrate(xmls: list[XmlFileWithTestCaseData]) -> list[XmlFileWithTestCaseData]:
+    """Filter to testcases that should be migrated from MinIO to DVC."""
+    print("Filtering out testcases that are already in DVC...")
+    xmls_with_minio_testcases: list[XmlFileWithTestCaseData] = []
+
+    for xml in xmls:
+        migrate_cases = [
+            tc
+            for tc in xml.testcases
+            if rewind_timestep_2_datetime(tc.version.strip()) is not None
+        ]
+        if migrate_cases:
+            xmls_with_minio_testcases.append(XmlFileWithTestCaseData(xml_file=xml.xml_file, testcases=migrate_cases))
+            print(f"XML {xml.xml_file.name} has {len(migrate_cases)} of {len(xml.testcases)} total testcases to migrate")
+        else:
+            print(f"All testcases in XML {xml.xml_file.name} are not in MinIO or already in DVC")
+
+    return xmls_with_minio_testcases

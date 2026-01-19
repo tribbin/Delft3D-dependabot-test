@@ -7,13 +7,14 @@ import pytest
 
 from src.config.test_case_path import TestCasePath
 from test.helpers.xml_config_helper import make_test_case_config_xml
-from tools.minio_dvc_migration.xml_file_with_testcase_data import XmlFileWithTestCaseData
+from tools.minio_dvc_migration.testcase_data import TestCaseData
+from tools.minio_dvc_migration.xml_file_with_testcase_data import XmlFileWithTestCaseData, filter_cases_to_migrate
 
 
 def test_migration_of_minio_to_dvc_testcases_xml(tmp_path: Path) -> None:
     """Test that XML file migration updates paths correctly."""
     # Arrange
-    version = datetime.now(timezone.utc).isoformat()
+    version = datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec="microseconds")
     xml_content_stream = make_test_case_config_xml(
         test_case_path=TestCasePath("test/case/path", version=version),
         case_root="{server_base_url}/cases",
@@ -54,7 +55,7 @@ def test_migrate_xml_to_dvc_missing_file(tmp_path: Path) -> None:
 def test_migration_of_minio_to_dvc_testcases_xml_with_included_xml(tmp_path: Path) -> None:
     """Test that XML file migration with xi:include updates both main and included files correctly."""
     # Arrange
-    version = datetime.now(timezone.utc).isoformat()
+    version = datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec="microseconds")
 
     # Create the included XML file
     included_xml_content = make_test_case_config_xml(
@@ -104,3 +105,67 @@ def test_migration_of_minio_to_dvc_testcases_xml_with_included_xml(tmp_path: Pat
     assert "{server_base_url}/references" not in included_modified_content
     assert 'version="DVC"' in included_modified_content
     assert f'version="{version}"' not in included_modified_content
+
+
+def test_migration_preserves_non_parseable_version(tmp_path: Path) -> None:
+    """Ensure non-rewind versions are not rewritten to DVC."""
+    # Arrange
+    version = "NO VERSION"
+    xml_content_stream = make_test_case_config_xml(
+        test_case_path=TestCasePath("test/case/path", version=version),
+        case_root="{server_base_url}/cases",
+        reference_root="{server_base_url}/references",
+    )
+
+    temp_file_path = tmp_path / "test_config_invalid_version.xml"
+    with open(temp_file_path, "wb") as temp_file:
+        temp_file.write(xml_content_stream.read())
+
+    xml_data = XmlFileWithTestCaseData(temp_file_path, [])
+
+    # Act
+    xml_data.migrate_xml_to_dvc()
+
+    # Assert
+    modified_content = temp_file_path.read_text(encoding="utf-8")
+    assert f'version="{version}"' in modified_content
+    assert 'version="DVC"' not in modified_content
+
+def _tc(version: str) -> TestCaseData:
+    return TestCaseData(name="tc", version=version)
+
+
+def test_filter_cases_to_migrate_filters_by_dvc_and_valid_version() -> None:
+    xml_a = XmlFileWithTestCaseData(
+        xml_file=Path("a.xml"),
+        testcases=[
+            _tc("dvc"),
+            _tc("DVC"),
+            _tc("  dVc  "),
+            _tc(""),
+            _tc("123"),
+            _tc("NO VERSION"),
+            _tc("2025-09-11T13:20:21"),
+            _tc("2025-09-11T13:20:21.667000"),
+            _tc("2025-11-19T10:31"),
+        ],
+    )
+    xml_b = XmlFileWithTestCaseData(xml_file=Path("b.xml"), testcases=[_tc("DVC")])
+    xml_c = XmlFileWithTestCaseData(xml_file=Path("c.xml"), testcases=[_tc("NO VERSION"), _tc("not-a-date")])
+
+    result = filter_cases_to_migrate([xml_a, xml_b, xml_c])
+
+    assert [x.xml_file for x in result] == [Path("a.xml")]
+    assert [tc.version for tc in result[0].testcases] == [
+        "2025-09-11T13:20:21",
+        "2025-09-11T13:20:21.667000",
+        "2025-11-19T10:31",
+    ]
+
+
+def test_filter_cases_to_migrate_returns_empty_when_none_migratable() -> None:
+    xml = XmlFileWithTestCaseData(xml_file=Path("only_dvc.xml"), testcases=[_tc("dvc"), _tc("DVC")])
+
+    result = filter_cases_to_migrate([xml])
+
+    assert result == []

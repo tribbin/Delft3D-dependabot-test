@@ -10,7 +10,7 @@ from tools.minio_dvc_migration.dvc_utils import find_dvc_root_in_parent_director
 from tools.minio_dvc_migration.s3_client import setup_minio_rewinder
 from tools.minio_dvc_migration.tc_xml_utils import load_teamcity_xml_files
 from tools.minio_dvc_migration.testcase_data import extract_testcase_data
-from tools.minio_dvc_migration.xml_file_with_testcase_data import XmlFileWithTestCaseData
+from tools.minio_dvc_migration.xml_file_with_testcase_data import XmlFileWithTestCaseData, filter_cases_to_migrate
 
 BASE_URL = "https://s3.deltares.nl"
 S3_BUCKET = "dsc-testbench"
@@ -72,12 +72,15 @@ def extract_data_from_xml_files(xml_files: list[Path]) -> list[XmlFileWithTestCa
     return parsed_xmls
 
 
+
 def main() -> None:
     """Execute main functionality for the minio to DVC migration tool."""
     args = parse_arguments()
 
     xml_files = determine_xml_files_to_process(args)
-    xml_files_with_data = extract_data_from_xml_files(xml_files)
+    xml_files_with_all_testcases = extract_data_from_xml_files(xml_files)
+        
+    xml_files_with_testcases_to_migrate = filter_cases_to_migrate(xml_files_with_all_testcases)
 
     rewinder = setup_minio_rewinder(BASE_URL)
 
@@ -86,20 +89,20 @@ def main() -> None:
     repo = Repo(str(repo_root))
 
     # First download all cases and references then move doc folders and add to DVC. This will speed up the process.
-    for xml_file in xml_files_with_data:
+    for xml_file in xml_files_with_testcases_to_migrate:
         xml_file.download_from_minio_in_new_folder_structure(rewinder=rewinder)
 
-    for xml_file in xml_files_with_data:
+    for xml_file in xml_files_with_testcases_to_migrate:
         xml_file.move_testcases_doc_folder_to_parent()
 
     dvc_files = []
-    for i, xml_file in enumerate(xml_files_with_data, start=1):
-        print(f"Add testcases {xml_file.xml_file.name} to dvc - {i}/{len(xml_files_with_data)} xml's")
+    for i, xml_file in enumerate(xml_files_with_testcases_to_migrate, start=1):
+        print(f"Add testcases {xml_file.xml_file.name} to dvc - {i}/{len(xml_files_with_testcases_to_migrate)} xml's")
         dvc_files.extend(xml_file.add_to_dvc(repo=repo))
 
     push_dvc_files_to_remote(repo, dvc_files)
 
-    for xml_file in xml_files_with_data:
+    for xml_file in xml_files_with_testcases_to_migrate:
         xml_file.migrate_xml_to_dvc()
 
 
