@@ -93,7 +93,7 @@ class XmlFileWithTestCaseData:
         for testcase in testcases:
             path_elem = testcase.find("tb:path", namespace)
             if path_elem is not None and path_elem.get("version"):
-                path_elem.set("version", "DVC")
+                    path_elem.set("version", "DVC")
 
     def __process_xi_includes(self, root: etree._Element, current_file: Path) -> None:
         """Process xi:include elements and update the included files recursively."""
@@ -103,7 +103,7 @@ class XmlFileWithTestCaseData:
             href = include.get("href")
             if href:
                 # Resolve the path relative to the current file
-                include_path = Path(current_file).parent / href
+                include_path = (current_file.parent / href).resolve(strict=False)
                 if include_path.exists():
                     print(f"Processing included file: {include_path}")
                     self.migrate_xml_to_dvc(include_path)
