@@ -6,7 +6,7 @@ module test_pol_to_cellmask
    use m_cellmask_from_polygon_set, only: cellmask_from_polygon_set_init, cellmask_from_polygon_set, cellmask_from_polygon_set_cleanup
    use geometry_module, only: pinpok_legacy, pinpok_raycast
 
-   implicit none
+   implicit none(external)
 
 contains
 
@@ -462,7 +462,7 @@ contains
 
       ! Cleanup
       call cleanup_cell_geom_polylines()
-      call cleanup_simple_netcells()
+      call cleanup_netcells()
 
    end subroutine test_incells_basic_functionality
 !$f90tw)
@@ -515,7 +515,7 @@ contains
 
       ! Cleanup
       call cleanup_cell_geom_polylines()
-      call cleanup_complex_netcells()
+      call cleanup_netcells()
 
    end subroutine test_incells_complex_geometry
 !$f90tw)
@@ -557,7 +557,7 @@ contains
 
       ! Cleanup
       call cleanup_cell_geom_polylines()
-      call cleanup_grid_netcells()
+      call cleanup_netcells()
 
    end subroutine test_incells_large_grid
 !$f90tw)
@@ -605,7 +605,7 @@ contains
 
       ! Cleanup
       call cleanup_cell_geom_polylines()
-      call cleanup_simple_netcells()
+      call cleanup_netcells()
 
    end subroutine test_incells_cache_consistency
 !$f90tw)
@@ -635,7 +635,7 @@ contains
       call f90_expect_eq(kin_new, 0, "Should return 0 for empty grid")
 
       call cleanup_cell_geom_polylines()
-      call cleanup_empty_netcells()
+      call cleanup_netcells()
 
       ! Test 2: Single cell
       nump = 1
@@ -655,7 +655,7 @@ contains
       call f90_expect_eq(kin_old, kin_new, "Single cell - outside")
 
       call cleanup_cell_geom_polylines()
-      call cleanup_single_netcell()
+      call cleanup_netcells()
 
       ! Test 3: Very large coordinates
       nump = 1
@@ -670,7 +670,7 @@ contains
       call f90_expect_eq(kin_new, 0, "Should be outside")
 
       call cleanup_cell_geom_polylines()
-      call cleanup_single_netcell()
+      call cleanup_netcells()
 
    end subroutine test_incells_edge_cases
 !$f90tw)
@@ -738,7 +738,7 @@ contains
       call f90_expect_eq(cellmask(5), 1, "Cell 5 should be masked (one sample)")
 
       ! Cleanup
-      call cleanup_row_netcells()
+      call cleanup_netcells()
       deallocate (xs, ys, cellmask)
 
    end subroutine test_samples_to_cellmask_basic
@@ -757,9 +757,8 @@ contains
       call setup_row_netcells_small()
 
       ns = 0
-      if (allocated(xs)) deallocate (xs)
-      if (allocated(ys)) deallocate (ys)
-      allocate (xs(0), ys(0))
+      call realloc(xs, ns, keepexisting=.false.)
+      call realloc(ys, ns, keepexisting=.false.)
 
       call samples_to_cellmask()
 
@@ -768,7 +767,7 @@ contains
       call f90_expect_eq(cellmask(2), 0, "No samples: Cell 2 should not be masked")
       call f90_expect_eq(cellmask(3), 0, "No samples: Cell 3 should not be masked")
 
-      call cleanup_row_netcells_small()
+      call cleanup_netcells()
       deallocate (xs, ys, cellmask)
 
       ! Test 2: Samples outside all cells
@@ -792,7 +791,7 @@ contains
       call f90_expect_eq(cellmask(2), 0, "Outside samples: Cell 2 should not be masked")
       call f90_expect_eq(cellmask(3), 0, "Outside samples: Cell 3 should not be masked")
 
-      call cleanup_row_netcells_small()
+      call cleanup_netcells()
       deallocate (xs, ys, cellmask)
 
       ! Test 3: Sample on cell boundary (should be counted as inside)
@@ -811,7 +810,7 @@ contains
       ! At least one cell should be marked (boundary behavior)
       call f90_expect_true(cellmask(1) == 1 .or. cellmask(2) == 1, "Boundary sample: at least one cell should be masked")
 
-      call cleanup_row_netcells_small()
+      call cleanup_netcells()
       deallocate (xs, ys, cellmask)
 
    end subroutine test_samples_to_cellmask_edge_cases
@@ -823,7 +822,9 @@ contains
       use m_alloc, only: realloc
       integer :: i, ierr
 
-      if (allocated(netcell)) deallocate (netcell)
+      if (allocated(netcell)) then
+         deallocate (netcell)
+      end if
       allocate (netcell(nump), stat=ierr)
 
       numk = 24 ! 5 cells * 4 corners + 4 shared corners
@@ -844,27 +845,15 @@ contains
 
    end subroutine setup_row_netcells
 
-   subroutine cleanup_row_netcells()
-      use network_data, only: netcell, xk, yk, nump1d2d
-      integer :: i
-
-      do i = 1, size(netcell)
-         if (allocated(netcell(i)%nod)) deallocate (netcell(i)%nod)
-      end do
-      if (allocated(netcell)) deallocate (netcell)
-      if (allocated(xk)) deallocate (xk)
-      if (allocated(yk)) deallocate (yk)
-      nump1d2d = 0
-
-   end subroutine cleanup_row_netcells
-
    ! Helper subroutine: setup 3 cells in a row (0-10, 10-20, 20-30)
    subroutine setup_row_netcells_small()
       use network_data, only: netcell, nump, xk, yk, numk, nump1d2d
       use m_alloc, only: realloc
       integer :: i, ierr
 
-      if (allocated(netcell)) deallocate (netcell)
+      if (allocated(netcell)) then
+         deallocate (netcell)
+      end if
       allocate (netcell(nump), stat=ierr)
 
       numk = 12 ! 3 cells * 4 corners
@@ -882,19 +871,6 @@ contains
 
    end subroutine setup_row_netcells_small
 
-   subroutine cleanup_row_netcells_small()
-      use network_data, only: netcell, xk, yk
-      integer :: i
-
-      do i = 1, size(netcell)
-         if (allocated(netcell(i)%nod)) deallocate (netcell(i)%nod)
-      end do
-      if (allocated(netcell)) deallocate (netcell)
-      if (allocated(xk)) deallocate (xk)
-      if (allocated(yk)) deallocate (yk)
-
-   end subroutine cleanup_row_netcells_small
-
 ! ============================================================================
 ! Helper subroutines for setting up test geometries
 ! ============================================================================
@@ -905,7 +881,9 @@ contains
       integer :: ierr
 
       ! Allocate netcell array
-      if (allocated(netcell)) deallocate (netcell)
+      if (allocated(netcell)) then
+         deallocate (netcell)
+      end if
       allocate (netcell(nump), stat=ierr)
 
       ! Allocate node arrays
@@ -931,25 +909,14 @@ contains
 
    end subroutine setup_simple_netcells
 
-   subroutine cleanup_simple_netcells()
-      use network_data, only: netcell, xk, yk
-      integer :: i
-
-      do i = 1, size(netcell)
-         if (allocated(netcell(i)%nod)) deallocate (netcell(i)%nod)
-      end do
-      if (allocated(netcell)) deallocate (netcell)
-      if (allocated(xk)) deallocate (xk)
-      if (allocated(yk)) deallocate (yk)
-
-   end subroutine cleanup_simple_netcells
-
    subroutine setup_complex_netcells()
       use network_data, only: netcell, nump, xk, yk, numk
       use m_alloc, only: realloc
       integer :: ierr
 
-      if (allocated(netcell)) deallocate (netcell)
+      if (allocated(netcell)) then
+         deallocate (netcell)
+      end if
       allocate (netcell(nump), stat=ierr)
 
       numk = 14 ! 3 + 5 + 6 nodes
@@ -979,19 +946,6 @@ contains
 
    end subroutine setup_complex_netcells
 
-   subroutine cleanup_complex_netcells()
-      use network_data, only: netcell, xk, yk
-      integer :: i
-
-      do i = 1, size(netcell)
-         if (allocated(netcell(i)%nod)) deallocate (netcell(i)%nod)
-      end do
-      if (allocated(netcell)) deallocate (netcell)
-      if (allocated(xk)) deallocate (xk)
-      if (allocated(yk)) deallocate (yk)
-
-   end subroutine cleanup_complex_netcells
-
    subroutine setup_grid_netcells(nx, ny, cellsize)
       use network_data, only: netcell, nump, xk, yk, numk
       use m_alloc, only: realloc
@@ -1002,7 +956,9 @@ contains
       nump = nx * ny
       numk = (nx + 1) * (ny + 1)
 
-      if (allocated(netcell)) deallocate (netcell)
+      if (allocated(netcell)) then
+         deallocate (netcell)
+      end if
       allocate (netcell(nump), stat=ierr)
 
       call realloc(xk, numk, keepexisting=.false.)
@@ -1035,30 +991,36 @@ contains
 
    end subroutine setup_grid_netcells
 
-   subroutine cleanup_grid_netcells()
+   subroutine cleanup_netcells()
       use network_data, only: netcell, xk, yk
       integer :: i
 
       do i = 1, size(netcell)
-         if (allocated(netcell(i)%nod)) deallocate (netcell(i)%nod)
+         if (allocated(netcell(i)%nod)) then
+            deallocate (netcell(i)%nod)
+         end if
       end do
-      if (allocated(netcell)) deallocate (netcell)
-      if (allocated(xk)) deallocate (xk)
-      if (allocated(yk)) deallocate (yk)
+      if (allocated(netcell)) then
+         deallocate (netcell)
+      end if
+      if (allocated(xk)) then
+         deallocate (xk)
+      end if
+      if (allocated(yk)) then
+         deallocate (yk)
+      end if
 
-   end subroutine cleanup_grid_netcells
+   end subroutine cleanup_netcells
 
    subroutine setup_empty_netcells()
       use network_data, only: netcell, nump
 
       nump = 0
-      if (allocated(netcell)) deallocate (netcell)
+      if (allocated(netcell)) then
+         deallocate (netcell)
+      end if
 
    end subroutine setup_empty_netcells
-
-   subroutine cleanup_empty_netcells()
-      ! Nothing to clean up for empty grid
-   end subroutine cleanup_empty_netcells
 
    subroutine setup_single_netcell()
       use network_data, only: netcell, nump, xk, yk, numk
@@ -1068,7 +1030,9 @@ contains
       nump = 1
       numk = 4
 
-      if (allocated(netcell)) deallocate (netcell)
+      if (allocated(netcell)) then
+         deallocate (netcell)
+      end if
       allocate (netcell(nump), stat=ierr)
 
       call realloc(xk, numk, keepexisting=.false.)
@@ -1083,16 +1047,6 @@ contains
       netcell(1)%nod = [1, 2, 3, 4]
 
    end subroutine setup_single_netcell
-
-   subroutine cleanup_single_netcell()
-      use network_data, only: netcell, xk, yk
-
-      if (allocated(netcell(1)%nod)) deallocate (netcell(1)%nod)
-      if (allocated(netcell)) deallocate (netcell)
-      if (allocated(xk)) deallocate (xk)
-      if (allocated(yk)) deallocate (yk)
-
-   end subroutine cleanup_single_netcell
 
    subroutine realloc_polyline_arrays(nump, npl)
       use m_alloc, only: realloc
