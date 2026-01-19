@@ -994,13 +994,12 @@ contains
    subroutine cleanup_netcells()
       use network_data, only: netcell, xk, yk
       integer :: i
-
-      do i = 1, size(netcell)
-         if (allocated(netcell(i)%nod)) then
-            deallocate (netcell(i)%nod)
-         end if
-      end do
       if (allocated(netcell)) then
+         do i = 1, size(netcell)
+            if (allocated(netcell(i)%nod)) then
+               deallocate (netcell(i)%nod)
+            end if
+         end do
          deallocate (netcell)
       end if
       if (allocated(xk)) then
