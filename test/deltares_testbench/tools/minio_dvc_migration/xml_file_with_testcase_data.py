@@ -39,6 +39,9 @@ class XmlFileWithTestCaseData:
             with open(xml_path, "rb") as f:
                 content = f.read()
 
+            # Preserve whether the file originally had an XML declaration.
+            has_xml_declaration = content.startswith(b"<?xml")
+
             # Detect encoding from XML declaration
             encoding = "utf-8"  # default
             if content.startswith(b"<?xml"):
@@ -59,7 +62,12 @@ class XmlFileWithTestCaseData:
             self.__process_xi_includes(root, xml_path)
 
             # Write the modified XML back
-            tree.write(xml_path, encoding=encoding, xml_declaration=True, pretty_print=True)
+            tree.write(
+                xml_path,
+                encoding=encoding,
+                xml_declaration=has_xml_declaration,
+                pretty_print=True,
+            )
             print(f"Successfully updated XML file: {xml_path}")
 
         except Exception as e:
