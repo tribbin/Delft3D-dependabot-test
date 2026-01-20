@@ -24,9 +24,14 @@ class XmlFileWithTestCaseData:
     def __init__(self, xml_file: Path, testcases: list[TestCaseData]) -> None:
         self.xml_file = xml_file
         self.testcases = testcases
-
-    def migrate_xml_to_dvc(self, xml_path: Path | None = None) -> None:
+        
+    def migrate_xml_to_dvc(self) -> None:
         """Update XML file to use DVC and local data paths."""
+        self.__migrate_included_xml_to_dvc(self.xml_file)
+
+
+    def __migrate_included_xml_to_dvc(self, xml_path: Path | None = None) -> None:
+        """Migrate a single XML file to use DVC and local data paths."""
         if xml_path is None:
             xml_path = self.xml_file
         print(f"Update xml: {xml_path}")
@@ -86,15 +91,29 @@ class XmlFileWithTestCaseData:
             reference_dir.text = "./data/cases"
 
     def __update_location_roots(self, root: etree._Element, namespace: dict[str, str]) -> None:
-        """Update location roots to use ./data/cases."""
-        locations = root.findall(".//tb:location", namespace)
-        for location in locations:
-            root_elem = location.find("tb:root", namespace)
+        """Update location roots to use local paths.
+
+        Only locations that are referenced by (default) testcases are updated.
+        Unreferenced locations are left unchanged.
+        """
+
+        referenced_location_names: set[str] = set()
+        testcase_locations = root.findall(".//tb:testCase/tb:location", namespace)
+        for testcase_location in testcase_locations:
+            ref = testcase_location.get("ref")
+            if ref:
+                referenced_location_names.add(ref)
+
+        config_locations = root.findall("./tb:config/tb:locations/tb:location", namespace)
+        for config_location in config_locations:
+            name = config_location.get("name")
+            if not name or name not in referenced_location_names:
+                continue
+
+            root_elem = config_location.find("tb:root", namespace)
             if root_elem is not None:
-                root_text = root_elem.text
-                # Replace exact matches only: {server_base_url}/references and {server_base_url}/cases
-                if root_text in ["{server_base_url}/references", "{server_base_url}/cases"]:
-                    root_elem.text = "./data/cases"
+                root_elem.text = "./data/cases"
+
 
     def __update_testcase_version(self, root: etree._Element, namespace: dict[str, str]) -> None:
         """Update the version attribute for migrated testcases to 'DVC'.
@@ -121,7 +140,7 @@ class XmlFileWithTestCaseData:
                 include_path = (current_file.parent / href).resolve(strict=False)
                 if include_path.exists():
                     print(f"Processing included file: {include_path}")
-                    self.migrate_xml_to_dvc(include_path)
+                    self.__migrate_included_xml_to_dvc(include_path)
                 else:
                     print(f"Warning: Included file does not exist: {include_path}")
 

@@ -3,10 +3,12 @@
 from datetime import datetime, timezone
 from pathlib import Path
 
+import re
 import pytest
 
 from src.config.test_case_path import TestCasePath
 from test.helpers.xml_config_helper import make_test_case_config_xml
+from tools.minio_dvc_migration.migrate_xmls import extract_data_from_xml_files
 from tools.minio_dvc_migration.testcase_data import TestCaseData
 from tools.minio_dvc_migration.xml_file_with_testcase_data import XmlFileWithTestCaseData, filter_cases_to_migrate
 
@@ -169,3 +171,51 @@ def test_filter_cases_to_migrate_returns_empty_when_none_migratable() -> None:
     result = filter_cases_to_migrate([xml])
 
     assert result == []
+
+
+def test_migration_of_locations_testcases_xml(tmp_path: Path) -> None:
+    """Test that XML file migration updates paths correctly."""
+    # Arrange
+    version = datetime.now(timezone.utc).replace(tzinfo=None).isoformat(timespec="microseconds")
+
+    xml_content_stream = make_test_case_config_xml(
+        test_case_path=TestCasePath("test/case/path", version=version),
+        case_root="{server_base_url}/cases",
+        reference_root="{server_base_url}/references",
+        additional_locations=(
+            """
+                    <location name="unrelated_location">
+                        <credential ref="commandline"/>
+                        <root>{server_base_url}/references</root>
+                    </location>
+            """
+        ),
+    )
+
+    temp_file_path = tmp_path / "test_config.xml"
+    with open(temp_file_path, "wb") as temp_file:
+        temp_file.write(xml_content_stream.read())
+
+    xml_files_with_all_testcases = extract_data_from_xml_files([temp_file_path])
+    xml_data = xml_files_with_all_testcases[0]
+
+    # Act
+    xml_data.migrate_xml_to_dvc()
+
+    # Assert
+    modified_content = temp_file_path.read_text(encoding="utf-8")
+
+    assert get_location_root(modified_content, "dsctestbench-cases") == "./data/cases"
+    assert get_location_root(modified_content, "dsctestbench-references") == "./data/cases"
+    assert get_location_root(modified_content, "unrelated_location") == "{server_base_url}/references"
+   
+def get_location_root(content: str, location_name: str) -> str:
+    match = re.search(
+        rf'<location\s+name="{re.escape(location_name)}"\s*>.*?<root>(.*?)</root>',
+        content,
+        flags=re.DOTALL,
+    )
+    if match is not None:
+        return (match.group(1) or "").strip()
+    else:
+        return ""
