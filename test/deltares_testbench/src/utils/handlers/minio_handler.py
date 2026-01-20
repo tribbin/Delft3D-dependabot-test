@@ -8,6 +8,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+import urllib3
+
 from minio import Minio
 
 from src.config.credentials import Credentials
@@ -47,7 +49,21 @@ class MinIOHandler(IHandler):
         s3_path = match.group("path")
 
         # Minio client connection
-        my_client = Minio(s3_storage, access_key=credentials.username, secret_key=credentials.password)
+        my_client = Minio(
+            s3_storage,
+            access_key=credentials.username,
+            secret_key=credentials.password,
+            secure=True,
+            http_client=urllib3.PoolManager(
+                timeout=urllib3.Timeout.DEFAULT_TIMEOUT,
+                cert_reqs="CERT_REQUIRED",
+                retries=urllib3.Retry(
+                    total=5,
+                    backoff_factor=0.2,
+                    status_forcelist=[500, 502, 503, 504],  # Retry on temporary server errors
+                ),
+            ),
+        )
         rewinder = Rewinder(my_client, logger)
 
         # Download the objects
