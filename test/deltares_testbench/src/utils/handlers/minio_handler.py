@@ -52,10 +52,8 @@ class MinIOHandler(IHandler):
             s3_storage,
             access_key=credentials.username,
             secret_key=credentials.password,
-            secure=True,
             http_client=urllib3.PoolManager(
                 timeout=urllib3.Timeout.DEFAULT_TIMEOUT,
-                cert_reqs="CERT_REQUIRED",
                 retries=urllib3.Retry(
                     total=5,
                     backoff_factor=0.2,
