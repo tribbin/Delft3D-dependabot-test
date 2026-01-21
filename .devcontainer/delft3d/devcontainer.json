@@ -30,10 +30,9 @@
                 "vscjava.vscode-maven",
                 "fwcd.kotlin",
                 "ms-python.python",
-                "ms-python.mypy-type-checker",
                 "charliermarsh.ruff",
-                "tamasfe.even-better-toml",
-                "ms-vscode.hexeditor",
+                "astral-sh.ty",
+                "tamasfe.even-better-toml"
             ]
         }
     }
