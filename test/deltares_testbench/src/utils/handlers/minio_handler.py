@@ -3,11 +3,13 @@
 Copyright (C)  Stichting Deltares, 2026
 """
 
+import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+import certifi
 import urllib3
 from minio import Minio
 
@@ -52,8 +54,11 @@ class MinIOHandler(IHandler):
             s3_storage,
             access_key=credentials.username,
             secret_key=credentials.password,
+            secure=True,
             http_client=urllib3.PoolManager(
                 timeout=urllib3.Timeout.DEFAULT_TIMEOUT,
+                cert_reqs="CERT_REQUIRED",
+                ca_certs=os.environ.get("SSL_CERT_FILE") or certifi.where(),
                 retries=urllib3.Retry(
                     total=5,
                     backoff_factor=0.2,
