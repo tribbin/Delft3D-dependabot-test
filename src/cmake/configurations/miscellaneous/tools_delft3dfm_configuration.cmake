@@ -25,6 +25,10 @@ endif()
 # cosumo_bmi
 if(NOT TARGET cosumo_bmi)
     add_subdirectory(${checkout_src_root}/${cosumo_bmi_module} cosumo_bmi)
+endif()
+
+# csumo_nfio
+if(NOT TARGET csumo_nfio)
     add_subdirectory(${checkout_src_root}/${csumo_nfio_module} csumo_nfio)
 endif()
 
