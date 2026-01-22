@@ -210,7 +210,8 @@ class TestComparisonRunner:
         # Assert
         assert (
             call(
-                f"There are no test cases in '{settings.command_line_settings.config_file}' with applied filter '{settings.command_line_settings.filter}'."
+                f"There are no test cases in '{settings.command_line_settings.config_file}' "
+                f"with applied filter '{settings.command_line_settings.filter}'."
             )
             in logger.error.call_args_list
         )
@@ -288,7 +289,7 @@ class TestComparisonRunner:
         mocker.patch("src.suite.test_case.Program.run")  # Patch `Program.run` so it does nothing
         return_code_mock = mocker.patch(
             "src.suite.test_case.Program.last_return_code", new_callable=PropertyMock, side_effect=[1, 0]
-        )  # Patch `Program.run` so it does nothing
+        )
         # Make `getError` first return an error, then no error.
         return_values = iter([RuntimeError("Failed to frobnicate"), None])
         get_error_mock = mocker.patch("src.suite.test_case.Program.getError", side_effect=lambda next(return_values))
