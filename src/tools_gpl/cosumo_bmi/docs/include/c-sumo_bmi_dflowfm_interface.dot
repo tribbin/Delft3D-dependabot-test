@@ -2,7 +2,7 @@
 // Generated for c00_nf_2dis_simple_sigma example
 // Shows BMI-based bidirectional coupling through DIMR
 
-digraph cosumo_dflowfm_coupling {
+digraph c_sumo_bmi_dflowfm_coupling {
     // Graph settings
     rankdir=LR;
     nodesep=1.0;
@@ -22,7 +22,7 @@ digraph cosumo_dflowfm_coupling {
             shape=box,
             width=2.5];
     
-    dimr [label="DIMR\n(Integration Manager)\n\nControls:\n• Kernel execution\n• Time synchronization\n• Data coupling\n• Pointer sharing",
+    dimr [label="DIMR\n(Deltares Integrated Model Runner)\n\nControls:\n• Kernel execution\n• Time synchronization\n• Data coupling\n• Pointer sharing",
           fillcolor="#F3E5F5",
           shape=ellipse];
     
@@ -58,7 +58,7 @@ digraph cosumo_dflowfm_coupling {
     logger [label="Logger Output:\ncosumo_to_dflowfm.nc",
             shape=note,
             fillcolor="#FFFDE7"];
-    cosumo -> logger [style=dotted, color=gray];
+    dimr -> logger [style=dotted, color=gray];
     
     // Legend
     //subgraph cluster_legend {

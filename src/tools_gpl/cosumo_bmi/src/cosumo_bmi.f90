@@ -29,7 +29,6 @@
 !-------------------------------------------------------------------------------
 !
 !> @file cosumo_bmi.f90
-!! The main program 'network' and all net-related routines.
 !<
 !> \include{doc} c-sumo-bmi-mainpage.dox
 module m_cosumo_bmi_version

@@ -2,6 +2,6 @@
 
 This documentation shows an overview of the coupling between C-SUMO BMI wrapper and D-FlowFM using DIMR
 
-\dotfile cosumo_dflowfm_interface.dot
+\dotfile c-sumo_bmi_dflowfm_interface.dot
 
 
