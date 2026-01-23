@@ -36,17 +36,16 @@ def add_directory_to_dvc(path: Path, repo: Repo) -> List[Path]:
 
     try:
         stages = repo.add(targets=[str(path)])  # type: ignore[call-arg]
-        dvc_files: List[Path] = []
-
-        for s in stages:
-            if hasattr(s, "dvcfile") and hasattr(s.dvcfile, "path"):
-                dvc_files.append(Path(s.dvcfile.path))
-
-        return dvc_files
-
     except Exception as e:
         print(f"Error adding to DVC: {e}")
-        return []
+        raise
+
+    dvc_files: List[Path] = []
+    for s in stages:
+        if hasattr(s, "dvcfile") and hasattr(s.dvcfile, "path"):
+            dvc_files.append(Path(s.dvcfile.path))
+
+    return dvc_files
 
 
 def push_dvc_files_to_remote(repo: Repo, dvc_files: list[Path]) -> None:
