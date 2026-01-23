@@ -390,8 +390,6 @@ contains
 !> Also get nk-index, sum for each nk, define weights
    subroutine getIntakeLocations(idif, jakdtree)
       use m_alloc, only: realloc
-      use m_get_kbot_ktop, only: getkbotktop
-      use m_flow, only: zws
       use m_find_flownode, only: find_nearest_flownodes
       use m_GlobalParameters, only: INDTP_2D
       !
@@ -404,8 +402,6 @@ contains
       integer :: j
       integer :: nf_intake_cnt
       integer :: nk
-      integer :: kbot
-      integer :: ktop
       real(hp), dimension(:), allocatable :: find_x !< array containing x-coordinates of locations for which the cell index n is searched for by calling find_flownode
       real(hp), dimension(:), allocatable :: find_y !< array containing y-coordinates of locations for which the cell index n is searched for by calling find_flownode
       character(IdLen), dimension(:), allocatable :: find_name !< array containing names         of locations for which the cell index n is searched for by calling find_flownode
@@ -439,14 +435,9 @@ contains
          if (find_n(1) == 0) then
             call mess(LEVEL_ERROR, "Intake point '", trim(find_name(1)), "' not found")
          end if
-         call getkbotktop(find_n(1), kbot, ktop)
-         do nk = kbot, ktop
-            if (zws(nk) > -nf_intake(idif, 1, NF_IZ) .or. nk == ktop) then
-               exit
-            end if
-         end do
+
          nf_intake_n(idif, 1) = find_n(1)
-         nf_intake_nk(idif, 1) = nk
+         nf_intake_nk(idif, 1) = find_3d_layer_index_intake(find_n(1), idif, 1)
          nf_intake_z(idif, 1) = -nf_intake(idif, 1, NF_IZ)
          nf_intake_wght(idif, 1) = nf_intake_wght(idif, 1) + 1.0_fp
          !
@@ -458,12 +449,7 @@ contains
             if (find_n(i) == 0) then
                call mess(LEVEL_ERROR, "Intake point '", trim(find_name(i)), "' not found")
             end if
-            call getkbotktop(find_n(i), kbot, ktop)
-            do nk = kbot, ktop
-               if (zws(nk) > -nf_intake(idif, i, NF_IZ) .or. nk == ktop) then
-                  exit
-               end if
-            end do
+            nk = find_3d_layer_index_intake(find_n(i), idif, i)
             !
             ! Check whether this nk-point is already in array nf_intake_nk
             ! If yes: increase wght, set nk=0
@@ -502,6 +488,24 @@ contains
                    comparereal(nf_intake(diffuser_id, intake_id, NF_IY), 0.0_hp) == 0 .and. &
                    comparereal(nf_intake(diffuser_id, intake_id, NF_IZ), 0.0_hp) == 0)
    end function is_intake_end_marker
+
+   pure function find_3d_layer_index_intake(cell_index_2d, diffuser_id, intake_id) result(cell_index_3d)
+      use m_flow, only: zws
+      use m_get_kbot_ktop, only: getkbotktop
+      integer, intent(in) :: cell_index_2d !< 2D cell index (n)
+      integer, intent(in) :: diffuser_id !< Diffuser id
+      integer, intent(in) :: intake_id !< Intake point id
+      integer :: cell_index_3d
+
+      integer :: kbot, ktop
+
+      call getkbotktop(cell_index_2d, kbot, ktop)
+      do cell_index_3d = kbot, ktop
+         if (zws(cell_index_3d) > -nf_intake(diffuser_id, intake_id, NF_IZ)) then
+            exit
+         end if
+      end do
+   end function find_3d_layer_index_intake
 !
 !
 !==============================================================================
