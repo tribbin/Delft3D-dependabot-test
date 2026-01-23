@@ -417,8 +417,7 @@ contains
       call realloc(find_n, nf_numintake, keepExisting=.false., fill=0)
       call realloc(find_name, nf_numintake, keepExisting=.false., fill=' ')
       do i = 1, nf_numintake
-         if (comparereal(nf_intake(idif, i, NF_IX), 0.0_hp) == 0 .and. &
-             comparereal(nf_intake(idif, i, NF_IY), 0.0_hp) == 0) then
+         if (is_intake_end_marker(idif, i)) then
             nf_numintake_idif(idif) = i - 1
             exit
          end if
@@ -453,9 +452,7 @@ contains
          !
          ! Now handle the rest of the intake points of this diffuser
          do i = 2, nf_numintake_idif(idif)
-            if (comparereal(nf_intake(idif, i, NF_IX), 0.0_hp) == 0 .and. &
-                comparereal(nf_intake(idif, i, NF_IY), 0.0_hp) == 0 .and. &
-                comparereal(nf_intake(idif, i, NF_IZ), 0.0_hp) == 0) then
+            if (is_intake_end_marker(idif, i)) then
                exit
             end if
             if (find_n(i) == 0) then
@@ -495,6 +492,16 @@ contains
          end do
       end if
    end subroutine getIntakeLocations
+
+   pure function is_intake_end_marker(diffuser_id, intake_id) result(at_origin)
+      integer, intent(in) :: diffuser_id !< Diffuser id
+      integer, intent(in) :: intake_id !< Intake point id
+      logical :: at_origin
+
+      at_origin = (comparereal(nf_intake(diffuser_id, intake_id, NF_IX), 0.0_hp) == 0 .and. &
+                   comparereal(nf_intake(diffuser_id, intake_id, NF_IY), 0.0_hp) == 0 .and. &
+                   comparereal(nf_intake(diffuser_id, intake_id, NF_IZ), 0.0_hp) == 0)
+   end function is_intake_end_marker
 !
 !
 !==============================================================================
