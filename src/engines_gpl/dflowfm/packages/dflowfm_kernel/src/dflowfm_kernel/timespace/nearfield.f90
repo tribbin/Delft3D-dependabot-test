@@ -413,7 +413,7 @@ contains
       call realloc(find_n, nf_numintake, keepExisting=.false., fill=0)
       call realloc(find_name, nf_numintake, keepExisting=.false., fill=' ')
       do i = 1, nf_numintake
-         if (is_intake_end_marker(idif, i)) then
+         if (has_intake_end_marker(idif, i)) then
             nf_numintake_idif(idif) = i - 1
             exit
          end if
@@ -443,7 +443,7 @@ contains
          !
          ! Now handle the rest of the intake points of this diffuser
          do i = 2, nf_numintake_idif(idif)
-            if (is_intake_end_marker(idif, i)) then
+            if (has_intake_end_marker(idif, i)) then
                exit
             end if
             if (find_n(i) == 0) then
@@ -479,7 +479,9 @@ contains
       end if
    end subroutine getIntakeLocations
 
-   pure function is_intake_end_marker(diffuser_id, intake_id) result(at_origin)
+   !> Check whether the intake point for this diffuser has position (0,0,0),
+   !! which marks that there are no more intake points for this diffuser.
+   pure function has_intake_end_marker(diffuser_id, intake_id) result(at_origin)
       integer, intent(in) :: diffuser_id !< Diffuser id
       integer, intent(in) :: intake_id !< Intake point id
       logical :: at_origin
@@ -487,8 +489,9 @@ contains
       at_origin = (comparereal(nf_intake(diffuser_id, intake_id, NF_IX), 0.0_hp) == 0 .and. &
                    comparereal(nf_intake(diffuser_id, intake_id, NF_IY), 0.0_hp) == 0 .and. &
                    comparereal(nf_intake(diffuser_id, intake_id, NF_IZ), 0.0_hp) == 0)
-   end function is_intake_end_marker
+   end function has_intake_end_marker
 
+   !> Find the 3D layer index (nk) for an intake point, given its 2D cell index (n)
    pure function find_3d_layer_index_intake(cell_index_2d, diffuser_id, intake_id) result(cell_index_3d)
       use m_flow, only: zws
       use m_get_kbot_ktop, only: getkbotktop
