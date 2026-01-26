@@ -5,6 +5,7 @@ Copyright (C)  Stichting Deltares, 2026
 
 import multiprocessing
 import os
+import shutil
 import sys
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
@@ -23,7 +24,7 @@ from src.suite.run_data import RunData
 from src.suite.test_bench_settings import TestBenchSettings
 from src.suite.test_case import TestCase
 from src.suite.test_case_result import TestCaseResult
-from src.utils.common import log_header, log_separator, log_sub_header
+from src.utils.common import delete_directory, log_header, log_separator, log_sub_header
 from src.utils.errors.test_bench_error import TestBenchError
 from src.utils.handlers.handler_factory import HandlerFactory
 from src.utils.handlers.resolve_handler import ResolveHandler
@@ -559,6 +560,9 @@ class TestSetRunner(ABC):
             remote_path = self.__build_remote_path(config, location)
             local_path = self.__build_local_path(config, location)
             self.__download_location_with_retries(config, location, remote_path, local_path, logger)
+            if location.type == PathType.INPUT:
+                self.__copy_to_work_folder(local_path, logger)
+
             self.__set_absolute_paths(config, location.type, local_path)
 
     def __validate_location(self, config: TestCaseConfig, location: Location) -> None:
@@ -637,6 +641,25 @@ class TestSetRunner(ABC):
                     error_message = f"Unable to download testcase: {error}"
                     raise TestBenchError(error_message) from e
 
+    def __copy_to_work_folder(self, local_path: str, logger: ILogger) -> None:
+        """Copy downloaded files to work folder if needed."""
+        copy_path = local_path + "_work"
+        if not os.path.exists(local_path):
+            logger.warning(f"Work path does not exist, cannot create work copy: {local_path}")
+            return
+
+        # Clean work directory if it exists
+        if os.path.exists(copy_path):
+            delete_directory(copy_path, logger)
+
+        # copy input to work directory
+        logger.debug(f"Copying input from {local_path} to {copy_path}")
+        if os.path.isdir(local_path):
+            shutil.copytree(local_path, copy_path, symlinks=False, ignore_dangling_symlinks=True)
+        else:
+            os.makedirs(os.path.dirname(copy_path) or ".", exist_ok=True)
+            shutil.copy2(local_path, copy_path)
+
     def __download_single_location(
         self, config: TestCaseConfig, location: Location, remote_path: str, local_path: str, logger: ILogger
     ) -> None:
@@ -655,7 +678,7 @@ class TestSetRunner(ABC):
     def __set_absolute_paths(self, config: TestCaseConfig, location_type: PathType, local_path: str) -> None:
         """Set absolute paths on the config based on location type."""
         if location_type == PathType.INPUT:
-            config.absolute_test_case_path = local_path
+            config.absolute_test_case_path = local_path + "_work"
         elif location_type == PathType.REFERENCE:
             config.absolute_test_case_reference_path = local_path
 
