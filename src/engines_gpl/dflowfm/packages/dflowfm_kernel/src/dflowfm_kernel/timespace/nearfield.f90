@@ -497,14 +497,16 @@ contains
       integer, intent(in) :: intake_id !< Intake point id
       integer :: cell_index_3d
 
-      integer :: kbot, ktop
+      integer :: kbot, ktop, k
 
       call getkbotktop(cell_index_2d, kbot, ktop)
-      do cell_index_3d = kbot, ktop
-         if (zws(cell_index_3d) > -nf_intake(diffuser_id, intake_id, NF_IZ)) then
-            exit
+      do k = kbot, ktop
+         if (zws(k) > -nf_intake(diffuser_id, intake_id, NF_IZ)) then
+            cell_index_3d = k
+            return
          end if
       end do
+      cell_index_3d = ktop
    end function find_3d_layer_index_intake
 !
 !
