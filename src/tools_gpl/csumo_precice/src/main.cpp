@@ -1,6 +1,6 @@
-#include <print>
+#include "csumo_precice_lib.hpp"
 
-int main() {
-    std::println("Hello, world from C-SUMO!");
-    return 0;
+int main() 
+{
+    return csumo_precice::csumo_precice();
 }
