@@ -36,6 +36,7 @@ object LinuxBuildTools : BuildType({
     }
 
     steps {
+        mergeTargetBranch {}
         exportJiraIssueId {
             paramName = "env.JIRA_ISSUE_ID"
         }

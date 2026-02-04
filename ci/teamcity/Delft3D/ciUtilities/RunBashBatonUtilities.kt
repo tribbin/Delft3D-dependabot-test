@@ -48,6 +48,8 @@ object RunBashBatonUtilities : BuildType({
     val joinedTargetPaths = targetPaths.joinToString(" ")
 
     steps {
+        mergeTargetBranch {}
+
         script {
             name = "Display versions"
             scriptContent = """

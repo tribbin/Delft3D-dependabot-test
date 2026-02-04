@@ -84,6 +84,7 @@ object LinuxTest : BuildType({
     }
 
     steps {
+        mergeTargetBranch {}
         python {
             name = "Run TestBench.py"
             id = "RUNNER_testbench"

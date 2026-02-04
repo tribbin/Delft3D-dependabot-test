@@ -50,10 +50,11 @@ struct Exception
       ERR_PTHREADS               = -7      // an error using phtreads (in log.cpp)
    };
 
-   Exception(ErrorCode errorCode, const char *  format, ...);
+   Exception(bool fatal, ErrorCode errorCode, const char *  format, ...);
 
-   ~Exception();
+   ~Exception(void);
 
+   bool        fatal;
    char *      message;
    ErrorCode   errorCode;
 };

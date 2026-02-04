@@ -49,6 +49,7 @@ object TestFortranStyler : BuildType({
     }
 
     steps {
+        mergeTargetBranch {}
         python {
             name = "Run unit tests"
             workingDir = "tools/deltares_fortran_styler"

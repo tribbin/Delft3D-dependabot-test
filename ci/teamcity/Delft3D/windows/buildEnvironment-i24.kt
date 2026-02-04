@@ -33,6 +33,7 @@ object WindowsBuildEnvironmentI24 : BuildType({
     }
 
     steps {
+        mergeTargetBranch {}
         powerShell {
             name = "Get tooling from network share"
             platform = PowerShellStep.Platform.x64
