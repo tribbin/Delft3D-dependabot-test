@@ -5,13 +5,13 @@ Copyright (C)  Stichting Deltares, 2026
 
 import multiprocessing
 import os
-from pathlib import Path
 import shutil
 import sys
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 from multiprocessing.pool import AsyncResult
 from multiprocessing.synchronize import Condition
+from pathlib import Path
 from typing import Iterable, List, Optional
 
 from src.config.location import Location
@@ -25,7 +25,7 @@ from src.suite.run_data import RunData
 from src.suite.test_bench_settings import TestBenchSettings
 from src.suite.test_case import TestCase
 from src.suite.test_case_result import TestCaseResult
-from src.utils.common import delete_directory, log_header, log_separator, log_sub_header
+from src.utils.common import log_header, log_separator, log_sub_header
 from src.utils.errors.test_bench_error import TestBenchError
 from src.utils.handlers.handler_factory import HandlerFactory
 from src.utils.handlers.resolve_handler import ResolveHandler
