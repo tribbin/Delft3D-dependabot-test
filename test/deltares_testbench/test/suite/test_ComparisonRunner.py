@@ -400,13 +400,19 @@ class TestComparisonRunner:
 
         patch_fake_download(mocker, fs, FakeDownloadMode.REFS_ONLY)
 
+        # Make the input path exist but not be a directory.
+        fs.create_file(expected_local_input_path, contents="not a directory")
+
         # Act
-        runner.run_test_case(config=config, run_data=run_data)
+        result = runner.run_test_case(config=config, run_data=run_data)
 
         # Assert
         assert any(
-            "Work path does not exist" in str(call.args[0]) for call in testcase_logger.warning.call_args_list
-        ), "Expected warning about missing source work path"
+            "NotADirectoryError" in str(call.args[0])
+            and "Expected a directory to copy to work folder" in str(call.args[0])
+            for call in testcase_logger.exception.call_args_list
+        ), "Expected NotADirectoryError to be logged"
+        assert result.results[0][-1].result == EndResult.ERROR
         assert not fs.exists(expected_work_path)
 
     def test_copy_to_work_folder__copies_directory(self, mocker: MockerFixture, fs: FakeFilesystem) -> None:
