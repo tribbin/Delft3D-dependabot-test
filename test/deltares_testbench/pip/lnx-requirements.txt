@@ -59,7 +59,7 @@ celery==5.6.1
     # via
     #   dvc
     #   dvc-task
-certifi==2025.11.12
+certifi==2026.1.4
     # via
     #   minio
     #   netcdf4
