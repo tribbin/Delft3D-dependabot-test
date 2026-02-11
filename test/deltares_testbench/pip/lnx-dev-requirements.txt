@@ -324,7 +324,7 @@ pytz==2024.1
     # via pandas
 pyyaml==6.0.3
     # via omegaconf
-requests==2.32.3
+requests==2.32.4
     # via
     #   deltares-testbench (pyproject.toml)
     #   dvc
