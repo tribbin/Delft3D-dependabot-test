@@ -244,7 +244,7 @@ pathspec==0.12.1
     # via
     #   dvc
     #   scmrepo
-pillow==12.0.0
+pillow==12.1.1
     # via matplotlib
 platformdirs==4.5.1
     # via dvc
